@@ -1,0 +1,56 @@
+<html>
+
+<h2>GlassFit authentication test page</h2>
+
+<p>This page is a simple demo of the GlassFit authentication process. It is not used by the app itself, and will be excluded from the apk we publish.</p>
+
+<h3>Step 1: get a GlassFit authentication code</h3>
+
+<p>Click <a href="http://glassfit.dannyhawkins.co.uk/oauth/authorize?
+					response_type=code
+					&client_id=8c8f56a8f119a2074be04c247c3d35ebed42ab0dcc653eb4387cff97722bb968
+					&redirect_uri=http://testing.com">this link</a> 
+	to go to the GlassFit server's user authentication page. Once the user has authenticated, 
+	it returns either one or two pieces of data:
+</p>
+
+<ul>
+	<li>oauth_token=TS1ieuVbl0QSRf0cB1Ggv3nTjDez2J3bCBU0xhPzeSo</li>
+	<li>oauth_verifier=NjPzJj4F7BIh0MGka1CoZVjPytodaJn0yD4PdyF5w</li>
+	<li>or</li>
+	<li>code=ecf24469abcb5cbe3623acfa945241d7d35835ffeedb37e4ba322ccd5fc6f52f</li>
+</ul>
+
+<p>If it returned the code, we're in business! If not, there's something up with the auth provider (facebook/twitter etc.)</p>
+
+
+<h3>Step 2: get a GlassFit API access token</h3>
+
+<p>The second step is to submit a post request with the code in. Paste the code you got in stage-1 (above) into the box and hit submit!</p>
+
+<form action="http://glassfit.dannyhawkins.co.uk/oauth/token" method="post">
+  <input type="hidden" name="grant_type" value="authorization_code">
+  <input type="hidden" name="client_id" value="8c8f56a8f119a2074be04c247c3d35ebed42ab0dcc653eb4387cff97722bb968">
+  <input type="hidden" name="client_secret" value="892977fbc0d31799dfc52e2d59b3cba88b18a8e0080da79a025e1a06f56aa8b2">
+  <input type="hidden" name="redirect_uri" value="http://testing.com">
+  Code: <input type="text" name="code" value="ecf24469abcb5cbe3623acfa945241d7d35835ffeedb37e4ba322ccd5fc6f52f"> 
+  <input type="submit" value="Submit">
+</form>
+
+<p>This should return some JSON with an authentication token (and expiry details) to use in future API calls, for example:</p>
+
+<pre>{"access_token":"815c91f7d287b3582cb1d26045d08f2e1305d21583779ffb8f69ad13668abce0","token_type":"bearer","expires_in":7200,"refresh_token":"5fa66fcd8bffd3eefdeb6a1be4259ca7393f99b2196172535cdcd098c2f65e17","scope":""}</pre>
+
+<p>We should save the code in the database for future use, e.g. after an app restart</p>
+
+<h3>Step 3: make calls to the GlassFit API</h3>
+
+[12:02:17] Danny Hawkins: the preferred method is that you use http header "authorization" with the value "Bearer <token>"
+[12:02:49] Danny Hawkins: if you cannot supply that in the header, let me know and we can use a query string param
+[12:03:33] Danny Hawkins: you can test it out using http://glassfit.dannyhawkins.co.uk/api/1/me, you should get your details back as json
+
+
+
+
+
+</html>
