@@ -4,38 +4,70 @@ using System.Runtime.InteropServices;
 using System;
 
 public class javaInterface : MonoBehaviour {
-
 	
-private string somestring = "foooooooooooOOooo";
+	/**/
+	AndroidJavaClass jc = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper"); 
+	/*
+void startGPS(){
+		
+		 jc.CallStatic("startLogging");
+	}
+
+void stopGPS(){
+		
+		 jc.CallStatic("stopLogging");
+	}	
+	
+void pauseGPS(){
+		
+		 jc.CallStatic("pauseLogging");
+	}
+	
+void syncGPS(){
+		
+		 jc.CallStatic("syncToLogging");
+	}
+	*/
+
+void getPostion(){
+		// BG ->>TODO:Get static method for the position data in java side
+	//int[] Pos	= jc.Call<int[]>("getCurrentPosition");
+		
+	//	Debug.Log("position retern" + Pos);
+	}	
+	
 // Use this for initialization
 void Start () {
-// you can use the API directly:
-Sensor.Activate(Sensor.Type.RotationVector);
+	
+			Debug.Log("Scripted started");
+		/*
+		stopGPS();
+		startGPS();
+  		pauseGPS();
+		syncGPS();
+		getPostion();
 
-		AndroidJavaClass jc = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper"); 
+   float result = jc.CallStatic<float>("getCurrentPace");
+	
+	 jc.CallStatic("startLogging");
+		
+		/**/
+		
+		
+	//GUI.Label (new Rect (20, 20, 100, 20), result.ToString());
+	//somestring = result.ToString();
+		
 
-   float result = jc.Call<float>("getCurrentPace");
-	GUI.Label (new Rect (20, 20, 100, 20), result.ToString());
-	somestring = result.ToString();
-// or you can use the SensorHelper, which has built-in fallback to less accurate but more common sensors:
-//	SensorHelper.ActivateRotation();
-SensorHelper.TryForceRotationFallback(RotationFallbackType.RotationQuaternion);
-//	SensorHelper.TryForceRotationFallback(RotationFallbackType.OrientationAndAcceleration);
-useGUILayout = false;
+
 }
-//	void OnGUI () {
+
+	
        
-
-
- //       GUI.Label (new Rect (20, 20, 100, 20), somestring);
-   // }
-//public javaInterface testing = new javaInterface ();
-// Update is called once per frame
+	
 void Update () {
-//testing.Share();
-// direct Sensor usage:
-transform.rotation = Sensor.rotationQuaternion;// --- is the same as Sensor.QuaternionFromRotationVector(Sensor.rotationVector);
-// Helper with fallback:
-//transform.rotation = SensorHelper.rotation;
+		
+		
+		
+
 }
 }
