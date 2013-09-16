@@ -9,7 +9,7 @@ public class camTex : MonoBehaviour {
 	
 		
 		
-	WebCamTexture	webCamTexture = new WebCamTexture(DevName, 1280, 720, 30);
+	WebCamTexture	webCamTexture = new WebCamTexture(DevName, 320, 200, 30);
 	webCamTexture.Play();
 	renderer.material.mainTexture = webCamTexture;
 	}

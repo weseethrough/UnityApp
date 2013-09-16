@@ -1,10 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 using System;
 
 public class Platform {
-	private AndroidJavaClass java;
+	private long distanceBehindTarget = 0;
+	private long time = 0;
+	private long distance = 0;
+	private int calories = 0;
+	private float pace = 0;
+	
+	private Boolean tracking = false;
+	
+	private Stopwatch lerpTimer = new Stopwatch();
+	
+	private AndroidJavaClass helper;
 	private AndroidJavaObject gps;
 	private AndroidJavaObject target;
 	
@@ -12,23 +23,20 @@ public class Platform {
 	private Boolean error = true;	
 	private string errorLog = "Not yet initialized";
 	
-	public void Start() {
+	public Platform() {
 		error = true;
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			AndroidJavaObject app = activity.Call<AndroidJavaObject>("getApplicationContext");
   
-			java = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
+			helper = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
         	activity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
 	        {
 				try {
-					gps = java.CallStatic<AndroidJavaObject>("getGPSTracker", app);
-					Boolean hasGPS = gps.Call<Boolean>("canGetLocation");
-					errorLog = "canget: " + hasGPS;
-					if (!hasGPS) gps.Call("setIndoorMode", true);
-					gps.Call("startTracking");
-					target = java.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
+					gps = helper.CallStatic<AndroidJavaObject>("getGPSTracker", app);
+					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
+					errorLog = "";
 					error = false;
 				} catch (Exception e) {
 					errorLog = e.Message;
@@ -39,49 +47,74 @@ public class Platform {
 		}
 	}
 	
-	public long DistanceBehindTarget() {
-		if (error) return 0;
+	public void Start(Boolean indoor) {
 		try {
-			long time = Time();
-			return target.Call<long>("getCumulativeDistanceAtTime", time);
+			if (indoor) gps.Call("setIndoorMode", true);
+			gps.Call("startTracking");
+			tracking = true;
+		} catch (Exception e) {
+			errorLog = e.Message;
+			error = true;
+		}
+	}
+	
+	public Boolean hasLock() {
+		try {
+			return gps.Call<Boolean>("canGetLocation");
 		} catch (Exception e) {
 			errorLog = errorLog + "\n" + e.Message;
-			return 0;
+			return false;
 		}
+	}
+	
+	public void Poll() {
+		if (error) return;
+//		if (!hasLock ()) return;
+		try {
+			long gpsTime = gps.Call<long>("getElapsedTime");
+			if (gpsTime != time) {
+				lerpTimer.Reset();
+				lerpTimer.Start();
+				time = gpsTime;
+			}
+		} catch (Exception e) {
+//			errorLog = errorLog + "\ngetElapsedTime: " + e.Message;
+		}
+		try {
+			distanceBehindTarget = target.Call<long>("getCumulativeDistanceAtTime", Time());
+		} catch (Exception e) {
+//			errorLog = errorLog + "\ngetCumulativeDistanceAtTime" + e.Message;
+		}
+		try {
+			distance = gps.Call<long>("getElapsedDistance");
+		} catch (Exception e) {
+///			errorLog = errorLog + "\ngetElapsedDistance" + e.Message;
+		}
+		try {
+			pace = gps.Call<float>("getCurrentPace");
+		} catch (Exception e) {
+//			errorLog = errorLog + "\ngetCurrentPace" + e.Message;
+		}
+	}
+	
+	public long DistanceBehindTarget() {
+		return distanceBehindTarget;
 	}
 	
 	public long Time() {
-		if (error) return 0;
-		try {
-			return gps.Call<long>("getElapsedTime");
-		} catch (Exception e) {
-			errorLog = errorLog + "\n" + e.Message;
-			return 0;
-		}
+		return time+lerpTimer.ElapsedMilliseconds;
 	}
 	
 	public long Distance() {
-		if (error) return 0;
-		try {
-			return gps.Call<long>("getElapsedDistance");
-		} catch (Exception e) {
-			errorLog = errorLog + "\n" + e.Message;
-			return 0;
-		}
+		return distance;
 	}
 	
 	public int Calories() {
-		return 0;
+		return calories;
 	}
 	
 	public float Pace() {
-		if (error) return 0;
-		try {
-			return gps.Call<float>("getCurrentPace");
-		} catch (Exception e) {
-			errorLog = errorLog + "\n" + e.Message;
-			return 0;
-		}
+		return pace;
 	}
 	
 	public string DebugLog() {

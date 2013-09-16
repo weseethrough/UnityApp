@@ -6,18 +6,22 @@ using System.Diagnostics;
 
 public class PlatformDummy {
 	
-	private Stopwatch timer;
+	private Stopwatch timer = new Stopwatch();
 	private System.Random random = new System.Random();
 	private long update = 0;
 	private int distance = 0;
 	private int target = 1;
 	
-	public void Start() {
-		timer = new Stopwatch();
+	public void Start(Boolean indoor) {
 		timer.Start();
 	}
 	
-	public void Simulate() {
+	public Boolean hasLock() {
+		return true;
+	}
+	
+	public void Poll() {
+		if (!timer.IsRunning) return;
 		if (Time() - update > 1000) { 
 			distance += 2;			
 			target += 2;
@@ -44,7 +48,7 @@ public class PlatformDummy {
 	}
 	
 	public float Pace() {
-		return 3f*60+24;
+		return 1.0f;
 	}
 	
 	public string DebugLog() {
