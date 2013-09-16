@@ -115,14 +115,14 @@ public class quarternRotate : MonoBehaviour
 
         // Jump straight to the target correction if it's a long way; otherwise, slerp towards it very slowly
 
-       if (Quaternion.Angle(_correction, _targetCorrection) > 15)
+     //  if (Quaternion.Angle(_correction, _targetCorrection) > 5){
 
             _correction = _targetCorrection;
+	//	}
+//        else{
 
-        else
-
-            _correction = Quaternion.Slerp(_correction, _targetCorrection, 0.09f);
-
+      //      _correction = Quaternion.Slerp(_correction, _targetCorrection, 0.002f);
+	//	}
        Quaternion halfway =  ( _correction *    Quaternion.Inverse(gyroOrientation)) ;
 
         // Easy bit :)

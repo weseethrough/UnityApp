@@ -10,6 +10,9 @@ public class GlassGUI : MonoBehaviour {
 	private PlatformDummy ji = null;
 #endif
 	private Boolean started = false;
+	private Boolean buttonOn = false;
+	private float timeOut = 0;
+	private int touchCount = 0;
 	
 	private const int MARGIN = 15;
 	
@@ -43,29 +46,38 @@ public class GlassGUI : MonoBehaviour {
 	// Debug
 	private Rect debug;
 	private string debugText;
-	
+			
+	private int originalWidth = 800;  // define here the original resolution
+  	private int originalHeight = 500; // you used to create the GUI contents 
+ 	private Vector3 scale;
+
 	void Start () {
+		
+
+
 		// Left side top
 		target =   new Rect(MARGIN, MARGIN, 150, 100);	
 		// Left side bottom
-		distance = new Rect(MARGIN, Screen.height-MARGIN-100, 150, 100);
+		distance = new Rect(MARGIN, originalHeight-100, 150, 100);
 		time =     new Rect(MARGIN, distance.y-MARGIN-100, 150, 100);
 		
 		// Right side top
-		calories = new Rect(Screen.width-MARGIN-150, MARGIN, 150, 100);
-		pace =     new Rect(Screen.width-MARGIN-150, calories.y+MARGIN+100, 150, 100);
+		calories = new Rect(originalWidth-MARGIN, MARGIN, 150, 100);
+		pace =     new Rect(originalWidth-MARGIN, calories.y+MARGIN+100, 150, 100);
 		// Right side bottom
-		map =      new Rect(Screen.width-MARGIN-150, Screen.height-MARGIN-150, 150, 150);
+		map =      new Rect(originalWidth-MARGIN, originalHeight-MARGIN-150, 150, 150);
 		
 		// Buttons
-		start =    new Rect((Screen.width-200)/2, (Screen.height-100)/2-MARGIN, 200, 100);
-		stop =     new Rect((Screen.width-200)/2, (Screen.height+100)/2+MARGIN, 200, 100);
+		start =    new Rect((originalWidth)/2, (originalHeight-100)/2-MARGIN, 200, 100);
+		stop =     new Rect((originalWidth)/2, (originalHeight+100)/2+MARGIN, 200, 100);
 		
 		// Icons
-		gpsLock =  new Rect((Screen.width-50)/2, MARGIN, 50, 50);
+		gpsLock =  new Rect(originalWidth/2+75, MARGIN, 50, 50);
 		
 		// *** DEBUG
-		debug =    new Rect(200, Screen.height-100-MARGIN, Screen.width-200*2, 100);
+		debug =    new Rect(originalWidth/2+50, originalHeight-MARGIN, 100, 100);
+		
+
 		// *** DEBUG
 		
 		targetText = "Behind\n";
@@ -86,10 +98,38 @@ public class GlassGUI : MonoBehaviour {
 	{
 		// TODO: Replace with timed poll or callback
 		ji.Poll();
+		
+		foreach (Touch touch in Input.touches) {
+            if (touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
+                touchCount++;
+        }
+		
+		if(touchCount > 0) {
+			buttonOn = true;
+			timeOut = 3;
+			touchCount = 0;
+		}
+		if(timeOut < 0) {
+			buttonOn = false;
+		}
+		
+		timeOut -= Time.deltaTime;
 	}
+	
+	
 	
 	void OnGUI ()
 	{
+		
+		
+		
+	scale.x = Screen.width/originalWidth; // calculate hor scale
+    scale.y = Screen.height/originalHeight; // calculate vert scale
+    scale.z = 1;
+    var svMat = GUI.matrix; // save current matrix
+    // substitute matrix - only scale is altered from standard
+    GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
+		
 		GUI.skin.box.wordWrap = true;
 		
 		GUI.Box(gpsLock, "GPS: " + ji.hasLock());
@@ -99,11 +139,23 @@ public class GlassGUI : MonoBehaviour {
 		GUI.Box(calories, caloriesText + ji.Calories());
 		GUI.Box(pace, paceText+Timestamp(speedToKmPace( ji.Pace() )) );
 		GUI.Box(map, "TODO");
+		
+		if(started && buttonOn && GUI.Button(start, "Pause")) {
+			ji.Start(false);
+			started = true;
+		}
+		if(started && buttonOn && GUI.Button(stop, stopText)) {
+			ji.Start(false);
+			started = true;
+		}
+		
+		
 		if (!started && GUI.Button (start, startText)) {
 			ji.Start(false);
 			started = true;
 		}
 		// *** DEBUG
+		
 		if (!started && GUI.Button (stop, "START indoor")) {			
 			ji.Start(true);
 			started = true;
@@ -111,7 +163,11 @@ public class GlassGUI : MonoBehaviour {
 		// *** DEBUG
 		GUI.Box(debug, debugText + ji.DebugLog());
 		// *** DEBUG
+			GUI.matrix = svMat; // restore matrix
+	
 	}
+	
+	
 	
 	string SiDistance(long meters) {
 		string postfix = "M";

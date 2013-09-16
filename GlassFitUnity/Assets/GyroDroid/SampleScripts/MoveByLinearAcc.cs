@@ -23,7 +23,7 @@ public class MoveByLinearAcc : MonoBehaviour {
 	
 	// Update is called once per frame 
 	void FixedUpdate () {
-		Vector3 linearAcc = FilterMax(Sensor.linearAcceleration / 20 * 10);
+		Vector3 linearAcc = FilterMax(Sensor.linearAcceleration);
 		rigidbody.position = new Vector3( -linearAcc.x, rigidbody.position.y, -linearAcc.y);
 	}
 	
@@ -36,10 +36,16 @@ public class MoveByLinearAcc : MonoBehaviour {
 	
 	Vector3 FilterMax(Vector3 input)
 	{
-		if(input.magnitude > max.magnitude) max = input; 
+		if(input.magnitude > max.magnitude) { 
+			max = input; 
+		}
 		   
 		holder = Vector3.SmoothDamp(holder, max, ref velocity, 0.1f);
-		if(Vector3.Distance(holder, max) < 0.4f) max = Vector3.zero;
+		
+		if(Vector3.Distance(holder, max) < 0.4f) { 
+			max = Vector3.zero;
+		}
+		
 		return holder;
 	}
 }

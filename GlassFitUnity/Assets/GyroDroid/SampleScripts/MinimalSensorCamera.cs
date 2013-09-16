@@ -11,21 +11,21 @@ public class MinimalSensorCamera : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		// you can use the API directly:
-		Sensor.Activate(Sensor.Type.RotationVector);
+		//Sensor.Activate(Sensor.Type.RotationVector);
 		
 			
 		// or you can use the SensorHelper, which has built-in fallback to less accurate but more common sensors:
 		SensorHelper.ActivateRotation();
-		SensorHelper.TryForceRotationFallback(RotationFallbackType.RotationQuaternion);
+		//SensorHelper.TryForceRotationFallback(RotationFallbackType.RotationQuaternion);
 		useGUILayout = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		// direct Sensor usage:
-		transform.rotation = Sensor.rotationQuaternion; //--- is the same as Sensor.QuaternionFromRotationVector(Sensor.rotationVector);
+		//transform.rotation = Sensor.rotationQuaternion; //--- is the same as Sensor.QuaternionFromRotationVector(Sensor.rotationVector);
 		
 		// Helper with fallback:
-		//transform.rotation = SensorHelper.rotation;
+		transform.rotation = SensorHelper.rotation;
 	}
 }
