@@ -4,35 +4,43 @@ using System.Runtime.InteropServices;
 using System;
 
 public class Platform {
-	private AndroidJavaClass jc;
 	private AndroidJavaClass java;
 	private AndroidJavaObject gps;
 	private AndroidJavaObject target;
 	
-	private string errorLog = "";
+	// Initialization may fail silently, assume failure unless properly initialized
+	private Boolean error = true;	
+	private string errorLog = "Not yet initialized";
 	
 	public void Start() {
+		error = true;
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+			AndroidJavaObject app = activity.Call<AndroidJavaObject>("getApplicationContext");
   
 			java = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
         	activity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
 	        {
-				gps = java.CallStatic<AndroidJavaObject>("getGPSTracker");
-				Boolean hasGPS = gps.Call<Boolean>("canGetLocation");
-				errorLog = "canget: " + hasGPS;
-				if (!hasGPS) gps.Call("setIndoorMode", true);
-				gps.Call("startTracking");
-				target = java.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
+				try {
+					gps = java.CallStatic<AndroidJavaObject>("getGPSTracker", app);
+					Boolean hasGPS = gps.Call<Boolean>("canGetLocation");
+					errorLog = "canget: " + hasGPS;
+					if (!hasGPS) gps.Call("setIndoorMode", true);
+					gps.Call("startTracking");
+					target = java.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
+					error = false;
+				} catch (Exception e) {
+					errorLog = e.Message;
+				}
         	}));		
-			jc = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.HelperDummy");
 		} catch (Exception e) {
 			errorLog = e.Message;
 		}
 	}
 	
 	public long DistanceBehindTarget() {
+		if (error) return 0;
 		try {
 			long time = Time();
 			return target.Call<long>("getCumulativeDistanceAtTime", time);
@@ -43,6 +51,7 @@ public class Platform {
 	}
 	
 	public long Time() {
+		if (error) return 0;
 		try {
 			return gps.Call<long>("getElapsedTime");
 		} catch (Exception e) {
@@ -52,6 +61,7 @@ public class Platform {
 	}
 	
 	public long Distance() {
+		if (error) return 0;
 		try {
 			return gps.Call<long>("getElapsedDistance");
 		} catch (Exception e) {
@@ -61,14 +71,20 @@ public class Platform {
 	}
 	
 	public int Calories() {
-		return jc.CallStatic<int>("Calories");
+		return 0;
 	}
 	
-	public int Pace() {
-		return jc.CallStatic<int>("Pace");
+	public float Pace() {
+		if (error) return 0;
+		try {
+			return gps.Call<float>("getCurrentPace");
+		} catch (Exception e) {
+			errorLog = errorLog + "\n" + e.Message;
+			return 0;
+		}
 	}
 	
 	public string DebugLog() {
-		return errorLog + ", \n" + jc.CallStatic<string>("DebugLog");
+		return errorLog + ", \nOn device";
 	}
 }

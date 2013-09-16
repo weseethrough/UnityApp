@@ -43,8 +43,8 @@ public class PlatformDummy {
 		return 36;
 	}
 	
-	public int Pace() {
-		return 3*60+24;
+	public float Pace() {
+		return 3f*60+24;
 	}
 	
 	public string DebugLog() {

@@ -87,7 +87,7 @@ public class GlassGUI : MonoBehaviour {
 		GUI.Box(distance, distanceText+SiDistance( ji.Distance() ));
 		GUI.Box(time, timeText+Timestamp( ji.Time() ));
 		GUI.Box(calories, caloriesText + ji.Calories());
-		GUI.Box(pace, paceText+Timestamp( ji.Pace() ));
+		GUI.Box(pace, ji.Pace().ToString() );
 		GUI.Box(map, "TODO");
 /*		if (GUI.Button (start, startText)) {
 			print ("You clicked the start!");
