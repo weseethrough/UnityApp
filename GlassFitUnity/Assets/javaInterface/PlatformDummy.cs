@@ -27,7 +27,7 @@ public class PlatformDummy {
 		}
 	}
 	
-	public int DistanceBehindTarget() {
+	public long DistanceBehindTarget() {
 		return target;
 	}
 	
@@ -35,7 +35,7 @@ public class PlatformDummy {
 		return timer.ElapsedMilliseconds;
 	}
 	
-	public int Distance() {
+	public long Distance() {
 		return distance;
 	}
 	
@@ -48,6 +48,6 @@ public class PlatformDummy {
 	}
 	
 	public string DebugLog() {
-		return "On editor";
+		return "On editor, really long string to test word wrap. Bla bla blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bla.";
 	}	
 }

@@ -9,6 +9,7 @@ public class GlassGUI : MonoBehaviour {
 #else
 	private PlatformDummy ji = new PlatformDummy();
 #endif
+	private Boolean started = false;
 	
 	private const int MARGIN = 15;
 	
@@ -58,7 +59,7 @@ public class GlassGUI : MonoBehaviour {
 		stop =     new Rect((Screen.width-200)/2, (Screen.height+100)/2+MARGIN, 200, 100);
 		
 		// *** DEBUG
-		debug =    new Rect(300, Screen.height-100-MARGIN, Screen.width-300*2, 100);
+		debug =    new Rect(200, Screen.height-100-MARGIN, Screen.width-200*2, 100);
 		// *** DEBUG
 		
 		targetText = "Behind\n";
@@ -66,7 +67,7 @@ public class GlassGUI : MonoBehaviour {
 		timeText = "Time\n";
 		caloriesText = "Calories\n";
 		paceText = "Pace/KM\n";
-		
+	
 		ji.Start();
 	}
 	
@@ -80,6 +81,8 @@ public class GlassGUI : MonoBehaviour {
 	
 	void OnGUI ()
 	{
+		GUI.skin.box.wordWrap = true;
+		
 		GUI.Box(target, targetText+SiDistance( ji.DistanceBehindTarget() ));
 		GUI.Box(distance, distanceText+SiDistance( ji.Distance() ));
 		GUI.Box(time, timeText+Timestamp( ji.Time() ));
@@ -97,7 +100,7 @@ public class GlassGUI : MonoBehaviour {
 		// *** DEBUG
 	}
 	
-	string SiDistance(int meters) {
+	string SiDistance(long meters) {
 		string postfix = "M";
 		float value = meters;
 		if (value > 100) {
