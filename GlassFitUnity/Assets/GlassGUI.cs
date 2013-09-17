@@ -14,6 +14,9 @@ public class GlassGUI : MonoBehaviour {
 	private float timeOut = 0;
 	private int touchCount = 0;
 	
+	private const int BOX_WIDTH = 200;
+	private const int BOX_HEIGHT = 100;
+	private const int MAP_RADIUS = 100;
 	private const int MARGIN = 15;
 	private const int SUBMARGIN = 5;
 	
@@ -63,26 +66,30 @@ public class GlassGUI : MonoBehaviour {
 	// Map textures
 	Texture2D selfIcon;
 	Texture2D targetIcon;
-	Texture2D mapTexture;
-
+	Texture2D mapTexture = null;
+	const int mapAtlasRadius = 1024;
+	Position mapOrigo = new Position(0, 0);
+	WWW mapWWW = null;
+	Position fetchOrigo = new Position(0, 0);
+	
 	void Start () {
 		// Left side top
-		target =   new Rect(MARGIN, MARGIN, 200, 100);	
+		target =   new Rect(MARGIN, MARGIN, BOX_WIDTH, BOX_HEIGHT);	
 		// Left side bottom
-		distance = new Rect(MARGIN, originalHeight-MARGIN-100, 200, 100);
-		time =     new Rect(MARGIN, distance.y-SUBMARGIN-100, 200, 100);
+		distance = new Rect(MARGIN, originalHeight-MARGIN-BOX_HEIGHT, BOX_WIDTH, BOX_HEIGHT);
+		time =     new Rect(MARGIN, distance.y-SUBMARGIN-BOX_HEIGHT, BOX_WIDTH, BOX_HEIGHT);
 		
 		// Right side top
-		calories = new Rect(originalWidth-MARGIN-200, MARGIN, 200, 100);
-		pace =     new Rect(originalWidth-MARGIN-200, calories.y+SUBMARGIN+100, 200, 100);
+		calories = new Rect(originalWidth-MARGIN-BOX_WIDTH, MARGIN, BOX_WIDTH, BOX_HEIGHT);
+		pace =     new Rect(originalWidth-MARGIN-BOX_WIDTH, calories.y+SUBMARGIN+BOX_HEIGHT, BOX_WIDTH, BOX_HEIGHT);
 		// Right side bottom
-		map =      new Rect(originalWidth-MARGIN-200, originalHeight-MARGIN-200, 200, 200);
+		map =      new Rect(originalWidth-MARGIN-MAP_RADIUS*2, originalHeight-MARGIN-MAP_RADIUS*2, MAP_RADIUS*2, MAP_RADIUS*2);
 		mapSelf =  new Rect(0, 0, 30, 30);
 		mapTarget = new Rect(0, 0, 30, 30);
 
 		// Buttons
-		start =    new Rect((originalWidth-200)/2, (originalHeight-100)/2-SUBMARGIN, 200, 100);
-		stop =     new Rect((originalWidth-200)/2, (originalHeight+100)/2+SUBMARGIN, 200, 100);
+		start =    new Rect((originalWidth-BOX_WIDTH)/2, (originalHeight-BOX_HEIGHT)/2-SUBMARGIN, BOX_WIDTH, BOX_HEIGHT);
+		stop =     new Rect((originalWidth-BOX_WIDTH)/2, (originalHeight+BOX_HEIGHT)/2+SUBMARGIN, BOX_WIDTH, BOX_HEIGHT);
 		
 		// Icons
 		gpsLock =  new Rect((originalWidth-50)/2, MARGIN, 50, 50);
@@ -111,7 +118,6 @@ public class GlassGUI : MonoBehaviour {
 		
 		selfIcon = Resources.Load("Self") as Texture2D;
 		targetIcon = Resources.Load("Target") as Texture2D;
-		mapTexture = Resources.Load("DummyMap") as Texture2D;
 		
 #if UNITY_ANDROID && !UNITY_EDITOR 
 		ji = new Platform();
@@ -140,19 +146,22 @@ public class GlassGUI : MonoBehaviour {
 			buttonOn = false;
 		}
 		
-		timeOut -= Time.deltaTime;
+		timeOut -= Time.deltaTime;		
 	}
 	
 	void OnGUI ()
 	{
+		// Scale UI to fit screen
 		scale.x = (float)Screen.width/originalWidth; // calculate hor scale
 	    scale.y = (float)Screen.height/originalHeight; // calculate vert scale
 	    scale.z = 1;
 	    var svMat = GUI.matrix; // save current matrix
 	    // substitute matrix - only scale is altered from standard
 	    GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-
+		
+		// Style elements
 		GUI.skin.label.fontSize = 15;
+		GUI.skin.label.alignment = TextAnchor.MiddleCenter;
 		
 		GUI.skin.box.wordWrap = true;
 		GUI.skin.box.fontSize = 30;
@@ -161,8 +170,10 @@ public class GlassGUI : MonoBehaviour {
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		
+		// *** DEBUG? TODO: Icon? Message?
 		GUI.Label(gpsLock, "GPS: " + ji.hasLock());
 				
+		// Style top-left box depending on content
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
 		long targetDistance = ji.DistanceBehindTarget();
 		if (targetDistance > 0) {
@@ -177,9 +188,21 @@ public class GlassGUI : MonoBehaviour {
 		long selfDistance = ji.Distance();
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
 		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
-		GUI.Box(calories, caloriesText + ji.Calories());
-
+		GUI.Box(calories, caloriesText + ji.Calories());		
+		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
 		
+		// Draw minimap
+		Position position = ji.Position();
+		if (position != null) {
+			// Fake target coord using distance
+			float bearing = 0;
+			Position targetCoord = new Position(position.latitude + (float)(targetDistance/111229d), position.longitude);
+			GUIMap(position, bearing, targetCoord);
+		} else {
+			GUI.Label(map, "No GPS lock");
+		}
+		
+		/// Draw and handle buttons
 		if(started && buttonOn && GUI.Button(start, "Pause")) {
 			ji.Start(false);
 			started = true;
@@ -188,38 +211,12 @@ public class GlassGUI : MonoBehaviour {
 			ji.Start(false);
 			started = true;
 		}		
-
-		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
-		
-		// Map
-		// TODO: Stencil out circle
-		Color original = GUI.color;
-		GUI.color = new Color(1f, 1f, 1f, OPACITY);
-				
-		float selfOnMap = selfDistance/map.height;
-		Rect mapCoords = new Rect(0, selfOnMap, 1, selfOnMap+0.3f);
-		GUI.DrawTextureWithTexCoords(map, mapTexture, mapCoords);
-
-		mapSelf.x = map.x + map.width/2 - mapSelf.width/2;
-		mapSelf.y = map.y + map.height/2 - mapSelf.height/2;
-		
-		int targetDistanceOnMap = Convert.ToInt32(targetDistance);
-		int maxDistanceOnMap = Convert.ToInt32(map.height/2);
-		if (targetDistanceOnMap > maxDistanceOnMap) targetDistanceOnMap = maxDistanceOnMap; 
-		if (-targetDistanceOnMap > maxDistanceOnMap) targetDistanceOnMap = -maxDistanceOnMap; 
-		mapTarget.x = map.x + map.width/2 - mapTarget.width/2;
-		mapTarget.y = map.y - targetDistanceOnMap + map.height/2 - mapTarget.height/2;
-		
-		GUI.DrawTexture(mapSelf, selfIcon);
-		GUI.DrawTexture(mapTarget, targetIcon);
-		GUI.color = original;
 		
 		if (!started && GUI.Button (start, startText)) {
 			ji.Start(false);
 			started = true;
 		}
-		// *** DEBUG
-		
+		// *** DEBUG		
 		if (!started && GUI.Button (stop, "START indoor")) {			
 			ji.Start(true);
 			started = true;
@@ -229,6 +226,84 @@ public class GlassGUI : MonoBehaviour {
 		// *** DEBUG
 	
 		GUI.matrix = svMat; // restore matrix
+	}
+	
+	private void FetchMapTexture(Position origo) {
+		const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
+		const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
+		string url = endpoint + "?center="
+		                      + origo.latitude + "," + origo.longitude
+		                      + "&zoom="
+		                      + "18"
+		                      + "&size=" + mapAtlasRadius + "x" + mapAtlasRadius
+		                      + "&maptype=roadmap"
+		                      + "&sensor=true&key=" + API_KEY;
+		mapWWW = new WWW(url);		
+		debugText = url;
+		Debug.Log(url);
+		fetchOrigo = origo;
+	}
+	
+	private void GUIMap(Position selfCoords, float bearing, Position targetCoords) {
+		// TODO: Get a static map with a radius of N, cache and re-get if within E of the border
+		const float epsilon = 0.0005f;
+		Vector2 drift = new Vector2(mapOrigo.longitude-selfCoords.longitude, mapOrigo.latitude-selfCoords.latitude);
+		if (mapWWW == null && drift.magnitude > epsilon) {
+			FetchMapTexture(selfCoords);
+		}		
+		if (mapWWW != null && mapWWW.isDone) {
+			if (mapWWW.error != null) {
+				debugText = mapWWW.error;
+				Debug.Log(mapWWW.error);
+			} else {
+				debugText = "";
+				mapTexture = mapWWW.texture;
+				mapOrigo = fetchOrigo;
+			}
+			mapWWW = null;
+		}
+		if (mapTexture == null) {
+			GUI.Label(map, "Fetching map..");
+			return;
+		}
+		
+		// TODO: Proper lat/long to pixel mapping
+		float scale = 450000;
+		
+		// TODO: Stencil out circle
+		Color original = GUI.color;
+		GUI.color = new Color(1f, 1f, 1f, OPACITY);
+		
+		// Map self coordinates into map atlas using map origo
+		Vector2 localSelf = new Vector2(mapOrigo.longitude-selfCoords.longitude, mapOrigo.latitude-selfCoords.latitude);
+		// Normalize to atlas size and shift to center
+		Vector2 mapNormalSelf = scale * localSelf / mapAtlasRadius;
+		mapNormalSelf.x += 0.5f;
+		mapNormalSelf.y += 0.5f;
+		float normalizedRadius = (float)MAP_RADIUS/mapAtlasRadius;
+		// Draw a MAP_RADIUS-sized circle around self (rectangle origo is bottom-left)
+		Rect mapCoords = new Rect(mapNormalSelf.x - normalizedRadius, 1 - mapNormalSelf.y - normalizedRadius,
+		                          normalizedRadius*2, normalizedRadius*2);
+		// TODO: Rotate map so bearing is up
+		GUI.DrawTextureWithTexCoords(map, mapTexture, mapCoords);
+				
+		Vector2 mapCenter = new Vector2(map.x + map.width/2, map.y + map.height/2);
+		
+		// Self is always at center
+		mapSelf.x = mapCenter.x - mapSelf.width/2;
+		mapSelf.y = mapCenter.y - mapSelf.height/2;
+		GUI.DrawTexture(mapSelf, selfIcon);
+		// Target is relative to self and limited to map radius
+		Vector2 localTarget = new Vector2(selfCoords.longitude-targetCoords.longitude, selfCoords.latitude-targetCoords.latitude);
+		if (localTarget.magnitude*scale > MAP_RADIUS) {
+			localTarget.Normalize();
+			localTarget *= MAP_RADIUS/scale;
+			// TODO: Change icon to indicate outside of minimap?
+		}
+		mapTarget.x = mapCenter.x + localTarget.x*scale - mapTarget.width/2;
+		mapTarget.y = mapCenter.y + localTarget.y*scale - mapTarget.height/2;
+		GUI.DrawTexture(mapTarget, targetIcon);
+		GUI.color = original;
 	}
 	
 	string SiDistance(long meters) {
