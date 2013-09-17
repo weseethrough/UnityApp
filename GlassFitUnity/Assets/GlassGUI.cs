@@ -50,14 +50,13 @@ public class GlassGUI : MonoBehaviour {
 	// Debug
 	private Rect debug;
 	private string debugText;
-<<<<<<< HEAD
+
 			
 	private int originalWidth = 800;  // define here the original resolution
   	private int originalHeight = 500; // you used to create the GUI contents 
  	private Vector3 scale;
 
-=======
-	
+
 	// Background textures
 	Texture2D normal;
 	Texture2D info;
@@ -67,8 +66,7 @@ public class GlassGUI : MonoBehaviour {
 	Texture2D selfIcon;
 	Texture2D targetIcon;
 	Texture2D mapTexture;
-	
->>>>>>> e4a3fcb4a8ad93a5c74d8a31aadd1dd35e7c502d
+
 	void Start () {
 		
 
@@ -76,7 +74,7 @@ public class GlassGUI : MonoBehaviour {
 		// Left side top
 		target =   new Rect(MARGIN, MARGIN, 200, 100);	
 		// Left side bottom
-<<<<<<< HEAD
+
 		distance = new Rect(MARGIN, originalHeight-100, 150, 100);
 		time =     new Rect(MARGIN, distance.y-MARGIN-100, 150, 100);
 		
@@ -85,19 +83,12 @@ public class GlassGUI : MonoBehaviour {
 		pace =     new Rect(originalWidth-MARGIN, calories.y+MARGIN+100, 150, 100);
 		// Right side bottom
 		map =      new Rect(originalWidth-MARGIN, originalHeight-MARGIN-150, 150, 150);
-=======
-		distance = new Rect(MARGIN, Screen.height-MARGIN-100, 200, 100);
-		time =     new Rect(MARGIN, distance.y-SUBMARGIN-100, 200, 100);
-		
-		// Right side top
-		calories = new Rect(Screen.width-MARGIN-200, MARGIN, 200, 100);
-		pace =     new Rect(Screen.width-MARGIN-200, calories.y+SUBMARGIN+100, 200, 100);
+
 		// Right side bottom
 		map =      new Rect(Screen.width-MARGIN-200, Screen.height-MARGIN-200, 200, 150);
 		mapSelf =  new Rect(0, 0, 30, 30);
 		mapTarget = new Rect(0, 0, 30, 30);
->>>>>>> e4a3fcb4a8ad93a5c74d8a31aadd1dd35e7c502d
-		
+
 		// Buttons
 		start =    new Rect((originalWidth)/2, (originalHeight-100)/2-MARGIN, 200, 100);
 		stop =     new Rect((originalWidth)/2, (originalHeight+100)/2+MARGIN, 200, 100);
@@ -106,13 +97,11 @@ public class GlassGUI : MonoBehaviour {
 		gpsLock =  new Rect(originalWidth/2+75, MARGIN, 50, 50);
 		
 		// *** DEBUG
-<<<<<<< HEAD
-		debug =    new Rect(originalWidth/2+50, originalHeight-MARGIN, 100, 100);
-		
 
-=======
-		debug =    new Rect(250, Screen.height-100-MARGIN, Screen.width-250*2, 100);
->>>>>>> e4a3fcb4a8ad93a5c74d8a31aadd1dd35e7c502d
+		
+		debug =    new Rect(originalWidth/2+50, originalHeight-MARGIN, 100, 100);
+	
+		
 		// *** DEBUG
 		
 		distanceText = "Distance\n";
@@ -171,7 +160,7 @@ public class GlassGUI : MonoBehaviour {
 	
 	void OnGUI ()
 	{
-<<<<<<< HEAD
+
 		
 		
 		
@@ -181,9 +170,8 @@ public class GlassGUI : MonoBehaviour {
     var svMat = GUI.matrix; // save current matrix
     // substitute matrix - only scale is altered from standard
     GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-=======
+
 		GUI.skin.label.fontSize = 15;
->>>>>>> e4a3fcb4a8ad93a5c74d8a31aadd1dd35e7c502d
 		
 		GUI.skin.box.wordWrap = true;
 		GUI.skin.box.fontSize = 30;
@@ -209,9 +197,7 @@ public class GlassGUI : MonoBehaviour {
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
 		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
 		GUI.Box(calories, caloriesText + ji.Calories());
-<<<<<<< HEAD
-		GUI.Box(pace, paceText+Timestamp(speedToKmPace( ji.Pace() )) );
-		GUI.Box(map, "TODO");
+
 		
 		if(started && buttonOn && GUI.Button(start, "Pause")) {
 			ji.Start(false);
@@ -222,7 +208,7 @@ public class GlassGUI : MonoBehaviour {
 			started = true;
 		}
 		
-=======
+
 		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
 		
 		// Map
@@ -247,7 +233,7 @@ public class GlassGUI : MonoBehaviour {
 		GUI.DrawTexture(mapSelf, selfIcon);
 		GUI.DrawTexture(mapTarget, targetIcon);
 		GUI.color = original;
->>>>>>> e4a3fcb4a8ad93a5c74d8a31aadd1dd35e7c502d
+
 		
 		if (!started && GUI.Button (start, startText)) {
 			ji.Start(false);
