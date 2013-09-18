@@ -67,10 +67,13 @@ public class GlassGUI : MonoBehaviour {
 	Texture2D selfIcon;
 	Texture2D targetIcon;
 	Texture2D mapTexture = null;
-	const int mapAtlasRadius = 1024;
+	const int mapAtlasRadius = 315; // API max width/height is 640
+	const int mapZoom = 18;
 	Position mapOrigo = new Position(0, 0);
 	WWW mapWWW = null;
 	Position fetchOrigo = new Position(0, 0);
+	
+	
 	
 	void Start () {
 		// Left side top
@@ -118,12 +121,13 @@ public class GlassGUI : MonoBehaviour {
 		
 		selfIcon = Resources.Load("Self") as Texture2D;
 		targetIcon = Resources.Load("Target") as Texture2D;
-		
+				
 #if UNITY_ANDROID && !UNITY_EDITOR 
 		ji = new Platform();
 #else
 		ji = new PlatformDummy();
 #endif
+		
 	}
 	
 	// Update is called once per frame
@@ -196,7 +200,7 @@ public class GlassGUI : MonoBehaviour {
 		if (position != null) {
 			// Fake target coord using distance
 			float bearing = 0;
-			Position targetCoord = new Position(position.latitude + (float)(targetDistance/111229d), position.longitude);
+			Position targetCoord = new Position(position.latitude + (float)(targetDistance/111229d), position.longitude - (float)(targetDistance/111229d));
 			GUIMap(position, bearing, targetCoord);
 		} else {
 			GUI.Label(map, "No GPS lock");
@@ -228,14 +232,16 @@ public class GlassGUI : MonoBehaviour {
 		GUI.matrix = svMat; // restore matrix
 	}
 	
-	private void FetchMapTexture(Position origo) {
+	private void FetchMapTexture(Position origo) {					
 		const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
 		const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
 		string url = endpoint + "?center="
 		                      + origo.latitude + "," + origo.longitude
-		                      + "&zoom="
-		                      + "18"
-		                      + "&size=" + mapAtlasRadius + "x" + mapAtlasRadius
+//		                      + "&markers=color:blue%7Clabel:S%7C" + origo.latitude + "," + origo.longitude
+//		                      + "&markers=color:green%7Clabel:E%7C" + (origo.latitude+0.0001f) + "," + (origo.longitude+0.0001f)
+//		                      + "&markers=color:red%7Clabel:W%7C" + (origo.latitude) + "," + (origo.longitude+0.0003f)
+		                      + "&zoom=" + mapZoom
+		                      + "&size=" + (mapAtlasRadius*2) + "x" + (mapAtlasRadius*2)
 		                      + "&maptype=roadmap"
 		                      + "&sensor=true&key=" + API_KEY;
 		mapWWW = new WWW(url);		
@@ -245,12 +251,14 @@ public class GlassGUI : MonoBehaviour {
 	}
 	
 	private void GUIMap(Position selfCoords, float bearing, Position targetCoords) {
-		// TODO: Get a static map with a radius of N, cache and re-get if within E of the border
-		const float epsilon = 0.0005f;
-		Vector2 drift = new Vector2(mapOrigo.longitude-selfCoords.longitude, mapOrigo.latitude-selfCoords.latitude);
-		if (mapWWW == null && drift.magnitude > epsilon) {
+		// Get a static map with a radius of mapAtlasRadius, cache and re-get if viewport within margin of the border
+		const int margin = 15;
+		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
+		Vector2 drift = mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords);
+//		Debug.Log("drift: " + drift.magnitude + " .." + drift);
+		if (mapWWW == null && (mapTexture == null || drift.magnitude >= 50)) {
 			FetchMapTexture(selfCoords);
-		}		
+		}
 		if (mapWWW != null && mapWWW.isDone) {
 			if (mapWWW.error != null) {
 				debugText = mapWWW.error;
@@ -267,23 +275,19 @@ public class GlassGUI : MonoBehaviour {
 			return;
 		}
 		
-		// TODO: Proper lat/long to pixel mapping
-		float scale = 450000;
-		
 		// TODO: Stencil out circle
 		Color original = GUI.color;
 		GUI.color = new Color(1f, 1f, 1f, OPACITY);
 		
-		// Map self coordinates into map atlas using map origo
-		Vector2 localSelf = new Vector2(mapOrigo.longitude-selfCoords.longitude, mapOrigo.latitude-selfCoords.latitude);
-		// Normalize to atlas size and shift to center
-		Vector2 mapNormalSelf = scale * localSelf / mapAtlasRadius;
+		// Map self coordinates into map atlas, normalize to atlas size and shift to center
+		Vector2 mapNormalSelf = (mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
 		mapNormalSelf.x += 0.5f;
 		mapNormalSelf.y += 0.5f;
-		float normalizedRadius = (float)MAP_RADIUS/mapAtlasRadius;
-		// Draw a MAP_RADIUS-sized circle around self (rectangle origo is bottom-left)
-		Rect mapCoords = new Rect(mapNormalSelf.x - normalizedRadius, 1 - mapNormalSelf.y - normalizedRadius,
+		float normalizedRadius = (float)MAP_RADIUS/(mapAtlasRadius*2);
+		// Draw a MAP_RADIUS-sized circle around self
+		Rect mapCoords = new Rect(1 - mapNormalSelf.x - normalizedRadius, mapNormalSelf.y - normalizedRadius,
 		                          normalizedRadius*2, normalizedRadius*2);
+//		Debug.Log(mapCoords);
 		// TODO: Rotate map so bearing is up
 		GUI.DrawTextureWithTexCoords(map, mapTexture, mapCoords);
 				
@@ -294,14 +298,14 @@ public class GlassGUI : MonoBehaviour {
 		mapSelf.y = mapCenter.y - mapSelf.height/2;
 		GUI.DrawTexture(mapSelf, selfIcon);
 		// Target is relative to self and limited to map radius
-		Vector2 localTarget = new Vector2(selfCoords.longitude-targetCoords.longitude, selfCoords.latitude-targetCoords.latitude);
-		if (localTarget.magnitude*scale > MAP_RADIUS) {
+		Vector2 localTarget = mercatorToPixel(selfCoords) - mercatorToPixel(targetCoords);
+		if (localTarget.magnitude > MAP_RADIUS) {
 			localTarget.Normalize();
-			localTarget *= MAP_RADIUS/scale;
+			localTarget *= MAP_RADIUS;
 			// TODO: Change icon to indicate outside of minimap?
-		}
-		mapTarget.x = mapCenter.x + localTarget.x*scale - mapTarget.width/2;
-		mapTarget.y = mapCenter.y + localTarget.y*scale - mapTarget.height/2;
+		}		
+		mapTarget.x = mapCenter.x - localTarget.x - mapTarget.width/2;
+		mapTarget.y = mapCenter.y - localTarget.y - mapTarget.height/2;
 		GUI.DrawTexture(mapTarget, targetIcon);
 		GUI.color = original;
 	}
@@ -331,6 +335,42 @@ public class GlassGUI : MonoBehaviour {
 		TimeSpan span = TimeSpan.FromSeconds(seconds);
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
+	}
+	
+	Vector2 mercatorToPixel(Position mercator) {
+		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
+		int scale = (int)Math.Pow(2, mapZoom);
+		
+		// Mercator to google world cooordinates
+		Vector2 world = new Vector2(
+			(float)(mercator.longitude+180)/360*256,
+			(float)(
+				(1 - Math.Log(
+						Math.Tan(mercator.latitude * Math.PI / 180) +  
+						1 / Math.Cos(mercator.latitude * Math.PI / 180)
+					) / Math.PI
+				) / 2
+			) * 256
+		);
+//		Debug.Log(mercator.latitude + "," + mercator.longitude + " => " + world.x + "," + world.y);
+		
+		return world * scale;
+	}
+	
+	Position pixelToMercator(Vector2 pixel) {
+		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
+		int scale = (int)Math.Pow(2, mapZoom);
+		
+		Vector2 world = pixel / scale;
+		// Google world coordinates to mercator
+		double n = Math.PI - 2 * Math.PI * world.y / 256;
+		Position mercator = new Position(
+			(float)(180 / Math.PI * Math.Atan(0.5 * (Math.Exp(n) - Math.Exp(-n)))),
+//			(float)(180 / Math.PI * (2*Math.Atan( Math.Exp(world.y / 256 * Math.PI/180)) - Math.PI/2 )),
+			(float)world.x / 256 * 360 - 180
+		);
+			
+		return mercator;			
 	}
 }
 
