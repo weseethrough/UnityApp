@@ -11,6 +11,7 @@ public class Platform {
 	private int calories = 0;
 	private float pace = 0;
 	private Position position = null;
+	private float bearing = 0;
 	
 	private Boolean tracking = false;
 	
@@ -100,11 +101,12 @@ public class Platform {
 			if (hasLock()) {
 				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
 				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+				ajo = gps.Call<AndroidJavaObject>("getCurrentBearing");
+				bearing = ajo.Call<float>("floatValue");
 			}
 		} catch (Exception e) {
-			errorLog = errorLog + "\ngetCurrentPosition" + e.Message;
+//			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
-		// TODO: getCurrentPosition()
 	}
 	
 	public long DistanceBehindTarget() {
@@ -129,6 +131,10 @@ public class Platform {
 	
 	public Position Position() {
 		return position;
+	}
+		
+	public float Bearing() {
+		return bearing;
 	}
 	
 	public string DebugLog() {

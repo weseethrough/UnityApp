@@ -67,6 +67,7 @@ public class GlassGUI : MonoBehaviour {
 	Texture2D selfIcon;
 	Texture2D targetIcon;
 	Texture2D mapTexture = null;
+	Material mapStencil;
 	const int mapAtlasRadius = 315; // API max width/height is 640
 	const int mapZoom = 18;
 	Position mapOrigo = new Position(0, 0);
@@ -121,6 +122,7 @@ public class GlassGUI : MonoBehaviour {
 		
 		selfIcon = Resources.Load("Self") as Texture2D;
 		targetIcon = Resources.Load("Target") as Texture2D;
+		mapStencil = new Material(Shader.Find("Custom/MapStencil"));
 				
 #if UNITY_ANDROID && !UNITY_EDITOR 
 		ji = new Platform();
@@ -175,7 +177,8 @@ public class GlassGUI : MonoBehaviour {
 		GUI.skin.box.normal.textColor = Color.black;
 		
 		// *** DEBUG? TODO: Icon? Message?
-		GUI.Label(gpsLock, "GPS: " + ji.hasLock());
+		float bearing = ji.Bearing();
+		GUI.Label(gpsLock, "Bear: " + (int)(bearing*180/Math.PI) + "\u00B0");
 				
 		// Style top-left box depending on content
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
@@ -198,9 +201,8 @@ public class GlassGUI : MonoBehaviour {
 		// Draw minimap
 		Position position = ji.Position();
 		if (position != null) {
-			// Fake target coord using distance
-			float bearing = 0;
-			Position targetCoord = new Position(position.latitude + (float)(targetDistance/111229d), position.longitude - (float)(targetDistance/111229d));
+			// Fake target coord using distance and bearing
+			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearing)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearing)*targetDistance/111229d));
 			GUIMap(position, bearing, targetCoord);
 		} else {
 			GUI.Label(map, "No GPS lock");
@@ -245,8 +247,8 @@ public class GlassGUI : MonoBehaviour {
 		                      + "&maptype=roadmap"
 		                      + "&sensor=true&key=" + API_KEY;
 		mapWWW = new WWW(url);		
-		debugText = url;
-		Debug.Log(url);
+		debugText = "Fetching map..";
+		Debug.Log("Fetching map.. " + url);
 		fetchOrigo = origo;
 	}
 	
@@ -256,7 +258,7 @@ public class GlassGUI : MonoBehaviour {
 		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
 		Vector2 drift = mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords);
 //		Debug.Log("drift: " + drift.magnitude + " .." + drift);
-		if (mapWWW == null && (mapTexture == null || drift.magnitude >= 50)) {
+		if (mapWWW == null && (mapTexture == null || drift.magnitude >= maxdrift)) {
 			FetchMapTexture(selfCoords);
 		}
 		if (mapWWW != null && mapWWW.isDone) {
@@ -288,10 +290,14 @@ public class GlassGUI : MonoBehaviour {
 		Rect mapCoords = new Rect(1 - mapNormalSelf.x - normalizedRadius, mapNormalSelf.y - normalizedRadius,
 		                          normalizedRadius*2, normalizedRadius*2);
 //		Debug.Log(mapCoords);
-		// TODO: Rotate map so bearing is up
-		GUI.DrawTextureWithTexCoords(map, mapTexture, mapCoords);
-				
 		Vector2 mapCenter = new Vector2(map.x + map.width/2, map.y + map.height/2);
+		// TODO: Rotate map so bearing is up
+		Matrix4x4 matrixBackup = GUI.matrix;
+		if (Event.current.type == EventType.Repaint) {
+			mapStencil.SetVector("_Rectangle", new Vector4(mapCoords.x, mapCoords.y, mapCoords.width, mapCoords.height));
+//			Graphics.DrawTexture(map, mapTexture, mapCoords, 0, 0, 0, 0, mapStencil);
+			Graphics.DrawTexture(map, mapTexture, mapStencil);
+		}
 		
 		// Self is always at center
 		mapSelf.x = mapCenter.x - mapSelf.width/2;
@@ -307,6 +313,9 @@ public class GlassGUI : MonoBehaviour {
 		mapTarget.x = mapCenter.x - localTarget.x - mapTarget.width/2;
 		mapTarget.y = mapCenter.y - localTarget.y - mapTarget.height/2;
 		GUI.DrawTexture(mapTarget, targetIcon);
+		
+		GUI.matrix = matrixBackup;
+		GUI.DrawTexture(mapSelf, selfIcon);
 		GUI.color = original;
 	}
 	

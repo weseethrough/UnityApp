@@ -12,6 +12,7 @@ public class PlatformDummy {
 	private int distance = 0;
 	private int target = 1;
 	private Position position = null;
+	private float bearing = 0.3f;
 	
 	public void Start(Boolean indoor) {
 		timer.Start();
@@ -31,7 +32,7 @@ public class PlatformDummy {
 			update = Time();
 		}
 		if (Time () > 1000) {
-			position = new Position((float)(51.500+distance/111229d), (float)(-0.1));
+			position = new Position((float)(51.400+Math.Cos(bearing)*distance/111229d), (float)(-0.15+Math.Cos(bearing)*distance/111229d));
 		}
 	}
 	
@@ -58,6 +59,10 @@ public class PlatformDummy {
 	public Position Position() {
 		return position;
 	}	
+	
+	public float Bearing() {
+		return bearing;
+	}
 	
 	public string DebugLog() {
 		return "On editor, really long string to test word wrap. Bla bla blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bla.";
