@@ -12,7 +12,10 @@ public class PlatformDummy {
 	private int distance = 0;
 	private int target = 1;
 	private Position position = null;
-	private float bearing = 0.3f;
+	private float bearing = 18; // degrees
+	
+	private const float weight = 75.0f;
+	private const float factor = 1.2f;
 	
 	public void Start(Boolean indoor) {
 		timer.Start();
@@ -25,14 +28,14 @@ public class PlatformDummy {
 	public void Poll() {
 		if (!timer.IsRunning) return;
 		if (Time() - update > 1000) { 
-			distance += 4;			
+			distance += 4;
 			target += 4;
 			if (random.Next() % 5 == 0) target += 1;
 			if (random.Next() % 5 == 5) target -= 1;
 			update = Time();
 		}
 		if (Time () > 1000) {
-			position = new Position((float)(51.400+Math.Cos(bearing)*distance/111229d), (float)(-0.15+Math.Cos(bearing)*distance/111229d));
+			position = new Position((float)(51.400+Math.Cos(bearing*Math.PI/180)*distance/111229d), (float)(-0.15+Math.Cos(bearing*Math.PI/180)*distance/111229d));
 		}
 	}
 	
@@ -49,7 +52,7 @@ public class PlatformDummy {
 	}
 	
 	public int Calories() {
-		return 36;
+		return (int)(factor * weight * distance/1000);
 	}
 	
 	public float Pace() {

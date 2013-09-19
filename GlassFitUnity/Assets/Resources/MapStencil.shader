@@ -4,6 +4,7 @@ Shader "Custom/MapStencil"
 	Properties { 
 		_MainTex ("Texture", any) = "" {} 
 		_Rectangle ("Rectangle", Vector) = (0,0,0,0) 
+		_Rotation ("Rotation", Float) = 0
  	} 
 
 	SubShader {
@@ -41,6 +42,7 @@ Shader "Custom/MapStencil"
 			sampler2D _MainTex;
 
 			float4 _Rectangle;
+			float _Rotation;
 
 			uniform float4 _MainTex_ST;
 			
@@ -49,7 +51,18 @@ Shader "Custom/MapStencil"
 				v2f o;
 				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
 				o.color = v.color;
+				// Rotation around origo
+				v.texcoord.xy -=0.5;
+				float s = -sin ( _Rotation );
+				float c = cos ( _Rotation );
+				float2x2 rotationMatrix = float2x2( c, -s, s, c);
+				rotationMatrix *=0.5;
+				rotationMatrix +=0.5;
+				rotationMatrix = rotationMatrix * 2-1;
+				v.texcoord.xy = mul ( v.texcoord.xy, rotationMatrix );				
+				v.texcoord.xy +=0.5;
 				o.texcoord = TRANSFORM_TEX(v.texcoord,_MainTex);
+				// Index into atlas
 				o.texcoordgen.x = _Rectangle.x + o.texcoord.x*_Rectangle.z;
 				o.texcoordgen.y = _Rectangle.y + o.texcoord.y*_Rectangle.w;
 				return o;

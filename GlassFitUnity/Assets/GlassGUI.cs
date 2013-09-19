@@ -178,7 +178,8 @@ public class GlassGUI : MonoBehaviour {
 		
 		// *** DEBUG? TODO: Icon? Message?
 		float bearing = ji.Bearing();
-		GUI.Label(gpsLock, "Bear: " + (int)(bearing*180/Math.PI) + "\u00B0");
+		double bearingRad = bearing*Math.PI/180;
+		GUI.Label(gpsLock, "Bear: " + (int)(bearing) + "\u00B0");
 				
 		// Style top-left box depending on content
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
@@ -202,8 +203,8 @@ public class GlassGUI : MonoBehaviour {
 		Position position = ji.Position();
 		if (position != null) {
 			// Fake target coord using distance and bearing
-			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearing)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearing)*targetDistance/111229d));
-			GUIMap(position, bearing, targetCoord);
+			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearingRad)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearingRad)*targetDistance/111229d));
+			GUIMap(position, bearingRad, targetCoord);
 		} else {
 			GUI.Label(map, "No GPS lock");
 		}
@@ -252,9 +253,9 @@ public class GlassGUI : MonoBehaviour {
 		fetchOrigo = origo;
 	}
 	
-	private void GUIMap(Position selfCoords, float bearing, Position targetCoords) {
+	private void GUIMap(Position selfCoords, double bearing, Position targetCoords) {
 		// Get a static map with a radius of mapAtlasRadius, cache and re-get if viewport within margin of the border
-		const int margin = 15;
+		const int margin = 15;	
 		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
 		Vector2 drift = mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords);
 //		Debug.Log("drift: " + drift.magnitude + " .." + drift);
@@ -289,11 +290,11 @@ public class GlassGUI : MonoBehaviour {
 		// Draw a MAP_RADIUS-sized circle around self
 		Rect mapCoords = new Rect(1 - mapNormalSelf.x - normalizedRadius, mapNormalSelf.y - normalizedRadius,
 		                          normalizedRadius*2, normalizedRadius*2);
-//		Debug.Log(mapCoords);
 		Vector2 mapCenter = new Vector2(map.x + map.width/2, map.y + map.height/2);
-		// TODO: Rotate map so bearing is up
 		Matrix4x4 matrixBackup = GUI.matrix;
 		if (Event.current.type == EventType.Repaint) {
+			// Rotation and indexing into atlas handled by shader
+			mapStencil.SetFloat("_Rotation", (float)-bearing);			
 			mapStencil.SetVector("_Rectangle", new Vector4(mapCoords.x, mapCoords.y, mapCoords.width, mapCoords.height));
 //			Graphics.DrawTexture(map, mapTexture, mapCoords, 0, 0, 0, 0, mapStencil);
 			Graphics.DrawTexture(map, mapTexture, mapStencil);
@@ -310,12 +311,12 @@ public class GlassGUI : MonoBehaviour {
 			localTarget *= MAP_RADIUS;
 			// TODO: Change icon to indicate outside of minimap?
 		}		
-		mapTarget.x = mapCenter.x - localTarget.x - mapTarget.width/2;
-		mapTarget.y = mapCenter.y - localTarget.y - mapTarget.height/2;
+		// Rotated so bearing is up
+		mapTarget.x = mapCenter.x - (float)(Math.Sin(-bearing)*localTarget.x) - mapTarget.width/2;
+		mapTarget.y = mapCenter.y - (float)(Math.Cos(-bearing)*localTarget.y) - mapTarget.height/2;
 		GUI.DrawTexture(mapTarget, targetIcon);
 		
 		GUI.matrix = matrixBackup;
-		GUI.DrawTexture(mapSelf, selfIcon);
 		GUI.color = original;
 	}
 	
@@ -375,7 +376,6 @@ public class GlassGUI : MonoBehaviour {
 		double n = Math.PI - 2 * Math.PI * world.y / 256;
 		Position mercator = new Position(
 			(float)(180 / Math.PI * Math.Atan(0.5 * (Math.Exp(n) - Math.Exp(-n)))),
-//			(float)(180 / Math.PI * (2*Math.Atan( Math.Exp(world.y / 256 * Math.PI/180)) - Math.PI/2 )),
 			(float)world.x / 256 * 360 - 180
 		);
 			

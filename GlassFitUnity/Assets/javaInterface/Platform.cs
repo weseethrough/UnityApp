@@ -8,10 +8,12 @@ public class Platform {
 	private long distanceBehindTarget = 0;
 	private long time = 0;
 	private long distance = 0;
-	private int calories = 0;
 	private float pace = 0;
 	private Position position = null;
 	private float bearing = 0;
+	
+	private const float weight = 75.0f;
+	private const float factor = 1.2f;	
 	
 	private Boolean tracking = false;
 	
@@ -122,9 +124,10 @@ public class Platform {
 	}
 	
 	public int Calories() {
-		return calories;
+		// TODO: Find a better equation and cumulatively calculate it based on pace
+		return (int)(factor * weight * distance/1000);
 	}
-	
+		
 	public float Pace() {
 		return pace;
 	}
