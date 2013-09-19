@@ -312,10 +312,17 @@ public class GlassGUI : MonoBehaviour {
 			// TODO: Change icon to indicate outside of minimap?
 		}		
 		// Rotated so bearing is up
-		mapTarget.x = mapCenter.x - (float)(Math.Sin(-bearing)*localTarget.x) - mapTarget.width/2;
-		mapTarget.y = mapCenter.y - (float)(Math.Cos(-bearing)*localTarget.y) - mapTarget.height/2;
+		double c = Math.Cos(-bearing);
+		double s = Math.Sin(-bearing);
+		mapTarget.x = mapCenter.x - (float)(localTarget.x * c - localTarget.y * s)  - mapTarget.width/2;
+		mapTarget.y = mapCenter.y - (float)(localTarget.x * s + localTarget.y * c) - mapTarget.height/2;
 		GUI.DrawTexture(mapTarget, targetIcon);
 		
+		// *** DEBUG: True up
+/*		mapTarget.x = mapCenter.x - mapTarget.width/2;
+		mapTarget.y = mapCenter.y - localTarget.magnitude - mapTarget.height/2;
+		GUI.DrawTexture(mapTarget, selfIcon);
+*/		
 		GUI.matrix = matrixBackup;
 		GUI.color = original;
 	}
