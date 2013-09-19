@@ -254,6 +254,11 @@ public class GlassGUI : MonoBehaviour {
 	}
 	
 	private void GUIMap(Position selfCoords, double bearing, Position targetCoords) {
+		Position direction = new Position(selfCoords.latitude + (float)(Math.Cos(bearing)*1000/111229d), 
+		                                  selfCoords.longitude + (float)(Math.Sin(bearing)*1000/111229d));	
+		double pixelBearing = Angle(mercatorToPixel(selfCoords), mercatorToPixel(direction));	
+		bearing = pixelBearing;
+		
 		// Get a static map with a radius of mapAtlasRadius, cache and re-get if viewport within margin of the border
 		const int margin = 15;	
 		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
@@ -317,12 +322,7 @@ public class GlassGUI : MonoBehaviour {
 		mapTarget.x = mapCenter.x - (float)(localTarget.x * c - localTarget.y * s)  - mapTarget.width/2;
 		mapTarget.y = mapCenter.y - (float)(localTarget.x * s + localTarget.y * c) - mapTarget.height/2;
 		GUI.DrawTexture(mapTarget, targetIcon);
-		
-		// *** DEBUG: True up
-/*		mapTarget.x = mapCenter.x - mapTarget.width/2;
-		mapTarget.y = mapCenter.y - localTarget.magnitude - mapTarget.height/2;
-		GUI.DrawTexture(mapTarget, selfIcon);
-*/		
+				
 		GUI.matrix = matrixBackup;
 		GUI.color = original;
 	}
@@ -388,5 +388,21 @@ public class GlassGUI : MonoBehaviour {
 			
 		return mercator;			
 	}
+	
+	private double Angle(Vector2 pos1, Vector2 pos2) {
+	    Vector2 from = pos2 - pos1;
+	    Vector2 to = new Vector2(0, 1);
+	 
+	    float result = Vector2.Angle( from, to );
+		Debug.Log(result);
+	    Vector3 cross = Vector3.Cross( from, to );
+	 
+	    if (cross.z > 0)
+	       result = 360f - result;
+		
+		result += 180.0f;
+		
+	    return result*Math.PI/180;
+	}	
 }
 
