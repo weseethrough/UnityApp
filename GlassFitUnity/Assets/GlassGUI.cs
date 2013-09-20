@@ -9,7 +9,7 @@ public class GlassGUI : MonoBehaviour {
 #else
 	private PlatformDummy ji = null;
 #endif
-	private Boolean started = false;
+	public Boolean started = false;
 	private Boolean buttonOn = false;
 	private float timeOut = 0;
 	private int touchCount = 0;
@@ -18,6 +18,7 @@ public class GlassGUI : MonoBehaviour {
 	private const int SUBMARGIN = 5;
 	
 	private const float OPACITY = 0.5f;
+	private float timeFromStart = 0;
 	
 	// Left side top
 	private Rect target;	
@@ -68,6 +69,7 @@ public class GlassGUI : MonoBehaviour {
 	void Start () {
 		// Left side top
 		target =   new Rect(MARGIN, MARGIN, 200, 100);	
+		
 		// Left side bottom
 		distance = new Rect(MARGIN, originalHeight-MARGIN-100, 200, 100);
 		time =     new Rect(MARGIN, distance.y-SUBMARGIN-100, 200, 100);
@@ -75,6 +77,7 @@ public class GlassGUI : MonoBehaviour {
 		// Right side top
 		calories = new Rect(originalWidth-MARGIN-200, MARGIN, 200, 100);
 		pace =     new Rect(originalWidth-MARGIN-200, calories.y+SUBMARGIN+100, 200, 100);
+		
 		// Right side bottom
 		map =      new Rect(originalWidth-MARGIN-200, originalHeight-MARGIN-200, 200, 200);
 		mapSelf =  new Rect(0, 0, 30, 30);
@@ -100,10 +103,12 @@ public class GlassGUI : MonoBehaviour {
 		normal = new Texture2D(1, 1);
 		normal.SetPixel(0,0,white);
 		normal.Apply();
+		
 		Color green = new Color(0f, 0.9f, 0f, OPACITY);
 		info = new Texture2D(1, 1);
 		info.SetPixel(0,0,green);
 		info.Apply();
+		
 		Color red = new Color(0.9f, 0f, 0f, OPACITY);
 		warning = new Texture2D(1, 1);
 		warning.SetPixel(0,0,red);
@@ -123,6 +128,7 @@ public class GlassGUI : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{
+		timeFromStart += Time.deltaTime;
 		// TODO: Replace with timed poll or callback
 		ji.Poll();
 		
@@ -132,7 +138,7 @@ public class GlassGUI : MonoBehaviour {
         }
 		
 		if(touchCount > 0) {
-			buttonOn = true;
+		//	buttonOn = true;
 			timeOut = 3;
 			touchCount = 0;
 		}
@@ -148,8 +154,10 @@ public class GlassGUI : MonoBehaviour {
 		scale.x = (float)Screen.width/originalWidth; // calculate hor scale
 	    scale.y = (float)Screen.height/originalHeight; // calculate vert scale
 	    scale.z = 1;
-	    var svMat = GUI.matrix; // save current matrix
-	    // substitute matrix - only scale is altered from standard
+	    
+		var svMat = GUI.matrix; // save current matrix
+	    
+		// substitute matrix - only scale is altered from standard
 	    GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 
 		GUI.skin.label.fontSize = 15;
@@ -161,7 +169,7 @@ public class GlassGUI : MonoBehaviour {
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		
-		GUI.Label(gpsLock, "GPS: " + ji.hasLock());
+		//GUI.Label(gpsLock, "GPS: " + ji.hasLock());
 				
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
 		long targetDistance = ji.DistanceBehindTarget();
@@ -179,7 +187,6 @@ public class GlassGUI : MonoBehaviour {
 		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
 		GUI.Box(calories, caloriesText + ji.Calories());
 
-		
 		if(started && buttonOn && GUI.Button(start, "Pause")) {
 			ji.Start(false);
 			started = true;
@@ -214,16 +221,16 @@ public class GlassGUI : MonoBehaviour {
 		GUI.DrawTexture(mapTarget, targetIcon);
 		GUI.color = original;
 		
-		if (!started && GUI.Button (start, startText)) {
+		/*if (!started && GUI.Button (start, startText)) {
 			ji.Start(false);
 			started = true;
 		}
 		// *** DEBUG
 		
 		if (!started && GUI.Button (stop, "START indoor")) {			
-			ji.Start(true);
+		*/	ji.Start(true);
 			started = true;
-		}
+		//}
 		// *** DEBUG
 		GUI.TextArea(debug, debugText + ji.DebugLog());
 		// *** DEBUG
@@ -242,9 +249,11 @@ public class GlassGUI : MonoBehaviour {
 	}
 	
 	long speedToKmPace(float speed) {
-		if (speed <= 0) return 0;
-		// m/s -> ms/km
-		return Convert.ToInt64(1000*(1/speed));
+		if (speed <= 0) {
+			return 0;
+		}
+		// m/s -> mins/Km
+		return Convert.ToInt64( ((1/speed)/60) * 1000);
 	}
 	
 	string TimestampMMSSdd(long milliseconds) {

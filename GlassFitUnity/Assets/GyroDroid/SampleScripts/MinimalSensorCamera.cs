@@ -9,13 +9,15 @@ using System.Collections;
 public class MinimalSensorCamera : MonoBehaviour {
 	public Quaternion offsetFromStart;
 	public Quaternion camFromStart;
-	private bool firstRotate = true;
-	// Use this for initialization
+	public Quaternion planarOffset;
+	private float timer;
+	private int touchCount=0;
+	//private bool firstRotate = true;
+	
 	void Start () {
 		// you can use the API directly:
 		//Sensor.Activate(Sensor.Type.RotationVector);
 		
-			
 		// or you can use the SensorHelper, which has built-in fallback to less accurate but more common sensors:
 		SensorHelper.ActivateRotation();
 		offsetFromStart = SensorHelper.rotation;
@@ -24,31 +26,32 @@ public class MinimalSensorCamera : MonoBehaviour {
 		useGUILayout = false;
 	}
 	
-	
 	void OnGUI()
 	{
-			if(GUI.Button (new Rect(Screen.width/2-50,Screen.height/2 -50,100,100), "setGyro"))
-		{ 
-			
-			
+	//	if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
+	//	{ 
+			timer += Time.deltaTime;
+		foreach (Touch touch in Input.touches) {
+            if (touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
+                touchCount++;
+        }
+		
+		if(timer > 2) {
 			offsetFromStart = SensorHelper.rotation;
-	
-			
+			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			timer = 0;
 		}
-	}
-	// Update is called once per frame
+	}	
 	void Update () {
-		
-	
-		
 		
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * SensorHelper.rotation;
 		
-		
 		// direct Sensor usage:
 		//transform.rotation = Sensor.rotationQuaternion; //--- is the same as Sensor.QuaternionFromRotationVector(Sensor.rotationVector);
-		
+
 		// Helper with fallback:
 		transform.rotation =  newOffset;
+		//
+		
 	}
 }

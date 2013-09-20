@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System;
 
 public class Platform {
-	private long distanceBehindTarget = 0;
+	private long targetElapsedDistance = 0;
 	private long time = 0;
 	private long distance = 0;
 	private int calories = 0;
@@ -81,7 +81,7 @@ public class Platform {
 //			errorLog = errorLog + "\ngetElapsedTime: " + e.Message;
 		}
 		try {
-			distanceBehindTarget = target.Call<long>("getCumulativeDistanceAtTime", Time());
+			targetElapsedDistance = target.Call<long>("getCumulativeDistanceAtTime", Time());
 		} catch (Exception e) {
 //			errorLog = errorLog + "\ngetCumulativeDistanceAtTime" + e.Message;
 		}
@@ -96,9 +96,20 @@ public class Platform {
 //			errorLog = errorLog + "\ngetCurrentPace" + e.Message;
 		}
 	}
-	
+	/*
+	public void SetTargetSpeed(float speed)
+	{
+		try{
+			target.Call<long>("setTargetSpeed", speed);
+		}
+		catch(Exception e){
+		}
+		
+	}
+	*/
 	public long DistanceBehindTarget() {
-		return distanceBehindTarget;
+		long returnDistance = (targetElapsedDistance - distance)/2;
+		return returnDistance;
 	}
 	
 	public long Time() {
