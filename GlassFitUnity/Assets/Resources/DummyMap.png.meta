@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: fad86dd6e9f6c4732a1cd2a95f4f1b84
+=======
+guid: fd579a943d0c2ff44ac09aa6d2426b0b
+>>>>>>> added my changes before merge
 TextureImporter:
   serializedVersion: 2
   mipmaps:
