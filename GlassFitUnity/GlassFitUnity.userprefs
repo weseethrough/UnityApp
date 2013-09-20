@@ -1,30 +1,21 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-<<<<<<< HEAD
-  <MonoDevelop.Ide.Workbench ActiveDocument="../../Documents/GFUnityDev2/GlassFitUnity/Assets/GyroDroid/SampleScripts/MinimalSensorCamera.cs">
-    <Files>
-      <File FileName="../../Documents/GFUnityDev2/GlassFitUnity/Assets/GyroDroid/SampleScripts/MinimalSensorCamera.cs" Line="48" Column="6" />
-    </Files>
-    <Pads>
-      <Pad Id="ProjectPad">
-        <State expanded="True" selected="True" />
-=======
   <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
+              <Node name="David" expanded="True">
+                <Node name="SlowRunnerController.cs" selected="True" />
+              </Node>
               <Node name="GyroDroid" expanded="True">
                 <Node name="SampleScripts" expanded="True" />
-                <Node name="Scripts" expanded="True">
-                  <Node name="SensorHelper.cs" selected="True" />
-                </Node>
+                <Node name="Scripts" expanded="True" />
               </Node>
             </Node>
           </Node>
         </State>
->>>>>>> origin/Temp
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>

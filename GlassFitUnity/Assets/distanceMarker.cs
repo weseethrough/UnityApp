@@ -85,7 +85,7 @@ public class distanceMarker : MonoBehaviour {
 	void Update () 
 	{
 		inputData.Poll();
-		distance = inputData.Distance();
+		distance = 50;
 		
 		ResetMarkers();
 		
@@ -94,8 +94,8 @@ public class distanceMarker : MonoBehaviour {
 		{
 			float deltDist = 50 - distance;
 			deltDist *= 6.666f;
-			fiftyMarker.transform.position = new Vector3(15, -30, deltDist);
-			fiftyMarker2.transform.position = new Vector3(-15, -30, deltDist);
+			fiftyMarker.transform.position = new Vector3(15, 0, deltDist);
+			fiftyMarker2.transform.position = new Vector3(-15, 0, deltDist);
 		}
 		
 		// 100m markers

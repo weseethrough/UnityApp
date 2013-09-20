@@ -157,21 +157,7 @@ public class GlassGUI : MonoBehaviour {
 		
 		timeOut -= Time.deltaTime;
 	}
-	
-<<<<<<< HEAD
-	void OnGUI ()
-	{
-		scale.x = (float)Screen.width/originalWidth; // calculate hor scale
-	    scale.y = (float)Screen.height/originalHeight; // calculate vert scale
-	    scale.z = 1;
-	    
-		var svMat = GUI.matrix; // save current matrix
-	    
-		// substitute matrix - only scale is altered from standard
-	    GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-
-=======
-	void OnPauseGame()
+		void OnPauseGame()
 	{
 		paused = true;	
 	}
@@ -183,6 +169,7 @@ public class GlassGUI : MonoBehaviour {
 	
 	void OnGUI ()
 	{
+
 		scale.x = Screen.width/originalWidth; // calculate hor scale
     	scale.y = Screen.height/originalHeight; // calculate vert scale
     	scale.z = 1;
@@ -192,7 +179,6 @@ public class GlassGUI : MonoBehaviour {
     	GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		
 		
->>>>>>> origin/Temp
 		GUI.skin.label.fontSize = 15;
 		if(paused)
 		{
@@ -223,22 +209,7 @@ public class GlassGUI : MonoBehaviour {
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
 		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
 		GUI.Box(calories, caloriesText + ji.Calories());
-<<<<<<< HEAD
 
-=======
-		
-		
-		//Slider
-		GUIStyle sli = new GUIStyle(GUI.skin.horizontalSlider);
-		//sli.fixedHeight = 16;		
-		
-		GUIStyle thumb = new GUIStyle(GUI.skin.horizontalSliderThumb);
-		thumb.fixedHeight = 32;
-		thumb.fixedWidth = 32;
-		
-		paceSlider = GUI.HorizontalSlider(sliderBox, paceSlider, 0, 10, sli, thumb);
-		
->>>>>>> origin/Temp
 		if(started && buttonOn && GUI.Button(start, "Pause")) {
 			ji.Start(false);
 			started = true;

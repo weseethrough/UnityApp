@@ -3,7 +3,7 @@ using System.Collections;
 
 public class UIControl : MonoBehaviour {
 	
-	public int speed = 4;
+	public int speed = 2;
 	public float minPinchSpeed = 5.0f;
 	public float varianceInDistances = 5.0f;
 	private Vector2 curDist = new Vector2(0, 0);
@@ -36,13 +36,13 @@ public class UIControl : MonoBehaviour {
 			// Check to see if pinch is bigger, and zoom in if so
 			if((touchDelta + varianceInDistances <= 1) && (speedTouch0 > minPinchSpeed) && (speedTouch1 > minPinchSpeed))
 			{
-				this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView + speed, 15, 90);
+				this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView + speed, 15, 45);
 			}
 			
 			// Check to see if pinch is smaller, and zoom out if so
 			if((touchDelta + varianceInDistances > 1) && (speedTouch0 > minPinchSpeed) && (speedTouch1 > minPinchSpeed)) 
 			{
-				this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView - speed, 15, 90);
+				this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView - speed, 15, 45);
 			}
 		}
 	}
