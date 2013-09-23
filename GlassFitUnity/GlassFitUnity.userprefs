@@ -2,11 +2,11 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\UICamera.cs">
     <Files>
-      <File FileName="Assets\GlassGUI.cs" Line="51" Column="2" />
-      <File FileName="Assets\UIControl.cs" Line="22" Column="4" />
-      <File FileName="Assets\David\PBRunnerController.cs" Line="1" Column="1" />
-      <File FileName="Assets\David\SlowRunnerController.cs" Line="1" Column="1028" />
-      <File FileName="Assets\UICamera.cs" Line="43" Column="35" />
+      <File FileName="Assets\GlassGUI.cs" Line="77" Column="3" />
+      <File FileName="Assets\UICamera.cs" Line="64" Column="34" />
+      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="7" Column="26" />
+      <File FileName="Assets\javaInterface\Platform.cs" Line="30" Column="51" />
+      <File FileName="Assets\UIControl.cs" Line="47" Column="4" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -18,6 +18,7 @@
                 <Node name="SampleScripts" expanded="True" />
                 <Node name="Scripts" expanded="True" />
               </Node>
+              <Node name="javaInterface" expanded="True" />
               <Node name="UICamera.cs" selected="True" />
             </Node>
           </Node>

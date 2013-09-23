@@ -157,15 +157,6 @@ public class GlassGUI : MonoBehaviour {
 		
 		timeOut -= Time.deltaTime;
 	}
-		void OnPauseGame()
-	{
-		paused = true;	
-	}
-	
-	void OnResumeGame()
-	{
-		paused = false;
-	}
 	
 	void OnGUI ()
 	{
@@ -180,10 +171,6 @@ public class GlassGUI : MonoBehaviour {
 		
 		
 		GUI.skin.label.fontSize = 15;
-		if(paused)
-		{
-			GUI.Label(new Rect(originalWidth/2 - 200, originalHeight/2-100, 400, 200), "Tap to Resume");
-		}
 		
 		GUI.skin.box.wordWrap = true;
 		GUI.skin.box.fontSize = 30;

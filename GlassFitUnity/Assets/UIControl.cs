@@ -3,7 +3,7 @@ using System.Collections;
 
 public class UIControl : MonoBehaviour {
 	
-	public int speed = 2;
+	public float speed = 0.5f;
 	public float minPinchSpeed = 5.0f;
 	public float varianceInDistances = 5.0f;
 	private Vector2 curDist = new Vector2(0, 0);
