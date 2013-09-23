@@ -3,11 +3,13 @@ using System.Collections;
 
 public class distanceMarker : MonoBehaviour {
 	
-#if UNITY_ANDROID && !UNITY_EDITOR
-	private Platform inputData = null;
-#else
+//#if UNITY_ANDROID && !UNITY_EDITOR
+//	private Platform inputData = null;
+//#else
 	private PlatformDummy inputData = null;
-#endif
+//#endif
+	
+	private int target = 50;
 	
 	//GameObjects for each marker
 	public GameObject fiftyMarker;
@@ -43,11 +45,11 @@ public class distanceMarker : MonoBehaviour {
 	
 	void Start () 
 	{	
-	#if UNITY_ANDROID && !UNITY_EDITOR 
-		inputData = new Platform();
-	#else
+	//#if UNITY_ANDROID && !UNITY_EDITOR 
+	//	inputData = new Platform();
+	//#else
 		inputData = new PlatformDummy();
-	#endif
+	//#endif
 		
 		distanceBox = new Rect(Screen.width/2, Screen.height - 50, 50, 50);
 		inputData.Start(true);
@@ -85,21 +87,26 @@ public class distanceMarker : MonoBehaviour {
 	void Update () 
 	{
 		inputData.Poll();
-		distance = 50;
+		distance = inputData.Distance();
 		
 		ResetMarkers();
 		
 		// 50m markers
-		if(distance > 20 && distance < 80)
+		if(distance > target - 20 && distance < target + 20)
 		{
-			float deltDist = 50 - distance;
+			float deltDist = target - distance;
 			deltDist *= 6.666f;
 			fiftyMarker.transform.position = new Vector3(15, 0, deltDist);
 			fiftyMarker2.transform.position = new Vector3(-15, 0, deltDist);
 		}
 		
+		if(distance > target + 20) 
+		{
+			target +=50;	
+		}
+		
 		// 100m markers
-		if(distance > 70 && distance < 130)
+		/*if(distance > 70 && distance < 130)
 		{
 			float deltDist = 100 - distance;
 			deltDist *= 6.666f;
@@ -168,6 +175,6 @@ public class distanceMarker : MonoBehaviour {
 			deltDist *= 6.666f;
 			fiveKilometerMarker.transform.position = new Vector3(15, -30, deltDist);
 			fiveKilometerMarker2.transform.position = new Vector3(-15, -30, deltDist);
-		}
+		}*/
 	}
 }

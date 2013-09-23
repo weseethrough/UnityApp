@@ -10,6 +10,9 @@ public class UICamera : MonoBehaviour {
 	public Quaternion offsetFromStart;
 	public Quaternion camFromStart;
 	public Quaternion planarOffset;
+	public GameObject test;
+	private Quaternion prevRot;
+	
 	private float timer;
 	private int touchCount=0;
 	//private bool firstRotate = true;
@@ -23,6 +26,7 @@ public class UICamera : MonoBehaviour {
 		SensorHelper.ActivateRotation();
 		offsetFromStart = SensorHelper.rotation;
 		camFromStart = transform.rotation;
+		prevRot = transform.rotation;
 		//SensorHelper.TryForceRotationFallback(RotationFallbackType.RotationQuaternion);
 		useGUILayout = false;
 	}
@@ -36,6 +40,7 @@ public class UICamera : MonoBehaviour {
 		{ 
 			offsetFromStart = SensorHelper.rotation;
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			//transform.LookAt(test.transform);
 		}
 	}
 	
@@ -47,7 +52,10 @@ public class UICamera : MonoBehaviour {
 		//transform.rotation = Sensor.rotationQuaternion; //--- is the same as Sensor.QuaternionFromRotationVector(Sensor.rotationVector);
 
 		// Helper with fallback:
-		transform.rotation =  newOffset;
+		//transform.rotation =  Quaternion.Slerp(prevRot, newOffset, Time.deltaTime*2);
+		transform.rotation = newOffset;
+		//Quaternion i = prevRot.
+		//prevRot = transform.rotation;
 		//
 		
 	}
