@@ -52,10 +52,10 @@ public class UICamera : MonoBehaviour {
 		//transform.rotation = Sensor.rotationQuaternion; //--- is the same as Sensor.QuaternionFromRotationVector(Sensor.rotationVector);
 
 		// Helper with fallback:
-		//transform.rotation =  Quaternion.Slerp(prevRot, newOffset, Time.deltaTime*2);
-		transform.rotation = newOffset;
+		transform.rotation =  Quaternion.Slerp(prevRot, newOffset, Time.deltaTime*2);
+		//transform.rotation = newOffset;
 		//Quaternion i = prevRot.
-		//prevRot = transform.rotation;
+		prevRot = transform.rotation;
 		//
 		
 	}
