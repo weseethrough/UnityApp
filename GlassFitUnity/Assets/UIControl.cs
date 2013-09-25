@@ -3,7 +3,7 @@ using System.Collections;
 
 public class UIControl : MonoBehaviour {
 	
-	public float speed = 0.5f;
+	public float speed = 2.0f;
 	public float minPinchSpeed = 5.0f;
 	public float varianceInDistances = 5.0f;
 	private Vector2 curDist = new Vector2(0, 0);
@@ -19,7 +19,7 @@ public class UIControl : MonoBehaviour {
 	
 	void Update () {
 		if(Input.touchCount == 2 && Input.GetTouch(0).phase == TouchPhase.Moved && Input.GetTouch(1).phase == TouchPhase.Moved) 
-		{
+		{			
 			// Current distance between fingers
 			curDist = Input.GetTouch(0).position - Input.GetTouch(1).position;
 			
@@ -44,6 +44,20 @@ public class UIControl : MonoBehaviour {
 			{
 				this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView - speed, 15, 45);
 			}
+			
+			if(this.camera.fieldOfView == 15)
+			{
+				GetComponent<UICamera>().zoomedIn = true;
+			}
+			else
+			{
+				GetComponent<UICamera>().zoomedIn = false;
+			}
+		}
+		
+		if(Input.touchCount == 3)
+		{
+			this.camera.fieldOfView = 15;
 		}
 	}
 }

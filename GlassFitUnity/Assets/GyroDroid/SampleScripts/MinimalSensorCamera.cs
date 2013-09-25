@@ -31,7 +31,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 	//	if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
 	//	{ 
-	
+		
 		if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
 		{ 
 			offsetFromStart = SensorHelper.rotation;

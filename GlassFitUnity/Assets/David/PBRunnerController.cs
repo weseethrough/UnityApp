@@ -14,52 +14,60 @@ public class PBRunnerController : MonoBehaviour {
 	private float myDistance;
 	private float targetDistance;
 	
+	private bool started = false;
 	private float scaledPace;
 	private float paceSlider;
 	private Rect sliderBox;
 	private float indoorDistance;
 	private float timeChange;
+	private double scaledDistance;
 	private bool GoGoGo = false;
+	
 	// Use this for initialization
 	void Start () {
-					#if UNITY_ANDROID && !UNITY_EDITOR 
+		#if UNITY_ANDROID && !UNITY_EDITOR 
 		inputData = new Platform();
 		#else
 		inputData = new PlatformDummy();
 		#endif
 	
+		inputData.Start(false);
 	}
-	void OnGUI(){
-	/*	if(GoGoGo){if(GUI.Button (new Rect(Screen.width/2,Screen.height/2 -250,300,300), "GOGOGO"))
-		{
-			GoGoGo = true;
-		}}
-	*/}
-	// Update is called once per frame
+	
+	void OnGUI() 
+	{
+		GUI.Label(new Rect(Screen.width/2, Screen.height/2, 300, 300), scaledDistance.ToString());	
+	}
+	
 	void Update () {
 		
 		inputData.Poll();
-		timeChange += Time.deltaTime;
+		//timeChange += Time.deltaTime;
 		
-		if (timeChange > 10)
+//		if (timeChange > 10)
+//		{
+//			GoGoGo = true;
+//		} else 
+//		{
+//
+//		}
+		
+		if(!started && Input.touchCount == 3)
 		{
-			GoGoGo = true;
-		} else 
-		{
-//		inputData
+			started = true;
+			inputData.Start(false);
 		}
-		
-		myDistance = (inputData.DistanceBehindTarget())/2f;
-		indoorDistance = 20f * Mathf.Sin(timeChange) + 10f * Mathf.Sin(timeChange/2) ;
-		Vector3 indoorMove = new Vector3(-10,-14,myDistance);
-		
-		transform.position =  Vector3.Slerp(transform.position, indoorMove, 0.4f);
-		
-	if(GoGoGo)
-		{
-//	float	sacledDistance = inputData.DistanceBehindTarget() * 0.3f;
-//	Vector3 movement = new Vector3(0,0,sacledDistance);
-//	transform.position = movement;
-		}
+//		
+//		myDistance = (inputData.DistanceBehindTarget());
+//		Vector3 indoorMove = new Vector3(-10,-14,myDistance);
+//		
+//		transform.position =  Vector3.Slerp(transform.position, indoorMove, 0.4f);
+
+//		if(GoGoGo)
+//		{
+			scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
+			Vector3 movement = new Vector3(-10,-14,(float)scaledDistance);
+			transform.position = movement;
+		//}
 	}
 }

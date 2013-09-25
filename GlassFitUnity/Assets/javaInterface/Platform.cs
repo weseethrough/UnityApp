@@ -5,9 +5,9 @@ using System.Diagnostics;
 using System;
 
 public class Platform {
-	private long targetElapsedDistance = 0;
+	private double targetElapsedDistance = 0;
 	private long time = 0;
-	private long distance = 0;
+	private double distance = 0.0;
 	private int calories = 0;
 	private float pace = 0;
 	
@@ -35,6 +35,7 @@ public class Platform {
 	        {
 				try {
 					gps = helper.CallStatic<AndroidJavaObject>("getGPSTracker", app);
+					//gps = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.GPSTracker");
 					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
 					errorLog = "";
 					error = false;
@@ -81,12 +82,12 @@ public class Platform {
 //			errorLog = errorLog + "\ngetElapsedTime: " + e.Message;
 		}
 		try {
-			targetElapsedDistance = target.Call<long>("getCumulativeDistanceAtTime", Time());
+			targetElapsedDistance = target.Call<double>("getCumulativeDistanceAtTime", Time());
 		} catch (Exception e) {
 //			errorLog = errorLog + "\ngetCumulativeDistanceAtTime" + e.Message;
 		}
 		try {
-			distance = gps.Call<long>("getElapsedDistance");
+			distance = gps.Call<double>("getElapsedDistance");
 		} catch (Exception e) {
 ///			errorLog = errorLog + "\ngetElapsedDistance" + e.Message;
 		}
@@ -107,8 +108,8 @@ public class Platform {
 		
 	}
 	*/
-	public long DistanceBehindTarget() {
-		long returnDistance = (targetElapsedDistance - distance)/2;
+	public double DistanceBehindTarget() {
+		double returnDistance = (targetElapsedDistance - distance);
 		return returnDistance;
 	}
 	
@@ -116,12 +117,13 @@ public class Platform {
 		return time+lerpTimer.ElapsedMilliseconds;
 	}
 	
-	public long Distance() {
+	public double Distance() {
 		return distance;
 	}
 	
 	public int Calories() {
-		return calories;
+		double cal = 76.0 / 1000.0 * distance;
+		return (int)cal;
 	}
 	
 	public float Pace() {

@@ -9,9 +9,9 @@ public class GlassGUI : MonoBehaviour {
 #else
 	private PlatformDummy ji = null;
 #endif
+	
 	public Boolean started = false;
 	private Boolean buttonOn = false;
-	private Boolean paused = false;
 	private float timeOut = 0;
 	private int touchCount = 0;
 	
@@ -57,8 +57,8 @@ public class GlassGUI : MonoBehaviour {
 	private float paceSlider;
 	private Rect sliderBox;
 	
-	private int originalWidth = 800;  // define here the original resolution
-  	private int originalHeight = 500; // you used to create the GUI contents 
+	private float originalWidth = 800;  // define here the original resolution
+  	private float originalHeight = 500; // you used to create the GUI contents 
  	private Vector3 scale;
 
 	// Background textures
@@ -147,7 +147,7 @@ public class GlassGUI : MonoBehaviour {
         }
 		
 		if(touchCount > 0) {
-		//	buttonOn = true;
+			buttonOn = true;
 			timeOut = 3;
 			touchCount = 0;
 		}
@@ -160,15 +160,15 @@ public class GlassGUI : MonoBehaviour {
 	
 	void OnGUI ()
 	{
-
-		scale.x = Screen.width/originalWidth; // calculate hor scale
-    	scale.y = Screen.height/originalHeight; // calculate vert scale
+		scale.x = (float)Screen.width / originalWidth;
+		scale.y = (float)Screen.height / originalHeight;
+		//scale.x = 2.4f; // calculate hor scale
+    	//scale.y = 2.16f; // calculate vert scale
     	scale.z = 1;
 		
     	var svMat = GUI.matrix; // save current matrix
     	// substitute matrix - only scale is altered from standard
     	GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-		
 		
 		GUI.skin.label.fontSize = 15;
 		
@@ -182,7 +182,8 @@ public class GlassGUI : MonoBehaviour {
 		//GUI.Label(gpsLock, "GPS: " + ji.hasLock());
 				
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
-		long targetDistance = ji.DistanceBehindTarget();
+		
+		double targetDistance = ji.DistanceBehindTarget();
 		if (targetDistance > 0) {
 			targetStyle.normal.background = warning; 
 			targetText = "Behind!\n";
@@ -192,20 +193,26 @@ public class GlassGUI : MonoBehaviour {
 		}
 		targetStyle.normal.textColor = Color.white;		
 		GUI.Box(target, targetText+"<i>"+SiDistance( Math.Abs(targetDistance) )+"</i>", targetStyle);
-		long selfDistance = ji.Distance();
+		
+		double selfDistance = ji.Distance();
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
+		
 		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
+		
 		GUI.Box(calories, caloriesText + ji.Calories());
 
-		if(started && buttonOn && GUI.Button(start, "Pause")) {
-			ji.Start(false);
+//		if(!started && buttonOn && GUI.Button(start, "Pause")) {
+//			ji.Start(false);
+//			started = true;
+//		}	
+		
+		if(!started && Input.touchCount == 3)
+		{
 			started = true;
+			ji.Start(false);
 		}
-		if(started && buttonOn && GUI.Button(stop, stopText)) {
-			ji.Start(false);
-			started = true;
-		}		
-
+		
+		// pace
 		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
 		
 		// Map
@@ -213,7 +220,7 @@ public class GlassGUI : MonoBehaviour {
 		Color original = GUI.color;
 		GUI.color = new Color(1f, 1f, 1f, OPACITY);
 				
-		float selfOnMap = selfDistance/map.height;
+		float selfOnMap = (float)selfDistance/map.height;
 		Rect mapCoords = new Rect(0, selfOnMap, 1, selfOnMap+0.3f);
 		GUI.DrawTextureWithTexCoords(map, mapTexture, mapCoords);
 
@@ -231,26 +238,15 @@ public class GlassGUI : MonoBehaviour {
 		GUI.DrawTexture(mapTarget, targetIcon);
 		GUI.color = original;
 		
-		/*if (!started && GUI.Button (start, startText)) {
-			ji.Start(false);
-			started = true;
-		}
 		// *** DEBUG
-		
-		if (!started && GUI.Button (stop, "START indoor")) {			
-		*/	ji.Start(true);
-			started = true;
-		//}
+		//GUI.TextArea(debug, debugText + ji.DebugLog());
 		// *** DEBUG
-		GUI.TextArea(debug, debugText + ji.DebugLog());
-		// *** DEBUG
-	
-		GUI.matrix = svMat; // restore matrix
+		//GUI.matrix = svMat; // restore matrix
 	}
 	
-	string SiDistance(long meters) {
+	string SiDistance(double meters) {
 		string postfix = "M";
-		float value = meters;
+		int value = (int)meters;
 		if (value > 100) {
 			value = value/1000;
 			postfix = "KM";
@@ -271,8 +267,8 @@ public class GlassGUI : MonoBehaviour {
 
 		return string.Format("{0:00}:{1:00}:{2:00}",span.Minutes,span.Seconds,span.Milliseconds/10);	
 	}
-	string TimestampMMSS(long seconds) {
-		TimeSpan span = TimeSpan.FromSeconds(seconds);
+	string TimestampMMSS(long minutes) {
+		TimeSpan span = TimeSpan.FromMinutes(minutes);
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}

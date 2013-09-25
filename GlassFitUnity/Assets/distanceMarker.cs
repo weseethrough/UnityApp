@@ -14,9 +14,11 @@ public class distanceMarker : MonoBehaviour {
 	//GameObjects for each marker
 	public GameObject fiftyMarker;
 	public GameObject fiftyMarker2;
+	
+	private bool started = false;
 
 	// Boxes to check distance
-	private long distance = 0;
+	private double distance;
 	private Rect distanceBox;
 	
 	void Start () 
@@ -28,14 +30,7 @@ public class distanceMarker : MonoBehaviour {
 	#endif
 		
 		distanceBox = new Rect(Screen.width/2, Screen.height - 50, 50, 50);
-		inputData.Start(true);
-	}
-	
-	void OnGUI()
-	{
-		GUI.skin.box.fontSize = 30;
-		GUI.Box(distanceBox, distance.ToString());
-		GUI.Box(new Rect(0, 0, 300, 50), fiftyMarker.transform.position.ToString());
+		//inputData.Start(true);
 	}
 	
 	void ResetMarkers()
@@ -51,13 +46,19 @@ public class distanceMarker : MonoBehaviour {
 		
 		ResetMarkers();
 		
+		if(!started && Input.touchCount == 3)
+		{
+			started = true;
+			inputData.Start(false);
+		}
+		
 		// 50m markers
 		if(distance > target - 20 && distance < target + 20)
 		{
-			float deltDist = target - distance;
+			double deltDist = target - distance;
 			deltDist *= 6.666f;
-			fiftyMarker.transform.position = new Vector3(15, 0, deltDist);
-			fiftyMarker2.transform.position = new Vector3(-15, 0, deltDist);
+			fiftyMarker.transform.position = new Vector3(15, 0, (float)deltDist);
+			fiftyMarker2.transform.position = new Vector3(-15, 0, (float)deltDist);
 		}
 		
 		if(distance > target + 20) 

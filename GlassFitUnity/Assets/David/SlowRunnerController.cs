@@ -77,7 +77,7 @@ public class SlowRunnerController : MonoBehaviour
 			
 		scaledPace = (float)((((myPace)- paceSlider)) * Time.deltaTime)*0.2f;
 			
-			
+		transform.position = new Vector3(10, -14, transform.position.z);
 		Vector3 movement = new Vector3(0,0,scaledPace);
 		transform.position += movement;
 		

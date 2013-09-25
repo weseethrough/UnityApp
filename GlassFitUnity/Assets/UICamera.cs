@@ -12,7 +12,7 @@ public class UICamera : MonoBehaviour {
 	public Quaternion planarOffset;
 	public GameObject test;
 	public GameObject checker;
-	public bool zoomedIn = false;
+	public bool zoomedIn;
 	public bool stuck = false;
 	private Quaternion prevRot;
 	
@@ -37,9 +37,6 @@ public class UICamera : MonoBehaviour {
 	
 	void OnGUI()
 	{
-	//	if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
-	//	{ 
-	
 		if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
 		{ 
 			offsetFromStart = SensorHelper.rotation;
@@ -56,11 +53,10 @@ public class UICamera : MonoBehaviour {
 
 		// Helper with fallback:
 		//transform.rotation =  Quaternion.Slerp(prevRot, newOffset, Time.deltaTime*2);
-		if(!stuck)
-		{
-			transform.rotation = newOffset;
-		}
+		transform.rotation = newOffset;
 		//Quaternion i = prevRot.
 		//prevRot = transform.rotation;
+		if(this.camera.fieldOfView == 15)
+			AutoFade.LoadLevel("GUI", 1, 1, Color.black);
 	}
 }
