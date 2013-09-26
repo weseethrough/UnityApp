@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System;
 
 public class TrainGUI : MonoBehaviour {
 
 	private Platform ji = null;
 
+	public bool countdown = false;
 	public bool started = false;
 	public GameObject platform;
 	private const int MARGIN = 15;
@@ -123,6 +127,7 @@ public class TrainGUI : MonoBehaviour {
 		mapTexture = Resources.Load("DummyMap") as Texture2D;
 		
 		ji = new Platform();
+		ji.setTargetSpeed(1.788f);
 	}
 	
 	// Update is called once per frame
@@ -203,7 +208,7 @@ public class TrainGUI : MonoBehaviour {
 		
 		// Target Distance
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
-		double targetDistance = ji.DistanceBehindTarget();
+		double targetDistance = ji.DistanceBehindTarget() - 50.0;
 		if (targetDistance > 0) {
 			targetStyle.normal.background = warning; 
 			targetText = "Behind!\n";

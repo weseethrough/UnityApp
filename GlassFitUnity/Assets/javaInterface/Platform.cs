@@ -14,6 +14,7 @@ public class Platform {
 	
 	private bool countdown = false;
 	private bool started = false;
+	private bool error = false;
 	
 	private Boolean tracking = false;
 	
@@ -28,34 +29,20 @@ public class Platform {
 	private string errorLog = "Not yet initialized";
 	
 	public Platform() {
-<<<<<<< HEAD
 		error = true;
 		UnityEngine.Debug.Log("Constructor is called");
 		errorLog = errorLog + "GlassfitUnity \n Platform constructor called \n";
-=======
-		//error = true;
-		
-		UnityEngine.Debug.Log("CONSTRUCTOR CALLED");
-		//errorLog = errorLog + "GlassfitUnity \n Platform constructor called \n";
->>>>>>> ffd5baee3cb2a21f4ca72042ff366705ccccf387
 		try {
-			UnityEngine.Debug.Log("First Line");
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			AndroidJavaObject app = activity.Call<AndroidJavaObject>("getApplicationContext");
   			//gps = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.GPSTracker");
-			UnityEngine.Debug.Log("\n Glassfit Unity \n App has been loaded \n");
 			helper = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
         	activity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
 	        {
-			UnityEngine.Debug.Log("Second Line");
-				
 				try {
-					
-			UnityEngine.Debug.Log("Thrid Line");
 					gps = helper.CallStatic<AndroidJavaObject>("getGPSTracker", app);
 					if(gps==null)
-<<<<<<< HEAD
 						errorLog = errorLog + "\n GlassfitUnity \n gps is null!";
 					UnityEngine.Debug.Log("\n Glassfit Unity \n gps has been obtained \n");
 					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
@@ -67,22 +54,8 @@ public class Platform {
         	}));		
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("\n Glassfit Unity \n error getting class/object \n" + e.Message);;
-=======
-						UnityEngine.Debug.Log("GlassfitUnity gps is null!");
-					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
-			//		errorLog = "";
-			//		error = false;
-				} catch  {
-					
-					UnityEngine.Debug.Log("HELP LEVEL 5 problem!!");
-					//errorLog = errorLog + e.Message;
-				}
-        	}));		
-		} catch {
-			
-			UnityEngine.Debug.Log("HELP we dropped the ball");
->>>>>>> ffd5baee3cb2a21f4ca72042ff366705ccccf387
-		}
+					UnityEngine.Debug.Log("GlassfitUnity gps is null!");
+				} 
 	}
 	
 	public void StartTrack(bool indoor) {
