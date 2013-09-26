@@ -29,8 +29,11 @@ public class Platform {
 	
 	public Platform() {
 		error = true;
+		
+		UnityEngine.Debug.Log("CONSTRUCTOR CALLED");
 		errorLog = errorLog + "GlassfitUnity \n Platform constructor called \n";
 		try {
+			UnityEngine.Debug.Log("First Line");
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			AndroidJavaObject app = activity.Call<AndroidJavaObject>("getApplicationContext");
@@ -38,19 +41,26 @@ public class Platform {
 			helper = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
         	activity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
 	        {
+			UnityEngine.Debug.Log("Second Line");
+				
 				try {
+					
+			UnityEngine.Debug.Log("Thrid Line");
 					gps = helper.CallStatic<AndroidJavaObject>("getGPSTracker", app);
 					if(gps==null)
-						errorLog = errorLog + "\n GlassfitUnity \n gps is null!";
+						UnityEngine.Debug.Log("GlassfitUnity gps is null!");
 					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
 					errorLog = "";
 					error = false;
-				} catch (Exception e) {
-					errorLog = errorLog + e.Message;
+				} catch  {
+					
+					UnityEngine.Debug.Log("HELP LEVEL 5 problem!!");
+					//errorLog = errorLog + e.Message;
 				}
         	}));		
-		} catch (Exception e) {
-			errorLog = errorLog + e.Message;
+		} catch {
+			
+			UnityEngine.Debug.Log("HELP we dropped the ball");
 		}
 	}
 	
