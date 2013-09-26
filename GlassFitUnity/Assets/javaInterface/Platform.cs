@@ -29,12 +29,14 @@ public class Platform {
 	
 	public Platform() {
 		error = true;
+		UnityEngine.Debug.Log("Constructor is called");
 		errorLog = errorLog + "GlassfitUnity \n Platform constructor called \n";
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			AndroidJavaObject app = activity.Call<AndroidJavaObject>("getApplicationContext");
   			//gps = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.GPSTracker");
+			UnityEngine.Debug.Log("\n Glassfit Unity \n App has been loaded \n");
 			helper = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
         	activity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
 	        {
@@ -42,15 +44,16 @@ public class Platform {
 					gps = helper.CallStatic<AndroidJavaObject>("getGPSTracker", app);
 					if(gps==null)
 						errorLog = errorLog + "\n GlassfitUnity \n gps is null!";
+					UnityEngine.Debug.Log("\n Glassfit Unity \n gps has been obtained \n");
 					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
 					errorLog = "";
 					error = false;
 				} catch (Exception e) {
-					errorLog = errorLog + e.Message;
+					UnityEngine.Debug.Log("\n Glassfit Unity \n error getting gps\target \n" + e.Message);
 				}
         	}));		
 		} catch (Exception e) {
-			errorLog = errorLog + e.Message;
+			UnityEngine.Debug.Log("\n Glassfit Unity \n error getting class/object \n" + e.Message);;
 		}
 	}
 	
@@ -60,17 +63,17 @@ public class Platform {
 			tracking = true;
 			errorLog = errorLog + "GlassfitUnity start function called\n";
 		} catch (Exception e) {
-			errorLog = errorLog + "GlassfitUnity" + e.Message;
+			UnityEngine.Debug.Log("\n Glassfit Unity \n error calling start \n" + e.Message);
 			error = true;
 		}
 	}
 	
 	public Boolean hasLock() {
 		try {
-			errorLog = errorLog + "Checking for position" + "\n" + "GlassfitUnity";
+			UnityEngine.Debug.Log(errorLog + "Checking for position" + "\n" + "GlassfitUnity");
 			return gps.Call<Boolean>("hasPosition");
 		} catch (Exception e) {
-			errorLog = errorLog + "GlassfitUnity" + "\n" + e.Message;
+			UnityEngine.Debug.Log("\nGlassfitUnity\nProblem getting lock\n" + e.Message);
 			return false;
 		}
 	}

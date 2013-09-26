@@ -127,6 +127,7 @@ public class GlassGUI : MonoBehaviour {
 		targetIcon = Resources.Load("Target") as Texture2D;
 		mapTexture = Resources.Load("DummyMap") as Texture2D;
 		
+		
 		ji = new Platform();
 		//EventLog.
 		//ji.StartTrack(false);

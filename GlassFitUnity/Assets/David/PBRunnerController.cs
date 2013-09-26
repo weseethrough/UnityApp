@@ -15,7 +15,6 @@ public class PBRunnerController : MonoBehaviour {
 	private float targetDistance;
 	
 	private float countTime = 3.99f;
-	private bool countdown = false;
 	private bool started = false;
 	
 	private float scaledPace;
@@ -32,23 +31,6 @@ public class PBRunnerController : MonoBehaviour {
 	}
 	
 	void Update () {
-		
-//		if(!countdown)
-//		{
-//			if(inputData.hasLock())
-//			{
-//				countdown = true;
-//			}
-//		}
-//		else
-//		{
-//			if(!started)
-//			{
-//				inputData.StartTrack(false);
-//				started = true;
-//			}
-//			countTime -= Time.deltaTime;
-//		}
 		
 		if(countTime == 3.99f && inputData.hasLock() && !started)
 		{
