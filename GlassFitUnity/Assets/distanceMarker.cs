@@ -1,16 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Diagnostics;
-using System;
 
 public class distanceMarker : MonoBehaviour {
 	
-#if UNITY_ANDROID && !UNITY_EDITOR
 	private Platform inputData = null;
-#else
-	private PlatformDummy inputData = null;
-#endif
-	
+
 	private int target = 50;
 	
 	//GameObjects for each marker
@@ -20,7 +14,6 @@ public class distanceMarker : MonoBehaviour {
 	private float countTime = 3.99f;
 	private bool countdown = false;
 	private bool started = false;
-	private Stopwatch timer = new Stopwatch();
 	
 	public GameObject text1;
 	public GameObject text2;
@@ -38,11 +31,8 @@ public class distanceMarker : MonoBehaviour {
 	
 	void Start () 
 	{	
-	#if UNITY_ANDROID && !UNITY_EDITOR 
 		inputData = new Platform();
-	#else
-		inputData = new PlatformDummy();
-	#endif
+
 		
 		t1 = text1.GetComponent<TextMesh>();
 		t2 = text2.GetComponent<TextMesh>();

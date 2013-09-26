@@ -6,11 +6,8 @@ using System;
 
 public class GlassGUI : MonoBehaviour {
 	
-#if UNITY_ANDROID && !UNITY_EDITOR 
 	private Platform ji = null;
-#else
-	private PlatformDummy ji = null;
-#endif
+
 	
 	public bool countdown = false;
 	public bool started = false;
@@ -130,11 +127,7 @@ public class GlassGUI : MonoBehaviour {
 		targetIcon = Resources.Load("Target") as Texture2D;
 		mapTexture = Resources.Load("DummyMap") as Texture2D;
 		
-#if UNITY_ANDROID && !UNITY_EDITOR 
 		ji = new Platform();
-#else
-		ji = new PlatformDummy();
-#endif
 		//EventLog.
 		//ji.StartTrack(false);
 	}

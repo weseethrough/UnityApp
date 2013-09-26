@@ -29,25 +29,28 @@ public class Platform {
 	
 	public Platform() {
 		error = true;
+		errorLog = errorLog + "GlassfitUnity \n Platform constructor called \n";
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			AndroidJavaObject app = activity.Call<AndroidJavaObject>("getApplicationContext");
-  
+  			//gps = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.GPSTracker");
 			helper = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
         	activity.Call("runOnUiThread", new AndroidJavaRunnable(() =>
 	        {
 				try {
 					gps = helper.CallStatic<AndroidJavaObject>("getGPSTracker", app);
+					if(gps==null)
+						errorLog = errorLog + "\n GlassfitUnity \n gps is null!";
 					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
 					errorLog = "";
 					error = false;
 				} catch (Exception e) {
-					errorLog = e.Message;
+					errorLog = errorLog + e.Message;
 				}
         	}));		
 		} catch (Exception e) {
-			errorLog = e.Message;
+			errorLog = errorLog + e.Message;
 		}
 	}
 	
@@ -55,7 +58,7 @@ public class Platform {
 		try {
 			gps.Call("startTracking");
 			tracking = true;
-			errorLog = "GlassfitUnity start function called\n";
+			errorLog = errorLog + "GlassfitUnity start function called\n";
 		} catch (Exception e) {
 			errorLog = errorLog + "GlassfitUnity" + e.Message;
 			error = true;
@@ -64,6 +67,7 @@ public class Platform {
 	
 	public Boolean hasLock() {
 		try {
+			errorLog = errorLog + "Checking for position" + "\n" + "GlassfitUnity";
 			return gps.Call<Boolean>("hasPosition");
 		} catch (Exception e) {
 			errorLog = errorLog + "GlassfitUnity" + "\n" + e.Message;

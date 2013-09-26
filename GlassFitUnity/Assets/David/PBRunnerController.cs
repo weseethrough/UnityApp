@@ -6,11 +6,7 @@ using System;
 
 public class PBRunnerController : MonoBehaviour {
 	
-	#if UNITY_ANDROID && !UNITY_EDITOR 
 	private Platform inputData = null;
-#else
-	private PlatformDummy inputData = null;
-#endif
 	
 	public GameObject platform;
 	private Transform CurrentLocation;
@@ -21,7 +17,6 @@ public class PBRunnerController : MonoBehaviour {
 	private float countTime = 3.99f;
 	private bool countdown = false;
 	private bool started = false;
-	private Stopwatch timer = new Stopwatch();
 	
 	private float scaledPace;
 	private float paceSlider;
@@ -33,13 +28,8 @@ public class PBRunnerController : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		#if UNITY_ANDROID && !UNITY_EDITOR 
-		inputData = new Platform();
-		#else
-		inputData = new PlatformDummy();
-		#endif
+		
 	}
-
 	
 	void Update () {
 		
