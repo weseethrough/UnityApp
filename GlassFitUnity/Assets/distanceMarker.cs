@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Diagnostics;
+using System;
 
 public class distanceMarker : MonoBehaviour {
 	
@@ -15,7 +17,20 @@ public class distanceMarker : MonoBehaviour {
 	public GameObject fiftyMarker;
 	public GameObject fiftyMarker2;
 	
+	private float countTime = 3.99f;
+	private bool countdown = false;
 	private bool started = false;
+	private Stopwatch timer = new Stopwatch();
+	
+	public GameObject text1;
+	public GameObject text2;
+	public GameObject text3;
+	public GameObject text4;
+	
+	private TextMesh t1;
+	private TextMesh t2;
+	private TextMesh t3;
+	private TextMesh t4;
 
 	// Boxes to check distance
 	private double distance;
@@ -29,8 +44,13 @@ public class distanceMarker : MonoBehaviour {
 		inputData = new PlatformDummy();
 	#endif
 		
+		t1 = text1.GetComponent<TextMesh>();
+		t2 = text2.GetComponent<TextMesh>();
+		t3 = text3.GetComponent<TextMesh>();
+		t4 = text4.GetComponent<TextMesh>();
+		
 		distanceBox = new Rect(Screen.width/2, Screen.height - 50, 50, 50);
-		//inputData.Start(true);
+		//inputData.StartTrack(false);
 	}
 	
 	void ResetMarkers()
@@ -41,16 +61,48 @@ public class distanceMarker : MonoBehaviour {
 	
 	void Update () 
 	{
+		
+//		if(!countdown)
+//		{
+//			if(inputData.hasLock())
+//			{
+//				countdown = true;
+//			}
+//		}
+//		else
+//		{
+//			if(!started)
+//			{
+//				inputData.StartTrack(false);
+//				started = true;
+//			}
+//			countTime -= Time.deltaTime;
+//		}
+			
+		if(countTime == 3.99f && inputData.hasLock() && !started)
+		{
+			started = true;
+		}
+		
+		if(started && countTime <= 0.0f)
+		{
+			inputData.StartTrack(false);
+		}
+		else if(started && countTime > 0.0f)
+		{
+			countTime -= Time.deltaTime;
+		}
+		
 		inputData.Poll();
 		distance = inputData.Distance();
 		
 		ResetMarkers();
 		
-		if(!started && Input.touchCount == 3)
-		{
-			started = true;
-			inputData.Start(false);
-		}
+//		if(!started && Input.touchCount == 3)
+//		{
+//			started = true;
+//			inputData.Start(false);
+//		}
 		
 		// 50m markers
 		if(distance > target - 20 && distance < target + 20)
@@ -63,7 +115,11 @@ public class distanceMarker : MonoBehaviour {
 		
 		if(distance > target + 20) 
 		{
-			target +=50;	
+			target +=50;
+			t1.text = target.ToString();
+			t2.text = target.ToString();
+			t3.text = target.ToString();
+			t4.text = target.ToString();
 		}
 	}
 }

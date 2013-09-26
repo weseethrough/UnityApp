@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 using System;
 
 public class GlassGUI : MonoBehaviour {
@@ -10,13 +12,14 @@ public class GlassGUI : MonoBehaviour {
 	private PlatformDummy ji = null;
 #endif
 	
-	public Boolean started = false;
-	private Boolean buttonOn = false;
-	private float timeOut = 0;
-	private int touchCount = 0;
-	
+	public bool countdown = false;
+	public bool started = false;
+	public GameObject platform;
 	private const int MARGIN = 15;
 	private const int SUBMARGIN = 5;
+	
+	private float countTime = 3.99f;
+	private Stopwatch timer;
 	
 	private const float OPACITY = 0.5f;
 	private float timeFromStart = 0;
@@ -35,6 +38,7 @@ public class GlassGUI : MonoBehaviour {
 	private string caloriesText;
 	private Rect pace;
 	private string paceText;
+	
 	// Right side bottom
 	private Rect map;
 	private Rect mapSelf;
@@ -93,11 +97,10 @@ public class GlassGUI : MonoBehaviour {
 		stop =     new Rect((originalWidth-200)/2, (originalHeight+100)/2+SUBMARGIN, 200, 100);
 		
 		// Icons
-		gpsLock =  new Rect((originalWidth-50)/2, MARGIN, 50, 50);
+		gpsLock =  new Rect((originalWidth/2)-150, MARGIN, 300, 100);
 		
 		//Slider
 		sliderBox = new Rect((originalWidth/2), MARGIN, 300, 100);
-		
 		
 		// *** DEBUG
 		debug =    new Rect((originalWidth-200)/2, originalHeight-MARGIN-100, 200, 100);
@@ -132,46 +135,74 @@ public class GlassGUI : MonoBehaviour {
 #else
 		ji = new PlatformDummy();
 #endif
+		//EventLog.
+		//ji.StartTrack(false);
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
 		timeFromStart += Time.deltaTime;
-		// TODO: Replace with timed poll or callback
+	
+		if(countTime == 3.99f && ji.hasLock() && !started)
+		{
+			started = true;
+		}
+		
+		if(started && countTime <= 0.0f)
+		{
+			ji.StartTrack(false);
+		}
+		else if(started && countTime > 0.0f)
+		{
+			countTime -= Time.deltaTime;
+		}
+		
+		if(Input.GetKeyDown(KeyCode.Escape))
+		{
+			if(countTime < 0.0f)
+			{
+				Application.LoadLevel(Application.loadedLevel);
+			} else
+			{
+				Application.LoadLevel(0);
+			}
+		}
+		
 		ji.Poll();
-		
-		foreach (Touch touch in Input.touches) {
-            if (touch.phase != TouchPhase.Ended && touch.phase != TouchPhase.Canceled)
-                touchCount++;
-        }
-		
-		if(touchCount > 0) {
-			buttonOn = true;
-			timeOut = 3;
-			touchCount = 0;
-		}
-		if(timeOut < 0) {
-			buttonOn = false;
-		}
-		
-		timeOut -= Time.deltaTime;
 	}
 	
 	void OnGUI ()
 	{
+		// Scale for devices
 		scale.x = (float)Screen.width / originalWidth;
 		scale.y = (float)Screen.height / originalHeight;
-		//scale.x = 2.4f; // calculate hor scale
-    	//scale.y = 2.16f; // calculate vert scale
     	scale.z = 1;
 		
     	var svMat = GUI.matrix; // save current matrix
-    	// substitute matrix - only scale is altered from standard
+    	
+		// substitute matrix - only scale is altered from standard
     	GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		
+		if(countdown)
+		{
+			GUI.skin.label.fontSize = 40;
+			GUI.Label(new Rect(200, 200, 500, 500), "COUNTDOWN ON");
+			//float currentTime = 3.0f - timer.Elapsed.Seconds;
+			if(countTime > 0.99f)
+			{
+				GUI.Label(new Rect(300, 200, 200, 200), countTime.ToString("f0")); 
+			}
+			else if(countTime > 0.0f && countTime < 1.0f)
+			{
+				GUI.Label(new Rect(300, 200, 200, 200), "GO!"); 
+			}
+		}
+		
+		// Setting label font size
 		GUI.skin.label.fontSize = 15;
 		
+		// Setting GUI box attributes
 		GUI.skin.box.wordWrap = true;
 		GUI.skin.box.fontSize = 30;
 		GUI.skin.box.fontStyle = FontStyle.Bold;
@@ -179,10 +210,13 @@ public class GlassGUI : MonoBehaviour {
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		
-		//GUI.Label(gpsLock, "GPS: " + ji.hasLock());
-				
-		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
+		if(!ji.hasLock())
+		{
+			GUI.Label(gpsLock, "Waiting for GPS Lock...");
+		}
 		
+		// Target Distance
+		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
 		double targetDistance = ji.DistanceBehindTarget();
 		if (targetDistance > 0) {
 			targetStyle.normal.background = warning; 
@@ -194,23 +228,15 @@ public class GlassGUI : MonoBehaviour {
 		targetStyle.normal.textColor = Color.white;		
 		GUI.Box(target, targetText+"<i>"+SiDistance( Math.Abs(targetDistance) )+"</i>", targetStyle);
 		
+		// Distance
 		double selfDistance = ji.Distance();
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
 		
+		// Time
 		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
 		
+		// Calories
 		GUI.Box(calories, caloriesText + ji.Calories());
-
-//		if(!started && buttonOn && GUI.Button(start, "Pause")) {
-//			ji.Start(false);
-//			started = true;
-//		}	
-		
-		if(!started && Input.touchCount == 3)
-		{
-			started = true;
-			ji.Start(false);
-		}
 		
 		// pace
 		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
@@ -241,15 +267,21 @@ public class GlassGUI : MonoBehaviour {
 		// *** DEBUG
 		//GUI.TextArea(debug, debugText + ji.DebugLog());
 		// *** DEBUG
-		//GUI.matrix = svMat; // restore matrix
+		GUI.matrix = svMat; // restore matrix
 	}
 	
 	string SiDistance(double meters) {
-		string postfix = "M";
+		string postfix = "m";
+		string final;
 		int value = (int)meters;
-		if (value > 100) {
+		if (value > 1000) {
 			value = value/1000;
-			postfix = "KM";
+			postfix = "km";
+			final = value.ToString("f3");
+		}
+		else
+		{
+			final = value.ToString("f0");
 		}
 		return value+postfix;
 	}

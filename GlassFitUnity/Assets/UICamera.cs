@@ -10,14 +10,8 @@ public class UICamera : MonoBehaviour {
 	public Quaternion offsetFromStart;
 	public Quaternion camFromStart;
 	public Quaternion planarOffset;
-	public GameObject test;
-	public GameObject checker;
-	public bool zoomedIn;
-	public bool stuck = false;
 	private Quaternion prevRot;
-	
-	private float timer;
-	private int touchCount=0;
+	private bool started = false;
 	
 	//private bool firstRotate = true;
 
@@ -37,6 +31,13 @@ public class UICamera : MonoBehaviour {
 	
 	void OnGUI()
 	{
+		if(!started)
+		{
+			offsetFromStart = SensorHelper.rotation;
+			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			started = true;
+		}
+		
 		if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
 		{ 
 			offsetFromStart = SensorHelper.rotation;
@@ -48,15 +49,9 @@ public class UICamera : MonoBehaviour {
 		
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * SensorHelper.rotation;
 		
-		// direct Sensor usage:
-		//transform.rotation = Sensor.rotationQuaternion; //--- is the same as Sensor.QuaternionFromRotationVector(Sensor.rotationVector);
-
-		// Helper with fallback:
-		//transform.rotation =  Quaternion.Slerp(prevRot, newOffset, Time.deltaTime*2);
 		transform.rotation = newOffset;
-		//Quaternion i = prevRot.
-		//prevRot = transform.rotation;
-		if(this.camera.fieldOfView == 15)
-			AutoFade.LoadLevel("GUI", 1, 1, Color.black);
+		
+		if(this.camera.fieldOfView == 10)
+			AutoFade.LoadLevel(1, 1, 1, Color.black);
 	}
 }

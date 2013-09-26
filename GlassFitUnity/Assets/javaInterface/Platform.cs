@@ -10,10 +10,14 @@ public class Platform {
 	private double distance = 0.0;
 	private int calories = 0;
 	private float pace = 0;
+	//private float timer = 3.0f;
+	
+	private bool countdown = false;
+	private bool started = false;
 	
 	private Boolean tracking = false;
 	
-	private Stopwatch lerpTimer = new Stopwatch();
+	private Stopwatch timer = new Stopwatch();
 	
 	private AndroidJavaClass helper;
 	private AndroidJavaObject gps;
@@ -35,7 +39,6 @@ public class Platform {
 	        {
 				try {
 					gps = helper.CallStatic<AndroidJavaObject>("getGPSTracker", app);
-					//gps = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.GPSTracker");
 					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
 					errorLog = "";
 					error = false;
@@ -48,23 +51,41 @@ public class Platform {
 		}
 	}
 	
-	public void Start(Boolean indoor) {
+	public void StartTrack(bool indoor) {
 		try {
-			if (indoor) gps.Call("setIndoorMode", true);
 			gps.Call("startTracking");
 			tracking = true;
+			errorLog = "GlassfitUnity start function called\n";
 		} catch (Exception e) {
-			errorLog = e.Message;
+			errorLog = errorLog + "GlassfitUnity" + e.Message;
 			error = true;
 		}
 	}
 	
 	public Boolean hasLock() {
 		try {
-			return gps.Call<Boolean>("canGetLocation");
+			return gps.Call<Boolean>("hasPosition");
+		} catch (Exception e) {
+			errorLog = errorLog + "GlassfitUnity" + "\n" + e.Message;
+			return false;
+		}
+	}
+	
+	public void setTargetSpeed(float speed)
+	{
+		try {
+			target.Call("setSpeed", speed);
 		} catch (Exception e) {
 			errorLog = errorLog + "\n" + e.Message;
-			return false;
+		}
+	}
+	
+	public void setTargetTrack(int trackID)
+	{
+		try {
+			target.Call("setTrack", trackID);
+		} catch (Exception e) {
+			errorLog = errorLog + "\n" + e.Message;
 		}
 	}
 	
@@ -72,12 +93,7 @@ public class Platform {
 		if (error) return;
 //		if (!hasLock ()) return;
 		try {
-			long gpsTime = gps.Call<long>("getElapsedTime");
-			if (gpsTime != time) {
-				lerpTimer.Reset();
-				lerpTimer.Start();
-				time = gpsTime;
-			}
+			time = gps.Call<long>("getElapsedTime");			
 		} catch (Exception e) {
 //			errorLog = errorLog + "\ngetElapsedTime: " + e.Message;
 		}
@@ -92,7 +108,7 @@ public class Platform {
 ///			errorLog = errorLog + "\ngetElapsedDistance" + e.Message;
 		}
 		try {
-			pace = gps.Call<float>("getCurrentPace");
+			pace = gps.Call<float>("getCurrentSpeed");
 		} catch (Exception e) {
 //			errorLog = errorLog + "\ngetCurrentPace" + e.Message;
 		}
@@ -114,7 +130,7 @@ public class Platform {
 	}
 	
 	public long Time() {
-		return time+lerpTimer.ElapsedMilliseconds;
+		return time;
 	}
 	
 	public double Distance() {

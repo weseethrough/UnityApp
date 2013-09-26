@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System;
 
 public class PBRunnerController : MonoBehaviour {
 	
@@ -9,12 +12,17 @@ public class PBRunnerController : MonoBehaviour {
 	private PlatformDummy inputData = null;
 #endif
 	
+	public GameObject platform;
 	private Transform CurrentLocation;
 	private Transform targetLocation;
 	private float myDistance;
 	private float targetDistance;
 	
+	private float countTime = 3.99f;
+	private bool countdown = false;
 	private bool started = false;
+	private Stopwatch timer = new Stopwatch();
+	
 	private float scaledPace;
 	private float paceSlider;
 	private Rect sliderBox;
@@ -30,44 +38,52 @@ public class PBRunnerController : MonoBehaviour {
 		#else
 		inputData = new PlatformDummy();
 		#endif
-	
-		inputData.Start(false);
 	}
-	
-	void OnGUI() 
-	{
-		GUI.Label(new Rect(Screen.width/2, Screen.height/2, 300, 300), scaledDistance.ToString());	
-	}
+
 	
 	void Update () {
 		
-		inputData.Poll();
-		//timeChange += Time.deltaTime;
-		
-//		if (timeChange > 10)
+//		if(!countdown)
 //		{
-//			GoGoGo = true;
-//		} else 
+//			if(inputData.hasLock())
+//			{
+//				countdown = true;
+//			}
+//		}
+//		else
 //		{
-//
+//			if(!started)
+//			{
+//				inputData.StartTrack(false);
+//				started = true;
+//			}
+//			countTime -= Time.deltaTime;
 //		}
 		
-		if(!started && Input.touchCount == 3)
+		if(countTime == 3.99f && inputData.hasLock() && !started)
 		{
 			started = true;
-			inputData.Start(false);
 		}
-//		
-//		myDistance = (inputData.DistanceBehindTarget());
-//		Vector3 indoorMove = new Vector3(-10,-14,myDistance);
-//		
-//		transform.position =  Vector3.Slerp(transform.position, indoorMove, 0.4f);
-
-//		if(GoGoGo)
+		
+		if(started && countTime <= 0.0f)
+		{
+			inputData.StartTrack(false);
+		}
+		else if(started && countTime > 0.0f)
+		{
+			countTime -= Time.deltaTime;
+		}
+		
+		inputData.Poll();
+		
+//		if(!started && Input.touchCount == 3)
 //		{
-			scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
-			Vector3 movement = new Vector3(-10,-14,(float)scaledDistance);
-			transform.position = movement;
-		//}
+//			started = true;
+//			inputData.Start(false);
+//		}
+
+		scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
+		Vector3 movement = new Vector3(-10,-14,(float)scaledDistance);
+		transform.position = movement;
 	}
 }

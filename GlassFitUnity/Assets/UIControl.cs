@@ -33,31 +33,37 @@ public class UIControl : MonoBehaviour {
 			speedTouch0 = Input.GetTouch(0).deltaPosition.magnitude / Input.GetTouch(0).deltaTime;
 			speedTouch1 = Input.GetTouch(1).deltaPosition.magnitude / Input.GetTouch(1).deltaTime;
 			
+			if(this.camera.fieldOfView > 20)
+			{
+				speed = 2.0f;
+			}
+			else if(this.camera.fieldOfView <=20)
+			{
+				speed = 0.3f;
+			}
+			
 			// Check to see if pinch is bigger, and zoom in if so
 			if((touchDelta + varianceInDistances <= 1) && (speedTouch0 > minPinchSpeed) && (speedTouch1 > minPinchSpeed))
 			{
-				this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView + speed, 15, 45);
+				this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView + speed, 10, 60);
 			}
 			
 			// Check to see if pinch is smaller, and zoom out if so
 			if((touchDelta + varianceInDistances > 1) && (speedTouch0 > minPinchSpeed) && (speedTouch1 > minPinchSpeed)) 
 			{
-				this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView - speed, 15, 45);
+				this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView - speed, 10, 60);
 			}
 			
-			if(this.camera.fieldOfView == 15)
-			{
-				GetComponent<UICamera>().zoomedIn = true;
-			}
-			else
-			{
-				GetComponent<UICamera>().zoomedIn = false;
-			}
+			
+		}
+		else if(this.camera.fieldOfView < 20)
+		{
+			this.camera.fieldOfView = 20;
 		}
 		
 		if(Input.touchCount == 3)
 		{
-			this.camera.fieldOfView = 15;
+			this.camera.fieldOfView = 10;
 		}
 	}
 }

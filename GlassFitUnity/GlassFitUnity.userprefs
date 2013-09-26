@@ -1,13 +1,15 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GlassGUI.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\AutoFade.cs">
     <Files>
-      <File FileName="Assets\javaInterface\Platform.cs" Line="122" Column="3" />
-      <File FileName="Assets\UIControl.cs" Line="37" Column="26" />
-      <File FileName="Assets\GlassGUI.cs" Line="249" Column="20" />
-      <File FileName="Assets\David\PBRunnerController.cs" Line="74" Column="1" />
-      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="37" Column="44" />
-      <File FileName="Assets\distanceMarker.cs" Line="61" Column="65" />
+      <File FileName="Assets\GlassGUI.cs" Line="40" Column="26" />
+      <File FileName="Assets\distanceMarker.cs" Line="86" Column="1" />
+      <File FileName="Assets\PlatformHelper.cs" Line="23" Column="16" />
+      <File FileName="Assets\javaInterface\Platform.cs" Line="46" Column="27" />
+      <File FileName="Assets\David\PBRunnerController.cs" Line="67" Column="3" />
+      <File FileName="Assets\UIControl.cs" Line="48" Column="78" />
+      <File FileName="Assets\UICamera.cs" Line="55" Column="24" />
+      <File FileName="Assets\AutoFade.cs" Line="77" Column="6" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -15,14 +17,8 @@
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
               <Node name="David" expanded="True" />
-              <Node name="GyroDroid" expanded="True">
-                <Node name="SampleScripts" expanded="True" />
-                <Node name="Scripts" expanded="True">
-                  <Node name="Devices" expanded="True" />
-                </Node>
-              </Node>
               <Node name="javaInterface" expanded="True" />
-              <Node name="GlassGUI.cs" selected="True" />
+              <Node name="AutoFade.cs" selected="True" />
             </Node>
           </Node>
         </State>

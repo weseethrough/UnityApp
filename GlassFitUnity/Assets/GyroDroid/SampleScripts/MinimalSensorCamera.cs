@@ -11,7 +11,10 @@ public class MinimalSensorCamera : MonoBehaviour {
 	public Quaternion camFromStart;
 	public Quaternion planarOffset;
 	private float timer;
+	private bool started = false;
 	private int touchCount=0;
+	private float scaleX;
+	private float scaleY;
 	//private bool firstRotate = true;
 
 	
@@ -19,6 +22,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 		// you can use the API directly:
 		//Sensor.Activate(Sensor.Type.RotationVector);
 		
+		scaleX = (float)Screen.width / 800.0f;
+		scaleY = (float)Screen.height / 500.0f;
 		// or you can use the SensorHelper, which has built-in fallback to less accurate but more common sensors:
 		SensorHelper.ActivateRotation();
 		offsetFromStart = SensorHelper.rotation;
@@ -29,10 +34,16 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	void OnGUI()
 	{
-	//	if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
-	//	{ 
+		if(!started)
+		{
+			offsetFromStart = SensorHelper.rotation;
+			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			started = true;
+		}
 		
-		if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
+		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX,scaleY, 1));		
+		
+		if(GUI.Button (new Rect(200, 0, 400, 250), "", GUIStyle.none))
 		{ 
 			offsetFromStart = SensorHelper.rotation;
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);

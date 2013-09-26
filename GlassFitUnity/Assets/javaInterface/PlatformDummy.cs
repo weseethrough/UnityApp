@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System;
@@ -12,7 +12,7 @@ public class PlatformDummy {
 	private int distance = 0;
 	private int target = 1;
 	
-	public void Start(Boolean indoor) {
+	public void StartTrack(Boolean indoor) {
 		timer.Start();
 	}
 	
