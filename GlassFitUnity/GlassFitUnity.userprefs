@@ -6,6 +6,7 @@
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
+              <Node name="javaInterface" expanded="True" />
               <Node name="GlassGUI.cs" selected="True" />
             </Node>
           </Node>

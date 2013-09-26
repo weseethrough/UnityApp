@@ -24,14 +24,14 @@ public class Platform {
 	private AndroidJavaObject target;
 	
 	// Initialization may fail silently, assume failure unless properly initialized
-	private Boolean error = true;	
+	//private Boolean error = true;	
 	private string errorLog = "Not yet initialized";
 	
 	public Platform() {
-		error = true;
+		//error = true;
 		
 		UnityEngine.Debug.Log("CONSTRUCTOR CALLED");
-		errorLog = errorLog + "GlassfitUnity \n Platform constructor called \n";
+		//errorLog = errorLog + "GlassfitUnity \n Platform constructor called \n";
 		try {
 			UnityEngine.Debug.Log("First Line");
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -50,8 +50,8 @@ public class Platform {
 					if(gps==null)
 						UnityEngine.Debug.Log("GlassfitUnity gps is null!");
 					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
-					errorLog = "";
-					error = false;
+			//		errorLog = "";
+			//		error = false;
 				} catch  {
 					
 					UnityEngine.Debug.Log("HELP LEVEL 5 problem!!");
