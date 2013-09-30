@@ -127,7 +127,7 @@ public class PresetGUI : MonoBehaviour {
 		
 		
 		ji = new Platform();
-		ji.setTargetTrack(0);
+		ji.setTargetSpeed(1.76f);
 		//EventLog.
 		//ji.StartTrack(false);
 	}

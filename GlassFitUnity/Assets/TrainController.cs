@@ -23,7 +23,7 @@ public class TrainController : MonoBehaviour {
 	}
 	
 	void OnEnable() {
-		transform.position = new Vector3(10, -10, 50);
+		transform.position = new Vector3(13.5f, -6.6f, -50);
 		//Debug.Log("OnEnable called\n\n\n\n\n");
 	}
 	
@@ -45,7 +45,7 @@ public class TrainController : MonoBehaviour {
 		}
 		
 		whistleTime += Time.deltaTime;
-		FakedMovement  += (Time.deltaTime)*6;
+		//FakedMovement  += (Time.deltaTime)*6;
 		if(whistleTime >= 10.0f)
 		{
 			trainWhistle.Play();
@@ -56,7 +56,7 @@ public class TrainController : MonoBehaviour {
 	
 		scaledDistance = (inputData.DistanceBehindTarget() - 50 * 6.666f);
 
-		scaledDistance = FakedMovement;
+		//scaledDistance = FakedMovement;
 		Vector3 movement = new Vector3(13.5f,-6.6f,(float)scaledDistance);
 		transform.position = movement;
 	}

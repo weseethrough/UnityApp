@@ -45,7 +45,7 @@ public class Platform {
 					if(gps==null)
 						errorLog = errorLog + "\n GlassfitUnity \n gps is null!";
 					UnityEngine.Debug.Log("\n Glassfit Unity \n gps has been obtained \n");
-					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker", "pb");
+					target = helper.CallStatic<AndroidJavaObject>("getTargetTracker");
 					errorLog = "";
 					error = false;
 				} catch (Exception e) {

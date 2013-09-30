@@ -39,5 +39,5 @@
         </service>
         
     </application>
-
+<uses-permission android:name="android.hardware.location.gps" android:required="false" />
 </manifest>

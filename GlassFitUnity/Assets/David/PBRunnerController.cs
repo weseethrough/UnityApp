@@ -27,7 +27,11 @@ public class PBRunnerController : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		
+		inputData = new Platform();
+	}
+	
+	void OnEnable() {
+		transform.position = new Vector3(-10, -14, (float)scaledDistance);
 	}
 	
 	void Update () {

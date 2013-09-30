@@ -3,8 +3,8 @@ using System.Collections;
 
 public class camTex : MonoBehaviour {
 
+	//Texture2D testPic;
 	private WebCamTexture webCamTexture;
-		
 	// Use this for initialization
 	void Start () {
 		string DevName = WebCamTexture.devices[0].name;
@@ -21,7 +21,6 @@ public class camTex : MonoBehaviour {
 	}
 	
 	void OnDisable() {
-		Debug.Log("Destroying camera");
 		webCamTexture.Stop();
 	}
 	
