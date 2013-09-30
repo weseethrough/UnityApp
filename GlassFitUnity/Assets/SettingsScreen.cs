@@ -90,14 +90,16 @@ public class SettingsScreen : MonoBehaviour {
 					indoor = false;
 					UnityEngine.Debug.Log("Outdoor mode active");
 					indoorText = "Outdoor Active";
-					//TrainHolder.GetComponent<TrainController>().indoor = false;
+					TrainHolder.GetComponent<TrainController>().indoor = false;
+					RunnerHolder.GetComponent<PBRunnerController>().indoor = false;
 					changed = true;
 				}
 				else {
 					indoor = true;
 					UnityEngine.Debug.Log("Indoor mode active");
 					indoorText = "Indoor Active";
-					//TrainHolder.GetComponent<TrainController>().indoor = true;
+					TrainHolder.GetComponent<TrainController>().indoor = true;
+					RunnerHolder.GetComponent<PBRunnerController>().indoor = true;
 					changed = true;
 				}
 			}
@@ -115,6 +117,8 @@ public class SettingsScreen : MonoBehaviour {
         	    MenuOpen = false;
 				if(changed) {
 					inputData.reset();
+					TrainHolder.GetComponent<TrainController>().reset();
+					RunnerHolder.GetComponent<PBRunnerController>().reset();
 					started = false;
 					countdown = false;
 					countTime = 3.0f;

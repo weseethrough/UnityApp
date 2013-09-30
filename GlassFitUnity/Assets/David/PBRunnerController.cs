@@ -13,6 +13,8 @@ public class PBRunnerController : MonoBehaviour {
 	private Transform targetLocation;
 	private float myDistance;
 	private float targetDistance;
+	public bool indoor = false;
+	private float FakedMovement = -250f;
 	
 	private float countTime = 3.99f;
 	private bool started = false;
@@ -113,10 +115,28 @@ public class PBRunnerController : MonoBehaviour {
 //			started = true;
 //			inputData.Start(false);
 //		}
-
+		
+		FakedMovement  += (Time.deltaTime * 3)*6;
+		
+//		if(!indoor) 
+//		{
+//			scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
+//		}
+//		else 
+//		{
+//			scaledDistance = FakedMovement;
+//		}
+		
+		
 		scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
-		Vector3 movement = new Vector3(-10,-14,(float)scaledDistance);
+		scaledDistance = FakedMovement;
+		Vector3 movement = new Vector3(-10, -15.5f,(float)scaledDistance);
 		transform.position = movement;
+	}
+	
+	public void reset()
+	{
+		FakedMovement = -250f;
 	}
 	
 	string SiDistance(double meters) {

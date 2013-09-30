@@ -29,47 +29,40 @@ public class TrainController : MonoBehaviour {
 	Texture2D info;
 	Texture2D warning;
 	
+	public void reset()
+	{
+		FakedMovement = -250f;
+	}
+	
 	// Use this for initialization
 	void Start () {
-		UnityEngine.Debug.Log("Train start called");
 		inputData = new Platform();
-		UnityEngine.Debug.Log("Train: platform passed");
 		
 		var aSources = GetComponents<AudioSource>();
-		UnityEngine.Debug.Log("Train: GetComponent passed");
-		
 		trainMove = aSources[0];
-		UnityEngine.Debug.Log("Train: Move sound passed");
-		
 		trainWhistle = aSources[1];
-		UnityEngine.Debug.Log("sounds loaded");
 		
 		target =   new Rect(15, 15, 200, 100);
 		
 		scale.x = (float)Screen.width / originalWidth;
 		scale.y = (float)Screen.height / originalHeight;
     	scale.z = 1;
-		UnityEngine.Debug.Log("Scale set");
 		
 		Color white = new Color(0.9f, 0.9f, 0.9f, 0.5f);
 		normal = new Texture2D(1, 1);
 		normal.SetPixel(0,0,white);
 		normal.Apply();
-		UnityEngine.Debug.Log("White Box");
 		
 		Color green = new Color(0f, 0.9f, 0f, 0.5f);
 		info = new Texture2D(1, 1);
 		info.SetPixel(0,0,green);
 		info.Apply();
-		UnityEngine.Debug.Log("Green Box");
 		
 		Color red = new Color(0.9f, 0f, 0f, 0.5f);
 		warning = new Texture2D(1, 1);
 		warning.SetPixel(0,0,red);
 		warning.Apply();
-		UnityEngine.Debug.Log("Red Box");
 		
-		UnityEngine.Debug.Log("Train through the constructor");
 		trainMove.Play();
 	}
 	
@@ -121,7 +114,7 @@ public class TrainController : MonoBehaviour {
 //		}
 		
 		whistleTime += Time.deltaTime;
-		FakedMovement  += (Time.deltaTime)*6;
+		FakedMovement  += (Time.deltaTime * 4)*6;
 		if(whistleTime >= 10.0f)
 		{
 			trainWhistle.Play();
@@ -132,14 +125,14 @@ public class TrainController : MonoBehaviour {
 	
 //		if(!indoor) 
 //		{
-		scaledDistance = (inputData.DistanceBehindTarget() - 50) * 6.666f;
+//			scaledDistance = (inputData.DistanceBehindTarget() - 50) * 6.666f;
 //		}
 //		else 
 //		{
 //			scaledDistance = FakedMovement;
 //		}
-		
-		Vector3 movement = new Vector3(13.5f,-6.6f,(float)scaledDistance);
+		scaledDistance = FakedMovement;
+		Vector3 movement = new Vector3(13.5f,-22.6f,(float)scaledDistance);
 		transform.position = movement;
 	}
 	
