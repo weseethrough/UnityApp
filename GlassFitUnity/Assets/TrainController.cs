@@ -4,13 +4,14 @@ using System.Collections;
 public class TrainController : MonoBehaviour {
 	
 	private float countTime = 3.99f;
+	private float trainTime = 0f;
 	private float whistleTime = 0.0f;
 	private bool started = false;
 	private double scaledDistance;
 	private Platform inputData = null;
 	private AudioSource trainMove;
 	private AudioSource trainWhistle;
-	
+	private float FakedMovement = -250f;
 	// Use this for initialization
 	void Start () {
 		inputData = new Platform();
@@ -39,6 +40,7 @@ public class TrainController : MonoBehaviour {
 		}
 		
 		whistleTime += Time.deltaTime;
+		FakedMovement  += (Time.deltaTime)*6;
 		if(whistleTime >= 10.0f)
 		{
 			trainWhistle.Play();
@@ -48,6 +50,8 @@ public class TrainController : MonoBehaviour {
 		inputData.Poll();
 	
 		scaledDistance = (inputData.DistanceBehindTarget() - 50 * 6.666f);
+
+		scaledDistance = FakedMovement;
 		Vector3 movement = new Vector3(13.5f,-6.6f,(float)scaledDistance);
 		transform.position = movement;
 	}
