@@ -22,6 +22,11 @@ public class TrainController : MonoBehaviour {
 		trainMove.Play();
 	}
 	
+	void OnEnable() {
+		transform.position = new Vector3(10, -10, 50);
+		//Debug.Log("OnEnable called\n\n\n\n\n");
+	}
+	
 	// Update is called once per frame
 	void Update () {
 		

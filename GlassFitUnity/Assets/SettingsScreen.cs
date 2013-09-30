@@ -9,10 +9,11 @@ public class SettingsScreen : MonoBehaviour {
 	public bool Runner = false;
 	public bool Train = false;
 	public bool Zombie = false;
+	
+	public GameObject TrainObject;
+	public GameObject RunnerObject;
 	public GameObject TrainHolder;
-	
 	public GameObject RunnerHolder;
-	
 	public GameObject ZombieHolder;
 	
 	public float hSliderValue = 0.0F;
@@ -20,51 +21,46 @@ public class SettingsScreen : MonoBehaviour {
 	public float hSliderValue2 = 0.0F;
 	public float hSliderValue3 = 0.0F;
 	public Texture BlackTexture;
-    void OnGUI() {
-		
-		
+    
+	void OnGUI() {
 		
 		if(MenuOpen)
 		{
-			
 			GUI.DrawTexture(new Rect(0,0,Screen.width,Screen.height), BlackTexture);
-		
-			
-			if(GUI.Button(new Rect(250, 105, 100, 30) , "Runner"))
+					
+			if(GUI.Button(new Rect(0, Screen.height-200, 400, 200) , "Runner"))
 			{
 				Runner = true;
 				Train = false;
 				Zombie = false;
-				ZombieHolder.SetActive(Zombie);
+				//ZombieHolder.SetActive(Zombie);
+				
 				TrainHolder.SetActive(Train);
 				RunnerHolder.SetActive(Runner);
-			
+				Debug.Log("Train is: " + TrainHolder.activeSelf);
 			}
 			
-			if(GUI.Button(new Rect (250, 145, 100, 30), "Train"))
+			if(GUI.Button(new Rect (500, Screen.height-200, 400, 200), "Train"))
 			{
 				Runner = false;
 				Train = true;
 				Zombie = false;
-				ZombieHolder.SetActive(Zombie);
+				//ZombieHolder.SetActive(Zombie);
+				
 				TrainHolder.SetActive(Train);
 				RunnerHolder.SetActive(Runner);
-			
+				Debug.Log("Train is: " + TrainHolder.activeSelf);
 			}
 			
-			if(GUI.Button(new Rect (250, 185, 100, 30), "Zombie"))
+			if(GUI.Button(new Rect (1000, Screen.height-200, 400, 200), "Zombie"))
 			{
 				Runner = false;
 				Train = false;
 				Zombie = true;
-				ZombieHolder.SetActive(Zombie);
+				//ZombieHolder.SetActive(Zombie);
 				TrainHolder.SetActive(Train);
 				RunnerHolder.SetActive(Runner);
-			
 			}
-			
-			
-				
 			
 			/*/
 		//if(toggleGPS){
@@ -95,20 +91,18 @@ public class SettingsScreen : MonoBehaviour {
     
        // hSliderValue3 = GUI.HorizontalSlider(new Rect(((Screen.width)/2)-100, ((Screen.height)/2)+100, 200, 30), hSliderValue3, 0.0F, 10.0F);
     	
-		if (GUI.Button(new Rect(10, ((Screen.height)/2)-50, 100, 50), "Back"))
-            MenuOpen = false;
-		
-		}
-	
-		
-		
+			if (GUI.Button(new Rect(10, ((Screen.height)/2)-50, 100, 50), "Back"))
+			{
+        	    MenuOpen = false;
+			}
+		} 
 		else
 		{
 			if (GUI.Button(new Rect(10, ((Screen.height)/2)-50, 100, 50), "Options")){
-            MenuOpen = true;
-			}
+        		MenuOpen = true;
 		}
 	}
+}
 	
 	// Use this for initialization
 	void Start () {

@@ -22,6 +22,10 @@ public class PresetTrackController : MonoBehaviour {
 		inputData.setTargetTrack(0);
 	}
 	
+	void OnEnable() {
+		transform.position = new Vector3(10, -10, 0);
+	}
+	
 	void Update () {
 		
 		if(Input.touchCount == 2 && !started)
