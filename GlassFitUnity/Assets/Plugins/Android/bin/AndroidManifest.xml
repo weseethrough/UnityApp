@@ -10,6 +10,8 @@
 
     <uses-permission android:name="android.permission.ACCOUNT_MANAGER" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -24,6 +26,18 @@
             android:name="com.glassfitgames.glassfitplatform.auth.AuthenticationActivity"
             android:label="@string/title_activity_authentication" >
         </activity>
+
+        <activity
+            android:name="com.glassfitgames.glassfitplatform.sensors.OrientationHelper"
+            android:label="@string/title_orientation_helper" >
+        </activity> 
+        
+        <service
+            android:name="com.glassfitgames.glassfitplatform.sensors.SensorService"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/sensor_service_name" >
+        </service>
+        
     </application>
 
 </manifest>
