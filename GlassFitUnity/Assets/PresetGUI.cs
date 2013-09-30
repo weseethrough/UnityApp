@@ -14,14 +14,14 @@ public class PresetGUI : MonoBehaviour {
 	private const int MARGIN = 15;
 	private const int SUBMARGIN = 5;
 	
-	private float countTime = 3.99f;
+	private float countTime = 3.0f;
 	
 	private const float OPACITY = 0.5f;
 	private float timeFromStart = 0;
 	
 	// Left side top
 	private Rect target;	
-	private string targetText;
+	
 	// Left side bottom
 	private Rect distance;
 	private string distanceText;
@@ -137,17 +137,17 @@ public class PresetGUI : MonoBehaviour {
 	{
 		timeFromStart += Time.deltaTime;
 		
-		if(Input.touchCount == 2 && !started)
-		{
-			started = true;
-			countdown = true;
-		}
-		
-		if(started && countTime <= 0.0f)
-		{
-			ji.StartTrack(false);
-		}
-		else if(started && countTime > 0.0f)
+//		if(countTime == 3.0f && ji.hasLock() && !started)
+//		{
+//			started = true;
+//			countdown = true;
+//		}
+//		
+//		if(started && countTime <= -1.0f)
+//		{
+//			ji.StartTrack(false);
+//		}
+		if(started && countTime > -1.0f && ji.hasLock())
 		{
 			countTime -= Time.deltaTime;
 		}
@@ -156,15 +156,19 @@ public class PresetGUI : MonoBehaviour {
 		{
 			if(countTime < 0.0f)
 			{
+				ji.reset();
 				Application.LoadLevel(Application.loadedLevel);
 			} else
 			{
+				ji.reset();
 				Application.LoadLevel(0);
 			}
 		}
 				
 		ji.Poll();
 	}
+	
+	
 	
 	void OnGUI ()
 	{
@@ -178,19 +182,20 @@ public class PresetGUI : MonoBehaviour {
 		// substitute matrix - only scale is altered from standard
     	GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		
-		if(countdown)
-		{
-			GUI.skin.label.fontSize = 40;
-			//float currentTime = 3.0f - timer.Elapsed.Seconds;
-			if(countTime > 0.99f)
-			{
-				GUI.Label(new Rect(300, 200, 200, 200), countTime.ToString("f0")); 
-			}
-			else if(countTime > 0.0f && countTime < 1.0f)
-			{
-				GUI.Label(new Rect(300, 200, 200, 200), "GO!"); 
-			}
-		}
+//		if(countdown)
+//		{
+//			GUI.skin.label.fontSize = 40;
+//			//float currentTime = 3.0f - timer.Elapsed.Seconds;
+//			int cur = Mathf.CeilToInt(countTime);
+//			if(countTime > 0.0f)
+//			{
+//				GUI.Label(new Rect(300, 200, 200, 200), cur.ToString()); 
+//			}
+//			else if(countTime > -1.0f && countTime < 0.0f)
+//			{
+//				GUI.Label(new Rect(300, 200, 200, 200), "GO!"); 
+//			}
+//		}
 		
 		// Setting label font size
 		GUI.skin.label.fontSize = 15;
@@ -207,19 +212,6 @@ public class PresetGUI : MonoBehaviour {
 		{
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
-		
-		// Target Distance
-		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
-		double targetDistance = ji.DistanceBehindTarget();
-		if (targetDistance > 0) {
-			targetStyle.normal.background = warning; 
-			targetText = "Behind!\n";
-		} else {
-			targetStyle.normal.background = info; 
-			targetText = "Ahead\n";
-		}
-		targetStyle.normal.textColor = Color.white;		
-		GUI.Box(target, targetText+"<i>"+SiDistance( Math.Abs(targetDistance) )+"</i>", targetStyle);
 		
 		// Distance
 		double selfDistance = ji.Distance();
@@ -246,6 +238,7 @@ public class PresetGUI : MonoBehaviour {
 		mapSelf.x = map.x + map.width/2 - mapSelf.width/2;
 		mapSelf.y = map.y + map.height/2 - mapSelf.height/2;
 		
+		double targetDistance = ji.DistanceBehindTarget();
 		int targetDistanceOnMap = Convert.ToInt32(targetDistance);
 		int maxDistanceOnMap = Convert.ToInt32(map.height/2);
 		if (targetDistanceOnMap > maxDistanceOnMap) targetDistanceOnMap = maxDistanceOnMap; 

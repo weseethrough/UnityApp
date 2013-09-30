@@ -6,7 +6,9 @@
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
-              <Node name="David" expanded="True" />
+              <Node name="David" expanded="True">
+                <Node name="PBRunnerController.cs" selected="True" />
+              </Node>
               <Node name="GyroDroid" expanded="True">
                 <Node name="SampleScripts" expanded="True" />
                 <Node name="Scripts" expanded="True">
@@ -14,7 +16,6 @@
                 </Node>
               </Node>
               <Node name="javaInterface" expanded="True" />
-              <Node name="PresetGUI.cs" selected="True" />
             </Node>
           </Node>
         </State>

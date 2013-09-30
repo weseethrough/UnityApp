@@ -154,7 +154,8 @@ public class TrainGUI : MonoBehaviour {
 			if(countTime < 0.0f)
 			{
 				Application.LoadLevel(Application.loadedLevel);
-			} else
+			} 
+			else
 			{
 				Application.LoadLevel(0);
 			}

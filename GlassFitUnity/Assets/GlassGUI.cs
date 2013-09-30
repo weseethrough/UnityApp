@@ -138,19 +138,19 @@ public class GlassGUI : MonoBehaviour {
 	{
 		timeFromStart += Time.deltaTime;
 	
-		if(countTime == 3.99f && ji.hasLock() && !started)
-		{
-			started = true;
-		}
-		
-		if(started && countTime <= 0.0f)
-		{
-			ji.StartTrack(false);
-		}
-		else if(started && countTime > 0.0f)
-		{
-			countTime -= Time.deltaTime;
-		}
+//		if(countTime == 3.99f && ji.hasLock() && !started)
+//		{
+//			started = true;
+//		}
+//		
+//		if(started && countTime <= 0.0f)
+//		{
+//			ji.StartTrack(false);
+//		}
+//		else if(started && countTime > 0.0f)
+//		{
+//			countTime -= Time.deltaTime;
+//		}
 		
 		if(Input.GetKeyDown(KeyCode.Escape))
 		{

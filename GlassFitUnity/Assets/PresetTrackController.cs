@@ -19,7 +19,7 @@ public class PresetTrackController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		inputData = new Platform();
-		inputData.setTargetTrack(0);
+		//inputData.setTargetTrack(0);
 	}
 	
 	void OnEnable() {
@@ -28,19 +28,19 @@ public class PresetTrackController : MonoBehaviour {
 	
 	void Update () {
 		
-		if(Input.touchCount == 2 && !started)
-		{
-			started = true;
-		}
-		
-		if(started && countTime <= 0.0f)
-		{
-			inputData.StartTrack(false);
-		}
-		else if(started && countTime > 0.0f)
-		{
-			countTime -= Time.deltaTime;
-		}
+//		if(Input.touchCount == 2 && !started)
+//		{
+//			started = true;
+//		}
+//		
+//		if(started && countTime <= 0.0f)
+//		{
+//			inputData.StartTrack(false);
+//		}
+//		else if(started && countTime > 0.0f)
+//		{
+//			countTime -= Time.deltaTime;
+//		}
 		
 		inputData.Poll();
 		

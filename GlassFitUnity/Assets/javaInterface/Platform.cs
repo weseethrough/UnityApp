@@ -60,6 +60,7 @@ public class Platform {
 	
 	public void StartTrack(bool indoor) {
 		try {
+			gps.Call("setIndoorMode", indoor);
 			gps.Call("startTracking");
 			tracking = true;
 			errorLog = errorLog + "GlassfitUnity start function called\n";
@@ -76,6 +77,14 @@ public class Platform {
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("\nGlassfitUnity\nProblem getting lock\n" + e.Message);
 			return false;
+		}
+	}
+	
+	public void reset() {
+		try {
+			gps.Call("reset");
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Error resetting GPS " + e.Message);
 		}
 	}
 	
