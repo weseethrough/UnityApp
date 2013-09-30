@@ -51,7 +51,10 @@ public class UICamera : MonoBehaviour {
 		
 		transform.rotation = newOffset;
 		
-		if(this.camera.fieldOfView == 10)
+		if(this.camera.fieldOfView == 10 || Input.GetKeyDown(KeyCode.Return) /** DEBUG: for editor */)
 			AutoFade.LoadLevel(1, 1, 1, Color.black);
+		
+		if(Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
+		
 	}
 }
