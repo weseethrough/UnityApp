@@ -1,15 +1,16 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GUITouch.cs">
     <Files>
+      <File FileName="Assets\SettingsScreen.cs" Line="182" Column="3" />
       <File FileName="Assets\David\PBRunnerController.cs" Line="80" Column="21" />
-      <File FileName="Assets\PresetGUI.cs" Line="11" Column="32" />
-      <File FileName="Assets\TrainController.cs" Line="55" Column="3" />
-      <File FileName="Assets\SettingsScreen.cs" Line="24" Column="24" />
-      <File FileName="Assets\javaInterface\Platform.cs" Line="7" Column="24" />
+      <File FileName="Assets\PresetGUI.cs" Line="1" Column="1" />
+      <File FileName="Assets\TrainController.cs" Line="1" Column="1" />
+      <File FileName="Assets\javaInterface\Platform.cs" Line="105" Column="29" />
       <File FileName="Assets\TrainListener.cs" Line="51" Column="42" />
-      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="54" Column="51" />
+      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="51" Column="18" />
       <File FileName="Assets\UICamera.cs" Line="44" Column="6" />
+      <File FileName="Assets\GUITouch.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -18,11 +19,10 @@
             <Node name="Assets" expanded="True">
               <Node name="David" expanded="True" />
               <Node name="GyroDroid" expanded="True">
-                <Node name="SampleScripts" expanded="True">
-                  <Node name="MinimalSensorCamera.cs" selected="True" />
-                </Node>
+                <Node name="SampleScripts" expanded="True" />
               </Node>
               <Node name="javaInterface" expanded="True" />
+              <Node name="GUITouch.cs" selected="True" />
             </Node>
           </Node>
         </State>

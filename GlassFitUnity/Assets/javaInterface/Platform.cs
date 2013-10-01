@@ -100,6 +100,14 @@ public class Platform {
 		}
 	}
 	
+	public void stopTrack() {
+		try {
+			gps.Call("stopTracking");
+		} catch(Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Problem stopping tracking");
+		}
+	}
+	
 	public void reset() {
 		try {
 			gps.Call("reset");
