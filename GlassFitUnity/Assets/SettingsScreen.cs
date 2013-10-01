@@ -32,7 +32,7 @@ public class SettingsScreen : MonoBehaviour {
 	public float hSliderValue3 = 0.0F;
 	public Texture BlackTexture;
 	
-	private string indoorText = "Indoor";
+	private string indoorText = "Indoor Active";
 	
 	void OnGUI() {
 		
@@ -93,6 +93,8 @@ public class SettingsScreen : MonoBehaviour {
 					TrainHolder.GetComponent<TrainController>().indoor = false;
 					RunnerHolder.GetComponent<PBRunnerController>().indoor = false;
 					changed = true;
+					inputData = null;
+					inputData = new Platform();
 				}
 				else {
 					indoor = true;
@@ -101,6 +103,8 @@ public class SettingsScreen : MonoBehaviour {
 					TrainHolder.GetComponent<TrainController>().indoor = true;
 					RunnerHolder.GetComponent<PBRunnerController>().indoor = true;
 					changed = true;
+					inputData = null;
+					inputData = new Platform();
 				}
 			}
 			

@@ -40,7 +40,7 @@ public class PBRunnerController : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		inputData = new Platform();
+		//inputData = new Platform();
 		target =   new Rect(15, 15, 200, 100);
 		
 		scale.x = (float)Screen.width / originalWidth;
@@ -65,6 +65,11 @@ public class PBRunnerController : MonoBehaviour {
 	
 	void OnEnable() {
 		transform.position = new Vector3(-10, -14, 0);
+		inputData = new Platform(); 
+	}
+	
+	void OnDestroy() {
+		inputData = null;
 	}
 	
 	void OnGUI() {

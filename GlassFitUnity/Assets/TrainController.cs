@@ -36,7 +36,7 @@ public class TrainController : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		inputData = new Platform();
+		//inputData = new Platform();
 		
 		var aSources = GetComponents<AudioSource>();
 		trainMove = aSources[0];
@@ -68,7 +68,12 @@ public class TrainController : MonoBehaviour {
 	
 	void OnEnable() {
 		transform.position = new Vector3(13.5f, -6.6f, -50);
+		inputData = new Platform();
 		//Debug.Log("OnEnable called\n\n\n\n\n");
+	}
+	
+	void OnDestroy() {
+		inputData = null;
 	}
 	
 	void OnGUI() {
