@@ -10,7 +10,6 @@ public class PresetGUI : MonoBehaviour {
 	
 	public bool countdown = false;
 	public bool started = false;
-	public GameObject platform;
 	private const int MARGIN = 15;
 	private const int SUBMARGIN = 5;
 	

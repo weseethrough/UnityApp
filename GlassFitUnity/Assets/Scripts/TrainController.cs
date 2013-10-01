@@ -31,12 +31,13 @@ public class TrainController : MonoBehaviour {
 	
 	public void reset()
 	{
+		UnityEngine.Debug.Log("Train: position reset");
 		FakedMovement = -250f;
 	}
 	
 	// Use this for initialization
 	void Start () {
-		//inputData = new Platform();
+		inputData = new Platform();
 		
 		var aSources = GetComponents<AudioSource>();
 		trainMove = aSources[0];
@@ -119,7 +120,11 @@ public class TrainController : MonoBehaviour {
 //		}
 		
 		whistleTime += Time.deltaTime;
-		FakedMovement  += (Time.deltaTime * 4)*6;
+		
+//		if(indoor){
+//			FakedMovement  += (Time.deltaTime * 4)*6;
+//		}
+		
 		if(whistleTime >= 10.0f)
 		{
 			trainWhistle.Play();
@@ -130,13 +135,14 @@ public class TrainController : MonoBehaviour {
 	
 //		if(!indoor) 
 //		{
-//			scaledDistance = (inputData.DistanceBehindTarget() - 50) * 6.666f;
+			scaledDistance = (inputData.DistanceBehindTarget() - 50) * 6.666f;
 //		}
 //		else 
 //		{
 //			scaledDistance = FakedMovement;
 //		}
-		scaledDistance = FakedMovement;
+		
+		//scaledDistance = FakedMovement;
 		Vector3 movement = new Vector3(13.5f,-22.6f,(float)scaledDistance);
 		transform.position = movement;
 	}

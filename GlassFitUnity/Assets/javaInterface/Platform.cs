@@ -77,8 +77,17 @@ public class Platform {
 	
 	public void StartTrack(bool indoor) {
 		try {
-			gps.Call("setIndoorMode", indoor);
-			UnityEngine.Debug.LogWarning("Platform: Indoor mode set to " + indoor.ToString());
+			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+    	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+			
+			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
+				gps.Call("setIndoorMode", indoor);
+				UnityEngine.Debug.LogWarning("Platform: Indoor mode set to " + indoor.ToString());
+			}));
+		} catch(Exception e) {
+			UnityEngine.Debug.Log("Platform: Error setting indoor mode " + e.Message);
+		}
+		try {
 			gps.Call("startTracking");
 			tracking = true;
 			UnityEngine.Debug.LogWarning("Platform: StartTrack succeeded");

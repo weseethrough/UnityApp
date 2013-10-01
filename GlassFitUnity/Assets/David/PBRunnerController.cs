@@ -40,7 +40,7 @@ public class PBRunnerController : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		//inputData = new Platform();
+		inputData = new Platform();
 		target =   new Rect(15, 15, 200, 100);
 		
 		scale.x = (float)Screen.width / originalWidth;
@@ -66,6 +66,13 @@ public class PBRunnerController : MonoBehaviour {
 	void OnEnable() {
 		transform.position = new Vector3(-10, -14, 0);
 		inputData = new Platform(); 
+	}
+	
+	void newPosition(string message)
+	{
+		var node = SimpleJSON.JSON.Parse(message);
+		
+		
 	}
 	
 	void OnDestroy() {
@@ -115,22 +122,15 @@ public class PBRunnerController : MonoBehaviour {
 		
 		inputData.Poll();
 		
-//		if(!started && Input.touchCount == 3)
-//		{
-//			started = true;
-//			inputData.Start(false);
-//		}
-		
-		FakedMovement  += (Time.deltaTime * 3)*6;
-		
-//		if(!indoor) 
-//		{
-//			scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
-//		}
-//		else 
-//		{
-//			scaledDistance = FakedMovement;
-//		}
+		if(!indoor) 
+		{
+			scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
+		}
+		else 
+		{
+			FakedMovement  += (Time.deltaTime * 3)*6;
+			scaledDistance = FakedMovement;
+		}
 		
 		
 		scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
@@ -138,6 +138,8 @@ public class PBRunnerController : MonoBehaviour {
 		Vector3 movement = new Vector3(-10, -15.5f,(float)scaledDistance);
 		transform.position = movement;
 	}
+	
+	
 	
 	public void reset()
 	{
