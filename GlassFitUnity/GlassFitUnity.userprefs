@@ -1,34 +1,29 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/GlassGUI.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GUITouch.cs">
     <Files>
-      <File FileName="../../Desktop/callback.cs" Line="26" Column="3" />
-      <File FileName="../../Desktop/SimpleJSON.cs" Line="1" Column="1" />
-      <File FileName="../UnityFrontEnd/Assets/JavaInterfaceScripts/javaCalls.cs" Line="76" Column="3" />
-      <File FileName="Assets/javaInterface/javaInterface.cs" Line="1" Column="1" />
-      <File FileName="Assets/GyroDroid/SampleScripts/MinimalSensorCamera.cs" Line="19" Column="5" />
-      <File FileName="Assets/javaInterface/Platform.cs" Line="20" Column="35" />
-      <File FileName="Assets/javaInterface/PlatformDummy.cs" Line="12" Column="27" />
-      <File FileName="Assets/camTex.cs" Line="1" Column="1" />
-      <File FileName="Assets/GlassGUI.cs" Line="137" Column="54" />
-      <File FileName="Assets/GUITouch.cs" Line="23" Column="2" />
-      <File FileName="Assets/quarternRotate.cs" Line="124" Column="19" />
-      <File FileName="Assets/GyroDroid/SampleScripts/MoveByLinearAcc.cs" Line="26" Column="58" />
+      <File FileName="Assets\SettingsScreen.cs" Line="182" Column="3" />
+      <File FileName="Assets\David\PBRunnerController.cs" Line="80" Column="21" />
+      <File FileName="Assets\PresetGUI.cs" Line="1" Column="1" />
+      <File FileName="Assets\TrainController.cs" Line="1" Column="1" />
+      <File FileName="Assets\javaInterface\Platform.cs" Line="105" Column="29" />
+      <File FileName="Assets\TrainListener.cs" Line="51" Column="42" />
+      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="51" Column="18" />
+      <File FileName="Assets\UICamera.cs" Line="44" Column="6" />
+      <File FileName="Assets\GUITouch.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
+              <Node name="David" expanded="True" />
               <Node name="GyroDroid" expanded="True">
                 <Node name="SampleScripts" expanded="True" />
               </Node>
               <Node name="javaInterface" expanded="True" />
-              <Node name="GlassGUI.cs" selected="True" />
+              <Node name="GUITouch.cs" selected="True" />
             </Node>
-          </Node>
-          <Node name="Assembly-UnityScript" expanded="True">
-            <Node name="Assets" expanded="True" />
           </Node>
         </State>
       </Pad>

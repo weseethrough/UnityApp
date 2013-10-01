@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 69960400e76ab4465bd26c4494b90a37
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - TrainHolder: {instanceID: 0}
+  - RunnerHolder: {instanceID: 0}
+  - ZombieHolder: {instanceID: 0}
+  - BlackTexture: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
