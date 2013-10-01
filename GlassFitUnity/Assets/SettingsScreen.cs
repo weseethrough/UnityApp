@@ -6,8 +6,8 @@ public class SettingsScreen : MonoBehaviour {
 	public bool togglePaceDemo = false;
 	public bool toggleStuff = false;
 	public bool MenuOpen = false;
-	public bool Runner = true;
-	public bool Train = false;
+	public bool Runner = false;
+	public bool Train = true;
 	public bool Zombie = false;
 	private bool changed = false;
 	private bool indoor = true;
@@ -160,6 +160,15 @@ public class SettingsScreen : MonoBehaviour {
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
+		
+		if(Train)
+		{
+			TrainHolder.SetActive(true);
+		}
+		else if(Runner)
+		{
+			RunnerHolder.SetActive(true);
+		}
 	}
 	
 	// Update is called once per frame
