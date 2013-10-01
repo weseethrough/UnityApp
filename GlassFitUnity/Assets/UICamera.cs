@@ -34,14 +34,14 @@ public class UICamera : MonoBehaviour {
 		if(!started)
 		{
 			offsetFromStart = SensorHelper.rotation;
-			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			started = true;
 		}
 		
 		if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
 		{ 
 			offsetFromStart = SensorHelper.rotation;
-			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 		}
 	}
 	
