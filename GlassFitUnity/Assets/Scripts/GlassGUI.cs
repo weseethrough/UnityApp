@@ -6,18 +6,18 @@ using System;
 
 public class GlassGUI : MonoBehaviour {
 	
+#if UNITY_ANDROID && !UNITY_EDITOR 
 	private Platform ji = null;
-
+#else
+	private PlatformDummy ji = null;
+#endif
 	
-<<<<<<< HEAD:GlassFitUnity/Assets/GlassGUI.cs
 	private const int BOX_WIDTH = 200;
 	private const int BOX_HEIGHT = 100;
 	private const int MAP_RADIUS = 100;
-=======
 	public bool countdown = false;
 	public bool started = false;
 	public GameObject platform;
->>>>>>> Staging-commits-for-SF-demo:GlassFitUnity/Assets/Scripts/GlassGUI.cs
 	private const int MARGIN = 15;
 	private const int SUBMARGIN = 5;
 	
@@ -88,25 +88,16 @@ public class GlassGUI : MonoBehaviour {
 	
 	void Start () {
 		// Left side top
-<<<<<<< HEAD:GlassFitUnity/Assets/GlassGUI.cs
 		target =   new Rect(MARGIN, MARGIN, BOX_WIDTH, BOX_HEIGHT);	
-=======
-		target =   new Rect(MARGIN, MARGIN, 200, 100);	
-		
->>>>>>> Staging-commits-for-SF-demo:GlassFitUnity/Assets/Scripts/GlassGUI.cs
+
 		// Left side bottom
 		distance = new Rect(MARGIN, originalHeight-MARGIN-BOX_HEIGHT, BOX_WIDTH, BOX_HEIGHT);
 		time =     new Rect(MARGIN, distance.y-SUBMARGIN-BOX_HEIGHT, BOX_WIDTH, BOX_HEIGHT);
 		
 		// Right side top
-<<<<<<< HEAD:GlassFitUnity/Assets/GlassGUI.cs
 		calories = new Rect(originalWidth-MARGIN-BOX_WIDTH, MARGIN, BOX_WIDTH, BOX_HEIGHT);
 		pace =     new Rect(originalWidth-MARGIN-BOX_WIDTH, calories.y+SUBMARGIN+BOX_HEIGHT, BOX_WIDTH, BOX_HEIGHT);
-=======
-		calories = new Rect(originalWidth-MARGIN-200, MARGIN, 200, 100);
-		pace =     new Rect(originalWidth-MARGIN-200, calories.y+SUBMARGIN+100, 200, 100);
 		
->>>>>>> Staging-commits-for-SF-demo:GlassFitUnity/Assets/Scripts/GlassGUI.cs
 		// Right side bottom
 		map =      new Rect(originalWidth-MARGIN-MAP_RADIUS*2, originalHeight-MARGIN-MAP_RADIUS*2, MAP_RADIUS*2, MAP_RADIUS*2);
 		mapSelf =  new Rect(0, 0, 30, 30);
@@ -148,7 +139,6 @@ public class GlassGUI : MonoBehaviour {
 		
 		selfIcon = Resources.Load("Self") as Texture2D;
 		targetIcon = Resources.Load("Target") as Texture2D;
-<<<<<<< HEAD:GlassFitUnity/Assets/GlassGUI.cs
 		mapStencil = new Material(Shader.Find("Custom/MapStencil"));
 				
 #if UNITY_ANDROID && !UNITY_EDITOR 
@@ -157,14 +147,8 @@ public class GlassGUI : MonoBehaviour {
 		ji = new PlatformDummy();
 #endif
 		
-=======
-		mapTexture = Resources.Load("DummyMap") as Texture2D;
-		
-		
-		ji = new Platform();
 		//EventLog.
 		//ji.StartTrack(false);
->>>>>>> Staging-commits-for-SF-demo:GlassFitUnity/Assets/Scripts/GlassGUI.cs
 	}
 	
 	// Update is called once per frame
@@ -197,26 +181,13 @@ public class GlassGUI : MonoBehaviour {
 			}
 		}
 		
-<<<<<<< HEAD:GlassFitUnity/Assets/GlassGUI.cs
-		timeOut -= Time.deltaTime;		
-=======
+//		timeOut -= Time.deltaTime;		
 		ji.Poll();
->>>>>>> Staging-commits-for-SF-demo:GlassFitUnity/Assets/Scripts/GlassGUI.cs
 	}
 	
 	void OnGUI ()
 	{
-<<<<<<< HEAD:GlassFitUnity/Assets/GlassGUI.cs
 		// Scale UI to fit screen
-		scale.x = (float)Screen.width/originalWidth; // calculate hor scale
-	    scale.y = (float)Screen.height/originalHeight; // calculate vert scale
-	    scale.z = 1;
-	    var svMat = GUI.matrix; // save current matrix
-	    // substitute matrix - only scale is altered from standard
-	    GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-		
-		// Style elements
-=======
 		// Scale for devices
 		scale.x = (float)Screen.width / originalWidth;
 		scale.y = (float)Screen.height / originalHeight;
@@ -243,7 +214,6 @@ public class GlassGUI : MonoBehaviour {
 		}
 		
 		// Setting label font size
->>>>>>> Staging-commits-for-SF-demo:GlassFitUnity/Assets/Scripts/GlassGUI.cs
 		GUI.skin.label.fontSize = 15;
 		GUI.skin.label.alignment = TextAnchor.MiddleCenter;
 		
@@ -255,21 +225,13 @@ public class GlassGUI : MonoBehaviour {
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		
-<<<<<<< HEAD:GlassFitUnity/Assets/GlassGUI.cs
 		// *** DEBUG? TODO: Icon? Message?
 		float bearing = ji.Bearing();
 		double bearingRad = bearing*Math.PI/180;
 		GUI.Label(gpsLock, "Bear: " + (int)(bearing) + "\u00B0");
 				
 		// Style top-left box depending on content
-=======
-		if(!ji.hasLock())
-		{
-			GUI.Label(gpsLock, "Waiting for GPS Lock...");
-		}
-		
 		// Target Distance
->>>>>>> Staging-commits-for-SF-demo:GlassFitUnity/Assets/Scripts/GlassGUI.cs
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
 		double targetDistance = ji.DistanceBehindTarget();
 		if (targetDistance > 0) {
@@ -288,8 +250,9 @@ public class GlassGUI : MonoBehaviour {
 		
 		// Time
 		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
-<<<<<<< HEAD:GlassFitUnity/Assets/GlassGUI.cs
+		// Calories
 		GUI.Box(calories, caloriesText + ji.Calories());		
+		// Pace
 		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
 		
 		// Draw minimap
@@ -302,64 +265,13 @@ public class GlassGUI : MonoBehaviour {
 			GUI.Label(map, "No GPS lock");
 		}
 		
-		/// Draw and handle buttons
-		if(started && buttonOn && GUI.Button(start, "Pause")) {
-			ji.Start(false);
-			started = true;
-		}
-		if(started && buttonOn && GUI.Button(stop, stopText)) {
-			ji.Start(false);
-			started = true;
-		}		
-		
-		if (!started && GUI.Button (start, startText)) {
-			ji.Start(false);
-			started = true;
-		}
-		// *** DEBUG		
-		if (!started && GUI.Button (stop, "START indoor")) {			
-			ji.Start(true);
-			started = true;
-		}
-=======
-		
-		// Calories
-		GUI.Box(calories, caloriesText + ji.Calories());
-		
-		// pace
-		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
-		
-		// Map
-		// TODO: Stencil out circle
-		Color original = GUI.color;
-		GUI.color = new Color(1f, 1f, 1f, OPACITY);
-				
-		float selfOnMap = (float)selfDistance/map.height;
-		Rect mapCoords = new Rect(0, selfOnMap, 1, selfOnMap+0.3f);
-		GUI.DrawTextureWithTexCoords(map, mapTexture, mapCoords);
-
-		mapSelf.x = map.x + map.width/2 - mapSelf.width/2;
-		mapSelf.y = map.y + map.height/2 - mapSelf.height/2;
-		
-		int targetDistanceOnMap = Convert.ToInt32(targetDistance);
-		int maxDistanceOnMap = Convert.ToInt32(map.height/2);
-		if (targetDistanceOnMap > maxDistanceOnMap) targetDistanceOnMap = maxDistanceOnMap; 
-		if (-targetDistanceOnMap > maxDistanceOnMap) targetDistanceOnMap = -maxDistanceOnMap; 
-		mapTarget.x = map.x + map.width/2 - mapTarget.width/2;
-		mapTarget.y = map.y - targetDistanceOnMap + map.height/2 - mapTarget.height/2;
-		
-		GUI.DrawTexture(mapSelf, selfIcon);
-		GUI.DrawTexture(mapTarget, targetIcon);
-		GUI.color = original;
-		
 		// *** DEBUG
 		//GUI.TextArea(debug, debugText + ji.DebugLog());
->>>>>>> Staging-commits-for-SF-demo:GlassFitUnity/Assets/Scripts/GlassGUI.cs
 		// *** DEBUG
+		
 		GUI.matrix = svMat; // restore matrix
 	}
 	
-<<<<<<< HEAD:GlassFitUnity/Assets/GlassGUI.cs
 	private void FetchMapTexture(Position origo) {					
 		const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
 		const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
@@ -374,7 +286,7 @@ public class GlassGUI : MonoBehaviour {
 		                      + "&sensor=true&key=" + API_KEY;
 		mapWWW = new WWW(url);		
 		debugText = "Fetching map..";
-		Debug.Log("Fetching map.. " + url);
+		UnityEngine.Debug.Log("Fetching map.. " + url);
 		fetchOrigo = origo;
 	}
 	
@@ -395,7 +307,7 @@ public class GlassGUI : MonoBehaviour {
 		if (mapWWW != null && mapWWW.isDone) {
 			if (mapWWW.error != null) {
 				debugText = mapWWW.error;
-				Debug.Log(mapWWW.error);
+				UnityEngine.Debug.Log(mapWWW.error);
 			} else {
 				debugText = "";
 				mapTexture = mapWWW.texture;
@@ -452,17 +364,11 @@ public class GlassGUI : MonoBehaviour {
 		GUI.color = original;
 	}
 	
-	string SiDistance(long meters) {
-		string postfix = "M";
-		float value = meters;
-		if (value > 100) {
-=======
 	string SiDistance(double meters) {
 		string postfix = "m";
 		string final;
 		int value = (int)meters;
 		if (value > 1000) {
->>>>>>> Staging-commits-for-SF-demo:GlassFitUnity/Assets/Scripts/GlassGUI.cs
 			value = value/1000;
 			postfix = "km";
 			final = value.ToString("f3");
@@ -533,7 +439,7 @@ public class GlassGUI : MonoBehaviour {
 	    Vector2 to = new Vector2(0, 1);
 	 
 	    float result = Vector2.Angle( from, to );
-		Debug.Log(result);
+//		Debug.Log(result);
 	    Vector3 cross = Vector3.Cross( from, to );
 	 
 	    if (cross.z > 0)
