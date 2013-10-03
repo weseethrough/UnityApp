@@ -275,7 +275,7 @@ public class TrainGUI : MonoBehaviour {
 		{
 			final = value.ToString("f0");
 		}
-		return value+postfix;
+		return final+postfix;
 	}
 	
 	long speedToKmPace(float speed) {

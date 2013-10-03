@@ -7,10 +7,10 @@ public class SettingsScreen : MonoBehaviour {
 	public bool toggleStuff = false;
 	public bool MenuOpen = false;
 	public bool Runner = false;
-	public bool Train = true;
+	public bool Train = false;
 	public bool Zombie = false;
 	private bool changed = false;
-	private bool indoor = true;
+	public bool indoor = true;
 	
 	private Platform inputData = null;
 	public GameObject TrainObject;
@@ -54,9 +54,6 @@ public class SettingsScreen : MonoBehaviour {
 				ZombieHolder.SetActive(Zombie);
 				TrainHolder.SetActive(Train);
 				RunnerHolder.SetActive(Runner);
-				
-				//inputData.reset();
-				Debug.Log("Train is: " + TrainHolder.activeSelf);
 			}
 			
 			if(GUI.Button(new Rect (300, originalHeight-200, 200, 200), "Train"))
@@ -69,9 +66,6 @@ public class SettingsScreen : MonoBehaviour {
 				ZombieHolder.SetActive(Zombie);
 				TrainHolder.SetActive(Train);
 				RunnerHolder.SetActive(Runner);
-				
-				//inputData.reset();
-				Debug.Log("Train is: " + TrainHolder.activeSelf);
 			}
 			
 			if(GUI.Button(new Rect (600, originalHeight-200, 200, 200), "Zombie"))
@@ -84,8 +78,6 @@ public class SettingsScreen : MonoBehaviour {
 				ZombieHolder.SetActive(Zombie);
 				TrainHolder.SetActive(Train);
 				RunnerHolder.SetActive(Runner);
-				
-				//inputData.reset();
 			}
 			
 			
@@ -95,23 +87,13 @@ public class SettingsScreen : MonoBehaviour {
 					indoor = false;
 					UnityEngine.Debug.Log("Outdoor mode active");
 					indoorText = "Outdoor Active";
-					TrainHolder.GetComponent<TrainController>().indoor = false;
-					RunnerHolder.GetComponent<PBRunnerController>().indoor = false;
-					ZombieHolder.GetComponent<ZombieController>().indoor = false;
 					changed = true;
-					//inputData = null;
-					//inputData = new Platform();
 				}
 				else {
 					indoor = true;
 					UnityEngine.Debug.Log("Indoor mode active");
 					indoorText = "Indoor Active";
-					TrainHolder.GetComponent<TrainController>().indoor = true;
-					RunnerHolder.GetComponent<PBRunnerController>().indoor = true;
-					ZombieHolder.GetComponent<ZombieController>().indoor = true;
 					changed = true;
-					//inputData = null;
-					//inputData = new Platform();
 				}
 			}
 			
@@ -134,15 +116,22 @@ public class SettingsScreen : MonoBehaviour {
 				if(changed) {
 					inputData.stopTrack();
 					inputData.reset();
-					inputData.StartTrack(indoor);
-					UnityEngine.Debug.Log("Train: Changed platform");
-					//inputData.setTargetSpeed(targSpeed);
+					inputData.setTargetSpeed(targSpeed);
+					inputData.setIndoor(indoor);
+					//inputData = new Platform();
+					
+					TrainHolder.GetComponent<TrainController>().indoor = indoor;
+					RunnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
+					ZombieHolder.GetComponent<ZombieController>().indoor = indoor;
+					
 					TrainHolder.GetComponent<TrainController>().reset();
 					RunnerHolder.GetComponent<PBRunnerController>().reset();
 					ZombieHolder.GetComponent<ZombieController>().reset();
 					started = false;
 					countdown = false;
 					countTime = 3.0f;
+					
+					UnityEngine.Debug.LogWarning("Platform: Count time is: " + countTime.ToString());
 					changed = false;
 				}
 			}
@@ -174,6 +163,7 @@ public class SettingsScreen : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		inputData = new Platform();
+		inputData.setIndoor(indoor);
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
@@ -190,26 +180,30 @@ public class SettingsScreen : MonoBehaviour {
 		{
 			ZombieHolder.SetActive(true);
 		}
+		
+		TrainHolder.GetComponent<TrainController>().indoor = indoor;
+		RunnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
+		ZombieHolder.GetComponent<ZombieController>().indoor = indoor;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		
-		if(inputData.hasLock() && !countdown)
+		if(inputData.hasLock() || indoor)
 		{
-			//started = true;
 			countdown = true;
-		}
-		else if(countTime <= -1.0f && !started)
-		{
-			inputData = new Platform();
-			inputData.setTargetSpeed(targSpeed);
-			
-			started = true;
-		}
-		else if(countdown && countTime > -1.0f)
-		{
-			countTime -= Time.deltaTime;
+			//UnityEngine.Debug.LogWarning("Platform: In countdown loop");
+		 	if(countTime <= -1.0f && !started)
+			{
+				inputData.StartTrack(indoor);
+				UnityEngine.Debug.LogWarning("Tracking Started");
+				started = true;
+			}
+			else if(countTime > -1.0f)
+			{
+				UnityEngine.Debug.LogWarning("Counting Down");
+				countTime -= Time.deltaTime;
+			}
 		}
 	}
 }

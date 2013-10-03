@@ -126,9 +126,6 @@ public class PresetGUI : MonoBehaviour {
 		
 		
 		ji = new Platform();
-		ji.setTargetSpeed(1.76f);
-		//EventLog.
-		//ji.StartTrack(false);
 	}
 	
 	// Update is called once per frame
@@ -136,16 +133,6 @@ public class PresetGUI : MonoBehaviour {
 	{
 		timeFromStart += Time.deltaTime;
 		
-//		if(countTime == 3.0f && ji.hasLock() && !started)
-//		{
-//			started = true;
-//			countdown = true;
-//		}
-//		
-//		if(started && countTime <= -1.0f)
-//		{
-//			ji.StartTrack(false);
-//		}
 		if(started && countTime > -1.0f && ji.hasLock())
 		{
 			countTime -= Time.deltaTime;
@@ -181,21 +168,6 @@ public class PresetGUI : MonoBehaviour {
 		// substitute matrix - only scale is altered from standard
     	GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		
-//		if(countdown)
-//		{
-//			GUI.skin.label.fontSize = 40;
-//			//float currentTime = 3.0f - timer.Elapsed.Seconds;
-//			int cur = Mathf.CeilToInt(countTime);
-//			if(countTime > 0.0f)
-//			{
-//				GUI.Label(new Rect(300, 200, 200, 200), cur.ToString()); 
-//			}
-//			else if(countTime > -1.0f && countTime < 0.0f)
-//			{
-//				GUI.Label(new Rect(300, 200, 200, 200), "GO!"); 
-//			}
-//		}
-		
 		// Setting label font size
 		GUI.skin.label.fontSize = 15;
 		
@@ -214,6 +186,7 @@ public class PresetGUI : MonoBehaviour {
 		
 		// Distance
 		double selfDistance = ji.Distance();
+		
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
 		
 		// Time
@@ -268,7 +241,7 @@ public class PresetGUI : MonoBehaviour {
 		{
 			final = value.ToString("f0");
 		}
-		return value+postfix;
+		return final+postfix;
 	}
 	
 	long speedToKmPace(float speed) {

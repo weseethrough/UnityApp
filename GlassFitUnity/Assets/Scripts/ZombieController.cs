@@ -64,14 +64,10 @@ public class ZombieController : MonoBehaviour {
 	}
 	
 	void OnEnable() {
-		transform.position = new Vector3(-10, -14, 0);
-		inputData = new Platform(); 
+		transform.position = new Vector3(-10, -81.7f, 0);
+		//inputData = new Platform(); 
 	}
-	
-	void OnDestroy() {
-		inputData = null;
-	}
-	
+		
 	void OnGUI() {
 		
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
@@ -85,7 +81,7 @@ public class ZombieController : MonoBehaviour {
 		
 		// Target Distance
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
-		double targetDistance = inputData.DistanceBehindTarget();
+		double targetDistance = inputData.DistanceBehindTarget()-20;
 		if (targetDistance > 0) {
 			targetStyle.normal.background = warning; 
 			targetText = "Behind!\n";
@@ -123,26 +119,28 @@ public class ZombieController : MonoBehaviour {
 		
 		//FakedMovement  += (Time.deltaTime * 3)*6;
 		
-		if(!indoor) 
-		{
-			scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
-		}
-		else 
-		{
-			FakedMovement  += (Time.deltaTime * 3)*6;
-			scaledDistance = FakedMovement;
-		}
+//		if(!indoor) 
+//		{
+		
+
+		
+		//		}
+//		else 
+//		{
+//			FakedMovement  += (Time.deltaTime * 3)*6;
+//			scaledDistance = FakedMovement;
+//		}
 		
 		
-		scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
-		scaledDistance = FakedMovement;
-		Vector3 movement = new Vector3(-10, -15.5f,(float)scaledDistance);
+		scaledDistance = (inputData.DistanceBehindTarget()-20) * 76.666f;
+		//scaledDistance = FakedMovement;
+		Vector3 movement = new Vector3(-10, -81.7f,(float)scaledDistance);
 		transform.position = movement;
 	}
 	
 	public void reset()
 	{
-		FakedMovement = -250f;
+		scaledDistance = 0;
 	}
 	
 	string SiDistance(double meters) {
@@ -158,6 +156,6 @@ public class ZombieController : MonoBehaviour {
 		{
 			final = value.ToString("f0");
 		}
-		return value+postfix;
+		return final+postfix;
 	}
 }

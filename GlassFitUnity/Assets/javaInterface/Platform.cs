@@ -77,6 +77,17 @@ public class Platform {
 	
 	public void StartTrack(bool indoor) {
 		try {
+			gps.Call("startTracking");
+			tracking = true;
+			UnityEngine.Debug.LogWarning("Platform: StartTrack succeeded");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: StartTrack failed " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
+	}
+	
+	public void setIndoor(bool indoor) {
+		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			
@@ -86,14 +97,6 @@ public class Platform {
 			}));
 		} catch(Exception e) {
 			UnityEngine.Debug.Log("Platform: Error setting indoor mode " + e.Message);
-		}
-		try {
-			gps.Call("startTracking");
-			tracking = true;
-			UnityEngine.Debug.LogWarning("Platform: StartTrack succeeded");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: StartTrack failed " + e.Message);
-			UnityEngine.Debug.LogException(e);
 		}
 	}
 	
@@ -177,17 +180,7 @@ public class Platform {
 			UnityEngine.Debug.LogException(e);
 		}
 	}
-	/*
-	public void SetTargetSpeed(float speed)
-	{
-		try{
-			target.Call<long>("setTargetSpeed", speed);
-		}
-		catch(Exception e){
-		}
-		
-	}
-	*/
+
 	public double DistanceBehindTarget() {
 		double returnDistance = (targetElapsedDistance - distance);
 		return returnDistance;

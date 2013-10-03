@@ -14,7 +14,7 @@ public class TrainController : MonoBehaviour {
 	private Platform inputData = null;
 	private AudioSource trainMove;
 	private AudioSource trainWhistle;
-	private float FakedMovement = -250f;
+	private float FakedMovement = -2500f;
 	public bool indoor = false;
 	
 	private Vector3 scale;
@@ -32,7 +32,8 @@ public class TrainController : MonoBehaviour {
 	public void reset()
 	{
 		UnityEngine.Debug.Log("Train: position reset");
-		FakedMovement = -250f;
+		//inputData = new Platform();
+		scaledDistance = -1000f;
 	}
 	
 	// Use this for initialization
@@ -68,13 +69,9 @@ public class TrainController : MonoBehaviour {
 	}
 	
 	void OnEnable() {
-		transform.position = new Vector3(13.5f, -6.6f, -50);
-		inputData = new Platform();
+		transform.position = new Vector3(103.8f, -6.6f, -50);
+		//inputData = new Platform();
 		//Debug.Log("OnEnable called\n\n\n\n\n");
-	}
-	
-	void OnDestroy() {
-		inputData = null;
 	}
 	
 	void OnGUI() {
@@ -105,25 +102,7 @@ public class TrainController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-//		if(countTime == 3.99f && inputData.hasLock() && !started)
-//		{
-//			started = true;
-//		}
-//		
-//		if(started && countTime <= 0.0f)
-//		{
-//			inputData.StartTrack(false);
-//		}
-//		else if(started && countTime > 0.0f)
-//		{
-//			countTime -= Time.deltaTime;
-//		}
-		
 		whistleTime += Time.deltaTime;
-		
-//		if(indoor){
-//			FakedMovement  += (Time.deltaTime * 4)*6;
-//		}
 		
 		if(whistleTime >= 10.0f)
 		{
@@ -133,17 +112,9 @@ public class TrainController : MonoBehaviour {
 		
 		inputData.Poll();
 	
-//		if(!indoor) 
-//		{
-			scaledDistance = (inputData.DistanceBehindTarget() - 50) * 6.666f;
-//		}
-//		else 
-//		{
-//			scaledDistance = FakedMovement;
-//		}
-		
-		//scaledDistance = FakedMovement;
-		Vector3 movement = new Vector3(13.5f,-22.6f,(float)scaledDistance);
+		scaledDistance = (inputData.DistanceBehindTarget() - 50) * 76.666f;
+
+		Vector3 movement = new Vector3(103.8f,-108.4f,(float)scaledDistance);
 		transform.position = movement;
 	}
 	
@@ -160,6 +131,6 @@ public class TrainController : MonoBehaviour {
 		{
 			final = value.ToString("f0");
 		}
-		return value+postfix;
+		return final+postfix;
 	}
 }

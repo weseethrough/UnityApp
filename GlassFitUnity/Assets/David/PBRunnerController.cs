@@ -14,7 +14,7 @@ public class PBRunnerController : MonoBehaviour {
 	private float myDistance;
 	private float targetDistance;
 	public bool indoor = false;
-	private float FakedMovement = -250f;
+	private float FakedMovement = 0f;
 	
 	private float countTime = 3.99f;
 	private bool started = false;
@@ -64,19 +64,8 @@ public class PBRunnerController : MonoBehaviour {
 	}
 	
 	void OnEnable() {
-		transform.position = new Vector3(-10, -14, 0);
-		inputData = new Platform(); 
-	}
-	
-	void newPosition(string message)
-	{
-		var node = SimpleJSON.JSON.Parse(message);
-		
-		
-	}
-	
-	void OnDestroy() {
-		inputData = null;
+		transform.position = new Vector3(-10, -80.8f, (float)scaledDistance);
+		//inputData = new Platform(); 
 	}
 	
 	void OnGUI() {
@@ -105,45 +94,19 @@ public class PBRunnerController : MonoBehaviour {
 	}
 	
 	void Update () {
-		
-//		if(countTime == 3.99f && inputData.hasLock() && !started)
-//		{
-//			started = true;
-//		}
-//		
-//		if(started && countTime <= 0.0f)
-//		{
-//			inputData.StartTrack(false);
-//		}
-//		else if(started && countTime > 0.0f)
-//		{
-//			countTime -= Time.deltaTime;
-//		}
-		
+				
 		inputData.Poll();
 		
-		if(!indoor) 
-		{
-			scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
-		}
-		else 
-		{
-			FakedMovement  += (Time.deltaTime * 3)*6;
-			scaledDistance = FakedMovement;
-		}
-		
-		
-		scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
-		scaledDistance = FakedMovement;
-		Vector3 movement = new Vector3(-10, -15.5f,(float)scaledDistance);
+		scaledDistance = inputData.DistanceBehindTarget() * 76.666f;
+		Vector3 movement = new Vector3(-10, -80.8f,(float)scaledDistance);
 		transform.position = movement;
 	}
 	
-	
-	
 	public void reset()
 	{
-		FakedMovement = -250f;
+		scaledDistance = 0f;
+		countTime = 3.0f;
+		started = false;
 	}
 	
 	string SiDistance(double meters) {
@@ -159,6 +122,6 @@ public class PBRunnerController : MonoBehaviour {
 		{
 			final = value.ToString("f0");
 		}
-		return value+postfix;
+		return final+postfix;
 	}
 }

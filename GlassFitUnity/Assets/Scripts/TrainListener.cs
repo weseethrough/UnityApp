@@ -154,6 +154,6 @@ public class TrainListener : MonoBehaviour {
 		{
 			final = value.ToString("f0");
 		}
-		return value+postfix;
+		return final+postfix;
 	}
 }

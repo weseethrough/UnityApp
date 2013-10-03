@@ -17,13 +17,9 @@ public class distanceMarker : MonoBehaviour {
 	
 	public GameObject text1;
 	public GameObject text2;
-	public GameObject text3;
-	public GameObject text4;
 	
 	private TextMesh t1;
 	private TextMesh t2;
-	private TextMesh t3;
-	private TextMesh t4;
 
 	// Boxes to check distance
 	private double distance;
@@ -36,8 +32,6 @@ public class distanceMarker : MonoBehaviour {
 		
 		t1 = text1.GetComponent<TextMesh>();
 		t2 = text2.GetComponent<TextMesh>();
-		t3 = text3.GetComponent<TextMesh>();
-		t4 = text4.GetComponent<TextMesh>();
 		
 		distanceBox = new Rect(Screen.width/2, Screen.height - 50, 50, 50);
 		//inputData.StartTrack(false);
@@ -108,8 +102,6 @@ public class distanceMarker : MonoBehaviour {
 			target +=50;
 			t1.text = target.ToString();
 			t2.text = target.ToString();
-			t3.text = target.ToString();
-			t4.text = target.ToString();
 		}
 	}
 }
