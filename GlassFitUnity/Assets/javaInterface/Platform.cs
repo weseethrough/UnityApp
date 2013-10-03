@@ -93,7 +93,7 @@ public class Platform {
 	public Boolean hasLock() {
 		try {
 			bool gpsLock = gps.Call<Boolean>("hasPosition");
-			UnityEngine.Debug.Log("Platform: hasLock() returned " + gpsLock);
+//			UnityEngine.Debug.Log("Platform: hasLock() returned " + gpsLock);
 			return gpsLock;
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: hasLock() failed: " + e.Message);
@@ -138,6 +138,28 @@ public class Platform {
 			UnityEngine.Debug.LogWarning("Platform: Track has been set to " + trackID.ToString ());
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: setTargetTrack() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
+	}
+	
+	public byte[] LoadBlob(string id) {
+		try {
+			byte[] blob = helper_class.CallStatic<byte[]>("loadBlob", id);
+			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " loaded");
+			return blob;
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: LoadBlob() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);			
+		}
+		return null;
+	}
+	
+	public void StoreBlob(string id, byte[] blob) {
+		try {
+			helper_class.CallStatic("storeBlob", id, blob);
+			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " stored");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: StoreBlob() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
 	}

@@ -25,6 +25,13 @@ public class PlatformDummy {
 		return true;
 	}
 	
+	public byte[] LoadBlob(string id) {
+		return new byte[0];
+	}
+	
+	public void StoreBlob(string id, byte[] blob) {
+	}
+	
 	public void Poll() {
 		if (!timer.IsRunning) return;
 		if (Time() - update > 1000) { 

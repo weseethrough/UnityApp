@@ -265,6 +265,36 @@ public class GlassGUI : MonoBehaviour {
 			GUI.Label(map, "No GPS lock");
 		}
 		
+		if (GUI.Button(debug, "Test blobstore!")) {
+			// *** DEBUG
+			UnityEngine.Debug.LogWarning("Platform: DEBUG");
+			byte[] storedata = ji.LoadBlob("test1");
+			byte[] data = new byte[3];
+			data[0] = 42;
+			data[1] = 7;
+			data[2] = 13;			
+			if (storedata.Length == 3 
+				&& storedata[0] == data[0]
+				&& storedata[1] == data[1]
+				&& storedata[2] == data[2]) {
+				UnityEngine.Debug.LogWarning("Platform: Test1 passed");
+			} else {
+				UnityEngine.Debug.LogWarning("Platform: Test1 failed");
+			}
+			ji.StoreBlob("test1", data);
+			storedata = ji.LoadBlob("test1");
+			if (storedata.Length == 3 
+				&& storedata[0] == data[0]
+				&& storedata[1] == data[1]
+				&& storedata[2] == data[2]) {
+				UnityEngine.Debug.LogWarning("Platform: Test2 passed");
+			} else {
+				UnityEngine.Debug.LogWarning("Platform: Test2 failed");
+			}
+			UnityEngine.Debug.LogWarning("Platform: /DEBUG");
+			// *** /DEBUG
+		}
+		
 		// *** DEBUG
 		//GUI.TextArea(debug, debugText + ji.DebugLog());
 		// *** DEBUG
