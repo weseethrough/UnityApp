@@ -69,7 +69,7 @@ public class TrainController : MonoBehaviour {
 	}
 	
 	void OnEnable() {
-		transform.position = new Vector3(103.8f, -6.6f, -50);
+		transform.position = new Vector3(103.8f, -154f, -50);
 		//inputData = new Platform();
 		//Debug.Log("OnEnable called\n\n\n\n\n");
 	}
@@ -114,7 +114,7 @@ public class TrainController : MonoBehaviour {
 	
 		scaledDistance = (inputData.DistanceBehindTarget() - 50) * 76.666f;
 
-		Vector3 movement = new Vector3(103.8f,-108.4f,(float)scaledDistance);
+		Vector3 movement = new Vector3(103.8f,-154.4f,(float)scaledDistance);
 		transform.position = movement;
 	}
 	
