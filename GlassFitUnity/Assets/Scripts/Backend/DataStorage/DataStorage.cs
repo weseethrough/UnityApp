@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 public class DataStorage : MonoBehaviour 
 {
@@ -15,7 +16,9 @@ public class DataStorage : MonoBehaviour
 	public string localizationBlobName 	= "locEn";
 
     //private properties
-    private Dictionary<String, DataStoredType> data;
+    private Storage mainData;
+	private Storage localizationData;
+	
 	private Platform platform;
 	
 	
@@ -41,30 +44,46 @@ public class DataStorage : MonoBehaviour
 
     public void Initialize(byte[] source)
     {
-        platform = new Platform();
+       /* test code
+        * 
+        * platform = new Platform();
 		
-		StringSerializer ss = new StringSerializer("My Main Blob");
-		platform.StoreBlob(mainBlobName, ss.GetSource());
-
-		StringSerializer ss2 = new StringSerializer("My Localization Blob");
-		platform.StoreBlob(localizationBlobName, ss2.GetSource());
+		MemoryStream ms = new MemoryStream();
+		StringSerializer ss = new StringSerializer();
+		
+		ss.SetString("My Main Blob");			
+		ss.WriteToStream(ms);
+		int len = (int)ms.Length;
+		platform.StoreBlob(mainBlobName, ms.GetBuffer());
+		Debug.Log("Stream length "+ms.Length);
+		
+		MemoryStream ms2 = new MemoryStream();
+		ss.SetString("My Localization Blob");
+		ss.WriteToStream(ms2);
+		Debug.Log("Stream length "+ms2.Length);
+		
+		platform.StoreBlob(localizationBlobName, ms2.GetBuffer());
 		
 		InitializeBlob( platform.LoadBlob(mainBlobName) );
-		InitializeBlob( platform.LoadBlob(localizationBlobName) );
+		InitializeBlob( platform.LoadBlob(localizationBlobName) );*/
 		
 		
 	}
 	
 	private void InitializeBlob(byte[] source)
 	{
-		if (source == null)
+		/*test code
+		 * if (source == null)
 		{
 			Debug.LogError("Blob doesnt exist")	;
 			return;			
 		}
 		
-		StringSerializer ss = new StringSerializer(source, 0);
-		Debug.Log("Loaded string:" + ss.GetString());
+		MemoryStream ms = new MemoryStream(source);	
+		ms.Position = 0;
+		StringSerializer ss = new StringSerializer(ms);
+		
+		Debug.Log("Loaded string:" + ss.GetString());*/
 		
 	}
 
