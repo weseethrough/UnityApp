@@ -3,13 +3,27 @@ using System.Collections;
 using System;
 using System.Text;
 
-public struct StringSerializer 
+public class StringSerializer 
 {
     private string data;
 
     //do not modify value below unless you extended string processsing functions and comments to support different string size
     static private int maxLengthSupported = 0x7FFF;
-
+	
+	public StringSerializer()
+	{		
+	}
+	
+	public StringSerializer(string s)
+	{
+		SetString(s);	
+	}
+	
+	public StringSerializer(byte[] s, int position)
+	{
+		SetSource(s, position);
+	}
+	
     public string GetString()
     {
         return data;
@@ -17,7 +31,7 @@ public struct StringSerializer
 
     public void SetString(string s)
     {
-        if (s.Length > maxLengthSupported)
+        if (s.Length >= maxLengthSupported)
         {
             Debug.LogWarning("string serializer doesnt support strings longer than " + maxLengthSupported);
         }
@@ -33,12 +47,12 @@ public struct StringSerializer
         //we allow strings up to 2^15 long
         //and we store lenght of them in 1 byte unless they are longer than 128.
         //in other case we use first bit to define it is two-bit long length definition and use rest (15 bytes) to define exact length
-        if (data.Length > maxLengthSupported)
+        if (data.Length >= maxLengthSupported)
         {
             Debug.LogError("string derializer can't work at the moment with strings above 2^15 bytes long.");
             return null;
         }
-        else if (data.Length > 0x7F)
+        else if (data.Length >= 0x7F)
         {
             destination = new byte[data.Length + 2];
             //(1 << 8) marks it is two byte long data 
@@ -63,7 +77,7 @@ public struct StringSerializer
 
     public void SetSource(byte[] source, int position)
     {
-        if (source.Length < position + 2)
+        if (source.Length <= position + 2)
         {
             Debug.LogWarning("Warning!! Reading string from source at position "+position+" of "+source.Length);
             return;
@@ -82,7 +96,7 @@ public struct StringSerializer
             position += 1;
         }
 
-        if (source.Length > position + length)
+        if (source.Length >= position + length)
         {
             data = System.Text.Encoding.UTF8.GetString(source, position, length);
         }

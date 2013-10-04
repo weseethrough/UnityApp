@@ -1,20 +1,15 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Backend\DataStorage\DataStorage.cs">
-    <Files>
-      <File FileName="Assets\javaInterface\Platform.cs" Line="15" Column="31" />
-      <File FileName="Assets\David\PBRunnerController.cs" Line="1" Column="1" />
-      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="1" Column="1" />
-      <File FileName="Assets\Plugins\Android\bin\AndroidManifest.xml" Line="1" Column="1" />
-      <File FileName="Assets\Plugins\Android\bin\R.txt" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Backend\DataStorage\DataStorage.cs" Line="48" Column="3" />
-      <File FileName="Assets\Scripts\TrainGUI.cs" Line="129" Column="20" />
-    </Files>
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
+              <Node name="David" expanded="True" />
+              <Node name="GyroDroid" expanded="True">
+                <Node name="SampleScripts" expanded="True" />
+              </Node>
               <Node name="javaInterface" expanded="True" />
               <Node name="Plugins" expanded="True">
                 <Node name="Android" expanded="True">
@@ -23,10 +18,9 @@
               </Node>
               <Node name="Scripts" expanded="True">
                 <Node name="Backend" expanded="True">
-                  <Node name="DataStorage" expanded="True">
-                    <Node name="DataStorage.cs" selected="True" />
-                  </Node>
+                  <Node name="DataStorage" expanded="True" />
                 </Node>
+                <Node name="TrainGUI.cs" selected="True" />
               </Node>
             </Node>
           </Node>
@@ -35,7 +29,9 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="C:\GlassFitProjects\GFUnityDev\GlassFitUnity\Assets\Scripts\Backend\DataStorage\DataStorage.cs" line="30" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
