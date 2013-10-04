@@ -3,18 +3,6 @@ using System.Collections;
 
 public class SoundController : MonoBehaviour {
 	private const float NUM_TRACKS = 12;
-	private AudioSource drumline;
-	private AudioSource drumline2;
-	private AudioSource guitar1;
-	private AudioSource guitar2;
-	private AudioSource guitar3;
-	private AudioSource guitar4;
-	private AudioSource otherGuitar;
-	private AudioSource revebGuitar;
-	private AudioSource stevieChorus;
-	private AudioSource stevieTrack;
-	private AudioSource trumpets;
-	private AudioSource bass;
 	private AudioSource[] stevies;
 	private float curTime = 0.0f;
 	
