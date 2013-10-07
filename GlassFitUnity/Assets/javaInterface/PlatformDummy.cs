@@ -19,11 +19,14 @@ public class PlatformDummy {
 	private const float factor = 1.2f;
 	
 	private string blobstore = "editor-blobstore";
+	private string blobassets = "blob";
 	
 	public PlatformDummy() {
 		timer.Start();
 		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 		Directory.CreateDirectory(blobstore);
+		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+		Directory.CreateDirectory(blobassets);
 	}
 	
 	public void StartTrack(bool indoor) {
@@ -54,6 +57,9 @@ public class PlatformDummy {
 	
 	public byte[] LoadBlob(string id) {
 		try {
+			if (!File.Exists(Path.Combine(blobstore, id))) {
+				return File.ReadAllBytes(Path.Combine(blobassets, id));
+			}
 			return File.ReadAllBytes(Path.Combine(blobstore, id));
 		} catch (FileNotFoundException e) {
 			return new byte[0];
@@ -62,6 +68,13 @@ public class PlatformDummy {
 	
 	public void StoreBlob(string id, byte[] blob) {
 		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
+	}
+		
+	/**
+	 * Editor-specific function. 
+	 */
+	public void StoreBlobAsAsset(string id, byte[] blob) {
+		File.WriteAllBytes(Path.Combine(blobassets, id), blob);
 	}
 	
 	public void Poll() {

@@ -164,6 +164,26 @@ public class Platform {
 		}
 	}
 	
+	public void EraseBlob(string id) {
+		try {
+			helper_class.CallStatic("eraseBlob", id);
+			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " erased");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: EraseBlob() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);			
+		}
+	}
+	
+	public void ResetBlobs() {
+		try {
+			helper_class.CallStatic("resetBlobs");
+			UnityEngine.Debug.LogWarning("Platform: Game blobs reset");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: ResetBlobs() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);			
+		}
+	}
+	
 	public void Poll() {
 		
 //		if (!hasLock ()) return;
