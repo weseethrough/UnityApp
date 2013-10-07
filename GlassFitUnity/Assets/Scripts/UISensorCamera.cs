@@ -6,7 +6,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class UICamera : MonoBehaviour {
+public class UISensorCamera : MonoBehaviour {
 	public Quaternion offsetFromStart;
 	public Quaternion camFromStart;
 	public Quaternion planarOffset;
