@@ -1,16 +1,17 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Backend\DataStorage\StorageDictionary.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Backend\DataStorage\DataStorage.cs">
     <Files>
-      <File FileName="Assets\Scripts\Backend\DataStorage\StringSerializer.cs" Line="74" Column="2" />
-      <File FileName="Assets\Scripts\Backend\DataStorage\DataStorage.cs" Line="7" Column="41" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\DataStorage.cs" Line="184" Column="22" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\StringSerializer.cs" Line="1" Column="1" />
       <File FileName="Assets\Plugins\Android\bin\AndroidManifest.xml" Line="1" Column="1" />
       <File FileName="Assets\Plugins\Android\bin\R.txt" Line="1" Column="1" />
       <File FileName="Assets\Scripts\TrainGUI.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\Backend\DataStorage\Storage.cs" Line="10" Column="9" />
-      <File FileName="Assets\Scripts\Backend\DataStorage\StorageDictionary.cs" Line="14" Column="2" />
-      <File FileName="Assets\Scripts\Backend\Localization\SimpleLocalizationTable.cs" Line="24" Column="46" />
-      <File FileName="Assets\Scripts\Backend\Localization\SimpleLocalizationManager.cs" Line="20" Column="22" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\Storage.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\CustomDictionaries\StringStorageDictionary.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\CustomDictionaries\StorageDictionary.cs" Line="1" Column="1" />
+      <File FileName="Assets\javaInterface\PlatformDummy.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\Editor\BackendWindow.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -30,9 +31,18 @@
               <Node name="Scripts" expanded="True">
                 <Node name="Backend" expanded="True">
                   <Node name="DataStorage" expanded="True">
-                    <Node name="StorageDictionary.cs" selected="True" />
+                    <Node name="CustomDictionaries" expanded="True" />
+                    <Node name="DataStorage.cs" selected="True" />
                   </Node>
-                  <Node name="Localization" expanded="True" />
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+          <Node name="Assembly-CSharp-Editor" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Scripts" expanded="True">
+                <Node name="Backend" expanded="True">
+                  <Node name="Editor" expanded="True" />
                 </Node>
               </Node>
             </Node>

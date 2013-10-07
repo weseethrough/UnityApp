@@ -4,29 +4,29 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
 
+
 //this class is used instead of dictionary which is not serializable. It allows to have undefined set of serialziable objects identified by name
 
-[Serializable()]
+[System.Serializable]
 public class StorageDictionary : ISerializable 
 {
     private List<ISerializable> data;
-	private List<String> name;
+	private List<string> name;
 	
 	public StorageDictionary()
 	{
 		this.data = new List<ISerializable>();
-		this.name = new List<String>();
+		this.name = new List<string>();
 	}
 	
 	public StorageDictionary(SerializationInfo info, StreamingContext ctxt)
 	{
 		this.data = (List<ISerializable>)info.GetValue("Data", typeof(List<ISerializable>));
-		this.name = (List<String>)info.GetValue("Name", typeof(List<String>));
+		this.name = (List<string>)info.GetValue("Name", typeof(List<string>));
 		
 		if (this.data.Count != this.name.Count)
 		{
-			Debug.LogError("StorageDictionary out of sync at deserialization stage!");
-			return null;
+			Debug.LogError("StorageDictionary out of sync at deserialization stage!");			
 		}
 	}
 	
@@ -36,7 +36,7 @@ public class StorageDictionary : ISerializable
 		info.AddValue("Name", this.name);
    	}
 	
-	public bool Add(ISerializable obj, string name)
+	public bool Add(string name, ISerializable obj)
 	{
 		if (this.data.Count != this.name.Count)
 		{
@@ -50,6 +50,26 @@ public class StorageDictionary : ISerializable
 			//we have this object in our list
 			Debug.LogWarning("Object "+name+ " were trying to overwrite another object already existing in dictionary");
 			return false;	
+		}
+		
+		this.name.Add(name);
+		this.data.Add(obj);	
+		return true;
+	}
+	
+	public bool Set(ISerializable obj, string name)
+	{
+		if (this.data.Count != this.name.Count)
+		{
+			Debug.LogError("StorageDictionary out of sync!");
+			return false;
+		}
+		
+		int index = this.name.FindIndex(x => x == name);
+		if (index >= 0)
+		{			
+			this.data[index] = obj;	
+			return true;
 		}
 		
 		this.name.Add(name);

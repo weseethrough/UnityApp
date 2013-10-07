@@ -6,27 +6,26 @@ using System.Collections.Generic;
 
 //this class is used instead of dictionary which is not serializable. It allows to have undefined set of serialziable objects identified by name
 
-[Serializable()]
-public class StorageDictionary : ISerializable 
+[System.Serializable]
+public class StringStorageDictionary : ISerializable 
 {
-    private List<ISerializable> data;
-	private List<String> name;
+    private List<string> data;
+	private List<string> name;
 	
-	public StorageDictionary()
+	public StringStorageDictionary()
 	{
-		this.data = new List<ISerializable>();
-		this.name = new List<String>();
+		this.data = new List<string>();
+		this.name = new List<string>();
 	}
 	
-	public StorageDictionary(SerializationInfo info, StreamingContext ctxt)
+	public StringStorageDictionary(SerializationInfo info, StreamingContext ctxt)
 	{
-		this.data = (List<ISerializable>)info.GetValue("Data", typeof(List<ISerializable>));
-		this.name = (List<String>)info.GetValue("Name", typeof(List<String>));
+		this.data = (List<string>)info.GetValue("Data", typeof(List<string>));
+		this.name = (List<string>)info.GetValue("Name", typeof(List<string>));
 		
 		if (this.data.Count != this.name.Count)
 		{
-			Debug.LogError("StorageDictionary out of sync at deserialization stage!");
-			return null;
+			Debug.LogError("StorageDictionary out of sync at deserialization stage!");		
 		}
 	}
 	
@@ -36,7 +35,7 @@ public class StorageDictionary : ISerializable
 		info.AddValue("Name", this.name);
    	}
 	
-	public bool Add(ISerializable obj, string name)
+	public bool Add(string name, string obj)
 	{
 		if (this.data.Count != this.name.Count)
 		{
@@ -50,6 +49,26 @@ public class StorageDictionary : ISerializable
 			//we have this object in our list
 			Debug.LogWarning("Object "+name+ " were trying to overwrite another object already existing in dictionary");
 			return false;	
+		}
+		
+		this.name.Add(name);
+		this.data.Add(obj);	
+		return true;
+	}
+	
+	public bool Set(string obj, string name)
+	{
+		if (this.data.Count != this.name.Count)
+		{
+			Debug.LogError("StorageDictionary out of sync!");
+			return false;
+		}
+		
+		int index = this.name.FindIndex(x => x == name);
+		if (index >= 0)
+		{
+			this.data[index] = obj;
+			return true;
 		}
 		
 		this.name.Add(name);
@@ -76,29 +95,42 @@ public class StorageDictionary : ISerializable
 		
 		return false;
 		
-	}
-		
-	public bool Remove(ISerializable obj)
+	}	
+	
+	public void Get(int index, out string name, out string data)
 	{
 		if (this.data.Count != this.name.Count)
 		{
 			Debug.LogError("StorageDictionary out of sync!");
-			return false;
+			name = string.Empty;
+			data = string.Empty;
+			return;
 		}
 		
-		int index = this.data.FindIndex(x => x == obj);
-		if (index >= 0)
+		if (index >=0 && index < this.data.Count)
 		{
-			this.name.RemoveAt(index);
-			this.data.RemoveAt(index);	
+			name = this.name[index];
+			data = this.data[index];			
+			return;			
+		}		
 		
-			return true;	
-		}
+		name = string.Empty;
+		data = string.Empty;
 		
-		return false;	
 	}
 	
-	public ISerializable Get(string name)
+	public int Length()
+	{
+		if (this.data.Count != this.name.Count)
+		{
+			Debug.LogError("StorageDictionary out of sync!");
+			return 0;
+		}
+		
+		return this.data.Count;
+	}
+
+	public string Get(string name)
 	{
 		if (this.data.Count != this.name.Count)
 		{
@@ -120,18 +152,7 @@ public class StorageDictionary : ISerializable
 		
 		int index = this.name.FindIndex(x => x == name);
 		return index >= 0;
-	}
+	}		
 	
-	public bool Contains(ISerializable obj)
-	{
-		if (this.data.Count != this.name.Count)
-		{
-			Debug.LogError("StorageDictionary out of sync!");
-			return false;
-		}
-		
-		int index = this.data.FindIndex(x => x == obj);
-		return index >= 0;
-	}
 	
 }

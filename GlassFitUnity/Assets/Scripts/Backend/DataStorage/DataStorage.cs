@@ -3,7 +3,9 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
+[ExecuteInEditMode]
 public class DataStorage : MonoBehaviour 
 {
     //static accees and properties
@@ -19,7 +21,7 @@ public class DataStorage : MonoBehaviour
     private Storage mainData;
 	private Storage localizationData;
 	
-	private Platform platform;
+	private PlatformDummy platform;
 	
 	
     void Awake()
@@ -37,16 +39,16 @@ public class DataStorage : MonoBehaviour
     {
         if (GUI.Button(new Rect(10, 10, 150, 100), "Initialize"))
         {
-            print("You clicked the button!");
+            Debug.Log("Data storage initialziation!");
             Initialize(null);
         }
     }
 
     public void Initialize(byte[] source)
     {
-       /* test code
-        * 
-        * platform = new Platform();
+       /* test code */
+         
+        platform = new PlatformDummy();
 		
 		MemoryStream ms = new MemoryStream();
 		StringSerializer ss = new StringSerializer();
@@ -58,32 +60,50 @@ public class DataStorage : MonoBehaviour
 		Debug.Log("Stream length "+ms.Length);
 		
 		MemoryStream ms2 = new MemoryStream();
-		ss.SetString("My Localization Blob");
-		ss.WriteToStream(ms2);
-		Debug.Log("Stream length "+ms2.Length);
+		
+		StringStorageDictionary ssd = new StringStorageDictionary();
+		ssd.Add("lng_ok", "OK");
+		ssd.Add("lng_cancel", "OK");
+		ssd.Add("lng_next", "NEXT");
+		ssd.Add("lng_previous", "PREV");
+		
+		Storage storage = new Storage();
+		storage.dictionary.Add("Generic", ssd);
+		BinaryFormatter bformatter = new BinaryFormatter();
+        bformatter.Serialize(ms2, storage);
 		
 		platform.StoreBlob(localizationBlobName, ms2.GetBuffer());
 		
-		InitializeBlob( platform.LoadBlob(mainBlobName) );
-		InitializeBlob( platform.LoadBlob(localizationBlobName) );*/
+        /*Debug.Log("Stream length "+ms2.Length);
+		
+        
+		
+        InitializeBlob( platform.LoadBlob(mainBlobName) );*/
+        localizationData = InitializeBlob(platform.LoadBlob(localizationBlobName));
+		
+		
 		
 		
 	}
 	
-	private void InitializeBlob(byte[] source)
+	private Storage InitializeBlob(byte[] source)
 	{
-		/*test code
-		 * if (source == null)
+		/* test code */
+		
+		if (source == null)
 		{
 			Debug.LogError("Blob doesnt exist")	;
-			return;			
+			return null;			
 		}
 		
 		MemoryStream ms = new MemoryStream(source);	
 		ms.Position = 0;
-		StringSerializer ss = new StringSerializer(ms);
-		
-		Debug.Log("Loaded string:" + ss.GetString());*/
+
+        BinaryFormatter bformatter = new BinaryFormatter();
+        System.Object o = bformatter.Deserialize(ms);
+        Storage storage = (Storage)o;
+
+        return storage;
 		
 	}
 

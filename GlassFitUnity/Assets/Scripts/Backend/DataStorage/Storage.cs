@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
 
-[Serializable()]
+[System.Serializable]
 public class Storage : ISerializable 
 {
 	public StorageDictionary dictionary;
