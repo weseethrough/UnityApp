@@ -40,15 +40,6 @@ public class UIControl : MonoBehaviour {
 				//speedTouch0 = Input.GetTouch(0).deltaPosition.magnitude / Input.GetTouch(0).deltaTime;
 				//speedTouch1 = Input.GetTouch(1).deltaPosition.magnitude / Input.GetTouch(1).deltaTime;
 			
-				if(this.camera.fieldOfView > 20)
-				{
-					speed = 2.0f;
-				}
-				else if(this.camera.fieldOfView <=20)
-				{
-					speed = 0.3f;
-				}
-			
 				// Check to see if pinch is bigger, and zoom in if so
 //				if((touchDelta + varianceInDistances <= 1) && (speedTouch0 > minPinchSpeed) && (speedTouch1 > minPinchSpeed))
 //				{
@@ -63,7 +54,7 @@ public class UIControl : MonoBehaviour {
 				float newFOV = this.camera.fieldOfView;
 				
 				if(newFOV < 20) {
-					speed = 0.5f;
+					speed = 1;
 				}
 				else {
 					speed = 3;
