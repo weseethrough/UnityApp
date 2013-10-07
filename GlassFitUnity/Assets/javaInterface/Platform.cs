@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -10,6 +10,8 @@ public class Platform {
 	private double distance = 0.0;
 	private int calories = 0;
 	private float pace = 0;
+	private Position position = null;
+	private float bearing = 0;
 	//private float timer = 3.0f;
 	
 	private bool countdown = false;
@@ -103,7 +105,7 @@ public class Platform {
 	public Boolean hasLock() {
 		try {
 			bool gpsLock = gps.Call<Boolean>("hasPosition");
-			UnityEngine.Debug.Log("Platform: hasLock() returned " + gpsLock);
+//			UnityEngine.Debug.Log("Platform: hasLock() returned " + gpsLock);
 			return gpsLock;
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: hasLock() failed: " + e.Message);
@@ -152,6 +154,28 @@ public class Platform {
 		}
 	}
 	
+	public byte[] LoadBlob(string id) {
+		try {
+			byte[] blob = helper_class.CallStatic<byte[]>("loadBlob", id);
+			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " loaded");
+			return blob;
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: LoadBlob() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);			
+		}
+		return null;
+	}
+	
+	public void StoreBlob(string id, byte[] blob) {
+		try {
+			helper_class.CallStatic("storeBlob", id, blob);
+			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " stored");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: StoreBlob() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
+	}
+	
 	public void Poll() {
 		
 //		if (!hasLock ()) return;
@@ -179,6 +203,17 @@ public class Platform {
 			UnityEngine.Debug.LogWarning("Platform: getCurrentSpeed() failed: " + e.Message);            
 			UnityEngine.Debug.LogException(e);
 		}
+		try {
+			if (hasLock()) {
+				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
+				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+				ajo = gps.Call<AndroidJavaObject>("getCurrentBearing");
+				bearing = ajo.Call<float>("floatValue");
+			}
+		} catch (Exception e) {
+//			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
+		}
+		
 	}
 
 	public double DistanceBehindTarget() {
@@ -201,6 +236,14 @@ public class Platform {
 	
 	public float Pace() {
 		return pace;
+	}
+	
+	public Position Position() {
+		return position;
+	}
+	
+	public float Bearing() {
+		return bearing;
 	}
 	
 }
