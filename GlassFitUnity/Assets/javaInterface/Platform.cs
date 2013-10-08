@@ -102,6 +102,18 @@ public class Platform {
 		}
 	}
 	
+	public float getCurrentSpeed(long l) 
+	{
+		try {
+			float ret = target.Call<float>("getCurrentSpeed", l);
+			UnityEngine.Debug.Log("Platform: speed obtained, currently: " + ret.ToString());
+			return ret;
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting current speed: " + e.Message);
+			return 0;
+		}
+	}
+	
 	public Boolean hasLock() {
 		try {
 			bool gpsLock = gps.Call<Boolean>("hasPosition");

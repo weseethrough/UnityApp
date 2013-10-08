@@ -7,17 +7,18 @@ public class SettingsScreen : MonoBehaviour {
 	public bool toggleStuff = false;
 	public bool MenuOpen = false;
 	public bool Runner = false;
-	public bool Train = false;
+	public bool Eagle = false;
+	public bool train = false;
 	public bool Zombie = false;
 	private bool changed = false;
 	public bool indoor = true;
 	
 	private Platform inputData = null;
-	public GameObject TrainObject;
-	public GameObject RunnerObject;
-	public GameObject TrainHolder;
+	
+	public GameObject eagleHolder;
 	public GameObject RunnerHolder;
 	public GameObject ZombieHolder;
+	public GameObject trainHolder;
 	
 	private int originalHeight = 500;
 	private int originalWidth = 800;
@@ -47,37 +48,57 @@ public class SettingsScreen : MonoBehaviour {
 			if(GUI.Button(new Rect(0, originalHeight-200, 200, 200) , "Runner"))
 			{
 				Runner = true;
-				Train = false;
+				Eagle = false;
 				Zombie = false;
+				train = false;
+				
 				changed = true;
 				
 				ZombieHolder.SetActive(Zombie);
-				TrainHolder.SetActive(Train);
+				eagleHolder.SetActive(Eagle);
 				RunnerHolder.SetActive(Runner);
+				trainHolder.SetActive(train);
 			}
 			
-			if(GUI.Button(new Rect (300, originalHeight-200, 200, 200), "Train"))
+			if(GUI.Button(new Rect (200, originalHeight-200, 200, 200), "Eagle"))
 			{
 				Runner = false;
-				Train = true;
+				Eagle = true;
 				Zombie = false;
+				train = false;
 				changed = true;
 				
 				ZombieHolder.SetActive(Zombie);
-				TrainHolder.SetActive(Train);
+				eagleHolder.SetActive(Eagle);
 				RunnerHolder.SetActive(Runner);
+				trainHolder.SetActive(train);
 			}
 			
-			if(GUI.Button(new Rect (600, originalHeight-200, 200, 200), "Zombie"))
+			if(GUI.Button(new Rect (400, originalHeight-200, 200, 200), "Zombie"))
 			{
 				Runner = false;
-				Train = false;
+				Eagle = false;
 				Zombie = true;
+				train = false;
 				changed = true;
 				
 				ZombieHolder.SetActive(Zombie);
-				TrainHolder.SetActive(Train);
+				eagleHolder.SetActive(Eagle);
 				RunnerHolder.SetActive(Runner);
+				trainHolder.SetActive(train);
+			}
+			
+			if(GUI.Button(new Rect(600, originalHeight-200, 200, 200), "Train"))
+			{
+				Runner = false;
+				Eagle = false;
+				Zombie = false;
+				train = true;
+				
+				ZombieHolder.SetActive(Zombie);
+				eagleHolder.SetActive(Eagle);
+				RunnerHolder.SetActive(Runner);
+				trainHolder.SetActive(train);
 			}
 			
 			
@@ -120,13 +141,16 @@ public class SettingsScreen : MonoBehaviour {
 					inputData.setIndoor(indoor);
 					//inputData = new Platform();
 					
-					TrainHolder.GetComponent<TrainController>().indoor = indoor;
+					eagleHolder.GetComponent<EagleController>().indoor = indoor;
 					RunnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
 					ZombieHolder.GetComponent<ZombieController>().indoor = indoor;
+					trainHolder.GetComponent<TrainController>().indoor = indoor;
 					
-					TrainHolder.GetComponent<TrainController>().reset();
+					eagleHolder.GetComponent<EagleController>().reset();
 					RunnerHolder.GetComponent<PBRunnerController>().reset();
 					ZombieHolder.GetComponent<ZombieController>().reset();
+					trainHolder.GetComponent<TrainController>().reset();
+					
 					started = false;
 					countdown = false;
 					countTime = 3.0f;
@@ -168,9 +192,9 @@ public class SettingsScreen : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
-		if(Train)
+		if(Eagle)
 		{
-			TrainHolder.SetActive(true);
+			eagleHolder.SetActive(true);
 		}
 		else if(Runner)
 		{
@@ -180,10 +204,15 @@ public class SettingsScreen : MonoBehaviour {
 		{
 			ZombieHolder.SetActive(true);
 		}
+		else if(train)
+		{
+			trainHolder.SetActive(true);
+		}
 		
-		TrainHolder.GetComponent<TrainController>().indoor = indoor;
+		eagleHolder.GetComponent<EagleController>().indoor = indoor;
 		RunnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
 		ZombieHolder.GetComponent<ZombieController>().indoor = indoor;
+		trainHolder.GetComponent<TrainController>().indoor = indoor;
 	}
 	
 	// Update is called once per frame

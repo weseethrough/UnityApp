@@ -54,13 +54,13 @@ public class UIControl : MonoBehaviour {
 				float newFOV = this.camera.fieldOfView;
 				
 				if(newFOV < 20) {
-					speed = 1;
+					speed = 100;
 				}
 				else {
-					speed = 3;
+					speed = 20;
 				}
 				
-				newFOV = Mathf.Clamp(this.camera.fieldOfView-curDist/Screen.height*speed, 10, 45);
+				newFOV = Mathf.Clamp(this.camera.fieldOfView-(Mathf.Pow(curDist,3.0f))/(Screen.height*speed * Mathf.Abs(curDist)), 10, 45);
 				this.camera.fieldOfView = newFOV;
 
 			}
@@ -69,6 +69,10 @@ public class UIControl : MonoBehaviour {
 		else if(this.camera.fieldOfView < 20)
 		{
 			this.camera.fieldOfView = 20;
+		}
+		else if(this.camera.fieldOfView < 45)
+		{
+			this.camera.fieldOfView = 45;
 		}
 		
 		if(Input.touchCount == 2)
