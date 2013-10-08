@@ -26,6 +26,8 @@ public class Platform {
 	private AndroidJavaObject gps;
 	private AndroidJavaObject target;
 	private AndroidJavaClass helper_class;
+	private AndroidJavaObject activity;
+	private AndroidJavaObject context;
 	
 	
 	public Platform() {
@@ -34,8 +36,8 @@ public class Platform {
 		
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-    	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-			AndroidJavaObject app = activity.Call<AndroidJavaObject>("getApplicationContext");
+    	    activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+			context = activity.Call<AndroidJavaObject>("getApplicationContext");
   			//gps = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.GPSTracker");
 			helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
 			UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
@@ -53,7 +55,7 @@ public class Platform {
 				}
 				// Try to get a Java GPSTracker object
 				try {
-					gps = helper.Call<AndroidJavaObject>("getGPSTracker", app);
+					gps = helper.Call<AndroidJavaObject>("getGPSTracker", context);
 					UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
 				} catch (Exception e) {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
@@ -131,6 +133,24 @@ public class Platform {
 			gps.Call("stopTracking");
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem stopping tracking");
+		}
+	}
+	
+	public void authenticate() {
+		try {
+			helper_class.CallStatic("authenticate", activity);
+		} catch(Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Problem authenticating");
+			UnityEngine.Debug.LogException(e);
+		}
+	}
+	
+	public void syncToServer() {
+		try {
+			helper_class.CallStatic("syncToServer", context);
+		} catch(Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Problem syncing to server");
+			UnityEngine.Debug.LogException(e);
 		}
 	}
 	

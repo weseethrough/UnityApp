@@ -76,6 +76,8 @@ public class PresetGUI : MonoBehaviour {
 	WWW mapWWW = null;
 	Position fetchOrigo = new Position(0, 0);
 
+	private Boolean authenticated = false;
+	
 	void Start () {
 		// Left side top
 		target =   new Rect(MARGIN, MARGIN, 200, 100);	
@@ -224,6 +226,14 @@ public class PresetGUI : MonoBehaviour {
 		}
 		
 		// *** DEBUG
+		if (!authenticated && GUI.Button(debug, "Authenticate")) {
+			ji.authenticate();
+			// TODO: check result
+			authenticated = true;
+		}
+		if (authenticated && GUI.Button(debug, "Sync to server")) {
+			ji.syncToServer();
+		}
 		//GUI.TextArea(debug, debugText + ji.DebugLog());
 		// *** DEBUG
 		GUI.matrix = svMat; // restore matrix
