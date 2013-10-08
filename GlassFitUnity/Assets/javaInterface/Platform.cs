@@ -12,7 +12,6 @@ public class Platform {
 	private float pace = 0;
 	private Position position = null;
 	private float bearing = 0;
-	//private float timer = 3.0f;
 	
 	private bool countdown = false;
 	private bool started = false;

@@ -2,22 +2,19 @@
 using System.Collections;
 
 public class SettingsScreen : MonoBehaviour {
-	public bool toggleGPS = true;
-	public bool togglePaceDemo = false;
-	public bool toggleStuff = false;
-	public bool MenuOpen = false;
-	public bool Runner = false;
-	public bool Eagle = false;
+	public bool menuOpen = false;
+	public bool runner = false;
+	public bool eagle = false;
 	public bool train = false;
-	public bool Zombie = false;
+	public bool zombie = false;
 	private bool changed = false;
 	public bool indoor = true;
 	
 	private Platform inputData = null;
 	
 	public GameObject eagleHolder;
-	public GameObject RunnerHolder;
-	public GameObject ZombieHolder;
+	public GameObject runnerHolder;
+	public GameObject zombieHolder;
 	public GameObject trainHolder;
 	
 	private int originalHeight = 500;
@@ -28,10 +25,7 @@ public class SettingsScreen : MonoBehaviour {
 	private bool countdown = false;
 	private float countTime = 3.0f;
 	public float targSpeed = 1.8f;
-	public float hSliderValue1 = 0.0F;
-	public float hSliderValue2 = 0.0F;
-	public float hSliderValue3 = 0.0F;
-	public Texture BlackTexture;
+	public Texture blackTexture;
 	
 	private string indoorText = "Indoor Active";
 	
@@ -44,63 +38,64 @@ public class SettingsScreen : MonoBehaviour {
 		GUI.skin.horizontalSliderThumb.fixedWidth = 30;
 		GUI.skin.horizontalSliderThumb.fixedHeight = 30;
 		
-		if(MenuOpen)
+		if(menuOpen)
 		{
-			GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), BlackTexture);
+			GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
 					
 			if(GUI.Button(new Rect(0, originalHeight-200, 200, 200) , "Runner"))
 			{
-				Runner = true;
-				Eagle = false;
-				Zombie = false;
+				runner = true;
+				eagle = false;
+				zombie = false;
 				train = false;
 				
 				changed = true;
 				
-				ZombieHolder.SetActive(Zombie);
-				eagleHolder.SetActive(Eagle);
-				RunnerHolder.SetActive(Runner);
+				zombieHolder.SetActive(zombie);
+				eagleHolder.SetActive(eagle);
+				runnerHolder.SetActive(runner);
 				trainHolder.SetActive(train);
 			}
 			
 			if(GUI.Button(new Rect (200, originalHeight-200, 200, 200), "Eagle"))
 			{
-				Runner = false;
-				Eagle = true;
-				Zombie = false;
+				runner = false;
+				eagle = true;
+				zombie = false;
 				train = false;
 				changed = true;
 				
-				ZombieHolder.SetActive(Zombie);
-				eagleHolder.SetActive(Eagle);
-				RunnerHolder.SetActive(Runner);
+				zombieHolder.SetActive(zombie);
+				eagleHolder.SetActive(eagle);
+				runnerHolder.SetActive(runner);
 				trainHolder.SetActive(train);
 			}
 			
 			if(GUI.Button(new Rect (400, originalHeight-200, 200, 200), "Zombie"))
 			{
-				Runner = false;
-				Eagle = false;
-				Zombie = true;
+				runner = false;
+				eagle = false;
+				zombie = true;
 				train = false;
 				changed = true;
 				
-				ZombieHolder.SetActive(Zombie);
-				eagleHolder.SetActive(Eagle);
-				RunnerHolder.SetActive(Runner);
+				zombieHolder.SetActive(zombie);
+				eagleHolder.SetActive(eagle);
+				runnerHolder.SetActive(runner);
 				trainHolder.SetActive(train);
 			}
 			
 			if(GUI.Button(new Rect(600, originalHeight-200, 200, 200), "Train"))
 			{
-				Runner = false;
-				Eagle = false;
-				Zombie = false;
+				runner = false;
+				eagle = false;
+				zombie = false;
 				train = true;
+				changed = true;
 				
-				ZombieHolder.SetActive(Zombie);
-				eagleHolder.SetActive(Eagle);
-				RunnerHolder.SetActive(Runner);
+				zombieHolder.SetActive(zombie);
+				eagleHolder.SetActive(eagle);
+				runnerHolder.SetActive(runner);
 				trainHolder.SetActive(train);
 			}
 			
@@ -128,15 +123,10 @@ public class SettingsScreen : MonoBehaviour {
 				changed = true;
 				targSpeed = temp;
 			}
-	//	hSliderValue1 = GUI.HorizontalSlider(new Rect(((Screen.width)/2)-100, ((Screen.height)/2), 200, 30), hSliderValue1, 0.0F, 10.0F);
-    
-	//	hSliderValue2 = GUI.HorizontalSlider(new Rect(((Screen.width)/2)-100, ((Screen.height)/2)+50, 200, 30), hSliderValue2, 0.0F, 10.0F);
-    
-       // hSliderValue3 = GUI.HorizontalSlider(new Rect(((Screen.width)/2)-100, ((Screen.height)/2)+100, 200, 30), hSliderValue3, 0.0F, 10.0F);
-    	
+	
 			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Back"))
 			{
-        	    MenuOpen = false;
+        	    menuOpen = false;
 				
 				if(changed) {
 					inputData.stopTrack();
@@ -146,13 +136,13 @@ public class SettingsScreen : MonoBehaviour {
 					//inputData = new Platform();
 					
 					eagleHolder.GetComponent<EagleController>().indoor = indoor;
-					RunnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
-					ZombieHolder.GetComponent<ZombieController>().indoor = indoor;
+					runnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
+					zombieHolder.GetComponent<ZombieController>().indoor = indoor;
 					trainHolder.GetComponent<TrainController>().indoor = indoor;
 					
 					eagleHolder.GetComponent<EagleController>().reset();
-					RunnerHolder.GetComponent<PBRunnerController>().reset();
-					ZombieHolder.GetComponent<ZombieController>().reset();
+					runnerHolder.GetComponent<PBRunnerController>().reset();
+					zombieHolder.GetComponent<ZombieController>().reset();
 					trainHolder.GetComponent<TrainController>().reset();
 					
 					started = false;
@@ -167,7 +157,7 @@ public class SettingsScreen : MonoBehaviour {
 		else
 		{
 			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
-        		MenuOpen = true;
+        		menuOpen = true;
 				
 			}
 		}
@@ -196,17 +186,17 @@ public class SettingsScreen : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
-		if(Eagle)
+		if(eagle)
 		{
 			eagleHolder.SetActive(true);
 		}
-		else if(Runner)
+		else if(runner)
 		{
-			RunnerHolder.SetActive(true);
+			runnerHolder.SetActive(true);
 		}
-		else if(Zombie)
+		else if(zombie)
 		{
-			ZombieHolder.SetActive(true);
+			zombieHolder.SetActive(true);
 		}
 		else if(train)
 		{
@@ -214,8 +204,8 @@ public class SettingsScreen : MonoBehaviour {
 		}
 		
 		eagleHolder.GetComponent<EagleController>().indoor = indoor;
-		RunnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
-		ZombieHolder.GetComponent<ZombieController>().indoor = indoor;
+		runnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
+		zombieHolder.GetComponent<ZombieController>().indoor = indoor;
 		trainHolder.GetComponent<TrainController>().indoor = indoor;
 	}
 	
