@@ -40,6 +40,9 @@ public class SettingsScreen : MonoBehaviour {
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		
 		GUI.skin.button.fontSize = 15;
+		GUI.skin.label.fontSize = 15;
+		GUI.skin.horizontalSliderThumb.fixedWidth = 30;
+		GUI.skin.horizontalSliderThumb.fixedHeight = 30;
 		
 		if(MenuOpen)
 		{
@@ -119,7 +122,8 @@ public class SettingsScreen : MonoBehaviour {
 			}
 			
 			float temp  = GUI.HorizontalSlider(new Rect((originalWidth/2)-100, 250, 200, 50), targSpeed,  1.4f, 2.8f);
-    		if(temp != targSpeed)
+    		GUI.Label(new Rect(originalWidth/2 + 120, 250, 100, 50), temp.ToString("f2"));
+			if(temp != targSpeed)
 			{
 				changed = true;
 				targSpeed = temp;

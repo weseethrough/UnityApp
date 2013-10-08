@@ -155,7 +155,7 @@ private float countTime = 3.0f;
 	string SiDistance(double meters) {
 		string postfix = "m";
 		string final;
-		int value = (int)meters;
+		float value = (float)meters;
 		if (value > 1000) {
 			value = value/1000;
 			postfix = "km";
