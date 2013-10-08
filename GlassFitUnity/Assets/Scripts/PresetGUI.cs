@@ -43,7 +43,7 @@ public class PresetGUI : MonoBehaviour {
 	Texture2D info;
 	Texture2D warning;
 	
-	private Boolean authenticated = false;
+	private bool authenticated = false;
 	
 	void Start () {
 		
@@ -120,7 +120,7 @@ public class PresetGUI : MonoBehaviour {
     	
 		// substitute matrix - only scale is altered from standard
     	GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-		
+		GUI.depth = 10;
 		// Setting label font size
 		GUI.skin.label.fontSize = 15;
 		
@@ -156,14 +156,14 @@ public class PresetGUI : MonoBehaviour {
 		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
 				
 		// *** DEBUG
-		if (!authenticated && GUI.Button(debug, "Authenticate")) {
-			ji.authenticate();
-			// TODO: check result
-			authenticated = true;
-		}
-		if (authenticated && GUI.Button(debug, "Sync to server")) {
-			ji.syncToServer();
-		}
+//		if (!authenticated && GUI.Button(debug, "Authenticate")) {
+//			ji.authenticate();
+//			// TODO: check result
+//			authenticated = true;
+//		}
+//		if (authenticated && GUI.Button(debug, "Sync to server")) {
+//			ji.syncToServer();
+//		}
 		//GUI.TextArea(debug, debugText + ji.DebugLog());
 		// *** DEBUG
 		GUI.matrix = svMat; // restore matrix

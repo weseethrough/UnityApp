@@ -12,6 +12,11 @@ public class SettingsScreen : MonoBehaviour {
 	
 	private Platform inputData = null;
 	
+	// Debug
+	private Rect debug;
+	private const int MARGIN = 15;
+	private bool authenticated = false;
+	
 	public GameObject eagleHolder;
 	public GameObject runnerHolder;
 	public GameObject zombieHolder;
@@ -29,10 +34,31 @@ public class SettingsScreen : MonoBehaviour {
 	
 	private string indoorText = "Indoor Active";
 	
+		// Use this for initialization
+	void Start () {
+		inputData = new Platform();
+		inputData.setIndoor(indoor);
+		float x = (float)Screen.width/originalWidth;
+		float y = (float)Screen.height/originalHeight;
+		scale = new Vector3(x, y, 1);
+		
+		debug = new Rect((originalWidth-200)/2, originalHeight-MARGIN-100, 200, 100);
+		
+		zombieHolder.SetActive(zombie);
+		eagleHolder.SetActive(eagle);
+		runnerHolder.SetActive(runner);
+		trainHolder.SetActive(train);
+		
+		eagleHolder.GetComponent<EagleController>().indoor = indoor;
+		runnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
+		zombieHolder.GetComponent<ZombieController>().indoor = indoor;
+		trainHolder.GetComponent<TrainController>().indoor = indoor;
+	}
+	
 	void OnGUI() {
 		
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-		
+		GUI.depth = 5;
 		GUI.skin.button.fontSize = 15;
 		GUI.skin.label.fontSize = 15;
 		GUI.skin.horizontalSliderThumb.fixedWidth = 30;
@@ -51,10 +77,7 @@ public class SettingsScreen : MonoBehaviour {
 				
 				changed = true;
 				
-				zombieHolder.SetActive(zombie);
-				eagleHolder.SetActive(eagle);
-				runnerHolder.SetActive(runner);
-				trainHolder.SetActive(train);
+				GetComponent<TargetDisplay>().setOffset(0);
 			}
 			
 			if(GUI.Button(new Rect (200, originalHeight-200, 200, 200), "Eagle"))
@@ -65,10 +88,7 @@ public class SettingsScreen : MonoBehaviour {
 				train = false;
 				changed = true;
 				
-				zombieHolder.SetActive(zombie);
-				eagleHolder.SetActive(eagle);
-				runnerHolder.SetActive(runner);
-				trainHolder.SetActive(train);
+				GetComponent<TargetDisplay>().setOffset(50);
 			}
 			
 			if(GUI.Button(new Rect (400, originalHeight-200, 200, 200), "Zombie"))
@@ -79,10 +99,7 @@ public class SettingsScreen : MonoBehaviour {
 				train = false;
 				changed = true;
 				
-				zombieHolder.SetActive(zombie);
-				eagleHolder.SetActive(eagle);
-				runnerHolder.SetActive(runner);
-				trainHolder.SetActive(train);
+				GetComponent<TargetDisplay>().setOffset(20);
 			}
 			
 			if(GUI.Button(new Rect(600, originalHeight-200, 200, 200), "Train"))
@@ -91,12 +108,10 @@ public class SettingsScreen : MonoBehaviour {
 				eagle = false;
 				zombie = false;
 				train = true;
+				
 				changed = true;
 				
-				zombieHolder.SetActive(zombie);
-				eagleHolder.SetActive(eagle);
-				runnerHolder.SetActive(runner);
-				trainHolder.SetActive(train);
+				GetComponent<TargetDisplay>().setOffset(50);
 			}
 			
 			
@@ -133,7 +148,11 @@ public class SettingsScreen : MonoBehaviour {
 					inputData.reset();
 					inputData.setTargetSpeed(targSpeed);
 					inputData.setIndoor(indoor);
-					//inputData = new Platform();
+					
+					zombieHolder.SetActive(zombie);
+					eagleHolder.SetActive(eagle);
+					runnerHolder.SetActive(runner);
+					trainHolder.SetActive(train);
 					
 					eagleHolder.GetComponent<EagleController>().indoor = indoor;
 					runnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
@@ -158,8 +177,17 @@ public class SettingsScreen : MonoBehaviour {
 		{
 			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
         		menuOpen = true;
-				
 			}
+			
+			if (!authenticated && GUI.Button(debug, "Authenticate")) {
+			inputData.authenticate();
+			// TODO: check result
+			authenticated = true;
+			}
+			if (authenticated && GUI.Button(debug, "Sync to server")) {
+				inputData.syncToServer();
+			}
+			
 		}
 		
 		if(countdown)
@@ -176,37 +204,6 @@ public class SettingsScreen : MonoBehaviour {
 				GUI.Label(new Rect(400, 200, 200, 200), "GO!"); 
 			}
 		}
-	}
-	
-	// Use this for initialization
-	void Start () {
-		inputData = new Platform();
-		inputData.setIndoor(indoor);
-		float x = (float)Screen.width/originalWidth;
-		float y = (float)Screen.height/originalHeight;
-		scale = new Vector3(x, y, 1);
-		
-		if(eagle)
-		{
-			eagleHolder.SetActive(true);
-		}
-		else if(runner)
-		{
-			runnerHolder.SetActive(true);
-		}
-		else if(zombie)
-		{
-			zombieHolder.SetActive(true);
-		}
-		else if(train)
-		{
-			trainHolder.SetActive(true);
-		}
-		
-		eagleHolder.GetComponent<EagleController>().indoor = indoor;
-		runnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
-		zombieHolder.GetComponent<ZombieController>().indoor = indoor;
-		trainHolder.GetComponent<TrainController>().indoor = indoor;
 	}
 	
 	// Update is called once per frame

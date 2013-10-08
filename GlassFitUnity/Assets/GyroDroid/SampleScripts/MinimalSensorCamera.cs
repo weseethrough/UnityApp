@@ -44,7 +44,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 		
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX,scaleY, 1));		
-		
+		GUI.depth = 7;
 		if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
 		{ 
 			offsetFromStart = SensorHelper.rotation;
