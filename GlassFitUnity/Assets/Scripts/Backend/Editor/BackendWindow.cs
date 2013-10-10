@@ -11,7 +11,7 @@ public class BackendWindow : EditorWindow
 	bool myBool = true;
 	float myFloat = 1.23f;
 	
-	[MenuItem("Window/Glass Fit BackendWindow")]
+	[MenuItem("Race Yourself/Race Yourself BackendWindow")]
 	public static void ShowWindow()
 	{
 		//Show existing window instance. If one doesn't exist, make one.
