@@ -42,17 +42,12 @@ public class SettingsScreen : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
-		debug = new Rect((originalWidth-200)/2, originalHeight-MARGIN-100, 200, 100);
+		debug = new Rect((originalWidth-200), MARGIN, 200, 200);
 		
 		zombieHolder.SetActive(zombie);
 		eagleHolder.SetActive(eagle);
 		runnerHolder.SetActive(runner);
 		trainHolder.SetActive(train);
-		
-		eagleHolder.GetComponent<EagleController>().indoor = indoor;
-		runnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
-		zombieHolder.GetComponent<ZombieController>().indoor = indoor;
-		trainHolder.GetComponent<TrainController>().indoor = indoor;
 	}
 	
 	void OnGUI() {
@@ -60,14 +55,22 @@ public class SettingsScreen : MonoBehaviour {
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		GUI.depth = 5;
 		GUI.skin.button.fontSize = 15;
-		GUI.skin.label.fontSize = 15;
-		GUI.skin.horizontalSliderThumb.fixedWidth = 30;
-		GUI.skin.horizontalSliderThumb.fixedHeight = 30;
-		
+		GUI.skin.horizontalSliderThumb.fixedWidth = 60;
+		GUI.skin.horizontalSliderThumb.fixedHeight = 60;
+			
 		if(menuOpen)
-		{
+		{			
 			GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
 					
+			GUI.skin.label.fontSize = 30;
+			GUI.Label(new Rect(originalWidth/2-100, 10, 200, 40), "Speed Guide");
+			
+			GUI.skin.label.fontSize = 15;
+			GUI.Label(new Rect(originalWidth/2 -100, 50, 200, 40), "Walking: 1.25m/s");
+			GUI.Label (new Rect(originalWidth/2 - 100, 90, 200, 40), "Jogging: 2.2m/s");
+			GUI.Label(new Rect(originalWidth/2 - 100, 130, 200, 40), "Running: 4.2m/s");
+			GUI.Label(new Rect(originalWidth/2 - 100, 170, 200, 40), "Usain Bolt: 10.4m/s");
+			
 			if(GUI.Button(new Rect(0, originalHeight-200, 200, 200) , "Runner"))
 			{
 				runner = true;
@@ -121,30 +124,29 @@ public class SettingsScreen : MonoBehaviour {
 					indoor = false;
 					UnityEngine.Debug.Log("Outdoor mode active");
 					indoorText = "Outdoor Active";
-					changed = true;
 				}
 				else {
 					indoor = true;
 					UnityEngine.Debug.Log("Indoor mode active");
 					indoorText = "Indoor Active";
-					changed = true;
 				}
+				changed = true;
 			}
 			
-			float temp  = GUI.HorizontalSlider(new Rect((originalWidth/2)-100, 250, 200, 50), targSpeed,  1.4f, 2.8f);
-    		GUI.Label(new Rect(originalWidth/2 + 120, 250, 100, 50), temp.ToString("f2"));
+			float temp  = GUI.HorizontalSlider(new Rect((originalWidth/2)-100, 250, 200, 50), targSpeed,  1.25f, 10.4f);
+    		GUI.Label(new Rect(originalWidth/2 + 120, 250, 100, 50), temp.ToString("f2") + "m/s");
 			if(temp != targSpeed)
 			{
 				changed = true;
 				targSpeed = temp;
 			}
-	
+			
 			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Back"))
 			{
         	    menuOpen = false;
 				
 				if(changed) {
-					inputData.stopTrack();
+					//inputData.stopTrack();
 					inputData.reset();
 					inputData.setTargetSpeed(targSpeed);
 					inputData.setIndoor(indoor);
@@ -154,29 +156,14 @@ public class SettingsScreen : MonoBehaviour {
 					runnerHolder.SetActive(runner);
 					trainHolder.SetActive(train);
 					
-					eagleHolder.GetComponent<EagleController>().indoor = indoor;
-					runnerHolder.GetComponent<PBRunnerController>().indoor = indoor;
-					zombieHolder.GetComponent<ZombieController>().indoor = indoor;
-					trainHolder.GetComponent<TrainController>().indoor = indoor;
-					
-					eagleHolder.GetComponent<EagleController>().reset();
-					runnerHolder.GetComponent<PBRunnerController>().reset();
-					zombieHolder.GetComponent<ZombieController>().reset();
-					trainHolder.GetComponent<TrainController>().reset();
-					
 					started = false;
 					countdown = false;
 					countTime = 3.0f;
 					
-					UnityEngine.Debug.LogWarning("Platform: Count time is: " + countTime.ToString());
 					changed = false;
+				} else {
+					inputData.StartTrack(indoor);
 				}
-			}
-		} 
-		else
-		{
-			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
-        		menuOpen = true;
 			}
 			
 			if (!authenticated && GUI.Button(debug, "Authenticate")) {
@@ -187,7 +174,13 @@ public class SettingsScreen : MonoBehaviour {
 			if (authenticated && GUI.Button(debug, "Sync to server")) {
 				inputData.syncToServer();
 			}
-			
+		} 
+		else
+		{
+			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
+        		menuOpen = true;
+				inputData.stopTrack();
+			}			
 		}
 		
 		if(countdown)

@@ -65,7 +65,7 @@ public class PresetGUI : MonoBehaviour {
 		distanceText = "Distance\n";
 		timeText = "Time\n";
 		caloriesText = "Calories\n";
-		paceText = "Pace/KM\n";	
+		paceText = "Pace\n";	
 		
 		Color white = new Color(0.9f, 0.9f, 0.9f, OPACITY);
 		normal = new Texture2D(1, 1);
@@ -153,8 +153,9 @@ public class PresetGUI : MonoBehaviour {
 		GUI.Box(calories, caloriesText + ji.Calories());
 		
 		// pace
-		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
-				
+		//GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
+		GUI.Box(pace, paceText + ji.Pace().ToString("f2") + "m/s");
+		
 		// *** DEBUG
 //		if (!authenticated && GUI.Button(debug, "Authenticate")) {
 //			ji.authenticate();

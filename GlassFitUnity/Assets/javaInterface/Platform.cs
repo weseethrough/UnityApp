@@ -13,13 +13,7 @@ public class Platform {
 	private Position position = null;
 	private float bearing = 0;
 	
-	private bool countdown = false;
-	private bool started = false;
-	private bool error = false;
-	
 	private Boolean tracking = false;
-	
-	private Stopwatch timer = new Stopwatch();
 	
 	private AndroidJavaObject helper;
 	private AndroidJavaObject gps;
@@ -238,8 +232,8 @@ public class Platform {
 			if (hasLock()) {
 				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
 				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
-				ajo = gps.Call<AndroidJavaObject>("getCurrentBearing");
-				bearing = ajo.Call<float>("floatValue");
+				bearing = gps.Call<float>("getCurrentBearing");
+				//bearing = ajo.Call<float>("floatValue");
 			}
 		} catch (Exception e) {
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;

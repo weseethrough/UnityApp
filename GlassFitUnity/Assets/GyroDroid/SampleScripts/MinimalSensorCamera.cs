@@ -10,13 +10,14 @@ public class MinimalSensorCamera : MonoBehaviour {
 	public Quaternion offsetFromStart;
 	public Quaternion camFromStart;
 	public Quaternion planarOffset;
-	private float timer;
 	private bool started = false;
 	private int touchCount=0;
 	private float scaleX;
 	private float scaleY;
 	public GameObject grid;
 	private bool gridOn = false;
+	private float gridTimer = 0.0f;
+	private bool timerActive = false;
 	//private bool firstRotate = true;
 
 	
@@ -45,16 +46,30 @@ public class MinimalSensorCamera : MonoBehaviour {
 		
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX,scaleY, 1));		
 		GUI.depth = 7;
+		
 		if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
 		{ 
-			offsetFromStart = SensorHelper.rotation;
-			gridOn = true;
-			//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			if(timerActive) {
+				gridOn = false;
+			} else {
+				offsetFromStart = SensorHelper.rotation;
+				gridOn = true;
+				
+			}
+			gridTimer = 5.0f;
+		
 		}
 		else if(Event.current.type == EventType.Repaint)
 		{
-			gridOn = false;
-		}
+			if(gridOn)
+			{
+				timerActive = true;
+			} else
+			{
+				gridTimer = 0.0f;
+				timerActive = false;
+			}
+		}		
 	}
 	
 	void Update () {
@@ -64,15 +79,19 @@ public class MinimalSensorCamera : MonoBehaviour {
 		// direct Sensor usage:
 		//transform.rotation = Sensor.rotationQuaternion; //--- is the same as Sensor.QuaternionFromRotationVector(Sensor.rotationVector);
 
-		// Helper with fallback:
-		if(gridOn)
+		if(timerActive && gridOn)
 		{
-			grid.SetActive(true);
+			gridTimer -= Time.deltaTime;
+			UnityEngine.Debug.Log("Camera: Grid timer is: " + gridTimer.ToString());
+			if(gridTimer < 0.0f)
+			{
+				gridOn = false;
+				timerActive = false;
+			}
 		}
-		else
-		{
-			grid.SetActive(false);
-		}
+		
+		grid.SetActive(gridOn);
+
 		transform.rotation =  newOffset;
 		//
 		

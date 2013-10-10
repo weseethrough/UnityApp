@@ -8,46 +8,24 @@ public class EagleController : MonoBehaviour {
 
 	private double scaledDistance;
 	private Platform inputData = null;
-	public bool indoor = false;
 	
 	private float speed;
 	private AudioSource screech;
 	private bool descend = false;
 	
 	private Animator anim;
+	float screechTime = 0.0f;
 	
-	private Vector3 scale;
-	private int originalHeight = 500;
-	private int originalWidth = 800;
-	private float height = 592.0f;
-	
-	public void reset()
-	{
-		UnityEngine.Debug.Log("Eagle: position reset");
-		scaledDistance = -1000f;
-	}
+	private float height = 2092.0f;
 	
 	// Use this for initialization
 	void Start () {
 		inputData = new Platform();
 		
-		scale.x = (float)Screen.width / originalWidth;
-		scale.y = (float)Screen.height / originalHeight;
-    	scale.z = 1;
-
 		anim = GetComponent<Animator>();
 		anim.SetBool("Attack", false);
 	
 		screech = GetComponent<AudioSource>();
-		
-	}
-	
-	void OnEnable() {
-		transform.position = new Vector3(0, height, -50);
-	}
-	
-	void OnGUI() {
-
 	}
 	
 	// Update is called once per frame
@@ -56,10 +34,12 @@ public class EagleController : MonoBehaviour {
 		inputData.Poll();
 	
 		float realDist = (float)inputData.DistanceBehindTarget() - 50;
-		scaledDistance = realDist * 76.666f;
-
-		Vector3 movement = new Vector3(0,height,(float)scaledDistance);
-		transform.position = movement;
+		scaledDistance = realDist * 135;
+		
+		if(realDist < -49)
+		{
+			height = 2092;
+		}
 		
 		//UnityEngine.Debug.Log("Eagle: Distance is :" + realDist.ToString());
 		if(realDist > -30 && realDist <= 0)
@@ -67,43 +47,38 @@ public class EagleController : MonoBehaviour {
 			if(!descend)
 			{
 				anim.SetBool("Attack", true);
-				float time = -realDist / inputData.getCurrentSpeed(0);
-				speed = height / time;
 				screech.Play();
+				screechTime = 0.0f;
 				descend = true;
 			}
 			
+			if(screechTime > 15.0f)
+			{
+				screechTime -= 15;
+				screech.Play();
+			}
+			
+			screechTime += Time.deltaTime;
+			
+			float time = -realDist / inputData.getCurrentSpeed(0);
+			speed = height / time;
 			if(height > 0)
 			{
 				height -= speed * Time.deltaTime;
-				//UnityEngine.Debug.Log("Eagles height is: " + height.ToString());
 			}
 		}
 		else
 		{
 			anim.SetBool("Attack", false);
 			descend = false;
-			//anim.animation["EagleFly"].wrapMode = WrapMode.Loop;
-			if(height < 592)
+			speed = 500;
+			if(height < 2092)
 			{
 				height += speed * Time.deltaTime;
 			}
 		}
-	}
-	
-	string SiDistance(double meters) {
-		string postfix = "m";
-		string final;
-		float value = (float)meters;
-		if (value > 1000) {
-			value = value/1000;
-			postfix = "km";
-			final = value.ToString("f3");
-		}
-		else
-		{
-			final = value.ToString("f0");
-		}
-		return final+postfix;
+		
+		Vector3 movement = new Vector3(0,height,(float)scaledDistance);
+		transform.position = movement;
 	}
 }
