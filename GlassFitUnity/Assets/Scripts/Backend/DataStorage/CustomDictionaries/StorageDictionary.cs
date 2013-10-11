@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -94,9 +94,27 @@ public class StorageDictionary : ISerializable
 			return true;	
 		}
 		
-		return false;
-		
+		return false;		
 	}
+
+    public bool Rename(string name, string newName)
+    {
+        if (this.data.Count != this.name.Count)
+        {
+            Debug.LogError("StorageDictionary out of sync!");
+            return false;
+        }
+
+        int index = this.name.FindIndex(x => x == name);
+        if (index >= 0)
+        {
+            this.name[index] = newName;            
+
+            return true;
+        }
+
+        return false;
+    }
 		
 	public bool Remove(ISerializable obj)
 	{
@@ -127,8 +145,57 @@ public class StorageDictionary : ISerializable
 		}
 		
 		int index = this.name.FindIndex(x => x == name);
-		return data[index];
+        if (index >= 0)
+        {
+            return data[index];
+        }
+        return null;
 	}
+
+    public void Get(int index, out string name, out ISerializable data)
+    {
+        if (this.data.Count != this.name.Count)
+        {
+            Debug.LogError("StorageDictionary out of sync!");
+            name = string.Empty;
+            data = null;
+            return;
+        }
+
+        if (index >= 0 && index < this.data.Count)
+        {
+            name = this.name[index];
+            data = this.data[index];
+            return;
+        }
+
+        name = string.Empty;
+        data = null;
+
+    }
+
+    public int GetIndex(string name)
+    {
+        if (this.data.Count != this.name.Count)
+        {
+            Debug.LogError("StorageDictionary out of sync!");            
+            return -1;
+        }
+
+        int index = this.name.FindIndex(x => x == name);
+        return index;
+    }
+
+    public int Length()
+    {
+        if (this.data.Count != this.name.Count)
+        {
+            Debug.LogError("StorageDictionary out of sync!");
+            return 0;
+        }
+
+        return this.data.Count;
+    }
 	
 	public bool Contains(string name)
 	{

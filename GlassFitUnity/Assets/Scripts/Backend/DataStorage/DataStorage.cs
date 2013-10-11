@@ -1,16 +1,105 @@
-﻿using UnityEngine;using System.Collections;using System;using System.Collections.Generic;using System.IO;using System.Runtime.Serialization.Formatters.Binary;[ExecuteInEditMode]public class DataStorage : MonoBehaviour {    //static accees and properties	static public DataStorage 	instance;		    //public properties	//Note! blob names are used by machine to define file names. Ensure any names used are standard characters for file name.	public string mainBlobName 	= "core";	public string localizationBlobName 	= "locEn";    //private properties    private Storage coreData;	private Storage localizationData;		private PlatformDummy platform;		    void Awake()    {        if (instance != null)        {            Debug.LogError("You should have only one datastorage at a time!");        }        instance = this;					    }    void OnGUI()    {        if (GUI.Button(new Rect(10, 10, 150, 100), "Initialize"))        {            Debug.Log("Data storage initialziation!");            Initialize(null);        }    }    public void Initialize(byte[] source)    {       /* test code */        if (platform != null ) 		{			Debug.LogWarning("Reinitialziation of datastorage canceled");			return;		}        platform = new PlatformDummy();
+using UnityEngine;
+using System.Collections;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
-        MemoryStream ms = new MemoryStream();                
-        StorageDictionary subStorage = new StorageDictionary();
+[ExecuteInEditMode]
+public class DataStorage : MonoBehaviour 
+{    
+	static public DataStorage 	instance;
+		
+    //public properties
+	//Note! blob names are used by machine to define file names. Ensure any names used are standard characters for file name.
+	public string mainBlobName 	= "core";
+	public string localizationBlobName 	= "locEn";
 
+    //private properties
+    private Storage coreData;
+	private Storage localizationData;
+	
+	private PlatformDummy platform;
+	
+	
+    void Awake()
+    {        
+        instance = this;
 
+        if (platform != null)
+        {
+            Debug.LogWarning("Reinitialziation of datastorage canceled");
+            return;
+        }
+        platform = new PlatformDummy();
 
-        subStorage.Add("TestPanel", ssd);
+        Initialize();
+    }   
 
-        Storage storage = new Storage();
-        storage.dictionary.Add("UIPanels", subStorage);
+    public void Initialize()
+    {
+        coreData  			= InitializeBlob( platform.LoadBlob(mainBlobName) );
+        localizationData 	= InitializeBlob( platform.LoadBlob(localizationBlobName) );	
+	}
+	
+	private Storage InitializeBlob(byte[] source)
+	{
+		/* test code */
+		
+		if (source == null)
+		{
+			Debug.LogWarning("Blob doesnt exist, we are creating one");
+			return new Storage();			
+		}
+		
+		Storage storage;
+		
+		try 
+		{
+			MemoryStream ms = new MemoryStream(source);	
+			ms.Position = 0;
+	
+	        BinaryFormatter bformatter = new BinaryFormatter();
+	        System.Object o = bformatter.Deserialize(ms);
+	        storage = (Storage)o;
+		}
+		catch
+		{
+			return new Storage();
+		}
+        return storage;		
+	}
+	
+	static public Storage GetCoreStorage()
+	{
+		if (instance != null)
+		{
+			return instance.coreData;	
+		}
+		
+		return null;
+	}
+	
+	static public Storage GetLocalizationStorage()
+	{
+		if (instance != null)
+		{
+			return instance.localizationData;
+		}
+		
+		return null;
+	}
 
-        BinaryFormatter bformatter = new BinaryFormatter();
-        bformatter.Serialize(ms, storage);
+    static public void SaveCoreStorage()
+    {
+        if (instance != null && instance.platform != null)
+        {
+            MemoryStream ms = new MemoryStream();
+            BinaryFormatter bformatter = new BinaryFormatter();
+            bformatter.Serialize(ms, instance.coreData);
 
-        platform.StoreBlob(mainBlobName, ms.GetBuffer());		/* create some dummy data for core blob 				MemoryStream ms = new MemoryStream();		StringSerializer ss = new StringSerializer();				ss.SetString("My Main Blob");					ss.WriteToStream(ms);		int len = (int)ms.Length;		platform.StoreBlob(mainBlobName, ms.GetBuffer());		Debug.Log("Stream length "+ms.Length); */				/* Some test localization data				MemoryStream ms2 = new MemoryStream();				StringStorageDictionary ssd = new StringStorageDictionary();		ssd.Add("lng_ok", "OK");		ssd.Add("lng_cancel", "OK");		ssd.Add("lng_next", "NEXT");		ssd.Add("lng_previous", "PREV");				Storage storage = new Storage();		storage.dictionary.Add("Generic", ssd);		BinaryFormatter bformatter = new BinaryFormatter();        bformatter.Serialize(ms2, storage);				platform.StoreBlob(localizationBlobName, ms2.GetBuffer());*/				        coreData  			= InitializeBlob( platform.LoadBlob(mainBlobName) );        localizationData 	= InitializeBlob( platform.LoadBlob(localizationBlobName) );		}		private Storage InitializeBlob(byte[] source)	{		/* test code */				if (source == null)		{			Debug.LogWarning("Blob doesnt exist, we are creating one");			return new Storage();					}				MemoryStream ms = new MemoryStream(source);			ms.Position = 0;        BinaryFormatter bformatter = new BinaryFormatter();        System.Object o = bformatter.Deserialize(ms);        Storage storage = (Storage)o;        return storage;			}		static public Storage GetCoreStorage()	{		if (instance != null)		{			return instance.coreData;			}				return null;	}		static public Storage GetLocalizationStorage()	{		if (instance != null)		{			return instance.localizationData;		}				return null;	}	}
+            instance.platform.StoreBlob(instance.mainBlobName, ms.GetBuffer());
+        }
+    }
+	
+}

@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -16,7 +16,7 @@ public class SerializableSettings : ISerializable
     public bool     hasUIComponentSettings;
 
     public bool     keepAliveIfPossible;    
-    public string   labelText;
+    public string   textLabel;
     
 
     public SerializableSettings()
@@ -24,7 +24,7 @@ public class SerializableSettings : ISerializable
         this.hasUISerializable      = false;
         this.hasUIComponentSettings = false;
         this.keepAliveIfPossible    = false;
-        this.labelText              = string.Empty;        
+        this.textLabel              = string.Empty;        
     }
 
     public SerializableSettings(GameObject go)
@@ -37,7 +37,7 @@ public class SerializableSettings : ISerializable
         this.hasUISerializable      = (bool)info.GetValue("HasUISerializable", typeof(bool));
         this.hasUIComponentSettings = (bool)info.GetValue("HasUIComponentSettings", typeof(bool));
         this.keepAliveIfPossible    = (bool)info.GetValue("KeepAlive", typeof(bool));
-        this.labelText              = (string)info.GetValue("Label", typeof(string));                
+        this.textLabel              = (string)info.GetValue("Label", typeof(string));                
 	}
 	
 	public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
@@ -45,7 +45,7 @@ public class SerializableSettings : ISerializable
         info.AddValue("HasUISerializable", this.hasUISerializable);
         info.AddValue("HasUIComponentSettings", this.hasUIComponentSettings);
         info.AddValue("KeepAlive", this.keepAliveIfPossible);
-        info.AddValue("Label", this.labelText);
+        info.AddValue("Label", this.textLabel);
    	}
 
     public void ReadSettings(GameObject go)
@@ -65,7 +65,7 @@ public class SerializableSettings : ISerializable
         if (settings != null)
         {
             this.hasUIComponentSettings = true;
-            this.labelText = settings.label;
+            this.textLabel = settings.textLabel;
         }
         else
         {
@@ -94,7 +94,7 @@ public class SerializableSettings : ISerializable
 
         if (settings != null)
         {
-            settings.label = this.labelText;
+            settings.textLabel = this.textLabel;
         }
     }
 	

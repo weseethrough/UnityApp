@@ -2,8 +2,15 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Backend\DataStorage\UI\UIManager.cs">
     <Files>
-      <File FileName="Assets\Scripts\Backend\DataStorage\UI\ComponentScripts\SerializableSettings.cs" Line="61" Column="29" />
-      <File FileName="Assets\Scripts\Backend\DataStorage\UI\UIManager.cs" Line="46" Column="46" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\UIManager.cs" Line="13" Column="18" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\ComponentScripts\SerializableSettings.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\DataStorage.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\Storage.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\CustomDictionaries\StorageDictionary.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\CustomDictionaries\StringStorageDictionary.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\ComponentScripts\SerializedNode.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\ComponentScripts\Editor\ComponentSettingsEditor.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\Editor\BackendWindow.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -13,6 +20,7 @@
               <Node name="Scripts" expanded="True">
                 <Node name="Backend" expanded="True">
                   <Node name="DataStorage" expanded="True">
+                    <Node name="CustomDictionaries" expanded="True" />
                     <Node name="UI" expanded="True">
                       <Node name="ComponentScripts" expanded="True" />
                       <Node name="UIManager.cs" selected="True" />
@@ -28,9 +36,12 @@
                 <Node name="Backend" expanded="True">
                   <Node name="DataStorage" expanded="True">
                     <Node name="UI" expanded="True">
-                      <Node name="ComponentScripts" expanded="True" />
+                      <Node name="ComponentScripts" expanded="True">
+                        <Node name="Editor" expanded="True" />
+                      </Node>
                     </Node>
                   </Node>
+                  <Node name="Editor" expanded="True" />
                 </Node>
               </Node>
             </Node>
@@ -40,7 +51,9 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="C:\GlassFitProjects\GFUnityDev\GlassFitUnity\Assets\Scripts\Backend\Editor\BackendWindow.cs" line="122" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
