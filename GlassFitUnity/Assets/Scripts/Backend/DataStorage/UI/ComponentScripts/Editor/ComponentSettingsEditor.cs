@@ -2,17 +2,19 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 
-[CustomEditor(typeof(UIComponentSettings))]
+[CustomEditor(typeof(UIBasiclabel))]
 public class ComponentSettingsEditor : Editor
 {
 
     public override void OnInspectorGUI()
     {
-        UIComponentSettings script = (UIComponentSettings)target;
+        UIBasiclabel script = (UIBasiclabel)target;
 
         EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Component Label");
-            script.textLabel = EditorGUILayout.TextArea(script.textLabel);
+            string l = script.label;
+            script.label = EditorGUILayout.TextArea(script.label);
+            if (l != script.label) script.Apply();
         EditorGUILayout.EndHorizontal();
     }
 

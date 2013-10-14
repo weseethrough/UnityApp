@@ -20,9 +20,13 @@ public class DataStorage : MonoBehaviour
 	private Storage localizationData;
 	
 	private PlatformDummy platform;
-	
-	
+
     void Awake()
+    {
+        MakeAwake();
+    }
+
+    public void MakeAwake()
     {        
         instance = this;
 

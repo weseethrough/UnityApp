@@ -25,6 +25,11 @@ public class BackendWindow : EditorWindow
 		GUILayout.Label ("Base Settings", EditorStyles.boldLabel);
         if (DataStorage.instance == null)
         {
+            DataStorage ds = (DataStorage)GameObject.FindObjectOfType(typeof(DataStorage));
+            if (ds != null && GUILayout.Button("Initialize"))
+            {
+                ds.MakeAwake();
+            }
             return;
         }
         		

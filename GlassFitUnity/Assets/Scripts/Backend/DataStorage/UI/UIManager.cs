@@ -29,7 +29,6 @@ public class UIManager : MonoBehaviour
 	SerializedNode ProcessBranch(GameObject go)
     {
         SerializedNode structureParent = new SerializedNode(go);
-		Debug.Log(go.name);
 		
         foreach (Transform child in go.transform)
         {
