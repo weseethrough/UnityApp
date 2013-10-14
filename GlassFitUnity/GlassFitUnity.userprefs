@@ -1,18 +1,6 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs">
-    <Files>
-      <File FileName="Assets\David\PBRunnerController.cs" Line="33" Column="73" />
-      <File FileName="Assets\Scripts\SettingsScreen.cs" Line="66" Column="39" />
-      <File FileName="Assets\Scripts\PresetGUI.cs" Line="23" Column="2" />
-      <File FileName="Assets\EagleController.cs" Line="64" Column="22" />
-      <File FileName="Assets\Scripts\TargetDisplay.cs" Line="47" Column="17" />
-      <File FileName="Assets\Scripts\TrainController.cs" Line="8" Column="2" />
-      <File FileName="Assets\Scripts\ZombieController.cs" Line="33" Column="3" />
-      <File FileName="Assets\SoundRunnerController.cs" Line="30" Column="3" />
-      <File FileName="Assets\javaInterface\Platform.cs" Line="104" Column="35" />
-      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="70" Column="25" />
-    </Files>
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
@@ -20,12 +8,11 @@
             <Node name="Assets" expanded="True">
               <Node name="David" expanded="True" />
               <Node name="GyroDroid" expanded="True">
-                <Node name="SampleScripts" expanded="True">
-                  <Node name="MinimalSensorCamera.cs" selected="True" />
-                </Node>
+                <Node name="SampleScripts" expanded="True" />
               </Node>
               <Node name="javaInterface" expanded="True" />
               <Node name="Scripts" expanded="True" />
+              <Node name="ZombieAnimation.cs" selected="True" />
             </Node>
           </Node>
           <Node name="Assembly-UnityScript" expanded="True">

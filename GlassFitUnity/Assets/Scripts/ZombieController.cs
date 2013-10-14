@@ -7,7 +7,9 @@ using System;
 public class ZombieController : MonoBehaviour {
 
 	private Platform inputData = null;
-
+	private Animator anim;
+	private float speed;
+	
 	private double scaledDistance;
 	
 	// Use this for initialization
