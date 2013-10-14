@@ -16,8 +16,8 @@ public class ZombieAnimation : MonoBehaviour {
 		speed = inputData.getCurrentSpeed(0);
 		//UnityEngine.Debug.Log("Zombie: setting anim float");
 		anim.SetFloat("Speed", speed);
-		if(speed > 4.0f) {
-				anim.speed = Mathf.Clamp(speed / 4.0f, 1, 3);
+		if(speed > 2.2f) {
+				anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2.5f);
 			} else {
 				anim.speed = speed / 1.25f;
 		}
@@ -32,8 +32,8 @@ public class ZombieAnimation : MonoBehaviour {
 		{
 			speed = newSpeed;
 			anim.SetFloat("Speed", speed);
-			if(speed > 4.0f) {
-				anim.speed = speed / 4.0f;
+			if(speed > 2.2f) {
+				anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2.0f);
 			} else {
 				anim.speed = speed / 1.25f;
 			}
