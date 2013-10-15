@@ -20,6 +20,10 @@ public class SingleComponent : ISerializable
     
     public SingleComponent()
     {       
+        this.intData    = new IntStorageDictionary();
+        this.floatData  = new FloatStorageDictionary();
+        this.strData    = new StringStorageDictionary();
+        name            = string.Empty;
     }    
 
     public SingleComponent(SerializationInfo info, StreamingContext ctxt)
@@ -54,81 +58,5 @@ public class SingleComponent : ISerializable
     {
         if (strData == null) strData = new StringStorageDictionary();
         return strData;
-    }
-
-    public void ReadSettings(GameObject go)
-    {
-        /*UISerializable script = go.GetComponent<UISerializable>();
-        if (script != null)
-        {
-            this.hasUISerializable = true;
-        }
-        else
-        {
-            this.hasUISerializable = false;
-        }
-
-        UIComponentSettings settings = go.GetComponent<UIComponentSettings>();
-        if (settings != null)
-        {
-            this.hasUIComponentSettings = true;
-            this.textLabel = settings;
-        }
-        else
-        {
-            this.hasUIComponentSettings = false;
-        }*/
-    }
-
-    public void LoadSettingsTo(GameObject go)
-    {
-     /*   UISerializable script = go.GetComponent<UISerializable>();
-        if (script == null && this.hasUISerializable)
-        {
-            script = go.AddComponent<UISerializable>();
-        }
-        
-        UIComponentSettings settings = go.GetComponent<UIComponentSettings>();
-        if (settings == null && this.hasUIComponentSettings)
-        {
-            settings = go.AddComponent<UIComponentSettings>();
-        }
-
-        if (settings != null)
-        {
-            settings.textLabel = this.textLabel;
-        }*/
-    }
-
-    private void ReadGameObjectComponents(GameObject go)
-    {
-        Component[] componennts = go.GetComponents<Component>();
-        
-        var bindingFlags = BindingFlags.Instance |                   
-                           BindingFlags.Public |
-                           BindingFlags.FlattenHierarchy;
-
-        for (int i=0; i<componennts.Length; i++)
-        {
-            System.Type myType = componennts[i].GetType();
-            try
-            {                                               
-                FieldInfo[] fields = componennts[i].GetType().GetFields(bindingFlags);
-                Debug.Log("Displaying the values of the fields of "+myType.ToString() + "("+ fields.Length+")");
-                
-                foreach (FieldInfo field in fields)
-                {
-                    string fname            = field.Name;
-                    System.Object fValue    = field.GetValue(componennts[i]);
-
-                    Debug.Log("Field " + fname + "(" + fValue.ToString() + ")");
-                }
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError("Exception : " + e.Message);
-            }
-        }                
-    }
-	
+    }	
 }

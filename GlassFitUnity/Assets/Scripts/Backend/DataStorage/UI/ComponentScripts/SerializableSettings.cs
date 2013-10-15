@@ -3,10 +3,12 @@ using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
+using System;
+using System.Reflection;
 
 #if UNITY_EDITOR
-using UnityEditor; 
-using System.Reflection;
+//using UnityEditor; 
+
 #endif
 
 
@@ -21,8 +23,7 @@ public class SerializableSettings : ISerializable
     }
 
     public SerializableSettings(GameObject go)
-    {
-        ReadSettings(go);
+    {        
         ReadGameObjectComponents(go);
     }
 
@@ -36,80 +37,101 @@ public class SerializableSettings : ISerializable
         info.AddValue("Components", this.components);        
    	}
 
-    public void ReadSettings(GameObject go)
-    {
-        /*UISerializable script = go.GetComponent<UISerializable>();
-        if (script != null)
-        {
-            this.hasUISerializable = true;
-        }
-        else
-        {
-            this.hasUISerializable = false;
-        }
-
-        UIComponentSettings settings = go.GetComponent<UIComponentSettings>();
-        if (settings != null)
-        {
-            this.hasUIComponentSettings = true;
-            this.textLabel = settings;
-        }
-        else
-        {
-            this.hasUIComponentSettings = false;
-        }*/
-    }
-
     public void LoadSettingsTo(GameObject go)
     {
-     /*   UISerializable script = go.GetComponent<UISerializable>();
-        if (script == null && this.hasUISerializable)
-        {
-            script = go.AddComponent<UISerializable>();
-        }
-        
-        UIComponentSettings settings = go.GetComponent<UIComponentSettings>();
-        if (settings == null && this.hasUIComponentSettings)
-        {
-            settings = go.AddComponent<UIComponentSettings>();
-        }
+        var bindingFlags = BindingFlags.Instance |
+                           BindingFlags.Public |
+                           BindingFlags.FlattenHierarchy;
 
-        if (settings != null)
+        foreach (SingleComponent sc in components)
         {
-            settings.textLabel = this.textLabel;
-        }*/
+            Component c = go.GetComponent(sc.name);
+            if (c == null)
+            {
+                c = go.AddComponent(sc.name);
+            }
+
+            FieldInfo[] fields = c.GetType().GetFields(bindingFlags);
+
+            foreach (FieldInfo field in fields)
+            {
+                string fname = field.Name;                
+                if (sc.strData != null && field.FieldType == typeof(string))
+                {
+                    field.SetValue(c,sc.strData.Get(fname));
+                }
+                else if (sc.intData != null && field.FieldType == typeof(int))
+                {
+                    field.SetValue(c, sc.intData.Get(fname));
+                }
+                else if (sc.floatData != null && field.FieldType == typeof(float))
+                {
+                    field.SetValue(c, sc.floatData.Get(fname));
+                }
+            }
+
+            UIComponentSettings cs = c as UIComponentSettings;
+            if (cs != null)
+            {
+                cs.Apply();
+            }
+
+        }
     }
 
     private void ReadGameObjectComponents(GameObject go)
     {
-        Component[] componennts = go.GetComponents<Component>();
+        this.components = new List<SingleComponent>();
+
+        if (go.GetComponent<UISerializable>() == null) return;
+
+        Component[] attachedComponents = go.GetComponents<Component>();
         
         var bindingFlags = BindingFlags.Instance |                   
                            BindingFlags.Public |
                            BindingFlags.FlattenHierarchy;
 
-        for (int i=0; i<componennts.Length; i++)
-        {
-            System.Type myType = componennts[i].GetType();
-            try
+        for (int i=0; i<attachedComponents.Length; i++)
+        {            
+            System.Type myType = attachedComponents[i].GetType();
+            if (myType != typeof(Transform))
             {
-                SingleComponent sc = new SingleComponent();
-                sc.name = myType.ToString();
-
-                FieldInfo[] fields = componennts[i].GetType().GetFields(bindingFlags);
-                Debug.Log("Displaying the values of the fields of "+myType.ToString() + "("+ fields.Length+")");
-                
-                foreach (FieldInfo field in fields)
+                try
                 {
-                    string fname            = field.Name;
-                    System.Object fValue    = field.GetValue(componennts[i]);
+                    SingleComponent sc = new SingleComponent();
+                    sc.name = myType.ToString();
 
-                    Debug.Log("Field " + fname + "(" + fValue.ToString() + ")");
+                    FieldInfo[] fields = attachedComponents[i].GetType().GetFields(bindingFlags);
+                    Debug.Log("Displaying the values of the fields of " + myType.ToString() + "(" + fields.Length + ")");
+
+                    foreach (FieldInfo field in fields)
+                    {
+                        string fname = field.Name;
+                        System.Object fValue = field.GetValue(attachedComponents[i]);
+
+                        if (field.FieldType == typeof(string))
+                        {
+                            sc.GetInitializedStrDict().Add(fname, fValue as string);
+                        }
+                        else if (field.FieldType == typeof(int))
+                        {
+                            sc.GetInitializedIntDict().Add(fname, (int)fValue);
+                        }
+                        else if (field.FieldType == typeof(float))
+                        {
+                            sc.GetInitializedFloatDict().Add(fname, (float)fValue);
+                        }
+
+
+                        Debug.Log("Field " + fname + "(" + fValue.ToString() + ")");
+                    }
+
+                    components.Add(sc);
                 }
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError("Exception : " + e.Message);
+                catch (System.Exception e)
+                {
+                    Debug.LogError("Exception : " + e.Message);
+                }
             }
         }                
     }
