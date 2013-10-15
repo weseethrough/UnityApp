@@ -31,6 +31,7 @@ public class PBRunnerController : MonoBehaviour {
     	scale.z = 1;
 		anim.speed = inputData.getCurrentSpeed(0) / 2.2f;
 		speed = inputData.getCurrentSpeed(0);
+		anim.SetFloat("Speed", speed);
 	}
 	
 	void OnEnable() {
@@ -45,10 +46,11 @@ public class PBRunnerController : MonoBehaviour {
 		if(speed != newSpeed)
 		{
 			speed = newSpeed;
+			anim.SetFloat("Speed", speed);
 			if(speed > 2.2f && speed < 4.0f) {
 				anim.speed = newSpeed / 2.2f;
 			} else if(speed > 4.0f) {
-				anim.speed = newSpeed / 4.0f;
+				anim.speed = Mathf.Clamp(newSpeed / 4.0f, 1, 2);
 			} else {
 				anim.speed = newSpeed / 1.25f;
 			}
