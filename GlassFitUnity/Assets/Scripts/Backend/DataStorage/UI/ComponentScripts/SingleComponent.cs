@@ -11,30 +11,50 @@ using System.Reflection;
 
 
 [System.Serializable]
-public class SerializableSettings : ISerializable 
+public class SingleComponent : ISerializable 
 {
-    private List<SingleComponent> components;
+    public IntStorageDictionary         intData;
+    public FloatStorageDictionary       floatData;
+    public StringStorageDictionary      strData;
+    public string                       name;
+    
+    public SingleComponent()
+    {       
+    }    
 
-    public SerializableSettings()
-    {
-        this.components = new List<SingleComponent>();
-    }
-
-    public SerializableSettings(GameObject go)
-    {
-        ReadSettings(go);
-        ReadGameObjectComponents(go);
-    }
-
-    public SerializableSettings(SerializationInfo info, StreamingContext ctxt)
+    public SingleComponent(SerializationInfo info, StreamingContext ctxt)
 	{
-        this.components = (List<SingleComponent>)info.GetValue("Components", typeof(List<SingleComponent>));        
+        this.intData                = (IntStorageDictionary)info.GetValue("IntData", typeof(IntStorageDictionary));
+        this.floatData              = (FloatStorageDictionary)info.GetValue("FloatData", typeof(FloatStorageDictionary));
+        this.strData                = (StringStorageDictionary)info.GetValue("StrData", typeof(StringStorageDictionary));
+        this.name                   = (string)info.GetValue("Name", typeof(string));                
 	}
 	
 	public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
    	{
-        info.AddValue("Components", this.components);        
+        info.AddValue("IntData", this.intData);
+        info.AddValue("FloatData", this.floatData);
+        info.AddValue("StrData", this.strData);
+        info.AddValue("Name", this.name);
    	}
+
+    public IntStorageDictionary GetInitializedIntDict()
+    {
+        if (intData == null) intData = new IntStorageDictionary();
+        return intData;
+    }
+
+    public FloatStorageDictionary GetInitializedFloatDict()
+    {
+        if (floatData == null) floatData = new FloatStorageDictionary();
+        return floatData;
+    }
+
+    public StringStorageDictionary GetInitializedStrDict()
+    {
+        if (strData == null) strData = new StringStorageDictionary();
+        return strData;
+    }
 
     public void ReadSettings(GameObject go)
     {
@@ -92,10 +112,7 @@ public class SerializableSettings : ISerializable
         {
             System.Type myType = componennts[i].GetType();
             try
-            {
-                SingleComponent sc = new SingleComponent();
-                sc.name = myType.ToString();
-
+            {                                               
                 FieldInfo[] fields = componennts[i].GetType().GetFields(bindingFlags);
                 Debug.Log("Displaying the values of the fields of "+myType.ToString() + "("+ fields.Length+")");
                 
