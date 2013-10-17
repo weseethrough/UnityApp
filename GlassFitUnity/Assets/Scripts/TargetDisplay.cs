@@ -203,6 +203,7 @@ public class TargetDisplay : MonoBehaviour {
 			localTarget *= MAP_RADIUS;
 			// TODO: Change icon to indicate outside of minimap?
 		}		
+		
 		// Rotated so bearing is up
 		double c = Math.Cos(-bearing);
 		double s = Math.Sin(-bearing);

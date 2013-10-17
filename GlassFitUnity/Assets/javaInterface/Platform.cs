@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
@@ -12,6 +12,8 @@ public class Platform {
 	private float pace = 0;
 	private Position position = null;
 	private float bearing = 0;
+	
+	private List<Position> positions;
 	
 	private Boolean tracking = false;
 	
@@ -189,6 +191,62 @@ public class Platform {
 			UnityEngine.Debug.LogException(e);			
 		}
 		return null;
+	}
+
+	public List<Position> getTrackPositions() {
+		try {
+			int size = helper.Call<int>("getNumberPositions");
+			UnityEngine.Debug.Log("Platform: get positions called Unity");
+			positions = new List<Position>(size);
+			try {
+				for (int i=0; i<size; i++) {
+					AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getPosition", i);
+					Position currentPos = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+					positions.Add(currentPos);
+				}
+				positions.Reverse();
+				return positions;
+			} catch (Exception e) {
+				UnityEngine.Debug.LogWarning("Platform: Error getting positions: " + e.Message);
+				return null;
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting Track Size: " + e.Message);
+			return null;
+		}
+	}
+	
+	public void getTracks() {
+		try {
+			helper.Call("getTracks");
+			UnityEngine.Debug.Log("Platform: get tracks called Unity");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting Tracks: " + e.Message);
+		}
+	}
+	
+	public void getNextTrack() {
+		try {
+			helper.Call("getNextTrack");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting next track: " + e.Message);
+		}
+	}
+	
+	public void getPreviousTrack() {
+		try {
+			helper.Call("getPreviousTrack");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting previous track: " + e.Message);
+		}
+	}
+	
+	public void setTrack() {
+		try {
+			helper.Call("setTrack");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error setting track: " + e.Message);
+		}
 	}
 	
 	public void StoreBlob(string id, byte[] blob) {
