@@ -1,25 +1,48 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\TrainController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Backend\DataStorage\UI\UIManager.cs">
     <Files>
-      <File FileName="Assets\Scripts\SettingsScreen.cs" Line="191" Column="14" />
-      <File FileName="Assets\David\PBRunnerController.cs" Line="1" Column="1" />
-      <File FileName="Assets\javaInterface\Platform.cs" Line="1" Column="1" />
-      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\TrainController.cs" Line="20" Column="24" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\UIManager.cs" Line="13" Column="18" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\ComponentScripts\SerializableSettings.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\DataStorage.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\Storage.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\CustomDictionaries\StorageDictionary.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\CustomDictionaries\StringStorageDictionary.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\ComponentScripts\SerializedNode.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\ComponentScripts\Editor\ComponentSettingsEditor.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\Editor\BackendWindow.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
-              <Node name="David" expanded="True" />
-              <Node name="GyroDroid" expanded="True">
-                <Node name="SampleScripts" expanded="True" />
-              </Node>
-              <Node name="javaInterface" expanded="True" />
               <Node name="Scripts" expanded="True">
-                <Node name="TrainController.cs" selected="True" />
+                <Node name="Backend" expanded="True">
+                  <Node name="DataStorage" expanded="True">
+                    <Node name="CustomDictionaries" expanded="True" />
+                    <Node name="UI" expanded="True">
+                      <Node name="ComponentScripts" expanded="True" />
+                      <Node name="UIManager.cs" selected="True" />
+                    </Node>
+                  </Node>
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+          <Node name="Assembly-CSharp-Editor" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Scripts" expanded="True">
+                <Node name="Backend" expanded="True">
+                  <Node name="DataStorage" expanded="True">
+                    <Node name="UI" expanded="True">
+                      <Node name="ComponentScripts" expanded="True">
+                        <Node name="Editor" expanded="True" />
+                      </Node>
+                    </Node>
+                  </Node>
+                  <Node name="Editor" expanded="True" />
+                </Node>
               </Node>
             </Node>
           </Node>
@@ -28,7 +51,9 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="C:\GlassFitProjects\GFUnityDev\GlassFitUnity\Assets\Scripts\Backend\Editor\BackendWindow.cs" line="122" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
