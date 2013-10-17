@@ -3,7 +3,7 @@ using UnityEditor;
 using System.Collections;
 
 [CustomEditor(typeof(UIBasiclabel))]
-public class ComponentSettingsEditor : Editor
+public class BasicLabelEditor : Editor
 {
 
     public override void OnInspectorGUI()

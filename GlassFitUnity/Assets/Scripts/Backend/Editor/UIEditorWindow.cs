@@ -5,19 +5,19 @@ using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;
 
-public class BackendWindow : EditorWindow
+public class UIEditorWindow : EditorWindow
 {
     static private string NEW_SCREEN = "New Screen";
 	private string[] screens = {NEW_SCREEN};
 	private int index = 0;
     private string screenName = "require reload";
     private bool foreceRefresh = false;
-	
-	[MenuItem("Race Yourself/Editor Tools")]
+
+    [MenuItem("Race Yourself/UI Editor Window")]
 	public static void ShowWindow()
 	{
 		//Show existing window instance. If one doesn't exist, make one.
-		EditorWindow.GetWindow(typeof(BackendWindow));
+        EditorWindow.GetWindow(typeof(UIEditorWindow));
 	}
 
 	void OnGUI()

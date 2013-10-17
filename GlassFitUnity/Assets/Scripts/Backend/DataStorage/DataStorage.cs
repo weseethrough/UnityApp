@@ -18,8 +18,11 @@ public class DataStorage : MonoBehaviour
     //private properties
     private Storage coreData;
 	private Storage localizationData;
-	
+#if UNITY_EDITOR
 	private PlatformDummy platform;
+#else
+    private Platform platform;
+#endif
 
     void Awake()
     {
@@ -35,7 +38,11 @@ public class DataStorage : MonoBehaviour
             Debug.LogWarning("Reinitialziation of datastorage canceled");
             return;
         }
+#if UNITY_EDITOR
         platform = new PlatformDummy();
+#else
+        platform = new Platform();
+#endif
 
         Initialize();
     }   
@@ -103,6 +110,9 @@ public class DataStorage : MonoBehaviour
             bformatter.Serialize(ms, instance.coreData);
 
             instance.platform.StoreBlob(instance.mainBlobName, ms.GetBuffer());
+#if UNITY_EDITOR
+            instance.platform.StoreBlobAsAsset(instance.mainBlobName, ms.GetBuffer());
+#endif
         }
     }
 	
