@@ -34,7 +34,7 @@ public class UICamera : MonoBehaviour {
 		if(!started)
 		{
 			offsetFromStart = SensorHelper.rotation;
-			//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			started = true;
 		}
 		

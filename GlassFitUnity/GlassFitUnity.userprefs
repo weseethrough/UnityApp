@@ -1,11 +1,18 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GetTrack.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs">
     <Files>
-      <File FileName="Assets\GetTrack.cs" Line="191" Column="52" />
-      <File FileName="Assets\javaInterface\Platform.cs" Line="216" Column="4" />
-      <File FileName="Assets\Scripts\TargetDisplay.cs" Line="194" Column="3" />
-      <File FileName="Assets\Scripts\SettingsScreen.cs" Line="63" Column="78" />
+      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="76" Column="4" />
+      <File FileName="Assets\GyroDroid\Scripts\Scripts\iPhoneGyroCam.js" Line="120" Column="5" />
+      <File FileName="Assets\David\PBRunnerController.cs" Line="33" Column="40" />
+      <File FileName="Assets\Scripts\UICamera.cs" Line="37" Column="25" />
+      <File FileName="Assets\Scripts\TrainController.cs" Line="1" Column="1" />
+      <File FileName="Assets\GetTrack.cs" Line="1" Column="1" />
+      <File FileName="Assets\javaInterface\Platform.cs" Line="41" Column="32" />
+      <File FileName="Assets\Scripts\TargetDisplay.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\SettingsScreen.cs" Line="1" Column="1" />
+      <File FileName="Assets\javaInterface\javaInterface.cs" Line="9" Column="1" />
+      <File FileName="Assets\GyroDroid\Scripts\Devices\SensorDeviceAndroid.cs" Line="150" Column="8" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -14,11 +21,24 @@
             <Node name="Assets" expanded="True">
               <Node name="David" expanded="True" />
               <Node name="GyroDroid" expanded="True">
-                <Node name="SampleScripts" expanded="True" />
+                <Node name="SampleScripts" expanded="True">
+                  <Node name="MinimalSensorCamera.cs" selected="True" />
+                </Node>
+                <Node name="Scripts" expanded="True">
+                  <Node name="Devices" expanded="True" />
+                </Node>
               </Node>
               <Node name="javaInterface" expanded="True" />
               <Node name="Scripts" expanded="True" />
-              <Node name="GetTrack.cs" selected="True" />
+            </Node>
+          </Node>
+          <Node name="Assembly-UnityScript" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="GyroDroid" expanded="True">
+                <Node name="Scripts" expanded="True">
+                  <Node name="Scripts" expanded="True" />
+                </Node>
+              </Node>
             </Node>
           </Node>
         </State>

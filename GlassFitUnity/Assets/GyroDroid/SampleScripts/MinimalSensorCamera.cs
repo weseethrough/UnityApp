@@ -40,7 +40,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		if(!started)
 		{
 			offsetFromStart = SensorHelper.rotation;
-			//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			started = true;
 		}
 		
@@ -73,7 +73,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	}
 	
 	void Update () {
-		
+		//*/
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * SensorHelper.rotation;
 		
 		// direct Sensor usage:
@@ -93,7 +93,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		grid.SetActive(gridOn);
 
 		transform.rotation =  newOffset;
-		//
+		//*/
 		
 	}
 }

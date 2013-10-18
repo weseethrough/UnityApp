@@ -24,9 +24,7 @@ public class GetTrack : MonoBehaviour {
 	Material mapStencil;
 	const int mapAtlasRadius = 315; // API max width/height is 640
 	int mapZoom = 18;
-	Position mapOrigo = new Position(0, 0);
 	WWW mapWWW = null;
-	Position fetchOrigo = new Position(0, 0);
 	private bool mapChanged = true;
 	
 	private float latHigh;
@@ -61,8 +59,9 @@ public class GetTrack : MonoBehaviour {
 	}
 	
 	void OnGUI() {
+		Matrix4x4 defaultMatrix = GUI.matrix;
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-		GUI.depth = 10;
+		//GUI.depth = 10;
 		GUI.skin.box.wordWrap = true;
 		GUI.skin.box.fontSize = 30;
 		GUI.skin.box.fontStyle = FontStyle.Bold;
@@ -114,56 +113,67 @@ public class GetTrack : MonoBehaviour {
 			double longZoom = Math.Floor(Math.Log(600 / 256 / longFraction) / 0.6931471805599453);
 		
 			mapZoom = (int)Math.Min(latZoom, longZoom);
-				if(mapZoom > 21) {
-					mapZoom = 21;
-				}
+			if(mapZoom > 21) {
+				mapZoom = 21;
+			}
 		
 		//		if(started)
 //			GUI.Label(new Rect(originalWidth/2 - 100, originalHeight/2, 200, 100), "Number of Positions in track: " + curTrackPositions.Count.ToString());
 		
 			//if(mapTexture == null) {
-				if ((mapWWW == null && mapTexture == null) && mapChanged){
-					const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
-					const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
-					string url = endpoint + "?center="
-			 	                      	  + centerLat.ToString() + "," + centerLong.ToString()
-			  	               	      	  + "&zoom=" + mapZoom.ToString()
-			    	                  	  + "&size=" + "600" + "x" + "400"
-			        	              	  + "&maptype=roadmap"
-			            	          	  + "&sensor=true&key=" + API_KEY;
-					mapWWW = new WWW(url);
-					UnityEngine.Debug.Log("Map: URL is: " + url);
-					}
-					if (mapWWW != null && mapWWW.isDone) {
-						if (mapWWW.error != null) {
-						//debugText = mapWWW.error;
-						UnityEngine.Debug.LogWarning(mapWWW.error);
-						UnityEngine.Debug.LogWarning("Map: error with map");
-					} else {
-						//debugText = "";
-						mapTexture = mapWWW.texture;
-						mapChanged = false;
-						//mapOrigo = fetchOrigo;
-						UnityEngine.Debug.Log("Map: origo error");
-					}
-					mapWWW = null;
+			if ((mapWWW == null && mapTexture == null) && mapChanged){
+				const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
+				const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
+				string url = endpoint + "?center="
+			                      	  + centerLat.ToString() + "," + centerLong.ToString()
+			               	      	  + "&zoom=" + mapZoom.ToString()
+			  	                  	  + "&size=" + "600" + "x" + "400"
+			       	              	  + "&maptype=roadmap"
+			           	          	  + "&sensor=true&key=" + API_KEY;
+				mapWWW = new WWW(url);
+				UnityEngine.Debug.Log("Map: URL is: " + url);
 				}
+			if (mapWWW != null && mapWWW.isDone) {
+				if (mapWWW.error != null) {
+				//debugText = mapWWW.error;
+					UnityEngine.Debug.LogWarning(mapWWW.error);
+					UnityEngine.Debug.LogWarning("Map: error with map");
+				} else {
+				//debugText = "";
+					mapTexture = mapWWW.texture;
+					mapChanged = false;
+				//mapOrigo = fetchOrigo;
+					UnityEngine.Debug.Log("Map: origo error");
+				}
+				mapWWW = null;
+			}
 						
-				if (mapTexture == null) {
-					GUI.Label(map, "Fetching map...    zoomLevel = " + mapZoom.ToString());
-				}
-		//		
-					// Rotation and indexing into atlas handled by shader
-					//mapStencil.SetFloat("_Rotation", (float)-bearing);			
-					//mapStencil.SetVector("_Rectangle", new Vector4(map.x, map.y, map.width, map.height));
-		//			Graphics.DrawTexture(map, mapTexture, mapCoords, 0, 0, 0, 0, mapStencil);
-					GUI.DrawTexture(map, mapTexture);
+			if (mapTexture == null) {
+				GUI.Label(map, "Fetching map...    Number of Positions = " + curTrackPositions.Count.ToString());
+			}
+
+			GUI.DrawTexture(map, mapTexture);
 				
-			//}
+			GUI.matrix = defaultMatrix;
+			
+			Position center = new Position(centerLat, centerLong);
+			
+			for(int i=0; i<curTrackPositions.Count -1; i++) {
+				Vector2 currentPos = mercatorToPixel(center) - mercatorToPixel(curTrackPositions[i]); 
+				currentPos += new Vector2(400.0f * scale.x, 200.0f * scale.y);
+				
+				Vector2 nextPos = mercatorToPixel(center) - mercatorToPixel(curTrackPositions[i+1]);
+				nextPos += new Vector2(400.0f * scale.x, 200.0f * scale.y);
+				
+				if(currentPos != nextPos) {
+					UnityEngine.Debug.Log("Track: Current position = " + currentPos.x.ToString() + ", " + currentPos.y.ToString());
+					UnityEngine.Debug.Log("Track: Next position = " + nextPos.x.ToString() + ", " + nextPos.y.ToString());
+					DrawLine(currentPos, nextPos, Color.black, 2.0f);
+				}
+			}
 		}
+		
 	}
-	
-	
 	
 	void GetLimits() {
 		latLow = longLow = 360;
@@ -172,27 +182,11 @@ public class GetTrack : MonoBehaviour {
 		float totalLong = 0;
 		for(int i=0; i<curTrackPositions.Count; i++)
 		{
-//			if(curTrackPositions[i].latitude < latLow) {
-//				latLow = curTrackPositions[i].latitude;
-//			}
-//			if(curTrackPositions[i].latitude > latHigh) {
-//				latHigh = curTrackPositions[i].latitude;
-//			}
-//			if(curTrackPositions[i].longitude < longLow) {
-//				longLow = curTrackPositions[i].longitude;
-//			}
-//			if(curTrackPositions[i].longitude > longHigh) {
-//				longHigh = curTrackPositions[i].longitude;
-//			}
 			totalLat += curTrackPositions[i].latitude;
 			totalLong += curTrackPositions[i].longitude;
 		}
 		centerLat = totalLat / curTrackPositions.Count;
 		centerLong = totalLong / curTrackPositions.Count;
-//		float distLat = latHigh - latLow;
-//		float distLong = longHigh - longLow;
-//		centerLat = latHigh - (distLat / 2.0f);
-//		centerLong = longHigh - (distLong / 2.0f);
 	}
 	
 	Vector2 mercatorToPixel(Position mercator) {
@@ -210,40 +204,9 @@ public class GetTrack : MonoBehaviour {
 				) / 2
 			) * 256
 		);
-//		Debug.Log(mercator.latitude + "," + mercator.longitude + " => " + world.x + "," + world.y);
-		
+//		world.x += 100;
+//		world.y += 50;
 		return world * scale;
-	}
-	
-	Position pixelToMercator(Vector2 pixel) {
-		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
-		int scale = (int)Math.Pow(2, mapZoom);
-		
-		Vector2 world = pixel / scale;
-		// Google world coordinates to mercator
-		double n = Math.PI - 2 * Math.PI * world.y / 256;
-		Position mercator = new Position(
-			(float)(180 / Math.PI * Math.Atan(0.5 * (Math.Exp(n) - Math.Exp(-n)))),
-			(float)world.x / 256 * 360 - 180
-		);
-			
-		return mercator;			
-	}
-	
-	private double Angle(Vector2 pos1, Vector2 pos2) {
-	    Vector2 from = pos2 - pos1;
-	    Vector2 to = new Vector2(0, 1);
-	 
-	    float result = Vector2.Angle( from, to );
-//		Debug.Log(result);
-	    Vector3 cross = Vector3.Cross( from, to );
-	 
-	    if (cross.z > 0)
-	       result = 360f - result;
-		
-		result += 180.0f;
-		
-	    return result*Math.PI/180;
 	}
 	
 	public static void DrawLine(Vector2 pointA, Vector2 pointB, Color color, float width) {
@@ -260,16 +223,19 @@ public class GetTrack : MonoBehaviour {
         // Determine the angle of the line.
         float angle = Vector3.Angle(pointB - pointA, Vector2.right);
  
+		
         // Vector3.Angle always returns a positive number.
         // If pointB is above pointA, then angle needs to be negative.
         if (pointA.y > pointB.y) { angle = -angle; }
- 
+ 		UnityEngine.Debug.Log("Draw Line: Angle = " + angle.ToString());
         // Use ScaleAroundPivot to adjust the size of the line.
         // We could do this when we draw the texture, but by scaling it here we can use
         //  non-integer values for the width and length (such as sub 1 pixel widths).
         // Note that the pivot point is at +.5 from pointA.y, this is so that the width of the line
         //  is centered on the origin at pointA.
-        GUIUtility.ScaleAroundPivot(new Vector2((pointB - pointA).magnitude, width), new Vector2(pointA.x, pointA.y + 0.5f));
+		Vector2 scalePivot = new Vector2((pointB - pointA).magnitude, width);
+		UnityEngine.Debug.Log("Draw Line: scale pivot is: " + scalePivot.x.ToString() + ", " + scalePivot.y.ToString());
+        GUIUtility.ScaleAroundPivot(scalePivot, new Vector2(pointA.x, pointA.y + 0.5f));
  
         // Set the rotation for the line.
         //  The angle was calculated with pointA as the origin.
@@ -279,8 +245,10 @@ public class GetTrack : MonoBehaviour {
         // We're really only drawing a 1x1 texture from pointA.
         // The matrix operations done with ScaleAroundPivot and RotateAroundPivot will make this
         //  render with the proper width, length, and angle.
+		UnityEngine.Debug.Log("Draw Line: Point A is " + pointA.x.ToString() + ", " + pointA.y.ToString());
         GUI.DrawTexture(new Rect(pointA.x, pointA.y, 1, 1), lineTex);
- 
+ 		
+		
         // We're done.  Restore the GUI matrix and GUI color to whatever they were before.
         GUI.matrix = matrix;
         GUI.color = savedColor;
