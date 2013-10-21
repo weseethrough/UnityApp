@@ -9,7 +9,6 @@ public class GetTrack : MonoBehaviour {
 	private Platform inputData;
 	private float originalWidth = 800;
 	private float originalHeight = 500;
-	//float mapZoom = 12;
 	public static Texture2D lineTex;
 	private Vector3 scale;
 	private List<Position> curTrackPositions;
@@ -34,11 +33,11 @@ public class GetTrack : MonoBehaviour {
 	private float centerLat;
 	private float centerLong;
 	
+	public Texture blackTex;
+	
 	// Use this for initialization
 	void Start () {
 		inputData = new Platform();
-		//inputData.getTracks();
-		//curTrackPositions = inputData.getTrackPositions();
 		
 		scale.x = Screen.width/originalWidth;
 		scale.y = Screen.height/originalHeight;
@@ -154,21 +153,22 @@ public class GetTrack : MonoBehaviour {
 
 			GUI.DrawTexture(map, mapTexture);
 				
-			GUI.matrix = defaultMatrix;
+			GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
 			
 			Position center = new Position(centerLat, centerLong);
 			
-			for(int i=0; i<curTrackPositions.Count -1; i++) {
+			for(int i=0; i<curTrackPositions.Count - 1; i++) {
 				Vector2 currentPos = mercatorToPixel(center) - mercatorToPixel(curTrackPositions[i]); 
-				currentPos += new Vector2(400.0f * scale.x, 200.0f * scale.y);
+				currentPos += new Vector2(400.0f * scale.x, 250.0f * scale.y);
 				
 				Vector2 nextPos = mercatorToPixel(center) - mercatorToPixel(curTrackPositions[i+1]);
-				nextPos += new Vector2(400.0f * scale.x, 200.0f * scale.y);
+				nextPos += new Vector2(400.0f * scale.x, 250.0f * scale.y);
 				
 				if(currentPos != nextPos) {
 					UnityEngine.Debug.Log("Track: Current position = " + currentPos.x.ToString() + ", " + currentPos.y.ToString());
 					UnityEngine.Debug.Log("Track: Next position = " + nextPos.x.ToString() + ", " + nextPos.y.ToString());
-					DrawLine(currentPos, nextPos, Color.black, 2.0f);
+					
+					DrawLine(currentPos, nextPos, Color.black, 10.0f);	
 				}
 			}
 		}
@@ -209,21 +209,12 @@ public class GetTrack : MonoBehaviour {
 		return world * scale;
 	}
 	
-	public static void DrawLine(Vector2 pointA, Vector2 pointB, Color color, float width) {
+	public void DrawLine(Vector2 pointA, Vector2 pointB, Color color, float width) {
 		Matrix4x4 matrix = GUI.matrix;
- 
-        // Generate a single pixel texture if it doesn't exist
-        if (!lineTex) { lineTex = new Texture2D(1, 1); }
- 
-        // Store current GUI color, so we can switch it back later,
-        // and set the GUI color to the color parameter
-        Color savedColor = GUI.color;
-        GUI.color = color;
  
         // Determine the angle of the line.
         float angle = Vector3.Angle(pointB - pointA, Vector2.right);
  
-		
         // Vector3.Angle always returns a positive number.
         // If pointB is above pointA, then angle needs to be negative.
         if (pointA.y > pointB.y) { angle = -angle; }
@@ -235,7 +226,8 @@ public class GetTrack : MonoBehaviour {
         //  is centered on the origin at pointA.
 		Vector2 scalePivot = new Vector2((pointB - pointA).magnitude, width);
 		UnityEngine.Debug.Log("Draw Line: scale pivot is: " + scalePivot.x.ToString() + ", " + scalePivot.y.ToString());
-        GUIUtility.ScaleAroundPivot(scalePivot, new Vector2(pointA.x, pointA.y + 0.5f));
+        
+		GUIUtility.ScaleAroundPivot(new Vector2((pointB - pointA).magnitude, width), new Vector2(pointA.x, pointA.y + 0.5f));
  
         // Set the rotation for the line.
         //  The angle was calculated with pointA as the origin.
@@ -246,11 +238,10 @@ public class GetTrack : MonoBehaviour {
         // The matrix operations done with ScaleAroundPivot and RotateAroundPivot will make this
         //  render with the proper width, length, and angle.
 		UnityEngine.Debug.Log("Draw Line: Point A is " + pointA.x.ToString() + ", " + pointA.y.ToString());
-        GUI.DrawTexture(new Rect(pointA.x, pointA.y, 1, 1), lineTex);
+        GUI.DrawTexture(new Rect(pointA.x, pointA.y, 1, 1), blackTex);
  		
 		
         // We're done.  Restore the GUI matrix and GUI color to whatever they were before.
         GUI.matrix = matrix;
-        GUI.color = savedColor;
 	}
 }
