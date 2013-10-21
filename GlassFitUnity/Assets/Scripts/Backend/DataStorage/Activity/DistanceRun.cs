@@ -4,11 +4,11 @@ using System.Collections;
 public class DistanceRun : MonoBehaviour 
 {
     /// <summary>
-    /// Time specified in seconds, although its safe to use 0.01 parts of the seconds as well.
+    /// Time specified in miliseconds
     /// </summary>
-    public float targetTimeSec = 60.0f;
+    public double targetTimeMS;
     /// <summary>
-    /// Distance player need to travel to achieve success. Feel free to use 0.01 parts of th emeter if you need.
+    /// Distance player need to travel to achieve success in cm
     /// </summary>
-    public float targetDistanceMeter = 100.0f;
+    public double targetDistanceCM;
 }

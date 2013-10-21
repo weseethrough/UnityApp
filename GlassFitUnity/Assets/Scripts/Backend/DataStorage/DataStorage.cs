@@ -12,12 +12,18 @@ public class DataStorage : MonoBehaviour
 		
     //public properties
 	//Note! blob names are used by machine to define file names. Ensure any names used are standard characters for file name.
-	public string mainBlobName 	= "core";
-	public string localizationBlobName 	= "locEn";
+    //names are created from enum which if changed would lose pointer to saved on drive blob
+
+    public enum BlobNames
+    {
+        core,
+        activity,
+        maxItem
+    }
 
     //private properties
-    private Storage coreData;
-	private Storage localizationData;
+    private Dictionary<string, Storage> storageBank;
+
 #if UNITY_EDITOR
 	private PlatformDummy platform;
 #else
@@ -26,7 +32,7 @@ public class DataStorage : MonoBehaviour
 
     void Awake()
     {
-        MakeAwake();
+        MakeAwake();        
     }
 
     public void MakeAwake()
@@ -43,14 +49,20 @@ public class DataStorage : MonoBehaviour
 #else
         platform = new Platform();
 #endif
-
+		storageBank = new Dictionary<string, Storage>();
+		
         Initialize();
     }   
 
     public void Initialize()
     {
-        coreData  			= InitializeBlob( platform.LoadBlob(mainBlobName) );
-        localizationData 	= InitializeBlob( platform.LoadBlob(localizationBlobName) );	
+        
+        for (int i = 0; i < (int)BlobNames.maxItem; i++ )
+        {
+            BlobNames bName = (BlobNames)i;
+            string name = bName.ToString();
+            storageBank[name] = InitializeBlob(platform.LoadBlob(name));
+        }        
 	}
 	
 	private Storage InitializeBlob(byte[] source)
@@ -81,39 +93,28 @@ public class DataStorage : MonoBehaviour
         return storage;		
 	}
 	
-	static public Storage GetCoreStorage()
+	static public Storage GetStorage(BlobNames name)
 	{
 		if (instance != null)
 		{
-			return instance.coreData;	
+            return instance.storageBank[name.ToString()];	
 		}
 		
 		return null;
 	}
 	
-	static public Storage GetLocalizationStorage()
-	{
-		if (instance != null)
-		{
-			return instance.localizationData;
-		}
-		
-		return null;
-	}
-
-    static public void SaveCoreStorage()
+    static public void SaveStorage(BlobNames name)
     {
         if (instance != null && instance.platform != null)
         {
             MemoryStream ms = new MemoryStream();
             BinaryFormatter bformatter = new BinaryFormatter();
-            bformatter.Serialize(ms, instance.coreData);
+            bformatter.Serialize(ms, GetStorage(name));
 
-            instance.platform.StoreBlob(instance.mainBlobName, ms.GetBuffer());
+            instance.platform.StoreBlob(name.ToString(), ms.GetBuffer());
 #if UNITY_EDITOR
-            instance.platform.StoreBlobAsAsset(instance.mainBlobName, ms.GetBuffer());
+            instance.platform.StoreBlobAsAsset(name.ToString(), ms.GetBuffer());
 #endif
         }
     }
-	
 }

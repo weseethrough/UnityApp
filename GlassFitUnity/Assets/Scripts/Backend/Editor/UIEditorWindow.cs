@@ -51,7 +51,7 @@ public class UIEditorWindow : EditorWindow
         GUILayout.BeginHorizontal();
 			if (GUILayout.Button("Delete screen"))
             {
-                Storage s = DataStorage.GetCoreStorage();
+                Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
                 StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
 
                 if (screensDictionary == null)
@@ -89,7 +89,7 @@ public class UIEditorWindow : EditorWindow
             if (GUILayout.Button("Save"))
             {
                 SaveScreen(false);
-                DataStorage.SaveCoreStorage();
+                DataStorage.SaveStorage(DataStorage.BlobNames.core);
                 RefreshFromSource();
             }
             if (GUILayout.Button("Load"))
@@ -102,7 +102,7 @@ public class UIEditorWindow : EditorWindow
 	
 	void BuildScreenList()
 	{
-		Storage s = DataStorage.GetCoreStorage();
+        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
 
         StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
 
@@ -139,7 +139,7 @@ public class UIEditorWindow : EditorWindow
     void LoadSavedScreenStructure(int index)
     {
         UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
-        Storage s = DataStorage.GetCoreStorage();
+        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
         StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
         if (script == null || screensDictionary == null)
         {
@@ -177,7 +177,7 @@ public class UIEditorWindow : EditorWindow
 
     void RefreshFromSource()
     {
-        Storage s = DataStorage.GetCoreStorage();
+        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
         StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
 
         BuildScreenList();
@@ -195,7 +195,7 @@ public class UIEditorWindow : EditorWindow
 
     void SaveScreen(bool deleteOld)
     {
-        Storage s = DataStorage.GetCoreStorage();
+        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
         StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
 
         if (screensDictionary == null)
