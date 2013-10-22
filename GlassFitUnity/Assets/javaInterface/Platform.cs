@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
@@ -12,15 +12,10 @@ public class Platform {
 	private float pace = 0;
 	private Position position = null;
 	private float bearing = 0;
-	//private float timer = 3.0f;
 	
-	private bool countdown = false;
-	private bool started = false;
-	private bool error = false;
+	private List<Position> positions;
 	
 	private Boolean tracking = false;
-	
-	private Stopwatch timer = new Stopwatch();
 	
 	private AndroidJavaObject helper;
 	private AndroidJavaObject gps;
@@ -47,7 +42,7 @@ public class Platform {
 				
 				// Get the singleton helper
 				try {
-					helper = helper_class.CallStatic<AndroidJavaObject>("getInstance");
+					helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
         	  	    UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
 				} catch (Exception e) {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
@@ -55,7 +50,7 @@ public class Platform {
 				}
 				// Try to get a Java GPSTracker object
 				try {
-					gps = helper.Call<AndroidJavaObject>("getGPSTracker", context);
+					gps = helper.Call<AndroidJavaObject>("getGPSTracker");
 					UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
 				} catch (Exception e) {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
@@ -198,6 +193,84 @@ public class Platform {
 		return null;
 	}
 	
+	public Quaternion getRotationVector() {
+		try {
+			float[] quat = helper.Call<float[]>("getGameRotationVector");
+			Quaternion q = new Quaternion(quat[0], quat[1], quat[2], quat[3]);
+			return q;
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting quaternion: " + e.Message);
+			return Quaternion.identity;
+		}
+	}
+	
+	public float[] getYPR() {
+		try {
+			float[] ypr = helper.Call<float[]>("getGameYpr");
+			UnityEngine.Debug.Log("Platform: Euler angles are: " + ypr[0].ToString() + ", " + ypr[1].ToString() + ", " + ypr[2].ToString());
+			return ypr;
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting Euler angles: " + e.Message);
+			return new float[3];
+		}
+	}
+
+	public List<Position> getTrackPositions() {
+		try {
+			int size = helper.Call<int>("getNumberPositions");
+			UnityEngine.Debug.Log("Platform: get positions called Unity");
+			positions = new List<Position>(size);
+			try {
+				for (int i=0; i<size; i++) {
+					AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getPosition", i);
+					Position currentPos = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+					positions.Add(currentPos);
+				}
+				positions.Reverse();
+				return positions;
+			} catch (Exception e) {
+				UnityEngine.Debug.LogWarning("Platform: Error getting positions: " + e.Message);
+				return null;
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting Track Size: " + e.Message);
+			return null;
+		}
+	}
+	
+	public void getTracks() {
+		try {
+			helper.Call("getTracks");
+			UnityEngine.Debug.Log("Platform: get tracks called Unity");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting Tracks: " + e.Message);
+		}
+	}
+	
+	public void getNextTrack() {
+		try {
+			helper.Call("getNextTrack");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting next track: " + e.Message);
+		}
+	}
+	
+	public void getPreviousTrack() {
+		try {
+			helper.Call("getPreviousTrack");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting previous track: " + e.Message);
+		}
+	}
+	
+	public void setTrack() {
+		try {
+			helper.Call("setTrack");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error setting track: " + e.Message);
+		}
+	}
+	
 	public void StoreBlob(string id, byte[] blob) {
 		try {
 			helper_class.CallStatic("storeBlob", id, blob);
@@ -239,8 +312,8 @@ public class Platform {
 			if (hasLock()) {
 				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
 				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
-				ajo = gps.Call<AndroidJavaObject>("getCurrentBearing");
-				bearing = ajo.Call<float>("floatValue");
+				bearing = gps.Call<float>("getCurrentBearing");
+				//bearing = ajo.Call<float>("floatValue");
 			}
 		} catch (Exception e) {
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;

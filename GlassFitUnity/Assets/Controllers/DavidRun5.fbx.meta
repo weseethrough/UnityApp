@@ -1,0 +1,287 @@
+fileFormatVersion: 2
+guid: 6e425d2fd650a5f449ff7adefe742e2a
+ModelImporter:
+  serializedVersion: 15
+  fileIDToRecycleName:
+    100000: Bip01
+    100002: Bip01 Footsteps
+    100004: Bip01 Head
+    100006: Bip01 HeadNub
+    100008: Bip01 L Calf
+    100010: Bip01 L Clavicle
+    100012: Bip01 L Finger0
+    100014: Bip01 L Finger01
+    100016: Bip01 L Finger1
+    100018: Bip01 L Finger11
+    100020: Bip01 L Finger12
+    100022: Bip01 L Finger1Nub
+    100024: Bip01 L Finger2
+    100026: Bip01 L Finger21
+    100028: Bip01 L Finger22
+    100030: Bip01 L Finger2Nub
+    100032: Bip01 L Finger3
+    100034: Bip01 L Finger31
+    100036: Bip01 L Finger32
+    100038: Bip01 L Finger3Nub
+    100040: Bip01 L Foot
+    100042: Bip01 L Forearm
+    100044: Bip01 L Hand
+    100046: Bip01 L Mus02 act
+    100048: Bip01 L Mus03
+    100050: Bip01 L Mus04 act
+    100052: Bip01 L Mus06 act
+    100054: Bip01 L Mus07 act
+    100056: Bip01 L Mus08
+    100058: Bip01 L Mus09 act
+    100060: Bip01 L Mus11 act
+    100062: Bip01 L Mus12 act
+    100064: Bip01 L Mus13 act
+    100066: Bip01 L Mus14
+    100068: Bip01 L Mus15
+    100070: Bip01 L Mus16 act
+    100072: Bip01 L Mus18 act
+    100074: Bip01 L Mus19
+    100076: Bip01 L Thigh
+    100078: Bip01 L Toe0
+    100080: Bip01 L Toe0Nub
+    100082: Bip01 L UpperArm
+    100084: Bip01 Neck
+    100086: Bip01 Pelvis
+    100088: Bip01 R Calf
+    100090: Bip01 R Clavicle
+    100092: Bip01 R Finger0
+    100094: Bip01 R Finger01
+    100096: Bip01 R Finger02
+    100098: Bip01 R Finger0Nub
+    100100: Bip01 R Finger1
+    100102: Bip01 R Finger11
+    100104: Bip01 R Finger12
+    100106: Bip01 R Finger1Nub
+    100108: Bip01 R Finger2
+    100110: Bip01 R Finger21
+    100112: Bip01 R Finger22
+    100114: Bip01 R Finger2Nub
+    100116: Bip01 R Finger3
+    100118: Bip01 R Finger31
+    100120: Bip01 R Finger32
+    100122: Bip01 R Finger3Nub
+    100124: Bip01 R Finger4
+    100126: Bip01 R Finger41
+    100128: Bip01 R Finger42
+    100130: Bip01 R Finger4Nub
+    100132: Bip01 R Foot
+    100134: Bip01 R Forearm
+    100136: Bip01 R Hand
+    100138: Bip01 R Mus02 act
+    100140: Bip01 R Mus03 act
+    100142: Bip01 R Mus04
+    100144: Bip01 R Mus05 act
+    100146: Bip01 R Mus06
+    100148: Bip01 R Mus07
+    100150: Bip01 R Mus09 act
+    100152: Bip01 R Mus10 act
+    100154: Bip01 R Mus11
+    100156: Bip01 R Mus12 act
+    100158: Bip01 R Mus13 act
+    100160: Bip01 R Mus14 act
+    100162: Bip01 R Mus16 act
+    100164: Bip01 R Mus17 act
+    100166: Bip01 R Mus20
+    100168: Bip01 R Thigh
+    100170: Bip01 R Toe0
+    100172: Bip01 R Toe0Nub
+    100174: Bip01 R UpperArm
+    100176: Bip01 Spine
+    100178: Bip01 Spine1
+    100180: David
+    100182: David_Glases
+    100184: David_Hairs
+    100186: //RootNode
+    100188: ikHandle10
+    100190: ikHandle11
+    100192: ikHandle12
+    100194: ikHandle13
+    100196: ikHandle2
+    100198: ikHandle3
+    100200: ikHandle4
+    100202: ikHandle5
+    100204: ikHandle6
+    100206: ikHandle8
+    100208: locator1
+    100210: locator2
+    100212: locator3
+    100214: locator4
+    100216: pointLight1
+    100218: spotLight1
+    400000: Bip01
+    400002: Bip01 Footsteps
+    400004: Bip01 Head
+    400006: Bip01 HeadNub
+    400008: Bip01 L Calf
+    400010: Bip01 L Clavicle
+    400012: Bip01 L Finger0
+    400014: Bip01 L Finger01
+    400016: Bip01 L Finger1
+    400018: Bip01 L Finger11
+    400020: Bip01 L Finger12
+    400022: Bip01 L Finger1Nub
+    400024: Bip01 L Finger2
+    400026: Bip01 L Finger21
+    400028: Bip01 L Finger22
+    400030: Bip01 L Finger2Nub
+    400032: Bip01 L Finger3
+    400034: Bip01 L Finger31
+    400036: Bip01 L Finger32
+    400038: Bip01 L Finger3Nub
+    400040: Bip01 L Foot
+    400042: Bip01 L Forearm
+    400044: Bip01 L Hand
+    400046: Bip01 L Mus02 act
+    400048: Bip01 L Mus03
+    400050: Bip01 L Mus04 act
+    400052: Bip01 L Mus06 act
+    400054: Bip01 L Mus07 act
+    400056: Bip01 L Mus08
+    400058: Bip01 L Mus09 act
+    400060: Bip01 L Mus11 act
+    400062: Bip01 L Mus12 act
+    400064: Bip01 L Mus13 act
+    400066: Bip01 L Mus14
+    400068: Bip01 L Mus15
+    400070: Bip01 L Mus16 act
+    400072: Bip01 L Mus18 act
+    400074: Bip01 L Mus19
+    400076: Bip01 L Thigh
+    400078: Bip01 L Toe0
+    400080: Bip01 L Toe0Nub
+    400082: Bip01 L UpperArm
+    400084: Bip01 Neck
+    400086: Bip01 Pelvis
+    400088: Bip01 R Calf
+    400090: Bip01 R Clavicle
+    400092: Bip01 R Finger0
+    400094: Bip01 R Finger01
+    400096: Bip01 R Finger02
+    400098: Bip01 R Finger0Nub
+    400100: Bip01 R Finger1
+    400102: Bip01 R Finger11
+    400104: Bip01 R Finger12
+    400106: Bip01 R Finger1Nub
+    400108: Bip01 R Finger2
+    400110: Bip01 R Finger21
+    400112: Bip01 R Finger22
+    400114: Bip01 R Finger2Nub
+    400116: Bip01 R Finger3
+    400118: Bip01 R Finger31
+    400120: Bip01 R Finger32
+    400122: Bip01 R Finger3Nub
+    400124: Bip01 R Finger4
+    400126: Bip01 R Finger41
+    400128: Bip01 R Finger42
+    400130: Bip01 R Finger4Nub
+    400132: Bip01 R Foot
+    400134: Bip01 R Forearm
+    400136: Bip01 R Hand
+    400138: Bip01 R Mus02 act
+    400140: Bip01 R Mus03 act
+    400142: Bip01 R Mus04
+    400144: Bip01 R Mus05 act
+    400146: Bip01 R Mus06
+    400148: Bip01 R Mus07
+    400150: Bip01 R Mus09 act
+    400152: Bip01 R Mus10 act
+    400154: Bip01 R Mus11
+    400156: Bip01 R Mus12 act
+    400158: Bip01 R Mus13 act
+    400160: Bip01 R Mus14 act
+    400162: Bip01 R Mus16 act
+    400164: Bip01 R Mus17 act
+    400166: Bip01 R Mus20
+    400168: Bip01 R Thigh
+    400170: Bip01 R Toe0
+    400172: Bip01 R Toe0Nub
+    400174: Bip01 R UpperArm
+    400176: Bip01 Spine
+    400178: Bip01 Spine1
+    400180: David
+    400182: David_Glases
+    400184: David_Hairs
+    400186: //RootNode
+    400188: ikHandle10
+    400190: ikHandle11
+    400192: ikHandle12
+    400194: ikHandle13
+    400196: ikHandle2
+    400198: ikHandle3
+    400200: ikHandle4
+    400202: ikHandle5
+    400204: ikHandle6
+    400206: ikHandle8
+    400208: locator1
+    400210: locator2
+    400212: locator3
+    400214: locator4
+    400216: pointLight1
+    400218: spotLight1
+    2300000: David_Glases
+    2300002: David_Hairs
+    3300000: David_Glases
+    3300002: David_Hairs
+    4300000: David
+    4300002: David_Hairs
+    4300004: David_Glases
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: David
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    handles: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  additionalBone: 1
+  animationType: 2
+  userData: 

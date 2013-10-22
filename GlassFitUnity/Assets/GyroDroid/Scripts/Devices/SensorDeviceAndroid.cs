@@ -144,10 +144,10 @@ class SensorDeviceAndroid : SensorDeviceUnity
 		return k;
 	}
 
-    protected override float GetDeviceAltitude(float pressure, float pressureAtSeaLevel = PressureValue.StandardAthmosphere)
-    {
-        return _ao.Call<float>("getAltitude", pressure, pressureAtSeaLevel);
-    }
+//    protected override float GetDeviceAltitude(float pressure, float pressureAtSeaLevel = PressureValue.StandardAthmosphere)
+//    {
+//        return _ao.Call<float>("getAltitude", pressure, pressureAtSeaLevel);
+//    }
 
     protected override Sensor.SurfaceRotation GetSurfaceRotation()
     {

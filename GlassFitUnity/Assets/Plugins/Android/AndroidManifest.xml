@@ -29,6 +29,11 @@
 		android:name="com.glassfitgames.glassfitplatform.auth.AuthenticationActivity"
 		android:label="AuthenticationActivity" >
 	</activity>
+	<service
+		 						android:name="com.glassfitgames.glassfitplatform.sensors.SensorService"
+         android:icon="@drawable/ic_launcher"
+            android:label="@string/sensor_service_name" >
+        </service>
 	<meta-data
 		android:name="ormdroid.database.name"
 		android:value="glassfit_platform_database" />

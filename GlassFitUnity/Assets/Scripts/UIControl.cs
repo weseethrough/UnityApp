@@ -4,13 +4,8 @@ using System.Collections;
 public class UIControl : MonoBehaviour {
 	
 	public float speed = 2.0f;
-	public float minPinchSpeed = 5.0f;
-	public float varianceInDistances = 5.0f;
 	private float curDist = 0;
-	//private float prevDist = new Vector2(0, 0);
-	private float touchDelta = 0.0f;
-	private float speedTouch0 = 0.0f;
-	private float speedTouch1 = 0.0f;
+	private int level = 2;
 	private Vector2 start = new Vector2(0, 0);
 	
 	// Use this for initialization
@@ -21,7 +16,6 @@ public class UIControl : MonoBehaviour {
 	void Update () {
 		if(Input.touchCount == 1) 
 		{		
-			
 			if(Input.GetTouch(0).phase == TouchPhase.Began) {
 				start = Input.touches[0].position;
 			}
@@ -30,49 +24,39 @@ public class UIControl : MonoBehaviour {
 				// Current distance between fingers
 				curDist = Input.GetTouch(0).position.y - start.y;
 			
-				// Previous distance between fingers, by taking away the change from current position
-				//prevDist = ((Input.GetTouch(0).position - Input.GetTouch(0).deltaPosition) - (Input.GetTouch(1).position - Input.GetTouch(1).deltaPosition));
-			
-				// Find the size of the pinch
-				//touchDelta = curDist.magnitude - prevDist.magnitude;
-			
-				// Get the speed of the change
-				//speedTouch0 = Input.GetTouch(0).deltaPosition.magnitude / Input.GetTouch(0).deltaTime;
-				//speedTouch1 = Input.GetTouch(1).deltaPosition.magnitude / Input.GetTouch(1).deltaTime;
-			
-				// Check to see if pinch is bigger, and zoom in if so
-//				if((touchDelta + varianceInDistances <= 1) && (speedTouch0 > minPinchSpeed) && (speedTouch1 > minPinchSpeed))
-//				{
-//					this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView + speed, 10, 60);
-//				}
-//			
-//				// Check to see if pinch is smaller, and zoom out if so
-//				if((touchDelta + varianceInDistances > 1) && (speedTouch0 > minPinchSpeed) && (speedTouch1 > minPinchSpeed)) 
-//				{
-//					this.camera.fieldOfView = Mathf.Clamp(this.camera.fieldOfView - speed, 10, 60);
-//				}
 				float newFOV = this.camera.fieldOfView;
 				
-				if(newFOV < 20) {
-					speed = 100;
+				if(newFOV >= 20 && level == 1) {
+					newFOV = Mathf.Clamp(this.camera.fieldOfView-((Mathf.Abs(curDist)*curDist) * 100)/((float)Screen.height*Screen.height), 20, 45);
 				}
-				else {
-					speed = 20;
+				else if(newFOV <= 30 && level == 2) {
+					newFOV = Mathf.Clamp(this.camera.fieldOfView-((Mathf.Abs(curDist)*curDist) * 50)/((float)Screen.height*Screen.height), 10, 30);
 				}
 				
-				newFOV = Mathf.Clamp(this.camera.fieldOfView-(Mathf.Pow(curDist,3.0f))/(Screen.height*speed * Mathf.Abs(curDist)), 10, 45);
 				this.camera.fieldOfView = newFOV;
 
+			}
+			
+			if(Input.GetTouch(0).phase == TouchPhase.Ended)
+			{
+				if(this.camera.fieldOfView == 20 && level == 1)
+				{
+					level = 2;
+				}
+				else if(this.camera.fieldOfView > 20 && level == 2)
+				{
+					level = 1;
+				}
 			}
 			
 		}
 		else if(this.camera.fieldOfView < 20)
 		{
-			this.camera.fieldOfView = 20;
+			this.camera.fieldOfView = Mathf.Lerp(this.camera.fieldOfView, 20, Time.deltaTime*4);
 		}
-		else if(this.camera.fieldOfView < 45)
+		else if(this.camera.fieldOfView > 20 && this.camera.fieldOfView < 45)
 		{
-			this.camera.fieldOfView = 45;
+			this.camera.fieldOfView = Mathf.Lerp(this.camera.fieldOfView, 45, Time.deltaTime*4);
 		}
 		
 		if(Input.touchCount == 2)
