@@ -69,7 +69,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 				gridTimer = 0.0f;
 				timerActive = false;
 			}
-		}		
+		}	
+		GUI.matrix = Matrix4x4.identity;
 	}
 	
 	void Update () {

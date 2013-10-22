@@ -12,6 +12,7 @@ public class UICamera : MonoBehaviour {
 	public Quaternion planarOffset;
 	private Quaternion prevRot;
 	private bool started = false;
+	Platform inputData = null;
 	
 	//private bool firstRotate = true;
 
@@ -19,12 +20,16 @@ public class UICamera : MonoBehaviour {
 	void Start () {
 		// you can use the API directly:
 		//Sensor.Activate(Sensor.Type.RotationVector);
+		inputData = new Platform();
 		
 		// or you can use the SensorHelper, which has built-in fallback to less accurate but more common sensors:
 		SensorHelper.ActivateRotation();
-		offsetFromStart = SensorHelper.rotation;
+		//offsetFromStart = inputData.getRotationVector();
+		//float[] currentRot = inputData.getYPR();
+		offsetFromStart = inputData.getRotationVector();
 		camFromStart = transform.rotation;
 		prevRot = transform.rotation;
+		
 		//SensorHelper.TryForceRotationFallback(RotationFallbackType.RotationQuaternion);
 		useGUILayout = false;
 	}
@@ -33,6 +38,8 @@ public class UICamera : MonoBehaviour {
 	{
 		if(!started)
 		{
+			//float[] currentRot = inputData.getYPR();
+			//offsetFromStart = inputData.getRotationVector()* Quaternion.Euler(0, 0, 90);
 			offsetFromStart = SensorHelper.rotation;
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			started = true;
@@ -40,6 +47,8 @@ public class UICamera : MonoBehaviour {
 		
 		if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
 		{ 
+			//float[] currentRot = inputData.getYPR();
+			//offsetFromStart = inputData.getRotationVector()* Quaternion.Euler(0, 0, 90);
 			offsetFromStart = SensorHelper.rotation;
 			//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 		}
@@ -47,8 +56,9 @@ public class UICamera : MonoBehaviour {
 	
 	void Update () {
 		
+		//float[] currentRot = inputData.getYPR();
+		//Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * (inputData.getRotationVector() * Quaternion.Euler(0, 0, 90));
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * SensorHelper.rotation;
-		
 		transform.rotation = newOffset;
 		
 		if(this.camera.fieldOfView == 10 || Input.GetKeyDown(KeyCode.Return) /** DEBUG: for editor */)

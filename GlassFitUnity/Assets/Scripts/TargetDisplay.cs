@@ -115,6 +115,7 @@ public class TargetDisplay : MonoBehaviour {
 		} else {
 			GUI.Label(map, "No GPS lock");
 		}
+		GUI.matrix = Matrix4x4.identity;
 	}
 	
 	private void FetchMapTexture(Position origo) {					

@@ -42,7 +42,7 @@ public class Platform {
 				
 				// Get the singleton helper
 				try {
-					helper = helper_class.CallStatic<AndroidJavaObject>("getInstance");
+					helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
         	  	    UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
 				} catch (Exception e) {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
@@ -50,7 +50,7 @@ public class Platform {
 				}
 				// Try to get a Java GPSTracker object
 				try {
-					gps = helper.Call<AndroidJavaObject>("getGPSTracker", context);
+					gps = helper.Call<AndroidJavaObject>("getGPSTracker");
 					UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
 				} catch (Exception e) {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
@@ -191,6 +191,28 @@ public class Platform {
 			UnityEngine.Debug.LogException(e);			
 		}
 		return null;
+	}
+	
+	public Quaternion getRotationVector() {
+		try {
+			float[] quat = helper.Call<float[]>("getGameRotationVector");
+			Quaternion q = new Quaternion(quat[0], quat[1], quat[2], quat[3]);
+			return q;
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting quaternion: " + e.Message);
+			return Quaternion.identity;
+		}
+	}
+	
+	public float[] getYPR() {
+		try {
+			float[] ypr = helper.Call<float[]>("getGameYpr");
+			UnityEngine.Debug.Log("Platform: Euler angles are: " + ypr[0].ToString() + ", " + ypr[1].ToString() + ", " + ypr[2].ToString());
+			return ypr;
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting Euler angles: " + e.Message);
+			return new float[3];
+		}
 	}
 
 	public List<Position> getTrackPositions() {

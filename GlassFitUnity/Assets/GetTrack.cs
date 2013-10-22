@@ -14,6 +14,7 @@ public class GetTrack : MonoBehaviour {
 	private List<Position> curTrackPositions;
 	Texture2D normal;
 	private bool started = false;
+	private bool active = true;
 	
 	private Rect map;
 	private const int MAP_RADIUS = 100;
@@ -32,6 +33,8 @@ public class GetTrack : MonoBehaviour {
 	private float longLow;
 	private float centerLat;
 	private float centerLong;
+	
+	private bool changed;
 	
 	public Texture blackTex;
 	
@@ -57,141 +60,189 @@ public class GetTrack : MonoBehaviour {
 		
 	}
 	
+	public bool isChanged() {
+		return changed;
+	}
+	
+	public void setChanged(bool c) {
+		changed = c;
+	}
+	
+	public void setActive(bool b) {
+		active = b;
+		GetTracks();
+	}
+	
 	void OnGUI() {
-		Matrix4x4 defaultMatrix = GUI.matrix;
-		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-		//GUI.depth = 10;
-		GUI.skin.box.wordWrap = true;
-		GUI.skin.box.fontSize = 30;
-		GUI.skin.box.fontStyle = FontStyle.Bold;
-		GUI.skin.box.alignment = TextAnchor.MiddleCenter;				
-		GUI.skin.box.normal.background = normal;
-		GUI.skin.box.normal.textColor = Color.black;
-		
-		if(GUI.Button(new Rect(0, originalHeight/2, 100, 100), "Previous Track")) {
-			inputData.getPreviousTrack();
-			curTrackPositions = inputData.getTrackPositions();
-			GetLimits();
-			mapChanged = true;
-			mapTexture = null;
-		}
-		
-		if(GUI.Button(new Rect(originalWidth-100, originalHeight/2, 100, 100), "Next Track")) {
-			inputData.getNextTrack();
-			curTrackPositions = inputData.getTrackPositions();
-			GetLimits();
-			mapChanged = true;
-			mapTexture = null;
-		}
-		
-		if(GUI.Button(new Rect(originalWidth-100, originalHeight-100, 100, 100), "Get Tracks")) {
-			inputData.getTracks();
-			curTrackPositions = inputData.getTrackPositions();
-			started = true;
-			mapChanged = true;
-			mapTexture = null;
-			GetLimits();			
-		}
-		
-		if(started) {
-		
-			double sin = Math.Sin(latHigh * Math.PI / 180);
-			double radX2 = Math.Log((1 + sin) / (1-sin)) / 2;
-			double neLat = Math.Max(Math.Min(radX2, Math.PI), -Math.PI) /2;
-		
-			sin = Math.Sin(latLow * Math.PI / 180);
-			radX2 = Math.Log((1 + sin) / (1-sin)) / 2;
-			double swLat = Math.Max(Math.Min(radX2, Math.PI), -Math.PI) / 2;
-		
-			double latFraction = (neLat - swLat) / Math.PI;
-		
-			double longDiff = longHigh - longLow;
-			double longFraction = ((longDiff < 0) ? (longDiff + 360) : longDiff) / 360;
-		
-			double latZoom = Math.Floor (Math.Log(400 / 256 / latFraction) / 0.6931471805599453 );
-			double longZoom = Math.Floor(Math.Log(600 / 256 / longFraction) / 0.6931471805599453);
-		
-			mapZoom = (int)Math.Min(latZoom, longZoom);
-			if(mapZoom > 21) {
-				mapZoom = 21;
-			}
-		
-		//		if(started)
-//			GUI.Label(new Rect(originalWidth/2 - 100, originalHeight/2, 200, 100), "Number of Positions in track: " + curTrackPositions.Count.ToString());
-		
-			//if(mapTexture == null) {
-			if ((mapWWW == null && mapTexture == null) && mapChanged){
-				const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
-				const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
-				string url = endpoint + "?center="
-			                      	  + centerLat.ToString() + "," + centerLong.ToString()
-			               	      	  + "&zoom=" + mapZoom.ToString()
-			  	                  	  + "&size=" + "600" + "x" + "400"
-			       	              	  + "&maptype=roadmap"
-			           	          	  + "&sensor=true&key=" + API_KEY;
-				mapWWW = new WWW(url);
-				UnityEngine.Debug.Log("Map: URL is: " + url);
-				}
-			if (mapWWW != null && mapWWW.isDone) {
-				if (mapWWW.error != null) {
-				//debugText = mapWWW.error;
-					UnityEngine.Debug.LogWarning(mapWWW.error);
-					UnityEngine.Debug.LogWarning("Map: error with map");
-				} else {
-				//debugText = "";
-					mapTexture = mapWWW.texture;
-					mapChanged = false;
-				//mapOrigo = fetchOrigo;
-					UnityEngine.Debug.Log("Map: origo error");
-				}
-				mapWWW = null;
-			}
-						
-			if (mapTexture == null) {
-				GUI.Label(map, "Fetching map...    Number of Positions = " + curTrackPositions.Count.ToString());
-			}
-
-			GUI.DrawTexture(map, mapTexture);
-				
-			GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, Vector3.one);
+		if(active) {
+			Matrix4x4 defaultMatrix = GUI.matrix;
+			GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
+			//GUI.depth = 10;
+			GUI.skin.box.wordWrap = true;
+			GUI.skin.box.fontSize = 30;
+			GUI.depth = 3;
+			GUI.skin.box.fontStyle = FontStyle.Bold;
+			GUI.skin.box.alignment = TextAnchor.MiddleCenter;				
+			GUI.skin.box.normal.background = normal;
+			GUI.skin.box.normal.textColor = Color.black;
 			
-			Position center = new Position(centerLat, centerLong);
+			if(GUI.Button(new Rect(0, originalHeight/2, 100, 100), "Previous Track")) {
+				inputData.getPreviousTrack();
+				curTrackPositions = inputData.getTrackPositions();
+				GetLimits();
+				mapChanged = true;
+				mapTexture = null;
+			}
 			
-			for(int i=0; i<curTrackPositions.Count - 1; i++) {
-				Vector2 currentPos = mercatorToPixel(center) - mercatorToPixel(curTrackPositions[i]); 
-				currentPos += new Vector2(400.0f * scale.x, 250.0f * scale.y);
+			if(GUI.Button(new Rect(originalWidth-100, originalHeight/2, 100, 100), "Next Track")) {
+				inputData.getNextTrack();
+				curTrackPositions = inputData.getTrackPositions();
+				GetLimits();
+				mapChanged = true;
+				mapTexture = null;
+			}
+			
+			if(GUI.Button(new Rect(originalWidth-100, originalHeight-100, 100, 100), "Set Track")) {
+				inputData.setTrack();
+				changed = true;
+			}
+			
+			if(GUI.Button(new Rect(originalWidth-100, 0, 100, 100), "Get Tracks")) {
+				GetTracks();
+			}
+			
+			
+			if(started) {
+			
+				double sin = Math.Sin(latHigh * Math.PI / 180);
+				double radX2 = Math.Log((1 + sin) / (1-sin)) / 2;
+				double neLat = Math.Max(Math.Min(radX2, Math.PI), -Math.PI) /2;
+			
+				sin = Math.Sin(latLow * Math.PI / 180);
+				radX2 = Math.Log((1 + sin) / (1-sin)) / 2;
+				double swLat = Math.Max(Math.Min(radX2, Math.PI), -Math.PI) / 2;
+			
+				double latFraction = (neLat - swLat) / Math.PI;
+			
+				double longDiff = longHigh - longLow;
+				double longFraction = ((longDiff < 0) ? (longDiff + 360) : longDiff) / 360;
+			
+				double latZoom = Math.Floor (Math.Log(600 / 256 / latFraction) / 0.6931471805599453 );
+				double longZoom = Math.Floor(Math.Log(400  / 256 / longFraction) / 0.6931471805599453);
 				
-				Vector2 nextPos = mercatorToPixel(center) - mercatorToPixel(curTrackPositions[i+1]);
-				nextPos += new Vector2(400.0f * scale.x, 250.0f * scale.y);
-				
-				if(currentPos != nextPos) {
-					UnityEngine.Debug.Log("Track: Current position = " + currentPos.x.ToString() + ", " + currentPos.y.ToString());
-					UnityEngine.Debug.Log("Track: Next position = " + nextPos.x.ToString() + ", " + nextPos.y.ToString());
+				UnityEngine.Debug.Log("Zoom: Lat Zoom = " + latZoom.ToString());
+				UnityEngine.Debug.Log("Zoom: long zoom = " + longZoom.ToString());
+			
+				mapZoom = (int)Math.Min(latZoom, longZoom);
+				if(mapZoom > 21) {
+					mapZoom = 21;
+				}
+			
+				if ((mapWWW == null && mapTexture == null) && mapChanged){
+					const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
+					const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
+					string url = endpoint + "?center="
+				                      	  + centerLat.ToString() + "," + centerLong.ToString()
+				               	      	  + "&zoom=" + mapZoom.ToString()
+				  	                  	  + "&size=" + "600" + "x" + "400"
+				       	              	  + "&maptype=roadmap" 
+										  + "&sensor=true&key=" + API_KEY;
+					mapWWW = new WWW(url);
+					UnityEngine.Debug.Log("Map: URL is: " + url);
+					}
+				if (mapWWW != null && mapWWW.isDone) {
+					if (mapWWW.error != null) {
+					//debugText = mapWWW.error;
+						UnityEngine.Debug.LogWarning(mapWWW.error);
+						UnityEngine.Debug.LogWarning("Map: error with map");
+					} else {
+					//debugText = "";
+						mapTexture = mapWWW.texture;
+						mapChanged = false;
+					//mapOrigo = fetchOrigo;
+						UnityEngine.Debug.Log("Map: origo error");
+					}
+					mapWWW = null;
+				}
+							
+				if (mapTexture == null) {
+					GUI.Label(map, "Fetching map...    Number of Positions = " + curTrackPositions.Count.ToString());
+				}
+	
+				GUI.DrawTexture(map, mapTexture);
 					
-					DrawLine(currentPos, nextPos, Color.black, 10.0f);	
+				GUI.matrix = Matrix4x4.identity;
+				
+				Position center = new Position(centerLat, centerLong);
+				
+				for(int i=0; i<curTrackPositions.Count - 1; i++) {
+					//UnityEngine.Debug.Log("Track: current track position = " + curTrackPositions[i].latitude + ", " + curTrackPositions[i].longitude);
+					Vector2 currentPos = mercatorToPixel(curTrackPositions[i]) - mercatorToPixel(center); 
+					currentPos += new Vector2(400.0f * scale.x, 250.0f * scale.y);
+					
+					Vector2 nextPos = mercatorToPixel(curTrackPositions[i+1]) - mercatorToPixel(center);
+					nextPos += new Vector2(400.0f * scale.x, 250.0f * scale.y);
+					
+					if(currentPos != nextPos) {
+						//UnityEngine.Debug.Log("Track: Current position = " + currentPos.x.ToString() + ", " + currentPos.y.ToString());
+						//UnityEngine.Debug.Log("Track: Next position = " + nextPos.x.ToString() + ", " + nextPos.y.ToString());
+						
+						DrawLine(currentPos, nextPos, Color.black, 10.0f);	
+					}
 				}
 			}
 		}
 		
 	}
 	
+	public void GetTracks() {
+		inputData.getTracks();
+		curTrackPositions = inputData.getTrackPositions();
+		started = true;
+		mapChanged = true;
+		mapTexture = null;
+		GetLimits();
+	}
+	
 	void GetLimits() {
 		latLow = longLow = 360;
-		latHigh = longHigh = 0;
+		latHigh = longHigh = -360;
 		float totalLat = 0;
 		float totalLong = 0;
 		for(int i=0; i<curTrackPositions.Count; i++)
 		{
+			if(curTrackPositions[i].latitude < latLow) {
+				latLow = curTrackPositions[i].latitude;
+			}
+			
+			if(curTrackPositions[i].latitude > latHigh) {
+				latHigh = curTrackPositions[i].latitude;
+			}
+			
+			if(curTrackPositions[i].longitude < longLow) {
+				longLow = curTrackPositions[i].longitude;
+			}
+			
+			if(curTrackPositions[i].longitude > longHigh) {
+				longHigh = curTrackPositions[i].longitude;
+			}
 			totalLat += curTrackPositions[i].latitude;
 			totalLong += curTrackPositions[i].longitude;
 		}
 		centerLat = totalLat / curTrackPositions.Count;
 		centerLong = totalLong / curTrackPositions.Count;
+		Position cent = new Position(centerLat, centerLong);
+		Position ne = new Position(latHigh, longHigh);
+		Position  sw = new Position(latLow, longLow);
+		UnityEngine.Debug.Log("Track: Center lat + long are: " + cent.latitude + ", " + cent.longitude);
+		UnityEngine.Debug.Log("Track: NE lat + long are: " + ne.latitude + ", " + ne.longitude);
+		UnityEngine.Debug.Log("Track: SW lat + long are: " + sw.latitude + ", " + sw.longitude);
+		
 	}
 	
 	Vector2 mercatorToPixel(Position mercator) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
-		int scale = (int)Math.Pow(2, mapZoom);
+		Vector2 mapScale = scale * (int)Math.Pow(2, mapZoom);
 		
 		// Mercator to google world cooordinates
 		Vector2 world = new Vector2(
@@ -204,9 +255,7 @@ public class GetTrack : MonoBehaviour {
 				) / 2
 			) * 256
 		);
-//		world.x += 100;
-//		world.y += 50;
-		return world * scale;
+		return new Vector2(world.x * mapScale.x, world.y * mapScale.y);
 	}
 	
 	public void DrawLine(Vector2 pointA, Vector2 pointB, Color color, float width) {
@@ -218,14 +267,14 @@ public class GetTrack : MonoBehaviour {
         // Vector3.Angle always returns a positive number.
         // If pointB is above pointA, then angle needs to be negative.
         if (pointA.y > pointB.y) { angle = -angle; }
- 		UnityEngine.Debug.Log("Draw Line: Angle = " + angle.ToString());
+ 		//UnityEngine.Debug.Log("Draw Line: Angle = " + angle.ToString());
         // Use ScaleAroundPivot to adjust the size of the line.
         // We could do this when we draw the texture, but by scaling it here we can use
         //  non-integer values for the width and length (such as sub 1 pixel widths).
         // Note that the pivot point is at +.5 from pointA.y, this is so that the width of the line
         //  is centered on the origin at pointA.
 		Vector2 scalePivot = new Vector2((pointB - pointA).magnitude, width);
-		UnityEngine.Debug.Log("Draw Line: scale pivot is: " + scalePivot.x.ToString() + ", " + scalePivot.y.ToString());
+		//UnityEngine.Debug.Log("Draw Line: scale pivot is: " + scalePivot.x.ToString() + ", " + scalePivot.y.ToString());
         
 		GUIUtility.ScaleAroundPivot(new Vector2((pointB - pointA).magnitude, width), new Vector2(pointA.x, pointA.y + 0.5f));
  
@@ -237,7 +286,7 @@ public class GetTrack : MonoBehaviour {
         // We're really only drawing a 1x1 texture from pointA.
         // The matrix operations done with ScaleAroundPivot and RotateAroundPivot will make this
         //  render with the proper width, length, and angle.
-		UnityEngine.Debug.Log("Draw Line: Point A is " + pointA.x.ToString() + ", " + pointA.y.ToString());
+		//UnityEngine.Debug.Log("Draw Line: Point A is " + pointA.x.ToString() + ", " + pointA.y.ToString());
         GUI.DrawTexture(new Rect(pointA.x, pointA.y, 1, 1), blackTex);
  		
 		

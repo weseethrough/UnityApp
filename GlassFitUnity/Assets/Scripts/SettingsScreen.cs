@@ -32,6 +32,9 @@ public class SettingsScreen : MonoBehaviour {
 	public float targSpeed = 1.8f;
 	public Texture blackTexture;
 	
+	private bool mapOpen = false;
+	private bool trackSelected = false;
+	
 	private string indoorText = "Indoor Active";
 	
 		// Use this for initialization
@@ -42,12 +45,13 @@ public class SettingsScreen : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
-		debug = new Rect((originalWidth-200), MARGIN, 200, 200);
+		debug = new Rect((originalWidth-100), 0, 100, 100);
 		
 		zombieHolder.SetActive(zombie);
 		eagleHolder.SetActive(eagle);
 		runnerHolder.SetActive(runner);
 		trainHolder.SetActive(train);
+		GetComponent<GetTrack>().setActive(false);
 	}
 	
 	void OnGUI() {
@@ -57,12 +61,13 @@ public class SettingsScreen : MonoBehaviour {
 		GUI.skin.button.fontSize = 15;
 		GUI.skin.horizontalSliderThumb.fixedWidth = 60;
 		GUI.skin.horizontalSliderThumb.fixedHeight = 60;
-			
+		
 		if(menuOpen)
 		{			
+			
 			GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
-					
-			GUI.skin.label.fontSize = 30;
+				
+			GUI.skin.label.fontSize = 30;		
 			GUI.Label(new Rect(originalWidth/2-100, 10, 200, 40), "Speed Guide");
 			
 			GUI.skin.label.fontSize = 15;
@@ -146,9 +151,10 @@ public class SettingsScreen : MonoBehaviour {
         	    menuOpen = false;
 				
 				if(changed) {
-					//inputData.stopTrack();
 					inputData.reset();
-					inputData.setTargetSpeed(targSpeed);
+					if(!trackSelected) {
+						inputData.setTargetSpeed(targSpeed);
+					}
 					inputData.setIndoor(indoor);
 					
 					zombieHolder.SetActive(zombie);
@@ -160,6 +166,7 @@ public class SettingsScreen : MonoBehaviour {
 					countdown = false;
 					countTime = 3.0f;
 					
+					trackSelected = false;
 					changed = false;
 				} else {
 					inputData.StartTrack(indoor);
@@ -174,13 +181,35 @@ public class SettingsScreen : MonoBehaviour {
 			if (authenticated && GUI.Button(debug, "Sync to server")) {
 				inputData.syncToServer();
 			}
+			
+			if(GUI.Button(new Rect(originalWidth-100, originalHeight/2 - 50, 100, 100), "Set Track")) {
+				menuOpen = false;
+				mapOpen = true;
+				GetComponent<GetTrack>().setActive(true);
+				//GetComponent<GetTrack>().GetTracks();
+			}
 		} 
-		else
+		else if(mapOpen) 
+		{
+			GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
+			
+			if (GUI.Button(new Rect(0, originalHeight-50, 100, 50), "Back")){
+        		mapOpen = false;
+				menuOpen = true;
+				GetComponent<GetTrack>().setActive(false);
+				if(GetComponent<GetTrack>().isChanged()) {
+					GetComponent<GetTrack>().setChanged(false);
+					changed = true;
+					trackSelected = true;
+				}
+			}			
+		}
+		else 
 		{
 			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
         		menuOpen = true;
 				inputData.stopTrack();
-			}			
+			}
 		}
 		
 		if(countdown)
@@ -197,6 +226,7 @@ public class SettingsScreen : MonoBehaviour {
 				GUI.Label(new Rect(400, 200, 200, 200), "GO!"); 
 			}
 		}
+		GUI.matrix = Matrix4x4.identity;
 	}
 	
 	// Update is called once per frame
