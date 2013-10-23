@@ -214,6 +214,17 @@ public class Platform {
 			return new float[3];
 		}
 	}
+	
+	public Quaternion getGyroDroidQuaternion() {
+		try {
+			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getGyroDroidQuaternion");
+			Quaternion q = new Quaternion(ajo.Call<float>("getY"), ajo.Call<float>("getX"), -ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
+			return q;
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting GyroDroid Quaternion: " + e.Message);
+			return Quaternion.identity;
+		}
+	}
 
 	public List<Position> getTrackPositions() {
 		try {

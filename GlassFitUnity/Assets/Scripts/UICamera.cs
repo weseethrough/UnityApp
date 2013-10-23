@@ -26,7 +26,7 @@ public class UICamera : MonoBehaviour {
 		SensorHelper.ActivateRotation();
 		//offsetFromStart = inputData.getRotationVector();
 		//float[] currentRot = inputData.getYPR();
-		offsetFromStart = inputData.getRotationVector();
+		offsetFromStart = inputData.getGyroDroidQuaternion();
 		camFromStart = transform.rotation;
 		prevRot = transform.rotation;
 		
@@ -40,7 +40,7 @@ public class UICamera : MonoBehaviour {
 		{
 			//float[] currentRot = inputData.getYPR();
 			//offsetFromStart = inputData.getRotationVector()* Quaternion.Euler(0, 0, 90);
-			offsetFromStart = SensorHelper.rotation;
+			offsetFromStart = inputData.getGyroDroidQuaternion();
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			started = true;
 		}
@@ -49,7 +49,7 @@ public class UICamera : MonoBehaviour {
 		{ 
 			//float[] currentRot = inputData.getYPR();
 			//offsetFromStart = inputData.getRotationVector()* Quaternion.Euler(0, 0, 90);
-			offsetFromStart = SensorHelper.rotation;
+			offsetFromStart = inputData.getGyroDroidQuaternion();
 			//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 		}
 	}
@@ -58,7 +58,7 @@ public class UICamera : MonoBehaviour {
 		
 		//float[] currentRot = inputData.getYPR();
 		//Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * (inputData.getRotationVector() * Quaternion.Euler(0, 0, 90));
-		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * SensorHelper.rotation;
+		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * inputData.getGyroDroidQuaternion();
 		transform.rotation = newOffset;
 		
 		if(this.camera.fieldOfView == 10 || Input.GetKeyDown(KeyCode.Return) /** DEBUG: for editor */)
