@@ -122,6 +122,9 @@ public class SerializedNode : ISerializable
         {
             GameObject prefab = Resources.Load(prefabName) as GameObject;
 #if UNITY_EDITOR
+            //this method allows us to keep prefab reference for saving purposes. During runtime it 
+            //doesn't matter if we use prefabs or clan gameobjects but if while in editor we will try 
+            //to save without this reference we will loose connection with source
             GameObject go = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
 #else
             GameObject go = GameObject.Instantiate(prefab) as GameObject;
@@ -141,5 +144,15 @@ public class SerializedNode : ISerializable
 
         Transform t = parentTranform.FindChild(name);
         return t;
+    }
+
+    public string GetPrefabName()
+    {
+        return prefabName;
+    }
+
+    public SerializableSettings GetSerializableSettings()
+    {
+        return settings;
     }
 }

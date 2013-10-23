@@ -135,5 +135,10 @@ public class SerializableSettings : ISerializable
             }
         }                
     }
+
+    public SingleComponent GetComponent(string name)
+    {
+        return components.Find(r => r.name == name);
+    }
 	
 }

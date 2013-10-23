@@ -8,7 +8,22 @@ using System.Runtime.Serialization.Formatters.Binary;
 [ExecuteInEditMode]
 public class DataStorage : MonoBehaviour 
 {    
-	static public DataStorage 	instance;
+	static public DataStorage _instance;
+    static public DataStorage instance
+    {
+        get {
+                if (_instance != null)
+                {
+                    return _instance;
+                }
+                DataStorage ds = (DataStorage)GameObject.FindObjectOfType(typeof(DataStorage));
+                if (ds != null)
+                {
+                    ds.MakeAwake();
+                }
+                return _instance;
+            }        
+    }
 		
     //public properties
 	//Note! blob names are used by machine to define file names. Ensure any names used are standard characters for file name.
@@ -37,7 +52,7 @@ public class DataStorage : MonoBehaviour
 
     public void MakeAwake()
     {        
-        instance = this;
+        _instance = this;
 
         if (platform != null)
         {
