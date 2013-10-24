@@ -19,7 +19,7 @@ public class FlowStateMachine : MonoBehaviour
             {
                 if (node is Start)
                 {
-
+                    targetState = node as Start;
                 }
 
             }
@@ -28,31 +28,52 @@ public class FlowStateMachine : MonoBehaviour
 
     void Update()
     {
+        ProgressStateChanges();
+
         for (int i = 0; i < activeFlow.Count; i++)
         {
-            switch (activeFlow[i].state)
-            {
-                case FlowState.State.Entering:
-                    if (activeFlow[i].EnterUpdate())
-                    {
-                        activeFlow[i].Entered();
-                    }
-                    break;
-                case FlowState.State.Idle:
-                    activeFlow[i].StateUpdate();
-                    break;
-                case FlowState.State.Exiting:
-                    if (activeFlow[i].ExitUpdate())
-                    {
-                        activeFlow[i].Exited();
-                    }
-                    break;
-            }
+            bool specialProgress = UpdateState(activeFlow[i]);
+
             if (activeFlow[i].state == FlowState.State.Dead)
             {
                 activeFlow.RemoveAt(i);
+                i--;
+                ProgressStateChanges();
+            }
+            else if (specialProgress)
+            {
+                i--;
+                ProgressStateChanges();
             }
         }
+    }
+
+    public bool UpdateState(FlowState fs)
+    {
+        bool requiresAnotherPass = false;
+
+        switch (fs.state)
+        {
+            case FlowState.State.Entering:
+                if (fs.EnterUpdate())
+                {
+                    fs.Entered();
+                    requiresAnotherPass = true;
+                }
+                break;
+            case FlowState.State.Idle:
+                fs.StateUpdate();
+                break;
+            case FlowState.State.Exiting:
+                if (fs.ExitUpdate())
+                {
+                    fs.Exited();
+                    requiresAnotherPass = true;
+                }
+                break;
+        }
+
+        return requiresAnotherPass;
     }
 
     public bool FollowConnection(GConnector connection)
@@ -62,7 +83,7 @@ public class FlowStateMachine : MonoBehaviour
             connection.Link.Count > 0 &&
             connection.Link[0].Parent != null)
         {
-            
+            targetState = connection.Link[0].Parent as FlowState;
         }
         return false;
     }
@@ -72,62 +93,55 @@ public class FlowStateMachine : MonoBehaviour
     /// </summary>
     /// <param name="fs">state destination</param>
     /// <returns>returns true when operation is finished. until then all calls return false</returns>
-    private bool EnterState()
+    private bool ProgressStateChanges()
     {
         //target state cant be null, machine must be ready and we cant be exactly in target state
         if (targetState != null && 
             IsReady())
         {
-            if (activeFlow[activeFlow.Count - 1] != targetState)
+            if (activeFlow.Count > 0 && activeFlow[activeFlow.Count - 1] == targetState)
             {
                 targetState = null;
                 return true;
             }
 
             FlowState nextStep = targetState;
+            FlowState nextStepChild = null;
             while (nextStep != null)
             {
                 if (activeFlow.Contains(nextStep))
                 {
                     break;
                 }
-                nextStep = (FlowState)nextStep.Parent;
+                nextStepChild = nextStep;
+                nextStep = nextStep.parent;
             }
             
             //we have any states entered but last one is not within our list of expectations
-            if (activeFlow.Count > 0 &&
-                activeFlow[activeFlow.Count - 1] != nextStep)
+            if (activeFlow.Count > 0)
             {
-                activeFlow[activeFlow.Count - 1].ExitStart();
-            }
-
-            //from this point we check if all parents of the state we aim for are in active flow, 
-            //if not then we enter them first. you should never have case when you enter state which 
-            //parent levels are not entered yet or exit state with children not exited before
-            if (activeFlow.Contains(targetState))
-            {
-                if (activeFlow[activeFlow.Count - 1] != targetState)
+                if (activeFlow[activeFlow.Count - 1] != nextStep)
                 {
                     activeFlow[activeFlow.Count - 1].ExitStart();
                     return false;
                 }
-                else
-                {
-                    //entering current state? self entering ignored
-                    return true;
-                }
+            }
+            
+            
+            //our next step is applied, we will navigate to the child
+            if (nextStepChild != null)
+            {
+                activeFlow.Add(nextStepChild);
+                nextStepChild.parentMachine = this;
+                nextStepChild.EnterStart();
+                return false;
             }
             else
             {
-
-
-             /*   activeFlow.Add(fs);
-                fs.EnterStart();
-                if (fs.EnterUpdate())
-                {
-                    fs.Entered();
-                }*/
-            }
+                //shouldn't ever reach this point
+                targetState = null;
+                return true;
+            }                        
         }
         return false;
     }

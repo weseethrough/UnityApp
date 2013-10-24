@@ -33,12 +33,6 @@ public class GNode : ScriptableObject
 
 	[SerializeField]
 	List<GParameter> m_parameters;
-
-    [SerializeField]
-    GNode m_parent;    
-    
-    [SerializeField]
-    List<GNode> m_children;
 	
 	//public void OnEnable() { hideFlags = HideFlags.HideAndDontSave; }
 	
@@ -66,21 +60,6 @@ public class GNode : ScriptableObject
             return m_parameters;            
         }
 	}
-
-    public List<GNode> Children
-    {
-        get
-        {
-            if (m_children == null) m_children = new List<GNode>();
-            return m_children;
-        }
-    }
-    public GNode Parent
-    {
-        get { return m_parent; }
-        set { m_parent = value; }
-    }
-
 
 	public bool HasInputs
 	{

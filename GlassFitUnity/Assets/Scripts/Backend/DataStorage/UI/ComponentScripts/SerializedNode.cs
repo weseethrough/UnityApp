@@ -115,40 +115,51 @@ public class SerializedNode : ISerializable
         return source;
     }
 
-    public Transform RebuildNode(Transform parentTranform)
+    public Transform RebuildNode(Transform parentTranform, bool allowDuplicates)
     {
+        Transform t;
         //we will try to rebuild object form prefab source and then name and position it according to original notes
         if (prefabName != string.Empty)
         {
-            GameObject prefab = Resources.Load(prefabName) as GameObject;
+            t = parentTranform.FindChild(name);
+            if (allowDuplicates || t == null)
+            {
+
+                GameObject prefab = Resources.Load(prefabName) as GameObject;
 #if UNITY_EDITOR
-            //this method allows us to keep prefab reference for saving purposes. During runtime it 
-            //doesn't matter if we use prefabs or clan gameobjects but if while in editor we will try 
-            //to save without this reference we will loose connection with source
-            GameObject go = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
+                //this method allows us to keep prefab reference for saving purposes. During runtime it 
+                //doesn't matter if we use prefabs or clan gameobjects but if while in editor we will try 
+                //to save without this reference we will loose connection with source
+                GameObject go = PrefabUtility.InstantiatePrefab(prefab) as GameObject;
 #else
-            GameObject go = GameObject.Instantiate(prefab) as GameObject;
+                GameObject go = GameObject.Instantiate(prefab) as GameObject;
             
 #endif
-            go.transform.parent = parentTranform;
-            WriteToTransform(go.transform);
-            settings.LoadSettingsTo(go);
-            go.name = name;
+                go.transform.parent = parentTranform;
+                WriteToTransform(go.transform);
+                settings.LoadSettingsTo(go);
+                go.name = name;
 
-            return go.transform;
+                return go.transform;
+            }
         }
 
-        //object have been not found, we will return child with searched name.
+        //prefab source have been not found or duplicate policy is violated, we will return child with searched name.
         //Note! if multiple children shares same name it might bring some confusion and rebuild errors!
-        //TODO: find nice and simple way to identify child without name. (index? is it trusted way to go?)
+        //TODO: find nice and simple way to identify child without name. 
 
-        Transform t = parentTranform.FindChild(name);
+        t = parentTranform.FindChild(name);
         return t;
     }
 
     public string GetPrefabName()
     {
         return prefabName;
+    }
+
+    public string GetName()
+    {
+        return name;
     }
 
     public SerializableSettings GetSerializableSettings()

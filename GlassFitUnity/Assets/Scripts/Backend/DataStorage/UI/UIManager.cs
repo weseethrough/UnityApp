@@ -21,9 +21,14 @@ public class UIManager : MonoBehaviour
         return node;
 	}
 
-    public void LoadScene(SerializedNode source)
-    {        
-        RebuildStructure(gameObject.transform, source);             
+    public GameObject LoadScene(SerializedNode source)
+    {
+        return RebuildStructure(gameObject.transform, source, "");
+    }
+
+    public GameObject LoadScene(SerializedNode source, string cloneInstanceName)
+    {
+        return RebuildStructure(gameObject.transform, source, cloneInstanceName);             
     }
 	
 	SerializedNode ProcessBranch(GameObject go)
@@ -46,18 +51,32 @@ public class UIManager : MonoBehaviour
         return structureParent;
     }
 
-    void RebuildStructure(Transform parent, SerializedNode node)
+    GameObject RebuildStructure(Transform parent, SerializedNode node, string cloneInstanceName)
     {
-		if (parent == null || node == null) return;
-		
-        Transform t = node.RebuildNode(parent.transform);
+		if (parent == null || node == null) return null;
+
+        GameObject searchedInstance = null;
+        Transform t = node.RebuildNode(parent.transform, cloneInstanceName == "");
+        if (t != null && t.name == cloneInstanceName)
+        {
+            //get copy instead
+            searchedInstance = (GameObject)GameObject.Instantiate(t.gameObject);
+            searchedInstance.transform.parent = t.parent;
+            t = searchedInstance.transform;
+            cloneInstanceName = "";
+        }
+
         for (int i = 0; i < node.subBranches.Count; i++)
         {
 			if (t != null && node.subBranches[i] != null)
 			{
-            	RebuildStructure(t, node.subBranches[i]);
+                GameObject go = RebuildStructure(t, node.subBranches[i], cloneInstanceName);
+                if (searchedInstance == null)
+                {
+                    searchedInstance = go;
+                }
 			}
         }
+        return searchedInstance;
     }
-
 }

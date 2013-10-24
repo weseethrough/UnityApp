@@ -2,10 +2,14 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 public class Panel : FlowState 
 {
     static public string[] InteractivePrefabs = { "UIComponents/Button" };
+
+    public GameObject physicalWidgetRoot;
+    private string widgetRootName = "Widgets Container";
 
     public override string GetDisplayName()
     {
@@ -55,14 +59,8 @@ public class Panel : FlowState
         foreach (string s in InteractivePrefabs)
         {
             if (node.GetPrefabName() == s)
-            {
-                SerializableSettings ss = node.GetSerializableSettings();
-                SingleComponent sc = ss != null ? ss.GetComponent("UIBasiclabel") : null;
-                StringStorageDictionary ssd = sc != null ? sc.strData : null;
-
-                string value = ssd.Get("label");
-
-                NewOutput(value,"Flow");
+            {                                
+                NewOutput(node.GetName(),"Flow");
             }
         }
 
@@ -82,5 +80,84 @@ public class Panel : FlowState
 
         StorageDictionary screens = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
         return (SerializedNode)screens.Get(selectedName);
+    }
+
+    public override void EnterStart()
+    {
+        base.EnterStart();
+
+        UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
+        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
+        StorageDictionary screensDictionary = s != null ? (StorageDictionary)s.dictionary.Get(UIManager.UIPannels) : null;
+
+        if (script == null || screensDictionary == null)
+        {
+            Debug.LogError("Scene requires to have UIManager in its root");
+        }
+        else
+        {
+            GParameter gType = Parameters.Find(r => r.Key == "Type");
+            ISerializable data = screensDictionary.Get(gType.Value);
+            if (data != null)
+            {                
+                GParameter gName = Parameters.Find(r => r.Key == "Name");
+                physicalWidgetRoot = script.LoadScene((SerializedNode)data, widgetRootName);
+                if (physicalWidgetRoot != null)
+                {
+                    physicalWidgetRoot.name = widgetRootName + "_" + gType.Value + "_" + gName.Value;
+                    Debug.Log("Name " + physicalWidgetRoot.name);
+                }                
+            }
+
+            if (physicalWidgetRoot != null)
+            {
+                Component[] buttons = physicalWidgetRoot.GetComponentsInChildren(typeof(UIButtonColor));
+                foreach (Component b in buttons)
+                {
+                    UIButtonColor bScript = b as UIButtonColor;
+                    FlowButton fb = bScript != null ? bScript.GetComponent<FlowButton>() : null;
+                    if (fb == null)
+                    {
+                        fb = bScript.gameObject.AddComponent<FlowButton>();
+                    }
+
+                    fb.owner = this;
+                    fb.name = fb.transform.parent.name;
+                }
+            }
+        }
+    }
+
+    public override void Exited()
+    {
+        base.Exited();
+
+        UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
+        if (physicalWidgetRoot != null)
+        {
+            GameObject.Destroy(physicalWidgetRoot);        
+        }        
+    }    
+
+    public void OnClick(FlowButton button)
+    {
+        if (Outputs.Count > 0 && parentMachine != null)
+        {
+            GConnector gConect = Outputs.Find(r => r.Name == button.name);
+            if (gConect != null)
+            {
+                parentMachine.FollowConnection(gConect);
+            }
+            
+        }
+        else
+        {
+            Debug.LogError("Dead end start");
+        }
+    }
+
+    public void OnPress(FlowButton button, bool isDown)
+    {
+
     }
 }

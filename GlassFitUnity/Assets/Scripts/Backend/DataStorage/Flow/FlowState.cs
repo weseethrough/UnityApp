@@ -16,20 +16,39 @@ public abstract class FlowState : GNode
     public FlowStateMachine parentMachine;
 
     // do not let state switch outside of order. It might cause some states get unplugged from order list and result with unpredictable results
-    private State _state;
+    private State m_state;
+    
+    private FlowState m_parent;
+    private List<FlowState> m_children;
+
     public FlowState.State state
     {
-        get { return _state; }        
+        get { return m_state; }        
     }
-    virtual public void EnterStart() { _state = State.Entering; }
+
+    public List<FlowState> children
+    {
+        get
+        {
+            if (m_children == null) m_children = new List<FlowState>();
+            return m_children;
+        }
+    }
+    public FlowState parent
+    {
+        get { return m_parent; }
+        set { m_parent = value; }
+    }
+
+    virtual public void EnterStart() { m_state = State.Entering; Debug.Log("Enter state: " + this.ToString()); }
     virtual public bool EnterUpdate() { return true; }
-    virtual public void Entered() { _state = State.Idle; }
+    virtual public void Entered() { m_state = State.Idle; Debug.Log("Entered state: " + this.ToString()); }
 
     virtual public void StateUpdate() {  }
 
-    virtual public void ExitStart() { _state = State.Exiting; }
+    virtual public void ExitStart() { m_state = State.Exiting; Debug.Log("Exit state: " + this.ToString()); }
     virtual public bool ExitUpdate() { return true; }
-    virtual public void Exited() { _state = State.Dead; }   
+    virtual public void Exited() { m_state = State.Dead; Debug.Log("Exited state: " + this.ToString()); }   
 
     public override void OnDraw(Rect r)
     {
