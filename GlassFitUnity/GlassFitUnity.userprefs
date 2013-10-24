@@ -1,42 +1,18 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\javaInterface\Platform.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\UICamera.cs">
     <Files>
-      <File FileName="Assets\GetTrack.cs" Line="16" Column="25" />
-      <File FileName="Assets\Scripts\SettingsScreen.cs" Line="1" Column="1" />
-      <File FileName="Assets\GyroDroid\SampleScripts\MinimalSensorCamera.cs" Line="1" Column="1" />
-      <File FileName="Assets\David\PBRunnerController.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\TargetDisplay.cs" Line="1" Column="1" />
-      <File FileName="Assets\javaInterface\Platform.cs" Line="220" Column="72" />
-      <File FileName="Assets\Scripts\UICamera.cs" Line="69" Column="3" />
-      <File FileName="Assets\GyroDroid\Scripts\SensorHelper.cs" Line="1" Column="1" />
-      <File FileName="Assets\GyroDroid\Scripts\Sensor.cs" Line="1" Column="1" />
-      <File FileName="Assets\GyroDroid\Scripts\Enums\Type.cs" Line="1" Column="1" />
-      <File FileName="Assets\GyroDroid\Scripts\Devices\SensorDeviceAndroid.cs" Line="167" Column="13" />
+      <File FileName="Assets\Scripts\UICamera.cs" Line="41" Column="44" />
+      <File FileName="Assets\javaInterface\Platform.cs" Line="213" Column="54" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
-              <Node name="GyroDroid" expanded="True">
-                <Node name="Scripts" expanded="True">
-                  <Node name="Devices" expanded="True" />
-                  <Node name="Enums" expanded="True" />
-                </Node>
-              </Node>
-              <Node name="javaInterface" expanded="True">
-                <Node name="Platform.cs" selected="True" />
-              </Node>
-              <Node name="Scripts" expanded="True" />
-            </Node>
-          </Node>
-          <Node name="Assembly-UnityScript" expanded="True">
-            <Node name="Assets" expanded="True">
-              <Node name="GyroDroid" expanded="True">
-                <Node name="Scripts" expanded="True">
-                  <Node name="Scripts" expanded="True" />
-                </Node>
+              <Node name="javaInterface" expanded="True" />
+              <Node name="Scripts" expanded="True">
+                <Node name="UICamera.cs" selected="True" />
               </Node>
             </Node>
           </Node>
@@ -45,7 +21,9 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="C:\GlassFitProjects\GFUnityDev\GlassFitUnity\Assets\Scripts\Backend\Editor\BackendWindow.cs" line="122" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

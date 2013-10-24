@@ -207,11 +207,33 @@ public class Platform {
 	public float[] getYPR() {
 		try {
 			float[] ypr = helper.Call<float[]>("getGameYpr");
+			ypr[0] *= 180/Mathf.PI;
+			ypr[1] *= 180/Mathf.PI;
+			ypr[2] *= 180/Mathf.PI;
 			UnityEngine.Debug.Log("Platform: Euler angles are: " + ypr[0].ToString() + ", " + ypr[1].ToString() + ", " + ypr[2].ToString());
 			return ypr;
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting Euler angles: " + e.Message);
 			return new float[3];
+		}
+	}
+	
+	public Quaternion getGlassfitQuaternion() {
+		try {
+			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getGlassfitQuaternion");
+			Quaternion q = new Quaternion(ajo.Call<float>("getY"), ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
+			return q;
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting quaternion: " + e.Message);
+			return Quaternion.identity;
+		}
+	}
+	
+	public void resetGyro() {
+		try {
+			helper.Call("resetGyros");
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error resetting gyros: " + e.Message);
 		}
 	}
 	
