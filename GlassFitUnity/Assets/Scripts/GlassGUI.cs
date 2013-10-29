@@ -5,13 +5,7 @@ using System.Diagnostics;
 using System;
 
 public class GlassGUI : MonoBehaviour {
-	
-#if UNITY_ANDROID && !UNITY_EDITOR 
-	private Platform ji = null;
-#else
-	private PlatformDummy ji = null;
-#endif
-	
+
 	private const int BOX_WIDTH = 200;
 	private const int BOX_HEIGHT = 100;
 	private const int MAP_RADIUS = 100;
@@ -140,15 +134,9 @@ public class GlassGUI : MonoBehaviour {
 		selfIcon = Resources.Load("Self") as Texture2D;
 		targetIcon = Resources.Load("Target") as Texture2D;
 		mapStencil = new Material(Shader.Find("Custom/MapStencil"));
-				
-#if UNITY_ANDROID && !UNITY_EDITOR 
-		ji = new Platform();
-#else
-		ji = new PlatformDummy();
-#endif
 		
 		//EventLog.
-		//ji.StartTrack(false);
+		//Platform.Instance.StartTrack(false);
 	}
 	
 	// Update is called once per frame
@@ -156,14 +144,14 @@ public class GlassGUI : MonoBehaviour {
 	{
 		timeFromStart += Time.deltaTime;
 	
-//		if(countTime == 3.99f && ji.hasLock() && !started)
+//		if(countTime == 3.99f && Platform.Instance.hasLock() && !started)
 //		{
 //			started = true;
 //		}
 //		
 //		if(started && countTime <= 0.0f)
 //		{
-//			ji.StartTrack(false);
+//			Platform.Instance.StartTrack(false);
 //		}
 //		else if(started && countTime > 0.0f)
 //		{
@@ -182,7 +170,7 @@ public class GlassGUI : MonoBehaviour {
 		}
 		
 //		timeOut -= Time.deltaTime;		
-		ji.Poll();
+		Platform.Instance.Poll();
 	}
 	
 	void OnGUI ()
@@ -226,14 +214,14 @@ public class GlassGUI : MonoBehaviour {
 		GUI.skin.box.normal.textColor = Color.black;
 		
 		// *** DEBUG? TODO: Icon? Message?
-		float bearing = ji.Bearing();
+		float bearing = Platform.Instance.Bearing();
 		double bearingRad = bearing*Math.PI/180;
 		GUI.Label(gpsLock, "Bear: " + (int)(bearing) + "\u00B0");
-				
+				 
 		// Style top-left box depending on content
 		// Target Distance
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
-		double targetDistance = ji.DistanceBehindTarget();
+		double targetDistance = Platform.Instance.DistanceBehindTarget();
 		if (targetDistance > 0) {
 			targetStyle.normal.background = warning; 
 			targetText = "Behind!\n";
@@ -245,18 +233,18 @@ public class GlassGUI : MonoBehaviour {
 		GUI.Box(target, targetText+"<i>"+SiDistance( Math.Abs(targetDistance) )+"</i>", targetStyle);
 		
 		// Distance
-		double selfDistance = ji.Distance();
+		double selfDistance = Platform.Instance.Distance();
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
 		
 		// Time
-		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
+		GUI.Box(time, timeText+TimestampMMSSdd( Platform.Instance.Time() ));
 		// Calories
-		GUI.Box(calories, caloriesText + ji.Calories());		
+		GUI.Box(calories, caloriesText + Platform.Instance.Calories());		
 		// Pace
-		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
+		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( Platform.Instance.Pace() )) );
 		
 		// Draw minimap
-		Position position = ji.Position();
+		Position position = Platform.Instance.Position();
 		if (position != null) {
 			// Fake target coord using distance and bearing
 			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearingRad)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearingRad)*targetDistance/111229d));
@@ -268,7 +256,7 @@ public class GlassGUI : MonoBehaviour {
 		if (GUI.Button(debug, "Test blobstore!")) {
 			// *** DEBUG
 			UnityEngine.Debug.LogWarning("Platform: DEBUG");
-			byte[] storedata = ji.LoadBlob("test1");
+			byte[] storedata = Platform.Instance.LoadBlob("test1");
 			byte[] data = new byte[3];
 			data[0] = 42;
 			data[1] = 7;
@@ -281,8 +269,8 @@ public class GlassGUI : MonoBehaviour {
 			} else {
 				UnityEngine.Debug.LogWarning("Platform: Test1 failed");
 			}
-			ji.StoreBlob("test1", data);
-			storedata = ji.LoadBlob("test1");
+			Platform.Instance.StoreBlob("test1", data);
+			storedata = Platform.Instance.LoadBlob("test1");
 			if (storedata.Length == 3 
 				&& storedata[0] == data[0]
 				&& storedata[1] == data[1]
@@ -296,7 +284,7 @@ public class GlassGUI : MonoBehaviour {
 		}
 		
 		// *** DEBUG
-		//GUI.TextArea(debug, debugText + ji.DebugLog());
+		//GUI.TextArea(debug, debugText + Platform.Instance.DebugLog());
 		// *** DEBUG
 		
 		GUI.matrix = svMat; // restore matrix

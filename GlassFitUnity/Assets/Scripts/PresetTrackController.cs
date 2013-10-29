@@ -3,7 +3,6 @@ using System.Collections;
 
 public class PresetTrackController : MonoBehaviour {
 
-	private Platform inputData = null;
 	
 	private float countTime = 3.99f;
 	private bool started = false;
@@ -18,8 +17,7 @@ public class PresetTrackController : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		inputData = new Platform();
-		//inputData.setTargetTrack(0);
+		//Platform.Instance.setTargetTrack(0);
 	}
 	
 	void OnEnable() {
@@ -35,22 +33,22 @@ public class PresetTrackController : MonoBehaviour {
 //		
 //		if(started && countTime <= 0.0f)
 //		{
-//			inputData.StartTrack(false);
+//			Platform.Instance.StartTrack(false);
 //		}
 //		else if(started && countTime > 0.0f)
 //		{
 //			countTime -= Time.deltaTime;
 //		}
 		
-		inputData.Poll();
+		Platform.Instance.Poll();
 		
 //		if(!started && Input.touchCount == 3)
 //		{
 //			started = true;
-//			inputData.Start(false);
+//			Platform.Instance.Start(false);
 //		}
 
-		scaledDistance = inputData.DistanceBehindTarget() * 6.666f;
+		scaledDistance = Platform.Instance.DistanceBehindTarget() * 6.666f;
 		Vector3 movement = new Vector3(-10,-14,(float)scaledDistance);
 		transform.position = movement;
 	}

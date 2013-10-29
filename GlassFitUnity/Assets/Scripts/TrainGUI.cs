@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 
 public class TrainGUI : MonoBehaviour {
-
-	private Platform ji = null;
 
 	public bool countdown = false;
 	public bool started = false;
@@ -126,8 +124,7 @@ public class TrainGUI : MonoBehaviour {
 		targetIcon = Resources.Load("Target") as Texture2D;
 		mapTexture = Resources.Load("DummyMap") as Texture2D;
 		
-		ji = new Platform();
-		ji.setTargetSpeed(1.788f);
+		Platform.Instance.setTargetSpeed(1.788f);
 	}
 	
 	// Update is called once per frame
@@ -135,14 +132,14 @@ public class TrainGUI : MonoBehaviour {
 	{
 		timeFromStart += Time.deltaTime;
 	
-		if(countTime == 3.99f && ji.hasLock() && !started)
+		if(countTime == 3.99f && Platform.Instance.hasLock() && !started)
 		{
 			started = true;
 		}
 		
 		if(started && countTime <= 0.0f)
 		{
-			ji.StartTrack(false);
+			Platform.Instance.StartTrack();
 		}
 		else if(started && countTime > 0.0f)
 		{
@@ -161,7 +158,7 @@ public class TrainGUI : MonoBehaviour {
 			}
 		}
 		
-		ji.Poll();
+		Platform.Instance.Poll();
 	}
 	
 	void OnGUI ()
@@ -202,14 +199,14 @@ public class TrainGUI : MonoBehaviour {
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		
-		if(!ji.hasLock())
+		if(!Platform.Instance.hasLock())
 		{
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
 		
 		// Target Distance
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
-		double targetDistance = ji.DistanceBehindTarget() - 50.0;
+		double targetDistance = Platform.Instance.DistanceBehindTarget() - 50.0;
 		if (targetDistance > 0) {
 			targetStyle.normal.background = warning; 
 			targetText = "Behind!\n";
@@ -221,17 +218,17 @@ public class TrainGUI : MonoBehaviour {
 		GUI.Box(target, targetText+"<i>"+SiDistance( Math.Abs(targetDistance) )+"</i>", targetStyle);
 		
 		// Distance
-		double selfDistance = ji.Distance();
+		double selfDistance = Platform.Instance.Distance();
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
 		
 		// Time
-		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
+		GUI.Box(time, timeText+TimestampMMSSdd( Platform.Instance.Time() ));
 		
 		// Calories
-		GUI.Box(calories, caloriesText + ji.Calories());
+		GUI.Box(calories, caloriesText + Platform.Instance.Calories());
 		
 		// pace
-		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
+		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( Platform.Instance.Pace() )) );
 		
 		// Map
 		// TODO: Stencil out circle
@@ -257,7 +254,7 @@ public class TrainGUI : MonoBehaviour {
 		GUI.color = original;
 		
 		// *** DEBUG
-		//GUI.TextArea(debug, debugText + ji.DebugLog());
+		//GUI.TextArea(debug, debugText + Platform.Instance.DebugLog());
 		// *** DEBUG
 		GUI.matrix = svMat; // restore matrix
 	}

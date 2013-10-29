@@ -11,7 +11,6 @@ public class TrainListener : MonoBehaviour {
 	private float whistleTime = 0.0f;
 	private bool started = false;
 	private double scaledDistance;
-	private Platform inputData = null;
 	private AudioSource trainMove;
 	private AudioSource trainWhistle;
 	private float FakedMovement = -250f;
@@ -68,12 +67,7 @@ public class TrainListener : MonoBehaviour {
 	
 	void OnEnable() {
 		transform.position = new Vector3(13.5f, -6.6f, -50);
-		inputData = new Platform();
 		//Debug.Log("OnEnable called\n\n\n\n\n");
-	}
-	
-	void OnDestroy() {
-		inputData = null;
 	}
 	
 	void OnGUI() {
@@ -89,7 +83,7 @@ public class TrainListener : MonoBehaviour {
 		
 		// Target Distance
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
-		double targetDistance = inputData.DistanceBehindTarget()-50;
+		double targetDistance = Platform.Instance.DistanceBehindTarget()-50;
 		if (targetDistance > 0) {
 			targetStyle.normal.background = warning; 
 			targetText = "Behind!\n";
@@ -104,14 +98,14 @@ public class TrainListener : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
-//		if(countTime == 3.99f && inputData.hasLock() && !started)
+//		if(countTime == 3.99f && Platform.Instance.hasLock() && !started)
 //		{
 //			started = true;
 //		}
 //		
 //		if(started && countTime <= 0.0f)
 //		{
-//			inputData.StartTrack(false);
+//			Platform.Instance.StartTrack(false);
 //		}
 //		else if(started && countTime > 0.0f)
 //		{
@@ -126,11 +120,11 @@ public class TrainListener : MonoBehaviour {
 			whistleTime -= 10.0f;
 		}
 		
-		inputData.Poll();
+		Platform.Instance.Poll();
 	
 //		if(!indoor) 
 //		{
-//			scaledDistance = (inputData.DistanceBehindTarget() - 50) * 6.666f;
+//			scaledDistance = (Platform.Instance.DistanceBehindTarget() - 50) * 6.666f;
 //		}
 //		else 
 //		{

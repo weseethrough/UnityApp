@@ -11,11 +11,6 @@ public class PlatformHelper : MonoBehaviour {
 	private Stopwatch timer = new Stopwatch();
 	private Platform platform;
 	
-	// Use this for initialization
-	void Start () {
-		platform = new Platform();
-	}
-	
 	void OnGUI()
 	{
 		if(countdown)
@@ -38,7 +33,7 @@ public class PlatformHelper : MonoBehaviour {
 		
 		if(!countdown)
 		{
-			if(platform.hasLock())
+			if(Platform.Instance.hasLock())
 			{
 				countdown = true;
 				timer.Start();
@@ -48,7 +43,7 @@ public class PlatformHelper : MonoBehaviour {
 		{
 			if(!started && timer.Elapsed.Seconds > 2)
 			{
-				platform.StartTrack(false);
+				Platform.Instance.StartTrack();
 				started = true;
 			}
 		}

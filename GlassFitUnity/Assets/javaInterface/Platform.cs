@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 
-public class Platform {
+public class Platform : Singleton<Platform> {
 	private double targetElapsedDistance = 0;
 	private long time = 0;
 	private double distance = 0.0;
@@ -19,14 +19,15 @@ public class Platform {
 	
 	private AndroidJavaObject helper;
 	private AndroidJavaObject gps;
-	private AndroidJavaObject target;
 	private AndroidJavaClass helper_class;
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
 	
+	private List<TargetTracker> targetTrackers;
 	
-	public Platform() {
+	protected Platform() {
 		
+		targetTrackers = new List<TargetTracker>();
 		UnityEngine.Debug.Log("Platform: constructor called");
 		
 		try {
@@ -56,15 +57,6 @@ public class Platform {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
 					UnityEngine.Debug.LogException(e);
 				}
-				
-				// Try to get a Java TargetTracker object
-				try {
-					target = helper.Call<AndroidJavaObject>("getTargetTracker");
-					UnityEngine.Debug.LogWarning("Platform: unique target tracker obtained");
-				} catch (Exception e) {
-					UnityEngine.Debug.LogWarning("Platform: Helper.getTargetTracker() failed" + e.Message);
-					UnityEngine.Debug.LogException(e);
-				}
         	}));
 			
 		} catch (Exception e) {
@@ -74,7 +66,12 @@ public class Platform {
 		
 	}
 	
-	public void StartTrack(bool indoor) {
+	public AndroidJavaObject getHelper() {
+		return helper;
+	}
+	
+	// Starts tracking
+	public void StartTrack() {
 		try {
 			gps.Call("startTracking");
 			tracking = true;
@@ -85,6 +82,7 @@ public class Platform {
 		}
 	}
 	
+	// Set the indoor mode
 	public void setIndoor(bool indoor) {
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -99,18 +97,37 @@ public class Platform {
 		}
 	}
 	
-	public float getCurrentSpeed(long l) 
-	{
+	public void resetTargets() {
 		try {
-			float ret = target.Call<float>("getCurrentSpeed", l);
-			UnityEngine.Debug.Log("Platform: speed obtained, currently: " + ret.ToString());
-			return ret;
+			helper.Call("resetTargets");
+			targetTrackers = new List<TargetTracker>();
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting current speed: " + e.Message);
-			return 0;
+			UnityEngine.Debug.Log("Platform: Error clearing targets");
 		}
 	}
 	
+	// Get current target speed
+	public float getCurrentSpeed(long l) 
+	{
+//		try {
+//			float ret = target.Call<float>("getCurrentSpeed", l);
+//			UnityEngine.Debug.Log("Platform: speed obtained, currently: " + ret.ToString());
+//			return ret;
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: Error getting current speed: " + e.Message);
+//			return 0;
+//		}
+		return targetTrackers[0].getCurrentSpeed();
+	}
+	
+	// Returns the target tracker
+	public TargetTracker getTargetTracker(){
+		TargetTracker t = new TargetTracker(helper);
+		targetTrackers.Add(t);
+		return t;
+	}
+	
+	// Check if has GPS lock
 	public Boolean hasLock() {
 		try {
 			bool gpsLock = gps.Call<Boolean>("hasPosition");
@@ -123,6 +140,7 @@ public class Platform {
 		}
 	}
 	
+	// Stop tracking 
 	public void stopTrack() {
 		try {
 			gps.Call("stopTracking");
@@ -131,6 +149,7 @@ public class Platform {
 		}
 	}
 	
+	// Authentication
 	public void authenticate() {
 		try {
 			helper_class.CallStatic("authenticate", activity);
@@ -140,6 +159,7 @@ public class Platform {
 		}
 	}
 	
+	// Sync to server
 	public void syncToServer() {
 		try {
 			helper_class.CallStatic("syncToServer", context);
@@ -149,6 +169,7 @@ public class Platform {
 		}
 	}
 	
+	// Reset GPS tracker
 	public void reset() {
 		try {
 			gps.Call("reset");
@@ -159,28 +180,33 @@ public class Platform {
 		}
 	}
 	
+	// Set the target speed
 	public void setTargetSpeed(float speed)
 	{
-		try {
-			target.Call("setSpeed", speed);
-			UnityEngine.Debug.LogWarning("Platform: Speed has been set to " + speed.ToString ());
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: setTargetSpeed() failed: " + e.Message);
-			UnityEngine.Debug.LogException(e);
-		}
+//		try {
+//			target.Call("setSpeed", speed);
+//			UnityEngine.Debug.LogWarning("Platform: Speed has been set to " + speed.ToString ());
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: setTargetSpeed() failed: " + e.Message);
+//			UnityEngine.Debug.LogException(e);
+//		}
+		targetTrackers[0].setTargetSpeed(speed);
 	}
 	
+	// Set the target track
 	public void setTargetTrack(int trackID)
 	{
-		try {
-			target.Call("setTrack", trackID);
-			UnityEngine.Debug.LogWarning("Platform: Track has been set to " + trackID.ToString ());
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: setTargetTrack() failed: " + e.Message);
-			UnityEngine.Debug.LogException(e);
-		}
+//		try {
+//			target.Call("setTrack", trackID);
+//			UnityEngine.Debug.LogWarning("Platform: Track has been set to " + trackID.ToString ());
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: setTargetTrack() failed: " + e.Message);
+//			UnityEngine.Debug.LogException(e);
+//		}
+		targetTrackers[0].setTargetTrack(trackID);
 	}
 	
+	// Load the game blob
 	public byte[] LoadBlob(string id) {
 		try {
 			byte[] blob = helper_class.CallStatic<byte[]>("loadBlob", id);
@@ -193,6 +219,7 @@ public class Platform {
 		return null;
 	}
 	
+	// Get the rotation vector
 	public Quaternion getRotationVector() {
 		try {
 			float[] quat = helper.Call<float[]>("getGameRotationVector");
@@ -204,6 +231,7 @@ public class Platform {
 		}
 	}
 	
+	// Get Yaw/Pitch/Roll angles in radians and change to degrees
 	public float[] getYPR() {
 		try {
 			float[] ypr = helper.Call<float[]>("getGameYpr");
@@ -218,10 +246,11 @@ public class Platform {
 		}
 	}
 	
+	// Get the gyro rotation using Ben's code
 	public Quaternion getGlassfitQuaternion() {
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getGlassfitQuaternion");
-			Quaternion q = new Quaternion(ajo.Call<float>("getY"), ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
+			Quaternion q = new Quaternion(ajo.Call<float>("getY"), -ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
 			return q;
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting quaternion: " + e.Message);
@@ -229,6 +258,7 @@ public class Platform {
 		}
 	}
 	
+	// Reset the Gyros and accelerometer
 	public void resetGyro() {
 		try {
 			helper.Call("resetGyros");
@@ -237,10 +267,11 @@ public class Platform {
 		}
 	}
 	
+	// Get the gyro rotation using GyroDroid code
 	public Quaternion getGyroDroidQuaternion() {
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getGyroDroidQuaternion");
-			Quaternion q = new Quaternion(ajo.Call<float>("getY"), ajo.Call<float>("getX"), -ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
+			Quaternion q = new Quaternion(-ajo.Call<float>("getY"), ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
 			return q;
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting GyroDroid Quaternion: " + e.Message);
@@ -248,6 +279,7 @@ public class Platform {
 		}
 	}
 
+	// Return a list of positions from the current track
 	public List<Position> getTrackPositions() {
 		try {
 			int size = helper.Call<int>("getNumberPositions");
@@ -271,6 +303,7 @@ public class Platform {
 		}
 	}
 	
+	// Load a list of tracks
 	public void getTracks() {
 		try {
 			helper.Call("getTracks");
@@ -280,6 +313,7 @@ public class Platform {
 		}
 	}
 	
+	// Select the next track
 	public void getNextTrack() {
 		try {
 			helper.Call("getNextTrack");
@@ -288,6 +322,7 @@ public class Platform {
 		}
 	}
 	
+	// Select the previous track
 	public void getPreviousTrack() {
 		try {
 			helper.Call("getPreviousTrack");
@@ -296,6 +331,7 @@ public class Platform {
 		}
 	}
 	
+	// Set the chosen track
 	public void setTrack() {
 		try {
 			helper.Call("setTrack");
@@ -304,6 +340,7 @@ public class Platform {
 		}
 	}
 	
+	// Store the blob
 	public void StoreBlob(string id, byte[] blob) {
 		try {
 			helper_class.CallStatic("storeBlob", id, blob);
@@ -314,6 +351,20 @@ public class Platform {
 		}
 	}
 	
+	public float getHighestDistBehind() {
+		if(targetTrackers.Count <= 0)
+			return 0;
+		
+		float h = (float)targetTrackers[0].getTargetDistance();
+		for(int i=0; i<targetTrackers.Count; i++) {
+			if(h < targetTrackers[i].getTargetDistance()) {
+				h = (float)targetTrackers[i].getTargetDistance();
+			}
+		}
+		return h;
+	}
+	
+	// Update the data
 	public void Poll() {
 		
 //		if (!hasLock ()) return;
@@ -323,12 +374,12 @@ public class Platform {
 			UnityEngine.Debug.LogWarning("Platform: getElapsedTime() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
-		try {
-			targetElapsedDistance = target.Call<double>("getCumulativeDistanceAtTime", Time());
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: getCumulativeDistanceAtTime() failed: " + e.Message);
-			UnityEngine.Debug.LogException(e);
+		
+		UnityEngine.Debug.Log("Platform: There are " + targetTrackers.Count + " target trackers");
+		for(int i=0; i<targetTrackers.Count; i++) {
+			targetTrackers[i].setTargetDistance();
 		}
+		
 		try {
 			distance = gps.Call<double>("getElapsedDistance");
 		} catch (Exception e) {
@@ -353,9 +404,10 @@ public class Platform {
 		}
 		
 	}
-
+	
+	// Return the distance behind target
 	public double DistanceBehindTarget() {
-		double returnDistance = (targetElapsedDistance - distance);
+		double returnDistance = (targetTrackers[0].getTargetDistance() - distance);
 		return returnDistance;
 	}
 	

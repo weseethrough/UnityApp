@@ -1,89 +1,83 @@
-// PFC - prefrontal cortex
-// Full Android Sensor Access for Unity3D
-// Contact:
-// 		contact.prefrontalcortex@gmail.com
-
 using UnityEngine;
 using System.Collections;
 
 public class MinimalSensorCamera : MonoBehaviour {
+	
 	public Quaternion offsetFromStart;
-	public Quaternion camFromStart;
-	public Quaternion planarOffset;
-	private bool started = false;
-	private int touchCount=0;
+	
+	private bool started;
 	private float scaleX;
 	private float scaleY;
 	public GameObject grid;
 	private bool gridOn = false;
 	private float gridTimer = 0.0f;
 	private bool timerActive = false;
-	//private bool firstRotate = true;
 
-	
+	// Set the grid, scale values and the initial offset
 	void Start () {
-		// you can use the API directly:
-		//Sensor.Activate(Sensor.Type.RotationVector);
 		grid.SetActive(false);
 		scaleX = (float)Screen.width / 800.0f;
 		scaleY = (float)Screen.height / 500.0f;
-		// or you can use the SensorHelper, which has built-in fallback to less accurate but more common sensors:
-		SensorHelper.ActivateRotation();
-		offsetFromStart = SensorHelper.rotation;
-		camFromStart = transform.rotation;
-		//SensorHelper.TryForceRotationFallback(RotationFallbackType.RotationQuaternion);
-		useGUILayout = false;
 	}
 	
 	void OnGUI()
 	{
+		// Set the offset if it hasn't been set already, doesn't work in Start() function
 		if(!started)
 		{
-			offsetFromStart = SensorHelper.rotation;
+			offsetFromStart = Platform.Instance.getGlassfitQuaternion();
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			Platform.Instance.resetGyro();
 			started = true;
 		}
 		
+		// Set the new GUI matrix based on scale and the depth
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX,scaleY, 1));		
 		GUI.depth = 7;
 		
-		if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
-		{ 
-			if(timerActive) {
-				gridOn = false;
-			} else {
-				offsetFromStart = SensorHelper.rotation;
-				gridOn = true;
-				
+		if(!started) {
+			if(GUI.Button(new Rect(200, 0, 400, 500), "", GUIStyle.none)) {
+				started = true;
 			}
-			gridTimer = 5.0f;
-		
+		} else {
+			// Check if the button is being held
+			if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
+			{ 
+				// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
+				if(timerActive) {
+					gridOn = false;
+				} else {
+					offsetFromStart = Platform.Instance.getGlassfitQuaternion();
+					Platform.Instance.resetGyro();
+					gridOn = true;
+				}
+				gridTimer = 5.0f;
+			
+			}
+			else if(Event.current.type == EventType.Repaint)
+			{
+				// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
+				if(gridOn)
+				{
+					timerActive = true;
+				} else
+				{
+					gridTimer = 0.0f;
+					timerActive = false;
+				}
+			}	
 		}
-		else if(Event.current.type == EventType.Repaint)
-		{
-			if(gridOn)
-			{
-				timerActive = true;
-			} else
-			{
-				gridTimer = 0.0f;
-				timerActive = false;
-			}
-		}	
 		GUI.matrix = Matrix4x4.identity;
 	}
 	
 	void Update () {
-		//*/
-		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * SensorHelper.rotation;
+		// Set the new rotation of the camera
+		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getGlassfitQuaternion();
 		
-		// direct Sensor usage:
-		//transform.rotation = Sensor.rotationQuaternion; //--- is the same as Sensor.QuaternionFromRotationVector(Sensor.rotationVector);
-
+		// If the timer and grid are on, countdown the timer and switch it off if the timer runs out
 		if(timerActive && gridOn)
 		{
 			gridTimer -= Time.deltaTime;
-			UnityEngine.Debug.Log("Camera: Grid timer is: " + gridTimer.ToString());
 			if(gridTimer < 0.0f)
 			{
 				gridOn = false;
@@ -93,8 +87,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 		
 		grid.SetActive(gridOn);
 
-		transform.rotation =  newOffset;
-		//*/
-		
+		transform.rotation =  newOffset;		
 	}
 }

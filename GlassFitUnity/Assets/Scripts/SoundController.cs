@@ -5,7 +5,6 @@ public class SoundController : MonoBehaviour {
 	private const float NUM_TRACKS = 11;
 	private AudioSource[] stevies;
 	private float curTime = 0.0f;
-	private Platform inputData = null;
 	private string indoorText = "Indoor Active";
 	private bool indoor = true;
 	private float score = 0.0f;
@@ -22,10 +21,9 @@ public class SoundController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		stevies = GetComponents<AudioSource>();
-		inputData = new Platform();
-		inputData.setIndoor(true);
-		inputData.setTargetSpeed(1.5f);
-		//inputData.StartTrack(true);
+		Platform.Instance.setIndoor(true);
+		Platform.Instance.setTargetSpeed(1.5f);
+		//Platform.Instance.StartTrack(true);
 		scale.x = (float)Screen.width/originalWidth;
 		scale.y = (float)Screen.height/originalHeight;
 	}
@@ -39,10 +37,10 @@ public class SoundController : MonoBehaviour {
 			{
 				indoor = false;
 				indoorText = "Outdoor Active";
-				inputData.stopTrack();
-				inputData.reset();
-				inputData.setIndoor(indoor);
-				//inputData.StartTrack(indoor);
+				Platform.Instance.stopTrack();
+				Platform.Instance.reset();
+				Platform.Instance.setIndoor(indoor);
+				//Platform.Instance.StartTrack(indoor);
 				score = 0;
 				mult = 1;
 				curTime = 0.0f;
@@ -59,10 +57,10 @@ public class SoundController : MonoBehaviour {
 			{
 				indoor = true;
 				indoorText = "Indoor Active";
-				inputData.stopTrack();
-				inputData.reset();
-				inputData.setIndoor(indoor);
-				//inputData.StartTrack(indoor);
+				Platform.Instance.stopTrack();
+				Platform.Instance.reset();
+				Platform.Instance.setIndoor(indoor);
+				//Platform.Instance.StartTrack(indoor);
 				score = 0;
 				mult = 1;
 				curTime = 0.0f;
@@ -81,7 +79,6 @@ public class SoundController : MonoBehaviour {
 		if(countdown)
 		{
 			GUI.skin.label.fontSize = 40;
-			//float currentTime = 3.0f - timer.Elapsed.Seconds;
 			int cur = Mathf.CeilToInt(countTime);
 			if(countTime > 0.0f)
 			{
@@ -94,17 +91,16 @@ public class SoundController : MonoBehaviour {
 		}
 	}
 	
-	// Update is called once per frame
 	void Update () {
 		
-		inputData.Poll();
+		Platform.Instance.Poll();
 		
-		if(inputData.hasLock() || indoor)
+		if(Platform.Instance.hasLock() || indoor)
 		{
 			countdown = true;
 		 	if(countTime <= -1.0f && !started)
 			{
-				inputData.StartTrack(indoor);
+				Platform.Instance.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
 				started = true;
 			}
@@ -115,7 +111,7 @@ public class SoundController : MonoBehaviour {
 			}
 		}
 		
-		double dist = inputData.DistanceBehindTarget() - 50;
+		double dist = Platform.Instance.DistanceBehindTarget() - 50;
 		
 		if(dist <= 0.0 && started)
 		{

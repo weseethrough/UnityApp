@@ -6,8 +6,6 @@ using System;
 
 public class TargetDisplay : MonoBehaviour {
 	
-	private Platform inputData = null;
-		
 	private const int MAP_RADIUS = 100;
 	private const int MARGIN = 15;
 	private const float OPACITY = 0.5f;
@@ -45,7 +43,6 @@ public class TargetDisplay : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		inputData = new Platform();
 		
 		scale.x = (float)Screen.width / originalWidth;
 		scale.y = (float)Screen.height / originalHeight;
@@ -79,7 +76,7 @@ public class TargetDisplay : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		inputData.Poll();
+		Platform.Instance.Poll();
 	}
 	
 	void OnGUI() {
@@ -94,7 +91,8 @@ public class TargetDisplay : MonoBehaviour {
 		
 		// Target Distance
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
-		double targetDistance = inputData.DistanceBehindTarget()-offset;
+				
+		double targetDistance = Platform.Instance.getHighestDistBehind()-offset;
 		if (targetDistance > 0) {
 			targetStyle.normal.background = warning; 
 			targetText = "Behind!\n";
@@ -105,8 +103,8 @@ public class TargetDisplay : MonoBehaviour {
 		targetStyle.normal.textColor = Color.white;		
 		GUI.Box(target, targetText+"<i>"+SiDistance( Math.Abs(targetDistance) )+"</i>", targetStyle);
 		
-		Position position = inputData.Position();
-		float bearing = inputData.Bearing();
+		Position position = Platform.Instance.Position();
+		float bearing = Platform.Instance.Bearing();
 		double bearingRad = bearing*Math.PI/180;
 		if (position != null) {
 			// Fake target coord using distance and bearing

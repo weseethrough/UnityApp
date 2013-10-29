@@ -4,45 +4,31 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 
-public class PBRunnerController : MonoBehaviour {
-	
-	private Platform inputData = null;
-	
-	private float countTime = 3.99f;
-	private bool started = false;
-	
-	private double scaledDistance;
-	private float yDist = -254.6f;
-	private float xDist = 50;
-	
-	private Vector3 scale;
-	private int originalWidth = 800;
-	private int originalHeight = 500;
+public class PBRunnerController : TargetController {
 	
 	private Animator anim; 
 	private float speed;
 	
 	// Use this for initialization
 	void Start () {
-		inputData = new Platform();
+		base.Start();
+		base.setAttribs(0, 135, -254.6f, 50);
+		
 		anim = GetComponent<Animator>();
-		scale.x = (float)Screen.width / originalWidth;
-		scale.y = (float)Screen.height / originalHeight;
-    	scale.z = 1;
-		anim.speed = inputData.getCurrentSpeed(0) / 2.2f;
-		speed = inputData.getCurrentSpeed(0);
+		anim.speed = target.getCurrentSpeed() / 2.2f;
+		speed = target.getCurrentSpeed();
 		anim.SetFloat("Speed", speed);
 	}
 	
 	void OnEnable() {
-		transform.position = new Vector3(xDist, yDist, (float)scaledDistance);
+		base.OnEnable();
+		base.setAttribs(0, 135, -254.6f, 50);
 	}
 	
 	void Update () {
 				
-		inputData.Poll();
-		
-		float newSpeed = inputData.getCurrentSpeed(0);
+		base.Update();
+		float newSpeed = target.getCurrentSpeed();
 		if(speed != newSpeed)
 		{
 			speed = newSpeed;
@@ -55,9 +41,5 @@ public class PBRunnerController : MonoBehaviour {
 				anim.speed = newSpeed / 1.25f;
 			}
 		}
-		
-		scaledDistance = inputData.DistanceBehindTarget() * 135;
-		Vector3 movement = new Vector3(xDist, yDist,(float)scaledDistance);
-		transform.position = movement;
 	}
 }

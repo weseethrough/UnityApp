@@ -6,7 +6,7 @@ using System;
 
 public class GetTrack : MonoBehaviour {
 	
-	private Platform inputData;
+	//private Platform inputData;
 	private float originalWidth = 800;
 	private float originalHeight = 500;
 	public static Texture2D lineTex;
@@ -40,7 +40,6 @@ public class GetTrack : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		inputData = new Platform();
 		
 		scale.x = Screen.width/originalWidth;
 		scale.y = Screen.height/originalHeight;
@@ -87,23 +86,23 @@ public class GetTrack : MonoBehaviour {
 			GUI.skin.box.normal.textColor = Color.black;
 			
 			if(GUI.Button(new Rect(0, originalHeight/2, 100, 100), "Previous Track")) {
-				inputData.getPreviousTrack();
-				curTrackPositions = inputData.getTrackPositions();
+				Platform.Instance.getPreviousTrack();
+				curTrackPositions = Platform.Instance.getTrackPositions();
 				GetLimits();
 				mapChanged = true;
 				mapTexture = null;
 			}
 			
 			if(GUI.Button(new Rect(originalWidth-100, originalHeight/2, 100, 100), "Next Track")) {
-				inputData.getNextTrack();
-				curTrackPositions = inputData.getTrackPositions();
+				Platform.Instance.getNextTrack();
+				curTrackPositions = Platform.Instance.getTrackPositions();
 				GetLimits();
 				mapChanged = true;
 				mapTexture = null;
 			}
 			
 			if(GUI.Button(new Rect(originalWidth-100, originalHeight-100, 100, 100), "Set Track")) {
-				inputData.setTrack();
+				Platform.Instance.setTrack();
 				changed = true;
 			}
 			
@@ -196,8 +195,8 @@ public class GetTrack : MonoBehaviour {
 	}
 	
 	public void GetTracks() {
-		inputData.getTracks();
-		curTrackPositions = inputData.getTrackPositions();
+		Platform.Instance.getTracks();
+		curTrackPositions = Platform.Instance.getTrackPositions();
 		started = true;
 		mapChanged = true;
 		mapTexture = null;

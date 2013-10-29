@@ -5,8 +5,6 @@
 public class quarternRotate : MonoBehaviour
 
 {
-
-	
     private Quaternion   gyroOrientation;
 
 	private Quaternion _targetCorrection1 = Quaternion.identity;

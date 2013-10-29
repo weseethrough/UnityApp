@@ -3,13 +3,10 @@ using System.Collections;
 
 public class SoundRunnerController : MonoBehaviour {
 
-	private Platform inputData = null;
-	
 	private double scaledDistance;
 	
 	// Use this for initialization
 	void Start () {
-		inputData = new Platform();
 	}
 	
 	void OnEnable() {
@@ -22,9 +19,9 @@ public class SoundRunnerController : MonoBehaviour {
 	
 	void Update () {
 				
-		inputData.Poll();
+		Platform.Instance.Poll();
 		
-		scaledDistance = (inputData.DistanceBehindTarget() - 50) * 76.666f;
+		scaledDistance = (Platform.Instance.DistanceBehindTarget() - 50) * 76.666f;
 		Vector3 movement = new Vector3(-10, -80.8f,(float)scaledDistance);
 		transform.position = movement;
 	}

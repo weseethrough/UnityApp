@@ -6,8 +6,6 @@ using System;
 
 public class PresetGUI : MonoBehaviour {
 
-	private Platform ji = null;
-	
 	public bool started = false;
 	private const int MARGIN = 15;
 	private const float OPACITY = 0.5f;
@@ -82,13 +80,12 @@ public class PresetGUI : MonoBehaviour {
 		warning.SetPixel(0,0,red);
 		warning.Apply();
 		
-		ji = new Platform();
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{		
-		if(started && countTime > -1.0f && ji.hasLock())
+		if(started && countTime > -1.0f && Platform.Instance.hasLock())
 		{
 			countTime -= Time.deltaTime;
 		}
@@ -97,16 +94,16 @@ public class PresetGUI : MonoBehaviour {
 		{
 			if(countTime < 0.0f)
 			{
-				ji.reset();
+				Platform.Instance.reset();
 				Application.LoadLevel(Application.loadedLevel);
 			} else
 			{
-				ji.reset();
+				Platform.Instance.reset();
 				Application.LoadLevel(0);
 			}
 		}
 				
-		ji.Poll();
+		Platform.Instance.Poll();
 	}
 	
 	void OnGUI ()
@@ -132,40 +129,40 @@ public class PresetGUI : MonoBehaviour {
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		
-		if(!ji.hasLock())
+		if(!Platform.Instance.hasLock())
 		{
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
 		
 		// *** DEBUG? TODO: Icon? Message?
-		float bearing = ji.Bearing();
+		float bearing = Platform.Instance.Bearing();
 		double bearingRad = bearing*Math.PI/180;
 		
 		// Distance
-		double selfDistance = ji.Distance();
+		double selfDistance = Platform.Instance.Distance();
 		
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
 		
 		// Time
-		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
+		GUI.Box(time, timeText+TimestampMMSSdd( Platform.Instance.Time() ));
 		
 		// Calories
-		GUI.Box(calories, caloriesText + ji.Calories());
+		GUI.Box(calories, caloriesText + Platform.Instance.Calories());
 		
 		// pace
-		//GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
-		GUI.Box(pace, paceText + ji.Pace().ToString("f2") + "m/s");
+		//GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( Platform.Instance.Pace() )) );
+		GUI.Box(pace, paceText + Platform.Instance.Pace().ToString("f2") + "m/s");
 		
 		// *** DEBUG
 //		if (!authenticated && GUI.Button(debug, "Authenticate")) {
-//			ji.authenticate();
+//			Platform.Instance.authenticate();
 //			// TODO: check result
 //			authenticated = true;
 //		}
 //		if (authenticated && GUI.Button(debug, "Sync to server")) {
-//			ji.syncToServer();
+//			Platform.Instance.syncToServer();
 //		}
-		//GUI.TextArea(debug, debugText + ji.DebugLog());
+		//GUI.TextArea(debug, debugText + Platform.Instance.DebugLog());
 		// *** DEBUG
 		GUI.matrix = svMat; // restore matrix
 	}

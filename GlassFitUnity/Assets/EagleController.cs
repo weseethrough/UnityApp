@@ -4,10 +4,9 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 
-public class EagleController : MonoBehaviour {
+public class EagleController : TargetController {
 
-	private double scaledDistance;
-	private Platform inputData = null;
+	//private Platform inputData = null;
 	
 	private float speed;
 	private AudioSource screech;
@@ -16,25 +15,25 @@ public class EagleController : MonoBehaviour {
 	private Animator anim;
 	float screechTime = 0.0f;
 	
-	private float height = 2092.0f;
-	
 	// Use this for initialization
 	void Start () {
-		inputData = new Platform();
-		
+		base.Start();
 		anim = GetComponent<Animator>();
 		anim.SetBool("Attack", false);
 	
 		screech = GetComponent<AudioSource>();
 	}
 	
+	void OnEnable() {
+		base.OnEnable();
+		setAttribs(50, 135, 2092, 0);
+	}
+	
 	// Update is called once per frame
 	void Update () {
-				
-		inputData.Poll();
-	
-		float realDist = (float)inputData.DistanceBehindTarget() - 50;
-		scaledDistance = realDist * 135;
+		base.Update();
+		
+		float realDist = (float)target.getDistanceBehindTarget() - distanceOffset;
 		
 		if(realDist < -49)
 		{
@@ -60,7 +59,7 @@ public class EagleController : MonoBehaviour {
 			
 			screechTime += Time.deltaTime;
 			
-			float time = -realDist / inputData.getCurrentSpeed(0);
+			float time = -realDist / target.getCurrentSpeed();
 			speed = height / time;
 			if(height > 0)
 			{
@@ -78,7 +77,5 @@ public class EagleController : MonoBehaviour {
 			}
 		}
 		
-		Vector3 movement = new Vector3(0,height,(float)scaledDistance);
-		transform.position = movement;
 	}
 }
