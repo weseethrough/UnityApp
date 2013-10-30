@@ -8,5 +8,5 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public class UISerializable : MonoBehaviour 
 {
-    
+    public bool exposeInFlow = false;
 }

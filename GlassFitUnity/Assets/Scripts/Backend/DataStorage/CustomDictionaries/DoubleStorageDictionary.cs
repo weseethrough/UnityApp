@@ -7,20 +7,20 @@ using System.Collections.Generic;
 //this class is used instead of dictionary which is not serializable. It allows to have undefined set of serialziable objects identified by name
 
 [System.Serializable]
-public class StringStorageDictionary : ISerializable 
+public class DoubleStorageDictionary : ISerializable 
 {
-    private List<string> data;
+    private List<double> data;
 	private List<string> name;
 	
-	public StringStorageDictionary()
+	public DoubleStorageDictionary()
 	{
-		this.data = new List<string>();
+        this.data = new List<double>();
 		this.name = new List<string>();
 	}
-	
-	public StringStorageDictionary(SerializationInfo info, StreamingContext ctxt)
+
+    public DoubleStorageDictionary(SerializationInfo info, StreamingContext ctxt)
 	{
-		this.data = (List<string>)info.GetValue("Data", typeof(List<string>));
+        this.data = (List<double>)info.GetValue("Data", typeof(List<double>));
 		this.name = (List<string>)info.GetValue("Name", typeof(List<string>));
 		
 		if (this.data.Count != this.name.Count)
@@ -34,8 +34,8 @@ public class StringStorageDictionary : ISerializable
     	info.AddValue("Data", this.data);
 		info.AddValue("Name", this.name);
    	}
-	
-	public bool Add(string name, string obj)
+
+    public bool Add(string name, double obj)
 	{
 		if (this.data.Count != this.name.Count)
 		{
@@ -55,8 +55,8 @@ public class StringStorageDictionary : ISerializable
 		this.data.Add(obj);	
 		return true;
 	}
-	
-	public bool Set(string obj, string name)
+
+    public bool Set(double obj, string name)
 	{
 		if (this.data.Count != this.name.Count)
 		{
@@ -95,15 +95,15 @@ public class StringStorageDictionary : ISerializable
 		
 		return false;
 		
-	}	
-	
-	public void Get(int index, out string name, out string data)
+	}
+
+    public void Get(int index, out string name, out double data)
 	{
 		if (this.data.Count != this.name.Count)
 		{
 			Debug.LogError("StorageDictionary out of sync!");
 			name = string.Empty;
-			data = string.Empty;
+			data = 0;
 			return;
 		}
 		
@@ -115,7 +115,7 @@ public class StringStorageDictionary : ISerializable
 		}		
 		
 		name = string.Empty;
-		data = string.Empty;
+		data = 0;
 		
 	}
 	
@@ -130,12 +130,12 @@ public class StringStorageDictionary : ISerializable
 		return this.data.Count;
 	}
 
-	public string Get(string name)
+    public double Get(string name)
 	{
 		if (this.data.Count != this.name.Count)
 		{
 			Debug.LogError("StorageDictionary out of sync!");
-			return null;
+			return 0;
 		}
 		
 		int index = this.name.FindIndex(x => x == name);
@@ -154,12 +154,14 @@ public class StringStorageDictionary : ISerializable
 		return index >= 0;
 	}
 
-    public StringStorageDictionary Clone()
+    public DoubleStorageDictionary Clone()
     {
-        StringStorageDictionary clone = new StringStorageDictionary();
+        DoubleStorageDictionary clone = new DoubleStorageDictionary();
         clone.data.AddRange(this.data);
         clone.name.AddRange(this.name);
 
         return clone;
     }
+
+    
 }

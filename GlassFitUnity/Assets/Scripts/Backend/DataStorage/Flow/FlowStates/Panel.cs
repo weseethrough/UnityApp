@@ -9,7 +9,11 @@ public class Panel : FlowState
     static public string[] InteractivePrefabs = { "UIComponents/Button" };
 
     public GameObject physicalWidgetRoot;
+    public FlowPanelComponent panelNodeData;
+
     private string widgetRootName = "Widgets Container";
+    
+    
 
     public override string GetDisplayName()
     {
@@ -31,7 +35,8 @@ public class Panel : FlowState
         NewInput("Enter", "Flow");
        // NewOutput("Exit", "Flow");
         NewParameter("Type", GraphValueType.UIPrefab, ""); 
-        NewParameter("Name", GraphValueType.String, "Set Panel Title");        
+        NewParameter("Name", GraphValueType.String, "Set Panel Title");
+        NewParameter("Settings", GraphValueType.Settings, "");        
     }
 
     public override void RebuildConnections()
@@ -49,7 +54,16 @@ public class Panel : FlowState
         int count = Mathf.Max(Inputs.Count, Outputs.Count);
 
         Size.y = Mathf.Max(count * 25, 80) ;
+
+        RefreshNodeData();
         
+    }
+
+    public void RefreshNodeData()
+    {
+        GParameter gType = Parameters.Find(r => r.Key == "Type");
+
+        panelNodeData = new FlowPanelComponent(GetUIPanelNames(gType.Value));
     }
 
     private void LookForInteractiveItems(SerializedNode node)
@@ -70,6 +84,15 @@ public class Panel : FlowState
         }
     }
 
+    
+
+    private void CreateCustomizationParams(SerializedNode sn)
+    {
+        SerializableSettings ss = sn != null ? sn.GetSerializableSettings() : null;
+        
+       // NewParameter("Name", GraphValueType.String, "Set Panel Title");
+    }
+
     public SerializedNode GetUIPanelNames(string selectedName)
     {
         Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
@@ -79,7 +102,7 @@ public class Panel : FlowState
         }
 
         StorageDictionary screens = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
-        return (SerializedNode)screens.Get(selectedName);
+        return screens != null ? screens.Get(selectedName) as SerializedNode : null;
     }
 
     public override void EnterStart()
@@ -147,12 +170,11 @@ public class Panel : FlowState
             if (gConect != null)
             {
                 parentMachine.FollowConnection(gConect);
-            }
-            
+            }            
         }
         else
         {
-            Debug.LogError("Dead end start");
+            Debug.LogError("Dead end");
         }
     }
 

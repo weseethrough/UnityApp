@@ -13,50 +13,70 @@ using System.Reflection;
 [System.Serializable]
 public class SingleComponent : ISerializable 
 {
-    public IntStorageDictionary         intData;
-    public FloatStorageDictionary       floatData;
-    public StringStorageDictionary      strData;
-    public string                       name;
+    public StorageDictionaryBase<int>       intData;
+    public StorageDictionaryBase<double>    doubleData;
+    public StorageDictionaryBase<string>    strData;
+    public string                           name;
     
     public SingleComponent()
     {       
-        this.intData    = new IntStorageDictionary();
-        this.floatData  = new FloatStorageDictionary();
-        this.strData    = new StringStorageDictionary();
+        this.intData    = new StorageDictionaryBase<int>();
+        this.doubleData = new StorageDictionaryBase<double>();
+        this.strData    = new StorageDictionaryBase<string>();
         name            = string.Empty;
     }    
 
     public SingleComponent(SerializationInfo info, StreamingContext ctxt)
 	{
-        this.intData                = (IntStorageDictionary)info.GetValue("IntData", typeof(IntStorageDictionary));
-        this.floatData              = (FloatStorageDictionary)info.GetValue("FloatData", typeof(FloatStorageDictionary));
-        this.strData                = (StringStorageDictionary)info.GetValue("StrData", typeof(StringStorageDictionary));
-        this.name                   = (string)info.GetValue("Name", typeof(string));                
+        this.intData        = (StorageDictionaryBase<int>)info.GetValue("IntData", typeof(StorageDictionaryBase<int>));
+        this.doubleData     = (StorageDictionaryBase<double>)info.GetValue("FloatData", typeof(StorageDictionaryBase<double>));
+        this.strData        = (StorageDictionaryBase<string>)info.GetValue("StrData", typeof(StorageDictionaryBase<string>));
+        this.name           = (string)info.GetValue("Name", typeof(string));                
 	}
 	
 	public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
    	{
         info.AddValue("IntData", this.intData);
-        info.AddValue("FloatData", this.floatData);
+        info.AddValue("FloatData", this.doubleData);
         info.AddValue("StrData", this.strData);
         info.AddValue("Name", this.name);
    	}
 
-    public IntStorageDictionary GetInitializedIntDict()
+    public StorageDictionaryBase<int> GetInitializedIntDict()
     {
-        if (intData == null) intData = new IntStorageDictionary();
+        if (intData == null) intData = new StorageDictionaryBase<int>();
         return intData;
     }
 
-    public FloatStorageDictionary GetInitializedFloatDict()
+    public StorageDictionaryBase<double> GetInitializedFloatDict()
     {
-        if (floatData == null) floatData = new FloatStorageDictionary();
-        return floatData;
+        if (doubleData == null) doubleData = new StorageDictionaryBase<double>();
+        return doubleData;
     }
 
-    public StringStorageDictionary GetInitializedStrDict()
+    public StorageDictionaryBase<string> GetInitializedStrDict()
     {
-        if (strData == null) strData = new StringStorageDictionary();
+        if (strData == null) strData = new StorageDictionaryBase<string>();
         return strData;
-    }	
+    }
+
+    public SingleComponent Clone()
+    {
+        SingleComponent sc = new SingleComponent();
+        if (intData != null)
+        {
+            sc.intData = intData.Clone();
+        }
+        if (doubleData != null)
+        {
+            sc.doubleData = doubleData.Clone();
+        }
+        if (strData != null)
+        {
+            sc.strData = strData.Clone();
+        }
+
+        sc.name = name;
+        return sc;
+    }
 }

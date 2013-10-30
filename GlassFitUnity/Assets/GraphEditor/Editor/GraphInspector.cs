@@ -16,13 +16,23 @@ public class GraphInspector : Editor
 		
 		EditorGUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
-		if (GUILayout.Button(new GUIContent("View Graph","Open graph window"),GUILayout.Width(192)))
+		if (GUILayout.Button(new GUIContent("View Graph","Open graph window")))
 		{
 			GraphWindow.Init();
 			//desc.TextureCoords.Min = new Vector2(0,0);
 			//desc.TextureCoords.Max = new Vector2(1,1);
 			//EditorUtility.SetDirty(target);
 		}
+        if (GUILayout.Button(new GUIContent("Clear Graph", "Removes data stored in graph")))
+        {
+            GraphComponent gc = target as GraphComponent;
+            gc.Data.ClearGraphData();
+        }
+        if (GUILayout.Button(new GUIContent("Reset Style", "Sets graph settings to default (skipps texture settings)")))
+        {
+            GraphComponent gc = target as GraphComponent;
+            gc.Data.Style = new GStyle();
+        }
 		GUILayout.FlexibleSpace();
 		EditorGUILayout.EndHorizontal();
 		

@@ -152,7 +152,14 @@ public class FloatStorageDictionary : ISerializable
 		
 		int index = this.name.FindIndex(x => x == name);
 		return index >= 0;
-	}		
-	
-	
+	}
+
+    public FloatStorageDictionary Clone()
+    {
+        FloatStorageDictionary clone = new FloatStorageDictionary();
+        clone.data.AddRange(this.data);
+        clone.name.AddRange(this.name);
+
+        return clone;
+    }
 }

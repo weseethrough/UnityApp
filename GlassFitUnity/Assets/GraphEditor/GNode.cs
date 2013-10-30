@@ -281,6 +281,10 @@ public class GNode : ScriptableObject
     {
     }
 
+    public virtual void RebuildParams()
+    {
+    }
+
     public bool IsConnected()
     {
         if (Inputs != null)

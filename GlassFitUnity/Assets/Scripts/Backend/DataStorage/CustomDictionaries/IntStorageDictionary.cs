@@ -152,7 +152,15 @@ public class IntStorageDictionary : ISerializable
 		
 		int index = this.name.FindIndex(x => x == name);
 		return index >= 0;
-	}		
-	
+	}
+
+    public IntStorageDictionary Clone()
+    {
+        IntStorageDictionary clone = new IntStorageDictionary();
+        clone.data.AddRange(this.data);        
+        clone.name.AddRange(this.name);
+
+        return clone;
+    }
 	
 }

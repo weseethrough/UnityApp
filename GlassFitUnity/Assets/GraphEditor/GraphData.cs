@@ -15,7 +15,7 @@ public class GraphData //: ScriptableObject references not serialized
         Both
     }
 
-	public GStyle Style;
+	public GStyle Style;    
 	
 	[HideInInspector]
 	public List<GNode> Nodes;
@@ -201,4 +201,11 @@ public class GraphData //: ScriptableObject references not serialized
 		}
 		return false;
 	}
+
+    public void ClearGraphData()
+    {
+        IdNext = 1;        
+        Nodes = new List<GNode>();
+        Connections = new List<GConnector>();
+    }
 }

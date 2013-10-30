@@ -181,7 +181,7 @@ public class UIEditorWindow : EditorWindow
         StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
 
         BuildScreenList();
-        int id = screensDictionary.GetIndex(screenName);
+        int id = screensDictionary != null ? screensDictionary.GetIndex(screenName) : -1;
         if (id > -1)
         {
             index = id;

@@ -15,7 +15,7 @@ using System.Reflection;
 [System.Serializable]
 public class SerializableSettings : ISerializable 
 {
-    private List<SingleComponent> components;
+    private List<SingleComponent> components;    
 
     public SerializableSettings()
     {
@@ -64,9 +64,17 @@ public class SerializableSettings : ISerializable
                 {
                     field.SetValue(c, sc.intData.Get(fname));
                 }
-                else if (sc.floatData != null && field.FieldType == typeof(float))
+                else if (sc.intData != null && field.FieldType == typeof(bool))
                 {
-                    field.SetValue(c, sc.floatData.Get(fname));
+                    field.SetValue(c, sc.intData.Get(fname) == 0 ? false : true);
+                }
+                else if (sc.doubleData != null && field.FieldType == typeof(float))
+                {
+                    field.SetValue(c, sc.doubleData.Get(fname));
+                }
+                else if (sc.doubleData != null && field.FieldType == typeof(double))
+                {
+                    field.SetValue(c, sc.doubleData.Get(fname));
                 }
             }
 
@@ -117,13 +125,18 @@ public class SerializableSettings : ISerializable
                         {
                             sc.GetInitializedIntDict().Add(fname, (int)fValue);
                         }
+                        else if (field.FieldType == typeof(bool))
+                        {
+                            sc.GetInitializedIntDict().Add(fname, (bool)fValue == false ? 0 : 1);
+                        }
                         else if (field.FieldType == typeof(float))
                         {
                             sc.GetInitializedFloatDict().Add(fname, (float)fValue);
                         }
-
-
-                        Debug.Log("Field " + fname + "(" + fValue.ToString() + ")");
+                        else if (field.FieldType == typeof(double))
+                        {
+                            sc.GetInitializedFloatDict().Add(fname, (double)fValue);
+                        }
                     }
 
                     components.Add(sc);
@@ -140,5 +153,19 @@ public class SerializableSettings : ISerializable
     {
         return components.Find(r => r.name == name);
     }
-	
+
+    public List<SingleComponent> GetComponents()
+    {
+        return components;
+    }
+
+    public SerializableSettings Clone()
+    {
+        SerializableSettings ss = new SerializableSettings();
+        for(int i=0; i < components.Count; i++)
+        {
+            ss.components.Add( components[i].Clone());
+        }
+        return ss;
+    }
 }

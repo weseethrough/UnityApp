@@ -38,10 +38,13 @@ public class GraphWindow : EditorWindow, IDraw
 	}
 	
 	bool m_dragMain;
+    bool m_drawInfo;
+
 	Vector2 m_dragStart;
 	Vector2 m_nodeStart; // Node.Postion at beginning of drag
 	Vector2 m_viewStart; // ViewPostion at beginning of drag
 	GNode m_selection;
+
 	GConnector m_hoverConnector;
 	GConnector m_selectionConnector;
 	Vector2 m_dragPosition;
@@ -97,7 +100,7 @@ public class GraphWindow : EditorWindow, IDraw
 			m_selectionConnector = m_selection.PickConnector(Graph.Data,pos);
 			m_nodeStart = m_selection.Position;
 			m_dragPosition = Event.current.mousePosition;
-            GUIUtility.keyboardControl = 0;
+            GUIUtility.keyboardControl = 0;            
 		}
 		Repaint();
 	}
@@ -548,30 +551,28 @@ public class GraphWindow : EditorWindow, IDraw
 		return result;
 	}
 	
-	const int ParmNameWidth = 80;
-	const int ParmHeight = 16;
-	const int ParmGap = 2;
-	const int ButtonHeight = 24;
+	//const int ParmNameWidth = 80;
+	//const int ParmHeight = 16;
+	//const int ParmGap = 2;
+	//const int ButtonHeight = 24;
 	
-	void DrawParameter(Rect r, GParameter parm)
+	void DrawParameter(GParameter parm, float width)
 	{
-		bool changed = false;
-		float nameWidth = ParmNameWidth;
-		GUI.BeginGroup(r);
+		bool changed = false;     
 		switch (parm.Type)
 		{
 		case GraphValueType.Float:
-			GUI.Label(new Rect(0,0,nameWidth,ParmHeight),parm.Key);
+            EditorGUILayout.LabelField(parm.Key);
 			{
 				float old = ToFloat(parm.Value);
 				float newValue = old;
 				if (parm.HasRange())
 				{
-					newValue = EditorGUI.Slider(new Rect(nameWidth,0,r.width-nameWidth,ParmHeight),"",old,parm.FloatMin,parm.FloatMax);
+					newValue = EditorGUILayout.Slider("",old,parm.FloatMin,parm.FloatMax);
 				}
 				else
 				{
-					string result = EditorGUI.TextField(new Rect(nameWidth,0,r.width-nameWidth,ParmHeight),parm.Value);
+                    string result = EditorGUILayout.TextField(parm.Value);
 					float.TryParse(result,out newValue);
 				}
 				if (old != newValue)
@@ -580,45 +581,24 @@ public class GraphWindow : EditorWindow, IDraw
 					changed = true;
 				}
 			}
-			break;
-		case GraphValueType.Vector3:
-			GUI.Label(new Rect(0,0,nameWidth,ParmHeight),parm.Key);
-			{
-				string [] parts = parm.Value.Split(',');
-				//int dw = Mathf.FloorToInt((r.width-nameWidth-2)/3);
-				float gap = 1;
-				Rect [] rects = PartitionRect(nameWidth,0,r.width-nameWidth-2,ParmHeight,3,gap);
-				for (int i=0; i<3; ++i)
-				{
-					string v = (i < parts.Length) ? parts[i] : "0";
-					// The EditorGUI version is required for proper handling of cursor and copy/paste.
-					string result = EditorGUI.TextField(rects[i],v);
-					float old = ToFloat(v);
-					float newValue = ToFloat(result);
-					if (old != newValue)
-					{
-						parts[i] = newValue.ToString();
-						changed = true;
-					}
-				}
-				if (changed)
-				{
-					parm.Value = string.Format("{0},{1},{2}",parts[0],parts[1],parts[2]);
-				}
-			}
-			break;
+			break;		
+
         case GraphValueType.String:
-            GUI.Label(new Rect(0, 0, nameWidth, ParmHeight), parm.Key);
-            parm.Value = EditorGUI.TextField(new Rect(nameWidth, 0, r.width - nameWidth - 2, ParmHeight), parm.Value);
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(width));
+            EditorGUILayout.LabelField(parm.Key, GUILayout.Width(width /2));
+            parm.Value = EditorGUILayout.TextField(parm.Value);
+            EditorGUILayout.EndHorizontal();
             break;
+
         case GraphValueType.UIPrefab:
-            GUI.Label(new Rect(0, 0, nameWidth, ParmHeight), parm.Key);
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(width));
+            EditorGUILayout.LabelField(parm.Key, GUILayout.Width(width / 2));
             int index;
             string[] names = GetUIComponentNames(parm.Value, out index);
             if (names == null) names = new string[1];
 
-            
-            index = EditorGUI.Popup(new Rect(nameWidth, 0, r.width - nameWidth - 2, ParmHeight), index, names);
+
+            index = EditorGUILayout.Popup(index, names);
             string newTypeValue = ( index > -1 && names != null && names.Length > index) ? names[index] : "Null";
 
             if (parm.Value != newTypeValue && m_selection)
@@ -627,24 +607,34 @@ public class GraphWindow : EditorWindow, IDraw
                 Graph.Data.Disconnect(m_selection, GraphData.ConnectorDirection.Out);
                 m_selection.RebuildConnections();
             }
+            EditorGUILayout.EndHorizontal();
             break;
+
+        case GraphValueType.Settings:
+            if (m_selection is Panel)
+            {
+                FlowPanelComponent components = (m_selection as Panel).panelNodeData;
+                if (components != null)
+                {
+                    components.OnInspectorGUI(width);
+                }
+            }
+            break;
+
 		default:
-			GUI.Label(new Rect(0,0,nameWidth,ParmHeight),parm.Key);
-			EditorGUI.TextField(new Rect(nameWidth,0,r.width-nameWidth-2,ParmHeight),parm.Value);
+            EditorGUILayout.LabelField(parm.Key);
+            EditorGUILayout.TextField(parm.Value);
 			break;
 		}
-		GUI.EndGroup();
 		if (changed)
 		{
 			UnityEditor.EditorUtility.SetDirty(Graph.gameObject);
 		}
 	}
-    private int counterT = 0;
-	bool DrawNode(GNode node, float w)// Rect r)
-	{
-        int offset = 0;
-        GUI.Box(new Rect(0, 0, w, 20), "Selected: " + node.GetDisplayName());
-        offset += 20;
+
+	void DrawNode(GNode node, float width)
+	{        
+        EditorGUILayout.LabelField("Selected: " + node.GetDisplayName());     
 
 		GUI.color = Color.white;
 		if (node.NumParameters > 0)
@@ -652,37 +642,31 @@ public class GraphWindow : EditorWindow, IDraw
 			for (int i=0; i<node.Parameters.Count; ++i)
 			{
 				GParameter p = node.Parameters[i];
-                int yy = offset + i * (ParmHeight + ParmGap);
-				DrawParameter(new Rect(0,yy,w,ParmHeight),p);
+                DrawParameter(p, width);
 			}
 		}
 		else
 		{
-			GUI.Label(new Rect(0,20,w,20),"No parameters");
+            EditorGUILayout.LabelField("No parameters");
 		}
 		
 		int pcount = Mathf.Max(1,node.NumParameters);
-
-        float by = offset + pcount * (ParmHeight + ParmGap);
-		float bw = Mathf.Min(160,w);
-		
-		if (GUI.Button(new Rect((w - bw) / 2, by, bw, ButtonHeight),"Disconnect"))
+        if (GUILayout.Button("Disconnect"))
 		{
 			Graph.Data.Disconnect(node);
 		}
 		
 		GUI.color = Color.red;
-		by += ButtonHeight;
-        if (GUI.Button(new Rect((w - bw) / 2, by, bw, ButtonHeight), "Delete Node"))
+        if (GUILayout.Button("Delete Node"))
         {
             bool ok = Graph.Data.Remove(node);
             if (ok)
             {
-                return true;
+                SelectNode(null);
+                return;
             }
         }
-        by += ButtonHeight;
-        if (GUI.Button(new Rect((w - bw) / 2, by, bw, ButtonHeight), "Cleanup Unconnected"))
+        if (GUILayout.Button("Cleanup Unconnected"))
         {
             GConnector c;
             for (int i = 0; i < Graph.Data.Connections.Count; i++ )
@@ -708,8 +692,6 @@ public class GraphWindow : EditorWindow, IDraw
                 }
             }
         }
-
-		return false;
 	}
 
 	void FindNodeTypes()
@@ -730,14 +712,15 @@ public class GraphWindow : EditorWindow, IDraw
 		{
 			FindNodeTypes();
 		}
+        EditorGUILayout.BeginHorizontal(GUILayout.Width(x + w));
+        GUILayout.FlexibleSpace();     
+        EditorGUILayout.BeginVertical(GUILayout.Width(w));
 		
-		GUILayout.BeginArea(new Rect(x,y,w,h));
-		
-		GUILayout.BeginHorizontal();
-		GUILayout.FlexibleSpace();
-		GUILayout.Label("Click buttons to add Node to graph",EditorStyles.boldLabel);
-		GUILayout.FlexibleSpace();
-		GUILayout.EndHorizontal();
+		EditorGUILayout.BeginHorizontal();
+		//GUILayout.FlexibleSpace();
+		EditorGUILayout.LabelField("Click buttons to add Node to graph",EditorStyles.boldLabel);
+		//GUILayout.FlexibleSpace();
+		EditorGUILayout.EndHorizontal();
 
 		for (int i=0; i<m_types.Count; ++i)
 		{
@@ -749,7 +732,7 @@ public class GraphWindow : EditorWindow, IDraw
 			}
 			string displayName = it.Name;						
 
-			// Note: GUILayout works for static buttons
+			// Note: EditorGUILayout works for static buttons
 			// GUI.Button is required if button visibility changes
         	if (GUILayout.Button( displayName, GUILayout.Height(24) ))
 			{
@@ -771,26 +754,32 @@ public class GraphWindow : EditorWindow, IDraw
 			}
 		}
 
-		GUILayout.EndArea();
-		
-		if (m_selection != null)
-		{
-			if (Graph != null)
-			{
-				GUI.color = (Graph.Data.Style != null) ? Graph.Data.Style.HighlightColor : Color.cyan;
-				int pcount = Mathf.Max (1, m_selection.NumParameters);
-				int blockH = 20 + pcount*(ParmHeight+ParmGap) + 3 * 24;
-				int yy = h-20-blockH-4;
-				GUI.BeginGroup(new Rect(x,yy,w,blockH));
-				if (	DrawNode(m_selection,w))
-				{
-					UnityEditor.EditorUtility.SetDirty(Graph.gameObject);
-					SelectNode(null);
-				}
-				GUI.EndGroup();
-				GUI.color = Color.white;
-			}
-		}
+        //change layout only during proper event. We don't want to change it during repaint as it will error
+        if (m_drawInfo == false && Event.current.type == EventType.Layout)
+        {
+            if (m_selection != null)
+            {
+                m_drawInfo = true;
+            }
+        }
+        else if (m_drawInfo == true && m_selection == null)
+        {
+            //we keep true state only as long as we really need it, we can skip section even if its repaint event
+            m_drawInfo = false;
+        }
+
+        if (m_drawInfo)
+        {
+            if (Graph != null)
+            {
+                GUILayout.FlexibleSpace();
+                DrawNode(m_selection, w);
+            }
+        }    
+        
+		            
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.EndHorizontal();
 	}
 
 	void OnGUI ()
@@ -823,7 +812,7 @@ public class GraphWindow : EditorWindow, IDraw
 		DrawDivider (divx,divy,divw,Screen.height);
 		
 		//EditorZoomArea.Begin(1.0f, _zoomArea);
-		DrawSideArea(divx+divw,divy,SideWidth-divw,Screen.height);
+		DrawSideArea(divx+divw,divy,SideWidth-divw,Screen.height-25);
 		//EditorZoomArea.End();
 	}
 

@@ -7,20 +7,20 @@ using System.Collections.Generic;
 //this class is used instead of dictionary which is not serializable. It allows to have undefined set of serialziable objects identified by name
 
 [System.Serializable]
-public class StringStorageDictionary : ISerializable 
+public class StorageDictionaryBase<T> : ISerializable 
 {
-    private List<string> data;
-	private List<string> name;
+    protected List<T> data;
+	protected List<string> name;
 	
-	public StringStorageDictionary()
+	public StorageDictionaryBase()
 	{
-		this.data = new List<string>();
+		this.data = new List<T>();
 		this.name = new List<string>();
 	}
-	
-	public StringStorageDictionary(SerializationInfo info, StreamingContext ctxt)
+
+    public StorageDictionaryBase(SerializationInfo info, StreamingContext ctxt)
 	{
-		this.data = (List<string>)info.GetValue("Data", typeof(List<string>));
+		this.data = (List<T>)info.GetValue("Data", typeof(List<T>));
 		this.name = (List<string>)info.GetValue("Name", typeof(List<string>));
 		
 		if (this.data.Count != this.name.Count)
@@ -35,7 +35,7 @@ public class StringStorageDictionary : ISerializable
 		info.AddValue("Name", this.name);
    	}
 	
-	public bool Add(string name, string obj)
+	public bool Add(string name, T obj)
 	{
 		if (this.data.Count != this.name.Count)
 		{
@@ -56,7 +56,7 @@ public class StringStorageDictionary : ISerializable
 		return true;
 	}
 	
-	public bool Set(string obj, string name)
+	public bool Set(T obj, string name)
 	{
 		if (this.data.Count != this.name.Count)
 		{
@@ -97,13 +97,13 @@ public class StringStorageDictionary : ISerializable
 		
 	}	
 	
-	public void Get(int index, out string name, out string data)
+	public void Get(int index, out string name, out T data)
 	{
 		if (this.data.Count != this.name.Count)
 		{
 			Debug.LogError("StorageDictionary out of sync!");
 			name = string.Empty;
-			data = string.Empty;
+            data = default(T);
 			return;
 		}
 		
@@ -115,7 +115,7 @@ public class StringStorageDictionary : ISerializable
 		}		
 		
 		name = string.Empty;
-		data = string.Empty;
+        data = default(T);
 		
 	}
 	
@@ -130,12 +130,12 @@ public class StringStorageDictionary : ISerializable
 		return this.data.Count;
 	}
 
-	public string Get(string name)
+	public T Get(string name)
 	{
 		if (this.data.Count != this.name.Count)
 		{
 			Debug.LogError("StorageDictionary out of sync!");
-			return null;
+            return default(T);
 		}
 		
 		int index = this.name.FindIndex(x => x == name);
@@ -154,9 +154,9 @@ public class StringStorageDictionary : ISerializable
 		return index >= 0;
 	}
 
-    public StringStorageDictionary Clone()
+    public StorageDictionaryBase<T> Clone()
     {
-        StringStorageDictionary clone = new StringStorageDictionary();
+        StorageDictionaryBase<T> clone = new StorageDictionaryBase<T>();
         clone.data.AddRange(this.data);
         clone.name.AddRange(this.name);
 

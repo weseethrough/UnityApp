@@ -33,5 +33,6 @@ public enum GraphValueType
 	Vector3,
 	Vector4,
     UIPrefab,
+    Settings,
 	// Add any desired types!
 };
