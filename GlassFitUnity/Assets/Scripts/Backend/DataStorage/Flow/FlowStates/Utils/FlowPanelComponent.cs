@@ -1,26 +1,24 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor; 
 
 #endif
 
-public class FlowPanelComponent  
+[Serializable]
+public class FlowPanelComponent
 {   
     public List<SerializableSettings> settings;
+    public List<string> names;
 
-    [System.NonSerialized()]
-    private List<string> names;
-
-    [System.NonSerialized()]
-    private bool[][] foldout;
-
-    [System.NonSerialized()]
-    private bool[] foldoutRoot;
-
-    private const int subtreeOffset = 10;
+    [NonSerialized()] private bool[][] foldout;
+    [NonSerialized()] private bool[] foldoutRoot;
+    [NonSerialized()] private const int subtreeOffset = 10;
 
     public FlowPanelComponent(SerializedNode panelNode)
     {        
@@ -116,7 +114,7 @@ public class FlowPanelComponent
 #endif
     }    
 
-    void RefreshData(SerializedNode panelNode)
+    public void RefreshData(SerializedNode panelNode)
     {
         if (panelNode == null) return;
 
@@ -134,7 +132,18 @@ public class FlowPanelComponent
         }
     }
 
-    
+    public void RefreshData()
+    {
+        if (settings == null) return;
+
+        foldout = new bool[settings.Count][];
+        foldoutRoot = new bool[settings.Count];
+
+        for (int i = 0; i < settings.Count; i++)
+        {            
+            foldoutRoot[i] = false;
+        }
+    }
 
     private List<SerializedNode> LookForCustomizableItems(SerializedNode node)
     {
@@ -171,5 +180,6 @@ public class FlowPanelComponent
         }
         return retList;
     }
+
 
 }

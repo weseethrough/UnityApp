@@ -2,8 +2,10 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
-public abstract class FlowState : GNode 
+public abstract class FlowState : GNode
 {
     public enum State
     {
@@ -12,20 +14,18 @@ public abstract class FlowState : GNode
         Exiting,
         Dead
     }
-
+    
     public FlowStateMachine parentMachine;
 
-    // do not let state switch outside of order. It might cause some states get unplugged from order list and result with unpredictable results
-    private State m_state;
-    
-    private FlowState m_parent;
+    // do not let state switch outside of order. It might cause some states get unplugged from order list and result with unpredictable results    
+    private State m_state;   
+    private FlowState m_parent;    
     private List<FlowState> m_children;
 
     public FlowState.State state
     {
         get { return m_state; }        
     }
-
     public List<FlowState> children
     {
         get
@@ -39,6 +39,18 @@ public abstract class FlowState : GNode
         get { return m_parent; }
         set { m_parent = value; }
     }
+
+    public FlowState() : base() { }
+
+    public FlowState(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt)
+	{
+    }
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext ctxt)
+   	{
+        base.GetObjectData(info, ctxt);
+   	}
+
 
     virtual public void EnterStart() { m_state = State.Entering; Debug.Log("Enter state: " + this.ToString()); }
     virtual public bool EnterUpdate() { return true; }
@@ -75,4 +87,6 @@ public abstract class FlowState : GNode
         //NewInput("B", "Vector3");
         //NewOutput("Result", "Vector3");
     }
+
+
 }

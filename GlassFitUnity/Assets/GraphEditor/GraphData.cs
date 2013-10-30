@@ -2,11 +2,13 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 // The actual Graph data class that contains the list of nodes and connections.
 // Not a ScriptableObject or it would not be expanded in the Inspector window
 [Serializable]
-public class GraphData //: ScriptableObject references not serialized
+public class GraphData : ISerializable
 {
     public enum ConnectorDirection
     {
@@ -158,7 +160,6 @@ public class GraphData //: ScriptableObject references not serialized
 		return false;
 	}
 
-
     public void Disconnect(GNode node)
     {
         Disconnect(node, ConnectorDirection.Both);
@@ -208,4 +209,18 @@ public class GraphData //: ScriptableObject references not serialized
         Nodes = new List<GNode>();
         Connections = new List<GConnector>();
     }
+
+    public GraphData(SerializationInfo info, StreamingContext ctxt)
+	{        
+        this.Nodes          = (List<GNode>)info.GetValue("Nodes", typeof(List<GNode>));
+        this.Connections    = (List<GConnector>)info.GetValue("Connections", typeof(List<GConnector>));
+        this.IdNext         = (uint)info.GetValue("IdNext", typeof(uint));
+	}
+	
+	public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
+   	{     
+        info.AddValue("Nodes", this.Nodes);
+        info.AddValue("Connections", this.Connections);
+        info.AddValue("IdNext", this.IdNext);
+   	}
 }

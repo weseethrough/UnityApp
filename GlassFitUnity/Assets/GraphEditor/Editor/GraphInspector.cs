@@ -13,7 +13,44 @@ public class GraphInspector : Editor
 		EditorGUIUtility.LookLikeControls(144);
 
 		DrawDefaultInspector();
-		
+
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("Load"))
+        {
+            GraphComponent gc = target as GraphComponent;
+            DataStorage.LoadStorage(DataStorage.BlobNames.flow);
+            Storage s = DataStorage.GetStorage(DataStorage.BlobNames.flow);
+            StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
+
+            GraphData data = flowDictionary.Get("MainFlow") as GraphData;
+            data.Style = gc.m_graph.Style;
+            gc.m_graph = data;
+
+
+            GraphWindow.Init();
+        }
+        if (GUILayout.Button("Save"))
+        {
+            GraphComponent gc = target as GraphComponent;            
+            Storage s = DataStorage.GetStorage(DataStorage.BlobNames.flow);
+            StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
+
+            if (!flowDictionary.Contains("MainFlow"))
+            {
+                flowDictionary.Add("MainFlow", gc.m_graph);
+            }
+            else
+            {
+                flowDictionary.Set(gc.m_graph, "MainFlow");
+            }
+            
+
+            DataStorage.SaveStorage(DataStorage.BlobNames.flow);
+        }      
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
+
 		EditorGUILayout.BeginHorizontal();
 		GUILayout.FlexibleSpace();
 		if (GUILayout.Button(new GUIContent("View Graph","Open graph window")))
@@ -27,11 +64,13 @@ public class GraphInspector : Editor
         {
             GraphComponent gc = target as GraphComponent;
             gc.Data.ClearGraphData();
+            GraphWindow.Init();
         }
         if (GUILayout.Button(new GUIContent("Reset Style", "Sets graph settings to default (skipps texture settings)")))
         {
             GraphComponent gc = target as GraphComponent;
             gc.Data.Style = new GStyle();
+            GraphWindow.Init();
         }
 		GUILayout.FlexibleSpace();
 		EditorGUILayout.EndHorizontal();

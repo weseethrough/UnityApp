@@ -3,6 +3,7 @@ using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
+using System;
 
 #if UNITY_EDITOR
 using UnityEditor; 
@@ -10,8 +11,8 @@ using System.Reflection;
 #endif
 
 
-[System.Serializable]
-public class SingleComponent : ISerializable 
+[Serializable]
+public class SingleComponent
 {
     public StorageDictionaryBase<int>       intData;
     public StorageDictionaryBase<double>    doubleData;
@@ -25,7 +26,7 @@ public class SingleComponent : ISerializable
         this.strData    = new StorageDictionaryBase<string>();
         name            = string.Empty;
     }    
-
+    /*
     public SingleComponent(SerializationInfo info, StreamingContext ctxt)
 	{
         this.intData        = (StorageDictionaryBase<int>)info.GetValue("IntData", typeof(StorageDictionaryBase<int>));
@@ -40,7 +41,7 @@ public class SingleComponent : ISerializable
         info.AddValue("FloatData", this.doubleData);
         info.AddValue("StrData", this.strData);
         info.AddValue("Name", this.name);
-   	}
+   	}*/
 
     public StorageDictionaryBase<int> GetInitializedIntDict()
     {

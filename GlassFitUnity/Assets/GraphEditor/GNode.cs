@@ -1,13 +1,16 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-[System.Serializable]
-public class GNode : ScriptableObject
+[Serializable]
+public class GNode : ISerializable
 {
 	//[System.NonSerialized]
 	//IGData m_graph; // owner
@@ -30,7 +33,6 @@ public class GNode : ScriptableObject
 	List<GConnector> m_inputs;
 	[SerializeField]
 	List<GConnector> m_outputs;
-
 	[SerializeField]
 	List<GParameter> m_parameters;
 	
@@ -77,13 +79,42 @@ public class GNode : ScriptableObject
 	public GNode()
 	{
 		Id = 0;
+
+        OnEnable();
 	}
 	
 	public bool Initialized
 	{
 		get { return (Size != Vector2.zero); }
 	}
-	
+
+    public GNode(SerializationInfo info, StreamingContext ctxt)
+	{              
+        this.Id = (uint)info.GetValue("Id", typeof(uint));
+        this.Position.x = (float)info.GetValue("PosX", typeof(float));
+        this.Position.y = (float)info.GetValue("PosY", typeof(float));
+        this.Size.x = (float)info.GetValue("SizeX", typeof(float));
+        this.Size.y = (float)info.GetValue("SizeY", typeof(float));
+
+        this.m_inputs = (List<GConnector>)info.GetValue("Inputs", typeof(List<GConnector>));
+        this.m_outputs = (List<GConnector>)info.GetValue("Outputs", typeof(List<GConnector>));
+        this.m_parameters = (List<GParameter>)info.GetValue("Params", typeof(List<GParameter>));
+	}
+
+    public virtual void GetObjectData(SerializationInfo info, StreamingContext ctxt)
+   	{
+        info.AddValue("Id", this.Id);
+        info.AddValue("PosX", this.Position.x);
+        info.AddValue("PosY", this.Position.y);
+        info.AddValue("SizeX", this.Size.x);
+        info.AddValue("SizeY", this.Size.y);
+
+        info.AddValue("Inputs", this.m_inputs);
+        info.AddValue("Outputs", this.m_outputs);
+        info.AddValue("Params", this.m_parameters);
+   	}
+
+
 	// ScriptableObject callback
 	void OnEnable()
 	{
@@ -158,7 +189,7 @@ public class GNode : ScriptableObject
 	
 	public GConnector NewInput(string name, string type)
 	{
-		GConnector c= ScriptableObject.CreateInstance<GConnector>();		
+        GConnector c = new GConnector();
 		c.Name = name;
 		c.Type = type;
 		AddInput(c);
@@ -167,7 +198,7 @@ public class GNode : ScriptableObject
 	
 	public GConnector NewOutput(string name, string type)
 	{
-		GConnector c= ScriptableObject.CreateInstance<GConnector>();		
+        GConnector c = new GConnector();
 		c.Name = name;
 		c.Type = type;
 		AddOutput(c);
@@ -307,139 +338,5 @@ public class GNode : ScriptableObject
         return false;
     }
 
-	/*public void SetOutputValue(int index, System.Object result)
-	{
-		GConnector c = GetOutputConnector(index);
-		if (c != null)
-		{
-			c.Result = result;
-			if (c.Link != null)
-			{                
-				c.Link.Add().Result = result;
-			}
-		}
-	}
-	
-	public Vector3 InputVector3(int index)
-	{
-		if (Inputs != null)
-		{
-			if (index < Inputs.Count)
-			{
-				if (Inputs[index].Result is Vector3)
-				{
-					return (Vector3)Inputs[index].Result;
-				}
-			}
-		}
-		return Vector3.zero;
-	}
-
-	public Vector3 OutputVector3(int index)
-	{
-		if (Outputs != null)
-		{
-			if (index < Outputs.Count)
-			{
-				if (Outputs[index].Result is Vector3)
-				{
-					return (Vector3)Outputs[index].Result;
-				}
-			}
-		}
-		return Vector3.zero;
-	}
-	
-	public float GetParameterFloat(int index)
-	{
-		try
-		{
-			if (index >= 0 && index < NumParameters)
-			{
-				if (Parameters[index] != null)
-				{
-					float result;
-					if (float.TryParse(Parameters[index].Value,out result))
-					{
-						return result;
-					}
-				}
-			}
-		}
-		catch
-		{
-		}
-		return 0;
-	}*/
-	
-	// This should only be called by graph window.
-	/*public bool TryEvaluate()
-	{
-		//Debug.Log("TryEvaluate "+GetDisplayName()+" init="+Initialized+" eval="+Evaluated+" isEval="+isEvaluating);
-		if (Initialized)
-		{
-			if (Evaluated == 0) // Unknown
-			{
-				if (isEvaluating)
-				{
-					Debug.Log("isEvaluating already?");
-					return false; // recursive links not allowed
-				}
-				isEvaluating = true;
-				bool result = InnerEvaluate(); // evaluate input connections
-				if (result)
-				{
-					result = Evaluate(); // process inputs to outputs
-				}
-				SetEvaluated(result);
-				isEvaluating = false;
-				return result;
-			}
-			return (Evaluated == 1);
-		}
-		return false;
-	}
-	
-	virtual public bool Evaluate()
-	{
-		return false; // Override this!
-	}
-	
-	private bool InnerEvaluate()
-	{
-		if (Inputs != null) // constants have no inputs
-		{
-			// Todo: trace inputs back up the tree once?
-			foreach (GConnector c in Inputs)
-			{
-				if (c == null)
-				{
-					Debug.LogWarning("Inputs contains null reference?");
-					Debug.LogWarning(c);
-					return false;
-				}
-				if (c.Link == null)
-				{
-					return false;
-				}
-				if (c.Link.Parent == null)
-				{
-					Debug.LogWarning("Parent is null.");
-					return false;
-				}
-				if (c.Link.Parent == this)
-				{
-					Debug.LogWarning("Recrusive!");
-					return false;
-				}
-				//Debug.Log("Skipped = TryEvaluate");
-				if (c.Link.Parent.TryEvaluate() == false)
-				{
-					return false;
-				}
-			}
-		}
-		return true;
-	}*/
 }
 

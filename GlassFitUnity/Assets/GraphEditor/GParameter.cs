@@ -3,7 +3,7 @@ using System.Collections;
 
 // Graph nodes can have parameters which can be manipulated distinct from input connectors.
 [System.Serializable]
-public class GParameter // : ScriptableObject not needed because is not referenced?
+public class GParameter
 {
 	public string Key;
 	public string Value;

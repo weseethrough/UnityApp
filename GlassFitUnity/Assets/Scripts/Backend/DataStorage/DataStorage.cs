@@ -33,6 +33,7 @@ public class DataStorage : MonoBehaviour
     {
         core,
         activity,
+        flow,
         maxItem
     }
 
@@ -86,7 +87,7 @@ public class DataStorage : MonoBehaviour
 		
 		if (source == null)
 		{
-			Debug.LogWarning("Blob doesnt exist, we are creating one");
+			Debug.LogWarning("Blob doesn't exist, we are creating one");
 			return new Storage();			
 		}
 		
@@ -117,7 +118,15 @@ public class DataStorage : MonoBehaviour
 		
 		return null;
 	}
-	
+
+    static public void LoadStorage(BlobNames name)
+    {
+        if (instance != null && instance.platform != null)
+        {
+            instance.storageBank[name.ToString()] = instance.InitializeBlob(instance.platform.LoadBlob(name.ToString()));
+        }
+    }
+
     static public void SaveStorage(BlobNames name)
     {
         if (instance != null && instance.platform != null)

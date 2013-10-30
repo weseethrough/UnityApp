@@ -6,13 +6,7 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 
-#if UNITY_EDITOR
-//using UnityEditor; 
-
-#endif
-
-
-[System.Serializable]
+[Serializable]
 public class SerializableSettings : ISerializable 
 {
     private List<SingleComponent> components;    

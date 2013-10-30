@@ -10,18 +10,21 @@ public class FlowStateMachine : MonoBehaviour
 
     void Awake()
     {
+    }
+
+    void Start()
+    {                     
         activeFlow = new List<FlowState>();
         targetState = null;
         GraphComponent gc = GetComponent<GraphComponent>();
         if (gc != null)
-        {
+        {                        
             foreach(GNode node in gc.Data.Nodes)
             {
                 if (node is Start)
                 {
                     targetState = node as Start;
                 }
-
             }
         }
     }

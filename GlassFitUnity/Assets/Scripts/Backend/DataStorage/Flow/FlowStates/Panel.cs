@@ -4,16 +4,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-public class Panel : FlowState 
+[Serializable]
+public class Panel : FlowState
 {
-    static public string[] InteractivePrefabs = { "UIComponents/Button" };
-
-    public GameObject physicalWidgetRoot;
+    static public string[] InteractivePrefabs = { "UIComponents/Button" };    
     public FlowPanelComponent panelNodeData;
 
-    private string widgetRootName = "Widgets Container";
-    
-    
+    [NonSerialized()] public GameObject physicalWidgetRoot;
+    [NonSerialized()] private string widgetRootName = "Widgets Container";
+	
+	public Panel() : base() {}
+	
+    public Panel(SerializationInfo info, StreamingContext ctxt)
+        : base(info, ctxt)
+	{
+        this.panelNodeData = (FlowPanelComponent)info.GetValue("panelNodeData", typeof(FlowPanelComponent));
+        this.panelNodeData.RefreshData();
+    }
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext ctxt)
+   	{
+        base.GetObjectData(info, ctxt);
+        info.AddValue("panelNodeData", this.panelNodeData);        
+   	}
 
     public override string GetDisplayName()
     {
@@ -84,8 +97,6 @@ public class Panel : FlowState
         }
     }
 
-    
-
     private void CreateCustomizationParams(SerializedNode sn)
     {
         SerializableSettings ss = sn != null ? sn.GetSerializableSettings() : null;
@@ -109,7 +120,7 @@ public class Panel : FlowState
     {
         base.EnterStart();
 
-        UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
+        UIManager script = (UIManager)GameObject.FindObjectOfType(typeof(UIManager));
         Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
         StorageDictionary screensDictionary = s != null ? (StorageDictionary)s.dictionary.Get(UIManager.UIPannels) : null;
 
@@ -155,7 +166,7 @@ public class Panel : FlowState
     {
         base.Exited();
 
-        UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
+        UIManager script = (UIManager)GameObject.FindObjectOfType(typeof(UIManager));
         if (physicalWidgetRoot != null)
         {
             GameObject.Destroy(physicalWidgetRoot);        

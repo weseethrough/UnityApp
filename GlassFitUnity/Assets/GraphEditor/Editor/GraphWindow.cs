@@ -4,13 +4,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System;
 
 public class GraphWindow : EditorWindow, IDraw
 {
 	// Allow user to drag viewport to see graph
 	Vector2 ViewPosition;
-
-	//Material lineMaterial;
 	
 	[MenuItem("Window/Image Graph Editor")]
 	public static void Init ()
@@ -18,12 +17,22 @@ public class GraphWindow : EditorWindow, IDraw
 		GraphWindow window = GetWindow (typeof(GraphWindow)) as GraphWindow;
 		window.minSize = new Vector2(600.0f, 400.0f);
 		window.wantsMouseMove = true;
-		Object.DontDestroyOnLoad( window );
+		UnityEngine.Object.DontDestroyOnLoad( window );
 		window.Show();
 	}
 	
 	void OnSelectionChange () { Repaint(); }
-	
+
+  /*  void Update()
+    {
+        GraphComponent gc = Graph;
+        if (gc != null && gc.m_dirty)
+        {
+            gc.m_dirty = false;
+            Repaint();
+        }
+    }*/
+
 	// returns currently selected graph
 	GraphComponent Graph
 	{
@@ -39,6 +48,7 @@ public class GraphWindow : EditorWindow, IDraw
 	
 	bool m_dragMain;
     bool m_drawInfo;
+    bool m_selectionChanges;
 
 	Vector2 m_dragStart;
 	Vector2 m_nodeStart; // Node.Postion at beginning of drag
@@ -64,6 +74,7 @@ public class GraphWindow : EditorWindow, IDraw
 		if (node != m_selection)
 		{
 			m_selection = node;
+            m_selectionChanges = true;
 			m_selectionConnector = null;
 			Repaint();
 		}
@@ -116,7 +127,7 @@ public class GraphWindow : EditorWindow, IDraw
 				{
 					return;
 				}
-				bool connected = false;
+				
 				GNode over = PickNode(pos);
 				if (over != null)
 				{
@@ -131,7 +142,6 @@ public class GraphWindow : EditorWindow, IDraw
 							graph.Connect(m_selectionConnector,target);
 							UnityEditor.EditorUtility.SetDirty(Graph.gameObject);
 						}
-						connected = true;
 					}
 				}				
 			}
@@ -601,7 +611,7 @@ public class GraphWindow : EditorWindow, IDraw
             index = EditorGUILayout.Popup(index, names);
             string newTypeValue = ( index > -1 && names != null && names.Length > index) ? names[index] : "Null";
 
-            if (parm.Value != newTypeValue && m_selection)
+            if (parm.Value != newTypeValue && m_selection != null)
             {
                 parm.Value = newTypeValue;
                 Graph.Data.Disconnect(m_selection, GraphData.ConnectorDirection.Out);
@@ -638,19 +648,18 @@ public class GraphWindow : EditorWindow, IDraw
 
 		GUI.color = Color.white;
 		if (node.NumParameters > 0)
-		{
-			for (int i=0; i<node.Parameters.Count; ++i)
-			{
-				GParameter p = node.Parameters[i];
+		{                       
+            for (int i = 0; i < node.Parameters.Count; ++i)
+            {
+                GParameter p = node.Parameters[i];
                 DrawParameter(p, width);
-			}
+            }                       
 		}
 		else
 		{
             EditorGUILayout.LabelField("No parameters");
 		}
-		
-		int pcount = Mathf.Max(1,node.NumParameters);
+				
         if (GUILayout.Button("Disconnect"))
 		{
 			Graph.Data.Disconnect(node);
@@ -739,7 +748,8 @@ public class GraphWindow : EditorWindow, IDraw
 				GraphComponent gc = Graph;
 				if (gc != null)
 				{
-					GNode newNode = (GNode)ScriptableObject.CreateInstance(it.Name);
+                    System.Object o = Activator.CreateInstance(it);
+                    GNode newNode = (GNode)o;// ScriptableObject.CreateInstance(it.Name);
 					newNode.Id = gc.Data.IdNext++;
 					newNode.Position = GetNewPosition(newNode.Size);
 					SelectNode(newNode);
@@ -762,10 +772,11 @@ public class GraphWindow : EditorWindow, IDraw
                 m_drawInfo = true;
             }
         }
-        else if (m_drawInfo == true && m_selection == null)
+        else if (m_drawInfo == true && (m_selection == null || m_selectionChanges))
         {
-            //we keep true state only as long as we really need it, we can skip section even if its repaint event
+            //we keep true state only as long as we really need it. Any changes to structure require layout event first
             m_drawInfo = false;
+            m_selectionChanges = false;
         }
 
         if (m_drawInfo)
@@ -796,6 +807,7 @@ public class GraphWindow : EditorWindow, IDraw
 		if (Graph == null)
 		{
 			m_selection = null;
+            m_selectionChanges = true;
 			m_hoverConnector = null;
 			m_selectionConnector = null;
 		}

@@ -3,23 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
-public class GConnector : ScriptableObject // i.e. referenced serialization
+public class GConnector //: ScriptableObject // i.e. referenced serialization
 {
 	public GNode Parent; // owner of this connector
 	public bool IsInput;
 	public string Name;
 	public string Type;
 	public List<GConnector> Link = new List<GConnector>();
-	
-	//private System.Object m_result; // cache of most recent value
-	
-	//public void OnEnable() { hideFlags = HideFlags.HideAndDontSave; }
-	
-	/*public System.Object Result
-	{
-		get { return m_result; }
-		set { m_result = value; }
-	}*/
 	
 	public Vector2 GetPosition(GraphData graph)
 	{

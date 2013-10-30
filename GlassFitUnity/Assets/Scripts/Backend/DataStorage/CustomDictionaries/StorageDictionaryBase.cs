@@ -3,10 +3,11 @@ using System.Collections;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
+using System;
 
 //this class is used instead of dictionary which is not serializable. It allows to have undefined set of serialziable objects identified by name
 
-[System.Serializable]
+[Serializable]
 public class StorageDictionaryBase<T> : ISerializable 
 {
     protected List<T> data;
