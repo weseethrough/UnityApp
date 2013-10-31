@@ -11,7 +11,6 @@ public class DemoController : TargetController {
 	void Start () {
 		//target = Platform.Instance.getTargetTracker();
 		base.setAttribs(0, 135, -254.6f, 50);
-		
 		anim = GetComponent<Animator>();
 		
 	}

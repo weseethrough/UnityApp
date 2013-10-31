@@ -243,11 +243,11 @@ public class SettingsScreen : MonoBehaviour {
 			// Display countdown on screen
 			if(countTime > 0.0f)
 			{
-				GUI.Label(new Rect(400, 200, 200, 200), cur.ToString()); 
+				GUI.Label(new Rect(300, 150, 200, 200), cur.ToString()); 
 			}
 			else if(countTime > -1.0f && countTime < 0.0f)
 			{
-				GUI.Label(new Rect(400, 200, 200, 200), "GO!"); 
+				GUI.Label(new Rect(300, 150, 200, 200), "GO!"); 
 			}
 		}
 		GUI.matrix = Matrix4x4.identity;

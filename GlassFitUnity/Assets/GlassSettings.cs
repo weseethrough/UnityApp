@@ -27,7 +27,7 @@ public class GlassSettings : MonoBehaviour {
 	
 	void Start () {
 		// Set indoor mode
-		Platform.Instance.reset();
+		//Platform.Instance.reset();
 		Platform.Instance.setIndoor(false);
 		//Platform.Instance.resetTargets();
 		// Calculate and set scale
@@ -107,6 +107,22 @@ public class GlassSettings : MonoBehaviour {
 			}
 		}
 		
+		if(Scriptholder.Instance.isTapped) {
+			GUI.Label(new Rect(350, 0, 100, 50), "TOUCHPAD TAPPED");
+		}
+		if(Scriptholder.Instance.up) {
+			GUI.Label(new Rect(350, 50, 100, 50), "FAST SWIPE UP");
+		}
+		if(Scriptholder.Instance.down) {
+			GUI.Label(new Rect(350, 100, 100, 50), "FAST SWIPE DOWN");
+		}
+		if(Scriptholder.Instance.left) {
+			GUI.Label(new Rect(350, 150, 100, 50), "FAST SWIPE LEFT");
+		}
+		if(Scriptholder.Instance.right) {
+			GUI.Label(new Rect(350, 200, 100, 50), "FAST SWIPE RIGHT");
+		}
+		
 		if(countdown)
 		{
 			GUI.skin.label.fontSize = 40;
@@ -125,11 +141,11 @@ public class GlassSettings : MonoBehaviour {
 			}
 		}
 		
-		if(GUI.Button(new Rect(275, 400, 100, 100), "START") && !countdown && Platform.Instance.hasLock()) {
+		if((GUI.Button(new Rect(275, 400, 100, 100), "START") || Scriptholder.Instance.right) && !countdown && Platform.Instance.hasLock()) {
 			countdown = true;
 		}
 		
-		if(GUI.Button(new Rect(425, 400, 100, 100), "RESET") && countdown) {
+		if((GUI.Button(new Rect(425, 400, 100, 100), "RESET")  || Scriptholder.Instance.left)) {
 			countdown = false;
 			Platform.Instance.stopTrack();
 			Platform.Instance.reset();
@@ -140,12 +156,8 @@ public class GlassSettings : MonoBehaviour {
 	}
 	
 	void Update () {
-		// If there is a GPS lock or indoor mode is active
-//		if(Input.touchCount > 0 && Platform.Instance.hasLock())
-//		{
-//			countdown = true;
-//		}
-			// Initiate the countdown
+		
+		// Initiate the countdown
 		if(countdown) {
 		 	if(countTime <= -1.0f && !started)
 			{

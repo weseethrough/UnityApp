@@ -65,7 +65,7 @@ public class UIControl : MonoBehaviour {
 		}
 		
 		if(this.camera.fieldOfView == 10 || Input.GetKeyDown(KeyCode.Return) /** DEBUG: for editor */)
-			AutoFade.LoadLevel(1, 1, 1, Color.black);
+			AutoFade.LoadLevel(PlayerPrefs.GetInt("StartLevel", 1), 1, 1, Color.black);
 		
 		if(Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
 		

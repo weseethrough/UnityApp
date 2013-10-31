@@ -12,6 +12,7 @@ public class Platform : Singleton<Platform> {
 	private float pace = 0;
 	private Position position = null;
 	private float bearing = 0;
+	private bool started = false;
 	
 	private List<Position> positions;
 	
@@ -70,11 +71,16 @@ public class Platform : Singleton<Platform> {
 		return helper;
 	}
 	
+	public bool hasStarted() {
+		return started;
+	}
+	
 	// Starts tracking
 	public void StartTrack() {
 		try {
 			gps.Call("startTracking");
 			tracking = true;
+			started = true;
 			UnityEngine.Debug.LogWarning("Platform: StartTrack succeeded");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: StartTrack failed " + e.Message);
@@ -173,6 +179,7 @@ public class Platform : Singleton<Platform> {
 	public void reset() {
 		try {
 			gps.Call("reset");
+			started = false;
 			UnityEngine.Debug.LogWarning("Platform: GPS has been reset");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: reset() failed: " + e.Message);
@@ -355,10 +362,10 @@ public class Platform : Singleton<Platform> {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
-		float h = (float)targetTrackers[0].getTargetDistance();
+		float h = (float)targetTrackers[0].getTargetDistance() - (float)distance;
 		for(int i=0; i<targetTrackers.Count; i++) {
-			if(h < targetTrackers[i].getTargetDistance()) {
-				h = (float)targetTrackers[i].getTargetDistance();
+			if(h < targetTrackers[i].getTargetDistance() - (float)distance) {
+				h = (float)targetTrackers[i].getTargetDistance() - (float)distance;
 			}
 		}
 		return h;

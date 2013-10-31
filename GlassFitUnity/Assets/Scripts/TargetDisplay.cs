@@ -85,7 +85,7 @@ public class TargetDisplay : MonoBehaviour {
 		GUI.skin.box.wordWrap = true;
 		GUI.skin.box.fontSize = 30;
 		GUI.skin.box.fontStyle = FontStyle.Bold;
-		GUI.skin.box.alignment = TextAnchor.MiddleCenter;				
+		GUI.skin.label.alignment = TextAnchor.MiddleCenter;				
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		

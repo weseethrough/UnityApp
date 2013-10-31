@@ -32,7 +32,7 @@ public class GlassDemoCam : MonoBehaviour {
 		}
 		
 		// Check if the button is being held
-		if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
+		if((GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none) || Scriptholder.Instance.isTapped))
 		{ 
 			// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
 			if(started) {

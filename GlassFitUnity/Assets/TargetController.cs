@@ -32,6 +32,8 @@ public class TargetController : MonoBehaviour {
 		Platform.Instance.Poll();
 	
 		UnityEngine.Debug.Log("Target: Distance is " + target.getDistanceBehindTarget().ToString());
+		UnityEngine.Debug.Log("Target: Platform Distance is " + Platform.Instance.getHighestDistBehind());
+		UnityEngine.Debug.Log("Target: Distance behind target is " + Platform.Instance.DistanceBehindTarget());
 		scaledDistance = (target.getDistanceBehindTarget() - distanceOffset) * travelSpeed;
 
 		Vector3 movement = new Vector3(xOffset, height, (float)scaledDistance);

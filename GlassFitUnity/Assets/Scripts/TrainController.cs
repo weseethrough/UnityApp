@@ -21,7 +21,7 @@ public class TrainController : TargetController {
 		var aSources = GetComponents<AudioSource>();
 		trainMove = aSources[0];
 		trainWhistle = aSources[1];
-		trainMove.Play();
+		//trainMove.Play();
 	}
 	
 	void OnEnable() {
@@ -38,7 +38,7 @@ public class TrainController : TargetController {
 		
 		if(whistleTime >= 10.0f)
 		{
-			trainWhistle.Play();
+			//trainWhistle.Play();
 			whistleTime -= 10.0f;
 		}
 		
