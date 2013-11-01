@@ -836,7 +836,7 @@ public class GraphWindow : EditorWindow, IDraw
     /// <returns></returns>
     public string[] GetUIComponentNames(string selectedName, out int selected)
     {
-        Storage s                           = DataStorage.GetStorage(DataStorage.BlobNames.core);
+        Storage s                           = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
         if (s == null || s.dictionary == null)
         {
             selected = -1;

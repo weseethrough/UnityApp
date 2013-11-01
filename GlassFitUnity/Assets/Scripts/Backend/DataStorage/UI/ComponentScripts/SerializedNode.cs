@@ -117,6 +117,11 @@ public class SerializedNode : ISerializable
 
     public Transform RebuildNode(Transform parentTranform, bool allowDuplicates)
     {
+        return RebuildNode(parentTranform, allowDuplicates, null);
+    }
+
+    public Transform RebuildNode(Transform parentTranform, bool allowDuplicates, FlowPanelComponent overrideCollection)
+    {
         Transform t;
         //we will try to rebuild object form prefab source and then name and position it according to original notes
         if (prefabName != string.Empty)
@@ -135,6 +140,16 @@ public class SerializedNode : ISerializable
                 GameObject go = GameObject.Instantiate(prefab) as GameObject;
             
 #endif
+                if (overrideCollection != null)
+                {
+                    int id = overrideCollection.names.IndexOf(name);
+                    if (id > -1)
+                    {
+                        //we have flow edited setting for this element. In this case we override settings before applying them to object
+                        settings = overrideCollection.settings[id];
+                    }
+
+                }
                 go.transform.parent = parentTranform;
                 WriteToTransform(go.transform);
                 settings.LoadSettingsTo(go);

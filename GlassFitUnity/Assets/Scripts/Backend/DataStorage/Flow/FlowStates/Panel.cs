@@ -106,7 +106,7 @@ public class Panel : FlowState
 
     public SerializedNode GetUIPanelNames(string selectedName)
     {
-        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
         if (s == null || s.dictionary == null)
         {           
             return null;
@@ -121,12 +121,20 @@ public class Panel : FlowState
         base.EnterStart();
 
         UIManager script = (UIManager)GameObject.FindObjectOfType(typeof(UIManager));
-        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.core);
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
         StorageDictionary screensDictionary = s != null ? (StorageDictionary)s.dictionary.Get(UIManager.UIPannels) : null;
 
-        if (script == null || screensDictionary == null)
+        if (script == null)
         {
             Debug.LogError("Scene requires to have UIManager in its root");
+        }
+        else if (s == null)
+        {
+            Debug.LogError("Scene requires to have storage 'core' which cant be found");
+        }
+        else if (screensDictionary == null)
+        {
+            Debug.LogError("Scene requires to have screensDictionary which cant be found");
         }
         else
         {
@@ -135,7 +143,7 @@ public class Panel : FlowState
             if (data != null)
             {                
                 GParameter gName = Parameters.Find(r => r.Key == "Name");
-                physicalWidgetRoot = script.LoadScene((SerializedNode)data, widgetRootName);
+                physicalWidgetRoot = script.LoadScene((SerializedNode)data, widgetRootName, panelNodeData);
                 if (physicalWidgetRoot != null)
                 {
                     physicalWidgetRoot.name = widgetRootName + "_" + gType.Value + "_" + gName.Value;

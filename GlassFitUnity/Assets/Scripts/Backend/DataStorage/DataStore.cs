@@ -4,19 +4,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 [ExecuteInEditMode]
-public class DataStorage : MonoBehaviour 
+public class DataStore : MonoBehaviour 
 {    
-	static public DataStorage _instance;
-    static public DataStorage instance
+	static public DataStore _instance;
+    static public DataStore instance
     {
         get {
                 if (_instance != null)
                 {
                     return _instance;
                 }
-                DataStorage ds = (DataStorage)GameObject.FindObjectOfType(typeof(DataStorage));
+                DataStore ds = (DataStore)GameObject.FindObjectOfType(typeof(DataStore));
                 if (ds != null)
                 {
                     ds.MakeAwake();
@@ -31,7 +32,7 @@ public class DataStorage : MonoBehaviour
 
     public enum BlobNames
     {
-        core,
+        ui_panels,
         activity,
         flow,
         persistent,        
@@ -79,6 +80,20 @@ public class DataStorage : MonoBehaviour
             BlobNames bName = (BlobNames)i;
             string name = bName.ToString();
             storageBank[name] = InitializeBlob(platform.LoadBlob(name));
+            
+            Debug.Log("-A------------START------------A-");
+            StorageDictionary sd = storageBank[name].dictionary;
+
+            Debug.Log("Storage "+name+" contains "+ sd.Length() +" elements");
+            
+            for (int k = 0; k < sd.Length(); k++)
+            {
+                string n;
+                ISerializable d;                
+                sd.Get(k, out n, out d);
+                Debug.Log(k+ ": " + n);
+            }
+            Debug.Log("-A------------END--------------A-");
         }        
 	}
 	

@@ -4,8 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-[CustomEditor(typeof(DataBase))]
-public class DataBaseEditor : Editor
+[CustomEditor(typeof(DataVault))]
+public class DataVaultEditor : Editor
 {
     enum Type
     {
@@ -22,11 +22,11 @@ public class DataBaseEditor : Editor
     
     public override void OnInspectorGUI()
     {        
-        if (DataBase.data == null) return;
+        if (DataVault.data == null) return;
         int basicLabelWidth = 100;
         int basicValueWidth = 200;
 
-        foreach (var pair in DataBase.data)
+        foreach (var pair in DataVault.data)
         {
             DataEntry de = (DataEntry)pair.Value;
             EditorGUILayout.BeginHorizontal();
@@ -37,7 +37,7 @@ public class DataBaseEditor : Editor
                 int newValue = EditorGUILayout.IntField(oldValue, GUILayout.Width(basicValueWidth)); //field
                 if (oldValue != newValue)
                 {
-                    DataBase.Set(pair.Key, newValue);
+                    DataVault.Set(pair.Key, newValue);
                 }                                    
             }
             else if (de.storedValue.GetType() == typeof(bool))
@@ -46,7 +46,7 @@ public class DataBaseEditor : Editor
                 bool newValue = EditorGUILayout.Toggle(oldValue, GUILayout.Width(basicValueWidth)); //field
                 if (oldValue != newValue)
                 {
-                    DataBase.Set(pair.Key, newValue);
+                    DataVault.Set(pair.Key, newValue);
                 }
             }
             else if (de.storedValue.GetType() == typeof(string))
@@ -55,7 +55,7 @@ public class DataBaseEditor : Editor
                 string newValue = EditorGUILayout.TextField(oldValue, GUILayout.Width(basicValueWidth)); //field
                 if (oldValue != newValue)
                 {
-                    DataBase.Set(pair.Key, newValue);
+                    DataVault.Set(pair.Key, newValue);
                 }
             }
             else if (de.storedValue.GetType() == typeof(float))
@@ -64,7 +64,7 @@ public class DataBaseEditor : Editor
                 float newValue = EditorGUILayout.FloatField(oldValue, GUILayout.Width(basicValueWidth)); //field
                 if (oldValue != newValue)
                 {
-                    DataBase.Set(pair.Key, newValue);
+                    DataVault.Set(pair.Key, newValue);
                 }
             }
             else 
@@ -77,7 +77,7 @@ public class DataBaseEditor : Editor
             bool newPersistence = EditorGUILayout.Toggle(oldPersistence, GUILayout.Width(20)); //persistence
             if (oldPersistence != newPersistence)
             {
-                DataBase.SetPersistency(pair.Key, newPersistence);
+                DataVault.SetPersistency(pair.Key, newPersistence);
             }
 
             if (GUILayout.Button("X", GUILayout.Width(20)))
@@ -89,7 +89,7 @@ public class DataBaseEditor : Editor
 
         foreach (string s in toRemove)
         {
-            DataBase.Remove(s);
+            DataVault.Remove(s);
         }
         toRemove.Clear();        
         
@@ -108,7 +108,7 @@ public class DataBaseEditor : Editor
             newVariableType = (Type)EditorGUILayout.EnumPopup(newVariableType, GUILayout.Width(200));
         EditorGUILayout.EndHorizontal();
 
-        if (newVariableName.Length == 0 || DataBase.data.ContainsKey(newVariableName))
+        if (newVariableName.Length == 0 || DataVault.data.ContainsKey(newVariableName))
         {
             GUI.enabled = false;
         }
@@ -118,25 +118,27 @@ public class DataBaseEditor : Editor
             switch (newVariableType)
             {
                 case Type.STRING:
-                    DataBase.Set(newVariableName, newVariableValue);
+                    DataVault.Set(newVariableName, newVariableValue);
                     break;
                 case Type.INT:
-                    DataBase.Set(newVariableName, Convert.ToInt32(newVariableValue));
+                    DataVault.Set(newVariableName, Convert.ToInt32(newVariableValue));
                     break;
                 case Type.BOOL:
-                    DataBase.Set(newVariableName, Convert.ToBoolean(newVariableValue));
+                    DataVault.Set(newVariableName, Convert.ToBoolean(newVariableValue));
                     break;
                 case Type.FLOAT:
-                    DataBase.Set(newVariableName, (float)Convert.ToDouble(newVariableValue));
+                    DataVault.Set(newVariableName, (float)Convert.ToDouble(newVariableValue));
                     break;
             }
+
+            DataVault.SetPersistency(newVariableName, true);
         }
          
         GUI.enabled = true;
         GUI.color = Color.green;
         if (GUILayout.Button("Save Changes", GUILayout.Width(300)))
         {
-            DataBase.SaveToBlob();
+            DataVault.SaveToBlob();
         }
         GUI.color = Color.white;
     }

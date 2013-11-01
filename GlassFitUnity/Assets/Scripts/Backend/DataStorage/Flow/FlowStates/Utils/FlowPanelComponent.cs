@@ -119,6 +119,7 @@ public class FlowPanelComponent
         if (panelNode == null) return;
 
         List<SerializedNode> list = LookForCustomizableItems(panelNode);
+        if (list == null || list.Count < 1) return;
         settings = new List<SerializableSettings>(list.Count);
         names = new List<string>(list.Count);
         foldout = new bool[list.Count][];

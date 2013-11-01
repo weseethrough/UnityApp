@@ -42,13 +42,17 @@ public class UIBasiclabel : UIComponentSettings {
     {
         base.Apply();
         //SetLabel(label);
-        SetTranslatedText();
+        SetTranslatedText(true);
     }
 
-    public void SetTranslatedText()
+    public void SetTranslatedText(bool register)
     {
-        SetLabel(DataBase.Translate(label));
+        SetLabel(DataVault.Translate(label, register? this : null));
     }
 
+    void OnDestroy()
+    {
+        DataVault.UnRegisterListner(this);
+    }
 }
 

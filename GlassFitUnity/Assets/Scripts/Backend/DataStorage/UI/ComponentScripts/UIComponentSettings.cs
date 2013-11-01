@@ -10,6 +10,6 @@ public class UIComponentSettings : MonoBehaviour
     {
 
     }
-
+    
 }
 

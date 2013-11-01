@@ -23,7 +23,7 @@ public class DataEntry
 /// Class used to centralize access for variables. Is working on top on DataStorage
 /// </summary>
 [ExecuteInEditMode]
-public class DataBase : MonoBehaviour 
+public class DataVault : MonoBehaviour 
 {
     enum Types
     {
@@ -31,22 +31,27 @@ public class DataBase : MonoBehaviour
         Boolean,
         Double,
         String,
-    }    
+    }
+
+    const string STARTING_BRACKET = "<db_";
+    const string ENDING_BRACKET = ">";    
 
     static public Dictionary<string, DataEntry> data;
-    const string STARTING_BRACKET   = "<";
-    const string ENDING_BRACKET     = ">";
-    const string IDENTIFIER         = "db_";
+    static public Dictionary<string, List<UIComponentSettings>> registeredListeners;
+    static public Dictionary<UIComponentSettings, List<string>> registrationRecord;
+    
 
     void Start()
     {
         data = new Dictionary<string, DataEntry>();
+        registeredListeners = new Dictionary<string, List<UIComponentSettings>>();
+        registrationRecord = new Dictionary<UIComponentSettings, List<string>>();
         Initialize();
     }
 
     static public void SaveToBlob()
     {
-        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.persistent);
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.persistent);
         if (s == null) return;
 
         //process all stored types and write them into 
@@ -84,12 +89,12 @@ public class DataBase : MonoBehaviour
         s.dictionary.Set(boolStorage, Types.Boolean .ToString());
         s.dictionary.Set(stringStorage, Types.String .ToString());
 
-        DataStorage.SaveStorage(DataStorage.BlobNames.persistent);
+        DataStore.SaveStorage(DataStore.BlobNames.persistent);
     }
 
     static void Initialize()
     {
-        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.persistent);
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.persistent);
         if (s == null) return;
 
         //process all stored types and write them into 
@@ -181,6 +186,18 @@ public class DataBase : MonoBehaviour
         {
             data[name] = new DataEntry(value, false);
         }
+
+        if (registeredListeners.ContainsKey(name))
+        {
+            List<UIComponentSettings> list = registeredListeners[name];
+            if (list != null)
+            {
+                foreach (UIBasiclabel listener in list)
+                {
+                    listener.SetTranslatedText(false);
+                }
+            }
+        }                
     }
 
     static public void SetPersistency(string name, bool value)
@@ -193,19 +210,33 @@ public class DataBase : MonoBehaviour
 
         if (!data.ContainsKey(name))
         {
-            Debug.LogError("Trying to set perisistency on name which doesn't exists: " + name);
+            Debug.LogError("Trying to set persistency on name which doesn't exists: " + name);
             return;
         }
 
         DataEntry de = data[name];
-        de.persistent = value;        
+        Type t = de.storedValue.GetType();
+        if (value == true)
+        {
+            if (t == typeof(int) || t == typeof(bool) || t == typeof(double) || t == typeof(float) || t == typeof(string))
+            {
+                de.persistent = value;
+            }
+            else
+            {
+                Debug.LogWarning("You can't make object or complex types as persistent! " + name + " cannot be saved");
+            }
+        }
+        else
+        {
+            de.persistent = false;
+        }
     }
 
     static public System.Object Get(string name)
     {
         if (data == null)
         {
-            Debug.LogError("Database is not initialized yet, value set will be set to devault!");
             return null;
         }
 
@@ -227,34 +258,46 @@ public class DataBase : MonoBehaviour
         data.Remove(name);
     }
 
-    static public string Translate(string source)
+    static public string Translate(string source, UIComponentSettings registerForUpdates)
     {
-        return Translate(source, 0);
+        return Translate(source, 0, registerForUpdates);
     }
 
-    static public string Translate(string source, int startingPoint)
+    static public string Translate(string source, int startingPoint, UIComponentSettings registerForUpdates)
     {
         if (startingPoint >= source.Length) return source;
 
         int start = source.IndexOf(STARTING_BRACKET, startingPoint);
-        int end;
-        int word;
+        int end;        
          
         if (start > -1)
         {
-            end = source.IndexOf(ENDING_BRACKET, start);
-            word = source.IndexOf(IDENTIFIER, start);
-            if (end > -1 && word > -1)
+            end = source.IndexOf(ENDING_BRACKET, start);            
+            if (end > -1)
             {
-                source = Translate(source, end);
+                source = Translate(source, end, registerForUpdates);
 
-                int dataStart = word +IDENTIFIER.Length;
+                int dataStart = start + STARTING_BRACKET.Length;
                 string dataName = source.Substring(dataStart, end - dataStart);
                 string newSection = "";
                 if (dataName.Length > 0)
                 {
+                    RegisterListner(registerForUpdates, dataName);
+
+                    //find translated word
                     System.Object obj = Get(dataName);
-                    newSection = obj != null ? obj.ToString() : dataName;
+                    
+                    if (obj == null)                    
+                    {
+                        //we did not found word, we will return unchanged
+                        return source;
+                    }
+                    else
+                    {
+                        //we have found word
+                        newSection = obj.ToString();
+                    }
+                    
                 }
                 string startSection = start > 0 ? source.Substring(0,start) : "";
                 string endSection = end < source.Length-1 ? source.Substring(end+1,source.Length-end) : "";
@@ -263,5 +306,51 @@ public class DataBase : MonoBehaviour
         }
 
         return source;
+    }
+
+    static public void RegisterListner(UIComponentSettings listner, string identifier)
+    {
+        if (registeredListeners != null && registrationRecord != null &&
+            listner != null && identifier.Length > 0)
+        {
+            if (!registeredListeners.ContainsKey(identifier))
+            {
+                registeredListeners[identifier] = new List<UIComponentSettings>();
+            }
+
+            if (!registeredListeners[identifier].Contains(listner))
+            {
+                registeredListeners[identifier].Add(listner);
+            }
+
+            if (!registrationRecord.ContainsKey(listner))
+            {
+                registrationRecord[listner] = new List<string>();
+            }
+
+            if (!registrationRecord[listner].Contains(identifier))
+            {
+                registrationRecord[listner].Add(identifier);
+            }
+        }
+    }
+
+    static public void UnRegisterListner(UIComponentSettings listner)
+    {
+        if (registrationRecord != null && registeredListeners != null && listner != null)
+        {
+            if (registrationRecord.ContainsKey(listner) && registrationRecord[listner] != null)
+            {
+                List<string> list = registrationRecord[listner];
+                foreach (string identifier in list)
+                {
+                    if (registeredListeners.ContainsKey(identifier) && registeredListeners[identifier] != null)
+                    {
+                        registeredListeners[identifier].Remove(listner);
+                    }
+                }
+                registrationRecord.Remove(listner);
+            }
+        }
     }
 }

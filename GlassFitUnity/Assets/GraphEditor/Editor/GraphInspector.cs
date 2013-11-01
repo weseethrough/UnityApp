@@ -19,8 +19,8 @@ public class GraphInspector : Editor
         if (GUILayout.Button("Load"))
         {
             GraphComponent gc = target as GraphComponent;
-            DataStorage.LoadStorage(DataStorage.BlobNames.flow);
-            Storage s = DataStorage.GetStorage(DataStorage.BlobNames.flow);
+            DataStore.LoadStorage(DataStore.BlobNames.flow);
+            Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
             StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
 
             GraphData data = flowDictionary.Get("MainFlow") as GraphData;
@@ -33,7 +33,7 @@ public class GraphInspector : Editor
         if (GUILayout.Button("Save"))
         {
             GraphComponent gc = target as GraphComponent;            
-            Storage s = DataStorage.GetStorage(DataStorage.BlobNames.flow);
+            Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
             StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
 
             if (!flowDictionary.Contains("MainFlow"))
@@ -46,7 +46,7 @@ public class GraphInspector : Editor
             }
             
 
-            DataStorage.SaveStorage(DataStorage.BlobNames.flow);
+            DataStore.SaveStorage(DataStore.BlobNames.flow);
         }      
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();

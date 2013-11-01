@@ -23,9 +23,9 @@ public class ActivityEditorWindow : EditorWindow
     {
 
         GUILayout.Label("Activity Manager Settings", EditorStyles.boldLabel);
-        if (DataStorage.instance == null)
+        if (DataStore.instance == null)
         {
-            DataStorage ds = (DataStorage)GameObject.FindObjectOfType(typeof(DataStorage));
+            DataStore ds = (DataStore)GameObject.FindObjectOfType(typeof(DataStore));
             if (ds != null && GUILayout.Button("Initialize"))
             {
                 ds.MakeAwake();
@@ -43,7 +43,7 @@ public class ActivityEditorWindow : EditorWindow
         if (GUILayout.Button("Save activities to blob"))
         {
             UpdateBlobData();
-            DataStorage.SaveStorage(DataStorage.BlobNames.activity);
+            DataStore.SaveStorage(DataStore.BlobNames.activity);
         }
     }
 	
@@ -72,7 +72,7 @@ public class ActivityEditorWindow : EditorWindow
 
     void UpdateBlobData()
     {
-        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.activity);
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.activity);
         s.dictionary = new StorageDictionary();
         foreach (GameObject activity in activitis)
         {

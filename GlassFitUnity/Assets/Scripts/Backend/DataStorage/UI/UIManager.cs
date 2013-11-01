@@ -23,14 +23,22 @@ public class UIManager : MonoBehaviour
 
     public GameObject LoadScene(SerializedNode source)
     {
-        return RebuildStructure(gameObject.transform, source, "");
+        return RebuildStructure(gameObject.transform, source, "", null);
     }
 
     public GameObject LoadScene(SerializedNode source, string cloneInstanceName)
     {
-        return RebuildStructure(gameObject.transform, source, cloneInstanceName);             
+        return RebuildStructure(gameObject.transform, source, cloneInstanceName, null);             
     }
 	
+    public GameObject LoadScene(SerializedNode source, string cloneInstanceName, FlowPanelComponent overrideCollection)
+    {
+        return RebuildStructure(gameObject.transform, source, cloneInstanceName, overrideCollection);             
+    }
+	
+
+    
+
 	SerializedNode ProcessBranch(GameObject go)
     {
         SerializedNode structureParent = new SerializedNode(go);
@@ -53,10 +61,15 @@ public class UIManager : MonoBehaviour
 
     GameObject RebuildStructure(Transform parent, SerializedNode node, string cloneInstanceName)
     {
+        return RebuildStructure(parent, node, cloneInstanceName, null);
+    }
+
+    GameObject RebuildStructure(Transform parent, SerializedNode node, string cloneInstanceName, FlowPanelComponent overrideCollection)
+    {
 		if (parent == null || node == null) return null;
 
         GameObject searchedInstance = null;
-        Transform t = node.RebuildNode(parent.transform, cloneInstanceName == "");
+        Transform t = node.RebuildNode(parent.transform, cloneInstanceName == "", overrideCollection);
         if (t != null && t.name == cloneInstanceName)
         {
             //get copy instead
@@ -70,7 +83,7 @@ public class UIManager : MonoBehaviour
         {
 			if (t != null && node.subBranches[i] != null)
 			{
-                GameObject go = RebuildStructure(t, node.subBranches[i], cloneInstanceName);
+                GameObject go = RebuildStructure(t, node.subBranches[i], cloneInstanceName, overrideCollection);
                 if (searchedInstance == null)
                 {
                     searchedInstance = go;

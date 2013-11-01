@@ -10,8 +10,8 @@ public class GraphComponent : MonoBehaviour
 
     void Awake()
     {                
-        DataStorage.LoadStorage(DataStorage.BlobNames.flow);
-        Storage s = DataStorage.GetStorage(DataStorage.BlobNames.flow);
+        DataStore.LoadStorage(DataStore.BlobNames.flow);
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
 
         GraphData data = flowDictionary.Get("MainFlow") as GraphData;
