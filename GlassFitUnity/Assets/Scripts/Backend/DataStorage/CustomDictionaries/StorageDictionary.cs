@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
 
 
@@ -151,6 +150,21 @@ public class StorageDictionary : ISerializable
         }
         return null;
 	}
+
+    public ISerializable Get(int index)
+    {
+        if (this.data.Count != this.name.Count)
+        {
+            Debug.LogError("StorageDictionary out of sync!");
+            return null;
+        }
+        
+        if (index >= 0 && index < data.Count)
+        {
+            return data[index];
+        }
+        return null;
+    }
 
     public void Get(int index, out string name, out ISerializable data)
     {

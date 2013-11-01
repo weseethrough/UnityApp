@@ -96,8 +96,23 @@ public class StorageDictionaryBase<T> : ISerializable
 		
 		return false;
 		
-	}	
-	
+	}
+
+    public T Get(int index)
+    {
+        if (this.data.Count != this.name.Count)
+        {
+            Debug.LogError("StorageDictionary out of sync!");
+            return default(T);
+        }
+
+        if (index >= 0 && index < data.Count)
+        {
+            return data[index];
+        }
+        return default(T);
+    }
+
 	public void Get(int index, out string name, out T data)
 	{
 		if (this.data.Count != this.name.Count)

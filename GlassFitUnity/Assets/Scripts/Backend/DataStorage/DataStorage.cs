@@ -34,6 +34,7 @@ public class DataStorage : MonoBehaviour
         core,
         activity,
         flow,
+        persistent,        
         maxItem
     }
 

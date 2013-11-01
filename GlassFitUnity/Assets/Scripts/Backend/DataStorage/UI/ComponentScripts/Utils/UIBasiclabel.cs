@@ -23,9 +23,9 @@ public class UIBasiclabel : UIComponentSettings {
 	void SetLabel(string s)
 	{
 		if ( labelInstance != null && 
-			(labelInstance.text != label))
+			(labelInstance.text != s))
 		{
-			labelInstance.text = label;	
+			labelInstance.text = s;	
 			labelInstance.MarkAsChanged();
 		}
 	}
@@ -41,7 +41,13 @@ public class UIBasiclabel : UIComponentSettings {
     override public void Apply()
     {
         base.Apply();
-        SetLabel(label);
+        //SetLabel(label);
+        SetTranslatedText();
+    }
+
+    public void SetTranslatedText()
+    {
+        SetLabel(DataBase.Translate(label));
     }
 
 }
