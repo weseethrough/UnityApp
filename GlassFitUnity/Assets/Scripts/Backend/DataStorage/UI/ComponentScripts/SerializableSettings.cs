@@ -135,9 +135,9 @@ public class SerializableSettings : ISerializable
 
                     components.Add(sc);
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
-                    Debug.LogError("Exception : " + e.Message);
+                    Debug.LogException(e);
                 }
             }
         }                

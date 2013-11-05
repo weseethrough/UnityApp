@@ -9,15 +9,15 @@ public class GraphInspector : Editor
 	public override void OnInspectorGUI ()
 	{
 		//GraphComponent c = target as GraphComponent;
-		
-		EditorGUIUtility.LookLikeControls(144);
-
+        
+		EditorGUIUtility.LookLikeControls(144);      
 		DrawDefaultInspector();
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
         if (GUILayout.Button("Load"))
         {
+            
             GraphComponent gc = target as GraphComponent;
             DataStore.LoadStorage(DataStore.BlobNames.flow);
             Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
@@ -26,8 +26,7 @@ public class GraphInspector : Editor
             GraphData data = flowDictionary.Get("MainFlow") as GraphData;
             data.Style = gc.m_graph.Style;
             gc.m_graph = data;
-
-
+           
             GraphWindow.Init();
         }
         if (GUILayout.Button("Save"))
@@ -79,6 +78,7 @@ public class GraphInspector : Editor
 		{
 			EditorUtility.SetDirty(target);
 		}
+        
 	}
 	
 	/// <summary>

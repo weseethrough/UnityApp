@@ -2,10 +2,10 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-[ExecuteInEditMode]
+//[ExecuteInEditMode]
 public class GraphComponent : MonoBehaviour
 {
-	[SerializeField]
+    [System.NonSerialized]
 	public GraphData m_graph;
 
     void Awake()
@@ -27,5 +27,5 @@ public class GraphComponent : MonoBehaviour
 	public GraphComponent()
 	{
 		m_graph = new GraphData();
-	}
+	}    
 }

@@ -25,11 +25,7 @@ public class UIEditorWindow : EditorWindow
 		GUILayout.Label ("Base Settings", EditorStyles.boldLabel);
         if (DataStore.instance == null)
         {
-            DataStore ds = (DataStore)GameObject.FindObjectOfType(typeof(DataStore));
-            if (ds != null && GUILayout.Button("Initialize"))
-            {
-                ds.MakeAwake();
-            }
+            Debug.Log("Data storage not initialized!"); 
             return;
         }
         		

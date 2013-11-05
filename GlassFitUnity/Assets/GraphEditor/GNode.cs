@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
 #if UNITY_EDITOR
-using UnityEditor;
+//using UnityEditor;
 #endif
 
 [Serializable]

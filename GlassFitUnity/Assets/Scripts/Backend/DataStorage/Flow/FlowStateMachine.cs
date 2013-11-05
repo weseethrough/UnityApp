@@ -24,6 +24,7 @@ public class FlowStateMachine : MonoBehaviour
                 if (node is Start)
                 {
                     targetState = node as Start;
+                    break;
                 }
             }
         }

@@ -6,7 +6,6 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 
-[ExecuteInEditMode]
 public class DataStore : MonoBehaviour 
 {    
 	static public DataStore _instance;
@@ -48,13 +47,8 @@ public class DataStore : MonoBehaviour
     private Platform platform;
 #endif
 
-    void Awake()
-    {
-        MakeAwake();        
-    }
-
     public void MakeAwake()
-    {        
+    {
         _instance = this;
 
         if (platform != null)
@@ -74,26 +68,20 @@ public class DataStore : MonoBehaviour
 
     public void Initialize()
     {
-        
+        //load data blobs from drive
         for (int i = 0; i < (int)BlobNames.maxItem; i++ )
         {
             BlobNames bName = (BlobNames)i;
             string name = bName.ToString();
             storageBank[name] = InitializeBlob(platform.LoadBlob(name));
-            
-            Debug.Log("-A------------START------------A-");
-            StorageDictionary sd = storageBank[name].dictionary;
-
-            Debug.Log("Storage "+name+" contains "+ sd.Length() +" elements");
-            
+                        
+            StorageDictionary sd = storageBank[name].dictionary;            
             for (int k = 0; k < sd.Length(); k++)
             {
                 string n;
                 ISerializable d;                
-                sd.Get(k, out n, out d);
-                Debug.Log(k+ ": " + n);
-            }
-            Debug.Log("-A------------END--------------A-");
+                sd.Get(k, out n, out d);            
+            }            
         }        
 	}
 	
@@ -118,8 +106,9 @@ public class DataStore : MonoBehaviour
 	        System.Object o = bformatter.Deserialize(ms);
 	        storage = (Storage)o;
 		}
-		catch
+        catch (Exception e)
 		{
+            Debug.LogException(e);
 			return new Storage();
 		}
         return storage;		

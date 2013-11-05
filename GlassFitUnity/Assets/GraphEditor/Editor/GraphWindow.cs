@@ -13,7 +13,7 @@ public class GraphWindow : EditorWindow, IDraw
 	
 	[MenuItem("Window/Image Graph Editor")]
 	public static void Init ()
-	{
+	{       
 		GraphWindow window = GetWindow (typeof(GraphWindow)) as GraphWindow;
 		window.minSize = new Vector2(600.0f, 400.0f);
 		window.wantsMouseMove = true;
@@ -113,7 +113,7 @@ public class GraphWindow : EditorWindow, IDraw
 			m_dragPosition = Event.current.mousePosition;
             GUIUtility.keyboardControl = 0;            
 		}
-		Repaint();
+		//Repaint();
 	}
 	
 	private void MainMouseUp(Vector2 pos)
@@ -277,7 +277,8 @@ public class GraphWindow : EditorWindow, IDraw
 	const int GridBlocks = 3;
 	
 	void DrawGraph(int x, int y, int w, int h)
-	{
+	{       
+
 		float zx = ViewPosition.x;
 		float zy = ViewPosition.y;
 		_zoomArea = new Rect(zx, zy+TopHeight, w, h);
@@ -378,7 +379,8 @@ public class GraphWindow : EditorWindow, IDraw
 		
 		GL.PopMatrix();
 		
-        EditorZoomArea.End();		
+        EditorZoomArea.End();
+        
 	}
 	
 	// a = point on the right side of a box
@@ -794,7 +796,7 @@ public class GraphWindow : EditorWindow, IDraw
 	}
 
 	void OnGUI ()
-	{
+	{       
 		if (!wantsMouseMove)
 		{
 			// Not sure why the original initialization fails.
