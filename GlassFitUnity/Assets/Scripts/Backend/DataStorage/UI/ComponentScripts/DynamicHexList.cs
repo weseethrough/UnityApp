@@ -1,10 +1,20 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class DynamicHexList : MonoBehaviour 
 {
     Camera  guiCamera;
     Vector2 lineOffset;
+
+    float screenEnterTime = 0.8f;
+    float buttonEnterDelay = 0.0f;
+    float buttonNextEnterDelay = 0.0f;
+    int buttonNextEnterIndex = 0;
+
+    List<GameObject> buttons;    
+    public string buttonEnterAnimation = "";
+    
 
 	void Start () 
     {
@@ -20,9 +30,21 @@ public class DynamicHexList : MonoBehaviour
 
         if (guiCamera != null)
         {            
-            InitializeItems(3);
+            InitializeItems(22);
         }        
 	}
+
+    void Update()
+    {
+        buttonNextEnterDelay -= Time.deltaTime;
+        Debug.Log(buttonNextEnterDelay);
+        if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
+        {
+            PlayButtonEnter(buttons[buttonNextEnterIndex], true);
+            buttonNextEnterIndex++;
+            buttonNextEnterDelay = buttonEnterDelay;
+        }
+    }
 
     void CleanupChildren(int elementsToKeep)
     {
@@ -31,6 +53,8 @@ public class DynamicHexList : MonoBehaviour
             Debug.LogError("List doesn't have at least one button element to clone later");
             return;
         }
+
+        buttons = new List<GameObject>();
 
         if (elementsToKeep == 0)
         {
@@ -52,7 +76,8 @@ public class DynamicHexList : MonoBehaviour
             Debug.LogError("List doesn't have at least one button element to clone");            
             return;
         }        
-        CleanupChildren(count);                    
+        CleanupChildren(count);
+        buttonEnterDelay = screenEnterTime / count;
 
         Transform child = transform.GetChild(0);
         float Z = child.transform.position.z;
@@ -63,21 +88,21 @@ public class DynamicHexList : MonoBehaviour
             if (i >= transform.childCount)
             {
                 tile = (GameObject)GameObject.Instantiate(child.gameObject);
-                tile.transform.parent       = child.parent;
-                //tile.transform.position     = child.position;
+                tile.transform.parent       = child.parent;                
                 tile.transform.rotation     = child.rotation;
                 tile.transform.localScale   = child.localScale;
             }
             else
             {
-                tile = transform.GetChild(i).gameObject;
-                tile.SetActive(true);
+                tile = transform.GetChild(i).gameObject;                
             }
             Vector2 pos = GetLocation(i);
 
             tile.transform.position = new Vector3(pos.x, pos.y, Z);
+            tile.SetActive(false);
 
-           // tile.
+
+            buttons.Add(tile);           
         }        
     }
 
@@ -95,7 +120,7 @@ public class DynamicHexList : MonoBehaviour
             lineOffset = new Vector2(sideOffset, upOffset);
         }
 
-            //our design expect some hardcoded positioning of the hexes
+            //our design expect some hard coded positioning of the hexes
 
         switch (index)
         {
@@ -157,5 +182,23 @@ public class DynamicHexList : MonoBehaviour
                     return new Vector2(- lineOffset.x * (4 + stage * 2), lineOffset.y * (2 - 2 * (step - 11)));
                 }                
         }        
+    }
+
+    public void PlayButtonEnter(GameObject buttonRoot, bool forward)
+    {
+        buttonRoot.SetActive(true);
+
+        Animation target = buttonRoot.GetComponentInChildren<Animation>();        
+        if (target != null && buttonEnterAnimation.Length > 0)
+        {                        
+            AnimationOrTween.Direction dir = forward ? AnimationOrTween.Direction.Forward : AnimationOrTween.Direction.Reverse;
+            ActiveAnimation anim = ActiveAnimation.Play(target, buttonEnterAnimation, dir);
+
+            if (anim != null)
+            {
+                anim.Reset();                
+                //EventDelegate.Add(anim.onFinished, OnFinished, true);                
+            }
+        }
     }
 }
