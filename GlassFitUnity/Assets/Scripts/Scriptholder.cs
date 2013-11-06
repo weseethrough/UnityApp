@@ -95,27 +95,30 @@ public class Scriptholder : Singleton<Scriptholder> {
 //		
 //	}
 	
-	void isTap() {
+	void isTap(string message) {
 		isTapped = true;
 		tapTimer = 5.0f;
+		UnityEngine.Debug.Log("Message Obtained: Tap");
 	}
 	
-	void flingLeft() {
+	void flingLeft(string message) {
 		left = true;
 		leftTimer = 5.0f;
+		UnityEngine.Debug.Log("Message Obtained: Fling Left");
 	}
 	
-	void flingRight() {
+	void flingRight(string message) {
 		right = true;
 		rightTimer = 5.0f;
+		UnityEngine.Debug.Log("Message Obtained: Fling Right");
 	}
 	
-	void flingUp() {
+	void flingUp(string message) {
 		up = true;
 		upTimer = 5.0f;
 	}
 	
-	void flingDown() {
+	void flingDown(string message) {
 		down = true;
 		downTimer = 5.0f;
 	}

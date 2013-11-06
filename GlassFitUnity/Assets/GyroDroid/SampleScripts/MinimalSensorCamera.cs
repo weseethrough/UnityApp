@@ -32,7 +32,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 		
 		// Set the new GUI matrix based on scale and the depth
-		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX,scaleY, 1));		
+		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX, scaleY, 1));		
 		GUI.depth = 7;
 		
 		if(!started) {

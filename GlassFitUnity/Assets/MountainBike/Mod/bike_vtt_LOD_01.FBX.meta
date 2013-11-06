@@ -1,0 +1,124 @@
+fileFormatVersion: 2
+guid: 4bc1663abdb1e7f45b02fe3a9ff576c9
+ModelImporter:
+  serializedVersion: 15
+  fileIDToRecycleName:
+    100000: bike_handlebar01
+    100002: bike_pedale_L01
+    100004: bike_pedale_R01
+    100006: bike_pedalier01
+    100008: //RootNode
+    100010: bike_wheel_AR01
+    100012: bike_wheel_AV01
+    100014: bike_handlebar
+    100016: bike_pedale_L
+    100018: bike_pedale_R
+    100020: bike_pedalier
+    100022: bike_wheel_AR
+    100024: bike_wheel_AV
+    400000: bike_handlebar01
+    400002: bike_pedale_L01
+    400004: bike_pedale_R01
+    400006: bike_pedalier01
+    400008: //RootNode
+    400010: bike_wheel_AR01
+    400012: bike_wheel_AV01
+    400014: bike_handlebar
+    400016: bike_pedale_L
+    400018: bike_pedale_R
+    400020: bike_pedalier
+    400022: bike_wheel_AR
+    400024: bike_wheel_AV
+    2300000: bike_handlebar01
+    2300002: bike_pedale_L01
+    2300004: bike_pedale_R01
+    2300006: bike_pedalier01
+    2300008: //RootNode
+    2300010: bike_wheel_AR01
+    2300012: bike_wheel_AV01
+    2300014: bike_handlebar
+    2300016: bike_pedale_L
+    2300018: bike_pedale_R
+    2300020: bike_pedalier
+    2300022: bike_wheel_AR
+    2300024: bike_wheel_AV
+    3300000: bike_handlebar01
+    3300002: bike_pedale_L01
+    3300004: bike_pedale_R01
+    3300006: bike_pedalier01
+    3300008: //RootNode
+    3300010: bike_wheel_AR01
+    3300012: bike_wheel_AV01
+    3300014: bike_handlebar
+    3300016: bike_pedale_L
+    3300018: bike_pedale_R
+    3300020: bike_pedalier
+    3300022: bike_wheel_AR
+    3300024: bike_wheel_AV
+    4300000: bike_base01
+    4300002: bike_handlebar01
+    4300004: bike_wheel_AV01
+    4300006: bike_pedalier01
+    4300008: bike_pedale_R01
+    4300010: bike_pedale_L01
+    4300012: bike_wheel_AR01
+    4300014: bike_base
+    4300016: bike_handlebar
+    4300018: bike_wheel_AV
+    4300020: bike_wheel_AR
+    4300022: bike_pedalier
+    4300024: bike_pedale_R
+    4300026: bike_pedale_L
+    9500000: //RootNode
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    handles: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  additionalBone: 1
+  animationType: 2
+  userData: 

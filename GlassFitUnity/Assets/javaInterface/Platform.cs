@@ -403,11 +403,18 @@ public class Platform : Singleton<Platform> {
 			if (hasLock()) {
 				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
 				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
-				bearing = gps.Call<float>("getCurrentBearing");
-				//bearing = ajo.Call<float>("floatValue");
 			}
 		} catch (Exception e) {
+			
+			UnityEngine.Debug.Log("Error getting position: " + e.Message);
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
+		}
+		try {
+			if (hasLock()) {
+				bearing = gps.Call<float>("getCurrentBearing");
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Error getting bearing: " + e.Message);
 		}
 		
 	}

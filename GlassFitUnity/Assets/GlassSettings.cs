@@ -17,6 +17,8 @@ public class GlassSettings : MonoBehaviour {
 	private bool countdown = false;
 	private float countTime = 3.0f;
 	
+	public GameObject sc;
+	
 	// Target speed
 	public float targSpeed = 1.8f;
 	
@@ -107,19 +109,19 @@ public class GlassSettings : MonoBehaviour {
 			}
 		}
 		
-		if(Scriptholder.Instance.isTapped) {
+		if(sc.GetComponent<Scriptholder>().isTapped) {
 			GUI.Label(new Rect(350, 0, 100, 50), "TOUCHPAD TAPPED");
 		}
-		if(Scriptholder.Instance.up) {
+		if(sc.GetComponent<Scriptholder>().up) {
 			GUI.Label(new Rect(350, 50, 100, 50), "FAST SWIPE UP");
 		}
-		if(Scriptholder.Instance.down) {
+		if(sc.GetComponent<Scriptholder>().down) {
 			GUI.Label(new Rect(350, 100, 100, 50), "FAST SWIPE DOWN");
 		}
-		if(Scriptholder.Instance.left) {
+		if(sc.GetComponent<Scriptholder>().left) {
 			GUI.Label(new Rect(350, 150, 100, 50), "FAST SWIPE LEFT");
 		}
-		if(Scriptholder.Instance.right) {
+		if(sc.GetComponent<Scriptholder>().right) {
 			GUI.Label(new Rect(350, 200, 100, 50), "FAST SWIPE RIGHT");
 		}
 		
@@ -141,11 +143,11 @@ public class GlassSettings : MonoBehaviour {
 			}
 		}
 		
-		if((GUI.Button(new Rect(275, 400, 100, 100), "START") || Scriptholder.Instance.right) && !countdown && Platform.Instance.hasLock()) {
+		if((GUI.Button(new Rect(275, 400, 100, 100), "START") || sc.GetComponent<Scriptholder>().right) && !countdown && Platform.Instance.hasLock()) {
 			countdown = true;
 		}
 		
-		if((GUI.Button(new Rect(425, 400, 100, 100), "RESET")  || Scriptholder.Instance.left)) {
+		if((GUI.Button(new Rect(425, 400, 100, 100), "RESET")  || sc.GetComponent<Scriptholder>().left)) {
 			countdown = false;
 			Platform.Instance.stopTrack();
 			Platform.Instance.reset();
