@@ -36,8 +36,7 @@ public class DynamicHexList : MonoBehaviour
 
     void Update()
     {
-        buttonNextEnterDelay -= Time.deltaTime;
-        Debug.Log(buttonNextEnterDelay);
+        buttonNextEnterDelay -= Time.deltaTime;      
         if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
         {
             PlayButtonEnter(buttons[buttonNextEnterIndex], true);
@@ -196,9 +195,16 @@ public class DynamicHexList : MonoBehaviour
 
             if (anim != null)
             {
-                anim.Reset();                
-                //EventDelegate.Add(anim.onFinished, OnFinished, true);                
+                anim.Reset();
+
+                UIButtonAnimationLocker buttonLocker = buttonRoot.GetComponentInChildren<UIButtonAnimationLocker>();
+                if (buttonLocker != null)
+                {                    
+                    buttonLocker.OnButtonAnimStarted();
+                    EventDelegate.Add(anim.onFinished, buttonLocker.OnButtonAnimFinished, true);
+                }                
             }
         }
     }
+
 }

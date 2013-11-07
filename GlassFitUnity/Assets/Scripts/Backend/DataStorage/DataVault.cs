@@ -300,7 +300,7 @@ public class DataVault : MonoBehaviour
                     
                 }
                 string startSection = start > 0 ? source.Substring(0,start) : "";
-                string endSection = end < source.Length-1 ? source.Substring(end+1,source.Length-end) : "";
+                string endSection = end < source.Length-1 ? source.Substring(end+1,source.Length-end-1) : "";
                 return startSection + newSection + endSection;
             }
         }

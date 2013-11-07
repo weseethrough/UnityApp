@@ -52,15 +52,15 @@ public abstract class FlowState : GNode
    	}
 
 
-    virtual public void EnterStart() { m_state = State.Entering; Debug.Log("Enter state: " + this.ToString()); }
+    virtual public void EnterStart() { m_state = State.Entering; /*Debug.Log("Enter state: " + this.ToString());*/ }
     virtual public bool EnterUpdate() { return true; }
-    virtual public void Entered() { m_state = State.Idle; Debug.Log("Entered state: " + this.ToString()); }
+    virtual public void Entered() { m_state = State.Idle; /*Debug.Log("Entered state: " + this.ToString());*/ }
 
     virtual public void StateUpdate() {  }
 
-    virtual public void ExitStart() { m_state = State.Exiting; Debug.Log("Exit state: " + this.ToString()); }
+    virtual public void ExitStart() { m_state = State.Exiting; /*Debug.Log("Exit state: " + this.ToString());*/ }
     virtual public bool ExitUpdate() { return true; }
-    virtual public void Exited() { m_state = State.Dead; Debug.Log("Exited state: " + this.ToString()); }   
+    virtual public void Exited() { m_state = State.Dead; /*Debug.Log("Exited state: " + this.ToString());*/ }   
 
     public override void OnDraw(Rect r)
     {
