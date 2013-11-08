@@ -1,26 +1,67 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GlassSettings.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\GraphEditor\Editor\GraphWindow.cs">
     <Files>
-      <File FileName="Assets\Scripts\Scriptholder.cs" Line="6" Column="1" />
-      <File FileName="Assets\Scripts\Treasure.cs" Line="154" Column="25" />
-      <File FileName="Assets\GetTrack.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\TargetDisplay.cs" Line="1" Column="1" />
-      <File FileName="Assets\GlassSettings.cs" Line="119" Column="37" />
-      <File FileName="Assets\GlassDemoCam.cs" Line="36" Column="114" />
+      <File FileName="Assets\GraphEditor\Editor\GraphWindow.cs" Line="140" Column="49" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\UIManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\ComponentScripts\SerializableSettings.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\DataStorage.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\Storage.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\CustomDictionaries\StorageDictionary.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\CustomDictionaries\StringStorageDictionary.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\UI\ComponentScripts\SerializedNode.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\Activity\Editor\DistanceRunEditor.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\Editor\UIEditorWindow.cs" Line="64" Column="18" />
+      <File FileName="Assets\GraphEditor\Editor\GraphInspector.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\Flow\FlowStates\Exit.cs" Line="8" Column="26" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\Flow\FlowStates\Panel.cs" Line="16" Column="2" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\Flow\FlowStates\Start.cs" Line="10" Column="14" />
+      <File FileName="Assets\Scripts\Backend\DataStorage\Flow\FlowState.cs" Line="43" Column="29" />
+      <File FileName="Assets\GraphEditor\GNode.cs" Line="84" Column="3" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
             <Node name="Assets" expanded="True">
-              <Node name="GyroDroid" expanded="True">
-                <Node name="Scripts" expanded="True">
-                  <Node name="Devices" expanded="True" />
+              <Node name="GraphEditor" expanded="True" />
+              <Node name="Scripts" expanded="True">
+                <Node name="Backend" expanded="True">
+                  <Node name="DataStorage" expanded="True">
+                    <Node name="CustomDictionaries" expanded="True" />
+                    <Node name="Flow" expanded="True">
+                      <Node name="FlowStates" expanded="True" />
+                    </Node>
+                    <Node name="UI" expanded="True">
+                      <Node name="ComponentScripts" expanded="True" />
+                    </Node>
+                  </Node>
                 </Node>
               </Node>
-              <Node name="Scripts" expanded="True" />
-              <Node name="GlassSettings.cs" selected="True" />
+            </Node>
+          </Node>
+          <Node name="Assembly-CSharp-Editor" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="GraphEditor" expanded="True">
+                <Node name="Editor" expanded="True">
+                  <Node name="GraphWindow.cs" selected="True" />
+                </Node>
+              </Node>
+              <Node name="Scripts" expanded="True">
+                <Node name="Backend" expanded="True">
+                  <Node name="DataStorage" expanded="True">
+                    <Node name="Activity" expanded="True">
+                      <Node name="Editor" expanded="True" />
+                    </Node>
+                    <Node name="UI" expanded="True">
+                      <Node name="ComponentScripts" expanded="True">
+                        <Node name="Editor" expanded="True" />
+                      </Node>
+                    </Node>
+                  </Node>
+                  <Node name="Editor" expanded="True" />
+                </Node>
+              </Node>
             </Node>
           </Node>
         </State>
@@ -28,9 +69,7 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="C:\GlassFitProjects\GFUnityDev\GlassFitUnity\Assets\Scripts\Backend\Editor\BackendWindow.cs" line="122" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

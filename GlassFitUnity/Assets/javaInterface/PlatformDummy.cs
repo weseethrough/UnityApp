@@ -3,6 +3,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System;
 using System.Diagnostics;
+using System.IO;
 
 public class PlatformDummy {
 	
@@ -12,24 +13,68 @@ public class PlatformDummy {
 	private int distance = 0;
 	private int target = 1;
 	private Position position = null;
-	private float bearing = 45; // degrees
+	private float bearing = 45; // degrees	
 	
 	private const float weight = 75.0f;
 	private const float factor = 1.2f;
 	
-	public void Start(Boolean indoor) {
+	private string blobstore = "editor-blobstore";
+	private string blobassets = "blob";
+	
+	public PlatformDummy() {
 		timer.Start();
+		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
+		Directory.CreateDirectory(blobstore);
+		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+		Directory.CreateDirectory(blobassets);
+	}
+	
+	public void StartTrack(bool indoor) {
+		throw new NotImplementedException();
 	}
 	
 	public Boolean hasLock() {
 		return true;
 	}
 	
+	public void stopTrack() {
+		throw new NotImplementedException();
+	}
+	
+	public void reset() {
+		throw new NotImplementedException();
+	}
+	
+	public void setTargetSpeed(float speed)
+	{
+		throw new NotImplementedException();
+	}
+	
+	public void setTargetTrack(int trackID)
+	{
+		throw new NotImplementedException();
+	}
+	
 	public byte[] LoadBlob(string id) {
-		return new byte[0];
+		try {
+			if (!File.Exists(Path.Combine(blobstore, id))) {
+				return File.ReadAllBytes(Path.Combine(blobassets, id));
+			}
+			return File.ReadAllBytes(Path.Combine(blobstore, id));
+		} catch (FileNotFoundException e) {
+			return new byte[0];
+		}
 	}
 	
 	public void StoreBlob(string id, byte[] blob) {
+		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
+	}
+		
+	/**
+	 * Editor-specific function. 
+	 */
+	public void StoreBlobAsAsset(string id, byte[] blob) {
+		File.WriteAllBytes(Path.Combine(blobassets, id), blob);
 	}
 	
 	public void Poll() {
@@ -76,8 +121,4 @@ public class PlatformDummy {
 	public float Bearing() {
 		return bearing;
 	}
-	
-	public string DebugLog() {
-		return "On editor, really long string to test word wrap. Bla bla blaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bla.";
-	}	
 }
