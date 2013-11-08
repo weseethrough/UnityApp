@@ -28,6 +28,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour {
 						UnityEngine.Debug.Log("Singleton: already exists!!");
 					}
 				}
+				
 				return _instance;
 			}
 		}

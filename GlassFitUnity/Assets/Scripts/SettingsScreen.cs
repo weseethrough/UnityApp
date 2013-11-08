@@ -67,6 +67,64 @@ public class SettingsScreen : MonoBehaviour {
 		GetComponent<GetTrack>().setActive(false);
 	}
 	
+	public void SetTarget(Targets targ) {
+		currentTarget = targ;
+		changed = true;
+		
+	}
+	
+	public void SetIndoor() {
+		if(indoor) {
+			indoor = false;
+			UnityEngine.Debug.Log("Outdoor mode active");
+			indoorText = "Outdoor Active";
+		}
+		else {
+			indoor = true;
+			UnityEngine.Debug.Log("Indoor mode active");
+			indoorText = "Indoor Active";
+		}
+		changed = true;
+	}
+	
+	public void GetServer() {
+		if(!authenticated) {
+			Platform.Instance.authenticate();
+			// TODO: check result
+			authenticated = true;
+		} else {
+			Platform.Instance.syncToServer();
+		}	
+	}
+	
+	public void Back() {
+		if(changed) {
+					// Reset platform, set new target speed and indoor/outdoor mode
+			Platform.Instance.reset();
+			Platform.Instance.resetTargets();
+					
+			setTargets();
+					
+			if(!trackSelected) {
+				Platform.Instance.setTargetSpeed(targSpeed);
+			}
+					
+			Platform.Instance.setIndoor(indoor);
+				
+			// Start countdown again
+			started = false;
+			countdown = false;
+			countTime = 3.0f;
+					
+			// Reset bools
+			trackSelected = false;
+			changed = false;
+		} else {
+			// Else restart tracking
+			Platform.Instance.StartTrack();
+		}
+	}
+	
 	void OnGUI() {
 		// Set matrix, depth and various skin sizes
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
@@ -92,54 +150,54 @@ public class SettingsScreen : MonoBehaviour {
 			GUI.Label(new Rect(originalWidth/2 - 100, 130, 200, 40), "Running: 4.2m/s");
 			GUI.Label(new Rect(originalWidth/2 - 100, 170, 200, 40), "Usain Bolt: 10.4m/s");
 			
-			// If runner is pressed, deactivate the rest and set a new offset
-			if(GUI.Button(new Rect(0, originalHeight-200, 200, 200) , "Runner"))
-			{
-				currentTarget = Targets.Runner;
-				changed = true;
-				GetComponent<TargetDisplay>().setOffset(0);
-			}
-			
-			// If an eagle is pressed, deactivate the rest and set the new offset
-			if(GUI.Button(new Rect (200, originalHeight-200, 200, 200), "Eagle"))
-			{				
-				currentTarget = Targets.Eagle;
-				changed = true;
-				GetComponent<TargetDisplay>().setOffset(50);
-			}
-			
-			// If an zombie is pressed, deactivate the rest and set the new offset
-			if(GUI.Button(new Rect (400, originalHeight-200, 200, 200), "Zombie"))
-			{
-				currentTarget = Targets.Zombie;
-				changed = true;
-				GetComponent<TargetDisplay>().setOffset(20);
-			}
-			
-			// If an train is pressed, deactivate the rest and set the new offset
-			if(GUI.Button(new Rect(600, originalHeight-200, 200, 200), "Train"))
-			{
-				currentTarget = Targets.Train;
-				changed = true;
-				GetComponent<TargetDisplay>().setOffset(50);
-			}
+//			// If runner is pressed, deactivate the rest and set a new offset
+//			if(GUI.Button(new Rect(0, originalHeight-200, 200, 200) , "Runner"))
+//			{
+//				currentTarget = Targets.Runner;
+//				changed = true;
+//				GetComponent<TargetDisplay>().setOffset(0);
+//			}
+//			
+//			// If an eagle is pressed, deactivate the rest and set the new offset
+//			if(GUI.Button(new Rect (200, originalHeight-200, 200, 200), "Eagle"))
+//			{				
+//				currentTarget = Targets.Eagle;
+//				changed = true;
+//				GetComponent<TargetDisplay>().setOffset(50);
+//			}
+//			
+//			// If an zombie is pressed, deactivate the rest and set the new offset
+//			if(GUI.Button(new Rect (400, originalHeight-200, 200, 200), "Zombie"))
+//			{
+//				currentTarget = Targets.Zombie;
+//				changed = true;
+//				GetComponent<TargetDisplay>().setOffset(20);
+//			}
+//			
+//			// If an train is pressed, deactivate the rest and set the new offset
+//			if(GUI.Button(new Rect(600, originalHeight-200, 200, 200), "Train"))
+//			{
+//				currentTarget = Targets.Train;
+//				changed = true;
+//				GetComponent<TargetDisplay>().setOffset(50);
+//			}
 			
 			
 			// Set the indoor/outdoor mode
-			if(GUI.Button(new Rect(0, 0, 100, 100), indoorText))
-			{
-				if(indoor) {
-					indoor = false;
-					UnityEngine.Debug.Log("Outdoor mode active");
-					indoorText = "Outdoor Active";
-				}
-				else {
-					indoor = true;
-					UnityEngine.Debug.Log("Indoor mode active");
-					indoorText = "Indoor Active";
-				}
-				changed = true;
-			}
+//			if(GUI.Button(new Rect(0, 0, 100, 100), indoorText))
+//			{
+//				if(indoor) {
+//					indoor = false;
+//					UnityEngine.Debug.Log("Outdoor mode active");
+//					indoorText = "Outdoor Active";
+//				}
+//				else {
+//					indoor = true;
+//					UnityEngine.Debug.Log("Indoor mode active");
+//					indoorText = "Indoor Active";
+//				}
+//				changed = true;
+//			}
 			
 			// Set the speed slider, if the value has changed set the new speed
 			float temp  = GUI.HorizontalSlider(new Rect((originalWidth/2)-100, 250, 200, 50), targSpeed,  1.25f, 10.4f);

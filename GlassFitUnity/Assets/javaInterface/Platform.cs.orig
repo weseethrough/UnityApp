@@ -2,10 +2,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using System.Threading;
 using System;
 
-public class Platform : MonoBehaviour {
+public class Platform : Singleton<Platform> {
 	private double targetElapsedDistance = 0;
 	private long time = 0;
 	private double distance = 0.0;
@@ -14,7 +13,6 @@ public class Platform : MonoBehaviour {
 	private Position position = null;
 	private float bearing = 0;
 	private bool started = false;
-	private bool initialised = false;
 	
 	private List<Position> positions;
 	
@@ -27,48 +25,6 @@ public class Platform : MonoBehaviour {
 	private AndroidJavaObject context;
 	
 	private List<TargetTracker> targetTrackers;
-	
-	
-	private static Platform _instance;
-	private static object _lock = new object();
-	
-	public static Platform Instance {
-		get {
-			if(applicationIsQuitting) {
-				UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
-				return null;
-			}
-			lock(_lock) {
-				if(_instance == null) {
-					_instance = (Platform) FindObjectOfType(typeof(Platform));
-					if(FindObjectsOfType(typeof(Platform)).Length > 1) {
-						UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-						return _instance;
-					}
-					if(_instance == null) {
-						GameObject singleton = new GameObject();
-						_instance = singleton.AddComponent<Platform>();
-						singleton.name = "(singleton) " + typeof(Platform).ToString();
-						
-						DontDestroyOnLoad(singleton);
-					} else {
-						UnityEngine.Debug.Log("Singleton: already exists!!");
-					}
-				}
-				while(!_instance.initialised) {
-					continue;
-				}
-					return _instance;
-			}
-		}
-	}
-	
-	private static bool applicationIsQuitting = false;
-	
-	public void OnDestroy() {
-		applicationIsQuitting = true;
-	}
-	
 	
 	protected Platform() {
 		
@@ -102,7 +58,6 @@ public class Platform : MonoBehaviour {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
 					UnityEngine.Debug.LogException(e);
 				}
-				initialised = true;
         	}));
 			
 		} catch (Exception e) {
@@ -403,6 +358,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+
 	public float getHighestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
@@ -417,6 +373,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Update the data
+=======
 	public void EraseBlob(string id) {
 		try {
 			helper_class.CallStatic("eraseBlob", id);
@@ -437,6 +394,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+>>>>>>> New-GUI-with-flow
 	public void Poll() {
 		
 //		if (!hasLock ()) return;
