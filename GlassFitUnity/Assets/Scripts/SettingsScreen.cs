@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class SettingsScreen : MonoBehaviour {
 	
@@ -7,6 +8,8 @@ public class SettingsScreen : MonoBehaviour {
 	public bool menuOpen = false;
 	private bool changed = false;
 	public bool indoor = true;
+	
+	private double offset = 0;
 	
 	// Enums for the targets
 	public enum Targets
@@ -53,6 +56,7 @@ public class SettingsScreen : MonoBehaviour {
 	void Start () {
 		// Set indoor mode
 		Platform.Instance.setIndoor(indoor);
+		DataVault.Set("indoor_text", "Indoor Active");
 		
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
@@ -77,12 +81,14 @@ public class SettingsScreen : MonoBehaviour {
 		if(indoor) {
 			indoor = false;
 			UnityEngine.Debug.Log("Outdoor mode active");
+			DataVault.Set("indoor_text", "Outdoor Active");
 			indoorText = "Outdoor Active";
 		}
 		else {
 			indoor = true;
 			UnityEngine.Debug.Log("Indoor mode active");
 			indoorText = "Indoor Active";
+			DataVault.Set("indoor_text", "Indoor Active");
 		}
 		changed = true;
 	}
@@ -129,27 +135,27 @@ public class SettingsScreen : MonoBehaviour {
 		// Set matrix, depth and various skin sizes
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		GUI.depth = 5;
-		GUI.skin.button.fontSize = 15;
-		GUI.skin.horizontalSliderThumb.fixedWidth = 60;
-		GUI.skin.horizontalSliderThumb.fixedHeight = 60;
-		
-		// If the menu is open
-		if(menuOpen)
-		{			
-			// Draw the black texture
-			GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
-				
-			// Set increased label size for speed guide
-			GUI.skin.label.fontSize = 30;		
-			GUI.Label(new Rect(originalWidth/2-100, 10, 200, 40), "Speed Guide");
-			
-			// Reduce label size and set rest of speed guide
-			GUI.skin.label.fontSize = 15;
-			GUI.Label(new Rect(originalWidth/2 -100, 50, 200, 40), "Walking: 1.25m/s");
-			GUI.Label (new Rect(originalWidth/2 - 100, 90, 200, 40), "Jogging: 2.2m/s");
-			GUI.Label(new Rect(originalWidth/2 - 100, 130, 200, 40), "Running: 4.2m/s");
-			GUI.Label(new Rect(originalWidth/2 - 100, 170, 200, 40), "Usain Bolt: 10.4m/s");
-			
+//		GUI.skin.button.fontSize = 15;
+//		GUI.skin.horizontalSliderThumb.fixedWidth = 60;
+//		GUI.skin.horizontalSliderThumb.fixedHeight = 60;
+//		
+//		// If the menu is open
+//		if(menuOpen)
+//		{			
+//			// Draw the black texture
+//			//GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
+//				
+//			// Set increased label size for speed guide
+//			GUI.skin.label.fontSize = 30;		
+//			GUI.Label(new Rect(originalWidth/2-100, 10, 200, 40), "Speed Guide");
+//			
+//			// Reduce label size and set rest of speed guide
+//			GUI.skin.label.fontSize = 15;
+//			GUI.Label(new Rect(originalWidth/2 -100, 50, 200, 40), "Walking: 1.25m/s");
+//			GUI.Label (new Rect(originalWidth/2 - 100, 90, 200, 40), "Jogging: 2.2m/s");
+//			GUI.Label(new Rect(originalWidth/2 - 100, 130, 200, 40), "Running: 4.2m/s");
+//			GUI.Label(new Rect(originalWidth/2 - 100, 170, 200, 40), "Usain Bolt: 10.4m/s");
+//			
 //			// If runner is pressed, deactivate the rest and set a new offset
 //			if(GUI.Button(new Rect(0, originalHeight-200, 200, 200) , "Runner"))
 //			{
@@ -181,9 +187,9 @@ public class SettingsScreen : MonoBehaviour {
 //				changed = true;
 //				GetComponent<TargetDisplay>().setOffset(50);
 //			}
-			
-			
-			// Set the indoor/outdoor mode
+//			
+//			
+//			// Set the indoor/outdoor mode
 //			if(GUI.Button(new Rect(0, 0, 100, 100), indoorText))
 //			{
 //				if(indoor) {
@@ -198,98 +204,98 @@ public class SettingsScreen : MonoBehaviour {
 //				}
 //				changed = true;
 //			}
-			
-			// Set the speed slider, if the value has changed set the new speed
-			float temp  = GUI.HorizontalSlider(new Rect((originalWidth/2)-100, 250, 200, 50), targSpeed,  1.25f, 10.4f);
-    		GUI.Label(new Rect(originalWidth/2 + 120, 250, 100, 50), temp.ToString("f2") + "m/s");
-			if(temp != targSpeed)
-			{
-				changed = true;
-				targSpeed = temp;
-			}
-			
-			// When the back button is pressed
-			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Back"))
-			{
-        	    menuOpen = false;
-				
-				// If anything has changed
-				if(changed) {
-					// Reset platform, set new target speed and indoor/outdoor mode
-					Platform.Instance.reset();
-					Platform.Instance.resetTargets();
-					
-					setTargets();
-					
-					if(!trackSelected) {
-						Platform.Instance.setTargetSpeed(targSpeed);
-					}
-					
-					Platform.Instance.setIndoor(indoor);
-					
-					// Start countdown again
-					started = false;
-					countdown = false;
-					countTime = 3.0f;
-					
-					// Reset bools
-					trackSelected = false;
-					changed = false;
-				} else {
-					// Else restart tracking
-					Platform.Instance.StartTrack();
-				}
-			}
-			
-			// If not authenticated and button pressed, authenticate
-			if (!authenticated && GUI.Button(debug, "Authenticate")) {
-				Platform.Instance.authenticate();
-				// TODO: check result
-				authenticated = true;
-			}
-			
-			// If authenticated and button pressed, sync to server
-			if (authenticated && GUI.Button(debug, "Sync to server")) {
-				Platform.Instance.syncToServer();
-			}
-			
-			// If set track button pressed, open map selection menu
-			if(GUI.Button(new Rect(originalWidth-100, originalHeight/2 - 50, 100, 100), "Set Track")) {
-				menuOpen = false;
-				mapOpen = true;
-				GetComponent<GetTrack>().setActive(true);
-			}
-		} 
-		// Else if map selection screen open
-		else if(mapOpen) 
-		{
-			// Draw black texture
-			GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
-			
-			// Set the back button
-			if (GUI.Button(new Rect(0, originalHeight-50, 100, 50), "Back")){
-				// Set bools
-        		mapOpen = false;
-				menuOpen = true;
-				
-				// Deactivate component, and if track is changed set boolean to true
-				GetComponent<GetTrack>().setActive(false);
-				if(GetComponent<GetTrack>().isChanged()) {
-					GetComponent<GetTrack>().setChanged(false);
-					changed = true;
-					trackSelected = true;
-				}
-			}			
-		}
-		else 
-		{
-			// Else display options button
-			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
-				// Open the menu and pause tracking
-        		menuOpen = true;
-				Platform.Instance.stopTrack();
-			}
-		}
+//			
+//			// Set the speed slider, if the value has changed set the new speed
+//			float temp  = GUI.HorizontalSlider(new Rect((originalWidth/2)-100, 250, 200, 50), targSpeed,  1.25f, 10.4f);
+//    		GUI.Label(new Rect(originalWidth/2 + 120, 250, 100, 50), temp.ToString("f2") + "m/s");
+//			if(temp != targSpeed)
+//			{
+//				changed = true;
+//				targSpeed = temp;
+//			}
+//			
+//			// When the back button is pressed
+//			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Back"))
+//			{
+//        	    menuOpen = false;
+//				
+//				// If anything has changed
+//				if(changed) {
+//					// Reset platform, set new target speed and indoor/outdoor mode
+//					Platform.Instance.reset();
+//					Platform.Instance.resetTargets();
+//					
+//					setTargets();
+//					
+//					if(!trackSelected) {
+//						Platform.Instance.setTargetSpeed(targSpeed);
+//					}
+//					
+//					Platform.Instance.setIndoor(indoor);
+//					
+//					// Start countdown again
+//					started = false;
+//					countdown = false;
+//					countTime = 3.0f;
+//					
+//					// Reset bools
+//					trackSelected = false;
+//					changed = false;
+//				} else {
+//					// Else restart tracking
+//					Platform.Instance.StartTrack();
+//				}
+//			}
+//			
+//			// If not authenticated and button pressed, authenticate
+//			if (!authenticated && GUI.Button(debug, "Authenticate")) {
+//				Platform.Instance.authenticate();
+//				// TODO: check result
+//				authenticated = true;
+//			}
+//			
+//			// If authenticated and button pressed, sync to server
+//			if (authenticated && GUI.Button(debug, "Sync to server")) {
+//				Platform.Instance.syncToServer();
+//			}
+//			
+//			// If set track button pressed, open map selection menu
+//			if(GUI.Button(new Rect(originalWidth-100, originalHeight/2 - 50, 100, 100), "Set Track")) {
+//				menuOpen = false;
+//				mapOpen = true;
+//				GetComponent<GetTrack>().setActive(true);
+//			}
+//		} 
+//		// Else if map selection screen open
+//		else if(mapOpen) 
+//		{
+//			// Draw black texture
+//			GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
+//			
+//			// Set the back button
+//			if (GUI.Button(new Rect(0, originalHeight-50, 100, 50), "Back")){
+//				// Set bools
+//        		mapOpen = false;
+//				menuOpen = true;
+//				
+//				// Deactivate component, and if track is changed set boolean to true
+//				GetComponent<GetTrack>().setActive(false);
+//				if(GetComponent<GetTrack>().isChanged()) {
+//					GetComponent<GetTrack>().setChanged(false);
+//					changed = true;
+//					trackSelected = true;
+//				}
+//			}			
+//		}
+//		else 
+//		{
+//			// Else display options button
+//			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
+//				// Open the menu and pause tracking
+//        		menuOpen = true;
+//				Platform.Instance.stopTrack();
+//			}
+//		}
 		
 		if(countdown)
 		{
@@ -312,6 +318,21 @@ public class SettingsScreen : MonoBehaviour {
 	}
 	
 	void Update () {
+		
+		DataVault.Set("calories", Platform.Instance.Calories().ToString());
+		DataVault.Set("pace", Platform.Instance.Pace().ToString("f2") + "m/s");
+		DataVault.Set("distance", SiDistance(Platform.Instance.Distance()));
+		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
+		
+		double targetDistance = Platform.Instance.getHighestDistBehind()-offset;
+		
+		if (targetDistance > 0) {
+			DataVault.Set("ahead_header", "Behind!");
+		} else {
+			DataVault.Set("ahead_header", "Ahead!"); 
+		}
+		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
+		
 		// If there is a GPS lock or indoor mode is active
 		if(Platform.Instance.hasLock() || indoor)
 		{
@@ -331,6 +352,41 @@ public class SettingsScreen : MonoBehaviour {
 		}
 	}
 	
+	string SiDistance(double meters) {
+		string postfix = "m";
+		string final;
+		float value = (float)meters;
+		if (value > 1000) {
+			value = value/1000;
+			postfix = "km";
+			final = value.ToString("f3");
+		}
+		else
+		{
+			final = value.ToString("f0");
+		}
+		return final+postfix;
+	}
+	
+	long speedToKmPace(float speed) {
+		if (speed <= 0) {
+			return 0;
+		}
+		// m/s -> mins/Km
+		return Convert.ToInt64( ((1/speed)/60) * 1000);
+	}
+	
+	string TimestampMMSSdd(long milliseconds) {
+		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
+
+		return string.Format("{0:00}:{1:00}:{2:00}",span.Minutes,span.Seconds,span.Milliseconds/10);	
+	}
+	string TimestampMMSS(long minutes) {
+		TimeSpan span = TimeSpan.FromMinutes(minutes);
+
+		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
+	}
+	
 	// Set the targets based on the enums
 	void setTargets() {
 		eagleHolder.SetActive(false);
@@ -341,15 +397,19 @@ public class SettingsScreen : MonoBehaviour {
 		switch(currentTarget) {
 		case Targets.Eagle:
 			eagleHolder.SetActive(true);
+			offset = 50;
 			break;
 		case Targets.Runner:
 			runnerHolder.SetActive(true);
+			offset = 0;
 			break;
 		case Targets.Train:
 			trainHolder.SetActive(true);
+			offset = 50;
 			break;
 		case Targets.Zombie:
 			zombieHolder.SetActive(true);
+			offset = 20;
 			break;
 		default:
 			break;

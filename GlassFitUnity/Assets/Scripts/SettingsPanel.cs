@@ -7,6 +7,9 @@ using System.Runtime.Serialization;
 [Serializable]
 public class SettingsPanel : Panel {
 	
+	public SettingsPanel(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt) {
+	}
+	
 	protected override void Initialize()
     {
         base.Initialize();
@@ -42,6 +45,7 @@ public class SettingsPanel : Panel {
 				
 			case "IndoorButton":
 				ss.SetIndoor();
+				
 				break;
 				
 			case "ServerButton":
