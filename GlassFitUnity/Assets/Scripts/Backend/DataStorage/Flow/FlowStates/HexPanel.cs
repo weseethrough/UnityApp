@@ -42,8 +42,6 @@ public class HexPanel : Panel
     {
         base.EnterStart();
 
-        Debug.Log("Panel Enter");
-
         if (physicalWidgetRoot != null)
         {
             DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));            

@@ -22,7 +22,7 @@ public class DynamicHexList : MonoBehaviour
 
     List<GameObject> buttons;
     UIImageButton selection;
-    public string buttonEnterAnimation = "";
+    public string buttonEnterAnimation = "HexEnter";
 
     bool buttonsReady = false;
     

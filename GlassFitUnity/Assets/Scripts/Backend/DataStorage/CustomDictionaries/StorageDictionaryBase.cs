@@ -155,6 +155,10 @@ public class StorageDictionaryBase<T> : ISerializable
 		}
 		
 		int index = this.name.FindIndex(x => x == name);
+        if (index < 0)
+        {
+            return default(T);
+        }
 		return data[index];
 	}
 	
