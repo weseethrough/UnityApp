@@ -24,9 +24,14 @@ public class MainPanel : Panel {
 		switch(button.name) {
 		case "SettingsButton":
 			UnityEngine.Debug.Log("Panel: finding game object");
+			
 			GameObject h = GameObject.Find("blackPlane");
 			UnityEngine.Debug.Log("Panel: Object found");
 			h.renderer.enabled = true;
+			
+			h = GameObject.Find("minimap");
+			h.renderer.enabled = false;
+			
 			UnityEngine.Debug.Log("Panel: Renderer Enabled");
 			break;
 		}

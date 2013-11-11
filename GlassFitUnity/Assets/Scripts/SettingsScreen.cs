@@ -20,6 +20,20 @@ public class SettingsScreen : MonoBehaviour {
 		Zombie			= 4
 	}
 	
+	// Minimap attributes
+	private GameObject minimap;
+	private GameObject minimap2;
+	private const int MAP_RADIUS = 1;
+	Texture2D selfIcon;
+	Texture2D targetIcon;
+	Texture2D mapTexture = null;
+	Material mapStencil;
+	const int mapAtlasRadius = 315; // API max width/height is 640
+	const int mapZoom = 18;
+	Position mapOrigo = new Position(0, 0);
+	WWW mapWWW = null;
+	Position fetchOrigo = new Position(0, 0);
+	
 	private Targets currentTarget = Targets.Runner;
 	private Rect debug;
 	private const int MARGIN = 15;
@@ -57,6 +71,9 @@ public class SettingsScreen : MonoBehaviour {
 		// Set indoor mode
 		Platform.Instance.setIndoor(indoor);
 		DataVault.Set("indoor_text", "Indoor Active");
+		
+		minimap = GameObject.Find("minimap");
+		minimap.renderer.material.renderQueue = 3000;
 		
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
@@ -135,76 +152,6 @@ public class SettingsScreen : MonoBehaviour {
 		// Set matrix, depth and various skin sizes
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		GUI.depth = 5;
-//		GUI.skin.button.fontSize = 15;
-//		GUI.skin.horizontalSliderThumb.fixedWidth = 60;
-//		GUI.skin.horizontalSliderThumb.fixedHeight = 60;
-//		
-//		// If the menu is open
-//		if(menuOpen)
-//		{			
-//			// Draw the black texture
-//			//GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
-//				
-//			// Set increased label size for speed guide
-//			GUI.skin.label.fontSize = 30;		
-//			GUI.Label(new Rect(originalWidth/2-100, 10, 200, 40), "Speed Guide");
-//			
-//			// Reduce label size and set rest of speed guide
-//			GUI.skin.label.fontSize = 15;
-//			GUI.Label(new Rect(originalWidth/2 -100, 50, 200, 40), "Walking: 1.25m/s");
-//			GUI.Label (new Rect(originalWidth/2 - 100, 90, 200, 40), "Jogging: 2.2m/s");
-//			GUI.Label(new Rect(originalWidth/2 - 100, 130, 200, 40), "Running: 4.2m/s");
-//			GUI.Label(new Rect(originalWidth/2 - 100, 170, 200, 40), "Usain Bolt: 10.4m/s");
-//			
-//			// If runner is pressed, deactivate the rest and set a new offset
-//			if(GUI.Button(new Rect(0, originalHeight-200, 200, 200) , "Runner"))
-//			{
-//				currentTarget = Targets.Runner;
-//				changed = true;
-//				GetComponent<TargetDisplay>().setOffset(0);
-//			}
-//			
-//			// If an eagle is pressed, deactivate the rest and set the new offset
-//			if(GUI.Button(new Rect (200, originalHeight-200, 200, 200), "Eagle"))
-//			{				
-//				currentTarget = Targets.Eagle;
-//				changed = true;
-//				GetComponent<TargetDisplay>().setOffset(50);
-//			}
-//			
-//			// If an zombie is pressed, deactivate the rest and set the new offset
-//			if(GUI.Button(new Rect (400, originalHeight-200, 200, 200), "Zombie"))
-//			{
-//				currentTarget = Targets.Zombie;
-//				changed = true;
-//				GetComponent<TargetDisplay>().setOffset(20);
-//			}
-//			
-//			// If an train is pressed, deactivate the rest and set the new offset
-//			if(GUI.Button(new Rect(600, originalHeight-200, 200, 200), "Train"))
-//			{
-//				currentTarget = Targets.Train;
-//				changed = true;
-//				GetComponent<TargetDisplay>().setOffset(50);
-//			}
-//			
-//			
-//			// Set the indoor/outdoor mode
-//			if(GUI.Button(new Rect(0, 0, 100, 100), indoorText))
-//			{
-//				if(indoor) {
-//					indoor = false;
-//					UnityEngine.Debug.Log("Outdoor mode active");
-//					indoorText = "Outdoor Active";
-//				}
-//				else {
-//					indoor = true;
-//					UnityEngine.Debug.Log("Indoor mode active");
-//					indoorText = "Indoor Active";
-//				}
-//				changed = true;
-//			}
-//			
 //			// Set the speed slider, if the value has changed set the new speed
 //			float temp  = GUI.HorizontalSlider(new Rect((originalWidth/2)-100, 250, 200, 50), targSpeed,  1.25f, 10.4f);
 //    		GUI.Label(new Rect(originalWidth/2 + 120, 250, 100, 50), temp.ToString("f2") + "m/s");
@@ -213,89 +160,6 @@ public class SettingsScreen : MonoBehaviour {
 //				changed = true;
 //				targSpeed = temp;
 //			}
-//			
-//			// When the back button is pressed
-//			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Back"))
-//			{
-//        	    menuOpen = false;
-//				
-//				// If anything has changed
-//				if(changed) {
-//					// Reset platform, set new target speed and indoor/outdoor mode
-//					Platform.Instance.reset();
-//					Platform.Instance.resetTargets();
-//					
-//					setTargets();
-//					
-//					if(!trackSelected) {
-//						Platform.Instance.setTargetSpeed(targSpeed);
-//					}
-//					
-//					Platform.Instance.setIndoor(indoor);
-//					
-//					// Start countdown again
-//					started = false;
-//					countdown = false;
-//					countTime = 3.0f;
-//					
-//					// Reset bools
-//					trackSelected = false;
-//					changed = false;
-//				} else {
-//					// Else restart tracking
-//					Platform.Instance.StartTrack();
-//				}
-//			}
-//			
-//			// If not authenticated and button pressed, authenticate
-//			if (!authenticated && GUI.Button(debug, "Authenticate")) {
-//				Platform.Instance.authenticate();
-//				// TODO: check result
-//				authenticated = true;
-//			}
-//			
-//			// If authenticated and button pressed, sync to server
-//			if (authenticated && GUI.Button(debug, "Sync to server")) {
-//				Platform.Instance.syncToServer();
-//			}
-//			
-//			// If set track button pressed, open map selection menu
-//			if(GUI.Button(new Rect(originalWidth-100, originalHeight/2 - 50, 100, 100), "Set Track")) {
-//				menuOpen = false;
-//				mapOpen = true;
-//				GetComponent<GetTrack>().setActive(true);
-//			}
-//		} 
-//		// Else if map selection screen open
-//		else if(mapOpen) 
-//		{
-//			// Draw black texture
-//			GUI.DrawTexture(new Rect(0,0,originalWidth,originalHeight), blackTexture);
-//			
-//			// Set the back button
-//			if (GUI.Button(new Rect(0, originalHeight-50, 100, 50), "Back")){
-//				// Set bools
-//        		mapOpen = false;
-//				menuOpen = true;
-//				
-//				// Deactivate component, and if track is changed set boolean to true
-//				GetComponent<GetTrack>().setActive(false);
-//				if(GetComponent<GetTrack>().isChanged()) {
-//					GetComponent<GetTrack>().setChanged(false);
-//					changed = true;
-//					trackSelected = true;
-//				}
-//			}			
-//		}
-//		else 
-//		{
-//			// Else display options button
-//			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
-//				// Open the menu and pause tracking
-//        		menuOpen = true;
-//				Platform.Instance.stopTrack();
-//			}
-//		}
 		
 		if(countdown)
 		{
@@ -333,6 +197,15 @@ public class SettingsScreen : MonoBehaviour {
 			DataVault.Set("ahead_header", "Ahead!"); 
 		}
 		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
+		
+		Position position = Platform.Instance.Position();
+		float bearing = Platform.Instance.Bearing();
+		double bearingRad = bearing*Math.PI/180;
+		if (position != null) {
+			// Fake target coord using distance and bearing
+			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearingRad)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearingRad)*targetDistance/111229d));
+			GetMap(position, bearingRad, targetCoord);
+		}
 		
 		// If there is a GPS lock or indoor mode is active
 		if(Platform.Instance.hasLock() || indoor)
@@ -415,5 +288,148 @@ public class SettingsScreen : MonoBehaviour {
 		default:
 			break;
 		}
+	}
+	
+	private void GetMap(Position selfCoords, double bearing, Position targetCoords) {
+		Position direction = new Position(selfCoords.latitude + (float)(Math.Cos(bearing)*1000/111229d), 
+		                                  selfCoords.longitude + (float)(Math.Sin(bearing)*1000/111229d));	
+		double pixelBearing = Angle(mercatorToPixel(selfCoords), mercatorToPixel(direction));	
+		UnityEngine.Debug.Log("Map: pixel bearing calculated");
+		bearing = pixelBearing;
+		
+		// Get a static map with a radius of mapAtlasRadius, cache and re-get if viewport within margin of the border
+		const int margin = 15;	
+		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
+		Vector2 drift = mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords);
+		UnityEngine.Debug.Log("Map: drift calculated");
+//		Debug.Log("drift: " + drift.magnitude + " .." + drift);
+		if (mapWWW == null && (mapTexture == null || drift.magnitude >= maxdrift)) {
+			FetchMapTexture(selfCoords);
+			UnityEngine.Debug.Log("Map: fetched");
+		}
+		if (mapWWW != null && mapWWW.isDone) {
+			if (mapWWW.error != null) {
+				UnityEngine.Debug.Log(mapWWW.error);
+				UnityEngine.Debug.Log("Map: error with map");
+			} else {
+				mapTexture = mapWWW.texture;
+				mapOrigo = fetchOrigo;
+				UnityEngine.Debug.Log("Map: origo error");
+			}
+			mapWWW = null;
+		}
+		
+		if (mapTexture == null) {
+			return;
+		}
+		
+		// Map self coordinates into map atlas, normalize to atlas size and shift to center
+		Vector2 mapNormalSelf = (mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
+		mapNormalSelf.x += 0.5f;
+		mapNormalSelf.y += 0.5f;
+		float normalizedRadius = (float)MAP_RADIUS/(mapAtlasRadius*2);
+		// Draw a MAP_RADIUS-sized circle around self
+		Rect mapCoords = new Rect(1 - mapNormalSelf.x - normalizedRadius, mapNormalSelf.y - normalizedRadius,
+		                          normalizedRadius*2, normalizedRadius*2);
+		Vector2 mapCenter = new Vector2(minimap.transform.position.x, minimap.transform.position.y);
+		//Matrix4x4 matrixBackup = GUI.matrix;
+		if (Event.current.type == EventType.Repaint) {
+			// Rotation and indexing into atlas handled by shader
+			minimap.renderer.material.SetFloat("_Rotation", (float)-bearing);			
+			minimap.renderer.material.SetVector("_Rectangle", new Vector4(mapCoords.x, mapCoords.y, mapCoords.width, mapCoords.height));
+//			Graphics.DrawTexture(map, mapTexture, mapCoords, 0, 0, 0, 0, mapStencil);
+			minimap.renderer.material.mainTexture = mapTexture;
+		}
+		
+//		// Self is always at center
+//		mapSelf.x = mapCenter.x - mapSelf.width/2;
+//		mapSelf.y = mapCenter.y - mapSelf.height/2;
+//		GUI.DrawTexture(mapSelf, selfIcon);
+//		// Target is relative to self and limited to map radius
+//		Vector2 localTarget = mercatorToPixel(selfCoords) - mercatorToPixel(targetCoords);
+//		if (localTarget.magnitude > MAP_RADIUS) {
+//			localTarget.Normalize();
+//			localTarget *= MAP_RADIUS;
+//			// TODO: Change icon to indicate outside of minimap?
+//		}		
+		
+		// Rotated so bearing is up
+		double c = Math.Cos(-bearing);
+		double s = Math.Sin(-bearing);
+//		mapTarget.x = mapCenter.x - (float)(localTarget.x * c - localTarget.y * s)  - mapTarget.width/2;
+//		mapTarget.y = mapCenter.y - (float)(localTarget.x * s + localTarget.y * c) - mapTarget.height/2;
+		//GUI.DrawTexture(mapTarget, targetIcon);
+				
+		//GUI.matrix = matrixBackup;
+		//GUI.color = original;
+	}
+	
+	Vector2 mercatorToPixel(Position mercator) {
+		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
+		int scale = (int)Math.Pow(2, mapZoom);
+		
+		// Mercator to google world cooordinates
+		Vector2 world = new Vector2(
+			(float)(mercator.longitude+180)/360*256,
+			(float)(
+				(1 - Math.Log(
+						Math.Tan(mercator.latitude * Math.PI / 180) +  
+						1 / Math.Cos(mercator.latitude * Math.PI / 180)
+					) / Math.PI
+				) / 2
+			) * 256
+		);
+//		Debug.Log(mercator.latitude + "," + mercator.longitude + " => " + world.x + "," + world.y);
+		
+		return world * scale;
+	}
+	
+	Position pixelToMercator(Vector2 pixel) {
+		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
+		int scale = (int)Math.Pow(2, mapZoom);
+		
+		Vector2 world = pixel / scale;
+		// Google world coordinates to mercator
+		double n = Math.PI - 2 * Math.PI * world.y / 256;
+		Position mercator = new Position(
+			(float)(180 / Math.PI * Math.Atan(0.5 * (Math.Exp(n) - Math.Exp(-n)))),
+			(float)world.x / 256 * 360 - 180
+		);
+			
+		return mercator;			
+	}
+	
+	private double Angle(Vector2 pos1, Vector2 pos2) {
+	    Vector2 from = pos2 - pos1;
+	    Vector2 to = new Vector2(0, 1);
+	 
+	    float result = Vector2.Angle( from, to );
+//		Debug.Log(result);
+	    Vector3 cross = Vector3.Cross( from, to );
+	 
+	    if (cross.z > 0)
+	       result = 360f - result;
+		
+		result += 180.0f;
+		
+	    return result*Math.PI/180;
+	}
+	
+	private void FetchMapTexture(Position origo) {					
+		const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
+		const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
+		string url = endpoint + "?center="
+		                      + origo.latitude + "," + origo.longitude
+//		                      + "&markers=color:blue%7Clabel:S%7C" + origo.latitude + "," + origo.longitude
+//		                      + "&markers=color:green%7Clabel:E%7C" + (origo.latitude+0.0001f) + "," + (origo.longitude+0.0001f)
+//		                      + "&markers=color:red%7Clabel:W%7C" + (origo.latitude) + "," + (origo.longitude+0.0003f)
+		                      + "&zoom=" + mapZoom
+		                      + "&size=" + (mapAtlasRadius*2) + "x" + (mapAtlasRadius*2)
+		                      + "&maptype=roadmap"
+		                      + "&sensor=true&key=" + API_KEY;
+		mapWWW = new WWW(url);		
+//		debugText = "Fetching map..";
+		UnityEngine.Debug.Log("Fetching map.. " + url);
+		fetchOrigo = origo;
 	}
 }
