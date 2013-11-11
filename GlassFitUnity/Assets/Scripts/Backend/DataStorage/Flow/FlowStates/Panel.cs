@@ -181,7 +181,7 @@ public class Panel : FlowState
         }        
     }    
 
-    public void OnClick(FlowButton button)
+    public virtual void OnClick(FlowButton button)
     {
         if (Outputs.Count > 0 && parentMachine != null)
         {
@@ -197,7 +197,7 @@ public class Panel : FlowState
         }
     }
 
-    public void OnPress(FlowButton button, bool isDown)
+    public virtual void OnPress(FlowButton button, bool isDown)
     {
 
     }

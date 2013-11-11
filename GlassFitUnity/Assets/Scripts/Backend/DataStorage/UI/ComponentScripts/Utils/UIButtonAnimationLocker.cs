@@ -13,7 +13,6 @@ public class UIButtonAnimationLocker : MonoBehaviour
         }
 
         if (button != null) button.isEnabled = false;
-        Debug.Log("locked: " + button);
     }
 
     public void OnButtonAnimFinished()

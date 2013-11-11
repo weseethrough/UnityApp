@@ -3,8 +3,26 @@ using System.Collections;
 
 public class FlowButton : MonoBehaviour 
 {
-    public Panel owner;
+    private Panel m_owner;
+    public Panel owner
+    {
+        get 
+        { 
+            Debug.Log("get panel owner: " + m_owner.GetDisplayName());
+            return m_owner;
+        }
+        set 
+        { 
+            m_owner = value;
+            Debug.Log("set panel owner: "+m_owner.GetDisplayName());
+        }
+    }
     public string name;
+
+    void Start()
+    {
+        Debug.Log("Flow button creation: " + gameObject.name);
+    }
 
 	public void OnClick()
     {
