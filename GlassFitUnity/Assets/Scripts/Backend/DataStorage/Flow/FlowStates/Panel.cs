@@ -7,7 +7,10 @@ using System.Runtime.Serialization;
 [Serializable]
 public class Panel : FlowState
 {
-    static public string[] InteractivePrefabs = { "UIComponents/Button" };    
+    static public string[] InteractivePrefabs = { "UIComponents/Button",
+												  "MainGUIComponents/ResetGyroButton",
+												  "MainGUIComponents/SettingsButton",
+												  "SettingsComponent/IndoorButton"};    
     public FlowPanelComponent panelNodeData;
 
     [NonSerialized()] public GameObject physicalWidgetRoot;

@@ -335,7 +335,7 @@ public abstract partial class Sensor : MonoBehaviour
 	protected abstract float GetDeviceAltitude(float pressure, float pressureAtSeaLevel = PressureValue.StandardAthmosphere);
 	protected abstract Vector3 _getDeviceOrientation();
 	
-    // protected abstract Vector3 GetDeviceOrientation();
+     //protected abstract Vector3 GetDeviceOrientation();
     protected abstract void CompensateDeviceOrientation(ref Vector3 k);
 	
     #endregion

@@ -43,23 +43,27 @@ public class DataStore : MonoBehaviour
 
 #if UNITY_EDITOR
 	private PlatformDummy platform;
-#else
-    private Platform platform;
 #endif
 
     public void MakeAwake()
     {
         _instance = this;
-
+#if UNITY_EDITOR
         if (platform != null)
         {
             Debug.LogWarning("Reinitialziation of datastorage canceled");
             return;
         }
+//
+//		if (Platform.Instance != null)
+//        {
+//            Debug.LogWarning("Reinitialziation of datastorage canceled");
+//            return;
+//        }
+#endif
+		
 #if UNITY_EDITOR
         platform = new PlatformDummy();
-#else
-        platform = new Platform();
 #endif
 		storageBank = new Dictionary<string, Storage>();
 		
@@ -73,8 +77,11 @@ public class DataStore : MonoBehaviour
         {
             BlobNames bName = (BlobNames)i;
             string name = bName.ToString();
+#if UNITY_EDITOR
             storageBank[name] = InitializeBlob(platform.LoadBlob(name));
-                        
+#else
+			storageBank[name] = InitializeBlob(Platform.Instance.LoadBlob(name));
+#endif
             StorageDictionary sd = storageBank[name].dictionary;            
             for (int k = 0; k < sd.Length(); k++)
             {
@@ -126,14 +133,22 @@ public class DataStore : MonoBehaviour
 
     static public void LoadStorage(BlobNames name)
     {
+#if UNITY_EDITOR
         if (instance != null && instance.platform != null)
         {
             instance.storageBank[name.ToString()] = instance.InitializeBlob(instance.platform.LoadBlob(name.ToString()));
         }
+#else
+		if (instance != null)
+        {
+            instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));
+        }
+#endif
     }
 
     static public void SaveStorage(BlobNames name)
     {
+#if UNITY_EDITOR
         if (instance != null && instance.platform != null)
         {
             MemoryStream ms = new MemoryStream();
@@ -141,9 +156,20 @@ public class DataStore : MonoBehaviour
             bformatter.Serialize(ms, GetStorage(name));
 
             instance.platform.StoreBlob(name.ToString(), ms.GetBuffer());
-#if UNITY_EDITOR
+
             instance.platform.StoreBlobAsAsset(name.ToString(), ms.GetBuffer());
+		}
+#else
+		if (instance != null)
+        {
+            MemoryStream ms = new MemoryStream();
+            BinaryFormatter bformatter = new BinaryFormatter();
+            bformatter.Serialize(ms, GetStorage(name));
+
+            Platform.Instance.StoreBlob(name.ToString(), ms.GetBuffer());
+
+     	}
 #endif
-        }
+        
     }
 }

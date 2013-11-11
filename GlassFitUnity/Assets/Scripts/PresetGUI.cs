@@ -6,22 +6,13 @@ using System;
 
 public class PresetGUI : MonoBehaviour {
 
-	private Platform ji = null;
-	
-	public bool countdown = false;
 	public bool started = false;
-	public GameObject platform;
 	private const int MARGIN = 15;
+	private const float OPACITY = 0.5f;
 	private const int SUBMARGIN = 5;
 	
 	private float countTime = 3.0f;
-	
-	private const float OPACITY = 0.5f;
-	private float timeFromStart = 0;
-	
-	// Left side top
-	private Rect target;	
-	
+		
 	// Left side bottom
 	private Rect distance;
 	private string distanceText;
@@ -34,27 +25,12 @@ public class PresetGUI : MonoBehaviour {
 	private Rect pace;
 	private string paceText;
 	
-	// Right side bottom
-	private Rect map;
-	private Rect mapSelf;
-	private Rect mapTarget;
-	
-	// Buttons
-	private Rect start;
-	private string startText = "START";
-	private Rect stop;
-	private string stopText = "STOP";
-	
 	// Icons
 	private Rect gpsLock;
 	
 	// Debug
 	private Rect debug;
 	private string debugText;
-			
-	// Slider
-	private float paceSlider;
-	private Rect sliderBox;
 	
 	private float originalWidth = 800;  // define here the original resolution
   	private float originalHeight = 500; // you used to create the GUI contents 
@@ -65,14 +41,9 @@ public class PresetGUI : MonoBehaviour {
 	Texture2D info;
 	Texture2D warning;
 	
-	// Map textures
-	Texture2D selfIcon;
-	Texture2D targetIcon;
-	Texture2D mapTexture;
-
+	private bool authenticated = false;
+	
 	void Start () {
-		// Left side top
-		target =   new Rect(MARGIN, MARGIN, 200, 100);	
 		
 		// Left side bottom
 		distance = new Rect(MARGIN, originalHeight-MARGIN-100, 200, 100);
@@ -82,20 +53,8 @@ public class PresetGUI : MonoBehaviour {
 		calories = new Rect(originalWidth-MARGIN-200, MARGIN, 200, 100);
 		pace =     new Rect(originalWidth-MARGIN-200, calories.y+SUBMARGIN+100, 200, 100);
 		
-		// Right side bottom
-		map =      new Rect(originalWidth-MARGIN-200, originalHeight-MARGIN-200, 200, 200);
-		mapSelf =  new Rect(0, 0, 30, 30);
-		mapTarget = new Rect(0, 0, 30, 30);
-
-		// Buttons
-		start =    new Rect((originalWidth-200)/2, (originalHeight-100)/2-SUBMARGIN, 200, 100);
-		stop =     new Rect((originalWidth-200)/2, (originalHeight+100)/2+SUBMARGIN, 200, 100);
-		
 		// Icons
 		gpsLock =  new Rect((originalWidth/2)-150, MARGIN, 300, 100);
-		
-		//Slider
-		sliderBox = new Rect((originalWidth/2), MARGIN, 300, 100);
 		
 		// *** DEBUG
 		debug =    new Rect((originalWidth-200)/2, originalHeight-MARGIN-100, 200, 100);
@@ -104,7 +63,7 @@ public class PresetGUI : MonoBehaviour {
 		distanceText = "Distance\n";
 		timeText = "Time\n";
 		caloriesText = "Calories\n";
-		paceText = "Pace/KM\n";	
+		paceText = "Pace\n";	
 		
 		Color white = new Color(0.9f, 0.9f, 0.9f, OPACITY);
 		normal = new Texture2D(1, 1);
@@ -121,33 +80,12 @@ public class PresetGUI : MonoBehaviour {
 		warning.SetPixel(0,0,red);
 		warning.Apply();
 		
-		selfIcon = Resources.Load("Self") as Texture2D;
-		targetIcon = Resources.Load("Target") as Texture2D;
-		mapTexture = Resources.Load("DummyMap") as Texture2D;
-		
-		
-		ji = new Platform();
-		ji.setTargetSpeed(1.76f);
-		//EventLog.
-		//ji.StartTrack(false);
 	}
 	
 	// Update is called once per frame
 	void Update ()
-	{
-		timeFromStart += Time.deltaTime;
-		
-//		if(countTime == 3.0f && ji.hasLock() && !started)
-//		{
-//			started = true;
-//			countdown = true;
-//		}
-//		
-//		if(started && countTime <= -1.0f)
-//		{
-//			ji.StartTrack(false);
-//		}
-		if(started && countTime > -1.0f && ji.hasLock())
+	{		
+		if(started && countTime > -1.0f && Platform.Instance.hasLock())
 		{
 			countTime -= Time.deltaTime;
 		}
@@ -156,19 +94,17 @@ public class PresetGUI : MonoBehaviour {
 		{
 			if(countTime < 0.0f)
 			{
-				ji.reset();
+				Platform.Instance.reset();
 				Application.LoadLevel(Application.loadedLevel);
 			} else
 			{
-				ji.reset();
+				Platform.Instance.reset();
 				Application.LoadLevel(0);
 			}
 		}
 				
-		ji.Poll();
+		Platform.Instance.Poll();
 	}
-	
-	
 	
 	void OnGUI ()
 	{
@@ -181,22 +117,7 @@ public class PresetGUI : MonoBehaviour {
     	
 		// substitute matrix - only scale is altered from standard
     	GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-		
-//		if(countdown)
-//		{
-//			GUI.skin.label.fontSize = 40;
-//			//float currentTime = 3.0f - timer.Elapsed.Seconds;
-//			int cur = Mathf.CeilToInt(countTime);
-//			if(countTime > 0.0f)
-//			{
-//				GUI.Label(new Rect(300, 200, 200, 200), cur.ToString()); 
-//			}
-//			else if(countTime > -1.0f && countTime < 0.0f)
-//			{
-//				GUI.Label(new Rect(300, 200, 200, 200), "GO!"); 
-//			}
-//		}
-		
+		GUI.depth = 10;
 		// Setting label font size
 		GUI.skin.label.fontSize = 15;
 		
@@ -208,50 +129,40 @@ public class PresetGUI : MonoBehaviour {
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		
-		if(!ji.hasLock())
+		if(!Platform.Instance.hasLock())
 		{
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
 		
+		// *** DEBUG? TODO: Icon? Message?
+		float bearing = Platform.Instance.Bearing();
+		double bearingRad = bearing*Math.PI/180;
+		
 		// Distance
-		double selfDistance = ji.Distance();
+		double selfDistance = Platform.Instance.Distance();
+		
 		GUI.Box(distance, distanceText+SiDistance( selfDistance));
 		
 		// Time
-		GUI.Box(time, timeText+TimestampMMSSdd( ji.Time() ));
+		GUI.Box(time, timeText+TimestampMMSSdd( Platform.Instance.Time() ));
 		
 		// Calories
-		GUI.Box(calories, caloriesText + ji.Calories());
+		GUI.Box(calories, caloriesText + Platform.Instance.Calories());
 		
 		// pace
-		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( ji.Pace() )) );
-		
-		// Map
-		// TODO: Stencil out circle
-		Color original = GUI.color;
-		GUI.color = new Color(1f, 1f, 1f, OPACITY);
-				
-		float selfOnMap = (float)selfDistance/map.height;
-		Rect mapCoords = new Rect(0, selfOnMap, 1, selfOnMap+0.3f);
-		GUI.DrawTextureWithTexCoords(map, mapTexture, mapCoords);
-
-		mapSelf.x = map.x + map.width/2 - mapSelf.width/2;
-		mapSelf.y = map.y + map.height/2 - mapSelf.height/2;
-		
-		double targetDistance = ji.DistanceBehindTarget();
-		int targetDistanceOnMap = Convert.ToInt32(targetDistance);
-		int maxDistanceOnMap = Convert.ToInt32(map.height/2);
-		if (targetDistanceOnMap > maxDistanceOnMap) targetDistanceOnMap = maxDistanceOnMap; 
-		if (-targetDistanceOnMap > maxDistanceOnMap) targetDistanceOnMap = -maxDistanceOnMap; 
-		mapTarget.x = map.x + map.width/2 - mapTarget.width/2;
-		mapTarget.y = map.y - targetDistanceOnMap + map.height/2 - mapTarget.height/2;
-		
-		GUI.DrawTexture(mapSelf, selfIcon);
-		GUI.DrawTexture(mapTarget, targetIcon);
-		GUI.color = original;
+		//GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( Platform.Instance.Pace() )) );
+		GUI.Box(pace, paceText + Platform.Instance.Pace().ToString("f2") + "m/s");
 		
 		// *** DEBUG
-		//GUI.TextArea(debug, debugText + ji.DebugLog());
+//		if (!authenticated && GUI.Button(debug, "Authenticate")) {
+//			Platform.Instance.authenticate();
+//			// TODO: check result
+//			authenticated = true;
+//		}
+//		if (authenticated && GUI.Button(debug, "Sync to server")) {
+//			Platform.Instance.syncToServer();
+//		}
+		//GUI.TextArea(debug, debugText + Platform.Instance.DebugLog());
 		// *** DEBUG
 		GUI.matrix = svMat; // restore matrix
 	}
@@ -259,7 +170,7 @@ public class PresetGUI : MonoBehaviour {
 	string SiDistance(double meters) {
 		string postfix = "m";
 		string final;
-		int value = (int)meters;
+		float value = (float)meters;
 		if (value > 1000) {
 			value = value/1000;
 			postfix = "km";
@@ -269,7 +180,7 @@ public class PresetGUI : MonoBehaviour {
 		{
 			final = value.ToString("f0");
 		}
-		return value+postfix;
+		return final+postfix;
 	}
 	
 	long speedToKmPace(float speed) {
@@ -290,4 +201,6 @@ public class PresetGUI : MonoBehaviour {
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}
+	
+	
 }

@@ -98,8 +98,6 @@ public Quaternion offsetFromStart;
 	// Update is called once per frame
 	void Update () {
 		
-		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * SensorHelper.rotation;
-		
 		startTimer -= Time.deltaTime;
 		
 		if(startTimer <= 0 && !started)
