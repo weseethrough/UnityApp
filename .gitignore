@@ -1,10 +1,7 @@
 Temp/
 obj/
  
-Library/cache
-Library/metadata
-Library/previews
-Library/ScriptAssemblies
+Library/
  
 Assembly-CSharp-Editor-firstpass-vs.csproj
 Assembly-CSharp-Editor-firstpass.csproj

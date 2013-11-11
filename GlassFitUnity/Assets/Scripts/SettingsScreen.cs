@@ -88,7 +88,7 @@ public class SettingsScreen : MonoBehaviour {
 			indoor = true;
 			UnityEngine.Debug.Log("Indoor mode active");
 			indoorText = "Indoor Active";
-			DataVault.Set("indoor_text", "Indoor Active");
+			DataVault.Set("indoor_text", indoorText);
 		}
 		changed = true;
 	}
@@ -323,6 +323,7 @@ public class SettingsScreen : MonoBehaviour {
 		DataVault.Set("pace", Platform.Instance.Pace().ToString("f2") + "m/s");
 		DataVault.Set("distance", SiDistance(Platform.Instance.Distance()));
 		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
+		DataVault.Set("indoor_text", indoorText);
 		
 		double targetDistance = Platform.Instance.getHighestDistBehind()-offset;
 		

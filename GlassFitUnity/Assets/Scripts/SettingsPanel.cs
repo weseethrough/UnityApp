@@ -58,6 +58,8 @@ public class SettingsPanel : Panel {
 				
 			case "BackMainButton":
 				ss.Back();
+				GameObject h = GameObject.Find("blackPlane");
+				h.renderer.enabled = false;
 				break;	
 				
 //			case "NextButton":
