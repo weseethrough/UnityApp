@@ -192,9 +192,9 @@ public class DataVault : MonoBehaviour
             List<UIComponentSettings> list = registeredListeners[name];
             if (list != null)
             {
-                foreach (UIBasiclabel listener in list)
+                foreach (UIComponentSettings listener in list)
                 {
-                    listener.SetTranslatedText(false);
+                    listener.Apply();// .SetTranslatedText(false);
                 }
             }
         }                
@@ -300,7 +300,7 @@ public class DataVault : MonoBehaviour
                     
                 }
                 string startSection = start > 0 ? source.Substring(0,start) : "";
-                string endSection = end < source.Length-1 ? source.Substring(end+1,source.Length-end) : "";
+                string endSection = end < source.Length-1 ? source.Substring(end+1,source.Length-end-1) : "";
                 return startSection + newSection + endSection;
             }
         }
@@ -311,7 +311,7 @@ public class DataVault : MonoBehaviour
     static public void RegisterListner(UIComponentSettings listner, string identifier)
     {
         if (registeredListeners != null && registrationRecord != null &&
-            listner != null && identifier.Length > 0)
+            listner != null && identifier != null && identifier.Length > 0)
         {
             if (!registeredListeners.ContainsKey(identifier))
             {

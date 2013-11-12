@@ -75,7 +75,7 @@ public class SerializableSettings : ISerializable
             UIComponentSettings cs = c as UIComponentSettings;
             if (cs != null)
             {
-                cs.Apply();
+                cs.Register();                
             }
 
         }

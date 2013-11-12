@@ -1,5 +1,6 @@
 Temp/
 obj/
+Library/
  
 Library/
  
@@ -44,3 +45,5 @@ Assembly-UnityScript.unityProj
 *.suo
 *.sln
 *.apk
+*.csproj
+*.unityproj

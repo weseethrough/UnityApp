@@ -41,18 +41,19 @@ public class UIBasiclabel : UIComponentSettings {
     override public void Apply()
     {
         base.Apply();
-        //SetLabel(label);
+        SetTranslatedText(false);
+    }
+
+    public override void Register()
+    {
+        base.Register();
+
         SetTranslatedText(true);
     }
 
     public void SetTranslatedText(bool register)
     {
         SetLabel(DataVault.Translate(label, register? this : null));
-    }
-
-    void OnDestroy()
-    {
-        DataVault.UnRegisterListner(this);
     }
 }
 

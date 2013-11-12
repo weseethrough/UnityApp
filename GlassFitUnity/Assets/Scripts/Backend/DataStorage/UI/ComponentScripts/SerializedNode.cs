@@ -140,7 +140,7 @@ public class SerializedNode : ISerializable
                 GameObject go = GameObject.Instantiate(prefab) as GameObject;
             
 #endif
-                if (overrideCollection != null)
+                if (overrideCollection != null && overrideCollection.names != null)
                 {
                     int id = overrideCollection.names.IndexOf(name);
                     if (id > -1)

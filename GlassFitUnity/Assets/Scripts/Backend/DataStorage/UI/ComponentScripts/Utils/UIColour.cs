@@ -1,10 +1,82 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
+using System;
 
 [ExecuteInEditMode]
 public class UIColour : UIComponentSettings {
 
-	public Color sprite;
+    public string colorInt = "AABBAABB";
+    public string databaseIDName = "";        
+    
+    public float r
+    {
+        get 
+        { 
+            string sColor = colorInt.Substring(0,2);
+            int color = Convert.ToInt32(sColor, 16);
+            return (float)(color) / (float)(0xFF); 
+        }
+        set 
+        {
+            value = Mathf.Clamp(value, 0.0f, 1.0f);
+            int color = Mathf.RoundToInt(value * 0xFF);
+            string val = color.ToString("X2");
+            colorInt = "" + val + colorInt.Substring(2, 6);
+        }
+    }
+
+    public float g
+    {
+        get
+        {
+            string sColor = colorInt.Substring(2, 2);
+            int color = Convert.ToInt32(sColor, 16);
+            return (float)(color) / (float)(0xFF);
+        }
+        set
+        {
+            value = Mathf.Clamp(value, 0.0f, 1.0f);
+            int color = Mathf.RoundToInt(value * 0xFF);
+            string val = color.ToString("X2");
+            colorInt = colorInt.Substring(0, 2) + val + colorInt.Substring(4, 4);
+        }
+    }
+
+    public float b
+    {
+        get
+        {
+            string sColor = colorInt.Substring(4, 2);
+            int color = Convert.ToInt32(sColor, 16);
+            return (float)(color) / (float)(0xFF);
+        }
+        set
+        {
+            value = Mathf.Clamp(value, 0.0f, 1.0f);
+            int color = Mathf.RoundToInt(value * 0xFF);
+            string val = color.ToString("X2");
+            colorInt = colorInt.Substring(0, 4) + val + colorInt.Substring(6, 2);
+        }
+    }
+
+    public float a
+    {
+        get
+        {
+            string sColor = colorInt.Substring(6, 2);
+            int color = Convert.ToInt32(sColor, 16);
+            return (float)(color) / (float)(0xFF);
+        }
+        set
+        {
+            value = Mathf.Clamp(value, 0.0f, 1.0f);
+            int color = Mathf.RoundToInt(value * 0xFF);
+            string val = color.ToString("X2");
+            colorInt = colorInt.Substring(0, 6) + val + "";
+        }
+    }
+
+    //public Color sprite;
 	private UISprite spriteInstance;    
 	
 	void Awake()
@@ -13,15 +85,30 @@ public class UIColour : UIComponentSettings {
 		
 		if (sprites.Length != 1 )
 		{
-			Debug.LogError("Label system on buttons expect only one and minimum one label");
+			Debug.LogError("Color system on buttons expect only one and minimum one sprite");
 			return;
 		}
 		spriteInstance = sprites[0];
 		UpdateFromSprite();
 	}
-	
+
+    public Color GetColor()
+    {
+        return new Color(r, g, b, a);
+    }
+
+    public Vector4 GetVector()
+    {
+        return new Vector4(r, g, b, a);
+    }
+
 	void SetColour(Color c)
 	{
+        if (spriteInstance == null)
+        {
+            Debug.LogError("Instance not awakened");
+            return;
+        }
 		Vector4 col1 = spriteInstance.color;
 		Vector4 col2 = c;
 		if (spriteInstance != null && (col1 != col2))
@@ -33,27 +120,47 @@ public class UIColour : UIComponentSettings {
 
 	void UpdateFromSprite()
 	{
-		if(spriteInstance != null)
+        if (spriteInstance != null)
 		{
-			sprite = spriteInstance.color;
+			Color color = spriteInstance.color;
+            r = color.r;
+            g = color.g;
+            b = color.b;
+            a = color.a;
 		}
 	}
     
     override public void Apply()
     {
         base.Apply();
-        //SetLabel(label);
-		SetColour(sprite);
-        //SetTranslatedText(true);
+        UpdateFromDatabase();
+        SetColour(GetColor());
     }
 
-//    public void SetTranslatedText(bool register)
-//    {
-//        SetLabel(DataVault.Translate(label, register? this : null));
-//    }
-
-    void OnDestroy()
+    public override void Register()
     {
-        DataVault.UnRegisterListner(this);
+        base.Register();
+        if (databaseIDName != null && databaseIDName != "")
+        {
+            DataVault.RegisterListner(this, databaseIDName);
+        }
+
+        Apply();
     }
+
+    public void UpdateFromDatabase()
+    {
+        if (databaseIDName != null)
+        {
+            System.Object o = DataVault.Get(databaseIDName);
+            if (o != null)
+            {
+                string color = Convert.ToString(o);
+                if (color != null && color.Length == 8)
+                {
+                    colorInt = color;
+                }
+            }
+        }
+    }    
 }
