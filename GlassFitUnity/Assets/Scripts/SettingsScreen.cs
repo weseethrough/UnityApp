@@ -196,8 +196,12 @@ public class SettingsScreen : MonoBehaviour {
 		
 		if (targetDistance > 0) {
 			DataVault.Set("ahead_header", "Behind!");
+			DataVault.Set("ahead_col_header", "D20000FF");
+			DataVault.Set("ahead_col_box", "D20000EE");
 		} else {
 			DataVault.Set("ahead_header", "Ahead!"); 
+			DataVault.Set("ahead_col_box", "19D200EE");
+			DataVault.Set("ahead_col_header", "19D200FF");
 		}
 		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
 		
