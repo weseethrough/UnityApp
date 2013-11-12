@@ -75,6 +75,9 @@ public class SettingsScreen : MonoBehaviour {
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
 		
+		minimap2 = GameObject.Find("minimap2");
+		minimap2.renderer.material.renderQueue = 3000;
+		
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
@@ -339,6 +342,7 @@ public class SettingsScreen : MonoBehaviour {
 			minimap.renderer.material.SetVector("_Rectangle", new Vector4(mapCoords.x, mapCoords.y, mapCoords.width, mapCoords.height));
 //			Graphics.DrawTexture(map, mapTexture, mapCoords, 0, 0, 0, 0, mapStencil);
 			minimap.renderer.material.mainTexture = mapTexture;
+			minimap2.renderer.material.mainTexture = mapTexture;
 		}
 		
 //		// Self is always at center
