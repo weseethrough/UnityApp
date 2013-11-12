@@ -38,7 +38,7 @@ public class PBRunnerController : TargetController {
 			} else if(speed > 4.0f) {
 				anim.speed = Mathf.Clamp(newSpeed / 4.0f, 1, 2);
 			} else {
-				anim.speed = newSpeed / 1.25f;
+				anim.speed = newSpeed / 1.0f;
 			}
 		}
 	}
