@@ -70,7 +70,7 @@ public class FlowPanelComponent
                                 }
                             }
                         }
-                        if (componentList[id].intData != null)
+                        if (componentList[id].strData != null)
                         {
                             string data;
                             string data2;
@@ -88,7 +88,7 @@ public class FlowPanelComponent
                                 }
                             }
                         }
-                        if (componentList[id].intData != null)
+                        if (componentList[id].doubleData != null)
                         {
                             double data;
                             double data2;

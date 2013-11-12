@@ -10,6 +10,7 @@ public class GConnector //: ScriptableObject // i.e. referenced serialization
 	public string Name;
 	public string Type;
 	public List<GConnector> Link = new List<GConnector>();
+    public string EventFunction;
 	
 	public Vector2 GetPosition(GraphData graph)
 	{

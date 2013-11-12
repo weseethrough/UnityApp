@@ -48,6 +48,7 @@ public class GraphWindow : EditorWindow, IDraw
 	
 	bool m_dragMain;
     bool m_drawInfo;
+    bool m_dragConnector;
     bool m_selectionChanges;
 
 	Vector2 m_dragStart;
@@ -109,6 +110,13 @@ public class GraphWindow : EditorWindow, IDraw
 		if (m_selection != null)
 		{
 			m_selectionConnector = m_selection.PickConnector(Graph.Data,pos);
+            if (m_selectionConnector != null)
+            {
+                m_dragConnector = true;                
+            }
+
+            m_selectionChanges = true;
+
 			m_nodeStart = m_selection.Position;
 			m_dragPosition = Event.current.mousePosition;
             GUIUtility.keyboardControl = 0;            
@@ -120,7 +128,7 @@ public class GraphWindow : EditorWindow, IDraw
 	{
 		if (m_selection != null)
 		{
-			if (m_selectionConnector != null)
+            if (m_dragConnector && m_selectionConnector != null)
 			{
 				GraphData graph = (Graph != null) ? Graph.Data : null;
 				if (graph == null)
@@ -151,8 +159,9 @@ public class GraphWindow : EditorWindow, IDraw
 				UnityEditor.EditorUtility.SetDirty(Graph.gameObject);
 			}
 		}
+        m_dragConnector = false;
 		//m_selection = null;
-		m_selectionConnector = null;
+		//m_selectionConnector = null;
 		Repaint();
 	}
 	
@@ -164,7 +173,7 @@ public class GraphWindow : EditorWindow, IDraw
 		{
 			if (m_selection != null)
 			{
-				if (m_selectionConnector == null)
+                if (m_dragConnector && m_selectionConnector == null)
 				{
 					// Drag selected node(s)
 					Vector2 delta = Event.current.mousePosition - m_dragStart;
@@ -644,7 +653,37 @@ public class GraphWindow : EditorWindow, IDraw
 		}
 	}
 
-	void DrawNode(GNode node, float width)
+    void DrawConnectorConfiguration(GNode node, GConnector connector, float width)
+	{
+        EditorGUILayout.LabelField("Selected Connector: " + connector.Name);
+        if (GUILayout.Button("Disconnect Connector"))
+        {           
+            Graph.Data.Disconnect(connector);
+            m_selectionConnector = null;            
+        }
+        
+        EditorGUILayout.BeginHorizontal(GUILayout.Width(width));
+            EditorGUILayout.LabelField("Function event to call", GUILayout.Width(width / 2));
+        
+            int index;
+            string eventFunction = connector.EventFunction != null ? connector.EventFunction : "";
+            string[] names = GetFunctionEventNames(connector.EventFunction, out index);
+                    
+            index = EditorGUILayout.Popup(index, names);
+
+            if (index < 0 || index >= names.Length)
+            {
+                connector.EventFunction = "";
+            }
+            else
+            {
+                connector.EventFunction = names[index];
+            }
+
+        EditorGUILayout.EndHorizontal();
+    }
+    
+	void DrawNodeConfiguration(GNode node, float width)
 	{        
         EditorGUILayout.LabelField("Selected: " + node.GetDisplayName());     
 
@@ -786,7 +825,15 @@ public class GraphWindow : EditorWindow, IDraw
             if (Graph != null)
             {
                 GUILayout.FlexibleSpace();
-                DrawNode(m_selection, w);
+                if (m_selectionConnector != null)
+                {
+                    DrawConnectorConfiguration(m_selection, m_selectionConnector, w);
+                }
+                else
+                {
+                    DrawNodeConfiguration(m_selection, w);
+                }
+                
             }
         }    
         
@@ -865,6 +912,40 @@ public class GraphWindow : EditorWindow, IDraw
 
         return screens;
     }
+
+    private string[] GetFunctionEventNames(string currentName, out int index)
+    {
+        var bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.ExactBinding | BindingFlags.Static;
+
+
+        var methods = typeof(ButtonFunctionCollection).GetMethods(bindingFlags);        
+        List<String> names = new List<String>();
+
+        index = - 1;
+        
+
+        for (int i=0; i< methods.Length; i++)
+        {
+            //if (methods[i].IsStatic && methods[i].IsPublic)
+            {
+                names.Add(methods[i].Name);
+                if (methods[i].Name == currentName)
+                {
+                    index = i;
+                }
+            }            
+        }
+
+        names.Add("None");
+
+        if (index == -1)
+        {
+            index = names.Count - 1;
+        }
+                
+        return names.ToArray();
+    }
+
 }
 
 // Helper Rect extension methods
