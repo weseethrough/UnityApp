@@ -72,7 +72,10 @@ public class SettingsScreen : MonoBehaviour {
 		Platform.Instance.setIndoor(indoor);
 		DataVault.Set("indoor_text", "Indoor Active");
 		
-		DataVault.Set("slider_val", 1.8f / 10.4f);
+		float s = (targSpeed - 1.25f) / 9.15f;
+		
+		DataVault.Set("slider_val", s);
+		UnityEngine.Debug.Log("Settings: Target speed set to: " + s.ToString());
 		
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
@@ -126,6 +129,15 @@ public class SettingsScreen : MonoBehaviour {
 	}
 	
 	public void Back() {
+		
+		float temp = ((float)DataVault.Get("slider_val") * 9.15f) + 1.25f;
+		//UnityEngine.Debug.Log("Settings: New speed is: " + temp.ToString());
+		if(temp != targSpeed)
+		{
+			changed = true;
+			targSpeed = temp;
+		}
+		
 		if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
 			Platform.Instance.reset();
@@ -133,6 +145,8 @@ public class SettingsScreen : MonoBehaviour {
 					
 			setTargets();
 					
+			
+			
 			if(!trackSelected) {
 				Platform.Instance.setTargetSpeed(targSpeed);
 			}
@@ -206,13 +220,6 @@ public class SettingsScreen : MonoBehaviour {
 			DataVault.Set("ahead_col_header", "19D200FF");
 		}
 		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
-		
-//		float temp = ((float)DataVault.Get("slider_val") * 9.15f) + 1.25f;
-//		if(temp != targSpeed)
-//		{
-//			changed = true;
-//			targSpeed = temp;
-//		}
 		
 		Position position = Platform.Instance.Position();
 		float bearing = Platform.Instance.Bearing();
