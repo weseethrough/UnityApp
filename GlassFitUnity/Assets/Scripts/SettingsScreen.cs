@@ -72,6 +72,8 @@ public class SettingsScreen : MonoBehaviour {
 		Platform.Instance.setIndoor(indoor);
 		DataVault.Set("indoor_text", "Indoor Active");
 		
+		DataVault.Set("slider_val", 1.8f / 10.4f);
+		
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
 		
@@ -204,6 +206,13 @@ public class SettingsScreen : MonoBehaviour {
 			DataVault.Set("ahead_col_header", "19D200FF");
 		}
 		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
+		
+//		float temp = ((float)DataVault.Get("slider_val") * 9.15f) + 1.25f;
+//		if(temp != targSpeed)
+//		{
+//			changed = true;
+//			targSpeed = temp;
+//		}
 		
 		Position position = Platform.Instance.Position();
 		float bearing = Platform.Instance.Bearing();
@@ -439,5 +448,12 @@ public class SettingsScreen : MonoBehaviour {
 //		debugText = "Fetching map..";
 		UnityEngine.Debug.Log("Fetching map.. " + url);
 		fetchOrigo = origo;
+	}
+	
+	public void OnSliderValueChange() 
+	{
+		changed = true;
+		targSpeed = UISlider.current.value * 10.4f;
+		UnityEngine.Debug.Log(UISlider.current.value);
 	}
 }
