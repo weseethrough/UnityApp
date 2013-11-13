@@ -15,14 +15,18 @@ public class Platform : MonoBehaviour {
 	private float bearing = 0;
 	private bool started = false;
 	private bool initialised = false;
+	private long currentActivityPoints = 0;
+	private long openingPointsBalance = 0;
 	
 	private List<Position> positions;
 	
 	private Boolean tracking = false;
 	
 	private AndroidJavaObject helper;
+	private AndroidJavaObject points_helper;
 	private AndroidJavaObject gps;
 	private AndroidJavaClass helper_class;
+	private AndroidJavaClass points_helper_class;
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
 	
@@ -79,16 +83,17 @@ public class Platform : MonoBehaviour {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			context = activity.Call<AndroidJavaObject>("getApplicationContext");
-  			//gps = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.GPSTracker");
 			helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
+			points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
 			UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
 			
 			// call the following on the UI thread
 			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				
-				// Get the singleton helper
+				// Get the singleton helper objects
 				try {
 					helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+					points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
         	  	    UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
 				} catch (Exception e) {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
@@ -482,6 +487,20 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Error getting bearing: " + e.Message);
 		}
 		
+		try {
+			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
+			DataVault.Set("points", (int)currentActivityPoints);
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Error getting current acticity points: " + e.Message);
+			DataVault.Set("points", -1);
+		}
+		
+		try {
+			openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Error getting opening points balance: " + e.Message);
+		}
+		
 	}
 	
 	// Return the distance behind target
@@ -513,6 +532,10 @@ public class Platform : MonoBehaviour {
 	
 	public float Bearing() {
 		return bearing;
+	}
+	
+	public long OpeningPointsBalance() {
+		return openingPointsBalance;
 	}
 	
 }
