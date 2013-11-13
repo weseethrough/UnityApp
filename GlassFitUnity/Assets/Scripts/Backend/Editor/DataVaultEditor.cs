@@ -61,7 +61,7 @@ public class DataVaultEditor : Editor
                     DataVault.Set(pair.Key, newValue);
                 }
             }
-            else if (de.storedValue.GetType() == typeof(float))
+            else if (de.storedValue.GetType() == typeof(float) || de.storedValue.GetType() == typeof(double))
             {                
                 float oldValue = (float)Convert.ToDouble(de.storedValue);
                 float newValue = EditorGUILayout.FloatField(oldValue, GUILayout.Width(basicValueWidth)); //field

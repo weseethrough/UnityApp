@@ -70,7 +70,7 @@ public class DataVault : MonoBehaviour
                 {
                     boolStorage.Set(Convert.ToBoolean(de.storedValue), pair.Key);
                 }
-                else if (de.storedValue.GetType() == typeof(double))
+                else if (de.storedValue.GetType() == typeof(double) || de.storedValue.GetType() == typeof(float))
                 {
                     doubleStorage.Set(Convert.ToDouble(de.storedValue), pair.Key);
                 }
@@ -176,8 +176,14 @@ public class DataVault : MonoBehaviour
             de = data[name];
 
             //ensure we alert when someone is changing type of stored value
-            if ((de.storedValue.GetType() != typeof(System.Object)) &&
-                (de.storedValue.GetType() != value.GetType()))
+            Type stored = de.storedValue.GetType();
+            Type newValue = value.GetType();
+
+
+            if ((stored != typeof(System.Object)) &&
+                (newValue != stored) &&
+                !((newValue == typeof(double) && stored == typeof(float)) || (newValue == typeof(float) && stored == typeof(double))) //its not double to float casting by any chance?
+                )
             {
                 Debug.LogError("Trying to change type of stored variable. It is a bad practice to do so. If you did not chnged type maybe its the system wrongly processing data provided?");
             }

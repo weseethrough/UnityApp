@@ -361,8 +361,4 @@ public class DynamicHexList : MonoBehaviour
             }
         }
     }
-    public void PlayClosingAnimation(FlowButton selectedButton)
-    {
-
-    }
 }
