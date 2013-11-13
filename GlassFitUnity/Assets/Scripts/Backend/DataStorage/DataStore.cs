@@ -42,7 +42,7 @@ public class DataStore : MonoBehaviour
     private Dictionary<string, Storage> storageBank;
 
 #if UNITY_EDITOR
-	private PlatformDummy platform;
+	public PlatformDummy platform;
 #endif
 
     public void MakeAwake()
