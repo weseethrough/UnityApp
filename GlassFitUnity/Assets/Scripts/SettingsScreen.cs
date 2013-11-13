@@ -70,15 +70,9 @@ public class SettingsScreen : MonoBehaviour {
 	void Start () {
 		// Set indoor mode
 		Platform.Instance.setIndoor(indoor);
-		DataVault.Set("indoor_text", "Indoor Active");
+		//DataVault.Set("indoor_text", "Indoor Active");
 		
-		DataVault.Set("slider_val", 1.8f / 10.4f);
-
-		DataVault.Set("points", 0);
-		float s = (targSpeed - 1.25f) / 9.15f;
-		
-		DataVault.Set("slider_val", s);
-		UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
+		//UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
 		
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
@@ -242,6 +236,10 @@ public class SettingsScreen : MonoBehaviour {
 			{
 				Platform.Instance.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
+				
+//				float s = (targSpeed - 1.25f) / 9.15f;
+//		
+//				DataVault.Set("slider_val", s);
 				started = true;
 			}
 			else if(countTime > -1.0f)

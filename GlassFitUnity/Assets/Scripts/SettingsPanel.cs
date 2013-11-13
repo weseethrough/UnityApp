@@ -10,6 +10,8 @@ public class SettingsPanel : Panel {
 	public SettingsPanel(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt) {
 	}
 	
+	public SettingsPanel() {}
+	
 	protected override void Initialize()
     {
         base.Initialize();
@@ -54,6 +56,7 @@ public class SettingsPanel : Panel {
 				
 			case "GetTrackButton":
 				Platform.Instance.getTracks();
+				GameObject.Find("TrackSelect").renderer.enabled = true;
 				break;
 				
 			case "BackMainButton":
