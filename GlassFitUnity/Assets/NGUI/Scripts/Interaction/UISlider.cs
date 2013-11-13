@@ -5,6 +5,7 @@
 
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 /// <summary>
 /// Simple slider functionality.
@@ -184,9 +185,11 @@ public class UISlider : UIWidgetContainer
 		
 		UnityEngine.Debug.Log("Slider: About to get value");
 		
-		rawValue = (float)DataVault.Get("slider_val");
-		
-		UnityEngine.Debug.Log("Settings: Slider set to: " + rawValue.ToString());
+		double test = Convert.ToDouble(DataVault.Get("slider_val"));
+		rawValue = (float)test;
+		double real = (test * 9.15) + 1.25;
+		DataVault.Set("current", real.ToString() + "m/s");
+		UnityEngine.Debug.Log("Settings: Slider set to: " + rawValue.ToString("f2"));
 		
 		Set(rawValue, true);
 	}
@@ -288,6 +291,10 @@ public class UISlider : UIWidgetContainer
 
 		// Save the raw value
 		rawValue = val;
+		
+		double real = (val * 9.15) + 1.25;
+		DataVault.Set("current", real.ToString("f2") + "m/s");
+		//UnityEngine.Debug.Log("Settings: Slider set to: " + rawValue.ToString("f2"));
 		
 		DataVault.Set("slider_val", val);
 
