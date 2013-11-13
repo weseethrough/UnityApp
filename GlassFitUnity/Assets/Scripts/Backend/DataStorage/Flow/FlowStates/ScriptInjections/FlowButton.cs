@@ -7,14 +7,12 @@ public class FlowButton : MonoBehaviour
     public Panel owner
     {
         get 
-        { 
-            Debug.Log("get panel owner: " + m_owner.GetDisplayName());
+        {             
             return m_owner;
         }
         set 
         { 
-            m_owner = value;
-            Debug.Log("set panel owner: "+m_owner.GetDisplayName());
+            m_owner = value;          
         }
     }
     public string name;
