@@ -73,6 +73,8 @@ public class SettingsScreen : MonoBehaviour {
 		DataVault.Set("indoor_text", "Indoor Active");
 		
 		DataVault.Set("slider_val", 1.8f / 10.4f);
+
+		DataVault.Set("points", 0);
 		
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
