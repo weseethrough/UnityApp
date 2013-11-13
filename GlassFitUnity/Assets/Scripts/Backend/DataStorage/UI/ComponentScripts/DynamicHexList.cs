@@ -18,14 +18,13 @@ public class DynamicHexList : MonoBehaviour
     float buttonNextEnterDelay = 0.0f;
     int buttonNextEnterIndex = 0;
 
-    int buttonCount = 25;
+    int buttonCount = 35;    
 
     List<GameObject> buttons;
     UIImageButton selection;
     public string buttonEnterAnimation = "HexEnter";
 
-    bool buttonsReady = false;
-    
+    bool buttonsReady = false;       
 
 	void Start () 
     {
@@ -336,11 +335,18 @@ public class DynamicHexList : MonoBehaviour
     {
         buttonRoot.SetActive(true);
 
-        Animation target = buttonRoot.GetComponentInChildren<Animation>();        
+        PlayLockingAnimation(buttonRoot, buttonEnterAnimation, forward);
+    }
+
+
+
+    public void PlayLockingAnimation(GameObject buttonRoot, string animationName, bool forward)
+    {
+        Animation target = buttonRoot.GetComponentInChildren<Animation>();
         if (target != null && buttonEnterAnimation.Length > 0)
-        {                        
+        {
             AnimationOrTween.Direction dir = forward ? AnimationOrTween.Direction.Forward : AnimationOrTween.Direction.Reverse;
-            ActiveAnimation anim = ActiveAnimation.Play(target, buttonEnterAnimation, dir);
+            ActiveAnimation anim = ActiveAnimation.Play(target, animationName, dir);
 
             if (anim != null)
             {
@@ -348,12 +354,15 @@ public class DynamicHexList : MonoBehaviour
 
                 UIButtonAnimationLocker buttonLocker = buttonRoot.GetComponentInChildren<UIButtonAnimationLocker>();
                 if (buttonLocker != null)
-                {                    
+                {
                     buttonLocker.OnButtonAnimStarted();
                     EventDelegate.Add(anim.onFinished, buttonLocker.OnButtonAnimFinished, true);
-                }                
+                }
             }
         }
     }
+    public void PlayClosingAnimation(FlowButton selectedButton)
+    {
 
+    }
 }

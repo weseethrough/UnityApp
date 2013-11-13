@@ -13,15 +13,13 @@ public class DataStoreEditor : Editor
         DataStore ds = target as DataStore;
         int max = (int)DataStore.BlobNames.maxItem;
 
-        for (int i = 0; i < max; i++)
+        if (GUILayout.Button("Remove Blobs"))
         {
-            string name = ((DataStore.BlobNames)(i)).ToString();            
-
-            if (GUILayout.Button("Remove "+ name +" Blob"))
+            for (int i = 0; i < max; i++)
             {
-                ds.platform.EraseBlob(name);
+                string name = ((DataStore.BlobNames)(i)).ToString();                
+                ds.platform.EraseBlob(name);                
             }
-        }                        
+        }
     }
-
 }

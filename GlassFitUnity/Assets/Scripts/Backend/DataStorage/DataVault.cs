@@ -42,10 +42,7 @@ public class DataVault : MonoBehaviour
     
 
     void Start()
-    {
-        data = new Dictionary<string, DataEntry>();
-        registeredListeners = new Dictionary<string, List<UIComponentSettings>>();
-        registrationRecord = new Dictionary<UIComponentSettings, List<string>>();
+    {        
         Initialize();
     }
 
@@ -92,8 +89,13 @@ public class DataVault : MonoBehaviour
         DataStore.SaveStorage(DataStore.BlobNames.persistent);
     }
 
-    static void Initialize()
+    static public void Initialize()
     {
+
+        data = new Dictionary<string, DataEntry>();
+        registeredListeners = new Dictionary<string, List<UIComponentSettings>>();
+        registrationRecord = new Dictionary<UIComponentSettings, List<string>>();
+
         Storage s = DataStore.GetStorage(DataStore.BlobNames.persistent);
         if (s == null) return;
 

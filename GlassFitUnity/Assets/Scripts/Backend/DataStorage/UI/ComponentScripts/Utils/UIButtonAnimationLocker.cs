@@ -1,9 +1,13 @@
 using UnityEngine;
 using System.Collections;
+using Boo.Lang;
 
 public class UIButtonAnimationLocker : MonoBehaviour
 {
-    UIImageButton button;
+    public delegate void CallbackAnimFinished(UIImageButton button);
+
+    UIImageButton button;    
+    CallbackAnimFinished callbackFunction; 
 
     public void OnButtonAnimStarted()
     {
@@ -23,6 +27,11 @@ public class UIButtonAnimationLocker : MonoBehaviour
         }
 
         if (button != null) button.isEnabled = true;
+
+        if (callbackFunction != null)
+        {
+            callbackFunction(button);
+        }
     }
 }
 

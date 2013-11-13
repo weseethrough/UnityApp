@@ -21,8 +21,11 @@ public class DataVaultEditor : Editor
     private Type            newVariableType     = Type.STRING;
     
     public override void OnInspectorGUI()
-    {        
-        if (DataVault.data == null) return;
+    {
+        if (DataVault.data == null)
+        {
+            DataVault.Initialize();            
+        }
         int basicLabelWidth = 100;
         int basicValueWidth = 200;
 
