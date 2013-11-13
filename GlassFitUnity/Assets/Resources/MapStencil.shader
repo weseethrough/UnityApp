@@ -75,7 +75,7 @@ Shader "Custom/MapStencil"
 				float d = distance(i.texcoord, float2(0.5, 0.5));
 				if (d > 0.5) o.a = 0;
 				else if (d > 0.47) o.a = 0.25;
-				else o.a = 0.5;
+				else o.a = 0.8;
 				return o;
 			}
 			ENDCG 

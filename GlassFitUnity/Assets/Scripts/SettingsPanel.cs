@@ -58,6 +58,14 @@ public class SettingsPanel : Panel {
 				
 			case "BackMainButton":
 				ss.Back();
+				GameObject h = GameObject.Find("blackPlane");
+				h.renderer.enabled = false;
+				
+				//h = GameObject.Find("minimap");
+				//h.renderer.enabled = true;
+				
+				h = GameObject.Find("minimap2");
+				h.renderer.enabled = true;
 				break;	
 				
 //			case "NextButton":

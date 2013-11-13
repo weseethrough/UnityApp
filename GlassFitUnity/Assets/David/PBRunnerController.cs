@@ -15,9 +15,16 @@ public class PBRunnerController : TargetController {
 		base.setAttribs(0, 135, -254.6f, 50);
 		
 		anim = GetComponent<Animator>();
-		anim.speed = target.getCurrentSpeed() / 2.2f;
 		speed = target.getCurrentSpeed();
 		anim.SetFloat("Speed", speed);
+		if(speed > 2.2f && speed < 4.0f) {
+			anim.speed = speed / 2.2f;
+		} else if(speed > 4.0f) {
+			anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2);
+		} else {
+			anim.speed = speed / 1.0f;
+		}
+		
 	}
 	
 	void OnEnable() {
@@ -38,7 +45,7 @@ public class PBRunnerController : TargetController {
 			} else if(speed > 4.0f) {
 				anim.speed = Mathf.Clamp(newSpeed / 4.0f, 1, 2);
 			} else {
-				anim.speed = newSpeed / 1.25f;
+				anim.speed = newSpeed / 1.0f;
 			}
 		}
 	}

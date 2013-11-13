@@ -301,8 +301,8 @@ public class Platform : MonoBehaviour {
 	// Get the gyro rotation using Ben's code
 	public Quaternion getGlassfitQuaternion() {
 		try {
-			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getGlassfitQuaternion");
-			Quaternion q = new Quaternion(ajo.Call<float>("getY"), -ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
+			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getOrientation");
+			Quaternion q = new Quaternion(-ajo.Call<float>("getY"), ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
 			return q;
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting quaternion: " + e.Message);

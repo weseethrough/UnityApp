@@ -27,6 +27,7 @@ public class PlatformDummy {
 		Directory.CreateDirectory(blobstore);
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
 		Directory.CreateDirectory(blobassets);
+		UnityEngine.Debug.Log("Editor blobstore: " + blobstore + ", blobassets: " + blobassets);
 	}
 	
 	public void StartTrack(bool indoor) {
@@ -68,6 +69,10 @@ public class PlatformDummy {
 	
 	public void StoreBlob(string id, byte[] blob) {
 		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
+	}
+	
+	public void EraseBlob(string id) {
+		File.Delete(Path.Combine(blobstore, id));
 	}
 		
 	/**
