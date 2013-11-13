@@ -276,41 +276,14 @@ public class Platform : MonoBehaviour {
 		return null;
 	}
 	
-	// Get the rotation vector
-	public Quaternion getRotationVector() {
-		try {
-			float[] quat = helper.Call<float[]>("getGameRotationVector");
-			Quaternion q = new Quaternion(quat[0], quat[1], quat[2], quat[3]);
-			return q;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting quaternion: " + e.Message);
-			return Quaternion.identity;
-		}
-	}
-	
-	// Get Yaw/Pitch/Roll angles in radians and change to degrees
-	public float[] getYPR() {
-		try {
-			float[] ypr = helper.Call<float[]>("getGameYpr");
-			ypr[0] *= 180/Mathf.PI;
-			ypr[1] *= 180/Mathf.PI;
-			ypr[2] *= 180/Mathf.PI;
-			UnityEngine.Debug.Log("Platform: Euler angles are: " + ypr[0].ToString() + ", " + ypr[1].ToString() + ", " + ypr[2].ToString());
-			return ypr;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting Euler angles: " + e.Message);
-			return new float[3];
-		}
-	}
-	
-	// Get the gyro rotation using Ben's code
-	public Quaternion getGlassfitQuaternion() {
+	// Get the device's orientation
+	public Quaternion getOrientation() {
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getOrientation");
-			Quaternion q = new Quaternion(-ajo.Call<float>("getY"), ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
+			Quaternion q = new Quaternion(ajo.Call<float>("getX"), ajo.Call<float>("getY"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
 			return q;
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting quaternion: " + e.Message);
+			UnityEngine.Debug.Log("Platform: Error getting orientation: " + e.Message);
 			return Quaternion.identity;
 		}
 	}
@@ -321,18 +294,6 @@ public class Platform : MonoBehaviour {
 			helper.Call("resetGyros");
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error resetting gyros: " + e.Message);
-		}
-	}
-	
-	// Get the gyro rotation using GyroDroid code
-	public Quaternion getGyroDroidQuaternion() {
-		try {
-			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getGyroDroidQuaternion");
-			Quaternion q = new Quaternion(-ajo.Call<float>("getY"), ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
-			return q;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting GyroDroid Quaternion: " + e.Message);
-			return Quaternion.identity;
 		}
 	}
 

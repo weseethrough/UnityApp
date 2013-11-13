@@ -40,7 +40,7 @@ public class GlassDemoCam : MonoBehaviour {
 				if(timerActive) {
 					gridOn = false;
 				} else {
-					offsetFromStart = Platform.Instance.getGyroDroidQuaternion();
+					offsetFromStart = Platform.Instance.getOrientation();
 					Platform.Instance.resetGyro();
 					gridOn = true;
 				}
@@ -66,7 +66,7 @@ public class GlassDemoCam : MonoBehaviour {
 	
 	void Update () {
 		// Set the new rotation of the camera
-		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getGyroDroidQuaternion();
+		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getOrientation();
 		
 		// If the timer and grid are on, countdown the timer and switch it off if the timer runs out
 		if(timerActive && gridOn)
