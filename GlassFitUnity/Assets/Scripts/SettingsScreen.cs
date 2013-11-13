@@ -75,7 +75,7 @@ public class SettingsScreen : MonoBehaviour {
 		float s = (targSpeed - 1.25f) / 9.15f;
 		
 		DataVault.Set("slider_val", s);
-		UnityEngine.Debug.Log("Settings: Target speed set to: " + s.ToString());
+		UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
 		
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
