@@ -56,7 +56,7 @@ public class UISlider : UIWidgetContainer
 	public List<EventDelegate> onChange = new List<EventDelegate>();
 
 	// Used to be public prior to 1.87
-	[HideInInspector][SerializeField] float rawValue = 1f;
+	[HideInInspector][SerializeField] float rawValue = (float)DataVault.Get("slider_val");
 	
 	// Deprecated functionality, kept for backwards compatibility
 	[HideInInspector][SerializeField] GameObject eventReceiver;
@@ -139,6 +139,7 @@ public class UISlider : UIWidgetContainer
 		{
 			Debug.LogWarning("UISlider expected to find a foreground object or a box collider to work with", this);
 		}
+		rawValue = (float)DataVault.Get("slider_val");
 	}
 
 	/// <summary>
@@ -270,6 +271,8 @@ public class UISlider : UIWidgetContainer
 
 		// Save the raw value
 		rawValue = val;
+		
+		DataVault.Set("slider_val", val);
 
 #if UNITY_EDITOR
 		if (!Application.isPlaying) return;
