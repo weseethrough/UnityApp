@@ -56,7 +56,7 @@ public class UISlider : UIWidgetContainer
 	public List<EventDelegate> onChange = new List<EventDelegate>();
 
 	// Used to be public prior to 1.87
-	[HideInInspector][SerializeField] float rawValue = (float)DataVault.Get("slider_val");
+	[HideInInspector][SerializeField] float rawValue = 1f;
 	
 	// Deprecated functionality, kept for backwards compatibility
 	[HideInInspector][SerializeField] GameObject eventReceiver;
@@ -104,6 +104,7 @@ public class UISlider : UIWidgetContainer
 
 	void Init ()
 	{
+		UnityEngine.Debug.Log("Slider: Init called");
 		mInitDone = true;
 
 		if (foreground != null)
@@ -139,7 +140,7 @@ public class UISlider : UIWidgetContainer
 		{
 			Debug.LogWarning("UISlider expected to find a foreground object or a box collider to work with", this);
 		}
-		rawValue = (float)DataVault.Get("slider_val");
+		//rawValue = (float)DataVault.Get("slider_val");
 	}
 
 	/// <summary>
@@ -150,6 +151,11 @@ public class UISlider : UIWidgetContainer
 	{
 		mTrans = transform;
 		mCol = collider as BoxCollider;
+		
+		UnityEngine.Debug.Log("Slider: Awake called");
+//		rawValue = (float)DataVault.Get("slider_val");
+//		
+//		UnityEngine.Debug.Log("Settings: Slider set to: " + rawValue.ToString());
 	}
 
 	/// <summary>
@@ -159,7 +165,9 @@ public class UISlider : UIWidgetContainer
 	void Start ()
 	{
 		Init();
-
+		
+		UnityEngine.Debug.Log("Slider: Start called");
+		
 		// Remove legacy functionality
 		if (EventDelegate.IsValid(onChange))
 		{
@@ -173,6 +181,13 @@ public class UISlider : UIWidgetContainer
 			listener.onPress += OnPressThumb;
 			listener.onDrag += OnDragThumb;
 		}
+		
+		UnityEngine.Debug.Log("Slider: About to get value");
+		
+		rawValue = (float)DataVault.Get("slider_val");
+		
+		UnityEngine.Debug.Log("Settings: Slider set to: " + rawValue.ToString());
+		
 		Set(rawValue, true);
 	}
 
@@ -262,6 +277,8 @@ public class UISlider : UIWidgetContainer
 	void Set (float input, bool force)
 	{
 		if (!mInitDone) Init();
+		
+		UnityEngine.Debug.Log("Slider: Set called");
 
 		// Clamp the input
 		float val = Mathf.Clamp01(input);

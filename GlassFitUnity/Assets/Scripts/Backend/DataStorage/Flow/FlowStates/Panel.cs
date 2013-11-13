@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Reflection;
 
 [Serializable]
 public class Panel : FlowState
@@ -191,7 +192,23 @@ public class Panel : FlowState
             GConnector gConect = Outputs.Find(r => r.Name == button.name);
             if (gConect != null)
             {
-                parentMachine.FollowConnection(gConect);
+                if (gConect.EventFunction != null && gConect.EventFunction != "")
+                {
+                    if (CallStaticFunction(gConect.EventFunction, button))
+                    {
+                        parentMachine.FollowConnection(gConect);
+                    }
+                    else
+                    {
+                        Debug.Log("Debug: Function forbids further navigation");
+                    }
+                }
+                else
+                {
+                    parentMachine.FollowConnection(gConect);
+                }
+
+                
             }            
         }
         else
@@ -203,5 +220,24 @@ public class Panel : FlowState
     public virtual void OnPress(FlowButton button, bool isDown)
     {
 
+    }
+
+    public bool CallStaticFunction(string functionName, FlowButton caller)
+    {
+        MemberInfo[] info = typeof(ButtonFunctionCollection).GetMember(functionName);
+
+        if (info.Length == 1)
+        {
+            System.Object[] newParams = new System.Object[1];
+            newParams[0] = caller;
+            bool ret = (bool)typeof(ButtonFunctionCollection).InvokeMember(functionName, 
+                                    BindingFlags.InvokeMethod | 
+                                    BindingFlags.Public |
+                                    BindingFlags.Static, 
+                                    null, null, newParams);
+            return ret;
+        }
+              
+        return true;
     }
 }

@@ -21,8 +21,11 @@ public class DataVaultEditor : Editor
     private Type            newVariableType     = Type.STRING;
     
     public override void OnInspectorGUI()
-    {        
-        if (DataVault.data == null) return;
+    {
+        if (DataVault.data == null)
+        {
+            DataVault.Initialize();            
+        }
         int basicLabelWidth = 100;
         int basicValueWidth = 200;
 
@@ -58,7 +61,7 @@ public class DataVaultEditor : Editor
                     DataVault.Set(pair.Key, newValue);
                 }
             }
-            else if (de.storedValue.GetType() == typeof(float))
+            else if (de.storedValue.GetType() == typeof(float) || de.storedValue.GetType() == typeof(double))
             {                
                 float oldValue = (float)Convert.ToDouble(de.storedValue);
                 float newValue = EditorGUILayout.FloatField(oldValue, GUILayout.Width(basicValueWidth)); //field
