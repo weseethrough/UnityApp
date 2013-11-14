@@ -39,7 +39,7 @@ public class TargetTracker : MonoBehaviour {
 	public float getCurrentSpeed() {
 		try {
 			float ret = target.Call<float>("getCurrentSpeed", 0L);
-			UnityEngine.Debug.Log("Platform: speed obtained, currently: " + ret.ToString());
+//			UnityEngine.Debug.Log("Platform: speed obtained, currently: " + ret.ToString());
 			return ret;
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Target Tracker: Error getting speed" + e.Message);

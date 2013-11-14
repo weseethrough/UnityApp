@@ -117,10 +117,10 @@ public class SettingsScreen : MonoBehaviour {
 	
 	public void GetServer() {
 		if(!authenticated) {
-			Platform.Instance.authenticate();
-			// TODO: check result
-			authenticated = true;
-		} else {
+			authenticated = Platform.Instance.authorize("any", "login");
+			// TODO: Capture authentication message
+		} 
+		if (authenticated) {
 			Platform.Instance.syncToServer();
 		}	
 	}
