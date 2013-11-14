@@ -125,6 +125,17 @@ public class Platform : MonoBehaviour {
 		return started;
 	}
 	
+	public User User() {
+		try {
+			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getUser");
+			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: failed to fetch user " + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return null;
+		}
+	}
+	
 	// Starts tracking
 	public void StartTrack() {
 		try {
@@ -211,17 +222,34 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Authentication
-	public void authenticate() {
+	public bool authorize(string provider, string permissions) {
 		try {
-			helper_class.CallStatic("authenticate", activity);
+			return helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
 		} catch(Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Problem authenticating");
+			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
 			UnityEngine.Debug.LogException(e);
+			return false;
 		}
 	}
 	
 	// Sync to server
 	public void syncToServer() {
+		Friends();
+		Notifications();
+		QueueAction(@"{
+			'action' : 'challenge',
+			'target' : 10,
+			'taunt' : 'Your mother is a hamster!',
+			'challenge' : {
+					'distance': 333,
+					'duration': 42,
+					'location': null,
+					'public': false,
+					'start_time': null,
+					'stop_time': null,
+					'type': 'duration'
+			}
+		}".Replace("'", "\""));		
 		try {
 			helper_class.CallStatic("syncToServer", context);
 		} catch(Exception e) {
@@ -363,6 +391,58 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	public void QueueAction(string json) {
+		try {
+			helper_class.CallStatic("queueAction", json);
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error queueing action: " + e.Message);
+		}
+	}
+	
+	public Friend[] Friends() {
+		try {
+			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
+				int length = list.Call<int>("size");
+				Friend[] friends = new Friend[length];
+				for (int i=0;i<length;i++) {
+					using (AndroidJavaObject f = list.Call<AndroidJavaObject>("get", i)) {
+						friends[i] = new Friend(f.Get<string>("friend"));
+					}
+				}
+				UnityEngine.Debug.LogWarning("Platform: " + friends.Length + " friends fetched");
+				return friends;
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
+		return new Friend[0];
+	}
+		
+	public Notification[] Notifications() {
+		try {
+			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getNotifications")) {
+				int length = list.Call<int>("size");
+				Notification[] notifications = new Notification[length];
+				for (int i=0;i<length;i++) {
+					using (AndroidJavaObject p = list.Call<AndroidJavaObject>("get", i)) {
+						notifications[i] = new Notification(p.Get<string>("id"), p.Get<bool>("read"), p.Get<string>("message"));
+					}
+				}
+				UnityEngine.Debug.LogWarning("Platform: " + notifications.Length + " notifications fetched");
+				return notifications;
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
+		return new Notification[0];
+	}
+	
+	public void ReadNotification(string id) {
+		throw new NotImplementedException("Iterate through notifications and setRead(true) or add setRead(id) helper method?");
+	}
+		
 	// Store the blob
 	public void StoreBlob(string id, byte[] blob) {
 		try {
@@ -418,7 +498,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		}
 		
-		UnityEngine.Debug.Log("Platform: There are " + targetTrackers.Count + " target trackers");
+//		UnityEngine.Debug.Log("Platform: There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
 			targetTrackers[i].setTargetDistance();
 		}
