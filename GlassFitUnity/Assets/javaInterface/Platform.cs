@@ -18,6 +18,8 @@ public class Platform : MonoBehaviour {
 	private long currentActivityPoints = 0;
 	private long openingPointsBalance = 0;
 	
+	private Friend[] friendList;
+	
 	private List<Position> positions;
 	
 	private Boolean tracking = false;
@@ -132,6 +134,7 @@ public class Platform : MonoBehaviour {
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: failed to fetch user " + e.Message);
 			UnityEngine.Debug.LogException(e);
+			return null;
 		}
 	}
 	
@@ -393,24 +396,29 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	public Friend[] getFriends() {
+		return friendList;
+	}
+	
 	public Friend[] Friends() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
 				int length = list.Call<int>("size");
-				Friend[] friends = new Friend[length];
+				friendList = new Friend[length];
 				for (int i=0;i<length;i++) {
 					using (AndroidJavaObject f = list.Call<AndroidJavaObject>("get", i)) {
-						friends[i] = new Friend(f.Get<string>("friend"));
+						friendList[i] = new Friend(f.Get<string>("friend"));
 					}
 				}
-				UnityEngine.Debug.LogWarning("Platform: " + friends.Length + " friends fetched");
-				return friends;
+				UnityEngine.Debug.LogWarning("Platform: " + friendList.Length + " friends fetched");
+				return friendList;
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
-		return new Friend[0];
+		friendList = new Friend[1];
+		return friendList;
 	}
 		
 	public Notification[] Notifications() {

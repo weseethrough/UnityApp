@@ -27,6 +27,11 @@ public class ButtonFunctionCollection
 
         return false;
     }
+	
+	static public bool isAuthent(FlowButton fb) 
+	{
+		return Platform.Instance.authorize("any", "login");
+	}
 
     public void Pure()
     {

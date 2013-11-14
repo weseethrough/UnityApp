@@ -20,6 +20,10 @@ public class SettingsPanel : Panel {
 //		}
 	}
 	
+	public static bool isAuth() {
+		return Platform.Instance.authorize("any", "login");
+	}
+	
 	public override void OnClick(FlowButton button)
 	{
 		base.OnClick(button);
@@ -71,6 +75,9 @@ public class SettingsPanel : Panel {
 				h.renderer.enabled = true;
 				break;	
 				
+			case "FriendButton": 
+				
+				break;
 //			case "NextButton":
 //				
 //				break;

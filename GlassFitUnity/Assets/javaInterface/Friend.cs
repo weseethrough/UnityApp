@@ -14,10 +14,12 @@ public class Friend
 	}
 	public Friend (string json) 
 	{
+		UnityEngine.Debug.Log(json);
 		var node = JSON.Parse(json);
 		name = node["name"];
 		uid = node["uid"];
-		image = node["image"];
+		image = node["photo"];
+		
 		hasGlass = node["has_glass"].AsBool;
 		if (String.Equals(node["user_id"], "null")) userId = null;
 		else userId = node["user_id"].AsInt;

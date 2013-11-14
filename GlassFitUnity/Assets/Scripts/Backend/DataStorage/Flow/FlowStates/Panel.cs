@@ -11,7 +11,8 @@ public class Panel : FlowState
     static public string[] InteractivePrefabs = { "UIComponents/Button",
 												  "MainGUIComponents/ResetGyroButton",
 												  "MainGUIComponents/SettingsButton",
-												  "SettingsComponent/IndoorButton"};    
+												  "SettingsComponent/IndoorButton",
+												  "Friend List/ChallengeButton"};    
     public FlowPanelComponent panelNodeData;
 
     [NonSerialized()] public GameObject physicalWidgetRoot;
