@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System;
 using System.Diagnostics;
@@ -28,6 +29,7 @@ public class PlatformDummy {
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
 		Directory.CreateDirectory(blobassets);
 		UnityEngine.Debug.Log("Editor blobstore: " + blobstore + ", blobassets: " + blobassets);
+		Friends();
 	}
 	
 	public void StartTrack(bool indoor) {
@@ -54,6 +56,21 @@ public class PlatformDummy {
 	public void setTargetTrack(int trackID)
 	{
 		throw new NotImplementedException();
+	}
+	
+	public Friend[] Friends() {
+		var friend = @"{
+	        ""_id"": ""gplus107650962788507404146"",
+	        ""has_glass"": false,
+	        ""image"": ""https://lh6.googleusercontent.com/-c89V0_0E6tM/AAAAAAAAAAI/AAAAAAAAAFE/9oLaR0rjbog/photo.jpg?sz=50"",
+	        ""name"": ""Aaron Aycock"",
+	        ""photo"": null,
+	        ""uid"": ""107650962788507404146"",
+	        ""user_id"": null
+	      }";
+		Friend[] friends = new Friend[1];
+		friends[0] = new Friend(friend);
+		return friends;
 	}
 	
 	public byte[] LoadBlob(string id) {
