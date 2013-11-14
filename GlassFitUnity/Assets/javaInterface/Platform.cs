@@ -159,7 +159,12 @@ public class Platform : MonoBehaviour {
 			
 			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				gps.Call("setIndoorMode", indoor);
-				UnityEngine.Debug.LogWarning("Platform: Indoor mode set to " + indoor.ToString());
+				if (indoor) {
+				    gps.Call("setIndoorSpeed", 2.0f);
+				    UnityEngine.Debug.LogWarning("Platform: Indoor mode set to true, indoor speed = 2.0m/s");
+				} else {
+					UnityEngine.Debug.LogWarning("Platform: Indoor mode set to false, will use true GPS speed");
+				}
 			}));
 		} catch(Exception e) {
 			UnityEngine.Debug.Log("Platform: Error setting indoor mode " + e.Message);
@@ -524,7 +529,7 @@ public class Platform : MonoBehaviour {
 			}
 		} catch (Exception e) {
 			
-			UnityEngine.Debug.Log("Error getting position: " + e.Message);
+			UnityEngine.Debug.Log("Platform: Error getting position: " + e.Message);
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
 		try {
@@ -532,21 +537,21 @@ public class Platform : MonoBehaviour {
 				bearing = gps.Call<float>("getCurrentBearing");
 			}
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Error getting bearing: " + e.Message);
+			UnityEngine.Debug.Log("Platform: Error getting bearing: " + e.Message);
 		}
 		
 		try {
 			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
 			DataVault.Set("points", (int)currentActivityPoints);
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Error getting current acticity points: " + e.Message);
+			UnityEngine.Debug.Log("Platform: Error getting current acticity points: " + e.Message);
 			DataVault.Set("points", -1);
 		}
 		
 		try {
 			openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Error getting opening points balance: " + e.Message);
+			UnityEngine.Debug.Log("Platform: Error getting opening points balance: " + e.Message);
 		}
 		
 	}
@@ -584,6 +589,14 @@ public class Platform : MonoBehaviour {
 	
 	public long OpeningPointsBalance() {
 		return openingPointsBalance;
+	}
+	
+	public void setBasePointsSpeed(float speed) {
+		try {
+			points_helper.Call("setBaseSpeed", speed);
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error setting base points speed: " + e.Message);
+		}
 	}
 	
 }

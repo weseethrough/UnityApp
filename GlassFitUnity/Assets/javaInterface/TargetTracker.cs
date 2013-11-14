@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 
@@ -9,11 +9,11 @@ public class TargetTracker : MonoBehaviour {
 	// Use this for initialization
 	public TargetTracker(AndroidJavaObject helper) {
 		try {
-			//UnityEngine.Debug.Log("Platform: about to get target tracker");
+			//UnityEngine.Debug.Log("TargetTracker: about to get target tracker");
 			target = helper.Call<AndroidJavaObject>("getTargetTracker");
-			UnityEngine.Debug.LogWarning("Platform: unique target tracker obtained");
+			UnityEngine.Debug.LogWarning("TargetTracker: unique target tracker obtained");
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Helper.getTargetTracker() failed" + e.Message);
+			UnityEngine.Debug.LogWarning("TargetTracker: Helper.getTargetTracker() failed" + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
 			
@@ -27,7 +27,7 @@ public class TargetTracker : MonoBehaviour {
 		try {
 			targetDistance = target.Call<double>("getCumulativeDistanceAtTime", Platform.Instance.Time());
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: getCumulativeDistanceAtTime() failed: " + e.Message);
+			UnityEngine.Debug.LogWarning("TargetTracker: getCumulativeDistanceAtTime() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
 	}
@@ -39,7 +39,7 @@ public class TargetTracker : MonoBehaviour {
 	public float getCurrentSpeed() {
 		try {
 			float ret = target.Call<float>("getCurrentSpeed", 0L);
-//			UnityEngine.Debug.Log("Platform: speed obtained, currently: " + ret.ToString());
+			UnityEngine.Debug.Log("Target Tracker: speed obtained, currently: " + ret.ToString());
 			return ret;
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Target Tracker: Error getting speed" + e.Message);
@@ -50,8 +50,9 @@ public class TargetTracker : MonoBehaviour {
 	public void setTargetSpeed(float s) {
 		try {
 			target.Call("setSpeed", s);
+			Platform.Instance.setBasePointsSpeed(s);
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Error setting speed" + e.Message);
+			UnityEngine.Debug.Log("Target Tracker: Error setting speed" + e.Message);
 		}
 	}
 	
@@ -59,9 +60,9 @@ public class TargetTracker : MonoBehaviour {
 	{
 		try {
 			target.Call("setTrack", trackID);
-			UnityEngine.Debug.LogWarning("Platform: Track has been set to " + trackID.ToString ());
+			UnityEngine.Debug.LogWarning("TargetTracker: Track has been set to " + trackID.ToString ());
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: setTargetTrack() failed: " + e.Message);
+			UnityEngine.Debug.LogWarning("TargetTracker: setTargetTrack() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
 //		targetTrackers[0].setTargetTrack(trackID);

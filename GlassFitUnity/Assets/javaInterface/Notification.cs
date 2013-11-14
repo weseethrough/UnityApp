@@ -16,8 +16,13 @@ public class Notification
 		this.id = id;
 		this.read = read;
 		// Notification structure not standardized. Build subtypes using factory or duck type?
-		UnityEngine.Debug.Log ("Platform: " + json);
 		this.node = JSON.Parse(json);
+		
+		// DEBUG
+		if (String.Equals(node["type"], "challenge")) {
+			UnityEngine.Debug.Log("You have been challenged by " + node["from"] + " with: " + node["taunt"]);
+			UnityEngine.Debug.Log(Challenge.Build((JSONNode)node["challenge"].AsObject).ToJson().ToString());
+		}
 	}
 }
 
