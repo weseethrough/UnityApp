@@ -132,6 +132,7 @@ public class Platform : MonoBehaviour {
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: failed to fetch user " + e.Message);
 			UnityEngine.Debug.LogException(e);
+			return null;
 		}
 	}
 	
