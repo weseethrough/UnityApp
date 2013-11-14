@@ -3,10 +3,10 @@ using SimpleJSON;
 
 public class Notification
 {		
-	private string id;
-	private bool read;
+	public string id { get; set; }
+	public bool read { get; set; }
 	
-	private JSONNode node;
+	public JSONNode node { get; set; }
 	
 	public Notification ()
 	{

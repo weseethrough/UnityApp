@@ -125,6 +125,16 @@ public class Platform : MonoBehaviour {
 		return started;
 	}
 	
+	public User User() {
+		try {
+			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getUser");
+			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: failed to fetch user " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
+	}
+	
 	// Starts tracking
 	public void StartTrack() {
 		try {

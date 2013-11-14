@@ -3,11 +3,11 @@ using SimpleJSON;
 
 public class Friend
 {
-	private string name;
-	private string uid;
-	private string image;
-	private bool hasGlass;
-	private int userId;
+	public string name { get; set; }
+	public string uid { get; set; }
+	public string image { get; set; }
+	public bool hasGlass { get; set; }
+	public Nullable<int> userId { get; set; }
 		
 	public Friend ()
 	{
@@ -19,7 +19,8 @@ public class Friend
 		uid = node["uid"];
 		image = node["image"];
 		hasGlass = node["has_glass"].AsBool;
-		userId = node["user_id"].AsInt;
+		if (String.Equals(node["user_id"], "null")) userId = null;
+		else userId = node["user_id"].AsInt;
 		// Possibly provider-specific fields
 	}
 }
