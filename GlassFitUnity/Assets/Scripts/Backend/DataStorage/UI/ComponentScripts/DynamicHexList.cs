@@ -2,32 +2,42 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class DynamicHexList : MonoBehaviour 
+public class DynamicHexList : MonoBehaviour
 {
-    HexPanel parent = null;
+    HexPanel    parent                  = null;
 
-    UICamera guiCamera;
-    Vector2 hexLayoutOffset = new Vector2(0.4330127f, 0.25f);    
-    Vector3 distanceVector;
-    Vector3 cameraPosition;
-    Quaternion cameraStartingRotation;
-    float radius;
+    UICamera    guiCamera;
+    Vector2     hexLayoutOffset         = new Vector2(0.4330127f, 0.25f);
+    Vector3     distanceVector;
+    Vector3     cameraPosition;
+    Quaternion  cameraStartingRotation;
+    float       radius;
 
-    float screenEnterTime = 0.8f;
-    float buttonEnterDelay = 0.0f;
-    float buttonNextEnterDelay = 0.0f;
-    int buttonNextEnterIndex = 0;
+    float       screenEnterTime         = 0.8f;
+    float       buttonEnterDelay        = 0.0f;
+    float       buttonNextEnterDelay    = 0.0f;
+    int         buttonNextEnterIndex    = 0;
 
-    int buttonCount = 35;    
+    int         buttonCount             = 0;
 
     List<GameObject> buttons;
     UIImageButton selection;
-    public string buttonEnterAnimation = "HexEnter";
+    private string btEnterAnimation     = "HexEnter";
 
-    bool buttonsReady = false;       
+    bool        buttonsReady            = false;
 
-	void Start () 
+    Vector2     draggingStartPos        = Vector2.zero;
+    bool        dragging                = false;
+    int         draggingFingerID        = -1;
+
+    bool        panelExiting            = false;
+
+    bool        started                 = false;
+
+    void Start()
     {
+        panelExiting = false;
+
         Camera[] camList = (Camera[])Camera.FindObjectsOfType(typeof(Camera));
         foreach (Camera c in camList)
         {
@@ -50,42 +60,45 @@ public class DynamicHexList : MonoBehaviour
             distanceVector = transform.position - cameraPosition;
             distanceVector.y = 0;
             cameraStartingRotation = guiCamera.transform.rotation;
-            
+
             radius = distanceVector.magnitude;
 
             Quaternion rot = SensorHelper.rotation;
-            if (!float.IsNaN(rot.x) &&  !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
+            if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
             {
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * SensorHelper.rotation;
+#if !UNITY_EDITOR
                 guiCamera.transform.rotation = newOffset;
+#endif
             }
             else
             {
                 Debug.LogError("Sensor data invalid");
             }
 
-          // FOR DEBUG ONLY COMMENTED OUT
-          //  guiCamera.useMouse = false;
-          //  guiCamera.useTouch = false;            
         }
 
-
+        started = true;
         InitializeItems(buttonCount);
-	}
+    }
 
     public void SetButtonCount(int count)
     {
         buttonCount = count;
+        if (started == true)
+        {
+            InitializeItems(buttonCount);
+        }
     }
 
-    public void SetParent( HexPanel _parent)
+    public void SetParent(HexPanel _parent)
     {
         parent = _parent;
     }
 
     void Update()
     {
-        buttonNextEnterDelay -= Time.deltaTime;      
+        buttonNextEnterDelay -= Time.deltaTime;
         if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
         {
             PlayButtonEnter(buttons[buttonNextEnterIndex], true);
@@ -94,13 +107,15 @@ public class DynamicHexList : MonoBehaviour
         }
 
         //if button enter delay is below 0 at this stage then screen has finished loading
-        if (guiCamera != null)
+        if (!panelExiting && guiCamera != null)
         {
             Quaternion rot = SensorHelper.rotation;
             if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
             {
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * SensorHelper.rotation;
+#if !UNITY_EDITOR
                 guiCamera.transform.rotation = newOffset;
+#endif
             }
             else
             {
@@ -108,13 +123,13 @@ public class DynamicHexList : MonoBehaviour
             }
             Vector3 forward = guiCamera.transform.forward;
 
-            RaycastHit[] hits = Physics.RaycastAll(cameraPosition, forward , 5.0f);// ,LayerMask.NameToLayer("GUI"));
+            RaycastHit[] hits = Physics.RaycastAll(cameraPosition, forward, 5.0f);// ,LayerMask.NameToLayer("GUI"));
 
             bool selectionStillActive = false;
             UIImageButton newSelection = null;
 
-            foreach (RaycastHit hit in hits) 
-            {               
+            foreach (RaycastHit hit in hits)
+            {
                 UIImageButton button = hit.collider.GetComponent<UIImageButton>();
                 if (button == null) continue;
 
@@ -123,7 +138,7 @@ public class DynamicHexList : MonoBehaviour
                 {
                     selectionStillActive = true;
                     break;
-                }                
+                }
             }
 
             if (!selectionStillActive && newSelection != null)
@@ -131,15 +146,126 @@ public class DynamicHexList : MonoBehaviour
                 if (selection != null)
                 {
                     selection.SendMessage("OnHover", false, SendMessageOptions.DontRequireReceiver);
+                    TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
+                    if (tp != null)
+                    {
+
+                        TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
+                    }                    
                 }
                 selection = newSelection;
                 newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+                
+                //selection changed we want to stop dragging, user need to start drag from the start
+                dragging = false;
+            }
+
+            bool debugMouse = Input.GetMouseButton(0);
+
+            if (selection != null &&  (Input.touchCount > 0 || debugMouse))
+            {
+
+                Touch touch = new Touch() ;
+                bool found = false;
+
+                if (!debugMouse)
+                {
+                    touch = Input.touches[0];                 
+                    if (dragging == false)
+                    {
+                        dragging = true;
+                        draggingFingerID = touch.fingerId;
+                        draggingStartPos = touch.position;
+                        found = true;
+                    }
+                    else
+                    {
+                        foreach (Touch t in Input.touches)
+                        {
+                            if (t.fingerId == draggingFingerID)
+                            {
+                                found = true;
+                                touch = t;
+                                break;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (dragging == false)
+                    {
+                        draggingStartPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                        dragging = true;
+                    }
+                    
+                    found = true;
+                }
+
+                if (found)
+                {
+                    Vector2 offset;
+                    if (!debugMouse)
+                    {
+                        offset = touch.position - draggingStartPos;
+                    }
+                    else
+                    {
+                        Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                        offset = mousePos - draggingStartPos;
+                    }
+
+                    float height = Screen.currentResolution.height;
+                    float scale = offset.y / height;
+
+                    scale = Mathf.Clamp(scale, -1, 1);
+                    Debug.Log("Input.mousePosition " + Input.mousePosition + " vs " + Screen.currentResolution.width + "/"+Screen.currentResolution.height);
+                    TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
+                    if (tp == null)
+                    {
+                        tp = guiCamera.gameObject.AddComponent<TweenPosition>();
+                    }
+                    
+                    Vector3 pos = Vector3.Lerp(cameraPosition, selection.transform.position, scale); 
+
+                    TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
+
+                    if (parent != null && (scale > 0.6f || scale < -0.6f))
+                    {
+                        panelExiting = true;
+                        FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
+                        if (fb != null)
+                        {
+                            parent.OnClick(fb);
+                        }
+                        
+
+                    }
+                }
+                
+
+            }
+            else
+            {
+                dragging = false;
+
+                if (selection != null)
+                {
+                    TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
+                    if (tp != null)
+                    {
+                        Vector3 pos = cameraPosition;                        
+
+                        TweenPosition.Begin(tp.gameObject, 0.3f, pos);
+                    }
+                }
+
             }
         }
 
         //we need to be sure all buttons are ready before setting parent owner.
         if (!buttonsReady)
-        {            
+        {
             FlowButton[] fbs = gameObject.GetComponentsInChildren<FlowButton>();
 
             if (fbs.Length == buttons.Count)
@@ -147,9 +273,9 @@ public class DynamicHexList : MonoBehaviour
                 buttonsReady = true;
                 foreach (FlowButton fb in fbs)
                 {
-                    fb.owner        = parent;                    
+                    fb.owner = parent;
                 }
-            }            
+            }
         }
     }
 
@@ -174,7 +300,7 @@ public class DynamicHexList : MonoBehaviour
         while (transform.childCount > elementsToKeep)
         {
             GameObject.Destroy(transform.GetChild(transform.childCount - 1));
-        }        
+        }
     }
 
     private void InitializeItems(int count)
@@ -184,11 +310,11 @@ public class DynamicHexList : MonoBehaviour
             Debug.LogError("Data have not been set properly before this call!");
         }
 
-        if (transform.childCount < 1) 
+        if (transform.childCount < 1)
         {
-            Debug.LogError("List doesn't have at least one button element to clone");            
+            Debug.LogError("List doesn't have at least one button element to clone");
             return;
-        }        
+        }
         CleanupChildren(count);
         buttonEnterDelay = screenEnterTime / count;
 
@@ -203,7 +329,7 @@ public class DynamicHexList : MonoBehaviour
             {
                 fb = ib.gameObject.AddComponent<FlowButton>();
             }
-            fb.owner = parent;            
+            fb.owner = parent;
         }
 
         float Z = child.transform.position.z;
@@ -214,15 +340,15 @@ public class DynamicHexList : MonoBehaviour
             if (i >= transform.childCount)
             {
                 tile = (GameObject)GameObject.Instantiate(child.gameObject);
-                tile.transform.parent       = child.parent;                
-                tile.transform.rotation     = child.rotation;
-                tile.transform.localScale   = child.localScale;                 
+                tile.transform.parent = child.parent;
+                tile.transform.rotation = child.rotation;
+                tile.transform.localScale = child.localScale;
             }
             else
             {
-                tile = transform.GetChild(i).gameObject;                
+                tile = transform.GetChild(i).gameObject;
             }
-            Vector3 pos = GetLocation(i);            
+            Vector3 pos = GetLocation(i);
             if (radius == 0)
             {
                 Debug.LogError("RADIUS 0!");
@@ -230,22 +356,22 @@ public class DynamicHexList : MonoBehaviour
 
             float angle = pos.x / (Mathf.PI * radius);
             //0.989 is value I found matching best to close ui behind players back
-            angle *= 180 * 0.989f;            
-            Quaternion rotation = Quaternion.Euler(new Vector3(0.0f, angle , 0.0f));
+            angle *= 180 * 0.989f;
+            Quaternion rotation = Quaternion.Euler(new Vector3(0.0f, angle, 0.0f));
             Vector3 rotationalPos = rotation * distanceVector;
 
             Vector3 hexPosition = cameraPosition + new Vector3(rotationalPos.x, pos.y, rotationalPos.z);
             tile.transform.position = hexPosition;// transform.worldToLocalMatrix.MultiplyVector(hexPosition);
             tile.SetActive(false);
             tile.transform.Rotate(new Vector3(0.0f, angle, 0.0f));
-            tile.name = "Hex " + i;            
+            tile.name = "Hex " + i;
 
-            buttons.Add(tile);           
-        }        
+            buttons.Add(tile);
+        }
     }
 
     Vector2 GetLocation(int index)
-    {        
+    {
         if (hexLayoutOffset == Vector2.zero)
         {
             if (transform.childCount == 0) return Vector2.zero;
@@ -263,11 +389,11 @@ public class DynamicHexList : MonoBehaviour
                 b = sc.bounds;
             }
             float upOffset = b.extents.y;
-            float sideOffset = Mathf.Sqrt(3 * upOffset* upOffset);
+            float sideOffset = Mathf.Sqrt(3 * upOffset * upOffset);
             hexLayoutOffset = new Vector2(sideOffset, upOffset);
         }
 
-            //our design expect some hard coded positioning of the hexes
+        //our design expect some hard coded positioning of the hexes
 
         switch (index)
         {
@@ -276,7 +402,7 @@ public class DynamicHexList : MonoBehaviour
             case 1:
                 return new Vector2(0, hexLayoutOffset.y * 2);
             case 2:
-                return new Vector2(hexLayoutOffset.x, hexLayoutOffset.y );
+                return new Vector2(hexLayoutOffset.x, hexLayoutOffset.y);
             case 3:
                 return new Vector2(hexLayoutOffset.x, -hexLayoutOffset.y);
             case 4:
@@ -314,11 +440,11 @@ public class DynamicHexList : MonoBehaviour
                 int step = sequentalID % 14;
                 if (step < 4)
                 {
-                    return new Vector2(hexLayoutOffset.x * (3+stage*2), hexLayoutOffset.y * (3 - 2 * step));
+                    return new Vector2(hexLayoutOffset.x * (3 + stage * 2), hexLayoutOffset.y * (3 - 2 * step));
                 }
                 else if (step < 8)
                 {
-                    return new Vector2(- hexLayoutOffset.x * (3 + stage * 2), hexLayoutOffset.y * (3 - 2 * (step - 4)));
+                    return new Vector2(-hexLayoutOffset.x * (3 + stage * 2), hexLayoutOffset.y * (3 - 2 * (step - 4)));
                 }
                 else if (step < 11)
                 {
@@ -326,27 +452,20 @@ public class DynamicHexList : MonoBehaviour
                 }
                 else
                 {
-                    return new Vector2(- hexLayoutOffset.x * (4 + stage * 2), hexLayoutOffset.y * (2 - 2 * (step - 11)));
-                }                
-        }        
+                    return new Vector2(-hexLayoutOffset.x * (4 + stage * 2), hexLayoutOffset.y * (2 - 2 * (step - 11)));
+                }
+        }
     }
 
     public void PlayButtonEnter(GameObject buttonRoot, bool forward)
     {
         buttonRoot.SetActive(true);
 
-        PlayLockingAnimation(buttonRoot, buttonEnterAnimation, forward);
-    }
-
-
-
-    public void PlayLockingAnimation(GameObject buttonRoot, string animationName, bool forward)
-    {
         Animation target = buttonRoot.GetComponentInChildren<Animation>();
-        if (target != null && buttonEnterAnimation.Length > 0)
+        if (target != null)
         {
             AnimationOrTween.Direction dir = forward ? AnimationOrTween.Direction.Forward : AnimationOrTween.Direction.Reverse;
-            ActiveAnimation anim = ActiveAnimation.Play(target, animationName, dir);
+            ActiveAnimation anim = ActiveAnimation.Play(target, btEnterAnimation, dir);
 
             if (anim != null)
             {
@@ -361,4 +480,18 @@ public class DynamicHexList : MonoBehaviour
             }
         }
     }
+
+    public void OnExit()
+    {
+        if (guiCamera != null)
+        {
+            TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
+            if (tp != null)
+            {
+                GameObject.Destroy(tp);
+                guiCamera.transform.position = cameraPosition;
+            }
+        }            
+    }
+
 }

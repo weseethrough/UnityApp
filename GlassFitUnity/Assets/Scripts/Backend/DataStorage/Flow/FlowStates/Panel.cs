@@ -240,4 +240,12 @@ public class Panel : FlowState
               
         return true;
     }
+
+
+    public override bool IsValid()
+    {
+        GParameter gType = Parameters.Find(r => r.Key == "Type");
+
+        return base.IsValid() && gType != null && gType.Value != null && gType.Value != "Null";
+    }
 }

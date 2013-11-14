@@ -14,6 +14,7 @@ public class GStyle
 	public Color NodeColor;
 	public Color TitleColor;
 	public Color TitleTextColor;
+    public Color TitleTextIvalidColor;
 	public Color HighlightColor;
 	public Color HighlightLineColor;
 	public Color TextColor;
@@ -24,6 +25,7 @@ public class GStyle
 		NodeColor = new Color(0.18f, 0.18f, 0.18f, 1.0f);
 		TitleColor = new Color(0.12f, 0.12f, 0.12f, 1.0f);
 		TitleTextColor = new Color(0.20f, 1.0f, 0.0f, 1.0f);
+        TitleTextIvalidColor = new Color(1.0f, 0.20f, 0.0f, 1.0f);
 		HighlightColor = new Color(0.0f, 0.5f, 0.2f, 1.0f);
 		HighlightLineColor = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 		TextColor = new Color(0.0f, 0.75f, 0.0f, 1.0f);

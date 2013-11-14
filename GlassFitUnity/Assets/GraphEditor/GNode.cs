@@ -338,5 +338,10 @@ public class GNode : ISerializable
         return false;
     }
 
+    public virtual bool IsValid()
+    {
+        return true;
+    }
+
 }
 

@@ -173,7 +173,7 @@ public class GraphWindow : EditorWindow, IDraw
 		{
 			if (m_selection != null)
 			{
-                if (m_dragConnector && m_selectionConnector == null)
+                if (!m_dragConnector || m_selectionConnector == null)
 				{
 					// Drag selected node(s)
 					Vector2 delta = Event.current.mousePosition - m_dragStart;
@@ -641,7 +641,12 @@ public class GraphWindow : EditorWindow, IDraw
                 }
             }
             break;
+        case GraphValueType.HexButtonManager:
+            if (m_selection is HexPanel)
+            {
 
+            }
+            break;
 		default:
             EditorGUILayout.LabelField(parm.Key);
             EditorGUILayout.TextField(parm.Value);
