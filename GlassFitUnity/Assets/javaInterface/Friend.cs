@@ -14,7 +14,6 @@ public class Friend
 	}
 	public Friend (string json) 
 	{
-		UnityEngine.Debug.Log(json);
 		var node = JSON.Parse(json);
 		name = node["name"];
 		uid = node["uid"];

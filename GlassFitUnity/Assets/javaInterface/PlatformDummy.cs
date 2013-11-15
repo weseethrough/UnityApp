@@ -29,7 +29,6 @@ public class PlatformDummy {
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
 		Directory.CreateDirectory(blobassets);
 		UnityEngine.Debug.Log("Editor blobstore: " + blobstore + ", blobassets: " + blobassets);
-		Friends();
 	}
 	
 	public void StartTrack(bool indoor) {

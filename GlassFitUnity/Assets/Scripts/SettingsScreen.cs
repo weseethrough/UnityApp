@@ -336,14 +336,14 @@ public class SettingsScreen : MonoBehaviour {
 		Position direction = new Position(selfCoords.latitude + (float)(Math.Cos(bearing)*1000/111229d), 
 		                                  selfCoords.longitude + (float)(Math.Sin(bearing)*1000/111229d));	
 		double pixelBearing = Angle(mercatorToPixel(selfCoords), mercatorToPixel(direction));	
-		UnityEngine.Debug.Log("Map: pixel bearing calculated");
+//		UnityEngine.Debug.Log("Map: pixel bearing calculated");
 		bearing = pixelBearing;
 		
 		// Get a static map with a radius of mapAtlasRadius, cache and re-get if viewport within margin of the border
 		const int margin = 15;	
 		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
 		Vector2 drift = mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords);
-		UnityEngine.Debug.Log("Map: drift calculated");
+//		UnityEngine.Debug.Log("Map: drift calculated");
 //		Debug.Log("drift: " + drift.magnitude + " .." + drift);
 		if (mapWWW == null && (mapTexture == null || drift.magnitude >= maxdrift)) {
 			FetchMapTexture(selfCoords);

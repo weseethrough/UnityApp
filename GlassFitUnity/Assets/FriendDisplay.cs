@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class FriendDisplay : MonoBehaviour {
 	
@@ -26,8 +27,14 @@ public class FriendDisplay : MonoBehaviour {
 		tex.material.mainTexture = loading;
 		Platform.Instance.syncToServer();
 		syncTime = Time.time;
-		friendList = Platform.Instance.getFriends();
+		friendList = Platform.Instance.Friends();
+		List<Friend> filtered = new List<Friend>();
+		foreach (Friend friend in friendList) {
+			if (friend.userId.HasValue || friend.hasGlass) filtered.Add(friend);
+		}
+		friendList = filtered.ToArray();
 		DataVault.Set("screen_name", "Loading Screen Name...");
+		UnityEngine.Debug.Log("Friend Display: started");
 	}
 	
 	// Update is called once per frame
@@ -61,6 +68,9 @@ public class FriendDisplay : MonoBehaviour {
 				}
 			}
 			DataVault.Set("screen_name", friendList[currentFriend].name);
+			int userId = 0;
+			if (friendList[currentFriend].userId.HasValue) userId = friendList[currentFriend].userId.Value;
+			DataVault.Set("current_friend", userId);
 		}
 		
 		if(Input.touchCount == 1) 
