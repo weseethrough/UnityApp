@@ -34,5 +34,6 @@ public enum GraphValueType
 	Vector4,
     UIPrefab,
     Settings,
+    HexButtonManager,
 	// Add any desired types!
 };

@@ -7,6 +7,7 @@ public class GraphComponent : MonoBehaviour
 {
     [System.NonSerialized]
 	public GraphData m_graph;
+    public UIAtlas m_defaultHexagonalAtlas;
 
     void Awake()
     {                

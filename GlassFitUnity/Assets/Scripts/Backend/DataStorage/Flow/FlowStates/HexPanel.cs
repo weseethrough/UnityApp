@@ -9,8 +9,35 @@ public class HexPanel : Panel
 {
     const string defaultExit = "Default Exit";
 
-    public HexPanel() : base() { }
-    public HexPanel(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt) {  }
+    public List<HexButtonData> buttonData;        
+    private bool camStartMouseAction;
+    private bool camStartTouchAction;
+
+    public HexPanel()
+        : base()
+    {
+        buttonData = new List<HexButtonData>();
+    }
+    public HexPanel(SerializationInfo info, StreamingContext ctxt)
+        : base(info, ctxt)
+    {
+        foreach (SerializationEntry entry in info)
+        {
+            switch (entry.Name)
+            {
+                case "buttonData":
+                    this.buttonData = entry.Value as List<HexButtonData>; 
+                    break;                
+            }
+        }
+    }
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext ctxt)
+    {
+        base.GetObjectData(info, ctxt);
+
+        info.AddValue("buttonData", this.buttonData);
+    }
 
     public override string GetDisplayName()
     {
@@ -29,6 +56,15 @@ public class HexPanel : Panel
         base.Initialize();
 
         NewOutput(defaultExit, "Flow");
+        NewParameter("HexListManager", GraphValueType.HexButtonManager, "true"); //fake variable just to trigger option visibility on graph editor
+
+    }
+
+    public void UpdateSize()
+    {
+        int count = Mathf.Max(Inputs.Count, Outputs.Count);
+
+        Size.y = Mathf.Max(count * 25, 80);
     }
 
     public override void RebuildConnections()
@@ -45,8 +81,23 @@ public class HexPanel : Panel
         if (physicalWidgetRoot != null)
         {
             DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));            
-            list.SetParent(this);
-        }                
+            list.SetParent(this);           
+        }
+        
+
+#if !UNITY_EDITOR         
+        UICamera uicam = Camera.FindObjectOfType(typeof(UICamera)) as UICamera;
+        
+        if (uicam != null)
+        {            
+            camStartMouseAction = uicam.useMouse;
+            camStartTouchAction = uicam.useTouch;                        
+
+            uicam.useMouse = false;
+            uicam.useTouch = false;                
+        }                   
+#endif
+
     }
 
     public override void ExitStart()
@@ -65,6 +116,22 @@ public class HexPanel : Panel
         {
             cam.transform.rotation = Quaternion.identity;
         }
+
+        DynamicHexList dh = physicalWidgetRoot.GetComponentInChildren<DynamicHexList>();
+        if (dh != null)
+        {
+            dh.OnExit();
+        }
+
+#if !UNITY_EDITOR            
+        UICamera uicam = Camera.FindObjectOfType(typeof(UICamera)) as UICamera;
+        
+        if (uicam != null)
+        {            
+            uicam.useMouse = camStartMouseAction;
+            uicam.useTouch = camStartTouchAction;                                    
+        }             
+#endif
     }
 
     public override void OnClick(FlowButton button)
@@ -91,5 +158,11 @@ public class HexPanel : Panel
         {
             Debug.LogError("Dead end");
         }
+    }
+
+    public override bool IsValid()
+    {
+        //this panel is marked as invalid until some buttons are defined. It might be not the case later and condition changed.
+        return base.IsValid() && buttonData != null && buttonData.Count > 0;
     }
 }

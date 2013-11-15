@@ -88,5 +88,4 @@ public abstract class FlowState : GNode
         //NewOutput("Result", "Vector3");
     }
 
-
 }

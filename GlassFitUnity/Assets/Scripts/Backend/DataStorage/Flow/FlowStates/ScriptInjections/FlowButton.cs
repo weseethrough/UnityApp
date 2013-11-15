@@ -19,7 +19,7 @@ public class FlowButton : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("Flow button creation: " + gameObject.name);
+       // Debug.Log("Flow button creation: " + gameObject.name);
     }
 
 	public void OnClick()

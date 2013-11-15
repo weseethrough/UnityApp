@@ -6,7 +6,14 @@ public class UIButtonAnimationLocker : MonoBehaviour
     public delegate void CallbackAnimFinished(UIImageButton button);
 
     UIImageButton button;    
-    CallbackAnimFinished callbackFunction; 
+    CallbackAnimFinished callbackFunction;
+
+    public UIButtonAnimationLocker.CallbackAnimFinished CallbackFunction
+    {
+        get { return callbackFunction; }
+        set { callbackFunction = value; }
+    }
+
 
     public void OnButtonAnimStarted()
     {
@@ -27,10 +34,10 @@ public class UIButtonAnimationLocker : MonoBehaviour
 
         if (button != null) button.isEnabled = true;
 
-        if (callbackFunction != null)
+        /*if (callbackFunction != null)
         {
             callbackFunction(button);
-        }
+        }*/
     }
 }
 
