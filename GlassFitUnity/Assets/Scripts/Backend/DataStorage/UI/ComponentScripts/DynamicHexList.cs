@@ -219,14 +219,15 @@ public class DynamicHexList : MonoBehaviour
                         float scale = offset.y / height;
 
                         scale = Mathf.Clamp(scale, -1, 1);
-                        Debug.Log("Input.mousePosition " + Input.mousePosition + " vs " + Screen.currentResolution.width + "/" + Screen.currentResolution.height);
+                        
                         TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                         if (tp == null)
                         {
                             tp = guiCamera.gameObject.AddComponent<TweenPosition>();
                         }
+                        Vector3 direction = selection.transform.position - cameraPosition;
 
-                        Vector3 pos = Vector3.Lerp(cameraPosition, selection.transform.position, scale);
+                        Vector3 pos = cameraPosition + (direction * scale);
 
                         TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
 

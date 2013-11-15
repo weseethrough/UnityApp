@@ -744,7 +744,7 @@ public class GraphWindow : EditorWindow, IDraw
                 if (GUILayout.Button("Add new button"))
                 {
                     HexButtonData buttonData = new HexButtonData();
-                    buttonData.buttonName = "Set Name";
+                    buttonData.buttonName = "Set Name " + hexPanel.buttonData.Count;
                     hexPanel.buttonData.Add(buttonData);
                 }
             }
