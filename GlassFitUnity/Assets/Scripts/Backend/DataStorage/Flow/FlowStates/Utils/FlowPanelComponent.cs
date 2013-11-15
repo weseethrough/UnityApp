@@ -44,7 +44,7 @@ public class FlowPanelComponent
                 for (int id =0; id< componentList.Count; id++)
                 {
                     //skip serializable component
-                    if (componentList[id].name == "UISerializable") continue;
+                    if (componentList[id].name == "UISerializable") continue;                   
                     
                     GUI.color = Color.yellow;
                     foldout[i][id] = EditorGUILayout.Foldout(foldout[i][id], componentList[id].name);
@@ -181,6 +181,5 @@ public class FlowPanelComponent
         }
         return retList;
     }
-
 
 }

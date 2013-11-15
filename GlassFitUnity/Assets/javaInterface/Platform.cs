@@ -19,7 +19,6 @@ public class Platform : MonoBehaviour {
 	private long openingPointsBalance = 0;
 	public int currentTrack { get; set; }
 	
-	private Friend[] friendList;
 	
 	private List<Track> trackList;
 	
@@ -237,22 +236,6 @@ public class Platform : MonoBehaviour {
 	
 	// Sync to server
 	public void syncToServer() {
-		Friends();
-		Notifications();
-		QueueAction(@"{
-			'action' : 'challenge',
-			'target' : 10,
-			'taunt' : 'Your mother is a hamster!',
-			'challenge' : {
-					'distance': 333,
-					'duration': 42,
-					'location': null,
-					'public': false,
-					'start_time': null,
-					'stop_time': null,
-					'type': 'duration'
-			}
-		}".Replace("'", "\""));		
 		try {
 			helper_class.CallStatic("syncToServer", context);
 		} catch(Exception e) {
@@ -426,16 +409,12 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("Platform: Error queueing action: " + e.Message);
 		}
 	}
-	
-	public Friend[] getFriends() {
-		return friendList;
-	}
-	
+		
 	public Friend[] Friends() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
 				int length = list.Call<int>("size");
-				friendList = new Friend[length];
+				Friend[] friendList = new Friend[length];
 				for (int i=0;i<length;i++) {
 					using (AndroidJavaObject f = list.Call<AndroidJavaObject>("get", i)) {
 						friendList[i] = new Friend(f.Get<string>("friend"));
@@ -448,8 +427,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
-		friendList = new Friend[1];
-		return friendList;
+		return new Friend[0];
 	}
 		
 	public Notification[] Notifications() {

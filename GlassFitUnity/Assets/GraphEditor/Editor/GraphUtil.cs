@@ -28,7 +28,7 @@ public class GraphUtil
 		GL.End();
 	}
 		
-	static public void DrawPanel(IDraw g, GStyle style, Vector2 pos, Vector2 size, string title, bool selected)
+	static public void DrawPanel(IDraw g, GStyle style, Vector2 pos, Vector2 size, string title, bool selected, bool valid)
 	{
 		float width = size.x;
 		float height = size.y;
@@ -75,7 +75,9 @@ public class GraphUtil
 		GL.End();
 		
 		GL.Begin(GL.LINES);
-			GL.Color(selected ? style.HighlightLineColor : Color.white);
+            Color c = selected ? style.HighlightLineColor : Color.white;
+            c = valid ? c : style.TitleTextIvalidColor;
+			GL.Color(c);
 			// edges
 			GL.Vertex3(xr0,y0,0);
 			GL.Vertex3(xr1,y0,0);
@@ -99,7 +101,7 @@ public class GraphUtil
 		GUI.color = Color.white;
 		GUI.contentColor = Color.white;
 		GUIStyle gstyle = new GUIStyle();
-		gstyle.normal.textColor = style.TitleTextColor;
+		gstyle.normal.textColor = valid? style.TitleTextColor : style.TitleTextIvalidColor; 
 		gstyle.fontStyle = FontStyle.Bold;
 		g.GuiLabel(new Rect(pos.x+16,pos.y+3,128,128),title,gstyle);
 	}
@@ -296,8 +298,8 @@ public class GraphUtil
 		
 		string title = node.GetDisplayName();
 		GStyle style = graph.Style;
-		Vector3 pos = node.Position;
-		DrawPanel(g, style,pos,node.Size,title,nodeSelected);
+		Vector3 pos = node.Position;                
+		DrawPanel(g, style,pos,node.Size,title,nodeSelected, node.IsValid());
 		
 		if (node.HasInputs)
 		{
