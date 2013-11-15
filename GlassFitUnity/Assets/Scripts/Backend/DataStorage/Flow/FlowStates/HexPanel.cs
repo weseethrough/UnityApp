@@ -21,15 +21,15 @@ public class HexPanel : Panel
     public HexPanel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
     {
-        try
+        foreach (SerializationEntry entry in info)
         {
-            this.buttonData = info.GetValue("buttonData", typeof(List<HexButtonData>)) as List<HexButtonData>;
+            switch (entry.Name)
+            {
+                case "buttonData":
+                    this.buttonData = entry.Value as List<HexButtonData>; 
+                    break;                
+            }
         }
-        catch (System.Exception ex)
-        {
-            this.buttonData = null;
-        }
-        
     }
 
     public override void GetObjectData(SerializationInfo info, StreamingContext ctxt)
@@ -60,6 +60,13 @@ public class HexPanel : Panel
 
     }
 
+    public void UpdateSize()
+    {
+        int count = Mathf.Max(Inputs.Count, Outputs.Count);
+
+        Size.y = Mathf.Max(count * 25, 80);
+    }
+
     public override void RebuildConnections()
     {
         base.RebuildConnections();
@@ -74,8 +81,7 @@ public class HexPanel : Panel
         if (physicalWidgetRoot != null)
         {
             DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));            
-            list.SetParent(this);
-            list.SetButtonCount(7);
+            list.SetParent(this);           
         }
         
 
@@ -152,5 +158,11 @@ public class HexPanel : Panel
         {
             Debug.LogError("Dead end");
         }
+    }
+
+    public override bool IsValid()
+    {
+        //this panel is marked as invalid until some buttons are defined. It might be not the case later and condition changed.
+        return base.IsValid() && buttonData != null && buttonData.Count > 0;
     }
 }

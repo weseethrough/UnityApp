@@ -32,8 +32,6 @@ public class DynamicHexList : MonoBehaviour
 
     bool        panelExiting            = false;
 
-    bool        started                 = false;
-
     void Start()
     {
         panelExiting = false;
@@ -66,7 +64,9 @@ public class DynamicHexList : MonoBehaviour
             Quaternion rot = SensorHelper.rotation;
             if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
             {
-                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * SensorHelper.rotation;
+               // cameraStartingRotation = rot * Quaternion.Inverse(guiCamera.transform.rotation);
+
+                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;
 #if !UNITY_EDITOR
                 guiCamera.transform.rotation = newOffset;
 #endif
@@ -78,17 +78,14 @@ public class DynamicHexList : MonoBehaviour
 
         }
 
-        started = true;
-        InitializeItems(buttonCount);
+        InitializeItems();
     }
 
-    public void SetButtonCount(int count)
+    public List<HexButtonData> GetButtonData()
     {
-        buttonCount = count;
-        if (started == true)
-        {
-            InitializeItems(buttonCount);
-        }
+        if (parent == null) return null;
+
+        return parent.buttonData;
     }
 
     public void SetParent(HexPanel _parent)
@@ -98,185 +95,189 @@ public class DynamicHexList : MonoBehaviour
 
     void Update()
     {
-        buttonNextEnterDelay -= Time.deltaTime;
-        if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
-        {
-            PlayButtonEnter(buttons[buttonNextEnterIndex], true);
-            buttonNextEnterIndex++;
-            buttonNextEnterDelay = buttonEnterDelay;
-        }
-
-        //if button enter delay is below 0 at this stage then screen has finished loading
-        if (!panelExiting && guiCamera != null)
-        {
-            Quaternion rot = SensorHelper.rotation;
-            if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
+//         if (buttonsReady)
+//         {
+            buttonNextEnterDelay -= Time.deltaTime;
+            if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
             {
-                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * SensorHelper.rotation;
+
+                PlayButtonEnter(buttons[buttonNextEnterIndex], true);
+                buttonNextEnterIndex++;
+                buttonNextEnterDelay = buttonEnterDelay;
+            }
+
+            //if button enter delay is below 0 at this stage then screen has finished loading
+            if (!panelExiting && guiCamera != null)
+            {
+                Quaternion rot = SensorHelper.rotation;
+                if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
+                {
+                    Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;
 #if !UNITY_EDITOR
                 guiCamera.transform.rotation = newOffset;
 #endif
-            }
-            else
-            {
-                Debug.LogError("Sensor data invalid");
-            }
-            Vector3 forward = guiCamera.transform.forward;
-
-            RaycastHit[] hits = Physics.RaycastAll(cameraPosition, forward, 5.0f);// ,LayerMask.NameToLayer("GUI"));
-
-            bool selectionStillActive = false;
-            UIImageButton newSelection = null;
-
-            foreach (RaycastHit hit in hits)
-            {
-                UIImageButton button = hit.collider.GetComponent<UIImageButton>();
-                if (button == null) continue;
-
-                newSelection = button;
-                if (newSelection == selection)
-                {
-                    selectionStillActive = true;
-                    break;
                 }
-            }
-
-            if (!selectionStillActive && newSelection != null)
-            {
-                if (selection != null)
+                else
                 {
-                    selection.SendMessage("OnHover", false, SendMessageOptions.DontRequireReceiver);
-                    TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
-                    if (tp != null)
-                    {
-
-                        TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
-                    }                    
+                    Debug.LogError("Sensor data invalid");
                 }
-                selection = newSelection;
-                newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
-                
-                //selection changed we want to stop dragging, user need to start drag from the start
-                dragging = false;
-            }
+                Vector3 forward = guiCamera.transform.forward;
 
-            bool debugMouse = Input.GetMouseButton(0);
+                RaycastHit[] hits = Physics.RaycastAll(cameraPosition, forward, 5.0f);// ,LayerMask.NameToLayer("GUI"));
 
-            if (selection != null &&  (Input.touchCount > 0 || debugMouse))
-            {
+                bool selectionStillActive = false;
+                UIImageButton newSelection = null;
 
-                Touch touch = new Touch() ;
-                bool found = false;
-
-                if (!debugMouse)
+                foreach (RaycastHit hit in hits)
                 {
-                    touch = Input.touches[0];                 
-                    if (dragging == false)
+                    UIImageButton button = hit.collider.GetComponent<UIImageButton>();
+                    if (button == null) continue;
+
+                    newSelection = button;
+                    if (newSelection == selection)
                     {
-                        dragging = true;
-                        draggingFingerID = touch.fingerId;
-                        draggingStartPos = touch.position;
-                        found = true;
+                        selectionStillActive = true;
+                        break;
+                    }
+                }
+
+                if (!selectionStillActive && newSelection != null)
+                {
+                    if (selection != null)
+                    {
+                        selection.SendMessage("OnHover", false, SendMessageOptions.DontRequireReceiver);
+                        TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
+                        if (tp != null)
+                        {
+
+                            TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
+                        }
+                    }
+                    selection = newSelection;
+                    newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+
+                    //selection changed we want to stop dragging, user need to start drag from the start
+                    dragging = false;
+                }
+
+                bool debugMouse = Input.GetMouseButton(0);
+
+                if (selection != null && (Input.touchCount > 0 || debugMouse))
+                {
+
+                    Touch touch = new Touch();
+                    bool found = false;
+
+                    if (!debugMouse)
+                    {
+                        touch = Input.touches[0];
+                        if (dragging == false)
+                        {
+                            dragging = true;
+                            draggingFingerID = touch.fingerId;
+                            draggingStartPos = touch.position;
+                            found = true;
+                        }
+                        else
+                        {
+                            foreach (Touch t in Input.touches)
+                            {
+                                if (t.fingerId == draggingFingerID)
+                                {
+                                    found = true;
+                                    touch = t;
+                                    break;
+                                }
+                            }
+                        }
                     }
                     else
                     {
-                        foreach (Touch t in Input.touches)
+                        if (dragging == false)
                         {
-                            if (t.fingerId == draggingFingerID)
+                            draggingStartPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                            dragging = true;
+                        }
+
+                        found = true;
+                    }
+
+                    if (found)
+                    {
+                        Vector2 offset;
+                        if (!debugMouse)
+                        {
+                            offset = touch.position - draggingStartPos;
+                        }
+                        else
+                        {
+                            Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                            offset = mousePos - draggingStartPos;
+                        }
+
+                        float height = Screen.currentResolution.height;
+                        float scale = offset.y / height;
+
+                        scale = Mathf.Clamp(scale, -1, 1);
+                        Debug.Log("Input.mousePosition " + Input.mousePosition + " vs " + Screen.currentResolution.width + "/" + Screen.currentResolution.height);
+                        TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
+                        if (tp == null)
+                        {
+                            tp = guiCamera.gameObject.AddComponent<TweenPosition>();
+                        }
+
+                        Vector3 pos = Vector3.Lerp(cameraPosition, selection.transform.position, scale);
+
+                        TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
+
+                        if (parent != null && (scale > 0.6f || scale < -0.6f))
+                        {
+                            panelExiting = true;
+                            FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
+                            if (fb != null)
                             {
-                                found = true;
-                                touch = t;
-                                break;
+                                parent.OnClick(fb);
                             }
                         }
                     }
                 }
                 else
                 {
-                    if (dragging == false)
-                    {
-                        draggingStartPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-                        dragging = true;
-                    }
-                    
-                    found = true;
-                }
+                    dragging = false;
 
-                if (found)
-                {
-                    Vector2 offset;
-                    if (!debugMouse)
+                    if (selection != null)
                     {
-                        offset = touch.position - draggingStartPos;
-                    }
-                    else
-                    {
-                        Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-                        offset = mousePos - draggingStartPos;
-                    }
-
-                    float height = Screen.currentResolution.height;
-                    float scale = offset.y / height;
-
-                    scale = Mathf.Clamp(scale, -1, 1);
-                    Debug.Log("Input.mousePosition " + Input.mousePosition + " vs " + Screen.currentResolution.width + "/"+Screen.currentResolution.height);
-                    TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
-                    if (tp == null)
-                    {
-                        tp = guiCamera.gameObject.AddComponent<TweenPosition>();
-                    }
-                    
-                    Vector3 pos = Vector3.Lerp(cameraPosition, selection.transform.position, scale); 
-
-                    TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
-
-                    if (parent != null && (scale > 0.6f || scale < -0.6f))
-                    {
-                        panelExiting = true;
-                        FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
-                        if (fb != null)
+                        TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
+                        if (tp != null)
                         {
-                            parent.OnClick(fb);
+                            Vector3 pos = cameraPosition;
+
+                            TweenPosition.Begin(tp.gameObject, 0.3f, pos);
                         }
-                        
-
                     }
+
                 }
-                
-
             }
-            else
-            {
-                dragging = false;
-
-                if (selection != null)
-                {
-                    TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
-                    if (tp != null)
-                    {
-                        Vector3 pos = cameraPosition;                        
-
-                        TweenPosition.Begin(tp.gameObject, 0.3f, pos);
-                    }
-                }
-
-            }
-        }
-
+        //}
         //we need to be sure all buttons are ready before setting parent owner.
-        if (!buttonsReady)
+       /* else
         {
             FlowButton[] fbs = gameObject.GetComponentsInChildren<FlowButton>();
 
             if (fbs.Length == buttons.Count)
             {
                 buttonsReady = true;
-                foreach (FlowButton fb in fbs)
+                for (int i = 0; i < fbs.Length && i < GetButtonData().Count; i++)
                 {
-                    fb.owner = parent;
+                    fbs[i].owner = parent;
+                    UIImageButton graphics = fbs[i].GetComponentInChildren<UIImageButton>();
+                    graphics.pressedSprite = GetButtonData()[i].imageName;
+                    graphics.hoverSprite = graphics.pressedSprite;
+                    graphics.normalSprite = graphics.pressedSprite;
+                    graphics.disabledSprite = graphics.pressedSprite;
                 }
             }
-        }
+        }*/
     }
 
     void CleanupChildren(int elementsToKeep)
@@ -288,12 +289,7 @@ public class DynamicHexList : MonoBehaviour
         }
 
         buttons = new List<GameObject>();
-        buttonsReady = false;
-
-        if (elementsToKeep == 0)
-        {
-            transform.GetChild(0).gameObject.SetActive(false);
-        }
+        buttonsReady = false;        
 
         if (elementsToKeep < 1) elementsToKeep = 1;
 
@@ -303,7 +299,7 @@ public class DynamicHexList : MonoBehaviour
         }
     }
 
-    private void InitializeItems(int count)
+    private void InitializeItems()
     {
         if (parent == null || radius == 0.0f)
         {
@@ -315,11 +311,13 @@ public class DynamicHexList : MonoBehaviour
             Debug.LogError("List doesn't have at least one button element to clone");
             return;
         }
+
+        int count = GetButtonData().Count;
         CleanupChildren(count);
         buttonEnterDelay = screenEnterTime / count;
 
         Transform child = transform.GetChild(0);
-
+        child.gameObject.SetActive(true);
 
         UIImageButton ib = child.gameObject.GetComponentInChildren<UIImageButton>();
         if (parent != null && ib != null)
@@ -334,8 +332,7 @@ public class DynamicHexList : MonoBehaviour
 
         float Z = child.transform.position.z;
         for (int i = 0; i < count; i++)
-        {
-            //ensure we have 
+        {            
             GameObject tile = null;
             if (i >= transform.childCount)
             {
@@ -355,18 +352,33 @@ public class DynamicHexList : MonoBehaviour
             }
 
             float angle = pos.x / (Mathf.PI * radius);
-            //0.989 is value I found matching best to close ui behind players back
+            //0.989 is value I found matching best to close ui line behind players back
             angle *= 180 * 0.989f;
             Quaternion rotation = Quaternion.Euler(new Vector3(0.0f, angle, 0.0f));
             Vector3 rotationalPos = rotation * distanceVector;
 
             Vector3 hexPosition = cameraPosition + new Vector3(rotationalPos.x, pos.y, rotationalPos.z);
-            tile.transform.position = hexPosition;// transform.worldToLocalMatrix.MultiplyVector(hexPosition);
-            tile.SetActive(false);
+            tile.transform.position = hexPosition;// transform.worldToLocalMatrix.MultiplyVector(hexPosition);            
             tile.transform.Rotate(new Vector3(0.0f, angle, 0.0f));
-            tile.name = "Hex " + i;
+            tile.name = GetButtonData()[i].buttonName;
 
-            buttons.Add(tile);
+            FlowButton fb = tile.GetComponentInChildren<FlowButton>();
+            if (fb != null)
+            {
+                fb.owner = parent;
+                UIImageButton graphics = fb.GetComponentInChildren<UIImageButton>();
+                graphics.pressedSprite = GetButtonData()[i].imageName;
+                graphics.hoverSprite = graphics.pressedSprite;
+                graphics.normalSprite = graphics.pressedSprite;
+                graphics.disabledSprite = graphics.pressedSprite;
+            }            
+
+            buttons.Add(tile);           
+        }
+
+        foreach (GameObject go in buttons)
+        {
+            go.SetActive(false);
         }
     }
 
@@ -460,6 +472,7 @@ public class DynamicHexList : MonoBehaviour
     public void PlayButtonEnter(GameObject buttonRoot, bool forward)
     {
         buttonRoot.SetActive(true);
+        UIImageButton bi = buttonRoot.GetComponentInChildren<UIImageButton>();
 
         Animation target = buttonRoot.GetComponentInChildren<Animation>();
         if (target != null)
