@@ -36,6 +36,10 @@ public class Platform : MonoBehaviour {
 	
 	public bool authenticated { get; private set; }	
 	
+	// Other components may change this to disable sync temporarily?
+	public int syncInterval = 10;
+	private DateTime lastSync = new DateTime(0);
+	
 	// Events
 	public delegate void OnAuthenticated(bool success);
 	public OnAuthenticated onAuthenticated = null;
@@ -44,9 +48,6 @@ public class Platform : MonoBehaviour {
 	
 	// TEMP
 	private string notesLabel = "";
-	private void SetNotesLabel() {
-		notesLabel = Notifications().Length + " notifications";
-	}
 	// TEMP
 	
 	private static Platform _instance;
@@ -89,6 +90,7 @@ public class Platform : MonoBehaviour {
 		applicationIsQuitting = true;
 	}
 	
+	/// Message receivers
 	public void OnAuthentication(string message) {
 		if (string.Equals(message, "Success")) {
 			authenticated = true;
@@ -101,8 +103,21 @@ public class Platform : MonoBehaviour {
 		UnityEngine.Debug.Log("Platform: authentication " + message.ToLower()); 
 	}
 	
+	public void OnSynchronized(string message) {
+		lastSync = DateTime.Now;
+		if (onSync != null) onSync();
+		/// TEMP
+		Notification[] notes = Notifications();
+		if (notes.Length > 0) {
+			notesLabel = notes[notes.Length-1].ToString() + "\n" + notes.Length + " notifications";
+		} else {
+			notesLabel = "No notifications";
+		}
+		/// TEMP
+	}
+	
 	public void OnGUI() {
-		GUI.Label(new Rect(Screen.width/2 - 50, Screen.height - 50, 100, 50), notesLabel);
+		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
 	}
 	
 	protected Platform() {
@@ -147,9 +162,6 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		} 
 		
-		// TEMP
-		onSync += new OnSync(SetNotesLabel);
-		// TEMP
 	}
 	
 	public AndroidJavaObject getHelper() {
@@ -272,7 +284,7 @@ public class Platform : MonoBehaviour {
 	public void syncToServer() {
 		try {
 			helper_class.CallStatic("syncToServer", context);
-			if (onSync != null) onSync();
+			OnSynchronized("some message"); // TODO in java
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem syncing to server");
 			UnityEngine.Debug.LogException(e);
@@ -593,6 +605,9 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error getting opening points balance: " + e.Message);
 		}
 		
+		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval) {
+			syncToServer();
+		}		
 	}
 	
 	// Return the distance behind target
