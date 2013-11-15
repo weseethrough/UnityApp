@@ -34,6 +34,20 @@ public class Platform : MonoBehaviour {
 	
 	private List<TargetTracker> targetTrackers;
 	
+	public bool authenticated { get; private set; }	
+	
+	// Events
+	public delegate void OnAuthenticated(bool success);
+	public OnAuthenticated onAuthenticated = null;
+	public delegate void OnSync();
+	public OnSync onSync = null;
+	
+	// TEMP
+	private string notesLabel = "";
+	private void SetNotesLabel() {
+		notesLabel = Notifications().Length + " notifications";
+	}
+	// TEMP
 	
 	private static Platform _instance;
 	private static object _lock = new object();
@@ -54,7 +68,7 @@ public class Platform : MonoBehaviour {
 					if(_instance == null) {
 						GameObject singleton = new GameObject();
 						_instance = singleton.AddComponent<Platform>();
-						singleton.name = "(singleton) " + typeof(Platform).ToString();
+						singleton.name = "Platform"; // Used as target for messages
 						
 						DontDestroyOnLoad(singleton);
 					} else {
@@ -75,9 +89,25 @@ public class Platform : MonoBehaviour {
 		applicationIsQuitting = true;
 	}
 	
+	public void OnAuthentication(string message) {
+		if (string.Equals(message, "Success")) {
+			authenticated = true;
+			if (onAuthenticated != null) onAuthenticated(true);
+		}
+		if (string.Equals(message, "Failure")) {
+			authenticated = false;
+			if (onAuthenticated != null) onAuthenticated(false);
+		}
+		UnityEngine.Debug.Log("Platform: authentication " + message.ToLower()); 
+	}
+	
+	public void OnGUI() {
+		GUI.Label(new Rect(Screen.width/2 - 50, Screen.height - 50, 100, 50), notesLabel);
+	}
 	
 	protected Platform() {
 		
+		authenticated = false;
 		targetTrackers = new List<TargetTracker>();
 		UnityEngine.Debug.Log("Platform: constructor called");
 		
@@ -117,6 +147,9 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		} 
 		
+		// TEMP
+		onSync += new OnSync(SetNotesLabel);
+		// TEMP
 	}
 	
 	public AndroidJavaObject getHelper() {
@@ -223,14 +256,15 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	// Authentication
-	public bool authorize(string provider, string permissions) {
+	// Authentication 
+	// result returned through onAuthenticated
+	public void authorize(string provider, string permissions) {
 		try {
-			return helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
+			authenticated = helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
+			if (authenticated) OnAuthentication("Success"); // TEMP
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
 			UnityEngine.Debug.LogException(e);
-			return false;
 		}
 	}
 	
@@ -238,6 +272,7 @@ public class Platform : MonoBehaviour {
 	public void syncToServer() {
 		try {
 			helper_class.CallStatic("syncToServer", context);
+			if (onSync != null) onSync();
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem syncing to server");
 			UnityEngine.Debug.LogException(e);
