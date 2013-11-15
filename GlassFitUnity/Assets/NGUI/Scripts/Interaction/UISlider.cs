@@ -5,6 +5,7 @@
 
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 /// <summary>
 /// Simple slider functionality.
@@ -104,6 +105,7 @@ public class UISlider : UIWidgetContainer
 
 	void Init ()
 	{
+		UnityEngine.Debug.Log("Slider: Init called");
 		mInitDone = true;
 
 		if (foreground != null)
@@ -139,6 +141,7 @@ public class UISlider : UIWidgetContainer
 		{
 			Debug.LogWarning("UISlider expected to find a foreground object or a box collider to work with", this);
 		}
+		//rawValue = (float)DataVault.Get("slider_val");
 	}
 
 	/// <summary>
@@ -149,6 +152,11 @@ public class UISlider : UIWidgetContainer
 	{
 		mTrans = transform;
 		mCol = collider as BoxCollider;
+		
+		UnityEngine.Debug.Log("Slider: Awake called");
+//		rawValue = (float)DataVault.Get("slider_val");
+//		
+//		UnityEngine.Debug.Log("Settings: Slider set to: " + rawValue.ToString());
 	}
 
 	/// <summary>
@@ -158,7 +166,9 @@ public class UISlider : UIWidgetContainer
 	void Start ()
 	{
 		Init();
-
+		
+		UnityEngine.Debug.Log("Slider: Start called");
+		
 		// Remove legacy functionality
 		if (EventDelegate.IsValid(onChange))
 		{
@@ -172,6 +182,15 @@ public class UISlider : UIWidgetContainer
 			listener.onPress += OnPressThumb;
 			listener.onDrag += OnDragThumb;
 		}
+		
+		UnityEngine.Debug.Log("Slider: About to get value");
+		
+		double test = Convert.ToDouble(DataVault.Get("slider_val"));
+		rawValue = (float)test;
+		double real = (test * 9.15) + 1.25;
+		DataVault.Set("current", real.ToString() + "m/s");
+		UnityEngine.Debug.Log("Settings: Slider set to: " + rawValue.ToString("f2"));
+		
 		Set(rawValue, true);
 	}
 
@@ -261,6 +280,8 @@ public class UISlider : UIWidgetContainer
 	void Set (float input, bool force)
 	{
 		if (!mInitDone) Init();
+		
+		UnityEngine.Debug.Log("Slider: Set called");
 
 		// Clamp the input
 		float val = Mathf.Clamp01(input);
@@ -270,6 +291,12 @@ public class UISlider : UIWidgetContainer
 
 		// Save the raw value
 		rawValue = val;
+		
+		double real = (val * 9.15) + 1.25;
+		DataVault.Set("current", real.ToString("f2") + "m/s");
+		//UnityEngine.Debug.Log("Settings: Slider set to: " + rawValue.ToString("f2"));
+		
+		DataVault.Set("slider_val", val);
 
 #if UNITY_EDITOR
 		if (!Application.isPlaying) return;

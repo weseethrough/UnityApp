@@ -15,14 +15,20 @@ public class Platform : MonoBehaviour {
 	private float bearing = 0;
 	private bool started = false;
 	private bool initialised = false;
+	private long currentActivityPoints = 0;
+	private long openingPointsBalance = 0;
+	
+	private Friend[] friendList;
 	
 	private List<Position> positions;
 	
 	private Boolean tracking = false;
 	
 	private AndroidJavaObject helper;
+	private AndroidJavaObject points_helper;
 	private AndroidJavaObject gps;
 	private AndroidJavaClass helper_class;
+	private AndroidJavaClass points_helper_class;
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
 	
@@ -79,16 +85,17 @@ public class Platform : MonoBehaviour {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			context = activity.Call<AndroidJavaObject>("getApplicationContext");
-  			//gps = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.GPSTracker");
 			helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
+			points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
 			UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
 			
 			// call the following on the UI thread
 			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				
-				// Get the singleton helper
+				// Get the singleton helper objects
 				try {
 					helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+					points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
         	  	    UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
 				} catch (Exception e) {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
@@ -120,6 +127,17 @@ public class Platform : MonoBehaviour {
 		return started;
 	}
 	
+	public User User() {
+		try {
+			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getUser");
+			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: failed to fetch user " + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return null;
+		}
+	}
+	
 	// Starts tracking
 	public void StartTrack() {
 		try {
@@ -141,7 +159,12 @@ public class Platform : MonoBehaviour {
 			
 			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				gps.Call("setIndoorMode", indoor);
-				UnityEngine.Debug.LogWarning("Platform: Indoor mode set to " + indoor.ToString());
+				if (indoor) {
+				    gps.Call("setIndoorSpeed", 2.0f);
+				    UnityEngine.Debug.LogWarning("Platform: Indoor mode set to true, indoor speed = 2.0m/s");
+				} else {
+					UnityEngine.Debug.LogWarning("Platform: Indoor mode set to false, will use true GPS speed");
+				}
 			}));
 		} catch(Exception e) {
 			UnityEngine.Debug.Log("Platform: Error setting indoor mode " + e.Message);
@@ -201,17 +224,34 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Authentication
-	public void authenticate() {
+	public bool authorize(string provider, string permissions) {
 		try {
-			helper_class.CallStatic("authenticate", activity);
+			return helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
 		} catch(Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Problem authenticating");
+			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
 			UnityEngine.Debug.LogException(e);
+			return false;
 		}
 	}
 	
 	// Sync to server
 	public void syncToServer() {
+		Friends();
+		Notifications();
+		QueueAction(@"{
+			'action' : 'challenge',
+			'target' : 10,
+			'taunt' : 'Your mother is a hamster!',
+			'challenge' : {
+					'distance': 333,
+					'duration': 42,
+					'location': null,
+					'public': false,
+					'start_time': null,
+					'stop_time': null,
+					'type': 'duration'
+			}
+		}".Replace("'", "\""));		
 		try {
 			helper_class.CallStatic("syncToServer", context);
 		} catch(Exception e) {
@@ -271,41 +311,14 @@ public class Platform : MonoBehaviour {
 		return null;
 	}
 	
-	// Get the rotation vector
-	public Quaternion getRotationVector() {
-		try {
-			float[] quat = helper.Call<float[]>("getGameRotationVector");
-			Quaternion q = new Quaternion(quat[0], quat[1], quat[2], quat[3]);
-			return q;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting quaternion: " + e.Message);
-			return Quaternion.identity;
-		}
-	}
-	
-	// Get Yaw/Pitch/Roll angles in radians and change to degrees
-	public float[] getYPR() {
-		try {
-			float[] ypr = helper.Call<float[]>("getGameYpr");
-			ypr[0] *= 180/Mathf.PI;
-			ypr[1] *= 180/Mathf.PI;
-			ypr[2] *= 180/Mathf.PI;
-			UnityEngine.Debug.Log("Platform: Euler angles are: " + ypr[0].ToString() + ", " + ypr[1].ToString() + ", " + ypr[2].ToString());
-			return ypr;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting Euler angles: " + e.Message);
-			return new float[3];
-		}
-	}
-	
-	// Get the gyro rotation using Ben's code
-	public Quaternion getGlassfitQuaternion() {
+	// Get the device's orientation
+	public Quaternion getOrientation() {
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getOrientation");
-			Quaternion q = new Quaternion(-ajo.Call<float>("getY"), ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
+			Quaternion q = new Quaternion(ajo.Call<float>("getX"), ajo.Call<float>("getY"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
 			return q;
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting quaternion: " + e.Message);
+			UnityEngine.Debug.Log("Platform: Error getting orientation: " + e.Message);
 			return Quaternion.identity;
 		}
 	}
@@ -316,18 +329,6 @@ public class Platform : MonoBehaviour {
 			helper.Call("resetGyros");
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error resetting gyros: " + e.Message);
-		}
-	}
-	
-	// Get the gyro rotation using GyroDroid code
-	public Quaternion getGyroDroidQuaternion() {
-		try {
-			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getGyroDroidQuaternion");
-			Quaternion q = new Quaternion(-ajo.Call<float>("getY"), ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
-			return q;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting GyroDroid Quaternion: " + e.Message);
-			return Quaternion.identity;
 		}
 	}
 
@@ -392,6 +393,63 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	public void QueueAction(string json) {
+		try {
+			helper_class.CallStatic("queueAction", json);
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error queueing action: " + e.Message);
+		}
+	}
+	
+	public Friend[] getFriends() {
+		return friendList;
+	}
+	
+	public Friend[] Friends() {
+		try {
+			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
+				int length = list.Call<int>("size");
+				friendList = new Friend[length];
+				for (int i=0;i<length;i++) {
+					using (AndroidJavaObject f = list.Call<AndroidJavaObject>("get", i)) {
+						friendList[i] = new Friend(f.Get<string>("friend"));
+					}
+				}
+				UnityEngine.Debug.LogWarning("Platform: " + friendList.Length + " friends fetched");
+				return friendList;
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
+		friendList = new Friend[1];
+		return friendList;
+	}
+		
+	public Notification[] Notifications() {
+		try {
+			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getNotifications")) {
+				int length = list.Call<int>("size");
+				Notification[] notifications = new Notification[length];
+				for (int i=0;i<length;i++) {
+					using (AndroidJavaObject p = list.Call<AndroidJavaObject>("get", i)) {
+						notifications[i] = new Notification(p.Get<string>("id"), p.Get<bool>("read"), p.Get<string>("message"));
+					}
+				}
+				UnityEngine.Debug.LogWarning("Platform: " + notifications.Length + " notifications fetched");
+				return notifications;
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
+		return new Notification[0];
+	}
+	
+	public void ReadNotification(string id) {
+		throw new NotImplementedException("Iterate through notifications and setRead(true) or add setRead(id) helper method?");
+	}
+		
 	// Store the blob
 	public void StoreBlob(string id, byte[] blob) {
 		try {
@@ -447,7 +505,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		}
 		
-		UnityEngine.Debug.Log("Platform: There are " + targetTrackers.Count + " target trackers");
+//		UnityEngine.Debug.Log("Platform: There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
 			targetTrackers[i].setTargetDistance();
 		}
@@ -471,7 +529,7 @@ public class Platform : MonoBehaviour {
 			}
 		} catch (Exception e) {
 			
-			UnityEngine.Debug.Log("Error getting position: " + e.Message);
+			UnityEngine.Debug.Log("Platform: Error getting position: " + e.Message);
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
 		try {
@@ -479,7 +537,21 @@ public class Platform : MonoBehaviour {
 				bearing = gps.Call<float>("getCurrentBearing");
 			}
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Error getting bearing: " + e.Message);
+			UnityEngine.Debug.Log("Platform: Error getting bearing: " + e.Message);
+		}
+		
+		try {
+			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
+			DataVault.Set("points", (int)currentActivityPoints);
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting current acticity points: " + e.Message);
+			DataVault.Set("points", -1);
+		}
+		
+		try {
+			openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting opening points balance: " + e.Message);
 		}
 		
 	}
@@ -513,6 +585,18 @@ public class Platform : MonoBehaviour {
 	
 	public float Bearing() {
 		return bearing;
+	}
+	
+	public long OpeningPointsBalance() {
+		return openingPointsBalance;
+	}
+	
+	public void setBasePointsSpeed(float speed) {
+		try {
+			points_helper.Call("setBaseSpeed", speed);
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error setting base points speed: " + e.Message);
+		}
 	}
 	
 }

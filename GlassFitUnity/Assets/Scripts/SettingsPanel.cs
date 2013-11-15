@@ -10,12 +10,18 @@ public class SettingsPanel : Panel {
 	public SettingsPanel(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt) {
 	}
 	
+	public SettingsPanel() {}
+	
 	protected override void Initialize()
     {
         base.Initialize();
 //		if(Platform.Instance != null) {
 //			Platform.Instance.stopTrack();
 //		}
+	}
+	
+	public static bool isAuth() {
+		return Platform.Instance.authorize("any", "login");
 	}
 	
 	public override void OnClick(FlowButton button)
@@ -54,6 +60,7 @@ public class SettingsPanel : Panel {
 				
 			case "GetTrackButton":
 				Platform.Instance.getTracks();
+				GameObject.Find("TrackSelect").renderer.enabled = true;
 				break;
 				
 			case "BackMainButton":
@@ -68,6 +75,9 @@ public class SettingsPanel : Panel {
 				h.renderer.enabled = true;
 				break;	
 				
+			case "FriendButton": 
+				
+				break;
 //			case "NextButton":
 //				
 //				break;

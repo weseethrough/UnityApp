@@ -67,10 +67,17 @@ public class SettingsScreen : MonoBehaviour {
 	
 	private string indoorText = "Indoor Active";
 	
+	// Multiplier variables
+	private float baseMultiplier;
+	private String baseMultiplierString;
+	private float baseMultiplierStartTime;
+	
 	void Start () {
 		// Set indoor mode
 		Platform.Instance.setIndoor(indoor);
-		DataVault.Set("indoor_text", "Indoor Active");
+		//DataVault.Set("indoor_text", "Indoor Active");
+		
+		//UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
 		
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
@@ -115,15 +122,24 @@ public class SettingsScreen : MonoBehaviour {
 	
 	public void GetServer() {
 		if(!authenticated) {
-			Platform.Instance.authenticate();
-			// TODO: check result
-			authenticated = true;
-		} else {
+			authenticated = Platform.Instance.authorize("any", "login");
+			// TODO: Capture authentication message
+		} 
+		if (authenticated) {
 			Platform.Instance.syncToServer();
 		}	
 	}
 	
 	public void Back() {
+		
+		float temp = ((float)DataVault.Get("slider_val") * 9.15f) + 1.25f;
+		//UnityEngine.Debug.Log("Settings: New speed is: " + temp.ToString());
+		if(temp != targSpeed)
+		{
+			changed = true;
+			targSpeed = temp;
+		}
+		
 		if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
 			Platform.Instance.reset();
@@ -131,6 +147,8 @@ public class SettingsScreen : MonoBehaviour {
 					
 			setTargets();
 					
+			
+			
 			if(!trackSelected) {
 				Platform.Instance.setTargetSpeed(targSpeed);
 			}
@@ -155,6 +173,13 @@ public class SettingsScreen : MonoBehaviour {
 		// Set matrix, depth and various skin sizes
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		GUI.depth = 5;
+		
+		// set style for our labels
+		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
+		labelStyle.alignment = TextAnchor.UpperCenter;
+		labelStyle.fontSize = 40;
+		labelStyle.fontStyle = FontStyle.Bold;
+		
 //			// Set the speed slider, if the value has changed set the new speed
 //			float temp  = GUI.HorizontalSlider(new Rect((originalWidth/2)-100, 250, 200, 50), targSpeed,  1.25f, 10.4f);
 //    		GUI.Label(new Rect(originalWidth/2 + 120, 250, 100, 50), temp.ToString("f2") + "m/s");
@@ -166,7 +191,6 @@ public class SettingsScreen : MonoBehaviour {
 		
 		if(countdown)
 		{
-			GUI.skin.label.fontSize = 40;
 			
 			// Get the current time rounded up
 			int cur = Mathf.CeilToInt(countTime);
@@ -174,13 +198,20 @@ public class SettingsScreen : MonoBehaviour {
 			// Display countdown on screen
 			if(countTime > 0.0f)
 			{
-				GUI.Label(new Rect(300, 150, 200, 200), cur.ToString()); 
+				GUI.Label(new Rect(300, 150, 200, 200), cur.ToString(), labelStyle); 
 			}
 			else if(countTime > -1.0f && countTime < 0.0f)
 			{
-				GUI.Label(new Rect(300, 150, 200, 200), "GO!"); 
+				GUI.Label(new Rect(300, 150, 200, 200), "GO!", labelStyle); 
 			}
 		}
+		
+		// Display a message if the multiplier has changed in the last second and a half
+		// See NewBaseMultiplier method in this class for more detail on how this is set
+		if(started && baseMultiplierStartTime > (Time.time - 1.5f)) {
+			GUI.Label(new Rect(300, 150, 200, 200), baseMultiplierString, labelStyle);
+		}
+		
 		GUI.matrix = Matrix4x4.identity;
 	}
 	
@@ -223,6 +254,10 @@ public class SettingsScreen : MonoBehaviour {
 			{
 				Platform.Instance.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
+				
+//				float s = (targSpeed - 1.25f) / 9.15f;
+//		
+//				DataVault.Set("slider_val", s);
 				started = true;
 			}
 			else if(countTime > -1.0f)
@@ -440,4 +475,30 @@ public class SettingsScreen : MonoBehaviour {
 		UnityEngine.Debug.Log("Fetching map.. " + url);
 		fetchOrigo = origo;
 	}
+	
+	public void OnSliderValueChange() 
+	{
+		changed = true;
+		targSpeed = UISlider.current.value * 10.4f;
+		UnityEngine.Debug.Log(UISlider.current.value);
+	}
+	
+	// Listen for UnitySendMessage with multiplier updates
+	// Display the ner multiplier on screen for a second or so
+	public void NewBaseMultiplier(String message) {
+		// format the multiplier to 2 sig figs:
+		float f = 0.0f;
+		float.TryParse(message, out f);
+		if (f == 1.0f && this.baseMultiplier > 1.0f) {
+			this.baseMultiplierString = "Multiplier lost!";  // multiplier reset
+		} else if (f > 1.0f && f != this.baseMultiplier) {
+			this.baseMultiplierString = f.ToString("G") + "x Multiplier!";  // multiplier increased
+		}
+		// save the value for next time
+		this.baseMultiplier = f;
+		// remember the current time so we know how long to display for:
+		this.baseMultiplierStartTime = Time.time;
+		UnityEngine.Debug.Log("New base multiplier received:" + this.baseMultiplier);
+	}
+	
 }

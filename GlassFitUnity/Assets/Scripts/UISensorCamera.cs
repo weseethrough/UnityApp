@@ -24,7 +24,7 @@ public class UISensorCamera : MonoBehaviour {
 		if(!started)
 		{
 			Platform.Instance.resetGyro();
-			offsetFromStart = Platform.Instance.getGlassfitQuaternion();
+			offsetFromStart = Platform.Instance.getOrientation();
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			started = true;
 		}
@@ -33,7 +33,7 @@ public class UISensorCamera : MonoBehaviour {
 		if(GUI.Button (new Rect(0, 450, 70, 50), "Set Gyro"))
 		{ 
 			Platform.Instance.resetGyro();
-			offsetFromStart = Platform.Instance.getGlassfitQuaternion();
+			offsetFromStart = Platform.Instance.getOrientation();
 		}
 		
 		if(GUI.Button(new Rect(730, 450, 70, 50), "Reset Save")) {
@@ -44,7 +44,7 @@ public class UISensorCamera : MonoBehaviour {
 	
 	void Update () {
 		// Update the rotation and set it
-		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getGlassfitQuaternion();
+		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getOrientation();
 		transform.rotation = newOffset;
 	}
 }

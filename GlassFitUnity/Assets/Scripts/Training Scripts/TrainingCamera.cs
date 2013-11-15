@@ -73,7 +73,7 @@ public class TrainingCamera : MonoBehaviour {
 				if(timerActive) {
 					gridOn = false;
 				} else {
-					offsetFromStart = Platform.Instance.getGyroDroidQuaternion();
+					offsetFromStart = Platform.Instance.getOrientation();
 					Platform.Instance.resetGyro();
 					gridOn = true;
 				}
@@ -100,7 +100,7 @@ public class TrainingCamera : MonoBehaviour {
 	
 	void Update () {
 		// Set the new rotation of the camera
-		newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getGyroDroidQuaternion();
+		newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getOrientation();
 		
 		subtitleTime += Time.deltaTime;
 		
