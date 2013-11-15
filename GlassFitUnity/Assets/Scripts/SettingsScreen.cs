@@ -95,7 +95,7 @@ public class SettingsScreen : MonoBehaviour {
 		
 		// Set holders active status
 		setTargets();
-		GetComponent<GetTrack>().setActive(false);
+//		GetComponent<GetTrack>().setActive(false);
 	}
 	
 	public void SetTarget(Targets targ) {

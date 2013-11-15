@@ -15,9 +15,6 @@ public class TrackPanel : Panel {
 	protected override void Initialize()
     {
         base.Initialize();
-//		if(Platform.Instance != null) {
-//			Platform.Instance.stopTrack();
-//		}
 	}
 	
 	public override void OnClick(FlowButton button)
@@ -27,11 +24,11 @@ public class TrackPanel : Panel {
 		switch(button.name)
 		{
 			case "NextButton":
-				Platform.Instance.getNextTrack();
+				Platform.Instance.currentTrack++;
 				break;
 				
 			case "PrevButton":
-				Platform.Instance.getPreviousTrack();
+				Platform.Instance.currentTrack--;
 				break;
 				
 			case "SetTrackButton":
@@ -39,7 +36,7 @@ public class TrackPanel : Panel {
 				break;
 
 			case "BackSettingsButton":
-				GameObject.Find("TrackSelect").renderer.enabled = false;
+				//GameObject.Find("TrackSelect").renderer.enabled = false;
 				break;		
 		}
 	}
