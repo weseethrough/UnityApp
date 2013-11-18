@@ -70,7 +70,7 @@ public class DynamicHexList : MonoBehaviour
 #if !UNITY_EDITOR
             Platform.Instance.resetGyro();
             cameraStartingRotation = ConvertOrientation (Platform.Instance.getOrientation());
-			cameraStartingRotation = Quaternion.Euler(0, cameraStartingRotation.eulerAngles.y, 0);
+			//cameraStartingRotation = Quaternion.Euler(0, cameraStartingRotation.eulerAngles.y, 0);
 
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * ConvertOrientation (Platform.Instance.getOrientation());
                 guiCamera.transform.rotation = newOffset;
@@ -86,9 +86,17 @@ public class DynamicHexList : MonoBehaviour
         InitializeItems();
     }
 
+    public void ResetGyro()
+    {
+#if !UNITY_EDITOR 
+        Platform.Instance.resetGyro();
+        cameraStartingRotation = ConvertOrientation(Platform.Instance.getOrientation());
+#endif
+    }
+
     private Quaternion ConvertOrientation(Quaternion q)
     {
-        return Quaternion.Euler(- q.eulerAngles.y, q.eulerAngles.z, q.eulerAngles.x);
+        return Quaternion.Euler( q.eulerAngles.y, -q.eulerAngles.z, -q.eulerAngles.x);
     }
 
     public List<HexButtonData> GetButtonData()
@@ -227,7 +235,7 @@ public class DynamicHexList : MonoBehaviour
                         }
 
                         float height = Screen.currentResolution.height;
-                        float scale = offset.y / height;
+                        float scale = -offset.y / height;
 
                         scale = Mathf.Clamp(scale, -1, 1);
                         
@@ -242,7 +250,7 @@ public class DynamicHexList : MonoBehaviour
 
                         TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
 
-                        if (parent != null && (scale > 0.6f || scale < -0.6f))
+                        if (parent != null && scale > 0.6f)
                         {
                             panelExiting = true;
                             FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
@@ -251,6 +259,12 @@ public class DynamicHexList : MonoBehaviour
                                 parent.OnClick(fb);
                             }
                         }
+                        else if (parent != null && scale < -0.6f)
+                        {
+                            panelExiting = true;                            
+                            parent.OnBack();
+                            
+                        }                        
                     }
                 }
                 else

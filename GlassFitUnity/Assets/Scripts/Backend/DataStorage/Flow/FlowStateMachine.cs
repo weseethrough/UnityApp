@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class FlowStateMachine : MonoBehaviour 
 {
     private List<FlowState> activeFlow;
+    private List<FlowState> navigationHistory;
     private FlowState targetState;
 
     void Awake()
@@ -88,9 +89,33 @@ public class FlowStateMachine : MonoBehaviour
             connection.Link.Count > 0 &&
             connection.Link[0].Parent != null)
         {
+            if (navigationHistory == null)
+            {
+                navigationHistory = new List<FlowState>();
+            }
+            navigationHistory.Add(activeFlow[activeFlow.Count-1]);
             targetState = connection.Link[0].Parent as FlowState;
+            return true;
         }
         return false;
+    }
+
+    public bool FollowBack()
+    {
+        if (navigationHistory != null && navigationHistory.Count > 0)
+        {
+            FlowState fs = navigationHistory[navigationHistory.Count - 1];
+            navigationHistory.RemoveAt(navigationHistory.Count - 1);
+
+            targetState = fs;
+            return true;
+        }
+        return false;
+    }
+
+    public void ForbidBack()
+    {
+        navigationHistory = new List<FlowState>();
     }
 
     /// <summary>

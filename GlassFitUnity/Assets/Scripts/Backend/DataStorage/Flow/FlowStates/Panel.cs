@@ -223,6 +223,11 @@ public class Panel : FlowState
 
     }
 
+    public virtual void OnBack()
+    {
+        parentMachine.FollowBack();
+    }
+
     public bool CallStaticFunction(string functionName, FlowButton caller)
     {
         MemberInfo[] info = typeof(ButtonFunctionCollection).GetMember(functionName);
