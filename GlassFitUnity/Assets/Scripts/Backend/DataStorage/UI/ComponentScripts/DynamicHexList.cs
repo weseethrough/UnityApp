@@ -61,24 +61,34 @@ public class DynamicHexList : MonoBehaviour
 
             radius = distanceVector.magnitude;
 
-            Quaternion rot = SensorHelper.rotation;
+           /* Quaternion rot = SensorHelper.rotation;
             if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
             {
                // cameraStartingRotation = rot * Quaternion.Inverse(guiCamera.transform.rotation);
 
-                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;
+                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
+            Platform.Instance.resetGyro();
+            cameraStartingRotation = ConvertOrientation (Platform.Instance.getOrientation());
+			cameraStartingRotation = Quaternion.Euler(0, cameraStartingRotation.eulerAngles.y, 0);
+
+                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * ConvertOrientation (Platform.Instance.getOrientation());
                 guiCamera.transform.rotation = newOffset;
 #endif
-            }
+            /* }
             else
             {
                 Debug.LogError("Sensor data invalid");
-            }
+            }*/
 
         }
 
         InitializeItems();
+    }
+
+    private Quaternion ConvertOrientation(Quaternion q)
+    {
+        return Quaternion.Euler(- q.eulerAngles.y, q.eulerAngles.z, q.eulerAngles.x);
     }
 
     public List<HexButtonData> GetButtonData()
@@ -109,18 +119,19 @@ public class DynamicHexList : MonoBehaviour
             //if button enter delay is below 0 at this stage then screen has finished loading
             if (!panelExiting && guiCamera != null)
             {
-                Quaternion rot = SensorHelper.rotation;
+                /*Quaternion rot = SensorHelper.rotation;
                 if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
                 {
-                    Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;
+                    Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
+                    Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * ConvertOrientation (Platform.Instance.getOrientation());
                 guiCamera.transform.rotation = newOffset;
 #endif
-                }
+                /*}
                 else
                 {
                     Debug.LogError("Sensor data invalid");
-                }
+                }*/
                 Vector3 forward = guiCamera.transform.forward;
 
                 RaycastHit[] hits = Physics.RaycastAll(cameraPosition, forward, 5.0f);// ,LayerMask.NameToLayer("GUI"));
