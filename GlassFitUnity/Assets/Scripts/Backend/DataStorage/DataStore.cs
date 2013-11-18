@@ -69,6 +69,10 @@ public class DataStore : MonoBehaviour
 		
         Initialize();
     }   
+	
+	void Awake() {
+		DontDestroyOnLoad(transform.gameObject);
+	}
 
     public void Initialize()
     {
