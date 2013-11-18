@@ -69,10 +69,10 @@ public class DynamicHexList : MonoBehaviour
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
             Platform.Instance.resetGyro();
-            cameraStartingRotation = guiCamera.transform.rotation;//Platform.Instance.getOrientation();
+            cameraStartingRotation = ConvertOrientation (Platform.Instance.getOrientation());
 			cameraStartingRotation = Quaternion.Euler(0, cameraStartingRotation.eulerAngles.y, 0);
 
-                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * Platform.Instance.getOrientation();
+                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * ConvertOrientation (Platform.Instance.getOrientation());
                 guiCamera.transform.rotation = newOffset;
 #endif
             /* }
@@ -84,6 +84,11 @@ public class DynamicHexList : MonoBehaviour
         }
 
         InitializeItems();
+    }
+
+    private Quaternion ConvertOrientation(Quaternion q)
+    {
+        return Quaternion.Euler(- q.eulerAngles.y, q.eulerAngles.z, q.eulerAngles.x);
     }
 
     public List<HexButtonData> GetButtonData()
@@ -119,7 +124,7 @@ public class DynamicHexList : MonoBehaviour
                 {
                     Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
-                    Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * Platform.Instance.getOrientation();
+                    Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * ConvertOrientation (Platform.Instance.getOrientation());
                 guiCamera.transform.rotation = newOffset;
 #endif
                 /*}
