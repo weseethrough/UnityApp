@@ -20,10 +20,6 @@ public class SettingsPanel : Panel {
 //		}
 	}
 	
-	public static bool isAuth() {
-		return Platform.Instance.authorize("any", "login");
-	}
-	
 	public override void OnClick(FlowButton button)
 	{
 		base.OnClick(button);
@@ -55,7 +51,22 @@ public class SettingsPanel : Panel {
 				break;
 				
 			case "ServerButton":
-				ss.GetServer();
+//				Debug.Log("SettingsPanel: ServerButton clicked");
+	            GConnector gConect = Outputs.Find(r => r.Name == button.name);
+				// Follow connection once authentication has returned asynchronously
+				Platform.OnAuthenticated handler = null;
+				handler = new Platform.OnAuthenticated((authenticated) => {
+//					Debug.Log("SettingsPanel: ServerButton authenticated");
+					if (authenticated) {
+						Platform.Instance.syncToServer();
+						parentMachine.FollowConnection(gConect);
+					}
+					Platform.Instance.onAuthenticated -= handler;
+				});
+				Platform.Instance.onAuthenticated += handler;	
+				// Trigger authentication
+				Platform.Instance.authorize("any", "login");				
+//				Debug.Log("SettingsPanel: ServerButton run");
 				break;
 				
 			case "GetTrackButton":
@@ -76,7 +87,7 @@ public class SettingsPanel : Panel {
 				break;	
 				
 			case "FriendButton": 
-				
+				Debug.Log("FriendButton clicked");
 				break;
 //			case "NextButton":
 //				

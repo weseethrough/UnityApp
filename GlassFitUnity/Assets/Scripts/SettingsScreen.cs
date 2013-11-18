@@ -95,7 +95,7 @@ public class SettingsScreen : MonoBehaviour {
 		
 		// Set holders active status
 		setTargets();
-		GetComponent<GetTrack>().setActive(false);
+//		GetComponent<GetTrack>().setActive(false);
 	}
 	
 	public void SetTarget(Targets targ) {
@@ -119,17 +119,7 @@ public class SettingsScreen : MonoBehaviour {
 		}
 		changed = true;
 	}
-	
-	public void GetServer() {
-		if(!authenticated) {
-			authenticated = Platform.Instance.authorize("any", "login");
-			// TODO: Capture authentication message
-		} 
-		if (authenticated) {
-			Platform.Instance.syncToServer();
-		}	
-	}
-	
+		
 	public void Back() {
 		
 		float temp = ((float)DataVault.Get("slider_val") * 9.15f) + 1.25f;

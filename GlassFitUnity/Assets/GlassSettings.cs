@@ -37,7 +37,7 @@ public class GlassSettings : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
-		GetComponent<GetTrack>().setActive(false);
+		//GetComponent<GetTrack>().setActive(false);
 	}
 	
 	void OnGUI() {

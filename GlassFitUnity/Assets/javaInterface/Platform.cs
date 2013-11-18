@@ -17,8 +17,10 @@ public class Platform : MonoBehaviour {
 	private bool initialised = false;
 	private long currentActivityPoints = 0;
 	private long openingPointsBalance = 0;
+	public int currentTrack { get; set; }
 	
-	private List<Position> positions;
+	
+	private List<Track> trackList;
 	
 	private Boolean tracking = false;
 	
@@ -32,6 +34,21 @@ public class Platform : MonoBehaviour {
 	
 	private List<TargetTracker> targetTrackers;
 	
+	public bool authenticated { get; private set; }	
+	
+	// Other components may change this to disable sync temporarily?
+	public int syncInterval = 10;
+	private DateTime lastSync = new DateTime(0);
+	
+	// Events
+	public delegate void OnAuthenticated(bool success);
+	public OnAuthenticated onAuthenticated = null;
+	public delegate void OnSync();
+	public OnSync onSync = null;
+	
+	// TEMP
+	private string notesLabel = "";
+	// TEMP
 	
 	private static Platform _instance;
 	private static object _lock = new object();
@@ -52,7 +69,7 @@ public class Platform : MonoBehaviour {
 					if(_instance == null) {
 						GameObject singleton = new GameObject();
 						_instance = singleton.AddComponent<Platform>();
-						singleton.name = "(singleton) " + typeof(Platform).ToString();
+						singleton.name = "Platform"; // Used as target for messages
 						
 						DontDestroyOnLoad(singleton);
 					} else {
@@ -73,9 +90,39 @@ public class Platform : MonoBehaviour {
 		applicationIsQuitting = true;
 	}
 	
+	/// Message receivers
+	public void OnAuthentication(string message) {
+		if (string.Equals(message, "Success")) {
+			authenticated = true;
+			if (onAuthenticated != null) onAuthenticated(true);
+		}
+		if (string.Equals(message, "Failure")) {
+			authenticated = false;
+			if (onAuthenticated != null) onAuthenticated(false);
+		}
+		UnityEngine.Debug.Log("Platform: authentication " + message.ToLower()); 
+	}
+	
+	public void OnSynchronized(string message) {
+		lastSync = DateTime.Now;
+		if (onSync != null) onSync();
+		/// TEMP
+		Notification[] notes = Notifications();
+		if (notes.Length > 0) {
+			notesLabel = notes[notes.Length-1].ToString() + "\n" + notes.Length + " notifications";
+		} else {
+			notesLabel = "No notifications";
+		}
+		/// TEMP
+	}
+	
+	public void OnGUI() {
+		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
+	}
 	
 	protected Platform() {
 		
+		authenticated = false;
 		targetTrackers = new List<TargetTracker>();
 		UnityEngine.Debug.Log("Platform: constructor called");
 		
@@ -221,14 +268,15 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	// Authentication
-	public bool authorize(string provider, string permissions) {
+	// Authentication 
+	// result returned through onAuthenticated
+	public void authorize(string provider, string permissions) {
 		try {
-			return helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
+			authenticated = helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
+			if (authenticated) OnAuthentication("Success"); // TEMP
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
 			UnityEngine.Debug.LogException(e);
-			return false;
 		}
 	}
 	
@@ -236,6 +284,7 @@ public class Platform : MonoBehaviour {
 	public void syncToServer() {
 		try {
 			helper_class.CallStatic("syncToServer", context);
+			OnSynchronized("some message"); // TODO in java
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem syncing to server");
 			UnityEngine.Debug.LogException(e);
@@ -314,37 +363,62 @@ public class Platform : MonoBehaviour {
 		}
 	}
 
-	// Return a list of positions from the current track
-	public List<Position> getTrackPositions() {
+//	// Return a list of positions from the current track
+//	public List<Position> getTrackPositions() {
+//		try {
+//			int size = helper.Call<int>("getNumberPositions");
+//			UnityEngine.Debug.Log("Platform: get positions called Unity");
+//			positions = new List<Position>(size);
+//			try {
+//				for (int i=0; i<size; i++) {
+//					AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getPosition", i);
+//					Position currentPos = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+//					positions.Add(currentPos);
+//				}
+//				positions.Reverse();
+//				return positions;
+//			} catch (Exception e) {
+//				UnityEngine.Debug.LogWarning("Platform: Error getting positions: " + e.Message);
+//				return null;
+//			}
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: Error getting Track Size: " + e.Message);
+//			return null;
+//		}
+//	}
+	
+	// Load a list of tracks
+	public List<Track> getTracks() {
 		try {
-			int size = helper.Call<int>("getNumberPositions");
-			UnityEngine.Debug.Log("Platform: get positions called Unity");
-			positions = new List<Position>(size);
+			int size = helper.Call<int>("getNumberTracks");
+			UnityEngine.Debug.Log("Platform: Getting number of tracks");
+			trackList = new List<Track>(size);
 			try {
-				for (int i=0; i<size; i++) {
-					AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getPosition", i);
-					Position currentPos = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
-					positions.Add(currentPos);
+				for(int i=0; i<size; i++) {
+					AndroidJavaObject track = helper.Call<AndroidJavaObject>("getTrack", i);
+					string name = track.Call<string>("toString");
+					int[] ids = track.Call<int[]>("getIDs"); 
+					int numPositions = track.Call<int>("getPositionSize");
+					List<Position> pos = new List<Position>(numPositions);
+					for(int j=0; j<numPositions; j++) {
+						AndroidJavaObject position = track.Call<AndroidJavaObject>("getPosition", j);
+						Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
+						pos.Add(current);
+					}
+					pos.Reverse();
+					Track currentTrack = new Track(name, ids[0], ids[1], pos);
+					trackList.Add(currentTrack);
 				}
-				positions.Reverse();
-				return positions;
+				trackList.Reverse();
+				this.currentTrack = 0;
+				return trackList;
 			} catch (Exception e) {
-				UnityEngine.Debug.LogWarning("Platform: Error getting positions: " + e.Message);
+				UnityEngine.Debug.LogWarning("Platform: Error getting track: " + e.Message);
 				return null;
 			}
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting Track Size: " + e.Message);
-			return null;
-		}
-	}
-	
-	// Load a list of tracks
-	public void getTracks() {
-		try {
-			helper.Call("getTracks");
-			UnityEngine.Debug.Log("Platform: get tracks called Unity");
-		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Tracks: " + e.Message);
+			return null;
 		}
 	}
 	
@@ -531,6 +605,9 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error getting opening points balance: " + e.Message);
 		}
 		
+		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval) {
+			syncToServer();
+		}		
 	}
 	
 	// Return the distance behind target
