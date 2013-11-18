@@ -41,6 +41,12 @@ public class ButtonFunctionCollection
         return;
     }
 	
+	static public bool StartGame(FlowButton fb)
+	{
+		AutoFade.LoadLevel(1, 1.0f, 1.0f, Color.black);
+		return true;
+	}
+	
 	static public bool Challenge(FlowButton button) {
 		int friendId = (int)DataVault.Get("current_friend");
 		if (friendId == 0) return false; // TODO: Challenge by third-party identity

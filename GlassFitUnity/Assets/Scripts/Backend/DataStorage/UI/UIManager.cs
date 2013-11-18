@@ -9,6 +9,10 @@ public class UIManager : MonoBehaviour
 {
     static public string UIPannels = "UIPannels";
 		
+	void Awake() {
+		DontDestroyOnLoad(transform.gameObject);
+	}
+	
 	public SerializedNode SaveScene()
 	{
         SerializedNode node = null;

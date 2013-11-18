@@ -10,6 +10,7 @@ public class FlowStateMachine : MonoBehaviour
 
     void Awake()
     {
+		DontDestroyOnLoad(transform.gameObject);
     }
 
     void Start()
