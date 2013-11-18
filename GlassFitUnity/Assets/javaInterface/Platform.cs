@@ -346,7 +346,7 @@ public class Platform : MonoBehaviour {
 	public Quaternion getOrientation() {
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getOrientation");
-			Quaternion q = new Quaternion(ajo.Call<float>("getX"), ajo.Call<float>("getY"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
+			Quaternion q = new Quaternion(-ajo.Call<float>("getY"), ajo.Call<float>("getX"), ajo.Call<float>("getZ"), ajo.Call<float>("getW"));
 			return q;
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting orientation: " + e.Message);
