@@ -96,7 +96,7 @@ public class DynamicHexList : MonoBehaviour
 
     private Quaternion ConvertOrientation(Quaternion q)
     {
-        return Quaternion.Euler( q.eulerAngles.y, -q.eulerAngles.z, -q.eulerAngles.x);
+        return q;
     }
 
     public List<HexButtonData> GetButtonData()

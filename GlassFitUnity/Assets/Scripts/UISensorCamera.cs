@@ -28,6 +28,11 @@ public class UISensorCamera : MonoBehaviour {
 			offsetFromStart = Platform.Instance.getOrientation();
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 #endif
+			DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
+            foreach (DynamicHexList dhl in lists)
+            {
+                dhl.ResetGyro();
+            }
 			started = true;
 		}
 		
