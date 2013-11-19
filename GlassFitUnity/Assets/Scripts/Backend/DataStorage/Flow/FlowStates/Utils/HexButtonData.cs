@@ -10,6 +10,8 @@ public class HexButtonData : ISerializable
     public string imageName = string.Empty;
     public string buttonName = string.Empty;
     public bool expectedToHaveCustomExit = false;
+    public int column = 0;
+    public int row = 0;
 
     public HexButtonData() { }
     public HexButtonData(SerializationInfo info, StreamingContext ctxt)         
@@ -27,6 +29,12 @@ public class HexButtonData : ISerializable
                 case "expectedToHaveCustomExit":
                     this.expectedToHaveCustomExit = (bool)entry.Value;
                     break;
+                case "column":
+                    this.column = (int)entry.Value;
+                    break;
+                case "row":
+                    this.row = (int)entry.Value;
+                    break;
 
             }
         }
@@ -37,6 +45,8 @@ public class HexButtonData : ISerializable
         info.AddValue("imageName", this.imageName);
         info.AddValue("buttonName", this.buttonName);
         info.AddValue("expectedToHaveCustomExit", this.expectedToHaveCustomExit);
+        info.AddValue("column", this.column);
+        info.AddValue("row", this.row);
     }
 
 }
