@@ -43,6 +43,7 @@ public class ButtonFunctionCollection
 	
 	static public bool StartGame(FlowButton fb)
 	{
+		Debug.Log("Hex: start function called");
 		AutoFade.LoadLevel(1, 1.0f, 1.0f, Color.black);
 		return true;
 	}

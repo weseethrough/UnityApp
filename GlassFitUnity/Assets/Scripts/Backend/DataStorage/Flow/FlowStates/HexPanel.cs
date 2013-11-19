@@ -136,13 +136,20 @@ public class HexPanel : Panel
 
     public override void OnClick(FlowButton button)
     {
-        //base.OnClick(button);
+        base.OnClick(button);
 
         if (Outputs.Count > 0 && parentMachine != null)
         {
+			Debug.Log("HexPanel: Button Name is: " + button.name);
+			for(int i=0; i < Outputs.Count; i++)
+			{
+				Debug.Log("HexPanel: Connector Name " + i + " is: " + Outputs[i].Name);
+			}
+			
             GConnector gConect = Outputs.Find(r => r.Name == button.name);
             if (gConect != null)
             {
+				Debug.Log("HexPanel: Connection found in self");
                 parentMachine.FollowConnection(gConect);
             }
             else
@@ -150,6 +157,7 @@ public class HexPanel : Panel
                 gConect = Outputs.Find(r => r.Name == defaultExit);
                 if (gConect != null)
                 {
+					Debug.Log("HexPanel: Connection found in default");
                     parentMachine.FollowConnection(gConect);
                 }
             }
