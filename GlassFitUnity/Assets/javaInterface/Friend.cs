@@ -7,6 +7,7 @@ public class Friend
 	public string uid { get; set; }
 	public string image { get; set; }
 	public bool hasGlass { get; set; }
+	public string provider { get; set; }
 	public Nullable<int> userId { get; set; }
 		
 	public Friend ()
@@ -18,7 +19,7 @@ public class Friend
 		name = node["name"];
 		uid = node["uid"];
 		image = node["photo"];
-		
+		provider = node["provider"];
 		hasGlass = node["has_glass"].AsBool;
 		if (String.Equals(node["user_id"], "null")) userId = null;
 		else userId = node["user_id"].AsInt;

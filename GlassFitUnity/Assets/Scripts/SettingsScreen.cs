@@ -95,6 +95,27 @@ public class SettingsScreen : MonoBehaviour {
 		// Set debug box
 		debug = new Rect((originalWidth-100), 0, 100, 100);
 		
+		int tar = (int)DataVault.Get("level");
+		
+		switch(tar)
+		{
+		case 0:
+			currentTarget = Targets.Runner;
+			break;
+			
+		case 1:
+			currentTarget = Targets.Eagle;
+			break;
+			
+		case 2:
+			currentTarget = Targets.Zombie;
+			break;
+			
+		case 3:
+			currentTarget = Targets.Train;
+			break;
+		}
+		
 		// Set holders active status
 		setTargets();
 //		GetComponent<GetTrack>().setActive(false);

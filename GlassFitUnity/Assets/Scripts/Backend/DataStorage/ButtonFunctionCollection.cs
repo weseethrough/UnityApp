@@ -36,7 +36,46 @@ public class ButtonFunctionCollection
 
     static public bool StartGame(FlowButton fb, Panel panel)
 	{
-		AutoFade.LoadLevel(1, 1.0f, 1.0f, Color.black);
+		AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+		
+		switch(fb.name) 
+		{
+		case "Run":
+			DataVault.Set("level", 0);
+			break;
+			
+		case "Eagle":
+			DataVault.Set("level", 1);
+			break;
+			
+		case "Zombie":
+			DataVault.Set("level", 2);
+			break;
+			
+		case "Train":
+			DataVault.Set("level", 3);
+			break;
+		}
+		
+		return true;
+	}
+	
+	static public bool EndGame(FlowButton fb, Panel panel)
+	{
+		Platform.Instance.stopTrack();
+		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
+		return true;
+	}
+	
+	static public bool ClearHistory(FlowButton fb, Panel panel)
+	{
+		panel.parentMachine.ForbidBack();
+		return true;
+	}
+	
+	static public bool SetFriendType(FlowButton fb, Panel panel) 
+	{
+		DataVault.Set("friend_type", fb.name);
 		return true;
 	}
 

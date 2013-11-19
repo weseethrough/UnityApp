@@ -19,6 +19,8 @@ public class FriendDisplay : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		string type = (string) DataVault.Get("friend_type");
+		type = type.ToLower();
 		loading = (Texture2D)Resources.Load("loading", typeof(Texture2D));
 		if(loading == null) {
 			UnityEngine.Debug.Log("Friend Display: Loading texture not loaded");
@@ -30,7 +32,7 @@ public class FriendDisplay : MonoBehaviour {
 		friendList = Platform.Instance.Friends();
 		List<Friend> filtered = new List<Friend>();
 		foreach (Friend friend in friendList) {
-			if (friend.userId.HasValue || friend.hasGlass) filtered.Add(friend);
+			if ((friend.userId.HasValue || friend.hasGlass) && friend.provider == type) filtered.Add(friend);
 		}
 		friendList = filtered.ToArray();
 		DataVault.Set("screen_name", "Loading Screen Name...");
