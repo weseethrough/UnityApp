@@ -172,16 +172,20 @@ public class GetTrack : MonoBehaviour {
 	
 	void Update() {
 		if(currentTrack != Platform.Instance.currentTrack) {
+				UnityEngine.Debug.Log("TrackPanel: track change: " + Platform.Instance.currentTrack);
 			mapChanged = true;
 			if(Platform.Instance.currentTrack > trackList.Count - 1 ) {
 				Platform.Instance.currentTrack = 0;
 			}
 			
-			if(Platform.Instance.currentTrack < trackList.Count) {
+			if(Platform.Instance.currentTrack < 0) {
 				Platform.Instance.currentTrack = trackList.Count - 1;
 			}
 			
+			if (trackList.Count == 0) Platform.Instance.currentTrack = 0;
+			
 			currentTrack = Platform.Instance.currentTrack;
+				UnityEngine.Debug.Log("TrackPanel: current track: " + currentTrack);
 		}
 		
 		if(mapChanged) {
@@ -208,8 +212,8 @@ public class GetTrack : MonoBehaviour {
 			UnityEngine.Debug.Log("Zoom: long zoom = " + longZoom.ToString());
 		
 			mapZoom = (int)Math.Min(latZoom, longZoom);
-			if(mapZoom > 21) {
-				mapZoom = 21;
+			if(mapZoom > 18) {
+				mapZoom = 18;
 			}
 		
 			if ((mapWWW == null && mapTexture == null) && mapChanged){
@@ -253,6 +257,10 @@ public class GetTrack : MonoBehaviour {
 		mapTexture = null;
 		GetLimits();
 		
+	}
+	
+	public Track CurrentTrack() {
+		return trackList[currentTrack];
 	}
 	
 	void GetLimits() {
