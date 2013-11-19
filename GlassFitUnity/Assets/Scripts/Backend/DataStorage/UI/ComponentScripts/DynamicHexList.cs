@@ -264,9 +264,11 @@ public class DynamicHexList : MonoBehaviour
                     {
                         tp = guiCamera.gameObject.AddComponent<TweenPosition>();
                     }
-                    Vector3 direction = selection.transform.position - cameraPosition;
+                    Vector3 cameraCoreAxis = cameraPosition;
+                    cameraCoreAxis.y = selection.transform.position.y;
+                    Vector3 direction = selection.transform.position - cameraCoreAxis;
 
-                    Vector3 pos = cameraPosition + (direction * scale);
+                    Vector3 pos = cameraCoreAxis + (direction * scale);
 
                     TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
 
