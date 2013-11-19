@@ -645,6 +645,10 @@ public class Platform : MonoBehaviour {
 		return openingPointsBalance;
 	}
 	
+	public long GetCurrentPoints() {
+		return currentActivityPoints;
+	}
+	
 	public void setBasePointsSpeed(float speed) {
 		try {
 			points_helper.Call("setBaseSpeed", speed);

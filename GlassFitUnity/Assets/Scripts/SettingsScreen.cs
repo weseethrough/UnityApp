@@ -75,6 +75,8 @@ public class SettingsScreen : MonoBehaviour {
 	void Start () {
 		// Set indoor mode
 		Platform.Instance.setIndoor(indoor);
+		Platform.Instance.stopTrack();
+		Platform.Instance.reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
 		
 		//UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
