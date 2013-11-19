@@ -8,6 +8,7 @@ public class FlowStateMachine : MonoBehaviour
     private List<FlowState> activeFlow;
     private List<FlowState> navigationHistory;
     private FlowState targetState;
+    private GConnector targetStateConnector;
 
     void Awake()
     {
@@ -95,6 +96,7 @@ public class FlowStateMachine : MonoBehaviour
             }
             navigationHistory.Add(activeFlow[activeFlow.Count-1]);
             targetState = connection.Link[0].Parent as FlowState;
+            targetStateConnector = connection.Link[0];
             return true;
         }
         return false;
@@ -131,6 +133,14 @@ public class FlowStateMachine : MonoBehaviour
         {
             if (activeFlow.Count > 0 && activeFlow[activeFlow.Count - 1] == targetState)
             {
+                if (targetStateConnector != null && targetStateConnector.EventFunction != null && targetStateConnector.EventFunction != "")
+                {
+                    if (targetState is Panel)
+                    {
+                        (targetState as Panel).CallStaticFunction(targetStateConnector.EventFunction, null);
+                    }
+                }
+                targetStateConnector = null;
                 targetState = null;
                 return true;
             }
