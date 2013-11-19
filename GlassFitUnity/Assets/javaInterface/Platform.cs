@@ -280,6 +280,16 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	public bool hasPermissions(string provider, string permissions) {
+		try {
+			return helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
+		} catch(Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Problem checking permissions for provider: " + provider);
+			UnityEngine.Debug.LogException(e);
+			return false;
+		}		
+	}
+	
 	// Sync to server
 	public void syncToServer() {
 		try {
