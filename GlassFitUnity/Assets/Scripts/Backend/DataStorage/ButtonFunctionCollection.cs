@@ -16,14 +16,14 @@ public class ButtonFunctionCollection
     /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
     static public bool MyFunction1(FlowButton fb)
     {
-        Debug.Log("Testing linked function");
+        Debug.Log("Testing linked function true");
 
         return true;
     }
 
     static public bool MyFunction2(FlowButton fb)
     {
-        Debug.Log("Testing linked function number2");
+        Debug.Log("Testing linked function false");
 
         return false;
     }

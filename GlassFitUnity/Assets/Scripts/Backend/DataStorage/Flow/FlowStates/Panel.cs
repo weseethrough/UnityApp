@@ -193,28 +193,31 @@ public class Panel : FlowState
             GConnector gConect = Outputs.Find(r => r.Name == button.name);
             if (gConect != null)
             {
-                if (gConect.EventFunction != null && gConect.EventFunction != "")
-                {
-                    if (CallStaticFunction(gConect.EventFunction, button))
-                    {
-                        parentMachine.FollowConnection(gConect);
-                    }
-                    else
-                    {
-                        Debug.Log("Debug: Function forbids further navigation");
-                    }
-                }
-                else
-                {
-                    parentMachine.FollowConnection(gConect);
-                }
-
-                
+                ConnectionWithCall(gConect, button);                
             }            
         }
         else
         {
             Debug.LogError("Dead end");
+        }
+    }
+
+    public void ConnectionWithCall(GConnector gConect, FlowButton button)
+    {
+        if (gConect.EventFunction != null && gConect.EventFunction != "")
+        {
+            if (CallStaticFunction(gConect.EventFunction, button))
+            {
+                parentMachine.FollowConnection(gConect);
+            }
+            else
+            {
+                Debug.Log("Debug: Function forbids further navigation");
+            }
+        }
+        else
+        {
+            parentMachine.FollowConnection(gConect);
         }
     }
 

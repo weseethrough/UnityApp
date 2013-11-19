@@ -143,14 +143,14 @@ public class HexPanel : Panel
             GConnector gConect = Outputs.Find(r => r.Name == button.name);
             if (gConect != null)
             {
-                parentMachine.FollowConnection(gConect);
+                ConnectionWithCall(gConect, button);
             }
             else
             {
                 gConect = Outputs.Find(r => r.Name == defaultExit);
                 if (gConect != null)
                 {
-                    parentMachine.FollowConnection(gConect);
+                    ConnectionWithCall(gConect, button);
                 }
             }
         }
