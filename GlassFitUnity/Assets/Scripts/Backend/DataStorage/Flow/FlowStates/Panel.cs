@@ -237,8 +237,9 @@ public class Panel : FlowState
 
         if (info.Length == 1)
         {
-            System.Object[] newParams = new System.Object[1];
+            System.Object[] newParams = new System.Object[2];
             newParams[0] = caller;
+            newParams[1] = this;
             bool ret = (bool)typeof(ButtonFunctionCollection).InvokeMember(functionName, 
                                     BindingFlags.InvokeMethod | 
                                     BindingFlags.Public |

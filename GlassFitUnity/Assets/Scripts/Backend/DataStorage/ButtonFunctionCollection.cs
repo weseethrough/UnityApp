@@ -14,40 +14,34 @@ public class ButtonFunctionCollection
     /// </summary>
     /// <param name="fb"> button providng event </param>
     /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
-    static public bool MyFunction1(FlowButton fb)
+    static public bool MyFunction1(FlowButton fb, Panel panel)
     {
         Debug.Log("Testing linked function true");
 
         return true;
     }
 
-    static public bool MyFunction2(FlowButton fb)
+    static public bool MyFunction2(FlowButton fb, Panel panel)
     {
         Debug.Log("Testing linked function false");
 
         return false;
     }
-	
-	static public bool isAuthent(FlowButton fb) 
+
+    static public bool isAuthent(FlowButton fb, Panel panel) 
 	{
 		// Connection followed asynchronously
 		return false; 
 	}
 
-    public void Pure()
-    {
-        Debug.Log("Testing linked function number2");
-
-        return;
-    }
-	
-	static public bool StartGame(FlowButton fb)
+    static public bool StartGame(FlowButton fb, Panel panel)
 	{
 		AutoFade.LoadLevel(1, 1.0f, 1.0f, Color.black);
 		return true;
 	}
-	
-	static public bool Challenge(FlowButton button) {
+
+    static public bool Challenge(FlowButton button, Panel panel)
+    {
 		int friendId = (int)DataVault.Get("current_friend");
 		if (friendId == 0) return false; // TODO: Challenge by third-party identity
 		Platform.Instance.QueueAction(string.Format(@"{{
