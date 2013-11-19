@@ -188,43 +188,36 @@ public class Panel : FlowState
 
     public virtual void OnClick(FlowButton button)
     {
-		Debug.Log("Panel: In virtual onclick");
         if (Outputs.Count > 0 && parentMachine != null)
         {
-			Debug.Log("Panel: output over 1");
             GConnector gConect = Outputs.Find(r => r.Name == button.name);
             if (gConect != null)
             {
-				Debug.Log("Panel: gConect found");
-                if (gConect.EventFunction != null && gConect.EventFunction != "")
-                {
-					Debug.Log("Panel: should find eventfunction");
-                    if (CallStaticFunction(gConect.EventFunction, button))
-                    {
-						Debug.Log("Panel: function returned true");
-                        parentMachine.FollowConnection(gConect);
-                    }
-                    else
-                    {
-                        Debug.Log("Debug: Function forbids further navigation");
-                    }
-                }
-                else
-                {
-					Debug.Log("Panel: no function found");
-                    parentMachine.FollowConnection(gConect);
-                }
-
-                
-            } 
-			else
-			{
-				Debug.Log("Panel: gConect is null!");
-			}
+                ConnectionWithCall(gConect, button);                
+            }            
         }
         else
         {
             Debug.LogError("Dead end");
+        }
+    }
+
+    public void ConnectionWithCall(GConnector gConect, FlowButton button)
+    {
+        if (gConect.EventFunction != null && gConect.EventFunction != "")
+        {
+            if (CallStaticFunction(gConect.EventFunction, button))
+            {
+                parentMachine.FollowConnection(gConect);
+            }
+            else
+            {
+                Debug.Log("Debug: Function forbids further navigation");
+            }
+        }
+        else
+        {
+            parentMachine.FollowConnection(gConect);
         }
     }
 
