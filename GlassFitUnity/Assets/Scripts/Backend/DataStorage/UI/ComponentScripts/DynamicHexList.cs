@@ -10,8 +10,11 @@ public class DynamicHexList : MonoBehaviour
     Vector2     hexLayoutOffset         = new Vector2(0.4330127f, 0.25f);
     Vector3     distanceVector;
     Vector3     cameraPosition;
-    Quaternion  cameraStartingRotation;
     float       radius;
+
+    //default height and rotation is used as a default offset when reseting sensors
+    Quaternion  cameraDefaultRotation;
+    float       heightDefaultOffset;    
 
     float       screenEnterTime         = 0.8f;
     float       buttonEnterDelay        = 0.0f;
@@ -54,7 +57,7 @@ public class DynamicHexList : MonoBehaviour
             cameraPosition = guiCamera.transform.position;
             distanceVector = transform.position - cameraPosition;
             distanceVector.y = 0;
-            cameraStartingRotation = guiCamera.transform.rotation;
+            cameraDefaultRotation = guiCamera.transform.rotation;
 
             radius = distanceVector.magnitude;
 
@@ -66,11 +69,11 @@ public class DynamicHexList : MonoBehaviour
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
             Platform.Instance.resetGyro();
-            cameraStartingRotation = ConvertOrientation (Platform.Instance.getOrientation());
+            cameraDefaultRotation = ConvertOrientation (Platform.Instance.getOrientation(), out heightDefaultOffset);
 			//cameraStartingRotation = Quaternion.Euler(0, cameraStartingRotation.eulerAngles.y, 0);
 
-                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * ConvertOrientation (Platform.Instance.getOrientation());
-                guiCamera.transform.rotation = newOffset;
+            Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * cameraDefaultRotation;
+            guiCamera.transform.rotation = newOffset;
 #endif
             /* }
             else
@@ -87,13 +90,30 @@ public class DynamicHexList : MonoBehaviour
     {
 #if !UNITY_EDITOR 
         Platform.Instance.resetGyro();
-        cameraStartingRotation = ConvertOrientation(Platform.Instance.getOrientation());
+        cameraDefaultRotation = ConvertOrientation(Platform.Instance.getOrientation(), out heightDefaultOffset);
 #endif
     }
 
-    private Quaternion ConvertOrientation(Quaternion q)
+    private Quaternion ConvertOrientation(Quaternion q,out float height)
     {
-        return q;
+        //we stop pitch for the sake of height
+        height = q.eulerAngles.y;
+        return Quaternion.Euler( 0, -q.eulerAngles.z, -q.eulerAngles.x);
+    }
+
+    //height is a result of the pich calculation so it should be between 0 and 360
+    private float HeightToPositionValue(float height)
+    {
+        while(height < 0)
+        {
+            height += 360.0f;
+        }
+        height %= 360;
+        if (height > 90 && height <= 270) {height = 180 - height;}
+        else if (height > 270) {height = height - 360;}
+
+
+        return height * 0.1f;
     }
 
     public List<HexButtonData> GetButtonData()
@@ -128,8 +148,12 @@ public class DynamicHexList : MonoBehaviour
             {
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
-                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * ConvertOrientation (Platform.Instance.getOrientation());
-            guiCamera.transform.rotation = newOffset;
+                float pitchHeight;
+                Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * ConvertOrientation(Platform.Instance.getOrientation(), out pitchHeight);
+                guiCamera.transform.rotation = newOffset;
+                Vector3 cameraPos = guiCamera.transform.position;
+                cameraPos.y = HeightToPositionValue(pitchHeight - heightDefaultOffset);
+                guiCamera.transform.position = cameraPos;
 #endif
             /*}
             else
@@ -138,7 +162,7 @@ public class DynamicHexList : MonoBehaviour
             }*/
             Vector3 forward = guiCamera.transform.forward;
 
-            RaycastHit[] hits = Physics.RaycastAll(cameraPosition, forward, 5.0f);// ,LayerMask.NameToLayer("GUI"));
+            RaycastHit[] hits = Physics.RaycastAll(guiCamera.transform.position, forward, 5.0f);// ,LayerMask.NameToLayer("GUI"));
 
             bool selectionStillActive = false;
             UIImageButton newSelection = null;
@@ -240,9 +264,11 @@ public class DynamicHexList : MonoBehaviour
                     {
                         tp = guiCamera.gameObject.AddComponent<TweenPosition>();
                     }
-                    Vector3 direction = selection.transform.position - cameraPosition;
+                    Vector3 cameraCoreAxis = cameraPosition;
+                    cameraCoreAxis.y = selection.transform.position.y;
+                    Vector3 direction = selection.transform.position - cameraCoreAxis;
 
-                    Vector3 pos = cameraPosition + (direction * scale);
+                    Vector3 pos = cameraCoreAxis + (direction * scale);
 
                     TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
 
@@ -345,7 +371,7 @@ public class DynamicHexList : MonoBehaviour
             {
                 tile = transform.GetChild(i).gameObject;
             }
-            Vector3 pos = GetLocation(i);
+            Vector3 pos = GetLocation(GetButtonData()[i].column, GetButtonData()[i].row);
             if (radius == 0)
             {
                 Debug.LogError("RADIUS 0!");
@@ -381,6 +407,12 @@ public class DynamicHexList : MonoBehaviour
         {
             go.SetActive(false);
         }
+    }
+
+    Vector2 GetLocation(int column, int row)
+    {
+        int Yoffset = - (Mathf.Abs(column) % 2);
+        return new Vector2(hexLayoutOffset.x * column, -hexLayoutOffset.y * (Yoffset + row*2));
     }
 
     Vector2 GetLocation(int index)

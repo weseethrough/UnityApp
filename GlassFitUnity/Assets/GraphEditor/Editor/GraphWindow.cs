@@ -56,6 +56,8 @@ public class GraphWindow : EditorWindow, IDraw
 	Vector2 m_viewStart; // ViewPostion at beginning of drag
 	GNode m_selection;
 
+    Vector2 m_scrolableMenuPosition;
+
 	GConnector m_hoverConnector;
 	GConnector m_selectionConnector;
 	Vector2 m_dragPosition;
@@ -654,92 +656,123 @@ public class GraphWindow : EditorWindow, IDraw
                 BetterList<string> spriteNames = Graph.m_defaultHexagonalAtlas.GetListOfSprites();
                 string[] spriteNamesArray = spriteNames.ToArray();
 
-                for (int i = -1; i < hexPanel.buttonData.Count; i++)
+                bool isScrolled = false;
+
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("name:", GUILayout.Width(width * 0.3f));
+                EditorGUILayout.LabelField("exit:", GUILayout.Width(width * 0.2f));
+                EditorGUILayout.LabelField("graphic:", GUILayout.Width(width * 0.4f));
+                EditorGUILayout.EndHorizontal();
+
+                //Scrolling start point
+              
+                if (hexPanel.buttonData.Count > 0)
                 {
-                    if (i == -1)
+                    if (m_scrolableMenuPosition == null)
                     {
-                        EditorGUILayout.BeginHorizontal();
-                            EditorGUILayout.LabelField("name:", GUILayout.Width(width * 0.3f));                            
-                            EditorGUILayout.LabelField("exit:", GUILayout.Width(width * 0.2f));
-                            EditorGUILayout.LabelField("graphic:", GUILayout.Width(width * 0.4f));
-                        EditorGUILayout.EndHorizontal();
+                        m_scrolableMenuPosition = new Vector2();
                     }
-                    else
-                    {                    
-                        HexButtonData hexData = hexPanel.buttonData[i];
-
-                        int spriteIndex = 0;
-                        for (int arrayIndex = 0; arrayIndex < spriteNamesArray.Length; arrayIndex++)
-                        {
-                            if (spriteNamesArray[arrayIndex] == hexData.imageName)
-                            {
-                                spriteIndex = arrayIndex;
-                            }
-                        }
-
-                        EditorGUILayout.BeginHorizontal();
-
-                        List<HexButtonData> hexNameSanityCheck = hexPanel.buttonData.FindAll(r => r.buttonName == hexData.buttonName);
-                        if (hexNameSanityCheck.Count > 1)
-                        {
-                            GUI.color = Color.red;
-                        }
-
-                        string name = EditorGUILayout.TextField(hexData.buttonName, GUILayout.Width(width * 0.3f));
-                        GUI.color = Color.white;
-                        bool exitMode = EditorGUILayout.Toggle(hexData.expectedToHaveCustomExit, GUILayout.Width(width * 0.2f));                        
-                        int newIndex = EditorGUILayout.Popup(spriteIndex, spriteNamesArray);
-
-                        if (name != hexData.buttonName )
-                        {
-                            if (hexData.expectedToHaveCustomExit)
-                            {
-                                GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
-                                if (connector == null)
-                                {
-                                    hexPanel.NewOutput(name, "Flow");
-                                }
-                                else
-                                {
-                                    connector.Name = name;
-                                }
-                            }
-                            hexData.buttonName = name;
-                        }
-
-                        if (exitMode != hexData.expectedToHaveCustomExit)
-                        {
-                            hexData.expectedToHaveCustomExit = exitMode;
-                            if (exitMode == true)
-                            {
-                                GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
-                                if (connector == null)
-                                {
-                                    hexPanel.NewOutput(hexData.buttonName, "Flow");
-                                }                                
-                            }
-                            else 
-                            {
-                                GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
-                                if (connector != null)
-                                {                                  
-                                    Graph.Data.Disconnect(connector);
-                                    hexPanel.Outputs.Remove(connector);
-                                }
-                            }
-
-                            hexPanel.UpdateSize();
-                        }
-
-                        if (spriteIndex != newIndex)
-                        {
-                            hexData.imageName = spriteNamesArray[newIndex];
-                            Debug.Log(hexData.imageName + " vs " + spriteNamesArray[newIndex]);
-                        }
-
-                        EditorGUILayout.EndHorizontal();
-                    }
+                    m_scrolableMenuPosition = EditorGUILayout.BeginScrollView(m_scrolableMenuPosition);
+                    isScrolled = true;
                 }
+
+                for (int i = 0; i < hexPanel.buttonData.Count; i++)
+                {
+                    HexButtonData hexData = hexPanel.buttonData[i];
+
+                    int spriteIndex = 0;
+                    for (int arrayIndex = 0; arrayIndex < spriteNamesArray.Length; arrayIndex++)
+                    {
+                        if (spriteNamesArray[arrayIndex] == hexData.imageName)
+                        {
+                            spriteIndex = arrayIndex;
+                        }
+                    }
+
+                    EditorGUILayout.BeginHorizontal();
+
+                    List<HexButtonData> hexNameSanityCheck = hexPanel.buttonData.FindAll(r => r.buttonName == hexData.buttonName);
+                    if (hexNameSanityCheck.Count > 1)
+                    {
+                        GUI.color = Color.red;
+                    }
+
+                    string name = EditorGUILayout.TextField(hexData.buttonName, GUILayout.Width(width * 0.3f));
+                    GUI.color = Color.white;
+                    bool exitMode = EditorGUILayout.Toggle(hexData.expectedToHaveCustomExit, GUILayout.Width(width * 0.2f));
+                    int newIndex = EditorGUILayout.Popup(spriteIndex, spriteNamesArray);
+
+                    if (name != hexData.buttonName)
+                    {
+                        if (hexData.expectedToHaveCustomExit)
+                        {
+                            GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
+                            if (connector == null)
+                            {
+                                hexPanel.NewOutput(name, "Flow");
+                            }
+                            else
+                            {
+                                connector.Name = name;
+                            }
+                        }
+                        hexData.buttonName = name;
+                    }
+
+                    if (exitMode != hexData.expectedToHaveCustomExit)
+                    {
+                        hexData.expectedToHaveCustomExit = exitMode;
+                        if (exitMode == true)
+                        {
+                            GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
+                            if (connector == null)
+                            {
+                                hexPanel.NewOutput(hexData.buttonName, "Flow");
+                            }
+                        }
+                        else
+                        {
+                            GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
+                            if (connector != null)
+                            {
+                                Graph.Data.Disconnect(connector);
+                                hexPanel.Outputs.Remove(connector);
+                            }
+                        }
+
+                        hexPanel.UpdateSize();
+                    }
+
+                    if (spriteIndex != newIndex)
+                    {
+                        hexData.imageName = spriteNamesArray[newIndex];                        
+                    }
+                    EditorGUILayout.EndHorizontal();
+
+                    EditorGUILayout.BeginHorizontal();
+
+                  //  List<HexButtonData> hexPositionColumnSanityCheck    = hexPanel.buttonData.FindAll(r => r.column == hexData.column);
+                    List<HexButtonData> hexPositionSanityCheck = hexPanel.buttonData.FindAll(r => (r.column == hexData.column && r.row == hexData.row));
+
+                    if (hexPositionSanityCheck.Count > 1)
+                    {
+                        GUI.color = Color.red;
+                    }
+
+                    EditorGUILayout.LabelField("Column:", GUILayout.Width(width * 0.30f));
+                    hexData.column = EditorGUILayout.IntField(hexData.column, GUILayout.Width(width * 0.1f));
+                    EditorGUILayout.LabelField(",  Row:", GUILayout.Width(width * 0.30f));
+                    hexData.row = EditorGUILayout.IntField(hexData.row, GUILayout.Width(width * 0.1f));
+                    EditorGUILayout.EndHorizontal();
+
+                    GUI.color = Color.white;
+                }
+
+                if (isScrolled)
+                {
+                    EditorGUILayout.EndScrollView();
+                }                
 
                 if (GUILayout.Button("Add new button"))
                 {
@@ -977,7 +1010,7 @@ public class GraphWindow : EditorWindow, IDraw
 
 		DrawGraph(0,0,divx,Screen.height-TopHeight);
 		
-		DrawDivider (divx,divy,divw,Screen.height);
+		DrawDivider (divx-5,divy,divw,Screen.height);
 		
 		//EditorZoomArea.Begin(1.0f, _zoomArea);
 		DrawSideArea(divx+divw,divy,SideWidth-divw,Screen.height-25);
