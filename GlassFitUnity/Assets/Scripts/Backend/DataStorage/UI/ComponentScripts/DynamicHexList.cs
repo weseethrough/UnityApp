@@ -69,7 +69,7 @@ public class DynamicHexList : MonoBehaviour
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
             Platform.Instance.resetGyro();
-            cameraDefaultRotation = ConvertOrientation (Platform.Instance.getOrientation(), out heightDefaultOffset);
+            cameraDefaultRotation = ConvertOrientation(Platform.Instance.getOrientation(), out heightDefaultOffset);
 			//cameraStartingRotation = Quaternion.Euler(0, cameraStartingRotation.eulerAngles.y, 0);
 
             Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * cameraDefaultRotation;
@@ -97,8 +97,8 @@ public class DynamicHexList : MonoBehaviour
     private Quaternion ConvertOrientation(Quaternion q,out float height)
     {
         //we stop pitch for the sake of height
-        height = q.eulerAngles.y;
-        return Quaternion.Euler( 0, -q.eulerAngles.z, -q.eulerAngles.x);
+        height = q.eulerAngles.x;
+        return Quaternion.Euler( 0, q.eulerAngles.y, q.eulerAngles.z);
     }
 
     //height is a result of the pich calculation so it should be between 0 and 360
