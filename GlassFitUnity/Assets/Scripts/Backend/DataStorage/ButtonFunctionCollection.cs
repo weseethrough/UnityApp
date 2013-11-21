@@ -60,6 +60,31 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
+	static public bool ChangeToEagle(FlowButton fb, Panel panel)
+	{
+		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
+		
+		return false;
+	}
+	
+	static public bool ChangeToZombie(FlowButton fb, Panel panel)
+	{
+		
+		return false;
+	}
+	
+	static public bool ChangeToTrain(FlowButton fb, Panel panel)
+	{
+		
+		return false;
+	}
+	
+	static public bool ChangeToBoulder(FlowButton fb, Panel panel)
+	{
+		
+		return false;
+	}
+	
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
 		Platform.Instance.stopTrack();

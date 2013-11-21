@@ -98,7 +98,7 @@ public class DynamicHexList : MonoBehaviour
     {
         //we stop pitch for the sake of height
         height = q.eulerAngles.x;
-        return Quaternion.Euler( 0, q.eulerAngles.y, q.eulerAngles.z);
+        return q;
     }
 
     //height is a result of the pich calculation so it should be between 0 and 360
@@ -139,7 +139,14 @@ public class DynamicHexList : MonoBehaviour
             buttonNextEnterIndex++;
             buttonNextEnterDelay = buttonEnterDelay;
         }
-
+		
+		if(Input.touchCount == 1) 
+		{
+			if(Input.GetTouch(0).phase == TouchPhase.Began) {
+				ResetGyro();
+			}
+		}
+		
         //if button enter delay is below 0 at this stage then screen has finished loading
         if (parent.state == FlowState.State.Idle && guiCamera != null)
         {
@@ -149,11 +156,11 @@ public class DynamicHexList : MonoBehaviour
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
                 float pitchHeight;
-                Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * ConvertOrientation(Platform.Instance.getOrientation(), out pitchHeight);
+                Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * Platform.Instance.getOrientation();
                 guiCamera.transform.rotation = newOffset;
                 Vector3 cameraPos = guiCamera.transform.position;
-                cameraPos.y = HeightToPositionValue(pitchHeight - heightDefaultOffset);
-                guiCamera.transform.position = cameraPos;
+                //cameraPos.y = HeightToPositionValue(pitchHeight - heightDefaultOffset);
+                //guiCamera.transform.position = cameraPos;
 #endif
             /*}
             else

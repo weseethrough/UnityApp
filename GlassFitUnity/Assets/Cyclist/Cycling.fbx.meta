@@ -1,0 +1,391 @@
+fileFormatVersion: 2
+guid: 22749152b6e9b674e89d162939c19c56
+ModelImporter:
+  serializedVersion: 15
+  fileIDToRecycleName:
+    100000: bike_base02
+    100002: bike_handlebar02
+    100004: bike_pedale_L02
+    100006: bike_pedale_R02
+    100008: bike_pedalier02
+    100010: bike_wheel_AR02
+    100012: bike_wheel_AV02
+    100014: //RootNode
+    100016: DavidCycling:Bip01
+    100018: DavidCycling:Bip01 Footsteps
+    100020: DavidCycling:Bip01 Head
+    100022: DavidCycling:Bip01 HeadNub
+    100024: DavidCycling:Bip01 L Calf
+    100026: DavidCycling:Bip01 L Clavicle
+    100028: DavidCycling:Bip01 L Finger0
+    100030: DavidCycling:Bip01 L Finger01
+    100032: DavidCycling:Bip01 L Finger1
+    100034: DavidCycling:Bip01 L Finger11
+    100036: DavidCycling:Bip01 L Finger12
+    100038: DavidCycling:Bip01 L Finger1Nub
+    100040: DavidCycling:Bip01 L Finger2
+    100042: DavidCycling:Bip01 L Finger21
+    100044: DavidCycling:Bip01 L Finger22
+    100046: DavidCycling:Bip01 L Finger2Nub
+    100048: DavidCycling:Bip01 L Finger3
+    100050: DavidCycling:Bip01 L Finger31
+    100052: DavidCycling:Bip01 L Finger32
+    100054: DavidCycling:Bip01 L Finger3Nub
+    100056: DavidCycling:Bip01 L Foot
+    100058: DavidCycling:Bip01 L Forearm
+    100060: DavidCycling:Bip01 L Hand
+    100062: DavidCycling:Bip01 L Mus01
+    100064: DavidCycling:Bip01 L Mus02 act
+    100066: DavidCycling:Bip01 L Mus03
+    100068: DavidCycling:Bip01 L Mus04 act
+    100070: DavidCycling:Bip01 L Mus05
+    100072: DavidCycling:Bip01 L Mus06 act
+    100074: DavidCycling:Bip01 L Mus07 act
+    100076: DavidCycling:Bip01 L Mus08
+    100078: DavidCycling:Bip01 L Mus09 act
+    100080: DavidCycling:Bip01 L Mus10
+    100082: DavidCycling:Bip01 L Mus11 act
+    100084: DavidCycling:Bip01 L Mus12 act
+    100086: DavidCycling:Bip01 L Mus13 act
+    100088: DavidCycling:Bip01 L Mus14
+    100090: DavidCycling:Bip01 L Mus15
+    100092: DavidCycling:Bip01 L Mus16 act
+    100094: DavidCycling:Bip01 L Mus17
+    100096: DavidCycling:Bip01 L Mus18 act
+    100098: DavidCycling:Bip01 L Mus19
+    100100: DavidCycling:Bip01 L Mus20
+    100102: DavidCycling:Bip01 L Node 02
+    100104: DavidCycling:Bip01 L Node 03
+    100106: DavidCycling:Bip01 L Thigh
+    100108: DavidCycling:Bip01 L Toe0
+    100110: DavidCycling:Bip01 L Toe0Nub
+    100112: DavidCycling:Bip01 L UpperArm
+    100114: DavidCycling:Bip01 Neck
+    100116: DavidCycling:Bip01 Pelvis
+    100118: DavidCycling:Bip01 R Calf
+    100120: DavidCycling:Bip01 R Clavicle
+    100122: DavidCycling:Bip01 R Finger0
+    100124: DavidCycling:Bip01 R Finger01
+    100126: DavidCycling:Bip01 R Finger02
+    100128: DavidCycling:Bip01 R Finger0Nub
+    100130: DavidCycling:Bip01 R Finger1
+    100132: DavidCycling:Bip01 R Finger11
+    100134: DavidCycling:Bip01 R Finger12
+    100136: DavidCycling:Bip01 R Finger1Nub
+    100138: DavidCycling:Bip01 R Finger2
+    100140: DavidCycling:Bip01 R Finger21
+    100142: DavidCycling:Bip01 R Finger22
+    100144: DavidCycling:Bip01 R Finger2Nub
+    100146: DavidCycling:Bip01 R Finger3
+    100148: DavidCycling:Bip01 R Finger31
+    100150: DavidCycling:Bip01 R Finger32
+    100152: DavidCycling:Bip01 R Finger3Nub
+    100154: DavidCycling:Bip01 R Finger4
+    100156: DavidCycling:Bip01 R Finger41
+    100158: DavidCycling:Bip01 R Finger42
+    100160: DavidCycling:Bip01 R Finger4Nub
+    100162: DavidCycling:Bip01 R Foot
+    100164: DavidCycling:Bip01 R Forearm
+    100166: DavidCycling:Bip01 R Hand
+    100168: DavidCycling:Bip01 R Mus01
+    100170: DavidCycling:Bip01 R Mus02 act
+    100172: DavidCycling:Bip01 R Mus03 act
+    100174: DavidCycling:Bip01 R Mus04
+    100176: DavidCycling:Bip01 R Mus05 act
+    100178: DavidCycling:Bip01 R Mus06
+    100180: DavidCycling:Bip01 R Mus07
+    100182: DavidCycling:Bip01 R Mus08
+    100184: DavidCycling:Bip01 R Mus09 act
+    100186: DavidCycling:Bip01 R Mus10 act
+    100188: DavidCycling:Bip01 R Mus11
+    100190: DavidCycling:Bip01 R Mus12 act
+    100192: DavidCycling:Bip01 R Mus13 act
+    100194: DavidCycling:Bip01 R Mus14 act
+    100196: DavidCycling:Bip01 R Mus15
+    100198: DavidCycling:Bip01 R Mus16 act
+    100200: DavidCycling:Bip01 R Mus17 act
+    100202: DavidCycling:Bip01 R Mus18
+    100204: DavidCycling:Bip01 R Mus19
+    100206: DavidCycling:Bip01 R Mus20
+    100208: DavidCycling:Bip01 R Node 03
+    100210: DavidCycling:Bip01 R Node 04
+    100212: DavidCycling:Bip01 R Thigh
+    100214: DavidCycling:Bip01 R Toe0
+    100216: DavidCycling:Bip01 R Toe0Nub
+    100218: DavidCycling:Bip01 R UpperArm
+    100220: DavidCycling:Bip01 Spine
+    100222: DavidCycling:Bip01 Spine1
+    100224: DavidCycling:David
+    100226: DavidCycling:David_Glases
+    100228: DavidCycling:David_Hairs
+    100230: DavidCycling:Head
+    100232: DavidCycling:ikHandle2
+    100234: DavidCycling:ikHandle3
+    100236: DavidCycling:L_Knee
+    100238: DavidCycling:Left_Arm
+    100240: DavidCycling:Left_Elbow
+    100242: DavidCycling:Left_Hand
+    100244: DavidCycling:Left_Leg
+    100246: DavidCycling:Left_Wrist
+    100248: DavidCycling:mr Area Spot001.Target
+    100250: DavidCycling:pointLight1
+    100252: DavidCycling:Right_Arm
+    100254: DavidCycling:Right_Elbow
+    100256: DavidCycling:Right_Hand
+    100258: DavidCycling:Right_Knee
+    100260: DavidCycling:Right_Leg
+    100262: DavidCycling:Right_Wrist
+    100264: DavidCycling:Spine
+    100266: DavidCycling:spotLight1
+    100268: DavidRigged:pointLight1
+    100270: Front_Wheel_CTRL
+    100272: group1
+    100274: Left_Pedal_CTRL
+    100276: Pedal_CTRL
+    100278: Rear_Wheel_CTRL
+    100280: Right_Pedal_CTRL
+    400000: bike_base02
+    400002: bike_handlebar02
+    400004: bike_pedale_L02
+    400006: bike_pedale_R02
+    400008: bike_pedalier02
+    400010: bike_wheel_AR02
+    400012: bike_wheel_AV02
+    400014: //RootNode
+    400016: DavidCycling:Bip01
+    400018: DavidCycling:Bip01 Footsteps
+    400020: DavidCycling:Bip01 Head
+    400022: DavidCycling:Bip01 HeadNub
+    400024: DavidCycling:Bip01 L Calf
+    400026: DavidCycling:Bip01 L Clavicle
+    400028: DavidCycling:Bip01 L Finger0
+    400030: DavidCycling:Bip01 L Finger01
+    400032: DavidCycling:Bip01 L Finger1
+    400034: DavidCycling:Bip01 L Finger11
+    400036: DavidCycling:Bip01 L Finger12
+    400038: DavidCycling:Bip01 L Finger1Nub
+    400040: DavidCycling:Bip01 L Finger2
+    400042: DavidCycling:Bip01 L Finger21
+    400044: DavidCycling:Bip01 L Finger22
+    400046: DavidCycling:Bip01 L Finger2Nub
+    400048: DavidCycling:Bip01 L Finger3
+    400050: DavidCycling:Bip01 L Finger31
+    400052: DavidCycling:Bip01 L Finger32
+    400054: DavidCycling:Bip01 L Finger3Nub
+    400056: DavidCycling:Bip01 L Foot
+    400058: DavidCycling:Bip01 L Forearm
+    400060: DavidCycling:Bip01 L Hand
+    400062: DavidCycling:Bip01 L Mus01
+    400064: DavidCycling:Bip01 L Mus02 act
+    400066: DavidCycling:Bip01 L Mus03
+    400068: DavidCycling:Bip01 L Mus04 act
+    400070: DavidCycling:Bip01 L Mus05
+    400072: DavidCycling:Bip01 L Mus06 act
+    400074: DavidCycling:Bip01 L Mus07 act
+    400076: DavidCycling:Bip01 L Mus08
+    400078: DavidCycling:Bip01 L Mus09 act
+    400080: DavidCycling:Bip01 L Mus10
+    400082: DavidCycling:Bip01 L Mus11 act
+    400084: DavidCycling:Bip01 L Mus12 act
+    400086: DavidCycling:Bip01 L Mus13 act
+    400088: DavidCycling:Bip01 L Mus14
+    400090: DavidCycling:Bip01 L Mus15
+    400092: DavidCycling:Bip01 L Mus16 act
+    400094: DavidCycling:Bip01 L Mus17
+    400096: DavidCycling:Bip01 L Mus18 act
+    400098: DavidCycling:Bip01 L Mus19
+    400100: DavidCycling:Bip01 L Mus20
+    400102: DavidCycling:Bip01 L Node 02
+    400104: DavidCycling:Bip01 L Node 03
+    400106: DavidCycling:Bip01 L Thigh
+    400108: DavidCycling:Bip01 L Toe0
+    400110: DavidCycling:Bip01 L Toe0Nub
+    400112: DavidCycling:Bip01 L UpperArm
+    400114: DavidCycling:Bip01 Neck
+    400116: DavidCycling:Bip01 Pelvis
+    400118: DavidCycling:Bip01 R Calf
+    400120: DavidCycling:Bip01 R Clavicle
+    400122: DavidCycling:Bip01 R Finger0
+    400124: DavidCycling:Bip01 R Finger01
+    400126: DavidCycling:Bip01 R Finger02
+    400128: DavidCycling:Bip01 R Finger0Nub
+    400130: DavidCycling:Bip01 R Finger1
+    400132: DavidCycling:Bip01 R Finger11
+    400134: DavidCycling:Bip01 R Finger12
+    400136: DavidCycling:Bip01 R Finger1Nub
+    400138: DavidCycling:Bip01 R Finger2
+    400140: DavidCycling:Bip01 R Finger21
+    400142: DavidCycling:Bip01 R Finger22
+    400144: DavidCycling:Bip01 R Finger2Nub
+    400146: DavidCycling:Bip01 R Finger3
+    400148: DavidCycling:Bip01 R Finger31
+    400150: DavidCycling:Bip01 R Finger32
+    400152: DavidCycling:Bip01 R Finger3Nub
+    400154: DavidCycling:Bip01 R Finger4
+    400156: DavidCycling:Bip01 R Finger41
+    400158: DavidCycling:Bip01 R Finger42
+    400160: DavidCycling:Bip01 R Finger4Nub
+    400162: DavidCycling:Bip01 R Foot
+    400164: DavidCycling:Bip01 R Forearm
+    400166: DavidCycling:Bip01 R Hand
+    400168: DavidCycling:Bip01 R Mus01
+    400170: DavidCycling:Bip01 R Mus02 act
+    400172: DavidCycling:Bip01 R Mus03 act
+    400174: DavidCycling:Bip01 R Mus04
+    400176: DavidCycling:Bip01 R Mus05 act
+    400178: DavidCycling:Bip01 R Mus06
+    400180: DavidCycling:Bip01 R Mus07
+    400182: DavidCycling:Bip01 R Mus08
+    400184: DavidCycling:Bip01 R Mus09 act
+    400186: DavidCycling:Bip01 R Mus10 act
+    400188: DavidCycling:Bip01 R Mus11
+    400190: DavidCycling:Bip01 R Mus12 act
+    400192: DavidCycling:Bip01 R Mus13 act
+    400194: DavidCycling:Bip01 R Mus14 act
+    400196: DavidCycling:Bip01 R Mus15
+    400198: DavidCycling:Bip01 R Mus16 act
+    400200: DavidCycling:Bip01 R Mus17 act
+    400202: DavidCycling:Bip01 R Mus18
+    400204: DavidCycling:Bip01 R Mus19
+    400206: DavidCycling:Bip01 R Mus20
+    400208: DavidCycling:Bip01 R Node 03
+    400210: DavidCycling:Bip01 R Node 04
+    400212: DavidCycling:Bip01 R Thigh
+    400214: DavidCycling:Bip01 R Toe0
+    400216: DavidCycling:Bip01 R Toe0Nub
+    400218: DavidCycling:Bip01 R UpperArm
+    400220: DavidCycling:Bip01 Spine
+    400222: DavidCycling:Bip01 Spine1
+    400224: DavidCycling:David
+    400226: DavidCycling:David_Glases
+    400228: DavidCycling:David_Hairs
+    400230: DavidCycling:Head
+    400232: DavidCycling:ikHandle2
+    400234: DavidCycling:ikHandle3
+    400236: DavidCycling:L_Knee
+    400238: DavidCycling:Left_Arm
+    400240: DavidCycling:Left_Elbow
+    400242: DavidCycling:Left_Hand
+    400244: DavidCycling:Left_Leg
+    400246: DavidCycling:Left_Wrist
+    400248: DavidCycling:mr Area Spot001.Target
+    400250: DavidCycling:pointLight1
+    400252: DavidCycling:Right_Arm
+    400254: DavidCycling:Right_Elbow
+    400256: DavidCycling:Right_Hand
+    400258: DavidCycling:Right_Knee
+    400260: DavidCycling:Right_Leg
+    400262: DavidCycling:Right_Wrist
+    400264: DavidCycling:Spine
+    400266: DavidCycling:spotLight1
+    400268: DavidRigged:pointLight1
+    400270: Front_Wheel_CTRL
+    400272: group1
+    400274: Left_Pedal_CTRL
+    400276: Pedal_CTRL
+    400278: Rear_Wheel_CTRL
+    400280: Right_Pedal_CTRL
+    2300000: bike_base02
+    2300002: bike_handlebar02
+    2300004: bike_pedale_L02
+    2300006: bike_pedale_R02
+    2300008: bike_pedalier02
+    2300010: bike_wheel_AR02
+    2300012: bike_wheel_AV02
+    2300014: DavidCycling:David_Glases
+    2300016: DavidCycling:David_Hairs
+    3300000: bike_base02
+    3300002: bike_handlebar02
+    3300004: bike_pedale_L02
+    3300006: bike_pedale_R02
+    3300008: bike_pedalier02
+    3300010: bike_wheel_AR02
+    3300012: bike_wheel_AV02
+    3300014: DavidCycling:David_Glases
+    3300016: DavidCycling:David_Hairs
+    4300000: DavidCycling:David
+    4300002: DavidCycling:David_Hairs
+    4300004: DavidCycling:David_Glases
+    4300006: bike_pedale_R02
+    4300008: bike_pedale_L02
+    4300010: bike_pedalier02
+    4300012: bike_wheel_AR02
+    4300014: bike_wheel_AV02
+    4300016: bike_handlebar02
+    4300018: bike_base02
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: DavidCycling:David
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    clipAnimations:
+    - name: Take 001
+      takeName: Take 001
+      firstFrame: 2
+      lastFrame: 34
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      transformMask: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    handles: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  additionalBone: 1
+  animationType: 2
+  userData: 
