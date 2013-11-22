@@ -32,9 +32,6 @@ public class MainPanel : Panel {
 			h = GameObject.Find("minimap");
 			h.renderer.enabled = false;
 			
-			h = GameObject.Find("minimap2");
-			h.renderer.enabled = false;
-			
 			UnityEngine.Debug.Log("Panel: Renderer Enabled");
 			break;
 		}

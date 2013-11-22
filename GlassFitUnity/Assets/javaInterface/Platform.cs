@@ -605,7 +605,7 @@ public class Platform : MonoBehaviour {
 			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
 			DataVault.Set("points", (int)currentActivityPoints);
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting current acticity points: " + e.Message);
+			UnityEngine.Debug.Log("Platform: Error getting current activity points: " + e.Message);
 			DataVault.Set("points", -1);
 		}
 		

@@ -33,16 +33,8 @@ public class SettingsPanel : Panel {
 				ss.SetTarget(SettingsScreen.Targets.Runner);
 				break;
 				
-			case "ZombieButton":
-				ss.SetTarget(SettingsScreen.Targets.Zombie);
-				break;
-				
-			case "EagleButton":
-				ss.SetTarget(SettingsScreen.Targets.Eagle);
-				break;
-				
-			case "TrainButton":
-				ss.SetTarget(SettingsScreen.Targets.Train);
+			case "CyclistButton":
+				ss.SetTarget(SettingsScreen.Targets.Cyclist);
 				break;
 				
 			case "IndoorButton":
@@ -79,31 +71,14 @@ public class SettingsPanel : Panel {
 				GameObject h = GameObject.Find("blackPlane");
 				h.renderer.enabled = false;
 				
-				//h = GameObject.Find("minimap");
-				//h.renderer.enabled = true;
-				
-				h = GameObject.Find("minimap2");
+				h = GameObject.Find("minimap");
 				h.renderer.enabled = true;
+				
 				break;	
 				
 			case "FriendButton": 
 				Debug.Log("FriendButton clicked");
-				break;
-//			case "NextButton":
-//				
-//				break;
-//				
-//			case "PrevButton":
-//				
-//				break;
-//				
-//			case "SetTrackButton":
-//				
-//				break;
-
-//			case "BackSettingsButton":
-//				
-//				break;		
+				break;	
 			
 			}
 		}

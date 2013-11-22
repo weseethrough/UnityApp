@@ -140,12 +140,12 @@ public class DynamicHexList : MonoBehaviour
             buttonNextEnterDelay = buttonEnterDelay;
         }
 		
-		if(Input.touchCount == 1) 
-		{
-			if(Input.GetTouch(0).phase == TouchPhase.Began) {
-				ResetGyro();
-			}
-		}
+//		if(Input.touchCount == 1) 
+//		{
+//			if(Input.GetTouch(0).phase == TouchPhase.Began) {
+//				ResetGyro();
+//			}
+//		}
 		
         //if button enter delay is below 0 at this stage then screen has finished loading
         if (parent.state == FlowState.State.Idle && guiCamera != null)

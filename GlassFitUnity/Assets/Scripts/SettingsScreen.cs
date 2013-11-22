@@ -15,14 +15,11 @@ public class SettingsScreen : MonoBehaviour {
 	public enum Targets
 	{
 		Runner			= 1,
-		Eagle			= 2,
-		Train			= 3,
-		Zombie			= 4
+		Cyclist			= 2
 	}
 	
 	// Minimap attributes
 	private GameObject minimap;
-	private GameObject minimap2;
 	private const int MAP_RADIUS = 1;
 	Texture2D selfIcon;
 	Texture2D targetIcon;
@@ -40,10 +37,8 @@ public class SettingsScreen : MonoBehaviour {
 	private bool authenticated = false;
 	
 	// Holds game objects to set them to active/inactive
-	public GameObject eagleHolder;
+	public GameObject cyclistHolder;
 	public GameObject runnerHolder;
-	public GameObject zombieHolder;
-	public GameObject trainHolder;
 	
 	// Variables to set the scale
 	private int originalHeight = 500;
@@ -84,9 +79,6 @@ public class SettingsScreen : MonoBehaviour {
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
 		
-		minimap2 = GameObject.Find("minimap2");
-		minimap2.renderer.material.renderQueue = 3000;
-		
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
@@ -104,15 +96,7 @@ public class SettingsScreen : MonoBehaviour {
 			break;
 			
 		case 1:
-			currentTarget = Targets.Eagle;
-			break;
-			
-		case 2:
-			currentTarget = Targets.Zombie;
-			break;
-			
-		case 3:
-			currentTarget = Targets.Train;
+			currentTarget = Targets.Cyclist;
 			break;
 		}
 		
@@ -318,27 +302,17 @@ public class SettingsScreen : MonoBehaviour {
 	
 	// Set the targets based on the enums
 	void setTargets() {
-		eagleHolder.SetActive(false);
+		cyclistHolder.SetActive(false);
 		runnerHolder.SetActive(false);
-		trainHolder.SetActive(false);
-		zombieHolder.SetActive(false);
 				
 		switch(currentTarget) {
-		case Targets.Eagle:
-			eagleHolder.SetActive(true);
-			offset = 50;
-			break;
 		case Targets.Runner:
 			runnerHolder.SetActive(true);
 			offset = 0;
 			break;
-		case Targets.Train:
-			trainHolder.SetActive(true);
-			offset = 50;
-			break;
-		case Targets.Zombie:
-			zombieHolder.SetActive(true);
-			offset = 20;
+		case Targets.Cyclist:
+			cyclistHolder.SetActive(true);
+			offset = 0;
 			break;
 		default:
 			break;
@@ -390,11 +364,11 @@ public class SettingsScreen : MonoBehaviour {
 		//Matrix4x4 matrixBackup = GUI.matrix;
 		if (Event.current.type == EventType.Repaint) {
 			// Rotation and indexing into atlas handled by shader
-			minimap.renderer.material.SetFloat("_Rotation", (float)-bearing);			
-			minimap.renderer.material.SetVector("_Rectangle", new Vector4(mapCoords.x, mapCoords.y, mapCoords.width, mapCoords.height));
+			//minimap.renderer.material.SetFloat("_Rotation", (float)-bearing);			
+			//minimap.renderer.material.SetVector("_Rectangle", new Vector4(mapCoords.x, mapCoords.y, mapCoords.width, mapCoords.height));
 //			Graphics.DrawTexture(map, mapTexture, mapCoords, 0, 0, 0, 0, mapStencil);
 			minimap.renderer.material.mainTexture = mapTexture;
-			minimap2.renderer.material.mainTexture = mapTexture;
+//			minimap2.renderer.material.mainTexture = mapTexture;
 		}
 		
 //		// Self is always at center

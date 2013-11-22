@@ -313,7 +313,7 @@ ModelImporter:
     4300014: bike_wheel_AV02
     4300016: bike_handlebar02
     4300018: bike_base02
-    7400000: Take 001
+    7400000: Cycling
     9500000: //RootNode
     13700000: DavidCycling:David
   materials:
@@ -329,7 +329,7 @@ ModelImporter:
     animationScaleError: .5
     animationWrapMode: 0
     clipAnimations:
-    - name: Take 001
+    - name: Cycling
       takeName: Take 001
       firstFrame: 2
       lastFrame: 34

@@ -44,50 +44,87 @@ public class ButtonFunctionCollection
 			DataVault.Set("level", 0);
 			break;
 			
-		case "Eagle":
+		case "Bike":
 			DataVault.Set("level", 1);
-			break;
-			
-		case "Zombie":
-			DataVault.Set("level", 2);
-			break;
-			
-		case "Train":
-			DataVault.Set("level", 3);
 			break;
 		}
 		
 		return true;
 	}
 	
+	static public bool StartPursuitGame(FlowButton fb, Panel panel) 
+	{
+		AutoFade.LoadLevel(3, 0f, 1.0f, Color.black);
+		
+		switch(fb.name)
+		{
+		case "Boulder Level 1":
+			DataVault.Set("level", 0);
+			break;
+			
+		case "Eagle Level 1":
+			DataVault.Set("level", 1);
+			break;
+			
+		case "Zombie Level 1":
+			DataVault.Set("level", 2);
+			break;
+			
+		case "Train Level 1":
+			DataVault.Set("level", 3);
+			break;
+		}
+		return true;
+	}
+	
+	static public bool SetIndoor(FlowButton fb, Panel panel)
+	{
+		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
+		ps.SetIndoor();
+		return false;
+	}
+	
 	static public bool ChangeToEagle(FlowButton fb, Panel panel)
 	{
 		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
-		
+		ps.SetTarget(PursuitSettings.Targets.Eagle);
 		return false;
 	}
 	
 	static public bool ChangeToZombie(FlowButton fb, Panel panel)
 	{
-		
+		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
+		ps.SetTarget(PursuitSettings.Targets.Zombie);
 		return false;
 	}
 	
 	static public bool ChangeToTrain(FlowButton fb, Panel panel)
 	{
-		
+		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
+		ps.SetTarget(PursuitSettings.Targets.Train);
 		return false;
 	}
 	
 	static public bool ChangeToBoulder(FlowButton fb, Panel panel)
 	{
-		
+		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
+		ps.SetTarget(PursuitSettings.Targets.Boulder);
 		return false;
+	}
+	
+	static public bool BackPursuit(FlowButton fb, Panel panel)
+	{
+		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
+		ps.Back();
+		GameObject h = GameObject.Find("blackPlane");
+		h.renderer.enabled = false;
+		return true;
 	}
 	
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
 		Platform.Instance.stopTrack();
+		DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
 		return true;
 	}

@@ -8,6 +8,7 @@ public class PursuitSettings : MonoBehaviour {
 	public bool menuOpen = false;
 	private bool changed = false;
 	public bool indoor = true;
+	private bool dead = false;
 	
 	public enum Targets {
 		Boulder			= 1,
@@ -82,9 +83,6 @@ public class PursuitSettings : MonoBehaviour {
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
 		
-		minimap2 = GameObject.Find("minimap2");
-		minimap2.renderer.material.renderQueue = 3000;
-		
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
@@ -113,6 +111,8 @@ public class PursuitSettings : MonoBehaviour {
 			currentTarget = Targets.Train;
 			break;
 		}
+		
+		DataVault.Set("slider_val", 0.06f);
 		
 		// Set holders active status
 		setTargets();
@@ -379,11 +379,11 @@ public class PursuitSettings : MonoBehaviour {
 		//Matrix4x4 matrixBackup = GUI.matrix;
 		if (Event.current.type == EventType.Repaint) {
 			// Rotation and indexing into atlas handled by shader
-			minimap.renderer.material.SetFloat("_Rotation", (float)-bearing);			
-			minimap.renderer.material.SetVector("_Rectangle", new Vector4(mapCoords.x, mapCoords.y, mapCoords.width, mapCoords.height));
+			//minimap.renderer.material.SetFloat("_Rotation", (float)-bearing);			
+			//.renderer.material.SetVector("_Rectangle", new Vector4(mapCoords.x, mapCoords.y, mapCoords.width, mapCoords.height));
 //			Graphics.DrawTexture(map, mapTexture, mapCoords, 0, 0, 0, 0, mapStencil);
 			minimap.renderer.material.mainTexture = mapTexture;
-			minimap2.renderer.material.mainTexture = mapTexture;
+			//minimap2.renderer.material.mainTexture = mapTexture;
 		}
 		
 //		// Self is always at center

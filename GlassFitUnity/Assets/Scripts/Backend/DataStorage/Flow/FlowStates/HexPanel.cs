@@ -72,6 +72,7 @@ public class HexPanel : Panel
         base.RebuildConnections();
 
         NewOutput(defaultExit, "Flow");
+		GConnector connection;
     }
 
     public override void EnterStart()

@@ -8,12 +8,12 @@ public class ZombieController : TargetController {
 
 	void Start () {
 		base.Start();
-		setAttribs(20, 135, -239.5f, -10);
+		setAttribs(50, 135, -150f, 13.88668f);
 	}
 	
 	void OnEnable() {
 		base.OnEnable();
-		setAttribs(20, 135, -239.5f, -10);
+		setAttribs(50, 135, -150f, 13.88668f);
 	}
 	
 	void Update () {
