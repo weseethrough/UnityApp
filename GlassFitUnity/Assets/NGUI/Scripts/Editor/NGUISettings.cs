@@ -77,8 +77,14 @@ public class NGUISettings
 
 		if (mLayer < 0 || string.IsNullOrEmpty(LayerMask.LayerToName(mLayer))) mLayer = -1;
 
-		if (mLayer == -1) mLayer = LayerMask.NameToLayer("UI");
-		if (mLayer == -1) mLayer = LayerMask.NameToLayer("GUI");
+        if (mLayer == -1)
+        {
+            mLayer = LayerMask.NameToLayer("UI");
+        }
+        if (mLayer == -1)
+        {
+            mLayer = LayerMask.NameToLayer("GUI");
+        }
 		if (mLayer == -1) mLayer = 5;
 
 		EditorPrefs.SetInt("UI Layer", mLayer);

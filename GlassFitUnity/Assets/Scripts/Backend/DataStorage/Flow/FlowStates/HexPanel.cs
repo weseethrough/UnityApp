@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public class HexPanel : Panel 
 {
+    public const string CAMERA_3D_LAYER = "GUI";
     const string defaultExit = "Default Exit";
 
     public List<HexButtonData> buttonData;        
@@ -81,15 +82,26 @@ public class HexPanel : Panel
         if (physicalWidgetRoot != null)
         {
             DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));            
-            list.SetParent(this);           
+            list.SetParent(this);
+
+            ForceLayer();
         }
         
 
 #if !UNITY_EDITOR         
-        UICamera uicam = Camera.FindObjectOfType(typeof(UICamera)) as UICamera;
-        
+        Camera[] camList = (Camera[])Camera.FindObjectsOfType(typeof(Camera));
+        UICamera uicam = null;
+        foreach (Camera c in camList)
+        {
+            uicam = c.GetComponent<UICamera>();
+            if (uicam != null && c.gameObject.layer == LayerMask.NameToLayer(CAMERA_3D_LAYER))
+            {                
+                break;
+            }
+        }
+
         if (uicam != null)
-        {            
+        {         
             camStartMouseAction = uicam.useMouse;
             camStartTouchAction = uicam.useTouch;                        
 
@@ -124,10 +136,19 @@ public class HexPanel : Panel
         }
 
 #if !UNITY_EDITOR            
-        UICamera uicam = Camera.FindObjectOfType(typeof(UICamera)) as UICamera;
-        
+        Camera[] camList = (Camera[])Camera.FindObjectsOfType(typeof(Camera));
+        UICamera uicam = null;
+        foreach (Camera c in camList)
+        {
+            uicam = c.GetComponent<UICamera>();
+            if (uicam != null && c.gameObject.layer == LayerMask.NameToLayer(CAMERA_3D_LAYER))
+            {                
+                break;
+            }
+        }
+
         if (uicam != null)
-        {            
+        {           
             uicam.useMouse = camStartMouseAction;
             uicam.useTouch = camStartTouchAction;                                    
         }             
@@ -164,5 +185,16 @@ public class HexPanel : Panel
     {
         //this panel is marked as invalid until some buttons are defined. It might be not the case later and condition changed.
         return base.IsValid() && buttonData != null && buttonData.Count > 0;
+    }
+
+    public void ForceLayer()
+    {
+        //this is 3d interface so it should switch to use this layer
+        physicalWidgetRoot.layer = LayerMask.NameToLayer(CAMERA_3D_LAYER);
+        UIWidget[] children = physicalWidgetRoot.GetComponentsInChildren<UIWidget>();
+        foreach (UIWidget child in children)
+        {
+            child.CheckLayer();
+        }
     }
 }
