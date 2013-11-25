@@ -10,6 +10,19 @@ public class GraphWindow : EditorWindow, IDraw
 {
 	// Allow user to drag viewport to see graph
 	Vector2 ViewPosition;
+
+    bool m_dirtySave = false;
+    public bool dirtySave
+    {
+        get 
+        { 
+            return m_dirtySave; 
+        }
+        set 
+        { 
+            m_dirtySave = value; 
+        }
+    }
 	
 	[MenuItem("Window/Image Graph Editor")]
 	public static void Init ()
@@ -22,16 +35,15 @@ public class GraphWindow : EditorWindow, IDraw
 	}
 	
 	void OnSelectionChange () { Repaint(); }
-
-  /*  void Update()
+    
+    void Update()
     {
-        GraphComponent gc = Graph;
-        if (gc != null && gc.m_dirty)
+        if (dirtySave)
         {
-            gc.m_dirty = false;
-            Repaint();
+            SaveGraph();
+            dirtySave = false;
         }
-    }*/
+    }
 
 	// returns currently selected graph
 	GraphComponent Graph
@@ -152,14 +164,17 @@ public class GraphWindow : EditorWindow, IDraw
 							graph.Connect(m_selectionConnector,target);
 							UnityEditor.EditorUtility.SetDirty(Graph.gameObject);
 						}
-					}
-				}				
+					}                    
+				}
+                dirtySave = true;
 			}
 			else if (m_nodeStart != m_selection.Position)
 			{
 				Debug.Log("Node movement saved.");
 				UnityEditor.EditorUtility.SetDirty(Graph.gameObject);
+                dirtySave = true;
 			}
+            
 		}
         m_dragConnector = false;
 		//m_selection = null;
@@ -602,6 +617,7 @@ public class GraphWindow : EditorWindow, IDraw
 				{
 					parm.Value = string.Format("{0}",newValue);
 					changed = true;
+                    dirtySave = true;
 				}
 			}
 			break;		
@@ -629,6 +645,7 @@ public class GraphWindow : EditorWindow, IDraw
                 parm.Value = newTypeValue;
                 Graph.Data.Disconnect(m_selection, GraphData.ConnectorDirection.Out);
                 m_selection.RebuildConnections();
+                dirtySave = true;
             }
             EditorGUILayout.EndHorizontal();
             break;
@@ -639,7 +656,10 @@ public class GraphWindow : EditorWindow, IDraw
                 FlowPanelComponent components = (m_selection as Panel).panelNodeData;
                 if (components != null)
                 {
-                    components.OnInspectorGUI(width);
+                    if (components.OnInspectorGUI(width))
+                    {
+                        dirtySave = true;
+                    }
                 }
             }
             break;
@@ -718,6 +738,7 @@ public class GraphWindow : EditorWindow, IDraw
                             }
                         }
                         hexData.buttonName = name;
+                        dirtySave = true;
                     }
 
                     if (exitMode != hexData.expectedToHaveCustomExit)
@@ -742,11 +763,13 @@ public class GraphWindow : EditorWindow, IDraw
                         }
 
                         hexPanel.UpdateSize();
+                        dirtySave = true;
                     }
 
                     if (spriteIndex != newIndex)
                     {
-                        hexData.imageName = spriteNamesArray[newIndex];                        
+                        hexData.imageName = spriteNamesArray[newIndex];
+                        dirtySave = true;
                     }
                     EditorGUILayout.EndHorizontal();
 
@@ -761,10 +784,17 @@ public class GraphWindow : EditorWindow, IDraw
                     }
 
                     EditorGUILayout.LabelField("Column:", GUILayout.Width(width * 0.30f));
-                    hexData.column = EditorGUILayout.IntField(hexData.column, GUILayout.Width(width * 0.1f));
+                    int column = EditorGUILayout.IntField(hexData.column, GUILayout.Width(width * 0.1f));
                     EditorGUILayout.LabelField(",  Row:", GUILayout.Width(width * 0.30f));
-                    hexData.row = EditorGUILayout.IntField(hexData.row, GUILayout.Width(width * 0.1f));
+                    int row = EditorGUILayout.IntField(hexData.row, GUILayout.Width(width * 0.1f));
                     EditorGUILayout.EndHorizontal();
+
+                    if (column != hexData.column || row != hexData.row)
+                    {
+                        hexData.column = column;
+                        hexData.row = row;
+                        dirtySave = true;
+                    }
 
                     GUI.color = Color.white;
                 }
@@ -779,6 +809,7 @@ public class GraphWindow : EditorWindow, IDraw
                     HexButtonData buttonData = new HexButtonData();
                     buttonData.buttonName = "Set Name " + hexPanel.buttonData.Count;
                     hexPanel.buttonData.Add(buttonData);
+                    dirtySave = true;
                 }
             }
             break;
@@ -799,7 +830,8 @@ public class GraphWindow : EditorWindow, IDraw
         if (GUILayout.Button("Disconnect Connector"))
         {           
             Graph.Data.Disconnect(connector);
-            m_selectionConnector = null;            
+            m_selectionConnector = null;
+            dirtySave = true;
         }
         
         EditorGUILayout.BeginHorizontal(GUILayout.Width(width));
@@ -817,7 +849,7 @@ public class GraphWindow : EditorWindow, IDraw
             }
             else
             {
-                connector.EventFunction = names[index];
+                connector.EventFunction = names[index];                
             }
 
         EditorGUILayout.EndHorizontal();
@@ -844,6 +876,7 @@ public class GraphWindow : EditorWindow, IDraw
         if (GUILayout.Button("Disconnect"))
 		{
 			Graph.Data.Disconnect(node);
+            dirtySave = true;
 		}
 		
 		GUI.color = Color.red;
@@ -853,6 +886,7 @@ public class GraphWindow : EditorWindow, IDraw
             if (ok)
             {
                 SelectNode(null);
+                dirtySave = true;
                 return;
             }
         }
@@ -881,6 +915,7 @@ public class GraphWindow : EditorWindow, IDraw
                     i--;
                 }
             }
+            dirtySave = true;
         }
 	}
 
@@ -937,6 +972,8 @@ public class GraphWindow : EditorWindow, IDraw
 					//Debug.Log("Pos = "+newNode.Position.ToString());
 					Graph.Data.Add(newNode);
 					UnityEditor.EditorUtility.SetDirty(gc.gameObject);
+
+                    dirtySave = true;
 				}
 				else
 				{
@@ -1084,6 +1121,28 @@ public class GraphWindow : EditorWindow, IDraw
         }
                 
         return names.ToArray();
+    }
+
+    public void SaveGraph()
+    {
+
+
+        GraphComponent gc = Graph;            
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
+        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
+        if (gc != null && gc.Data != null)
+        {
+            if (!flowDictionary.Contains("MainFlow"))
+            {
+                flowDictionary.Add("MainFlow", gc.m_graph);
+            }
+            else
+            {
+                flowDictionary.Set(gc.m_graph, "MainFlow");
+            }
+        }    
+
+        DataStore.SaveStorage(DataStore.BlobNames.flow);
     }
 
 }

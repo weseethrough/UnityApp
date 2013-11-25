@@ -25,11 +25,12 @@ public class FlowPanelComponent
         RefreshData(panelNode);
     }
 
-    public void OnInspectorGUI(float width)
+    public bool OnInspectorGUI(float width)
     {
+        bool changed = false;
 #if UNITY_EDITOR
-        if (names == null) return;
-
+        if (names == null) return false;
+        
         for (int i=0; i< names.Count; i++)
         {
             GUI.color = Color.white;
@@ -67,6 +68,7 @@ public class FlowPanelComponent
                                 if (data2 != data)
                                 {
                                     componentList[id].intData.Set(data2, sName);
+                                    changed = true;
                                 }
                             }
                         }
@@ -85,6 +87,7 @@ public class FlowPanelComponent
                                 if (data2 != data)
                                 {
                                     componentList[id].strData.Set(data2, sName);
+                                    changed = true;
                                 }
                             }
                         }
@@ -103,6 +106,7 @@ public class FlowPanelComponent
                                 if (data2 != data)
                                 {
                                     componentList[id].doubleData.Set(data2, sName);
+                                    changed = true;
                                 }
                             }
                         }
@@ -110,8 +114,9 @@ public class FlowPanelComponent
                 }                
             }
         }
-        GUI.color = Color.white;
+        GUI.color = Color.white;       
 #endif
+        return changed;
     }    
 
     public void RefreshData(SerializedNode panelNode)
