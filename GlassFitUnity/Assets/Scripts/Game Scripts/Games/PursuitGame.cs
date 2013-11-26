@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 
@@ -289,7 +289,7 @@ public class PursuitGame : MonoBehaviour {
 			DataVault.Set("ahead_col_box", "19D200EE");
 			DataVault.Set("ahead_col_header", "19D200FF");
 			DataVault.Set("finish_header", "You survived...for now");
-			FlowState fs = FlowStateMachine.GetCurentFlowState();
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 			if(gConect != null) {
 			fs.parentMachine.FollowConnection(gConect);
@@ -331,7 +331,7 @@ public class PursuitGame : MonoBehaviour {
 				DataVault.Set("ahead_col_header", "D20000FF");
 				DataVault.Set("ahead_col_box", "D20000EE");
 				DataVault.Set("finish_header", "You died!");
-				FlowState fs = FlowStateMachine.GetCurentFlowState();
+				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 				if(gConect != null) {
 					fs.parentMachine.FollowConnection(gConect);

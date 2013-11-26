@@ -274,7 +274,7 @@ public class RaceGame : MonoBehaviour {
 		{
 			Platform.Instance.stopTrack();
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
-			FlowState fs = FlowStateMachine.GetCurentFlowState();
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 			if(gConect != null) {
 			fs.parentMachine.FollowConnection(gConect);
