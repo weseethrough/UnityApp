@@ -47,10 +47,10 @@ public class DynamicHexList : MonoBehaviour
             }
         }
 
-        if (!SensorHelper.gotFirstValue)
-        {
-            SensorHelper.ActivateRotation();
-        }
+//        if (!SensorHelper.gotFirstValue)
+//        {
+//            SensorHelper.ActivateRotation();
+//        }
 
         if (guiCamera != null)
         {
