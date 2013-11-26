@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// base component for all flow buttons, injected by panels to the buttons handles their internal events and forwards them back to the parent class
+/// </summary>
 public class FlowButton : MonoBehaviour 
 {
     private Panel m_owner;
@@ -17,11 +20,10 @@ public class FlowButton : MonoBehaviour
     }
     public string name;
 
-    void Start()
-    {
-       // Debug.Log("Flow button creation: " + gameObject.name);
-    }
-
+	/// <summary>
+	/// Event called by the button when it were clicked (pressed and then released). Sends message to the parent about it
+	/// </summary>
+	/// <returns></returns>
 	public void OnClick()
     {
         if (owner != null)
@@ -30,6 +32,11 @@ public class FlowButton : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Event called by the button when it were pressed.
+    /// </summary>
+    /// <param name="isDown">if button were just pressed it will contain value true, if released it will be false</param>
+    /// <returns></returns>
     public void OnPress(bool isDown)
     {
         if (owner != null)

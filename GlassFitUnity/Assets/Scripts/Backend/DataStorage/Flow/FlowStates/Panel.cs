@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Reflection;
 
+/// <summary>
+/// basic panel which allows to show ui
+/// </summary>
 [Serializable]
 public class Panel : FlowState
 {
@@ -17,9 +20,19 @@ public class Panel : FlowState
 
     [NonSerialized()] public GameObject physicalWidgetRoot;
     [NonSerialized()] private string widgetRootName = "Widgets Container";
-	
+
+    /// <summary>
+    /// default constructor
+    /// </summary>
+    /// <returns></returns>
 	public Panel() : base() {}
-	
+
+    /// <summary>
+    /// deserialziation constructor
+    /// </summary>
+    /// <param name="info">seirilization info conataining class data</param>
+    /// <param name="ctxt">serialization context </param>
+    /// <returns></returns>
     public Panel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
 	{
@@ -27,12 +40,22 @@ public class Panel : FlowState
         this.panelNodeData.RefreshData();
     }
 
+    /// <summary>
+    /// serialization function called by serializer
+    /// </summary>
+    /// <param name="info">serialziation info where all data would be pushed to</param>
+    /// <param name="ctxt">serialzation context</param>
+    /// <returns></returns>
     public override void GetObjectData(SerializationInfo info, StreamingContext ctxt)
    	{
         base.GetObjectData(info, ctxt);
         info.AddValue("panelNodeData", this.panelNodeData);        
    	}
 
+    /// <summary>
+    /// Gets display name of the node, helps with node identification in editor
+    /// </summary>
+    /// <returns>name of the node</returns>
     public override string GetDisplayName()
     {
         base.GetDisplayName();
@@ -45,6 +68,10 @@ public class Panel : FlowState
         return "Panel: UnInitialzied";
     }
 
+    /// <summary>
+    /// initialzies node and creates name for it. Makes as well default iput/output connection sockets
+    /// </summary>
+    /// <returns></returns>
     protected override void Initialize()
     {
         base.Initialize();
@@ -57,6 +84,10 @@ public class Panel : FlowState
         NewParameter("Settings", GraphValueType.Settings, "");        
     }
 
+    /// <summary>
+    /// refreshes connections lists
+    /// </summary>
+    /// <returns></returns>
     public override void RebuildConnections()
     {
         base.RebuildConnections();
@@ -66,7 +97,7 @@ public class Panel : FlowState
 
         GParameter gType = Parameters.Find(r => r.Key == "Type");
 
-        SerializedNode node = GetUIPanelNames(gType.Value);
+        SerializedNode node = GetPanelSerializationNode(gType.Value);
         LookForInteractiveItems(node);
 
         int count = Mathf.Max(Inputs.Count, Outputs.Count);
@@ -77,13 +108,22 @@ public class Panel : FlowState
         
     }
 
+    /// <summary>
+    /// builds flow panel component data based on serialized nodes based on panel specified name stored as variable "Type" on parameter list
+    /// </summary>
+    /// <returns></returns>
     public void RefreshNodeData()
     {
         GParameter gType = Parameters.Find(r => r.Key == "Type");
 
-        panelNodeData = new FlowPanelComponent(GetUIPanelNames(gType.Value));
+        panelNodeData = new FlowPanelComponent(GetPanelSerializationNode(gType.Value));
     }
 
+    /// <summary>
+    /// finds buttons on current panel 
+    /// </summary>
+    /// <param name="node">root node</param>
+    /// <returns></returns>
     private void LookForInteractiveItems(SerializedNode node)
     {
         if (node == null) return;
@@ -102,14 +142,22 @@ public class Panel : FlowState
         }
     }
 
+    /// <summary>
+    /// finds all serializable settings on serializable node
+    /// </summary>
+    /// <param name="sn">serialziable node source to be analized for serialziable components</param>
+    /// <returns></returns>
     private void CreateCustomizationParams(SerializedNode sn)
     {
-        SerializableSettings ss = sn != null ? sn.GetSerializableSettings() : null;
-        
-       // NewParameter("Name", GraphValueType.String, "Set Panel Title");
+        SerializableSettings ss = sn != null ? sn.GetSerializableSettings() : null;        
     }
 
-    public SerializedNode GetUIPanelNames(string selectedName)
+    /// <summary>
+    /// finds saved serialized structure and returns root of it
+    /// </summary>
+    /// <param name="selectedName">lookup name of the screen</param>
+    /// <returns>screen serialized root</returns>
+    public SerializedNode GetPanelSerializationNode(string selectedName)
     {
         Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
         if (s == null || s.dictionary == null)
@@ -121,6 +169,10 @@ public class Panel : FlowState
         return screens != null ? screens.Get(selectedName) as SerializedNode : null;
     }
 
+    /// <summary>
+    /// function called when screen started enter process
+    /// </summary>
+    /// <returns></returns>
     public override void EnterStart()
     {
         base.EnterStart();
@@ -175,6 +227,10 @@ public class Panel : FlowState
         }
     }
 
+    /// <summary>
+    /// exit finalization and clearing process
+    /// </summary>
+    /// <returns></returns>
     public override void Exited()
     {
         base.Exited();
@@ -184,8 +240,13 @@ public class Panel : FlowState
         {
             GameObject.Destroy(physicalWidgetRoot);        
         }        
-    }    
+    }
 
+    /// <summary>
+    /// whenever button get clicked it would be handled here
+    /// </summary>
+    /// <param name="button">button which send this event</param>
+    /// <returns></returns>
     public virtual void OnClick(FlowButton button)
     {
         if (Outputs.Count > 0 && parentMachine != null)
@@ -202,6 +263,12 @@ public class Panel : FlowState
         }
     }
 
+    /// <summary>
+    /// function which calls exiting function and if it succeed then continues along connector
+    /// </summary>
+    /// <param name="gConect">connector to follow</param>
+    /// <param name="button">button which triggered event</param>
+    /// <returns></returns>
     public void ConnectionWithCall(GConnector gConect, FlowButton button)
     {
         if (gConect.EventFunction != null && gConect.EventFunction != "")
@@ -221,16 +288,32 @@ public class Panel : FlowState
         }
     }
 
+    /// <summary>
+    /// buttons pressed or released on this panel would send events here
+    /// </summary>
+    /// <param name="button">button which send event</param>
+    /// <param name="isDown">is it event on press down ? </param>
+    /// <returns></returns>
     public virtual void OnPress(FlowButton button, bool isDown)
     {
 
     }
 
+    /// <summary>
+    /// function allowing to back from the panel to previously visited one
+    /// </summary>
+    /// <returns></returns>
     public virtual void OnBack()
     {
         parentMachine.FollowBack();
     }
 
+    /// <summary>
+    /// function structure which helps with calling static functions from connectors
+    /// </summary>
+    /// <param name="functionName">function name to be called</param>
+    /// <param name="caller">button which have initialzied process</param>
+    /// <returns>true is indication that connection should continue</returns>
     public bool CallStaticFunction(string functionName, FlowButton caller)
     {
         MemberInfo[] info = typeof(ButtonFunctionCollection).GetMember(functionName);
@@ -251,7 +334,10 @@ public class Panel : FlowState
         return true;
     }
 
-
+    /// <summary>
+    /// checks if class have button data and at least one button. As well do the parent checks if screen type is set
+    /// </summary>
+    /// <returns></returns>
     public override bool IsValid()
     {
         GParameter gType = Parameters.Find(r => r.Key == "Type");
