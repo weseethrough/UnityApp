@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class TrainingSettings : MonoBehaviour {
@@ -30,7 +30,7 @@ public class TrainingSettings : MonoBehaviour {
 	void Start () {
 		// Set indoor mode
 		//Platform.Instance.reset();
-		Platform.Instance.setIndoor(false);
+		Platform.Instance.SetIndoor(false);
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
@@ -84,8 +84,8 @@ public class TrainingSettings : MonoBehaviour {
 				// If anything has changed
 				if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
-					Platform.Instance.reset();
-					Platform.Instance.setTargetSpeed(targSpeed);
+					Platform.Instance.Reset();
+					Platform.Instance.SetTargetSpeed(targSpeed);
 										
 					// Start countdown again
 					started = false;
@@ -106,7 +106,7 @@ public class TrainingSettings : MonoBehaviour {
 			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
 				// Open the menu and pause tracking
         		menuOpen = true;
-				Platform.Instance.stopTrack();
+				Platform.Instance.StopTrack();
 			}
 		}
 		
@@ -129,20 +129,20 @@ public class TrainingSettings : MonoBehaviour {
 		}
 		
 		if(!started) {
-			if(GUI.Button(new Rect(275, 400, 100, 100), "START") && !countdown && Platform.Instance.hasLock()) {
+			if(GUI.Button(new Rect(275, 400, 100, 100), "START") && !countdown && Platform.Instance.HasLock()) {
 				countdown = true;
 			}
 		} else {
 			if(GUI.Button(new Rect(275, 400, 100, 100), "STOP")) {
 				stopTimer = 0.0f;
 				stopped = true;
-				Platform.Instance.stopTrack();
+				Platform.Instance.StopTrack();
 			}
 		}
 		if(GUI.Button(new Rect(425, 400, 100, 100), "RESET")) {
 			countdown = false;
-			Platform.Instance.stopTrack();
-			Platform.Instance.reset();
+			Platform.Instance.StopTrack();
+			Platform.Instance.Reset();
 			countTime = 3.0f;
 			started = false;
 		}
@@ -176,7 +176,7 @@ public class TrainingSettings : MonoBehaviour {
 		
 		if(stopped && Input.touchCount > 0 && stopTimer > 0.0f) {
 			PlayerPrefs.SetInt("StartLevel", 2);
-			Platform.Instance.reset();
+			Platform.Instance.Reset();
 			AutoFade.LoadLevel(0, 1.0f, 1.0f, Color.black);
 		}
 		stopTimer += Time.deltaTime;

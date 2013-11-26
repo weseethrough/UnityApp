@@ -73,9 +73,9 @@ public class RaceGame : MonoBehaviour {
 	
 	void Start () {
 		// Set indoor mode
-		Platform.Instance.setIndoor(indoor);
-		Platform.Instance.stopTrack();
-		Platform.Instance.reset();
+		Platform.Instance.SetIndoor(indoor);
+		Platform.Instance.StopTrack();
+		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
 		
 		//UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
@@ -107,7 +107,7 @@ public class RaceGame : MonoBehaviour {
 		finish = (int)DataVault.Get("finish");
 		
 		// Set holders active status
-		setTargets();
+		SetTargets();
 //		GetComponent<GetTrack>().setActive(false);
 	}
 	
@@ -145,18 +145,18 @@ public class RaceGame : MonoBehaviour {
 		
 		if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
-			Platform.Instance.reset();
-			Platform.Instance.resetTargets();
+			Platform.Instance.Reset();
+			Platform.Instance.ResetTargets();
 					
-			setTargets();
+			SetTargets();
 					
 			
 			
 			if(!trackSelected) {
-				Platform.Instance.setTargetSpeed(targSpeed);
+				Platform.Instance.SetTargetSpeed(targSpeed);
 			}
 					
-			Platform.Instance.setIndoor(indoor);
+			Platform.Instance.SetIndoor(indoor);
 				
 			// Start countdown again
 			started = false;
@@ -226,7 +226,7 @@ public class RaceGame : MonoBehaviour {
 		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);
 		
-		double targetDistance = Platform.Instance.getHighestDistBehind()-offset;
+		double targetDistance = Platform.Instance.GetHighestDistBehind()-offset;
 		
 		if (targetDistance > 0) {
 			DataVault.Set("ahead_header", "Behind!");
@@ -249,7 +249,7 @@ public class RaceGame : MonoBehaviour {
 		}
 		
 		// If there is a GPS lock or indoor mode is active
-		if(Platform.Instance.hasLock() || indoor)
+		if(Platform.Instance.HasLock() || indoor)
 		{
 			// Initiate the countdown
 			countdown = true;
@@ -272,9 +272,9 @@ public class RaceGame : MonoBehaviour {
 		
 		if(Platform.Instance.Distance() / 1000 >= finish)
 		{
-			Platform.Instance.stopTrack();
+			Platform.Instance.StopTrack();
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
-			FlowState fs = FlowStateMachine.GetCurentFlowState();
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 			if(gConect != null) {
 			fs.parentMachine.FollowConnection(gConect);
@@ -300,7 +300,7 @@ public class RaceGame : MonoBehaviour {
 		return final+postfix;
 	}
 	
-	long speedToKmPace(float speed) {
+	long SpeedToKmPace(float speed) {
 		if (speed <= 0) {
 			return 0;
 		}
@@ -320,7 +320,7 @@ public class RaceGame : MonoBehaviour {
 	}
 	
 	// Set the targets based on the enums
-	void setTargets() {
+	void SetTargets() {
 		cyclistHolder.SetActive(false);
 		runnerHolder.SetActive(false);
 				
@@ -341,14 +341,14 @@ public class RaceGame : MonoBehaviour {
 	private void GetMap(Position selfCoords, double bearing, Position targetCoords) {
 		Position direction = new Position(selfCoords.latitude + (float)(Math.Cos(bearing)*1000/111229d), 
 		                                  selfCoords.longitude + (float)(Math.Sin(bearing)*1000/111229d));	
-		double pixelBearing = Angle(mercatorToPixel(selfCoords), mercatorToPixel(direction));	
+		double pixelBearing = Angle(MercatorToPixel(selfCoords), MercatorToPixel(direction));	
 //		UnityEngine.Debug.Log("Map: pixel bearing calculated");
 		bearing = pixelBearing;
 		
 		// Get a static map with a radius of mapAtlasRadius, cache and re-get if viewport within margin of the border
 		const int margin = 15;	
 		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
-		Vector2 drift = mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords);
+		Vector2 drift = MercatorToPixel(mapOrigo) - MercatorToPixel(selfCoords);
 //		UnityEngine.Debug.Log("Map: drift calculated");
 //		Debug.Log("drift: " + drift.magnitude + " .." + drift);
 		if (mapWWW == null && (mapTexture == null || drift.magnitude >= maxdrift)) {
@@ -372,7 +372,7 @@ public class RaceGame : MonoBehaviour {
 		}
 		
 		// Map self coordinates into map atlas, normalize to atlas size and shift to center
-		Vector2 mapNormalSelf = (mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
+		Vector2 mapNormalSelf = (MercatorToPixel(mapOrigo) - MercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
 		mapNormalSelf.x += 0.5f;
 		mapNormalSelf.y += 0.5f;
 		float normalizedRadius = (float)MAP_RADIUS/(mapAtlasRadius*2);
@@ -413,7 +413,7 @@ public class RaceGame : MonoBehaviour {
 		//GUI.color = original;
 	}
 	
-	Vector2 mercatorToPixel(Position mercator) {
+	Vector2 MercatorToPixel(Position mercator) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
 		
@@ -433,7 +433,7 @@ public class RaceGame : MonoBehaviour {
 		return world * scale;
 	}
 	
-	Position pixelToMercator(Vector2 pixel) {
+	Position PixelToMercator(Vector2 pixel) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
 		

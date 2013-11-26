@@ -47,6 +47,14 @@ public class DynamicHexList : MonoBehaviour
             }
         }
 
+<<<<<<< HEAD
+//        if (!SensorHelper.gotFirstValue)
+//        {
+//            SensorHelper.ActivateRotation();
+//        }
+
+=======
+>>>>>>> 064817d025abe11e655b2e344d632df2f6ba08ef
         if (guiCamera != null)
         {
             cameraPosition = guiCamera.transform.position;
@@ -91,15 +99,9 @@ public class DynamicHexList : MonoBehaviour
     
     private Quaternion ConvertOrientation(Quaternion q,out float height)
     {
-        Debug.Log(q.eulerAngles.x + "/" + q.eulerAngles.y + "/"+q.eulerAngles.z +"/");
         //we stop pitch for the sake of height
-<<<<<<< HEAD
         height = q.eulerAngles.x;
         return q;
-=======
-        height = -q.eulerAngles.y;
-        return Quaternion.Euler( q.eulerAngles.x, 0, q.eulerAngles.z);// -q.eulerAngles.y);
->>>>>>> HexMenu
     }
 
     //height is a result of the pitch calculation so it should be between 0 and 360

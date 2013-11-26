@@ -50,19 +50,19 @@ public class SettingsPanel : Panel {
 				handler = new Platform.OnAuthenticated((authenticated) => {
 //					Debug.Log("SettingsPanel: ServerButton authenticated");
 					if (authenticated) {
-						Platform.Instance.syncToServer();
+						Platform.Instance.SyncToServer();
 						parentMachine.FollowConnection(gConect);
 					}
 					Platform.Instance.onAuthenticated -= handler;
 				});
 				Platform.Instance.onAuthenticated += handler;	
 				// Trigger authentication
-				Platform.Instance.authorize("any", "login");				
+				Platform.Instance.Authorize("any", "login");				
 //				Debug.Log("SettingsPanel: ServerButton run");
 				break;
 				
 			case "GetTrackButton":
-				Platform.Instance.getTracks();
+				Platform.Instance.GetTracks();
 				GameObject.Find("TrackSelect").renderer.enabled = true;
 				break;
 				

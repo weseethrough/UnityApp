@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class ZombieAnimation : MonoBehaviour {
@@ -11,7 +11,7 @@ public class ZombieAnimation : MonoBehaviour {
 		anim = GetComponent<Animator>();
 		//UnityEngine.Debug.Log("Zombie: getting speed");
 		
-		speed = Platform.Instance.getCurrentSpeed(0);
+		speed = Platform.Instance.GetCurrentSpeed(0);
 		//UnityEngine.Debug.Log("Zombie: setting anim float");
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f) {
@@ -25,7 +25,7 @@ public class ZombieAnimation : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		Platform.Instance.Poll();
-		float newSpeed = Platform.Instance.getCurrentSpeed(0);
+		float newSpeed = Platform.Instance.GetCurrentSpeed(0);
 		if(newSpeed != speed)
 		{
 			speed = newSpeed;

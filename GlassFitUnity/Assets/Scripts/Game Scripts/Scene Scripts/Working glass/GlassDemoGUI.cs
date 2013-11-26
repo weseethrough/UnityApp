@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 
@@ -83,7 +83,7 @@ public class GlassDemoGUI : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{		
-		if(started && countTime > -1.0f && Platform.Instance.hasLock())
+		if(started && countTime > -1.0f && Platform.Instance.HasLock())
 		{
 			countTime -= Time.deltaTime;
 		}
@@ -92,11 +92,11 @@ public class GlassDemoGUI : MonoBehaviour {
 		{
 			if(countTime < 0.0f)
 			{
-				Platform.Instance.reset();
+				Platform.Instance.Reset();
 				Application.LoadLevel(Application.loadedLevel);
 			} else
 			{
-				Platform.Instance.reset();
+				Platform.Instance.Reset();
 				Application.LoadLevel(0);
 			}
 		}
@@ -127,7 +127,7 @@ public class GlassDemoGUI : MonoBehaviour {
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		
-		if(!Platform.Instance.hasLock())
+		if(!Platform.Instance.HasLock())
 		{
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
@@ -162,7 +162,7 @@ public class GlassDemoGUI : MonoBehaviour {
 		return final+postfix;
 	}
 	
-	float speedToMilesPace(float speed) {
+	float SpeedToMilesPace(float speed) {
 		if (speed <= 0) {
 			return 0;
 		}

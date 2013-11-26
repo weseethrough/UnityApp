@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class BoulderController : TargetController {
@@ -7,14 +7,14 @@ public class BoulderController : TargetController {
 	
 	// Use this for initialization
 	void Start () {
-		setAttribs(50f, 135f, 420f, 0f);
+		SetAttribs(50f, 135f, 420f, 0f);
 		yRot = 0;
 	}
 	
 	void OnEnable() 
 	{
 		base.OnEnable();
-		setAttribs(50f, 135f, 420f, 0f);		
+		SetAttribs(50f, 135f, 420f, 0f);		
 	}
 	
 	// Update is called once per frame

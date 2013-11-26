@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class DemoController : TargetController {
@@ -10,29 +10,29 @@ public class DemoController : TargetController {
 	// Use this for initialization
 	void Start () {
 		//target = Platform.Instance.getTargetTracker();
-		base.setAttribs(0, 135, -254.6f, 50);
+		base.SetAttribs(0, 135, -254.6f, 50);
 		anim = GetComponent<Animator>();
 		
 	}
 	
 	void OnEnable() {
 		//base.OnEnable();
-		base.setAttribs(0, 135, -254.6f, 50);
+		base.SetAttribs(0, 135, -254.6f, 50);
 	}
 	
 	void Update () {
 				
 		if(!started) {
 			started = true;
-			Platform.Instance.resetTargets();
-			target = Platform.Instance.getTargetTracker();
-			anim.speed = target.getCurrentSpeed() / 2.2f;
-			speed = target.getCurrentSpeed();
+			Platform.Instance.ResetTargets();
+			target = Platform.Instance.GetTargetTracker();
+			anim.speed = target.GetCurrentSpeed() / 2.2f;
+			speed = target.GetCurrentSpeed();
 			anim.SetFloat("Speed", speed);
 		}
 		
 		base.Update();
-		float newSpeed = target.getCurrentSpeed();
+		float newSpeed = target.GetCurrentSpeed();
 		if(speed != newSpeed)
 		{
 			speed = newSpeed;

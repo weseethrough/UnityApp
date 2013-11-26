@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -39,14 +39,14 @@ public class TrackSelect : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		trackList = Platform.Instance.getTracks();
+		trackList = Platform.Instance.GetTracks();
 	}
 	
-	public bool isChanged() {
+	public bool IsChanged() {
 		return changed;
 	}
 	
-	public void setChanged(bool c) {
+	public void SetChanged(bool c) {
 		changed = c;
 	}
 	
@@ -250,7 +250,7 @@ public class TrackSelect : MonoBehaviour {
 	}
 	
 	public void GetTracks() {
-		Platform.Instance.getTracks();
+		Platform.Instance.GetTracks();
 		//curTrackPositions = Platform.Instance.getTrackPositions();
 		started = true;
 		mapChanged = true;
@@ -316,7 +316,7 @@ public class TrackSelect : MonoBehaviour {
 		
 	}
 	
-	Vector2 mercatorToPixel(Position mercator) {
+	Vector2 MercatorToPixel(Position mercator) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		Vector2 mapScale = scale * (int)Math.Pow(2, mapZoom);
 		

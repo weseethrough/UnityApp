@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class SoundController : MonoBehaviour {
@@ -21,8 +21,8 @@ public class SoundController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		stevies = GetComponents<AudioSource>();
-		Platform.Instance.setIndoor(true);
-		Platform.Instance.setTargetSpeed(1.5f);
+		Platform.Instance.SetIndoor(true);
+		Platform.Instance.SetTargetSpeed(1.5f);
 		//Platform.Instance.StartTrack(true);
 		scale.x = (float)Screen.width/originalWidth;
 		scale.y = (float)Screen.height/originalHeight;
@@ -37,9 +37,9 @@ public class SoundController : MonoBehaviour {
 			{
 				indoor = false;
 				indoorText = "Outdoor Active";
-				Platform.Instance.stopTrack();
-				Platform.Instance.reset();
-				Platform.Instance.setIndoor(indoor);
+				Platform.Instance.StopTrack();
+				Platform.Instance.Reset();
+				Platform.Instance.SetIndoor(indoor);
 				//Platform.Instance.StartTrack(indoor);
 				score = 0;
 				mult = 1;
@@ -57,9 +57,9 @@ public class SoundController : MonoBehaviour {
 			{
 				indoor = true;
 				indoorText = "Indoor Active";
-				Platform.Instance.stopTrack();
-				Platform.Instance.reset();
-				Platform.Instance.setIndoor(indoor);
+				Platform.Instance.StopTrack();
+				Platform.Instance.Reset();
+				Platform.Instance.SetIndoor(indoor);
 				//Platform.Instance.StartTrack(indoor);
 				score = 0;
 				mult = 1;
@@ -95,7 +95,7 @@ public class SoundController : MonoBehaviour {
 		
 		Platform.Instance.Poll();
 		
-		if(Platform.Instance.hasLock() || indoor)
+		if(Platform.Instance.HasLock() || indoor)
 		{
 			countdown = true;
 		 	if(countTime <= -1.0f && !started)

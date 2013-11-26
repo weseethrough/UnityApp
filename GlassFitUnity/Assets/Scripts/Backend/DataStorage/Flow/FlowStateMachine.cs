@@ -48,7 +48,7 @@ public class FlowStateMachine : MonoBehaviour
 	/// static function allowing to take current flow state if one exists. Might be useful for some arbitrary calls in static locations which needs to know what panel is currently on or force navigation in/out
 	/// </summary>
 	/// <returns>returns current active flow state</returns>
-	static public FlowState GetCurentFlowState()
+	static public FlowState GetCurrentFlowState()
     {
         FlowStateMachine fsm = GameObject.FindObjectOfType(typeof(FlowStateMachine)) as FlowStateMachine;
         if (fsm == null) return null;
@@ -249,5 +249,5 @@ public class FlowStateMachine : MonoBehaviour
         }
         return true;
     }
-    
+
 }

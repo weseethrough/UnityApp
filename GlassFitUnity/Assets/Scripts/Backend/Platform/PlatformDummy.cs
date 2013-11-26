@@ -35,24 +35,24 @@ public class PlatformDummy {
 		throw new NotImplementedException();
 	}
 	
-	public Boolean hasLock() {
+	public Boolean HasLock() {
 		return true;
 	}
 	
-	public void stopTrack() {
+	public void StopTrack() {
 		throw new NotImplementedException();
 	}
 	
-	public void reset() {
+	public void Reset() {
 		throw new NotImplementedException();
 	}
 	
-	public void setTargetSpeed(float speed)
+	public void SetTargetSpeed(float speed)
 	{
 		throw new NotImplementedException();
 	}
 	
-	public void setTargetTrack(int trackID)
+	public void SetTargetTrack(int trackID)
 	{
 		throw new NotImplementedException();
 	}

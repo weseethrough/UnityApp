@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class distanceMarker : MonoBehaviour {
+public class DistanceMarker : MonoBehaviour {
 	
 	private int target = 50;
 	

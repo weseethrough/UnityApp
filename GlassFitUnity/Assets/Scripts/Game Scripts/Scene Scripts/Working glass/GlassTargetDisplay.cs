@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 
@@ -90,7 +90,7 @@ private const int MAP_RADIUS = 100;
 		// Target Distance
 		GUIStyle targetStyle = new GUIStyle(GUI.skin.box);
 				
-		double targetDistance = Platform.Instance.getHighestDistBehind()-offset;
+		double targetDistance = Platform.Instance.GetHighestDistBehind()-offset;
 		if (targetDistance > 0) {
 			targetStyle.normal.background = warning; 
 			targetText = "Behind!\n";
@@ -135,14 +135,14 @@ private const int MAP_RADIUS = 100;
 	private void GUIMap(Position selfCoords, double bearing, Position targetCoords) {
 		Position direction = new Position(selfCoords.latitude + (float)(Math.Cos(bearing)*1000/111229d), 
 		                                  selfCoords.longitude + (float)(Math.Sin(bearing)*1000/111229d));	
-		double pixelBearing = Angle(mercatorToPixel(selfCoords), mercatorToPixel(direction));	
+		double pixelBearing = Angle(MercatorToPixel(selfCoords), MercatorToPixel(direction));	
 //		UnityEngine.Debug.Log("Map: pixel bearing calculated");
 		bearing = pixelBearing;
 		
 		// Get a static map with a radius of mapAtlasRadius, cache and re-get if viewport within margin of the border
 		const int margin = 15;	
 		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
-		Vector2 drift = mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords);
+		Vector2 drift = MercatorToPixel(mapOrigo) - MercatorToPixel(selfCoords);
 //		UnityEngine.Debug.Log("Map: drift calculated");
 //		Debug.Log("drift: " + drift.magnitude + " .." + drift);
 		if (mapWWW == null && (mapTexture == null || drift.magnitude >= maxdrift)) {
@@ -172,7 +172,7 @@ private const int MAP_RADIUS = 100;
 		GUI.color = new Color(1f, 1f, 1f, OPACITY);
 		
 		// Map self coordinates into map atlas, normalize to atlas size and shift to center
-		Vector2 mapNormalSelf = (mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
+		Vector2 mapNormalSelf = (MercatorToPixel(mapOrigo) - MercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
 		mapNormalSelf.x += 0.5f;
 		mapNormalSelf.y += 0.5f;
 		float normalizedRadius = (float)MAP_RADIUS/(mapAtlasRadius*2);
@@ -194,7 +194,7 @@ private const int MAP_RADIUS = 100;
 		mapSelf.y = mapCenter.y - mapSelf.height/2;
 		GUI.DrawTexture(mapSelf, selfIcon);
 		// Target is relative to self and limited to map radius
-		Vector2 localTarget = mercatorToPixel(selfCoords) - mercatorToPixel(targetCoords);
+		Vector2 localTarget = MercatorToPixel(selfCoords) - MercatorToPixel(targetCoords);
 		if (localTarget.magnitude > MAP_RADIUS) {
 			localTarget.Normalize();
 			localTarget *= MAP_RADIUS;
@@ -212,7 +212,7 @@ private const int MAP_RADIUS = 100;
 		GUI.color = original;
 	}
 	
-	Vector2 mercatorToPixel(Position mercator) {
+	Vector2 MercatorToPixel(Position mercator) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
 		
@@ -232,7 +232,7 @@ private const int MAP_RADIUS = 100;
 		return world * scale;
 	}
 	
-	Position pixelToMercator(Vector2 pixel) {
+	Position PixelToMercator(Vector2 pixel) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
 		
@@ -263,7 +263,7 @@ private const int MAP_RADIUS = 100;
 	    return result*Math.PI/180;
 	}
 	
-	public void setOffset(float off) {
+	public void SetOffset(float off) {
 		offset = off;
 	}
 	

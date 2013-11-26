@@ -170,7 +170,7 @@ public class ButtonFunctionCollection
 	
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
-		Platform.Instance.reset();
+		Platform.Instance.Reset();
 		
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
 		return true;
@@ -207,7 +207,7 @@ public class ButtonFunctionCollection
 			}}
 		}}", friendId).Replace("'", "\""));		
 		Debug.Log ("Challenge: " + friendId + " challenged");
-		Platform.Instance.syncToServer();
+		Platform.Instance.SyncToServer();
 		
 		return true;
 	}

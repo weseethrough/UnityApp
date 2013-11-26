@@ -12,7 +12,7 @@ public class Position {
 		this.longitude = longitude;
 	}
 	
-	public Vector3 toXYZ() {
+	public Vector3 ToXYZ() {
 		float x = latitude * degreesToMetres;
 		float y = 0f; //height
 		float z = longitude * degreesToMetres * (float)Math.Cos (latitude);

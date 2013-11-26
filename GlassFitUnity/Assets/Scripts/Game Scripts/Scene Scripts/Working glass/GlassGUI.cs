@@ -241,7 +241,7 @@ public class GlassGUI : MonoBehaviour {
 		// Calories
 		GUI.Box(calories, caloriesText + Platform.Instance.Calories());		
 		// Pace
-		GUI.Box(pace, paceText+TimestampMMSS(speedToKmPace( Platform.Instance.Pace() )) );
+		GUI.Box(pace, paceText+TimestampMMSS(SpeedToKmPace( Platform.Instance.Pace() )) );
 		
 		// Draw minimap
 		Position position = Platform.Instance.Position();
@@ -311,13 +311,13 @@ public class GlassGUI : MonoBehaviour {
 	private void GUIMap(Position selfCoords, double bearing, Position targetCoords) {
 		Position direction = new Position(selfCoords.latitude + (float)(Math.Cos(bearing)*1000/111229d), 
 		                                  selfCoords.longitude + (float)(Math.Sin(bearing)*1000/111229d));	
-		double pixelBearing = Angle(mercatorToPixel(selfCoords), mercatorToPixel(direction));	
+		double pixelBearing = Angle(MercatorToPixel(selfCoords), MercatorToPixel(direction));	
 		bearing = pixelBearing;
 		
 		// Get a static map with a radius of mapAtlasRadius, cache and re-get if viewport within margin of the border
 		const int margin = 15;	
 		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
-		Vector2 drift = mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords);
+		Vector2 drift = MercatorToPixel(mapOrigo) - MercatorToPixel(selfCoords);
 //		Debug.Log("drift: " + drift.magnitude + " .." + drift);
 		if (mapWWW == null && (mapTexture == null || drift.magnitude >= maxdrift)) {
 			FetchMapTexture(selfCoords);
@@ -343,7 +343,7 @@ public class GlassGUI : MonoBehaviour {
 		GUI.color = new Color(1f, 1f, 1f, OPACITY);
 		
 		// Map self coordinates into map atlas, normalize to atlas size and shift to center
-		Vector2 mapNormalSelf = (mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
+		Vector2 mapNormalSelf = (MercatorToPixel(mapOrigo) - MercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
 		mapNormalSelf.x += 0.5f;
 		mapNormalSelf.y += 0.5f;
 		float normalizedRadius = (float)MAP_RADIUS/(mapAtlasRadius*2);
@@ -365,7 +365,7 @@ public class GlassGUI : MonoBehaviour {
 		mapSelf.y = mapCenter.y - mapSelf.height/2;
 		GUI.DrawTexture(mapSelf, selfIcon);
 		// Target is relative to self and limited to map radius
-		Vector2 localTarget = mercatorToPixel(selfCoords) - mercatorToPixel(targetCoords);
+		Vector2 localTarget = MercatorToPixel(selfCoords) - MercatorToPixel(targetCoords);
 		if (localTarget.magnitude > MAP_RADIUS) {
 			localTarget.Normalize();
 			localTarget *= MAP_RADIUS;
@@ -398,7 +398,7 @@ public class GlassGUI : MonoBehaviour {
 		return final+postfix;
 	}
 	
-	long speedToKmPace(float speed) {
+	long SpeedToKmPace(float speed) {
 		if (speed <= 0) {
 			return 0;
 		}
@@ -417,7 +417,7 @@ public class GlassGUI : MonoBehaviour {
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}
 	
-	Vector2 mercatorToPixel(Position mercator) {
+	Vector2 MercatorToPixel(Position mercator) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
 		
@@ -437,7 +437,7 @@ public class GlassGUI : MonoBehaviour {
 		return world * scale;
 	}
 	
-	Position pixelToMercator(Vector2 pixel) {
+	Position PixelToMercator(Vector2 pixel) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
 		

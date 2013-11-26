@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -15,7 +15,7 @@ public class TrainController : TargetController {
 	// Use this for initialization
 	void Start () {
 		base.Start();
-		setAttribs(50, 135, -300, 103.8f);
+		SetAttribs(50, 135, -300, 103.8f);
 		//target = Platform.Instance.getTargetTracker();
 		
 		var aSources = GetComponents<AudioSource>();
@@ -27,7 +27,7 @@ public class TrainController : TargetController {
 	void OnEnable() {
 		//transform.position = new Vector3(103.8f, -300, -50);
 		base.OnEnable();
-		setAttribs(50, 135, -300, 103.8f);
+		SetAttribs(50, 135, -300, 103.8f);
 		UnityEngine.Debug.Log("Train: Enable function called");
 	}
 	
