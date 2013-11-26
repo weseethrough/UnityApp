@@ -40,7 +40,7 @@ public class DynamicHexList : MonoBehaviour
         foreach (Camera c in camList)
         {
             UICamera uicam = c.GetComponent<UICamera>();
-            if (uicam != null && c.gameObject.layer == LayerMask.NameToLayer("GUI"))
+            if (uicam != null && c.gameObject.layer == LayerMask.NameToLayer(HexPanel.CAMERA_3D_LAYER))
             {
                 guiCamera = uicam;
                 break;
@@ -91,9 +91,9 @@ public class DynamicHexList : MonoBehaviour
 #if !UNITY_EDITOR 
         Platform.Instance.resetGyro();
         cameraDefaultRotation = ConvertOrientation(Platform.Instance.getOrientation(), out heightDefaultOffset);
-#endif
+#endif        
     }
-
+    
     private Quaternion ConvertOrientation(Quaternion q,out float height)
     {
         //we stop pitch for the sake of height
@@ -101,7 +101,7 @@ public class DynamicHexList : MonoBehaviour
         return q;
     }
 
-    //height is a result of the pich calculation so it should be between 0 and 360
+    //height is a result of the pitch calculation so it should be between 0 and 360
     private float HeightToPositionValue(float height)
     {
         while(height < 0)
@@ -169,7 +169,7 @@ public class DynamicHexList : MonoBehaviour
             }*/
             Vector3 forward = guiCamera.transform.forward;
 
-            RaycastHit[] hits = Physics.RaycastAll(guiCamera.transform.position, forward, 5.0f);// ,LayerMask.NameToLayer("GUI"));
+            RaycastHit[] hits = Physics.RaycastAll(guiCamera.transform.position, forward, 5.0f);// ,LayerMask.NameToLayer(HexPanel.CAMERA_3D_LAYER));
 
             bool selectionStillActive = false;
             UIImageButton newSelection = null;
