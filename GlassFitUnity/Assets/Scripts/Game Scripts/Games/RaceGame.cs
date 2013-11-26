@@ -108,7 +108,6 @@ public class RaceGame : MonoBehaviour {
 		
 		// Set holders active status
 		SetTargets();
-//		GetComponent<GetTrack>().setActive(false);
 	}
 	
 	public void SetTarget(Targets targ) {
@@ -274,6 +273,8 @@ public class RaceGame : MonoBehaviour {
 		{
 			Platform.Instance.StopTrack();
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+			GameObject h = GameObject.Find("minimap");
+			h.renderer.enabled = false;
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 			if(gConect != null) {

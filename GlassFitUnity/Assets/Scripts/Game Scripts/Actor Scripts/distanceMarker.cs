@@ -3,19 +3,13 @@ using System.Collections;
 
 public class DistanceMarker : MonoBehaviour {
 	
-	private int target = 50;
-	
-	//GameObjects for each marker
-	public GameObject fiftyMarker;
-	public GameObject fiftyMarker2;
+	private int target = 500;
 	
 	// 3DText boxes 
-	public GameObject text1;
-	public GameObject text2;
+	public GameObject textObject;
 	
 	// Text Meshes for 3D Text
-	private TextMesh t1;
-	private TextMesh t2;
+	private TextMesh textMesh;
 
 	// Boxes to check distance
 	private double distance;
@@ -23,41 +17,45 @@ public class DistanceMarker : MonoBehaviour {
 	void Start () 
 	{	
 		// Get initial components
-		t1 = text1.GetComponent<TextMesh>();
-		t2 = text2.GetComponent<TextMesh>();
-	}
-	
-	void ResetMarkers()
-	{
-		// Resets markers out of camera's view
-		fiftyMarker.transform.position = new Vector3(0, 0, 500000);
-		fiftyMarker2.transform.position = new Vector3(0, 0, 500000);
+		textMesh = textObject.GetComponent<TextMesh>();
 	}
 	
 	void Update () 
 	{
-		// Poll platform and set the new distance
-		Platform.Instance.Poll();
 		distance = Platform.Instance.Distance();
 		
 		// Reset markers
-		ResetMarkers();
+		transform.position = new Vector3(0, 0, 500000);
 		
 		// If markers within range, set new position
-		if(distance > target - 20 && distance < target + 20)
+		if(distance > target - 50 && distance < target + 50)
 		{
 			double deltDist = target - distance;
-			deltDist *= 6.666f;
-			fiftyMarker.transform.position = new Vector3(15, 0, (float)deltDist);
-			fiftyMarker2.transform.position = new Vector3(-15, 0, (float)deltDist);
+			deltDist *= 135f;
+			transform.position = new Vector3(-582, -109, (float)deltDist);
 		}
 		
 		// If current distance is higher than target set the new text
-		if(distance > target + 20) 
+		if(distance > target + 50) 
 		{
 			target +=500;
-			t1.text = target.ToString() + "m";
-			t2.text = target.ToString() + "m";
+			textMesh.text = SiDistance(target);
 		}
+	}
+	
+	string SiDistance(double meters) {
+		string postfix = "m";
+		string final;
+		float value = (float)meters;
+		if (value > 1000) {
+			value = value/1000;
+			postfix = "km";
+			final = value.ToString("f1");
+		}
+		else
+		{
+			final = value.ToString("f0");
+		}
+		return final+postfix;
 	}
 }
