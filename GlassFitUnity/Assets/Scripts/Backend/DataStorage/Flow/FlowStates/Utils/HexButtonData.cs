@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
+/// <summary>
+/// serializable data for dynamic hex list
+/// </summary>
 [Serializable]
 public class HexButtonData : ISerializable 
 {
@@ -13,7 +16,18 @@ public class HexButtonData : ISerializable
     public int column = 0;
     public int row = 0;
 
+    /// <summary>
+    /// default constructor
+    /// </summary>
+    /// <returns></returns>
     public HexButtonData() { }
+
+    /// <summary>
+    /// deserialziation constructor
+    /// </summary>
+    /// <param name="info">seirilization info conataining class data</param>
+    /// <param name="ctxt">serialization context </param>
+    /// <returns></returns>
     public HexButtonData(SerializationInfo info, StreamingContext ctxt)         
     {
         foreach (SerializationEntry entry in info)
@@ -40,6 +54,12 @@ public class HexButtonData : ISerializable
         }
     }
 
+    /// <summary>
+    /// serialization function called by serializer
+    /// </summary>
+    /// <param name="info">serialziation info where all data would be pushed to</param>
+    /// <param name="ctxt">serialzation context</param>
+    /// <returns></returns>
     public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
     {
         info.AddValue("imageName", this.imageName);

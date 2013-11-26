@@ -1,10 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// component designed to be base structure for distance activities 
+/// </summary>
 public class DistanceRun : MonoBehaviour 
 {
     /// <summary>
-    /// Time specified in miliseconds
+    /// Time specified in milliseconds
     /// </summary>
     public double targetTimeMS;
     /// <summary>

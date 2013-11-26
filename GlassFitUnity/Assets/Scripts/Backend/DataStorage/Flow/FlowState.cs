@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
+/// <summary>
+/// single generic state of the flow
+/// </summary>
 public abstract class FlowState : GNode
 {
     public enum State
@@ -40,18 +43,34 @@ public abstract class FlowState : GNode
         set { m_parent = value; }
     }
 
+    /// <summary>
+    /// default constructor
+    /// </summary>
     public FlowState() : base() { }
 
+    /// <summary>
+    /// deserialziation constructor
+    /// </summary>
+    /// <param name="info">seirilization info conataining class data</param>
+    /// <param name="ctxt">serialization context </param>
+    /// <returns></returns>
     public FlowState(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt)
 	{
     }
 
+    /// <summary>
+    /// serialization function called by serializer
+    /// </summary>
+    /// <param name="info">serialziation info where all data would be pushed to</param>
+    /// <param name="ctxt">serialzation context</param>
+    /// <returns></returns>
     public override void GetObjectData(SerializationInfo info, StreamingContext ctxt)
    	{
         base.GetObjectData(info, ctxt);
    	}
 
 
+    //collection of virtual functions for different states of the panel flow
     virtual public void EnterStart() { m_state = State.Entering; Debug.Log("Enter state: " + this.ToString()); }
     virtual public bool EnterUpdate() { return true; }
     virtual public void Entered() { m_state = State.Idle; Debug.Log("Entered state: " + this.ToString()); }
@@ -62,6 +81,11 @@ public abstract class FlowState : GNode
     virtual public bool ExitUpdate() { return true; }
     virtual public void Exited() { m_state = State.Dead; Debug.Log("Exited state: " + this.ToString()); }   
 
+    /// <summary>
+    /// default draw function for draw on graph viewer
+    /// </summary>
+    /// <param name="r">space to draw node in</param>
+    /// <returns></returns>
     public override void OnDraw(Rect r)
     {
         if (IsEvaluated)
@@ -80,12 +104,13 @@ public abstract class FlowState : GNode
         }
     }
     
+    /// <summary>
+    /// default initialization settings
+    /// </summary>
+    /// <returns></returns>
     protected override void Initialize()
     {
         Size = new Vector2(160, 80);
-        //NewInput("A", "Vector3");
-        //NewInput("B", "Vector3");
-        //NewOutput("Result", "Vector3");
     }
 
 }
