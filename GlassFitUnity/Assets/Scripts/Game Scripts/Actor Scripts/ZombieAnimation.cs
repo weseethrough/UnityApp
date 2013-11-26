@@ -1,33 +1,47 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Controls the animations for the zombie
+/// </summary>
 public class ZombieAnimation : MonoBehaviour {
+	
+	// Animation speed.
 	private float speed;
+	
+	// Animator for the zombie.
 	private Animator anim;
 	
-	// Use this for initialization
+	/// <summary>
+	/// Get components and set the speed
+	/// </summary>
 	void Start () {
-		//UnityEngine.Debug.Log("Zombie: getting animator");
+		// Get the animator.
 		anim = GetComponent<Animator>();
-		//UnityEngine.Debug.Log("Zombie: getting speed");
 		
+		// Get the speed of the target.
 		speed = Platform.Instance.GetCurrentSpeed(0);
-		//UnityEngine.Debug.Log("Zombie: setting anim float");
+		
+		// Set the animation speed based on the target speed and scale the value.
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f) {
 				anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2.5f);
 			} else {
 				anim.speed = speed / 1.25f;
 		}
-		//UnityEngine.Debug.Log("Zombie: start ok!");
 	}
 	
-	// Update is called once per frame
+	/// <summary>
+	/// Update this instance. Updates animation speed
+	/// </summary>
 	void Update () {
-		Platform.Instance.Poll();
+		// Get the speed of the target.
 		float newSpeed = Platform.Instance.GetCurrentSpeed(0);
+		
+		// If the speed has changed.
 		if(newSpeed != speed)
 		{
+			// Set the new speed and animation speed.
 			speed = newSpeed;
 			anim.SetFloat("Speed", speed);
 			if(speed > 2.2f) {

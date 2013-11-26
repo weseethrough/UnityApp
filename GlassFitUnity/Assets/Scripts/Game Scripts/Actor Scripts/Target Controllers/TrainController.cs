@@ -4,49 +4,34 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 
+/// <summary>
+/// Controls the position of the train
+/// </summary>
 public class TrainController : TargetController {
 	
-	private float whistleTime = 0.0f;
-//	private double scaledDistance;
-	private AudioSource trainMove;
-	private AudioSource trainWhistle;
-//	private TargetTracker target;
-	
-	// Use this for initialization
+	/// <summary>
+	/// Start this instance. Sets the attributes
+	/// </summary>
 	void Start () {
+		// Set the base and initial attributes.
 		base.Start();
 		SetAttribs(50, 135, -300, 103.8f);
-		//target = Platform.Instance.getTargetTracker();
-		
-		var aSources = GetComponents<AudioSource>();
-		trainMove = aSources[0];
-		trainWhistle = aSources[1];
-		//trainMove.Play();
 	}
 	
+	/// <summary>
+	/// Raises the enable event. Sets the attributes
+	/// </summary>
 	void OnEnable() {
-		//transform.position = new Vector3(103.8f, -300, -50);
+		// Enable the base and set the attributes.
 		base.OnEnable();
 		SetAttribs(50, 135, -300, 103.8f);
-		UnityEngine.Debug.Log("Train: Enable function called");
 	}
 	
-	// Update is called once per frame
+	/// <summary>
+	/// Update this instance.
+	/// </summary>
 	void Update () {
+		// Update the base
 		base.Update();
-		whistleTime += Time.deltaTime;
-		
-		if(whistleTime >= 10.0f)
-		{
-			//trainWhistle.Play();
-			whistleTime -= 10.0f;
-		}
-		
-		//Platform.Instance.Poll();
-	
-		//scaledDistance = (target.getTargetDistance() - 50) * 135;
-
-		//Vector3 movement = new Vector3(103.8f,-300,(float)scaledDistance);
-		//transform.position = movement;
 	}
 }

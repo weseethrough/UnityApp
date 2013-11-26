@@ -4,39 +4,47 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 
+/// <summary>
+/// GUI display for the Glass. Needs to be converted to nGUI
+/// </summary>
 public class GlassGUI : MonoBehaviour {
-
+	
+	// Width and height of the display boxes.
 	private const int BOX_WIDTH = 200;
 	private const int BOX_HEIGHT = 100;
+	
+	// Radius of the minimap.
 	private const int MAP_RADIUS = 100;
+	
+	// Countdown and started variables.
 	public bool countdown = false;
+	private float countTime = 3.99f;
 	public bool started = false;
-	public GameObject platform;
+	
+	// Margin and Submargin to pad the boxes.
 	private const int MARGIN = 15;
 	private const int SUBMARGIN = 5;
 	
-	private float countTime = 3.99f;
-	private Stopwatch timer;
-	
+	// Opacity of the boxes.
 	private const float OPACITY = 0.5f;
-	private float timeFromStart = 0;
 	
-	// Left side top
+	// Left side top boxes
 	private Rect target;	
 	private string targetText;
-	// Left side bottom
+	
+	// Left side bottom boxes
 	private Rect distance;
 	private string distanceText;
 	private Rect time;
 	private string timeText;
 	
-	// Right side top
+	// Right side top boxes
 	private Rect calories;
 	private string caloriesText;
 	private Rect pace;
 	private string paceText;
 	
-	// Right side bottom
+	// Right side bottom boxes
 	private Rect map;
 	private Rect mapSelf;
 	private Rect mapTarget;
@@ -78,8 +86,9 @@ public class GlassGUI : MonoBehaviour {
 	WWW mapWWW = null;
 	Position fetchOrigo = new Position(0, 0);
 	
-	
-	
+	/// <summary>
+	/// Start this instance. Initialise the rectangles
+	/// </summary>
 	void Start () {
 		// Left side top
 		target =   new Rect(MARGIN, MARGIN, BOX_WIDTH, BOX_HEIGHT);	
@@ -116,48 +125,37 @@ public class GlassGUI : MonoBehaviour {
 		caloriesText = "Calories\n";
 		paceText = "Pace/KM\n";	
 		
+		// White colour of the display boxes
 		Color white = new Color(0.9f, 0.9f, 0.9f, OPACITY);
 		normal = new Texture2D(1, 1);
 		normal.SetPixel(0,0,white);
 		normal.Apply();
 		
+		// Green colour of the display boxes
 		Color green = new Color(0f, 0.9f, 0f, OPACITY);
 		info = new Texture2D(1, 1);
 		info.SetPixel(0,0,green);
 		info.Apply();
 		
+		// Red colour of the display boxes
 		Color red = new Color(0.9f, 0f, 0f, OPACITY);
 		warning = new Texture2D(1, 1);
 		warning.SetPixel(0,0,red);
 		warning.Apply();
 		
+		// Minimap icons and stencil to draw a circle.
 		selfIcon = Resources.Load("Self") as Texture2D;
 		targetIcon = Resources.Load("Target") as Texture2D;
 		mapStencil = new Material(Shader.Find("Custom/MapStencil"));
 		
-		//EventLog.
-		//Platform.Instance.StartTrack(false);
 	}
 	
-	// Update is called once per frame
+	/// <summary>
+	/// Polls the platform.
+	/// </summary>
 	void Update ()
 	{
-		timeFromStart += Time.deltaTime;
-	
-//		if(countTime == 3.99f && Platform.Instance.hasLock() && !started)
-//		{
-//			started = true;
-//		}
-//		
-//		if(started && countTime <= 0.0f)
-//		{
-//			Platform.Instance.StartTrack(false);
-//		}
-//		else if(started && countTime > 0.0f)
-//		{
-//			countTime -= Time.deltaTime;
-//		}
-		
+		// If back is pressed, load the last level or reset the game.
 		if(Input.GetKeyDown(KeyCode.Escape))
 		{
 			if(countTime < 0.0f)
@@ -168,11 +166,13 @@ public class GlassGUI : MonoBehaviour {
 				Application.LoadLevel(0);
 			}
 		}
-		
-//		timeOut -= Time.deltaTime;		
+				
 		Platform.Instance.Poll();
 	}
 	
+	/// <summary>
+	/// Raises the GU event. Draws the display. Needs to be converted to nGUI
+	/// </summary>
 	void OnGUI ()
 	{
 		// Scale UI to fit screen
@@ -290,6 +290,12 @@ public class GlassGUI : MonoBehaviour {
 		GUI.matrix = svMat; // restore matrix
 	}
 	
+	/// <summary>
+	/// Fetchs the map texture.
+	/// </summary>
+	/// <param name='origo'>
+	/// Center position.
+	/// </param>
 	private void FetchMapTexture(Position origo) {					
 		const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
 		const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
@@ -308,6 +314,18 @@ public class GlassGUI : MonoBehaviour {
 		fetchOrigo = origo;
 	}
 	
+	/// <summary>
+	/// Draws the minimap on the GUI texture.
+	/// </summary>
+	/// <param name='selfCoords'>
+	/// Player's coordinates
+	/// </param>
+	/// <param name='bearing'>
+	/// Bearing of the player.
+	/// </param>
+	/// <param name='targetCoords'>
+	/// Target coordinates.
+	/// </param>
 	private void GUIMap(Position selfCoords, double bearing, Position targetCoords) {
 		Position direction = new Position(selfCoords.latitude + (float)(Math.Cos(bearing)*1000/111229d), 
 		                                  selfCoords.longitude + (float)(Math.Sin(bearing)*1000/111229d));	
@@ -382,6 +400,15 @@ public class GlassGUI : MonoBehaviour {
 		GUI.color = original;
 	}
 	
+	/// <summary>
+	/// Converts the distance to metres or kilometres if high enough.
+	/// </summary>
+	/// <returns>
+	/// The converted distance.
+	/// </returns>
+	/// <param name='meters'>
+	/// The initial distance.
+	/// </param>
 	string SiDistance(double meters) {
 		string postfix = "m";
 		string final;
@@ -398,6 +425,15 @@ public class GlassGUI : MonoBehaviour {
 		return final+postfix;
 	}
 	
+	/// <summary>
+	/// converts the speed to minutes per kilometre.
+	/// </summary>
+	/// <returns>
+	/// The converted pace.
+	/// </returns>
+	/// <param name='speed'>
+	/// The initial speed.
+	/// </param>
 	long SpeedToKmPace(float speed) {
 		if (speed <= 0) {
 			return 0;
@@ -406,17 +442,45 @@ public class GlassGUI : MonoBehaviour {
 		return Convert.ToInt64( ((1/speed)/60) * 1000);
 	}
 	
+	/// <summary>
+	/// Changes the time to the correct format of minutes-seconds-milliseconds.
+	/// </summary>
+	/// <returns>
+	/// The converted time value.
+	/// </returns>
+	/// <param name='milliseconds'>
+	/// Initial time in milliseconds.
+	/// </param>
 	string TimestampMMSSdd(long milliseconds) {
 		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
 
 		return string.Format("{0:00}:{1:00}:{2:00}",span.Minutes,span.Seconds,span.Milliseconds/10);	
 	}
+	
+	/// <summary>
+	/// Changes the time to minutes-seconds.
+	/// </summary>
+	/// <returns>
+	/// The converted time.
+	/// </returns>
+	/// <param name='minutes'>
+	/// The time in minutes.
+	/// </param>
 	string TimestampMMSS(long minutes) {
 		TimeSpan span = TimeSpan.FromMinutes(minutes);
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}
 	
+	/// <summary>
+	/// Converts a Mercator coordinate to game coordinate.
+	/// </summary>
+	/// <returns>
+	/// The to pixel.
+	/// </returns>
+	/// <param name='mercator'>
+	/// Mercator.
+	/// </param> 
 	Vector2 MercatorToPixel(Position mercator) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
@@ -432,11 +496,19 @@ public class GlassGUI : MonoBehaviour {
 				) / 2
 			) * 256
 		);
-//		Debug.Log(mercator.latitude + "," + mercator.longitude + " => " + world.x + "," + world.y);
-		
+
 		return world * scale;
 	}
 	
+	/// <summary>
+	/// Converts a pixel coordinate to Mercator coordinate.
+	/// </summary>
+	/// <returns>
+	/// The to mercator.
+	/// </returns>
+	/// <param name='pixel'>
+	/// Pixel.
+	/// </param>
 	Position PixelToMercator(Vector2 pixel) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
@@ -452,13 +524,22 @@ public class GlassGUI : MonoBehaviour {
 		return mercator;			
 	}
 	
+	/// <summary>
+	/// Calculates the angle between two vectors.
+	/// </summary>
+	/// <param name='pos1'>
+	/// Pos1.
+	/// </param>
+	/// <param name='pos2'>
+	/// Pos2.
+	/// </param>
 	private double Angle(Vector2 pos1, Vector2 pos2) {
 	    Vector2 from = pos2 - pos1;
 	    Vector2 to = new Vector2(0, 1);
 	 
 	    float result = Vector2.Angle( from, to );
-//		Debug.Log(result);
-	    Vector3 cross = Vector3.Cross( from, to );
+
+		Vector3 cross = Vector3.Cross( from, to );
 	 
 	    if (cross.z > 0)
 	       result = 360f - result;

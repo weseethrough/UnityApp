@@ -15,9 +15,6 @@ public class SettingsPanel : Panel {
 	protected override void Initialize()
     {
         base.Initialize();
-//		if(Platform.Instance != null) {
-//			Platform.Instance.stopTrack();
-//		}
 	}
 	
 	public override void OnClick(FlowButton button)
@@ -29,6 +26,7 @@ public class SettingsPanel : Panel {
 		{
 			switch(button.name)
 			{
+			// These two buttons set the target to the runner and cyclist respectively
 			case "RunnerButton":
 				ss.SetTarget(RaceGame.Targets.Runner);
 				break;
@@ -37,11 +35,13 @@ public class SettingsPanel : Panel {
 				ss.SetTarget(RaceGame.Targets.Cyclist);
 				break;
 				
+			// Sets indoor mode
 			case "IndoorButton":
 				ss.SetIndoor();
 				
 				break;
 				
+			// Syncs to the server to authenticate the user.
 			case "ServerButton":
 //				Debug.Log("SettingsPanel: ServerButton clicked");
 	            GConnector gConect = Outputs.Find(r => r.Name == button.name);
@@ -61,11 +61,13 @@ public class SettingsPanel : Panel {
 //				Debug.Log("SettingsPanel: ServerButton run");
 				break;
 				
+			// Gets the tracks for the user
 			case "GetTrackButton":
 				Platform.Instance.GetTracks();
 				GameObject.Find("TrackSelect").renderer.enabled = true;
 				break;
 				
+			// Goes back to the game
 			case "BackMainButton":
 				ss.Back();
 				GameObject h = GameObject.Find("blackPlane");

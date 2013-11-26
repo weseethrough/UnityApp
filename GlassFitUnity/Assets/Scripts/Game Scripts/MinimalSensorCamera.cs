@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Rotates the camera in-game and sets the grid
+/// </summary>
 public class MinimalSensorCamera : MonoBehaviour {
 	
 	public Quaternion offsetFromStart;
@@ -13,13 +16,16 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private float gridTimer = 0.0f;
 	private bool timerActive = false;
 
-	// Set the grid, scale values and the initial offset
+	// Set the grid and scale values
 	void Start () {
 		grid.SetActive(false);
 		scaleX = (float)Screen.width / 800.0f;
 		scaleY = (float)Screen.height / 500.0f;
 	}
 	
+	/// <summary>
+	/// Raises the GU event. Creates a reset gyro button
+	/// </summary>
 	void OnGUI()
 	{
 		// Set the offset if it hasn't been set already, doesn't work in Start() function
@@ -70,6 +76,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 		GUI.matrix = Matrix4x4.identity;
 	}
 	
+	/// <summary>
+	/// Update this instance. Updates the rotation
+	/// </summary>
 	void Update () {
 		// Set the new rotation of the camera
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();

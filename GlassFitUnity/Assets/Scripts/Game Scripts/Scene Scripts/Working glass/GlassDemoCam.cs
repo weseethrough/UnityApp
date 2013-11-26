@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Glass demo cam. Rotates the camera for the Glass demo
+/// </summary>
 public class GlassDemoCam : MonoBehaviour {
 
 	public Quaternion offsetFromStart;

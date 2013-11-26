@@ -22,6 +22,8 @@ public class MainPanel : Panel {
 		base.OnClick (button);
 		
 		switch(button.name) {
+			
+		// If the settings button is pressed, it applies a black background to the screen and disables the minimap
 		case "SettingsButton":
 			UnityEngine.Debug.Log("Panel: finding game object");
 			

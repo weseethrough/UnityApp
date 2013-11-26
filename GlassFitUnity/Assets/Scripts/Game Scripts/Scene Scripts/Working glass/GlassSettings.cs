@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// The settings screen for the Glass Demo. Needs converting to nGUI.
+/// </summary>
 public class GlassSettings : MonoBehaviour {
 	// Bools for various states
 	public bool menuOpen = false;
@@ -17,6 +20,7 @@ public class GlassSettings : MonoBehaviour {
 	private bool countdown = false;
 	private float countTime = 3.0f;
 	
+	// Game object for the ScriptHolder
 	public GameObject sc;
 	
 	// Target speed
@@ -27,19 +31,22 @@ public class GlassSettings : MonoBehaviour {
 	
 	private string indoorText = "Indoor Active";
 	
+	/// <summary>
+	/// Start this instance. Sets the scaling value
+	/// </summary>
 	void Start () {
 		// Set indoor mode
-		//Platform.Instance.reset();
 		Platform.Instance.SetIndoor(false);
-		//Platform.Instance.resetTargets();
+		
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
-		
-		//GetComponent<GetTrack>().setActive(false);
 	}
 	
+	/// <summary>
+	/// Raises the GU event. Displays the settings for the glass demo
+	/// </summary>
 	void OnGUI() {
 		// Set matrix, depth and various skin sizes
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
@@ -109,6 +116,7 @@ public class GlassSettings : MonoBehaviour {
 			}
 		}
 		
+		// Shows a label when the Glass touchpad has been interacted with.
 		if(sc.GetComponent<GestureHelper>().isTapped) {
 			GUI.Label(new Rect(350, 0, 100, 50), "TOUCHPAD TAPPED");
 		}
@@ -143,10 +151,12 @@ public class GlassSettings : MonoBehaviour {
 			}
 		}
 		
+		// If the start button is pressed start the countdown.
 		if((GUI.Button(new Rect(275, 400, 100, 100), "START") || sc.GetComponent<GestureHelper>().right) && !countdown && Platform.Instance.HasLock()) {
 			countdown = true;
 		}
 		
+		// If the Reset button is pressed reset the game.
 		if((GUI.Button(new Rect(425, 400, 100, 100), "RESET")  || sc.GetComponent<GestureHelper>().left)) {
 			countdown = false;
 			Platform.Instance.StopTrack();
@@ -157,6 +167,9 @@ public class GlassSettings : MonoBehaviour {
 		GUI.matrix = Matrix4x4.identity;
 	}
 	
+	/// <summary>
+	/// Update this instance. Sets the countdown.
+	/// </summary>
 	void Update () {
 		
 		// Initiate the countdown

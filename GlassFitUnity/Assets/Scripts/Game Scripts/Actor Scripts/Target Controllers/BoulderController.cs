@@ -1,35 +1,52 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Controls the Boulder
+/// </summary>
 public class BoulderController : TargetController {
 	
-	private float yRot;
+	// Rotation in the x-axis.
+	private float xRot;
 	
-	// Use this for initialization
+	/// <summary>
+	/// Sets the attributes
+	/// </summary>
 	void Start () {
+		// Set attributes and initial rotation.
 		SetAttribs(50f, 135f, 420f, 0f);
-		yRot = 0;
+		xRot = 0;
 	}
 	
+	/// <summary>
+	/// Sets the attributes
+	/// </summary>
 	void OnEnable() 
 	{
+		// Enable the object and set attributes.
 		base.OnEnable();
 		SetAttribs(50f, 135f, 420f, 0f);		
 	}
 	
-	// Update is called once per frame
+	/// <summary>
+	/// Update this instance + updates rotation
+	/// </summary>
 	void Update () {
+		
+		// Update the base.
 		base.Update();
 		
-		yRot += (10 * (((float)DataVault.Get("slider_val")* 9.15f) + 1.25f)) * Time.deltaTime;
+		// Rotate the object based on speed.
+		xRot += (10 * (((float)DataVault.Get("slider_val")* 9.15f) + 1.25f)) * Time.deltaTime;
 		
-		if(yRot > 360)
+		// If greater than 360, reset.
+		if(xRot > 360)
 		{
-			yRot -= 360;
+			xRot -= 360;
 		}
 		
-		Quaternion rot = Quaternion.Euler(new Vector3(yRot,0,0));
-		
+		// Make a new quaternion based on the rotation and apply
+		Quaternion rot = Quaternion.Euler(new Vector3(xRot,0,0));
 		transform.rotation = rot;
 	}
 }

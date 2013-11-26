@@ -3,14 +3,18 @@ using System.Collections;
 using System;
 
 public class GlassDemoGUI : MonoBehaviour {
-
+	
+	// The started variables
 	public bool started = false;
+	private float countTime = 3.0f;
+	
+	// The margin and submargin to pad the boxes
 	private const int MARGIN = 15;
-	private const float OPACITY = 0.5f;
 	private const int SUBMARGIN = 5;
 	
-	private float countTime = 3.0f;
-		
+	// Opacity of the boxes
+	private const float OPACITY = 0.5f;
+	
 	// Left side bottom
 	private Rect distance;
 	private string distanceText;
@@ -57,22 +61,25 @@ public class GlassDemoGUI : MonoBehaviour {
 		// *** DEBUG
 		debug =    new Rect((originalWidth-200)/2, originalHeight-MARGIN-100, 200, 100);
 		// *** DEBUG
-		
+
 		distanceText = "Distance\n";
 		timeText = "Time\n";
 		caloriesText = "Calories\n";
 		paceText = "Pace\n";	
 		
+		// White coloured box
 		Color white = new Color(0.9f, 0.9f, 0.9f, OPACITY);
 		normal = new Texture2D(1, 1);
 		normal.SetPixel(0,0,white);
 		normal.Apply();
 		
+		// Green coloured box
 		Color green = new Color(0f, 0.9f, 0f, OPACITY);
 		info = new Texture2D(1, 1);
 		info.SetPixel(0,0,green);
 		info.Apply();
 		
+		// Red coloured box
 		Color red = new Color(0.9f, 0f, 0f, OPACITY);
 		warning = new Texture2D(1, 1);
 		warning.SetPixel(0,0,red);
@@ -83,11 +90,13 @@ public class GlassDemoGUI : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
 	{		
+		// Reduces the countdown timer if there is a lock
 		if(started && countTime > -1.0f && Platform.Instance.HasLock())
 		{
 			countTime -= Time.deltaTime;
 		}
 		
+		// Resets the game if back is pressed.
 		if(Input.GetKeyDown(KeyCode.Escape))
 		{
 			if(countTime < 0.0f)
@@ -154,6 +163,15 @@ public class GlassDemoGUI : MonoBehaviour {
 		GUI.matrix = svMat; // restore matrix
 	}
 	
+	/// <summary>
+	/// Converts the distance to miles.
+	/// </summary>
+	/// <returns>
+	/// The distance in miles.
+	/// </returns>
+	/// <param name='meters'>
+	/// The distance in meters.
+	/// </param>
 	string SiDistance(double meters) {
 		string postfix = " Miles";
 		string final;
@@ -162,6 +180,15 @@ public class GlassDemoGUI : MonoBehaviour {
 		return final+postfix;
 	}
 	
+	/// <summary>
+	/// converts the speed to minutes per mile.
+	/// </summary>
+	/// <returns>
+	/// The converted pace.
+	/// </returns>
+	/// <param name='speed'>
+	/// The initial speed.
+	/// </param>
 	float SpeedToMilesPace(float speed) {
 		if (speed <= 0) {
 			return 0;
@@ -171,11 +198,30 @@ public class GlassDemoGUI : MonoBehaviour {
 		return 1.0f/x;
 	}
 	
+	/// <summary>
+	/// Changes the time to the correct format.
+	/// </summary>
+	/// <returns>
+	/// The time in minutes-seconds-milliseconds.
+	/// </returns>
+	/// <param name='milliseconds'>
+	/// The time in milliseconds.
+	/// </param>
 	string TimestampMMSSdd(long milliseconds) {
 		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
 
 		return string.Format("{0:00}:{1:00}:{2:00}",span.Minutes,span.Seconds,span.Milliseconds/10);	
 	}
+	
+	/// <summary>
+	/// Converts the time to the correct format.
+	/// </summary>
+	/// <returns>
+	/// The time in minutes-seconds.
+	/// </returns>
+	/// <param name='minutes'>
+	/// Time in minutes.
+	/// </param>
 	string TimestampMMSS(long minutes) {
 		TimeSpan span = TimeSpan.FromMinutes(minutes);
 
