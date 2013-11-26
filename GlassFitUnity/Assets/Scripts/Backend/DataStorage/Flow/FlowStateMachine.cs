@@ -33,6 +33,16 @@ public class FlowStateMachine : MonoBehaviour
         }
     }
 	
+	static public FlowState GetCurrentFlowState()
+    {
+         FlowStateMachine fsm = GameObject.FindObjectOfType(typeof(FlowStateMachine)) as FlowStateMachine;
+         if (fsm == null) return null;
+ 
+         if (fsm.activeFlow == null || fsm.activeFlow.Count == 0) return null;
+ 
+         return fsm.activeFlow[fsm.activeFlow.Count - 1];
+     }
+	
     void Update()
     {
         ProgressStateChanges();
