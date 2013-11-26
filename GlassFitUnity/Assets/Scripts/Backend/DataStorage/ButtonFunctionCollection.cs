@@ -33,6 +33,38 @@ public class ButtonFunctionCollection
 		// Connection followed asynchronously
 		return false; 
 	}
+	
+	static public bool SetType(FlowButton fb, Panel panel)
+	{
+		switch(fb.name) 
+		{
+		case "Run":
+			DataVault.Set("type", "Runner");
+			break;
+			
+		case "Bike":
+			DataVault.Set("type", "Cyclist");
+			break;
+			
+		case "Boulder Level 1":
+			DataVault.Set("type", "Boulder");
+			break;
+			
+		case "Eagle Level 1":
+			DataVault.Set("type", "Eagle");
+			break;
+			
+		case "Zombie Level 1":
+			DataVault.Set("type", "Zombie");
+			break;
+			
+		case "Train Level 1":
+			DataVault.Set("type", "Train");
+			break;
+		}
+		
+		return true;
+	}
 
     static public bool StartGame(FlowButton fb, Panel panel)
 	{
@@ -40,12 +72,24 @@ public class ButtonFunctionCollection
 		
 		switch(fb.name) 
 		{
-		case "Run":
-			DataVault.Set("level", 0);
+		case "1km":
+			DataVault.Set("finish", 1);
 			break;
 			
-		case "Bike":
-			DataVault.Set("level", 1);
+		case "2km":
+			DataVault.Set("finish", 2);
+			break;
+			
+		case "3km":
+			DataVault.Set("finish", 3);
+			break;
+			
+		case "4km":
+			DataVault.Set("finish", 4);
+			break;
+			
+		case "5km":
+			DataVault.Set("finish", 5);
 			break;
 		}
 		
@@ -56,22 +100,25 @@ public class ButtonFunctionCollection
 	{
 		AutoFade.LoadLevel(3, 0f, 1.0f, Color.black);
 		
-		switch(fb.name)
-		{
-		case "Boulder Level 1":
-			DataVault.Set("level", 0);
+		switch(fb.name) {
+		case "1km":
+			DataVault.Set("finish", 1);
 			break;
 			
-		case "Eagle Level 1":
-			DataVault.Set("level", 1);
+		case "2km":
+			DataVault.Set("finish", 2);
 			break;
 			
-		case "Zombie Level 1":
-			DataVault.Set("level", 2);
+		case "3km":
+			DataVault.Set("finish", 3);
 			break;
 			
-		case "Train Level 1":
-			DataVault.Set("level", 3);
+		case "4km":
+			DataVault.Set("finish", 4);
+			break;
+			
+		case "5km":
+			DataVault.Set("finish", 5);
 			break;
 		}
 		return true;
@@ -79,42 +126,42 @@ public class ButtonFunctionCollection
 	
 	static public bool SetIndoor(FlowButton fb, Panel panel)
 	{
-		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
+		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 		ps.SetIndoor();
 		return false;
 	}
 	
 	static public bool ChangeToEagle(FlowButton fb, Panel panel)
 	{
-		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
-		ps.SetTarget(PursuitSettings.Targets.Eagle);
+		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
+		ps.SetTarget(PursuitGame.Targets.Eagle);
 		return false;
 	}
 	
 	static public bool ChangeToZombie(FlowButton fb, Panel panel)
 	{
-		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
-		ps.SetTarget(PursuitSettings.Targets.Zombie);
+		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
+		ps.SetTarget(PursuitGame.Targets.Zombie);
 		return false;
 	}
 	
 	static public bool ChangeToTrain(FlowButton fb, Panel panel)
 	{
-		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
-		ps.SetTarget(PursuitSettings.Targets.Train);
+		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
+		ps.SetTarget(PursuitGame.Targets.Train);
 		return false;
 	}
 	
 	static public bool ChangeToBoulder(FlowButton fb, Panel panel)
 	{
-		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
-		ps.SetTarget(PursuitSettings.Targets.Boulder);
+		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
+		ps.SetTarget(PursuitGame.Targets.Boulder);
 		return false;
 	}
 	
 	static public bool BackPursuit(FlowButton fb, Panel panel)
 	{
-		PursuitSettings ps = (PursuitSettings) GameObject.FindObjectOfType(typeof(PursuitSettings));
+		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 		ps.Back();
 		GameObject h = GameObject.Find("blackPlane");
 		h.renderer.enabled = false;
@@ -123,8 +170,8 @@ public class ButtonFunctionCollection
 	
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
-		Platform.Instance.stopTrack();
-		DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+		Platform.Instance.reset();
+		
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
 		return true;
 	}

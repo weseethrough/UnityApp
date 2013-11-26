@@ -55,6 +55,11 @@ public class DynamicHexList : MonoBehaviour
             }
         }
 
+//        if (!SensorHelper.gotFirstValue)
+//        {
+//            SensorHelper.ActivateRotation();
+//        }
+
         if (guiCamera != null)
         {
             cameraPosition = guiCamera.transform.position;
