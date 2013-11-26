@@ -70,4 +70,8 @@ public class TargetTracker : MonoBehaviour {
 	void Update () {
 	
 	}
+	
+	public string ToString() {
+		return "TargetTracker";
+	}
 }

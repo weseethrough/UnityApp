@@ -1,9 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 public class TargetController : MonoBehaviour {
 	protected double scaledDistance = 0.0f;
-	protected TargetTracker target;
+	protected TargetTracker target = null;
 	protected float distanceOffset = 0.0f;
 	protected float travelSpeed = 1.0f;
 	protected float height = 0.0f;
@@ -14,10 +14,18 @@ public class TargetController : MonoBehaviour {
 		//target = Platform.Instance.getTargetTracker();
 	}
 	
+	// TODO:
+	// Set tracker on Instantiate
+	// Set index/lane 
+	// Only poll once
+	
 	protected void OnEnable() {
 		UnityEngine.Debug.Log("Target: Just been enabled");
-		target = Platform.Instance.GetTargetTracker();
-		UnityEngine.Debug.Log("Target: tracker obtained!");
+	}
+	
+	public void SetTracker(TargetTracker tracker) {
+		this.target = tracker;
+		UnityEngine.Debug.Log("Target: linked to tracker");
 	}
 	
 	public void IncreaseOffset() 
@@ -34,6 +42,7 @@ public class TargetController : MonoBehaviour {
 	
 	// Update is called once per frame
 	protected void Update () {
+		if (target == null) return;
 		Platform.Instance.Poll();
 	
 /*		UnityEngine.Debug.Log("Target: Distance is " + target.getDistanceBehindTarget().ToString());
@@ -43,5 +52,9 @@ public class TargetController : MonoBehaviour {
 
 		Vector3 movement = new Vector3(xOffset, height, (float)scaledDistance);
 		transform.position = movement;
+	}
+	
+	public string ToString() {
+		return "TargetController";
 	}
 }
