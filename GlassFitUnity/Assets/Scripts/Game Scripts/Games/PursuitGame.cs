@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 
@@ -78,9 +78,9 @@ public class PursuitGame : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		Platform.Instance.setIndoor(indoor);
-		Platform.Instance.stopTrack();
-		Platform.Instance.reset();
+		Platform.Instance.SetIndoor(indoor);
+		Platform.Instance.StopTrack();
+		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
 		
 		//UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
@@ -122,7 +122,7 @@ public class PursuitGame : MonoBehaviour {
 		DataVault.Set("slider_val", 0.06f);
 		
 		// Set holders active status
-		setTargets();
+		SetTargets();
 	}
 	
 	public void SetIndoor() {
@@ -153,16 +153,16 @@ public class PursuitGame : MonoBehaviour {
 		
 		if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
-			Platform.Instance.reset();
-			Platform.Instance.resetTargets();
+			Platform.Instance.Reset();
+			Platform.Instance.ResetTargets();
 					
-			setTargets();
+			SetTargets();
 			
 			if(!trackSelected) {
-				Platform.Instance.setTargetSpeed(targSpeed);
+				Platform.Instance.SetTargetSpeed(targSpeed);
 			}
 					
-			Platform.Instance.setIndoor(indoor);
+			Platform.Instance.SetIndoor(indoor);
 				
 			// Start countdown again
 			started = false;
@@ -238,7 +238,7 @@ public class PursuitGame : MonoBehaviour {
 		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);
 		
-		double targetDistance = Platform.Instance.getHighestDistBehind()-offset;
+		double targetDistance = Platform.Instance.GetHighestDistBehind()-offset;
 		
 		if (targetDistance > 0) {
 			DataVault.Set("ahead_header", "Behind!");
@@ -261,7 +261,7 @@ public class PursuitGame : MonoBehaviour {
 		}
 		
 		// If there is a GPS lock or indoor mode is active
-		if(Platform.Instance.hasLock() || indoor)
+		if(Platform.Instance.HasLock() || indoor)
 		{
 			// Initiate the countdown
 			countdown = true;
@@ -284,7 +284,7 @@ public class PursuitGame : MonoBehaviour {
 		
 		if(Platform.Instance.Distance() / 1000 >= finish)
 		{
-			Platform.Instance.stopTrack();
+			Platform.Instance.StopTrack();
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
 			DataVault.Set("ahead_col_box", "19D200EE");
 			DataVault.Set("ahead_col_header", "19D200FF");
@@ -301,7 +301,7 @@ public class PursuitGame : MonoBehaviour {
 		if(Platform.Instance.DistanceBehindTarget() - offset >= 0)
 		{
 			
-			Platform.Instance.stopTrack();
+			Platform.Instance.StopTrack();
 			
 			if(lives > 0) {
 				lives -= 1;
@@ -309,16 +309,16 @@ public class PursuitGame : MonoBehaviour {
 				offset += 50;
 				switch(currentTarget) {
 				case Targets.Eagle:
-					eagleHolder.GetComponent<EagleController>().increaseOffset();
+					eagleHolder.GetComponent<EagleController>().IncreaseOffset();
 					break;
 				case Targets.Boulder:
-					boulderHolder.GetComponent<BoulderController>().increaseOffset();
+					boulderHolder.GetComponent<BoulderController>().IncreaseOffset();
 					break;
 				case Targets.Train:
-					trainHolder.GetComponent<TrainController>().increaseOffset();
+					trainHolder.GetComponent<TrainController>().IncreaseOffset();
 					break;
 				case Targets.Zombie:
-					zombieHolder.GetComponent<ZombieController>().increaseOffset();
+					zombieHolder.GetComponent<ZombieController>().IncreaseOffset();
 					break;
 				default:
 					break;
@@ -358,7 +358,7 @@ public class PursuitGame : MonoBehaviour {
 		return final+postfix;
 	}
 	
-	long speedToKmPace(float speed) {
+	long SpeedToKmPace(float speed) {
 		if (speed <= 0) {
 			return 0;
 		}
@@ -378,7 +378,7 @@ public class PursuitGame : MonoBehaviour {
 	}
 	
 	// Set the targets based on the enums
-	void setTargets() {
+	void SetTargets() {
 		eagleHolder.SetActive(false);
 		boulderHolder.SetActive(false);
 		trainHolder.SetActive(false);
@@ -409,14 +409,14 @@ public class PursuitGame : MonoBehaviour {
 	private void GetMap(Position selfCoords, double bearing, Position targetCoords) {
 		Position direction = new Position(selfCoords.latitude + (float)(Math.Cos(bearing)*1000/111229d), 
 		                                  selfCoords.longitude + (float)(Math.Sin(bearing)*1000/111229d));	
-		double pixelBearing = Angle(mercatorToPixel(selfCoords), mercatorToPixel(direction));	
+		double pixelBearing = Angle(MercatorToPixel(selfCoords), MercatorToPixel(direction));	
 //		UnityEngine.Debug.Log("Map: pixel bearing calculated");
 		bearing = pixelBearing;
 		
 		// Get a static map with a radius of mapAtlasRadius, cache and re-get if viewport within margin of the border
 		const int margin = 15;	
 		int maxdrift = (mapAtlasRadius-MAP_RADIUS-margin);
-		Vector2 drift = mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords);
+		Vector2 drift = MercatorToPixel(mapOrigo) - MercatorToPixel(selfCoords);
 //		UnityEngine.Debug.Log("Map: drift calculated");
 //		Debug.Log("drift: " + drift.magnitude + " .." + drift);
 		if (mapWWW == null && (mapTexture == null || drift.magnitude >= maxdrift)) {
@@ -440,7 +440,7 @@ public class PursuitGame : MonoBehaviour {
 		}
 		
 		// Map self coordinates into map atlas, normalize to atlas size and shift to center
-		Vector2 mapNormalSelf = (mercatorToPixel(mapOrigo) - mercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
+		Vector2 mapNormalSelf = (MercatorToPixel(mapOrigo) - MercatorToPixel(selfCoords)) / (mapAtlasRadius*2);
 		mapNormalSelf.x += 0.5f;
 		mapNormalSelf.y += 0.5f;
 		float normalizedRadius = (float)MAP_RADIUS/(mapAtlasRadius*2);
@@ -481,7 +481,7 @@ public class PursuitGame : MonoBehaviour {
 		//GUI.color = original;
 	}
 	
-	Vector2 mercatorToPixel(Position mercator) {
+	Vector2 MercatorToPixel(Position mercator) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
 		
@@ -501,7 +501,7 @@ public class PursuitGame : MonoBehaviour {
 		return world * scale;
 	}
 	
-	Position pixelToMercator(Vector2 pixel) {
+	Position PixelToMercator(Vector2 pixel) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		int scale = (int)Math.Pow(2, mapZoom);
 		

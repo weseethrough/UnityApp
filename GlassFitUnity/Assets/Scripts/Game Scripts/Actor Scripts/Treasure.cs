@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 
@@ -65,7 +65,7 @@ public class Treasure : MonoBehaviour {
 		
 		GUI.Box(distance, distanceText + treasureDist);
 		
-		if(!Platform.Instance.hasLock())
+		if(!Platform.Instance.HasLock())
 		{
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
@@ -94,7 +94,7 @@ public class Treasure : MonoBehaviour {
 		
 		Platform.Instance.Poll();
 		
-		if(Platform.Instance.hasLock()) {
+		if(Platform.Instance.HasLock()) {
 			// Initiate the countdown
 			countdown = true;
 		 	if(countTime <= -1.0f && !started)
@@ -110,7 +110,7 @@ public class Treasure : MonoBehaviour {
 			}
 			UnityEngine.Debug.Log("Current Position is: " + Platform.Instance.Position().latitude + ", " + Platform.Instance.Position().longitude);
 			
-			Vector2 currentPos = mercatorToPixel(worldCoordinate) - mercatorToPixel(Platform.Instance.Position());
+			Vector2 currentPos = MercatorToPixel(worldCoordinate) - MercatorToPixel(Platform.Instance.Position());
 			
 			
 			gameCoordinate = new Vector3(currentPos.x, 0, currentPos.y);
@@ -130,11 +130,11 @@ public class Treasure : MonoBehaviour {
 		}
 	}
 	
-	public bool isObtained() {
+	public bool IsObtained() {
 		return obtained;
 	}
 	
-	Vector2 mercatorToPixel(Position mercator) {
+	Vector2 MercatorToPixel(Position mercator) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		//int scale = (int)Math.Pow(2, mapZoom);
 		

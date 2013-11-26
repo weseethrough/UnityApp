@@ -18,11 +18,11 @@ public class TargetTracker : MonoBehaviour {
 			
 	}
 	
-	public double getTargetDistance() {
+	public double GetTargetDistance() {
 		return targetDistance;
 	}
 	
-	public void setTargetDistance() {
+	public void SetTargetDistance() {
 		try {
 			targetDistance = target.Call<double>("getCumulativeDistanceAtTime", Platform.Instance.Time());
 		} catch (Exception e) {
@@ -31,11 +31,11 @@ public class TargetTracker : MonoBehaviour {
 		}
 	}
 	
-	public float getDistanceBehindTarget() {
+	public float GetDistanceBehindTarget() {
 		return (float)(targetDistance - Platform.Instance.Distance());
 	}
 	
-	public float getCurrentSpeed() {
+	public float GetCurrentSpeed() {
 		try {
 			float ret = target.Call<float>("getCurrentSpeed", 0L);
 			UnityEngine.Debug.Log("Target Tracker: speed obtained, currently: " + ret.ToString());
@@ -46,22 +46,22 @@ public class TargetTracker : MonoBehaviour {
 		}
 	}
 	
-	public void setTargetSpeed(float s) {
+	public void SetTargetSpeed(float s) {
 		try {
 			target.Call("setSpeed", s);
-			Platform.Instance.setBasePointsSpeed(s);
+			Platform.Instance.SetBasePointsSpeed(s);
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Target Tracker: Error setting speed" + e.Message);
 		}
 	}
 	
-	public void setTargetTrack(int trackID)
+	public void SetTargetTrack(int trackID)
 	{
 		try {
 			target.Call("setTrack", trackID);
 			UnityEngine.Debug.LogWarning("TargetTracker: Track has been set to " + trackID.ToString ());
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("TargetTracker: setTargetTrack() failed: " + e.Message);
+			UnityEngine.Debug.LogWarning("TargetTracker: SetTargetTrack() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
 	}

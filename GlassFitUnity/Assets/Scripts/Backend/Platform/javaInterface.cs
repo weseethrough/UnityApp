@@ -29,7 +29,7 @@ void syncGPS(){
 	}
 	*/
 
-void getPostion(){
+void GetPosition(){
 		// BG ->>TODO:Get static method for the position data in java side
 	//int[] Pos	= jc.Call<int[]>("getCurrentPosition");
 		

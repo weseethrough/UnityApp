@@ -25,9 +25,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 		// Set the offset if it hasn't been set already, doesn't work in Start() function
 		if(!started)
 		{
-			offsetFromStart = Platform.Instance.getOrientation();
+			offsetFromStart = Platform.Instance.GetOrientation();
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
-			Platform.Instance.resetGyro();
+			Platform.Instance.ResetGyro();
 			started = true;
 		}
 		
@@ -47,8 +47,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 				if(timerActive) {
 					gridOn = false;
 				} else {
-					offsetFromStart = Platform.Instance.getOrientation();
-					Platform.Instance.resetGyro();
+					offsetFromStart = Platform.Instance.GetOrientation();
+					Platform.Instance.ResetGyro();
 					gridOn = true;
 				}
 				gridTimer = 5.0f;
@@ -72,7 +72,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	void Update () {
 		// Set the new rotation of the camera
-		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getOrientation();
+		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
 		
 		// If the timer and grid are on, countdown the timer and switch it off if the timer runs out
 		if(timerActive && gridOn)

@@ -164,11 +164,11 @@ public class Platform : MonoBehaviour {
 		
 	}
 	
-	public AndroidJavaObject getHelper() {
+	public AndroidJavaObject GetHelper() {
 		return helper;
 	}
 	
-	public bool hasStarted() {
+	public bool HasStarted() {
 		return started;
 	}
 	
@@ -197,7 +197,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Set the indoor mode
-	public void setIndoor(bool indoor) {
+	public void SetIndoor(bool indoor) {
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
@@ -216,7 +216,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public void resetTargets() {
+	public void ResetTargets() {
 		try {
 			helper.Call("resetTargets");
 			targetTrackers = new List<TargetTracker>();
@@ -226,28 +226,28 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Get current target speed
-	public float getCurrentSpeed(long l) 
+	public float GetCurrentSpeed(long l) 
 	{
 //		try {
-//			float ret = target.Call<float>("getCurrentSpeed", l);
+//			float ret = target.Call<float>("GetCurrentSpeed", l);
 //			UnityEngine.Debug.Log("Platform: speed obtained, currently: " + ret.ToString());
 //			return ret;
 //		} catch (Exception e) {
 //			UnityEngine.Debug.LogWarning("Platform: Error getting current speed: " + e.Message);
 //			return 0;
 //		}
-		return targetTrackers[0].getCurrentSpeed();
+		return targetTrackers[0].GetCurrentSpeed();
 	}
 	
 	// Returns the target tracker
-	public TargetTracker getTargetTracker(){
+	public TargetTracker GetTargetTracker(){
 		TargetTracker t = new TargetTracker(helper);
 		targetTrackers.Add(t);
 		return t;
 	}
 	
 	// Check if has GPS lock
-	public Boolean hasLock() {
+	public Boolean HasLock() {
 		try {
 			bool gpsLock = gps.Call<Boolean>("hasPosition");
 //			UnityEngine.Debug.Log("Platform: hasLock() returned " + gpsLock);
@@ -260,7 +260,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Stop tracking 
-	public void stopTrack() {
+	public void StopTrack() {
 		try {
 			gps.Call("stopTracking");
 		} catch(Exception e) {
@@ -270,9 +270,9 @@ public class Platform : MonoBehaviour {
 	
 	// Authentication 
 	// result returned through onAuthenticated
-	public void authorize(string provider, string permissions) {
+	public void Authorize(string provider, string permissions) {
 		try {
-			authenticated = helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
+			authenticated = helper_class.CallStatic<bool>("Authorize", activity, provider, permissions);
 			if (authenticated) OnAuthentication("Success"); // TEMP
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
@@ -280,9 +280,9 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public bool hasPermissions(string provider, string permissions) {
+	public bool HasPermissions(string provider, string permissions) {
 		try {
-			return helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
+			return helper_class.CallStatic<bool>("HasPermissions", provider, permissions);
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem checking permissions for provider: " + provider);
 			UnityEngine.Debug.LogException(e);
@@ -291,7 +291,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Sync to server
-	public void syncToServer() {
+	public void SyncToServer() {
 		try {
 			helper_class.CallStatic("syncToServer", context);
 			OnSynchronized("some message"); // TODO in java
@@ -302,7 +302,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Reset GPS tracker
-	public void reset() {
+	public void Reset() {
 		try {
 			gps.Call("reset");
 			started = false;
@@ -314,29 +314,29 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Set the target speed
-	public void setTargetSpeed(float speed)
+	public void SetTargetSpeed(float speed)
 	{
 //		try {
 //			target.Call("setSpeed", speed);
 //			UnityEngine.Debug.LogWarning("Platform: Speed has been set to " + speed.ToString ());
 //		} catch (Exception e) {
-//			UnityEngine.Debug.LogWarning("Platform: setTargetSpeed() failed: " + e.Message);
+//			UnityEngine.Debug.LogWarning("Platform: SetTargetSpeed() failed: " + e.Message);
 //			UnityEngine.Debug.LogException(e);
 //		}
-		targetTrackers[0].setTargetSpeed(speed);
+		targetTrackers[0].SetTargetSpeed(speed);
 	}
 	
 	// Set the target track
-	public void setTargetTrack(int trackID)
+	public void SetTargetTrack(int trackID)
 	{
 //		try {
 //			target.Call("setTrack", trackID);
 //			UnityEngine.Debug.LogWarning("Platform: Track has been set to " + trackID.ToString ());
 //		} catch (Exception e) {
-//			UnityEngine.Debug.LogWarning("Platform: setTargetTrack() failed: " + e.Message);
+//			UnityEngine.Debug.LogWarning("Platform: SetTargetTrack() failed: " + e.Message);
 //			UnityEngine.Debug.LogException(e);
 //		}
-		targetTrackers[0].setTargetTrack(trackID);
+		targetTrackers[0].SetTargetTrack(trackID);
 	}
 	
 	// Load the game blob
@@ -353,7 +353,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Get the device's orientation
-	public Quaternion getOrientation() {
+	public Quaternion GetOrientation() {
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getOrientation");
             Quaternion q = new Quaternion(ajo.Call<float>("getX"), ajo.Call<float>("getY"), ajo.Call<float>("getZ"),ajo.Call<float>("getW"));
@@ -365,7 +365,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Reset the Gyros and accelerometer
-	public void resetGyro() {
+	public void ResetGyro() {
 		try {
 			helper.Call("resetGyros");
 		} catch (Exception e) {
@@ -398,7 +398,7 @@ public class Platform : MonoBehaviour {
 //	}
 	
 	// Load a list of tracks
-	public List<Track> getTracks() {
+	public List<Track> GetTracks() {
 		try {
 			int size = helper.Call<int>("getNumberTracks");
 			UnityEngine.Debug.Log("Platform: Getting number of tracks");
@@ -433,7 +433,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Select the next track
-	public void getNextTrack() {
+	public void GetNextTrack() {
 		try {
 			helper.Call("getNextTrack");
 		} catch (Exception e) {
@@ -442,7 +442,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Select the previous track
-	public void getPreviousTrack() {
+	public void GetPreviousTrack() {
 		try {
 			helper.Call("getPreviousTrack");
 		} catch (Exception e) {
@@ -451,7 +451,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Set the chosen track
-	public void setTrack() {
+	public void SetTrack() {
 		try {
 			helper.Call("setTrack");
 		} catch (Exception e) {
@@ -522,14 +522,14 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public float getHighestDistBehind() {
+	public float GetHighestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
-		float h = (float)targetTrackers[0].getTargetDistance() - (float)distance;
+		float h = (float)targetTrackers[0].GetTargetDistance() - (float)distance;
 		for(int i=0; i<targetTrackers.Count; i++) {
-			if(h < targetTrackers[i].getTargetDistance() - (float)distance) {
-				h = (float)targetTrackers[i].getTargetDistance() - (float)distance;
+			if(h < targetTrackers[i].GetTargetDistance() - (float)distance) {
+				h = (float)targetTrackers[i].GetTargetDistance() - (float)distance;
 			}
 		}
 		return h;
@@ -568,7 +568,7 @@ public class Platform : MonoBehaviour {
 		
 //		UnityEngine.Debug.Log("Platform: There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
-			targetTrackers[i].setTargetDistance();
+			targetTrackers[i].SetTargetDistance();
 		}
 		
 		try {
@@ -584,7 +584,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		}
 		try {
-			if (hasLock()) {
+			if (HasLock()) {
 				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
 				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
 			}
@@ -594,7 +594,7 @@ public class Platform : MonoBehaviour {
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
 		try {
-			if (hasLock()) {
+			if (HasLock()) {
 				bearing = gps.Call<float>("getCurrentBearing");
 			}
 		} catch (Exception e) {
@@ -616,13 +616,13 @@ public class Platform : MonoBehaviour {
 		}
 		
 		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval) {
-			syncToServer();
+			SyncToServer();
 		}		
 	}
 	
 	// Return the distance behind target
 	public double DistanceBehindTarget() {
-		double returnDistance = (targetTrackers[0].getTargetDistance() - distance);
+		double returnDistance = (targetTrackers[0].GetTargetDistance() - distance);
 		return returnDistance;
 	}
 	
@@ -659,7 +659,7 @@ public class Platform : MonoBehaviour {
 		return currentActivityPoints;
 	}
 	
-	public void setBasePointsSpeed(float speed) {
+	public void SetBasePointsSpeed(float speed) {
 		try {
 			points_helper.Call("setBaseSpeed", speed);
 		} catch (Exception e) {

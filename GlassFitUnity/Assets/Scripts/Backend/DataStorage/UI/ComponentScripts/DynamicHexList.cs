@@ -68,8 +68,8 @@ public class DynamicHexList : MonoBehaviour
 
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
-            Platform.Instance.resetGyro();
-            cameraDefaultRotation = ConvertOrientation(Platform.Instance.getOrientation(), out heightDefaultOffset);
+            Platform.Instance.ResetGyro();
+            cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out heightDefaultOffset);
 			//cameraStartingRotation = Quaternion.Euler(0, cameraStartingRotation.eulerAngles.y, 0);
 
             Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * cameraDefaultRotation;
@@ -89,8 +89,8 @@ public class DynamicHexList : MonoBehaviour
     public void ResetGyro()
     {
 #if !UNITY_EDITOR 
-        Platform.Instance.resetGyro();
-        cameraDefaultRotation = ConvertOrientation(Platform.Instance.getOrientation(), out heightDefaultOffset);
+        Platform.Instance.ResetGyro();
+        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out heightDefaultOffset);
 #endif        
     }
     
@@ -156,7 +156,7 @@ public class DynamicHexList : MonoBehaviour
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
                 float pitchHeight;
-                Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * Platform.Instance.getOrientation();
+                Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * Platform.Instance.GetOrientation();
                 guiCamera.transform.rotation = newOffset;
                 Vector3 cameraPos = guiCamera.transform.position;
                 //cameraPos.y = HeightToPositionValue(pitchHeight - heightDefaultOffset);

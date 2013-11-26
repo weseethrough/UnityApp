@@ -30,7 +30,7 @@ public class GlassSettings : MonoBehaviour {
 	void Start () {
 		// Set indoor mode
 		//Platform.Instance.reset();
-		Platform.Instance.setIndoor(false);
+		Platform.Instance.SetIndoor(false);
 		//Platform.Instance.resetTargets();
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
@@ -82,9 +82,9 @@ public class GlassSettings : MonoBehaviour {
 				// If anything has changed
 				if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
-					Platform.Instance.reset();
+					Platform.Instance.Reset();
 										
-					Platform.Instance.setTargetSpeed(targSpeed);
+					Platform.Instance.SetTargetSpeed(targSpeed);
 										
 					// Start countdown again
 					started = false;
@@ -105,7 +105,7 @@ public class GlassSettings : MonoBehaviour {
 			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
 				// Open the menu and pause tracking
         		menuOpen = true;
-				Platform.Instance.stopTrack();
+				Platform.Instance.StopTrack();
 			}
 		}
 		
@@ -143,14 +143,14 @@ public class GlassSettings : MonoBehaviour {
 			}
 		}
 		
-		if((GUI.Button(new Rect(275, 400, 100, 100), "START") || sc.GetComponent<GestureHelper>().right) && !countdown && Platform.Instance.hasLock()) {
+		if((GUI.Button(new Rect(275, 400, 100, 100), "START") || sc.GetComponent<GestureHelper>().right) && !countdown && Platform.Instance.HasLock()) {
 			countdown = true;
 		}
 		
 		if((GUI.Button(new Rect(425, 400, 100, 100), "RESET")  || sc.GetComponent<GestureHelper>().left)) {
 			countdown = false;
-			Platform.Instance.stopTrack();
-			Platform.Instance.reset();
+			Platform.Instance.StopTrack();
+			Platform.Instance.Reset();
 			countTime = 3.0f;
 			started = false;
 		}

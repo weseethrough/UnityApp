@@ -24,8 +24,8 @@ public class UISensorCamera : MonoBehaviour {
 		if(!started)
 		{
 #if !UNITY_EDITOR
-			Platform.Instance.resetGyro();
-			offsetFromStart = Platform.Instance.getOrientation();
+			Platform.Instance.ResetGyro();
+			offsetFromStart = Platform.Instance.GetOrientation();
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 #endif
 			DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
@@ -40,8 +40,8 @@ public class UISensorCamera : MonoBehaviour {
 		if(GUI.Button (new Rect(0, 450, 70, 50), "Set Gyro"))
 		{ 
 #if !UNITY_EDITOR
-			Platform.Instance.resetGyro();
-			offsetFromStart = Platform.Instance.getOrientation();
+			Platform.Instance.ResetGyro();
+			offsetFromStart = Platform.Instance.GetOrientation();
 #endif
             DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
             foreach (DynamicHexList dhl in lists)
@@ -60,7 +60,7 @@ public class UISensorCamera : MonoBehaviour {
 	void Update () {
 		// Update the rotation and set it
 #if !UNITY_EDITOR
-		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getOrientation();
+		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
 
 		transform.rotation = newOffset;
 #endif

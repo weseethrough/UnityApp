@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class TargetController : MonoBehaviour {
@@ -16,16 +16,16 @@ public class TargetController : MonoBehaviour {
 	
 	protected void OnEnable() {
 		UnityEngine.Debug.Log("Target: Just been enabled");
-		target = Platform.Instance.getTargetTracker();
+		target = Platform.Instance.GetTargetTracker();
 		UnityEngine.Debug.Log("Target: tracker obtained!");
 	}
 	
-	public void increaseOffset() 
+	public void IncreaseOffset() 
 	{
 		distanceOffset += 50f;
 	}
 	
-	public void setAttribs(float offset, float speed, float yDist, float xDist) {
+	public void SetAttribs(float offset, float speed, float yDist, float xDist) {
 		distanceOffset = offset;
 		travelSpeed = speed;
 		height = yDist;
@@ -39,7 +39,7 @@ public class TargetController : MonoBehaviour {
 /*		UnityEngine.Debug.Log("Target: Distance is " + target.getDistanceBehindTarget().ToString());
 		UnityEngine.Debug.Log("Target: Platform Distance is " + Platform.Instance.getHighestDistBehind());
 		UnityEngine.Debug.Log("Target: Distance behind target is " + Platform.Instance.DistanceBehindTarget());
-*/		scaledDistance = (target.getDistanceBehindTarget() - distanceOffset) * travelSpeed;
+*/		scaledDistance = (target.GetDistanceBehindTarget() - distanceOffset) * travelSpeed;
 
 		Vector3 movement = new Vector3(xOffset, height, (float)scaledDistance);
 		transform.position = movement;

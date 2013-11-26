@@ -42,7 +42,7 @@ public class TrackPanel : Panel {
 				break;
 				
 			case "SetTrackButton":
-				Platform.Instance.setTrack();
+				Platform.Instance.SetTrack();
 				break;
 
 			case "BackSettingsButton":
@@ -51,8 +51,8 @@ public class TrackPanel : Panel {
 			
 			case "ShareButton":
 				if (trackHandler == null) Startup ();
-				if (!Platform.Instance.hasPermissions("facebook", "share")) {
-					Platform.Instance.authorize("facebook", "share");
+				if (!Platform.Instance.HasPermissions("facebook", "share")) {
+					Platform.Instance.Authorize("facebook", "share");
 					// TODO: Async continue
 					break;
 				}

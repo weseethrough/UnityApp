@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class TrainingCamera : MonoBehaviour {
@@ -46,14 +46,14 @@ public class TrainingCamera : MonoBehaviour {
 		} else if(!avatarSet) {
 			if(transform.rotation.eulerAngles.y < 200 && transform.rotation.eulerAngles.y > 160) {
 				subtitleTime = 0.0f;
-				Platform.Instance.reset();
-				runner.GetComponent<TrainingController>().setMove(true);
+				Platform.Instance.Reset();
+				runner.GetComponent<TrainingController>().SetMove(true);
 				avatarSet = true;
 			} else {
 				GUI.Label(new Rect(300, 100, 200, 60), "Great! Now take a look around and try and spot the avatar you will be racing against");
 			}
-		} else if(!Platform.Instance.hasStarted()) {
-			if(!Platform.Instance.hasLock()){
+		} else if(!Platform.Instance.HasStarted()) {
+			if(!Platform.Instance.HasLock()){
 				GUI.Label(new Rect(300, 100, 200, 80), "There he is, he's just going to get into position and we can start once we have a lock on the GPS.");
 				subtitleTime = 0.0f;
 			} else {
@@ -73,8 +73,8 @@ public class TrainingCamera : MonoBehaviour {
 				if(timerActive) {
 					gridOn = false;
 				} else {
-					offsetFromStart = Platform.Instance.getOrientation();
-					Platform.Instance.resetGyro();
+					offsetFromStart = Platform.Instance.GetOrientation();
+					Platform.Instance.ResetGyro();
 					gridOn = true;
 				}
 				gridTimer = 5.0f;
@@ -100,7 +100,7 @@ public class TrainingCamera : MonoBehaviour {
 	
 	void Update () {
 		// Set the new rotation of the camera
-		newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.getOrientation();
+		newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
 		
 		subtitleTime += Time.deltaTime;
 		

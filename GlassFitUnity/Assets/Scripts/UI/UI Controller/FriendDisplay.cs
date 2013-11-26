@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -27,7 +27,7 @@ public class FriendDisplay : MonoBehaviour {
 		}
 		tex = GetComponent<UITexture>();
 		tex.material.mainTexture = loading;
-		Platform.Instance.syncToServer();
+		Platform.Instance.SyncToServer();
 		syncTime = Time.time;
 		friendList = Platform.Instance.Friends();
 		List<Friend> filtered = new List<Friend>();

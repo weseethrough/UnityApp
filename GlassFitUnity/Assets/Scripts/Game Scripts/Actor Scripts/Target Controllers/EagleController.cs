@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -26,14 +26,14 @@ public class EagleController : TargetController {
 	
 	void OnEnable() {
 		base.OnEnable();
-		setAttribs(50, 135, 2092, 0);
+		SetAttribs(50, 135, 2092, 0);
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		base.Update();
 		
-		float realDist = (float)target.getDistanceBehindTarget() - distanceOffset;
+		float realDist = (float)target.GetDistanceBehindTarget() - distanceOffset;
 		
 		if(realDist < -49)
 		{
@@ -59,7 +59,7 @@ public class EagleController : TargetController {
 			
 			screechTime += Time.deltaTime;
 			
-			float time = -realDist / target.getCurrentSpeed();
+			float time = -realDist / target.GetCurrentSpeed();
 			speed = height / time;
 			if(height > 0)
 			{

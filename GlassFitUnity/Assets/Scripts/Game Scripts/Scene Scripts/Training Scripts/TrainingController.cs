@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class TrainingController : TargetController {
@@ -12,17 +12,17 @@ public class TrainingController : TargetController {
 	// Use this for initialization
 	void Start () {
 		//target = Platform.Instance.getTargetTracker();
-		setAttribs(20, 135, -254.6f, 100);
+		SetAttribs(20, 135, -254.6f, 100);
 		anim = GetComponent<Animator>();
 		
 	}
 	
 	void OnEnable() {
 		//base.OnEnable();
-		setAttribs(20, 135, -254.6f, 100);
+		SetAttribs(20, 135, -254.6f, 100);
 	}
 	
-	public void setMove(bool b) {
+	public void SetMove(bool b) {
 		move = b;
 	}
 	
@@ -30,10 +30,10 @@ public class TrainingController : TargetController {
 				
 		if(!started) {
 			started = true;
-			Platform.Instance.resetTargets();
-			target = Platform.Instance.getTargetTracker();
+			Platform.Instance.ResetTargets();
+			target = Platform.Instance.GetTargetTracker();
 			anim.speed = 0.5f;
-			target.setTargetSpeed(2.2f);
+			target.SetTargetSpeed(2.2f);
 		} 
 		
 		if(move) {
@@ -41,10 +41,10 @@ public class TrainingController : TargetController {
 			
 			if(zMove > 0.0f) {
 				zMove -= Time.deltaTime * 5.0f;			
-				setAttribs(zMove, 135, -254.6f, 100);
+				SetAttribs(zMove, 135, -254.6f, 100);
 			}
 			
-			float newSpeed = target.getCurrentSpeed();
+			float newSpeed = target.GetCurrentSpeed();
 			if(speed != newSpeed)
 			{
 				speed = newSpeed;
