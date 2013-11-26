@@ -32,7 +32,7 @@ public class Platform : MonoBehaviour {
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
 	
-	private List<TargetTracker> targetTrackers;
+	public List<TargetTracker> targetTrackers { get; private set; }
 	
 	public bool authenticated { get; private set; }	
 	
@@ -226,8 +226,13 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Returns the target tracker
-	public TargetTracker CreateTargetTracker(){
-		TargetTracker t = new TargetTracker(helper);
+	public TargetTracker CreateTargetTracker(float constantSpeed){
+		TargetTracker t = new TargetTracker(helper, constantSpeed);
+		targetTrackers.Add(t);
+		return t;
+	}
+	public TargetTracker CreateTargetTracker(int deviceId, int trackId){
+		TargetTracker t = new TargetTracker(helper, deviceId, trackId);
 		targetTrackers.Add(t);
 		return t;
 	}
@@ -447,6 +452,19 @@ public class Platform : MonoBehaviour {
 		return h;
 	}
 	
+	public float GetLowestDistBehind() {
+		if(targetTrackers.Count <= 0)
+			return 0;
+		
+		float l = (float)targetTrackers[0].GetTargetDistance() - (float)distance;
+		for(int i=0; i<targetTrackers.Count; i++) {
+			if(l > targetTrackers[i].GetTargetDistance() - (float)distance) {
+				l = (float)targetTrackers[i].GetTargetDistance() - (float)distance;
+			}
+		}
+		return l;
+	}
+	
 	// Update the data
 	public void EraseBlob(string id) {
 		try {
@@ -480,7 +498,7 @@ public class Platform : MonoBehaviour {
 		
 //		UnityEngine.Debug.Log("Platform: There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
-			targetTrackers[i].SetTargetDistance();
+			targetTrackers[i].PollTargetDistance();
 		}
 		
 		try {

@@ -21,18 +21,17 @@ public class DemoController : TargetController {
 	}
 	
 	void Update () {
+		if (target == null) return;
 				
 		if(!started) {
 			started = true;
-			Platform.Instance.ResetTargets();
-			target = Platform.Instance.GetTargetTracker();
-			anim.speed = target.GetCurrentSpeed() / 2.2f;
-			speed = target.GetCurrentSpeed();
+			anim.speed = target.PollCurrentSpeed() / 2.2f;
+			speed = target.PollCurrentSpeed();
 			anim.SetFloat("Speed", speed);
 		}
 		
 		base.Update();
-		float newSpeed = target.GetCurrentSpeed();
+		float newSpeed = target.PollCurrentSpeed();
 		if(speed != newSpeed)
 		{
 			speed = newSpeed;

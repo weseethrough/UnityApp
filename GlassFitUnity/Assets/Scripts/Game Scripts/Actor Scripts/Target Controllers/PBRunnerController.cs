@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
@@ -16,10 +16,12 @@ public class PBRunnerController : TargetController {
 	
 	void OnEnable() {
 		base.OnEnable();
-		base.setAttribs(0, 135, -254.6f, 50);
+		base.SetAttribs(0, 135, -254.6f, 50);
+		
+		if (target == null) return;
 		
 		anim = GetComponent<Animator>();
-		speed = target.getCurrentSpeed();
+		speed = target.PollCurrentSpeed();
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f && speed < 4.0f) {
 			anim.speed = speed / 2.2f;
@@ -30,10 +32,11 @@ public class PBRunnerController : TargetController {
 		}
 	}
 	
-	void Update () {
-				
+	void Update () {				
 		base.Update();
-		float newSpeed = target.getCurrentSpeed();
+		if (target == null) return;
+		UnityEngine.Debug.Log("PBRunner notnull!");
+		float newSpeed = target.PollCurrentSpeed();
 		if(speed != newSpeed)
 		{
 			speed = newSpeed;

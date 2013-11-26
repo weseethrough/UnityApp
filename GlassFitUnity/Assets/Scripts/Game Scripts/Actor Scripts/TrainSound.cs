@@ -7,11 +7,14 @@ public class TrainSound : MonoBehaviour {
 	private AudioSource trainMove;
 	private AudioSource trainWhistle;
 	private bool movePlaying;
-	public GameObject train;
+	private GameObject train;
+	private TargetController controller;
 	
 	// Use this for initialization
 	void Start () {
 		var aSources = GetComponents<AudioSource>();
+		train = transform.parent.gameObject;
+		controller = train.GetComponent<TargetController>();
 		trainMove = aSources[0];
 		trainWhistle = aSources[1];
 		
@@ -36,7 +39,7 @@ public class TrainSound : MonoBehaviour {
 				whistleTime -= 10.0f;
 			}
 			
-			transform.position = new Vector3(0, 0, (float)Platform.Instance.DistanceBehindTarget()-50.0f);
+			transform.position = new Vector3(0, 0, (float)Platform.Instance.DistanceBehindTarget(controller.target)-50.0f);
 		}
 		else {
 			movePlaying = false;

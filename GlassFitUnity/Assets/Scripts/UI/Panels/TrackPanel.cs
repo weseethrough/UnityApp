@@ -42,7 +42,7 @@ public class TrackPanel : Panel {
 				break;
 				
 			case "SetTrackButton":
-				Platform.Instance.SetTrack();
+				// NOTE: This button does nothing. P.I.currentTrack is used directly in TrackSelect.
 				break;
 
 			case "BackSettingsButton":

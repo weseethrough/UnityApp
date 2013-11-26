@@ -5,7 +5,6 @@ public class TrainingController : TargetController {
 
 	private Animator anim; 
 	private float speed;
-	private bool started = false;
 	private bool move = false;
 	private float zMove = 20.0f;
 	
@@ -20,6 +19,13 @@ public class TrainingController : TargetController {
 	void OnEnable() {
 		//base.OnEnable();
 		SetAttribs(20, 135, -254.6f, 100);
+		anim.speed = 0.5f;
+		target = Platform.Instance.CreateTargetTracker(2.2f);
+	}
+	
+	public void SetSpeed(float speed) {
+		anim.speed = speed / 2.2f;
+		target = Platform.Instance.CreateTargetTracker(speed);
 	}
 	
 	public void SetMove(bool b) {
@@ -27,14 +33,6 @@ public class TrainingController : TargetController {
 	}
 	
 	void Update () {
-				
-		if(!started) {
-			started = true;
-			Platform.Instance.ResetTargets();
-			target = Platform.Instance.GetTargetTracker();
-			anim.speed = 0.5f;
-			target.SetTargetSpeed(2.2f);
-		} 
 		
 		if(move) {
 			anim.SetBool("Looking", true);
@@ -44,7 +42,7 @@ public class TrainingController : TargetController {
 				SetAttribs(zMove, 135, -254.6f, 100);
 			}
 			
-			float newSpeed = target.GetCurrentSpeed();
+			float newSpeed = target.PollCurrentSpeed();
 			if(speed != newSpeed)
 			{
 				speed = newSpeed;

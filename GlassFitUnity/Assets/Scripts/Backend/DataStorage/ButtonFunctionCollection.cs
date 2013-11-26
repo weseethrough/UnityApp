@@ -134,28 +134,28 @@ public class ButtonFunctionCollection
 	static public bool ChangeToEagle(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.SetTarget(PursuitGame.Targets.Eagle);
+		ps.SetActorType(PursuitGame.ActorType.Eagle);
 		return false;
 	}
 	
 	static public bool ChangeToZombie(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.SetTarget(PursuitGame.Targets.Zombie);
+		ps.SetActorType(PursuitGame.ActorType.Zombie);
 		return false;
 	}
 	
 	static public bool ChangeToTrain(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.SetTarget(PursuitGame.Targets.Train);
+		ps.SetActorType(PursuitGame.ActorType.Train);
 		return false;
 	}
 	
 	static public bool ChangeToBoulder(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.SetTarget(PursuitGame.Targets.Boulder);
+		ps.SetActorType(PursuitGame.ActorType.Boulder);
 		return false;
 	}
 	

@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class SoundController : MonoBehaviour {
+public class SoundController : TargetController {
 	private const float NUM_TRACKS = 11;
 	private AudioSource[] stevies;
 	private float curTime = 0.0f;
@@ -21,9 +21,6 @@ public class SoundController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		stevies = GetComponents<AudioSource>();
-		Platform.Instance.SetIndoor(true);
-		Platform.Instance.SetTargetSpeed(1.5f);
-		//Platform.Instance.StartTrack(true);
 		scale.x = (float)Screen.width/originalWidth;
 		scale.y = (float)Screen.height/originalHeight;
 	}
@@ -111,7 +108,7 @@ public class SoundController : MonoBehaviour {
 			}
 		}
 		
-		double dist = Platform.Instance.DistanceBehindTarget() - 50;
+		double dist = Platform.Instance.DistanceBehindTarget(target) - 50;
 		
 		if(dist <= 0.0 && started)
 		{

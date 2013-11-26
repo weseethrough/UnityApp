@@ -34,6 +34,8 @@ public class TrainController : TargetController {
 	// Update is called once per frame
 	void Update () {
 		base.Update();
+		if (target == null) return;
+		
 		whistleTime += Time.deltaTime;
 		
 		if(whistleTime >= 10.0f)

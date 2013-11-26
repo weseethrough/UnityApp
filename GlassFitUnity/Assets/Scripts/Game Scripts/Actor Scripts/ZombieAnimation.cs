@@ -4,14 +4,16 @@ using System.Collections;
 public class ZombieAnimation : MonoBehaviour {
 	private float speed;
 	private Animator anim;
+	private TargetController controller;
 	
 	// Use this for initialization
 	void Start () {
 		//UnityEngine.Debug.Log("Zombie: getting animator");
 		anim = GetComponent<Animator>();
 		//UnityEngine.Debug.Log("Zombie: getting speed");
+		controller = transform.parent.gameObject.GetComponent<TargetController>();
 		
-		speed = Platform.Instance.GetCurrentSpeed(0);
+		speed = controller.target.PollCurrentSpeed();
 		//UnityEngine.Debug.Log("Zombie: setting anim float");
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f) {
@@ -25,7 +27,7 @@ public class ZombieAnimation : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		Platform.Instance.Poll();
-		float newSpeed = Platform.Instance.GetCurrentSpeed(0);
+		float newSpeed = controller.target.PollCurrentSpeed();
 		if(newSpeed != speed)
 		{
 			speed = newSpeed;

@@ -59,7 +59,7 @@ public class EagleController : TargetController {
 			
 			screechTime += Time.deltaTime;
 			
-			float time = -realDist / target.GetCurrentSpeed();
+			float time = -realDist / target.PollCurrentSpeed();
 			speed = height / time;
 			if(height > 0)
 			{

@@ -30,11 +30,11 @@ public class SettingsPanel : Panel {
 			switch(button.name)
 			{
 			case "RunnerButton":
-				ss.SetTarget(RaceGame.Targets.Runner);
+				ss.SetActorType(RaceGame.ActorType.Runner);
 				break;
 				
 			case "CyclistButton":
-				ss.SetTarget(RaceGame.Targets.Cyclist);
+				ss.SetActorType(RaceGame.ActorType.Cyclist);
 				break;
 				
 			case "IndoorButton":
