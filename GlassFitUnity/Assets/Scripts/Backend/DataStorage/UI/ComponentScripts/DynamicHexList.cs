@@ -123,7 +123,7 @@ public class DynamicHexList : MonoBehaviour
     /// function which converts from 
     /// </summary>
     /// <param name="height">height is a result of the pitch calculation so it should be between 0 and 360</param>
-    /// <returns></returns>
+    /// <returns>physical height used by camera to be lifted by</returns>
     private float HeightToPositionValue(float height)
     {
         while(height < 0)
@@ -138,6 +138,10 @@ public class DynamicHexList : MonoBehaviour
         return height * 0.1f;
     }
 
+    /// <summary>
+    /// getter for panel button data
+    /// </summary>
+    /// <returns>returns list of hex buttons data containing all settings for button creation </returns>
     public List<HexButtonData> GetButtonData()
     {
         if (parent == null) return null;
@@ -145,11 +149,20 @@ public class DynamicHexList : MonoBehaviour
         return parent.buttonData;
     }
 
+    /// <summary>
+    /// sets parent panel for this component
+    /// </summary>
+    /// <param name="_parent">hex panel pointer</param>
+    /// <returns></returns>
     public void SetParent(HexPanel _parent)
     {
         parent = _parent;
     }
 
+    /// <summary>
+    /// standard unity update function called once per frame
+    /// </summary>
+    /// <returns></returns>
     void Update()
     {
 
@@ -358,6 +371,10 @@ public class DynamicHexList : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Builds screen buttons based on first prefab button it contains
+    /// </summary>
+    /// <returns></returns>
     private void InitializeItems()
     {
         if (parent == null || radius == 0.0f)
@@ -442,12 +459,23 @@ public class DynamicHexList : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Get location in 2d space for the element based on its column and row position
+    /// </summary>
+    /// <param name="column">horizontal position (might be negative)</param>
+    /// <param name="row">vertical position (might be negative)</param>
+    /// <returns>flat 2d position for hex </returns>
     Vector2 GetLocation(int column, int row)
     {
         int Yoffset = - (Mathf.Abs(column) % 2);
         return new Vector2(hexLayoutOffset.x * column, -hexLayoutOffset.y * (Yoffset + row*2));
     }
 
+    /// <summary>
+    /// Finds generic poistion for element using some predefined algorithm
+    /// </summary>
+    /// <param name="index">button index requested</param>
+    /// <returns>flat 2d position for hex </returns>
     Vector2 GetLocation(int index)
     {
         if (hexLayoutOffset == Vector2.zero)
@@ -535,6 +563,12 @@ public class DynamicHexList : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Plays animation to enter button
+    /// </summary>
+    /// <param name="buttonRoot">Game Object which is root element in button structure.</param>
+    /// <param name="forward">should animation go forward or backward</param>
+    /// <returns></returns>
     public void PlayButtonEnter(GameObject buttonRoot, bool forward)
     {
         buttonRoot.SetActive(true);
@@ -560,6 +594,10 @@ public class DynamicHexList : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// standard unity function which is called when object gets destroyed. Used for cleaning up
+    /// </summary>
+    /// <returns></returns>
     public void OnExit()
     {
         if (guiCamera != null)

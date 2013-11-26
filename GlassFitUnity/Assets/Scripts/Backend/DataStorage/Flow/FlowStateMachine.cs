@@ -3,6 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// component which is flow manager embedded in prefab. Manages state progression, flowstate stack and many more important flow behaviors and data 
+/// </summary>
 public class FlowStateMachine : MonoBehaviour 
 {
     private List<FlowState> activeFlow;
@@ -10,11 +13,19 @@ public class FlowStateMachine : MonoBehaviour
     private FlowState targetState;
     private GConnector targetStateConnector;
 
+    /// <summary>
+    /// default unity initialization call, used to stop this structure from destruction when navigation between scenes
+    /// </summary>
+    /// <returns></returns>
     void Awake()
     {
 		DontDestroyOnLoad(transform.gameObject);
     }
 
+    /// <summary>
+    /// default unity initialization call after all Awake are called. Used to find starting node and format some variables.
+    /// </summary>
+    /// <returns></returns>
     void Start()
     {                     
         activeFlow = new List<FlowState>();
@@ -33,6 +44,10 @@ public class FlowStateMachine : MonoBehaviour
         }
     }
 	
+	/// <summary>
+	/// static function allowing to take current flow state if one exists. Might be useful for some arbitrary calls in static locations which needs to know what panel is currently on or force navigation in/out
+	/// </summary>
+	/// <returns>returns current active flow state</returns>
 	static public FlowState GetCurentFlowState()
     {
         FlowStateMachine fsm = GameObject.FindObjectOfType(typeof(FlowStateMachine)) as FlowStateMachine;
@@ -43,6 +58,10 @@ public class FlowStateMachine : MonoBehaviour
         return fsm.activeFlow[fsm.activeFlow.Count - 1];
     }
 	
+    /// <summary>
+    /// default unity function called once every frame. used by internal state machine to progress between states
+    /// </summary>
+    /// <returns></returns>
     void Update()
     {
         ProgressStateChanges();
@@ -65,6 +84,11 @@ public class FlowStateMachine : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// function to progress update on current state or forward update call if required
+    /// </summary>
+    /// <param name="fs"></param>
+    /// <returns>if true is returned another update would eb called, for example if we are leaving from stack of the states we need to close one after another but all in same frame if none of them stuck for their own exitUpdate function</returns>
     public bool UpdateState(FlowState fs)
     {
         bool requiresAnotherPass = false;
@@ -93,6 +117,11 @@ public class FlowStateMachine : MonoBehaviour
         return requiresAnotherPass;
     }
 
+    /// <summary>
+    /// function which allows to navigate along specified connection
+    /// </summary>
+    /// <param name="connection">connection you want this flow to follow</param>
+    /// <returns>returns true if follow connection is possible (connection is valid)</returns>
     public bool FollowConnection(GConnector connection)
     {
         if (connection != null && 
@@ -112,6 +141,10 @@ public class FlowStateMachine : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// function which allows for easy navigation back in the history of the previously visited panels
+    /// </summary>
+    /// <returns>returns false if navigation history was invalid/empty</returns>
     public bool FollowBack()
     {
         if (navigationHistory != null && navigationHistory.Count > 0)
@@ -125,6 +158,10 @@ public class FlowStateMachine : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// clears previous history and makes further NavigationBack invalid until new history is made. This for example blocks user from navigation back to the game from summary screen and other back autonavigations avaliable in UI
+    /// </summary>
+    /// <returns></returns>
     public void ForbidBack()
     {
         navigationHistory = new List<FlowState>();
@@ -196,6 +233,10 @@ public class FlowStateMachine : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Checks if latest state in stack is idle making whole stack structure idle and so state machine
+    /// </summary>
+    /// <returns>returns true if state machine is ready to do new navigations etc</returns>
     public bool IsReady()
     {
         if (activeFlow.Count > 0)
@@ -208,14 +249,5 @@ public class FlowStateMachine : MonoBehaviour
         }
         return true;
     }
-
-    static public FlowState GetCurentFlowState()
-    {
-        FlowStateMachine fsm = GameObject.FindObjectOfType(typeof(FlowStateMachine)) as FlowStateMachine;
-        if (fsm == null) return null;
-
-        if (fsm.activeFlow == null || fsm.activeFlow.Count == 0) return null;
-
-        return fsm.activeFlow[fsm.activeFlow.Count - 1];
-    }
+    
 }
