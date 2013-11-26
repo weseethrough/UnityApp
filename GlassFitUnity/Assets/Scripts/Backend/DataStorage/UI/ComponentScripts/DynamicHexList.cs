@@ -2,6 +2,9 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// Component which provides management functionality for dynamic hex screens
+/// </summary>
 public class DynamicHexList : MonoBehaviour
 {
     HexPanel    parent                  = null;
@@ -33,6 +36,11 @@ public class DynamicHexList : MonoBehaviour
     bool        dragging                = false;
     int         draggingFingerID        = -1;    
 
+
+    /// <summary>
+    /// List initialization process
+    /// </summary>
+    /// <returns></returns>
     void Start()
     {        
 
@@ -81,6 +89,10 @@ public class DynamicHexList : MonoBehaviour
         InitializeItems();
     }
 
+    /// <summary>
+    /// Resets gyro offset against the screen, visually it setts screen to the "zero" position
+    /// </summary>
+    /// <returns></returns>
     public void ResetGyro()
     {
 #if !UNITY_EDITOR 
@@ -89,14 +101,24 @@ public class DynamicHexList : MonoBehaviour
 #endif        
     }
     
-    private Quaternion ConvertOrientation(Quaternion q,out float height)
+    /// <summary>
+    /// function which allows us to process orientation and subtract height from it of it to separated varable
+    /// </summary>
+    /// <param name="q">input orientation</param>
+    /// <param name="height">output height</param>
+    /// <returns>output orientation</returns>
+    private Quaternion ConvertOrientation(Quaternion q, out float height)
     {
         //we stop pitch for the sake of height
-        height = q.eulerAngles.x;
-        return q;
+        height = q.eulerAngles.x; //-q.eulerAngles.y
+        return q;// Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
     }
-
-    //height is a result of the pitch calculation so it should be between 0 and 360
+    
+    /// <summary>    
+    /// function which converts from 
+    /// </summary>
+    /// <param name="height">height is a result of the pitch calculation so it should be between 0 and 360</param>
+    /// <returns></returns>
     private float HeightToPositionValue(float height)
     {
         while(height < 0)
@@ -303,11 +325,15 @@ public class DynamicHexList : MonoBehaviour
                         TweenPosition.Begin(tp.gameObject, 0.3f, pos);
                     }
                 }
-
             }
         }        
     }
 
+    /// <summary>
+    /// Cleans up elements from the screen preparing for recreation
+    /// </summary>
+    /// <param name="elementsToKeep"> number of the elements which would not be destroyed during cleanup. Its for performance only as all elements should be reconfiguret later anyway</param>
+    /// <returns>Null</returns>
     void CleanupChildren(int elementsToKeep)
     {
         if (transform.childCount < 1)
