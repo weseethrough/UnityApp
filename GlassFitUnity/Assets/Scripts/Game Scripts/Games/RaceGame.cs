@@ -46,7 +46,7 @@ public class RaceGame : MonoBehaviour {
 	public GameObject runnerHolder;
 	
 	// Holds actor instances
-	public List<GameObject> actors;
+	public List<GameObject> actors = new List<GameObject>();
 	
 	// Variables to set the scale
 	private int originalHeight = 500;
