@@ -6,31 +6,60 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 
+/// <summary>
+/// Class collecting data about game object building serializable structure of its behaviors
+/// </summary>
 [Serializable]
 public class SerializableSettings : ISerializable 
 {
     private List<SingleComponent> components;    
 
+    /// <summary>
+    /// default constructor initialization
+    /// </summary>
+    /// <returns></returns>
     public SerializableSettings()
     {
         this.components = new List<SingleComponent>();
     }
 
+    /// <summary>
+    /// gameobject based constructor which reads its structure and prepares for serialization
+    /// </summary>
+    /// <param name="go">gameobject containing components which can be processed by serialziator(simle clasess and basic type variables only, no pointers!)</param>
+    /// <returns></returns>
     public SerializableSettings(GameObject go)
     {        
         ReadGameObjectComponents(go);
     }
 
+    /// <summary>
+    /// deserialization constructor
+    /// </summary>
+    /// <param name="info">serialization info containing parameters details</param>
+    /// <param name="ctxt">serialziation context</param>
+    /// <returns></returns>
     public SerializableSettings(SerializationInfo info, StreamingContext ctxt)
 	{
         this.components = (List<SingleComponent>)info.GetValue("Components", typeof(List<SingleComponent>));        
 	}
 	
+	/// <summary>
+	/// serialization functionality called by serializator
+	/// </summary>
+    /// <param name="info">serialization info containing parameters details</param>
+    /// <param name="ctxt">serialziation context</param>
+	/// <returns></returns>
 	public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
    	{
         info.AddValue("Components", this.components);        
    	}
 
+    /// <summary>
+    /// rebuild data to gameobject attaching missing components and configuring them according to serialziezd data
+    /// </summary>
+    /// <param name="go">target gameobject which should contain components or would get them as a reconstruction process. Prefab root</param>
+    /// <returns></returns>
     public void LoadSettingsTo(GameObject go)
     {
         var bindingFlags = BindingFlags.Instance |
@@ -81,6 +110,11 @@ public class SerializableSettings : ISerializable
         }
     }
 
+    /// <summary>
+    /// reads and saves gameobejct components and variables
+    /// </summary>
+    /// <param name="go">target gameobject which is prepared for serialziation</param>
+    /// <returns></returns>
     private void ReadGameObjectComponents(GameObject go)
     {
         this.components = new List<SingleComponent>();
@@ -143,16 +177,29 @@ public class SerializableSettings : ISerializable
         }                
     }
 
+    /// <summary>
+    /// searches component by name in stored list, returns 
+    /// </summary>
+    /// <param name="name">name of the component in question</param>
+    /// <returns>serialization-ready structure requested usually for rebuild</returns>
     public SingleComponent GetComponent(string name)
     {
         return components.Find(r => r.name == name);
     }
 
+    /// <summary>
+    /// get all single components related to creator's game object
+    /// </summary>
+    /// <returns>list of all single components created during preparation for serialization</returns>
     public List<SingleComponent> GetComponents()
     {
         return components;
     }
 
+    /// <summary>
+    /// makes copy of the serializable setting and all its stored components
+    /// </summary>
+    /// <returns>copy of the serializable setting and all its stored components</returns>
     public SerializableSettings Clone()
     {
         SerializableSettings ss = new SerializableSettings();

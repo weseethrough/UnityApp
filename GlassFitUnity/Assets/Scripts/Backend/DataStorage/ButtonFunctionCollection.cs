@@ -6,13 +6,17 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
+/// <summary>
+/// Every function in collection have to accept FlowButton and panel variable and return boolean helping to decide if navigation should continue or stop
+/// </summary>
 public class ButtonFunctionCollection  
 {
    
     /// <summary>
-    /// Every function in collection have to accept FlowButton variable and return boolean. 
+    /// default testing function 
     /// </summary>
     /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
     static public bool MyFunction1(FlowButton fb, Panel panel)
     {
@@ -21,19 +25,24 @@ public class ButtonFunctionCollection
         return true;
     }
 
-    static public bool MyFunction2(FlowButton fb, Panel panel)
-    {
-        Debug.Log("Testing linked function false");
-
-        return false;
-    }
-
+    /// <summary>
+    /// Check if user is authenticated
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>always return false blocking further navigation</returns>
     static public bool isAuthent(FlowButton fb, Panel panel) 
 	{
 		// Connection followed asynchronously
 		return false; 
 	}
 	
+	/// <summary>
+	/// sets type f the challenge based on button which provided event
+	/// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+	/// <returns>always return true no matter what type of activity is set</returns>
 	static public bool SetType(FlowButton fb, Panel panel)
 	{
 		switch(fb.name) 
@@ -66,6 +75,12 @@ public class ButtonFunctionCollection
 		return true;
 	}
 
+    /// <summary>
+    /// loads next game level and initializes game with some custom settings based on button pressed
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>always allow for further navigation</returns>
     static public bool StartGame(FlowButton fb, Panel panel)
 	{
 		AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
@@ -95,7 +110,13 @@ public class ButtonFunctionCollection
 		
 		return true;
 	}
-	
+
+    /// <summary>
+    /// loads next game level and initializes game with some custom settings based on button pressed
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>always allow for further navigation</returns>
 	static public bool StartPursuitGame(FlowButton fb, Panel panel) 
 	{
 		AutoFade.LoadLevel(3, 0f, 1.0f, Color.black);
@@ -123,42 +144,78 @@ public class ButtonFunctionCollection
 		}
 		return true;
 	}
-	
+
+    /// <summary>
+    /// sets pursuit game mode to indoor mode
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>never allow further navigation</returns>
 	static public bool SetIndoor(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 		ps.SetIndoor();
 		return false;
 	}
-	
+
+    /// <summary>
+    /// sets pursuit game mode to eagle mode
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>never allow further navigation</returns>
 	static public bool ChangeToEagle(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 		ps.SetTarget(PursuitGame.Targets.Eagle);
 		return false;
 	}
-	
+
+    /// <summary>
+    /// sets pursuit game mode to zombie mode
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>never allow further navigation</returns>
 	static public bool ChangeToZombie(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 		ps.SetTarget(PursuitGame.Targets.Zombie);
 		return false;
 	}
-	
+
+    /// <summary>
+    /// sets pursuit game mode to train mode
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>never allow further navigation</returns>
 	static public bool ChangeToTrain(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 		ps.SetTarget(PursuitGame.Targets.Train);
 		return false;
 	}
-	
+
+    /// <summary>
+    /// sets pursuit game mode to boulder mode
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>never allow further navigation</returns>
 	static public bool ChangeToBoulder(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 		ps.SetTarget(PursuitGame.Targets.Boulder);
 		return false;
 	}
-	
+
+    /// <summary>
+    /// resets pursuit game (todo: confirmation this is not clear)
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>always allow further navigation</returns>
 	static public bool BackPursuit(FlowButton fb, Panel panel)
 	{
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
@@ -167,7 +224,13 @@ public class ButtonFunctionCollection
 		h.renderer.enabled = false;
 		return true;
 	}
-	
+
+    /// <summary>
+    /// leaves game state and resets platform instance
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>always allow further navigation</returns>
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
 		Platform.Instance.Reset();
@@ -175,19 +238,37 @@ public class ButtonFunctionCollection
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
 		return true;
 	}
-	
+
+    /// <summary>
+    /// clears back functionality
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>always allow further navigation</returns>
 	static public bool ClearHistory(FlowButton fb, Panel panel)
 	{
 		panel.parentMachine.ForbidBack();
 		return true;
 	}
-	
+
+    /// <summary>
+    /// sets friend name in database from button name
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>always allow further navigation</returns>
 	static public bool SetFriendType(FlowButton fb, Panel panel) 
 	{
 		DataVault.Set("friend_type", fb.name);
 		return true;
 	}
 
+    /// <summary>
+    /// sends challenge asynchroneus challenge to other user over facebook
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>always allow further navigation</returns>
     static public bool Challenge(FlowButton button, Panel panel)
     {
 		int friendId = (int)DataVault.Get("current_friend");

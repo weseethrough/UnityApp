@@ -107,7 +107,7 @@ public class DynamicHexList : MonoBehaviour
     }
     
     /// <summary>
-    /// function which allows us to process orientation and subtract height from it of it to separated varable
+    /// function which allows us to process orientation and subtract height from it of it to separated variable
     /// </summary>
     /// <param name="q">input orientation</param>
     /// <param name="height">output height</param>
@@ -115,8 +115,8 @@ public class DynamicHexList : MonoBehaviour
     private Quaternion ConvertOrientation(Quaternion q, out float height)
     {
         //we stop pitch for the sake of height
-        height = q.eulerAngles.x; //-q.eulerAngles.y
-        return q;// Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
+        height = -q.eulerAngles.y;
+        return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
     }
     
     /// <summary>    

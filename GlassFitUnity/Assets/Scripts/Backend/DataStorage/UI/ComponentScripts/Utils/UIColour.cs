@@ -2,6 +2,9 @@ using UnityEngine;
 using System.Collections;
 using System;
 
+/// <summary>
+/// component introducing string system for color representation. Used for database based color update
+/// </summary>
 [ExecuteInEditMode]
 public class UIColour : UIComponentSettings {
 
@@ -79,6 +82,10 @@ public class UIColour : UIComponentSettings {
     //public Color sprite;
 	private UISprite spriteInstance;    
 	
+	/// <summary>
+	/// default unity initialization function. Pulls data from color from sprite among children of the gameobject linked to the component
+	/// </summary>
+	/// <returns></returns>
 	void Awake()
 	{
 		UISprite[] sprites = GetComponentsInChildren<UISprite>();
@@ -92,16 +99,29 @@ public class UIColour : UIComponentSettings {
 		UpdateFromSprite();
 	}
 
+    /// <summary>
+    /// builds color from r, g, b, a components
+    /// </summary>
+    /// <returns>current color structure</returns>
     public Color GetColor()
     {
         return new Color(r, g, b, a);
     }
 
+    /// <summary>
+    /// builds vector from r, g, b, a components
+    /// </summary>
+    /// <returns>current color structure as a Vector4 </returns>
     public Vector4 GetVector()
     {
         return new Vector4(r, g, b, a);
     }
 
+	/// <summary>
+	/// sets color to linked sprite
+	/// </summary>
+	/// <param name="c">color which should be set to the component</param>
+	/// <returns></returns>
 	void SetColour(Color c)
 	{
         if (spriteInstance == null)
@@ -118,6 +138,10 @@ public class UIColour : UIComponentSettings {
 		}
 	}
 
+	/// <summary>
+	/// reads build in color values from sprite to UIColor component
+	/// </summary>
+	/// <returns></returns>
 	void UpdateFromSprite()
 	{
         if (spriteInstance != null)
@@ -130,6 +154,10 @@ public class UIColour : UIComponentSettings {
 		}
 	}
     
+    /// <summary>
+    /// tries to load color form database and then set it to sprite component
+    /// </summary>
+    /// <returns></returns>
     override public void Apply()
     {
         base.Apply();
@@ -137,6 +165,10 @@ public class UIColour : UIComponentSettings {
         SetColour(GetColor());
     }
 
+    /// <summary>
+    /// registers component for updates on color variable
+    /// </summary>
+    /// <returns></returns>
     public override void Register()
     {
         base.Register();
@@ -148,6 +180,10 @@ public class UIColour : UIComponentSettings {
         Apply();
     }
 
+    /// <summary>
+    /// loads color stored in database and stores it for further usage on local variable
+    /// </summary>
+    /// <returns></returns>
     public void UpdateFromDatabase()
     {
         if (databaseIDName != null)

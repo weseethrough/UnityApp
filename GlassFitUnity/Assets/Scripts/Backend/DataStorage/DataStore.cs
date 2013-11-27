@@ -6,23 +6,27 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 
+/// <summary>
+/// root data storage class. used for management of all backend and ui external static data
+/// </summary>
 public class DataStore : MonoBehaviour 
 {    
 	static public DataStore _instance;
     static public DataStore instance
     {
-        get {
-                if (_instance != null)
-                {
-                    return _instance;
-                }
-                DataStore ds = (DataStore)GameObject.FindObjectOfType(typeof(DataStore));
-                if (ds != null)
-                {
-                    ds.MakeAwake();
-                }
+        get 
+        {
+            if (_instance != null)
+            {
                 return _instance;
-            }        
+            }
+            DataStore ds = (DataStore)GameObject.FindObjectOfType(typeof(DataStore));
+            if (ds != null)
+            {
+                ds.MakeAwake();
+            }
+            return _instance;
+        }        
     }
 		
     //public properties
@@ -45,6 +49,10 @@ public class DataStore : MonoBehaviour
 	public PlatformDummy platform;
 #endif
 
+    /// <summary>
+    /// initialized class and prepares for further use.
+    /// </summary>
+    /// <returns></returns>
     public void MakeAwake()
     {
         _instance = this;
@@ -70,10 +78,18 @@ public class DataStore : MonoBehaviour
         Initialize();
     }   
 	
-	void Awake() {
+	/// <summary>
+	/// default unity initialization function. Called to stop this gameobject from destruction when switching between scenes
+	/// </summary>	
+	void Awake() 
+    {
 		DontDestroyOnLoad(transform.gameObject);
 	}
 
+    /// <summary>
+    /// load blobs and prepare them for further usage by different systems
+    /// </summary>
+    /// <returns></returns>
     public void Initialize()
     {
         //load data blobs from drive
@@ -96,6 +112,11 @@ public class DataStore : MonoBehaviour
         }        
 	}
 	
+	/// <summary>
+	/// initialzie blob storage instance using byte source loaded form external file or database
+	/// </summary>
+	/// <param name="source">byte array structural source of the storage</param>
+	/// <returns>ready touse sotrage</returns>
 	private Storage InitializeBlob(byte[] source)
 	{
 		/* test code */
@@ -125,6 +146,11 @@ public class DataStore : MonoBehaviour
         return storage;		
 	}
 	
+	/// <summary>
+	/// finds storage using enum name
+	/// </summary>
+	/// <param name="name"></param>
+	/// <returns>null if storage doesn't exist or datastore instance is null, or storage instance if one is found</returns>
 	static public Storage GetStorage(BlobNames name)
 	{
 		if (instance != null)
@@ -135,6 +161,11 @@ public class DataStore : MonoBehaviour
 		return null;
 	}
 
+    /// <summary>
+    /// loads single instance of the blob refresing curent sturcture from external source
+    /// </summary>
+    /// <param name="name">blob enum name</param>
+    /// <returns></returns>
     static public void LoadStorage(BlobNames name)
     {
 #if UNITY_EDITOR
@@ -150,6 +181,11 @@ public class DataStore : MonoBehaviour
 #endif
     }
 
+    /// <summary>
+    /// saves storage to external data block for later use
+    /// </summary>
+    /// <param name="name">name of the blob to be saved</param>
+    /// <returns></returns>
     static public void SaveStorage(BlobNames name)
     {
 #if UNITY_EDITOR

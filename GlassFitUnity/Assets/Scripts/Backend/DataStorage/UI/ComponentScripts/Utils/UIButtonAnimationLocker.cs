@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// component allowing to track current state of the animation and send feedback callbacks
+/// </summary>
 public class UIButtonAnimationLocker : MonoBehaviour
 {
     public delegate void CallbackAnimFinished(UIImageButton button);
@@ -15,6 +18,10 @@ public class UIButtonAnimationLocker : MonoBehaviour
     }
 
 
+    /// <summary>
+    /// Function called when button animation starts to block button functionality for this time
+    /// </summary>
+    /// <returns></returns>
     public void OnButtonAnimStarted()
     {
         if (button == null)
@@ -25,6 +32,10 @@ public class UIButtonAnimationLocker : MonoBehaviour
         if (button != null) button.isEnabled = false;
     }
 
+    /// <summary>
+    /// animation finished in which case button gets enabled again 
+    /// </summary>
+    /// <returns></returns>
     public void OnButtonAnimFinished()
     {
         if (button == null)

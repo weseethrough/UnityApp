@@ -41,11 +41,19 @@ public class DataVault : MonoBehaviour
     static public Dictionary<UIComponentSettings, List<string>> registrationRecord;
     
 
+    /// <summary>
+    /// default unity initialziation function is preparing datavault and loads variables to useful easy to search dictionaries
+    /// </summary>
+    /// <returns></returns>
     void Start()
     {        
         Initialize();
     }
 
+    /// <summary>
+    /// saves persistent data into external blob data
+    /// </summary>
+    /// <returns></returns>
     static public void SaveToBlob()
     {
         Storage s = DataStore.GetStorage(DataStore.BlobNames.persistent);
@@ -89,6 +97,10 @@ public class DataVault : MonoBehaviour
         DataStore.SaveStorage(DataStore.BlobNames.persistent);
     }
 
+    /// <summary>
+    /// loads data form current datastore and prepares easy to search dictionaries
+    /// </summary>
+    /// <returns></returns>
     static public void Initialize()
     {
 
@@ -161,6 +173,12 @@ public class DataVault : MonoBehaviour
         }                
     }
 
+    /// <summary>
+    /// sets one value to one of the dictionaries
+    /// </summary>
+    /// <param name="name">name identifier to the value</param>
+    /// <param name="value">float, double, int, bool or string which would get set under name in dictionaries</param>
+    /// <returns></returns>
     static public void Set(string name, System.Object value)
     {
         if (data == null) 
@@ -208,6 +226,12 @@ public class DataVault : MonoBehaviour
         }                
     }
 
+    /// <summary>
+    /// sets perisitency flag to single variable in dictionary
+    /// </summary>
+    /// <param name="name">name of the variabe to have flach changed</param>
+    /// <param name="value">new flag state</param>
+    /// <returns></returns>
     static public void SetPersistency(string name, bool value)
     {
         if (data == null)
@@ -241,6 +265,11 @@ public class DataVault : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// returns instance of the object stored in the vault finding it by name
+    /// </summary>
+    /// <param name="name">name identifier searched variable</param>
+    /// <returns>instance of the value searched</returns>
     static public System.Object Get(string name)
     {
         if (data == null)
@@ -256,6 +285,11 @@ public class DataVault : MonoBehaviour
         return data[name].storedValue;
     }
 
+    /// <summary>
+    /// removes record of the variable
+    /// </summary>
+    /// <param name="name">name identifier</param>
+    /// <returns></returns>
     static public void Remove(string name)
     {
         if (data == null || !data.ContainsKey(name))
@@ -266,11 +300,24 @@ public class DataVault : MonoBehaviour
         data.Remove(name);
     }
 
+    /// <summary>
+    /// tries to translate component string variable with one of the stored internally in datavault
+    /// </summary>
+    /// <param name="source">string to get translated</param>
+    /// <param name="registerForUpdates">if provided, object would get informed when changes to variables are made those which were used for translations</param>
+    /// <returns>translated values</returns>
     static public string Translate(string source, UIComponentSettings registerForUpdates)
     {
         return Translate(source, 0, registerForUpdates);
     }
 
+    /// <summary>
+    /// tries to translate component string variable with one of the stored internally in datavault
+    /// </summary>
+    /// <param name="source">string to get translated</param>
+    /// <param name="startingPoint">offset search would start from</param>
+    /// <param name="registerForUpdates">if provided, object would get informed when changes to variables are made those which were used for translations</param>
+    /// <returns>translated values</returns>    
     static public string Translate(string source, int startingPoint, UIComponentSettings registerForUpdates)
     {
         if (startingPoint >= source.Length) return source;
@@ -316,6 +363,12 @@ public class DataVault : MonoBehaviour
         return source;
     }
 
+    /// <summary>
+    /// registers component for evets under identifier named event
+    /// </summary>
+    /// <param name="listner">object which would get informed when variable changes</param>
+    /// <param name="identifier">iidentofier which would be used for registration, any change to variable with this name would make listner informed</param>
+    /// <returns></returns>
     static public void RegisterListner(UIComponentSettings listner, string identifier)
     {
         if (registeredListeners != null && registrationRecord != null &&
@@ -343,6 +396,11 @@ public class DataVault : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// removes from registration listner lsit
+    /// </summary>
+    /// <param name="listner">listrner previously listening for events</param>
+    /// <returns></returns>
     static public void UnRegisterListner(UIComponentSettings listner)
     {
         if (registrationRecord != null && registeredListeners != null && listner != null)

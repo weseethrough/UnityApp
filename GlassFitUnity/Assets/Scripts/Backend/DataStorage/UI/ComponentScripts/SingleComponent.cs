@@ -11,6 +11,9 @@ using System.Reflection;
 #endif
 
 
+/// <summary>
+/// single component contains all integer, boolean float, double and string parameters which were defined public on one component. It allows for storage for serialziation and deserialziation
+/// </summary>
 [Serializable]
 public class SingleComponent
 {
@@ -19,6 +22,9 @@ public class SingleComponent
     public StorageDictionaryBase<string>    strData;
     public string                           name;
     
+    /// <summary>
+    /// default constructor  and initializator
+    /// </summary>    
     public SingleComponent()
     {       
         this.intData    = new StorageDictionaryBase<int>();
@@ -26,41 +32,41 @@ public class SingleComponent
         this.strData    = new StorageDictionaryBase<string>();
         name            = string.Empty;
     }    
-    /*
-    public SingleComponent(SerializationInfo info, StreamingContext ctxt)
-	{
-        this.intData        = (StorageDictionaryBase<int>)info.GetValue("IntData", typeof(StorageDictionaryBase<int>));
-        this.doubleData     = (StorageDictionaryBase<double>)info.GetValue("FloatData", typeof(StorageDictionaryBase<double>));
-        this.strData        = (StorageDictionaryBase<string>)info.GetValue("StrData", typeof(StorageDictionaryBase<string>));
-        this.name           = (string)info.GetValue("Name", typeof(string));                
-	}
-	
-	public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
-   	{
-        info.AddValue("IntData", this.intData);
-        info.AddValue("FloatData", this.doubleData);
-        info.AddValue("StrData", this.strData);
-        info.AddValue("Name", this.name);
-   	}*/
 
+    /// <summary>
+    /// gives access to and initializes in necessary integer/boolean storage
+    /// </summary>
+    /// <returns>integer based dictionary storage</returns>
     public StorageDictionaryBase<int> GetInitializedIntDict()
     {
         if (intData == null) intData = new StorageDictionaryBase<int>();
         return intData;
     }
 
+    /// <summary>
+    /// gives access to and initializes in necessary float/double storage
+    /// </summary>
+    /// <returns>double based dictionary storage</returns>
     public StorageDictionaryBase<double> GetInitializedFloatDict()
     {
         if (doubleData == null) doubleData = new StorageDictionaryBase<double>();
         return doubleData;
     }
 
+    /// <summary>
+    /// gives access to and initializes in necessary string storage
+    /// </summary>
+    /// <returns>string based dictionary storage</returns>
     public StorageDictionaryBase<string> GetInitializedStrDict()
     {
         if (strData == null) strData = new StorageDictionaryBase<string>();
         return strData;
     }
 
+    /// <summary>
+    /// clones component data and all its parameters and settings
+    /// </summary>
+    /// <returns>returns copy of cloned class</returns>
     public SingleComponent Clone()
     {
         SingleComponent sc = new SingleComponent();
