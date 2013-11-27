@@ -22,6 +22,7 @@ public class TrainingSettings : MonoBehaviour {
 	
 	// Target speed
 	public float targSpeed = 1.8f;
+	public GameObject runner;
 	
 	// Texture for black background
 	public Texture blackTexture;
@@ -39,7 +40,7 @@ public class TrainingSettings : MonoBehaviour {
 		Color black = new Color(0.0f, 0.0f, 0.0f, 0.4f);
 		normal = new Texture2D(1, 1);
 		normal.SetPixel(0,0,black);
-		normal.Apply();
+		normal.Apply();		
 	}
 	
 	void OnGUI() {
@@ -85,7 +86,10 @@ public class TrainingSettings : MonoBehaviour {
 				if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
 					Platform.Instance.Reset();
-					Platform.Instance.SetTargetSpeed(targSpeed);
+					Platform.Instance.ResetTargets();
+					TrainingController controller = runner.GetComponent<TrainingController>();
+					// TODO: Ugly. Look into.
+					controller.SetSpeed(targSpeed);
 										
 					// Start countdown again
 					started = false;

@@ -11,6 +11,7 @@ public class ZombieAnimation : MonoBehaviour {
 	
 	// Animator for the zombie.
 	private Animator anim;
+	private TargetController controller;
 	
 	/// <summary>
 	/// Get components and set the speed
@@ -18,10 +19,10 @@ public class ZombieAnimation : MonoBehaviour {
 	void Start () {
 		// Get the animator.
 		anim = GetComponent<Animator>();
+		controller = transform.parent.gameObject.GetComponent<TargetController>();
 		
 		// Get the speed of the target.
-		speed = Platform.Instance.GetCurrentSpeed(0);
-		
+		speed = controller.target.PollCurrentSpeed();
 		// Set the animation speed based on the target speed and scale the value.
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f) {
@@ -36,7 +37,7 @@ public class ZombieAnimation : MonoBehaviour {
 	/// </summary>
 	void Update () {
 		// Get the speed of the target.
-		float newSpeed = Platform.Instance.GetCurrentSpeed(0);
+		float newSpeed = controller.target.PollCurrentSpeed();
 		
 		// If the speed has changed.
 		if(newSpeed != speed)

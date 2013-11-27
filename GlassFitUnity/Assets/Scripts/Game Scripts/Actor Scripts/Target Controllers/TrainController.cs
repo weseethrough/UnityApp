@@ -8,6 +8,7 @@ using System;
 /// Controls the position of the train
 /// </summary>
 public class TrainController : TargetController {
+	private float whistleTime = 0;
 	
 	/// <summary>
 	/// Start this instance. Sets the attributes
@@ -33,5 +34,20 @@ public class TrainController : TargetController {
 	void Update () {
 		// Update the base
 		base.Update();
+		
+		whistleTime += Time.deltaTime;
+		
+		if(whistleTime >= 10.0f)
+		{
+			//trainWhistle.Play();
+			whistleTime -= 10.0f;
+		}
+		
+		//Platform.Instance.Poll();
+	
+		//scaledDistance = (target.getTargetDistance() - 50) * 135;
+
+		//Vector3 movement = new Vector3(103.8f,-300,(float)scaledDistance);
+		//transform.position = movement;
 	}
 }

@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Controls the music in the Music game
 /// </summary>
-public class SoundController : MonoBehaviour {
+public class SoundController : TargetController {
 	
 	// Number of audio tracks.
 	private const float NUM_TRACKS = 11;
@@ -48,17 +48,13 @@ public class SoundController : MonoBehaviour {
 		// Get all audio tracks.
 		stevies = GetComponents<AudioSource>();
 		
-		// Set indoor mode and speed.
-		Platform.Instance.SetIndoor(true);
-		Platform.Instance.SetTargetSpeed(1.5f);
-		
 		// Set scale values.
 		scale.x = (float)Screen.width/originalWidth;
 		scale.y = (float)Screen.height/originalHeight;
 	}
 	
 	/// <summary>
-	/// Raises the GU event. Sets the buttons - needs updating
+	/// Raises the GUI event. Sets the buttons - needs updating
 	/// </summary>
 	void OnGUI() {
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
@@ -151,7 +147,7 @@ public class SoundController : MonoBehaviour {
 		}
 		
 		// Get actual distance behind target based on offset.
-		double dist = Platform.Instance.DistanceBehindTarget() - 50;
+		double dist = Platform.Instance.DistanceBehindTarget(target) - 50;
 		
 		// If player is ahead, increase the score and bring in more tracks.
 		if(dist <= 0.0 && started)

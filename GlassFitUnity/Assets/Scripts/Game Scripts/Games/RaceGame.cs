@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
 using System;
 
@@ -15,8 +16,8 @@ public class RaceGame : MonoBehaviour {
 	
 	private int finish;
 	
-	// Enums for the targets
-	public enum Targets
+	// Enums for the actor types
+	public enum ActorType
 	{
 		Runner			= 1,
 		Cyclist			= 2
@@ -35,14 +36,17 @@ public class RaceGame : MonoBehaviour {
 	WWW mapWWW = null;
 	Position fetchOrigo = new Position(0, 0);
 	
-	private Targets currentTarget = Targets.Runner;
+	private ActorType currentActorType = ActorType.Runner;
 	private Rect debug;
 	private const int MARGIN = 15;
 	private bool authenticated = false;
 	
-	// Holds game objects to set them to active/inactive
+	// Holds actor templates
 	public GameObject cyclistHolder;
 	public GameObject runnerHolder;
+	
+	// Holds actor instances
+	public List<GameObject> actors;
 	
 	// Variables to set the scale
 	private int originalHeight = 500;
@@ -96,24 +100,33 @@ public class RaceGame : MonoBehaviour {
 		switch(tar)
 		{
 		case "Runner":
-			currentTarget = Targets.Runner;
+			currentActorType = ActorType.Runner;
 			break;
 			
 		case "Cyclist":
-			currentTarget = Targets.Cyclist;
+			currentActorType = ActorType.Cyclist;
 			break;
 		}
 		
 		finish = (int)DataVault.Get("finish");
 		
-		// Set holders active status
-		SetTargets();
+		// Set templates' active status
+		cyclistHolder.SetActive(false);
+		runnerHolder.SetActive(false);
+		
+		Platform.Instance.ResetTargets();
+		Platform.Instance.CreateTargetTracker(targSpeed);
+		Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
+		Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
+		InstantiateActors();
+
+//		GetComponent<GetTrack>().setActive(false);
+		UnityEngine.Debug.Log("RaceGame: started");
 	}
 	
-	public void SetTarget(Targets targ) {
-		currentTarget = targ;
-		changed = true;
-		
+	public void SetActorType(ActorType targ) {
+		currentActorType = targ;
+		changed = true;		
 	}
 	
 	public void SetIndoor() {
@@ -147,14 +160,12 @@ public class RaceGame : MonoBehaviour {
 			Platform.Instance.Reset();
 			Platform.Instance.ResetTargets();
 					
-			SetTargets();
-					
-			
-			
 			if(!trackSelected) {
-				Platform.Instance.SetTargetSpeed(targSpeed);
+				Platform.Instance.CreateTargetTracker(targSpeed);
 			}
 					
+			InstantiateActors();
+			
 			Platform.Instance.SetIndoor(indoor);
 				
 			// Start countdown again
@@ -218,6 +229,7 @@ public class RaceGame : MonoBehaviour {
 	}
 	
 	void Update () {
+		Platform.Instance.Poll();
 		
 		DataVault.Set("calories", Platform.Instance.Calories().ToString());
 		DataVault.Set("pace", Platform.Instance.Pace().ToString("f2") + "m/s");
@@ -320,23 +332,39 @@ public class RaceGame : MonoBehaviour {
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}
 	
-	// Set the targets based on the enums
-	void SetTargets() {
-		cyclistHolder.SetActive(false);
-		runnerHolder.SetActive(false);
-				
-		switch(currentTarget) {
-		case Targets.Runner:
-			runnerHolder.SetActive(true);
-			offset = 0;
+	// Instantiate target actors based on actor type
+	void InstantiateActors() {				
+		// Remove current actors
+		foreach (GameObject actor in actors) {
+			Destroy(actor);
+		}
+		actors.Clear();
+		
+		GameObject template;
+		switch(currentActorType) {
+		case ActorType.Runner:
+			template = runnerHolder;
 			break;
-		case Targets.Cyclist:
-			cyclistHolder.SetActive(true);
-			offset = 0;
+		case ActorType.Cyclist:
+			template = cyclistHolder;
 			break;
 		default:
+			throw new NotImplementedException("Unknown actor type: " + currentActorType);
 			break;
 		}
+		
+		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
+		int lane = 1;
+		foreach (TargetTracker tracker in trackers) {
+			GameObject actor = Instantiate(template) as GameObject;
+			TargetController controller = actor.GetComponent<TargetController>();
+			controller.SetTracker(tracker);
+			controller.SetLane(lane++);
+			actor.SetActive(true);
+			actors.Add(actor);
+		}
+		offset = 0;
+		UnityEngine.Debug.Log("RaceGame: instantiated actors");
 	}
 	
 	private void GetMap(Position selfCoords, double bearing, Position targetCoords) {

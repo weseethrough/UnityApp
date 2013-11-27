@@ -7,7 +7,7 @@ public abstract class Challenge
 	private Nullable<DateTime> startTime = null;
 	private Nullable<DateTime> stopTime = null;
 	// location: GeoJSON?
-	// attempts[]: track foreign keys
+	private String[] attempts; // track foreign keys
 	private bool isPublic = false;
 	
 	public Challenge (string json) : this(JSON.Parse(json))

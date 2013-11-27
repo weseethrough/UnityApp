@@ -28,11 +28,11 @@ public class SettingsPanel : Panel {
 			{
 			// These two buttons set the target to the runner and cyclist respectively
 			case "RunnerButton":
-				ss.SetTarget(RaceGame.Targets.Runner);
+				ss.SetActorType(RaceGame.ActorType.Runner);
 				break;
 				
 			case "CyclistButton":
-				ss.SetTarget(RaceGame.Targets.Cyclist);
+				ss.SetActorType(RaceGame.ActorType.Cyclist);
 				break;
 				
 			// Sets indoor mode
