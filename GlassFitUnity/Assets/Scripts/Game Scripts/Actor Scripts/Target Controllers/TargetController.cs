@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 /// <summary>
@@ -6,21 +6,34 @@ using System.Collections;
 /// </summary>
 public class TargetController : MonoBehaviour {
 	protected double scaledDistance = 0.0f;
-	protected TargetTracker target;
+	public TargetTracker target { get; protected set; }
 	protected float distanceOffset = 0.0f;
 	protected float travelSpeed = 1.0f;
 	protected float height = 0.0f;
 	protected float xOffset = 0.0f;
 	
+	protected int lane = 1;
+	
 	// Use this for initialization
-	protected void Start () {
-		//target = Platform.Instance.getTargetTracker();
+	protected void Start () {		
 	}
+	
+	// TODO:
+	// Set tracker on Instantiate
+	// Set index/lane 
+	// Only poll once
 	
 	protected void OnEnable() {
 		UnityEngine.Debug.Log("Target: Just been enabled");
-		target = Platform.Instance.GetTargetTracker();
-		UnityEngine.Debug.Log("Target: tracker obtained!");
+	}
+	
+	public void SetTracker(TargetTracker tracker) {
+		target = tracker;
+		UnityEngine.Debug.Log("Target: linked to tracker: " + target.ToString());
+	}
+	
+	public void SetLane(int lane) {
+		this.lane = lane;
 	}
 	
 	public void IncreaseOffset() 
@@ -32,19 +45,21 @@ public class TargetController : MonoBehaviour {
 		distanceOffset = offset;
 		travelSpeed = speed;
 		height = yDist;
-		xOffset = xDist;
+		xOffset = xDist*(lane*3); // TODO: parent.gameObject.width?
 	}
 	
 	// Update is called once per frame
-	protected void Update () {
-		Platform.Instance.Poll();
+	public virtual void Update () {
+		if (object.ReferenceEquals(null, target)) return;
 	
-/*		UnityEngine.Debug.Log("Target: Distance is " + target.getDistanceBehindTarget().ToString());
-		UnityEngine.Debug.Log("Target: Platform Distance is " + Platform.Instance.getHighestDistBehind());
-		UnityEngine.Debug.Log("Target: Distance behind target is " + Platform.Instance.DistanceBehindTarget());
-*/		scaledDistance = (target.GetDistanceBehindTarget() - distanceOffset) * travelSpeed;
+//		UnityEngine.Debug.Log("Target: Distance is " + target.GetTargetDistance().ToString());
+		scaledDistance = (target.GetDistanceBehindTarget() - distanceOffset) * travelSpeed;
 
 		Vector3 movement = new Vector3(xOffset, height, (float)scaledDistance);
 		transform.position = movement;
+	}
+	
+	public override string ToString() {
+		return "TargetController";
 	}
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using System.Collections;
 using System;
 
@@ -10,19 +11,23 @@ public class PursuitGame : MonoBehaviour {
 	public bool indoor = true;
 	private bool dead = false;
 	
-	public enum Targets {
+	// Enums for the actor types
+	public enum ActorType
+	{
 		Boulder			= 1,
 		Eagle			= 2,
 		Train			= 3,
 		Zombie			= 4
 	}
 	
-	private Targets currentTarget;
+	private ActorType currentActorType;
 	
 	public GameObject eagleHolder;
 	public GameObject boulderHolder;
 	public GameObject zombieHolder;
 	public GameObject trainHolder;
+	
+	private List<GameObject> actors;
 	
 	private double offset = 0;
 	
@@ -78,12 +83,12 @@ public class PursuitGame : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		UnityEngine.Debug.Log("PursuitGame: started");
 		Platform.Instance.SetIndoor(indoor);
 		Platform.Instance.StopTrack();
 		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
 		
-		//UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
 		
 		minimap = GameObject.Find("minimap");
 		minimap.renderer.material.renderQueue = 3000;
@@ -101,19 +106,19 @@ public class PursuitGame : MonoBehaviour {
 		switch(tar)
 		{
 		case "Boulder":
-			currentTarget = Targets.Boulder;
+			currentActorType = ActorType.Boulder;
 			break;
 			
 		case "Eagle":
-			currentTarget = Targets.Eagle;
+			currentActorType = ActorType.Eagle;
 			break;
 			
 		case "Zombie":
-			currentTarget = Targets.Zombie;
+			currentActorType = ActorType.Zombie;
 			break;
 			
 		case "Train":
-			currentTarget = Targets.Train;
+			currentActorType = ActorType.Train;
 			break;
 		}
 		
@@ -121,8 +126,13 @@ public class PursuitGame : MonoBehaviour {
 		
 		DataVault.Set("slider_val", 0.06f);
 		
-		// Set holders active status
-		SetTargets();
+		// Set templates' active status
+		eagleHolder.SetActive(false);
+		boulderHolder.SetActive(false);
+		zombieHolder.SetActive(false);
+		trainHolder.SetActive(false);
+
+		InstantiateActors();
 	}
 	
 	public void SetIndoor() {
@@ -156,14 +166,14 @@ public class PursuitGame : MonoBehaviour {
 			Platform.Instance.Reset();
 			Platform.Instance.ResetTargets();
 					
-			SetTargets();
-			
 			if(!trackSelected) {
-				Platform.Instance.SetTargetSpeed(targSpeed);
+				Platform.Instance.CreateTargetTracker(targSpeed);
 			}
 					
 			Platform.Instance.SetIndoor(indoor);
 				
+			InstantiateActors();
+			
 			// Start countdown again
 			started = false;
 			countdown = false;
@@ -298,7 +308,7 @@ public class PursuitGame : MonoBehaviour {
 			}
 		}
 		
-		if(Platform.Instance.DistanceBehindTarget() - offset >= 0)
+		if(Platform.Instance.GetLowestDistBehind() - offset >= 0)
 		{
 			
 			Platform.Instance.StopTrack();
@@ -307,21 +317,8 @@ public class PursuitGame : MonoBehaviour {
 				lives -= 1;
 				isDead = true;
 				offset += 50;
-				switch(currentTarget) {
-				case Targets.Eagle:
-					eagleHolder.GetComponent<EagleController>().IncreaseOffset();
-					break;
-				case Targets.Boulder:
-					boulderHolder.GetComponent<BoulderController>().IncreaseOffset();
-					break;
-				case Targets.Train:
-					trainHolder.GetComponent<TrainController>().IncreaseOffset();
-					break;
-				case Targets.Zombie:
-					zombieHolder.GetComponent<ZombieController>().IncreaseOffset();
-					break;
-				default:
-					break;
+				foreach (GameObject actor in actors) {
+					actor.GetComponent<TargetController>().IncreaseOffset();
 				}
 				started = false;
 				countdown = false;
@@ -377,35 +374,45 @@ public class PursuitGame : MonoBehaviour {
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}
 	
-	// Set the targets based on the enums
-	void SetTargets() {
-		eagleHolder.SetActive(false);
-		boulderHolder.SetActive(false);
-		trainHolder.SetActive(false);
-		zombieHolder.SetActive(false);
-				
-		switch(currentTarget) {
-		case Targets.Eagle:
-			eagleHolder.SetActive(true);
-			offset = 50;
+	// Instantiate target actors based on actor type
+	void InstantiateActors() {				
+		UnityEngine.Debug.Log("PursuitGame: instantiating actors");
+		// Remove current actors
+		foreach (GameObject actor in actors) {
+			Destroy(actor);
+		}
+		actors.Clear();
+		
+		GameObject template;
+		switch(currentActorType) {
+		case ActorType.Eagle:
+			template = eagleHolder;
 			break;
-		case Targets.Boulder:
-			boulderHolder.SetActive(true);
-			offset = 50;
+		case ActorType.Boulder:
+			template = boulderHolder;
 			break;
-		case Targets.Train:
-			trainHolder.SetActive(true);
-			offset = 50;
+		case ActorType.Train:
+			template = trainHolder;
 			break;
-		case Targets.Zombie:
-			zombieHolder.SetActive(true);
-			offset = 50;
+		case ActorType.Zombie:
+			template = zombieHolder;
 			break;
 		default:
+			throw new NotImplementedException("Unknown actor type: " + currentActorType);
 			break;
 		}
+		
+		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
+		foreach (TargetTracker tracker in trackers) {
+			GameObject actor = Instantiate(template) as GameObject;
+			TargetController controller = actor.GetComponent<TargetController>();
+			controller.SetTracker(tracker);
+			actor.SetActive(true);
+			actors.Add(actor);
+		}
+		offset = 50;
 	}
-	
+		
 	private void GetMap(Position selfCoords, double bearing, Position targetCoords) {
 		Position direction = new Position(selfCoords.latitude + (float)(Math.Cos(bearing)*1000/111229d), 
 		                                  selfCoords.longitude + (float)(Math.Sin(bearing)*1000/111229d));	
@@ -575,8 +582,8 @@ public class PursuitGame : MonoBehaviour {
 		UnityEngine.Debug.Log("New base multiplier received:" + this.baseMultiplier);
 	}
 	
-	public void SetTarget(Targets targ) {
-		currentTarget = targ;
+	public void SetActorType(ActorType type) {
+		currentActorType = type;
 		changed = true;
 	}
 }

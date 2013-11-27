@@ -47,7 +47,7 @@ public class TrackPanel : Panel {
 				
 			// Set the current track
 			case "SetTrackButton":
-				Platform.Instance.SetTrack();
+				// NOTE: This button does nothing. P.I.currentTrack is used directly in TrackSelect.
 				break;
 			
 			case "BackSettingsButton":
@@ -68,8 +68,8 @@ public class TrackPanel : Panel {
 					'provider' : 'facebook',
 					'message' : 'Dummy message',
 					'track' : [{0}, {1}]
-				}}", track.deviceID, track.trackID).Replace("'", "\""));		
-				Debug.Log ("Track: [" + track.deviceID + "," + track.trackID + "] shared to Facebook");
+				}}", track.deviceId, track.trackId).Replace("'", "\""));		
+				Debug.Log ("Track: [" + track.deviceId + "," + track.trackId + "] shared to Facebook");
 			
 				break;
 		}
