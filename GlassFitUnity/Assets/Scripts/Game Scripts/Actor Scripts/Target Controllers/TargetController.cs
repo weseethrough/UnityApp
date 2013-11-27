@@ -42,14 +42,14 @@ public class TargetController : MonoBehaviour {
 		distanceOffset = offset;
 		travelSpeed = speed;
 		height = yDist;
-		xOffset = xDist*lane;
+		xOffset = xDist*(lane*3); // TODO: parent.gameObject.width?
 	}
 	
 	// Update is called once per frame
 	public virtual void Update () {
 		if (object.ReferenceEquals(null, target)) return;
 	
-		UnityEngine.Debug.Log("Target: Distance is " + target.GetTargetDistance().ToString());
+//		UnityEngine.Debug.Log("Target: Distance is " + target.GetTargetDistance().ToString());
 		scaledDistance = (target.GetDistanceBehindTarget() - distanceOffset) * travelSpeed;
 
 		Vector3 movement = new Vector3(xOffset, height, (float)scaledDistance);

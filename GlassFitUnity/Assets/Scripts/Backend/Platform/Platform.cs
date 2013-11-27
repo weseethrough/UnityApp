@@ -103,7 +103,7 @@ public class Platform : MonoBehaviour {
 		UnityEngine.Debug.Log("Platform: authentication " + message.ToLower()); 
 	}
 	
-	public void OnSynchronized(string message) {
+	public void OnSynchronization(string message) {
 		lastSync = DateTime.Now;
 		if (onSync != null) onSync();
 		/// TEMP
@@ -264,7 +264,6 @@ public class Platform : MonoBehaviour {
 	public void Authorize(string provider, string permissions) {
 		try {
 			authenticated = helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
-			if (authenticated) OnAuthentication("Success"); // TEMP
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
 			UnityEngine.Debug.LogException(e);
@@ -283,9 +282,9 @@ public class Platform : MonoBehaviour {
 	
 	// Sync to server
 	public void SyncToServer() {
+		lastSync = DateTime.Now;
 		try {
 			helper_class.CallStatic("syncToServer", context);
-			OnSynchronized("some message"); // TODO in java
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem syncing to server");
 			UnityEngine.Debug.LogException(e);
@@ -335,6 +334,40 @@ public class Platform : MonoBehaviour {
 			helper.Call("resetGyros");
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error resetting gyros: " + e.Message);
+		}
+	}
+
+	public Challenge FetchChallenge(string id) {
+		try {
+			using (AndroidJavaObject rawch = helper_class.CallStatic<AndroidJavaObject>("fetchChallenge", id)) {
+				return Challenge.Build(rawch.Get<string>("json"));
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
+			return null;
+		}
+	}
+	
+	public Track FetchTrack(int deviceId, int trackId) {
+		try {
+			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
+				string name = rawtrack.Call<string>("getName");
+				int[] ids = rawtrack.Call<int[]>("getIDs"); 
+				using(AndroidJavaObject poslist = helper_class.CallStatic<AndroidJavaObject>("getTrackPositions")) {
+					int numPositions = poslist.Call<int>("size");
+					List<Position> pos = new List<Position>(numPositions);
+					for(int j=0; j<numPositions; j++) {
+						AndroidJavaObject position = poslist.Call<AndroidJavaObject>("get", j);
+						Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
+						pos.Add(current);
+					}
+					Track track = new Track(name, ids[0], ids[1], pos);
+					return track;
+				}
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
+			return null;
 		}
 	}
 	

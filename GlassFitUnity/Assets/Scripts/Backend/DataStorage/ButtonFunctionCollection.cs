@@ -211,4 +211,42 @@ public class ButtonFunctionCollection
 		
 		return true;
 	}
+	
+	static public bool AcceptChallenges(FlowButton button, Panel panel) 
+	{
+		List<Challenge> relevant = new List<Challenge>();		
+		int? finish = null;
+		
+		Notification[] notifications = Platform.Instance.Notifications();
+		foreach (Notification notification in notifications) {
+			if (string.Equals(notification.node["type"], "challenge")) {
+				int fromId = notification.node["from"].AsInt;
+				string challengeId = notification.node["challenge_id"];
+				
+				Challenge potential = Platform.Instance.FetchChallenge(challengeId);
+				if (potential is DistanceChallenge) {
+					DistanceChallenge challenge = potential as DistanceChallenge;
+					if (finish.HasValue && challenge.distance != finish.Value) continue; // Not relevant
+					if (!finish.HasValue) {
+						// Lock distance and init world
+						finish = challenge.distance;
+						Platform.Instance.ResetTargets();
+					}
+					
+					// TODO: User challenger = FetchUser(fromId);
+					// TODO: Find attempt by challenger
+					Track track;
+					if (challenge != null) relevant.Add(challenge); // TODO: Store somewhere so we can log attempts?
+					
+					// Create target for game
+					Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
+				}
+			}
+		}		
+		if (!finish.HasValue) return false;
+		
+		DataVault.Set("finish", finish.Value);
+
+		return true;
+	}	
 }
