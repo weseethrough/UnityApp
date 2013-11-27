@@ -32,7 +32,7 @@ public class Platform : MonoBehaviour {
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
 	
-	private List<TargetTracker> targetTrackers;
+	public List<TargetTracker> targetTrackers { get; private set; }
 	
 	public bool authenticated { get; private set; }	
 	
@@ -103,7 +103,7 @@ public class Platform : MonoBehaviour {
 		UnityEngine.Debug.Log("Platform: authentication " + message.ToLower()); 
 	}
 	
-	public void OnSynchronized(string message) {
+	public void OnSynchronization(string message) {
 		lastSync = DateTime.Now;
 		if (onSync != null) onSync();
 		/// TEMP
@@ -205,7 +205,7 @@ public class Platform : MonoBehaviour {
 			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				gps.Call("setIndoorMode", indoor);
 				if (indoor) {
-				    gps.Call("setIndoorSpeed", 5.0f);
+				    gps.Call("setIndoorSpeed", 2.0f);
 				    UnityEngine.Debug.LogWarning("Platform: Indoor mode set to true, indoor speed = 2.0m/s");
 				} else {
 					UnityEngine.Debug.LogWarning("Platform: Indoor mode set to false, will use true GPS speed");
@@ -219,29 +219,20 @@ public class Platform : MonoBehaviour {
 	public void ResetTargets() {
 		try {
 			helper.Call("resetTargets");
-			targetTrackers = new List<TargetTracker>();
+			targetTrackers.Clear();
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error clearing targets");
 		}
 	}
 	
-	// Get current target speed
-	public float GetCurrentSpeed(long l) 
-	{
-//		try {
-//			float ret = target.Call<float>("GetCurrentSpeed", l);
-//			UnityEngine.Debug.Log("Platform: speed obtained, currently: " + ret.ToString());
-//			return ret;
-//		} catch (Exception e) {
-//			UnityEngine.Debug.LogWarning("Platform: Error getting current speed: " + e.Message);
-//			return 0;
-//		}
-		return targetTrackers[0].GetCurrentSpeed();
-	}
-	
 	// Returns the target tracker
-	public TargetTracker GetTargetTracker(){
-		TargetTracker t = new TargetTracker(helper);
+	public TargetTracker CreateTargetTracker(float constantSpeed){
+		TargetTracker t = new TargetTracker(helper, constantSpeed);
+		targetTrackers.Add(t);
+		return t;
+	}
+	public TargetTracker CreateTargetTracker(int deviceId, int trackId){
+		TargetTracker t = new TargetTracker(helper, deviceId, trackId);
 		targetTrackers.Add(t);
 		return t;
 	}
@@ -272,8 +263,7 @@ public class Platform : MonoBehaviour {
 	// result returned through onAuthenticated
 	public void Authorize(string provider, string permissions) {
 		try {
-			authenticated = helper_class.CallStatic<bool>("Authorize", activity, provider, permissions);
-			if (authenticated) OnAuthentication("Success"); // TEMP
+			authenticated = helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
 			UnityEngine.Debug.LogException(e);
@@ -282,7 +272,7 @@ public class Platform : MonoBehaviour {
 	
 	public bool HasPermissions(string provider, string permissions) {
 		try {
-			return helper_class.CallStatic<bool>("HasPermissions", provider, permissions);
+			return helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem checking permissions for provider: " + provider);
 			UnityEngine.Debug.LogException(e);
@@ -292,9 +282,9 @@ public class Platform : MonoBehaviour {
 	
 	// Sync to server
 	public void SyncToServer() {
+		lastSync = DateTime.Now;
 		try {
 			helper_class.CallStatic("syncToServer", context);
-			OnSynchronized("some message"); // TODO in java
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem syncing to server");
 			UnityEngine.Debug.LogException(e);
@@ -312,33 +302,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		}
 	}
-	
-	// Set the target speed
-	public void SetTargetSpeed(float speed)
-	{
-//		try {
-//			target.Call("setSpeed", speed);
-//			UnityEngine.Debug.LogWarning("Platform: Speed has been set to " + speed.ToString ());
-//		} catch (Exception e) {
-//			UnityEngine.Debug.LogWarning("Platform: SetTargetSpeed() failed: " + e.Message);
-//			UnityEngine.Debug.LogException(e);
-//		}
-		targetTrackers[0].SetTargetSpeed(speed);
-	}
-	
-	// Set the target track
-	public void SetTargetTrack(int trackID)
-	{
-//		try {
-//			target.Call("setTrack", trackID);
-//			UnityEngine.Debug.LogWarning("Platform: Track has been set to " + trackID.ToString ());
-//		} catch (Exception e) {
-//			UnityEngine.Debug.LogWarning("Platform: SetTargetTrack() failed: " + e.Message);
-//			UnityEngine.Debug.LogException(e);
-//		}
-		targetTrackers[0].SetTargetTrack(trackID);
-	}
-	
+		
 	// Load the game blob
 	public byte[] LoadBlob(string id) {
 		try {
@@ -373,89 +337,75 @@ public class Platform : MonoBehaviour {
 		}
 	}
 
-//	// Return a list of positions from the current track
-//	public List<Position> getTrackPositions() {
-//		try {
-//			int size = helper.Call<int>("getNumberPositions");
-//			UnityEngine.Debug.Log("Platform: get positions called Unity");
-//			positions = new List<Position>(size);
-//			try {
-//				for (int i=0; i<size; i++) {
-//					AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getPosition", i);
-//					Position currentPos = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
-//					positions.Add(currentPos);
-//				}
-//				positions.Reverse();
-//				return positions;
-//			} catch (Exception e) {
-//				UnityEngine.Debug.LogWarning("Platform: Error getting positions: " + e.Message);
-//				return null;
-//			}
-//		} catch (Exception e) {
-//			UnityEngine.Debug.LogWarning("Platform: Error getting Track Size: " + e.Message);
-//			return null;
-//		}
-//	}
-	
-	// Load a list of tracks
-	public List<Track> GetTracks() {
+	public Challenge FetchChallenge(string id) {
 		try {
-			int size = helper.Call<int>("getNumberTracks");
-			UnityEngine.Debug.Log("Platform: Getting number of tracks");
-			trackList = new List<Track>(size);
-			try {
-				for(int i=0; i<size; i++) {
-					AndroidJavaObject track = helper.Call<AndroidJavaObject>("getTrack", i);
-					string name = track.Call<string>("toString");
-					int[] ids = track.Call<int[]>("getIDs"); 
-					int numPositions = track.Call<int>("getPositionSize");
-					List<Position> pos = new List<Position>(numPositions);
-					for(int j=0; j<numPositions; j++) {
-						AndroidJavaObject position = track.Call<AndroidJavaObject>("getPosition", j);
-						Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
-						pos.Add(current);
-					}
-					pos.Reverse();
-					Track currentTrack = new Track(name, ids[0], ids[1], pos);
-					trackList.Add(currentTrack);
-				}
-				trackList.Reverse();
-				this.currentTrack = 0;
-				return trackList;
-			} catch (Exception e) {
-				UnityEngine.Debug.LogWarning("Platform: Error getting track: " + e.Message);
-				return null;
+			using (AndroidJavaObject rawch = helper_class.CallStatic<AndroidJavaObject>("fetchChallenge", id)) {
+				return Challenge.Build(rawch.Get<string>("json"));
 			}
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting Tracks: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
 			return null;
 		}
 	}
 	
-	// Select the next track
-	public void GetNextTrack() {
+	public Track FetchTrack(int deviceId, int trackId) {
 		try {
-			helper.Call("getNextTrack");
+			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
+				string name = rawtrack.Call<string>("getName");
+				int[] ids = rawtrack.Call<int[]>("getIDs"); 
+				using(AndroidJavaObject poslist = helper_class.CallStatic<AndroidJavaObject>("getTrackPositions")) {
+					int numPositions = poslist.Call<int>("size");
+					List<Position> pos = new List<Position>(numPositions);
+					for(int j=0; j<numPositions; j++) {
+						AndroidJavaObject position = poslist.Call<AndroidJavaObject>("get", j);
+						Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
+						pos.Add(current);
+					}
+					Track track = new Track(name, ids[0], ids[1], pos);
+					return track;
+				}
+			}
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting next track: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
+			return null;
 		}
 	}
 	
-	// Select the previous track
-	public void GetPreviousTrack() {
+	// Load a list of tracks
+	public List<Track> GetTracks() {
 		try {
-			helper.Call("getPreviousTrack");
+			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getTracks")) {
+				int size = list.Call<int>("size");
+				trackList = new List<Track>(size);
+				try {
+					for(int i=0; i<size; i++) {
+						using (AndroidJavaObject track = list.Call<AndroidJavaObject>("get", i)) {
+							string name = track.Call<string>("getName");
+							int[] ids = track.Call<int[]>("getIDs"); 
+							using(AndroidJavaObject poslist = helper_class.CallStatic<AndroidJavaObject>("getTrackPositions")) {
+								int numPositions = poslist.Call<int>("size");
+								List<Position> pos = new List<Position>(numPositions);
+								for(int j=0; j<numPositions; j++) {
+									AndroidJavaObject position = poslist.Call<AndroidJavaObject>("get", j);
+									Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
+									pos.Add(current);
+								}
+								Track currentTrack = new Track(name, ids[0], ids[1], pos);
+								trackList.Add(currentTrack);
+							}
+						}
+					}
+					trackList.Reverse();
+					this.currentTrack = 0;
+					return trackList;
+				} catch (Exception e) {
+					UnityEngine.Debug.LogWarning("Platform: Error getting track: " + e.Message);
+					return null;
+				}
+			}
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting previous track: " + e.Message);
-		}
-	}
-	
-	// Set the chosen track
-	public void SetTrack() {
-		try {
-			helper.Call("setTrack");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error setting track: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting Tracks: " + e.Message);
+			return null;
 		}
 	}
 	
@@ -535,6 +485,19 @@ public class Platform : MonoBehaviour {
 		return h;
 	}
 	
+	public float GetLowestDistBehind() {
+		if(targetTrackers.Count <= 0)
+			return 0;
+		
+		float l = (float)targetTrackers[0].GetTargetDistance() - (float)distance;
+		for(int i=0; i<targetTrackers.Count; i++) {
+			if(l > targetTrackers[i].GetTargetDistance() - (float)distance) {
+				l = (float)targetTrackers[i].GetTargetDistance() - (float)distance;
+			}
+		}
+		return l;
+	}
+	
 	// Update the data
 	public void EraseBlob(string id) {
 		try {
@@ -568,7 +531,7 @@ public class Platform : MonoBehaviour {
 		
 //		UnityEngine.Debug.Log("Platform: There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
-			targetTrackers[i].SetTargetDistance();
+			targetTrackers[i].PollTargetDistance();
 		}
 		
 		try {
@@ -621,8 +584,8 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Return the distance behind target
-	public double DistanceBehindTarget() {
-		double returnDistance = (targetTrackers[0].GetTargetDistance() - distance);
+	public double DistanceBehindTarget(TargetTracker tracker) {
+		double returnDistance = (tracker.GetTargetDistance() - distance);
 		return returnDistance;
 	}
 	

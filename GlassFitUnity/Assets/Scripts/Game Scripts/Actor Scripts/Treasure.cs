@@ -2,59 +2,90 @@ using UnityEngine;
 using System.Collections;
 using System;
 
+/// <summary>
+/// Controls the position of the treasure and draws the GUI - needs updating
+/// </summary>
 public class Treasure : MonoBehaviour {
-
+	
+	// Real world position in lat and long.
 	private Position worldCoordinate;
+	
+	// Game world position from lat and long.
 	private Vector3 gameCoordinate;
+	
+	// Boolean for when treasure has been obtained
 	private bool obtained = false;
+	
+	// Float for the distance to the treasure.
 	private float treasureDist = 0.0f;
 	
+	// OnGUI elements.
+	// TODO: Change to nGUI.
 	private Rect distance;
 	private Rect gpsLock;
 	private string distanceText;	
 	
-	private float originalWidth = 800;  // define here the original resolution
-  	private float originalHeight = 500; // you used to create the GUI contents 
+	// Scaling values for OnGUI - to be updated.
+	private float originalWidth = 800; 
+  	private float originalHeight = 500; 
  	private Vector3 scale;
+	
+	// Margin for space with OnGUI() - to be updated.
 	private const int MARGIN = 15;
 	
+	// Opacity for boxes for OnGUI - to be updated.
 	private const float OPACITY = 0.5f;
 	
+	// Variables for starting the game.
 	private bool started = false;
 	private bool countdown = false;
 	private float countTime = 3.0f;
 	
+	// Texture for the boxes for OnGUI - to be updated.
 	Texture2D normal;
 	
-	// Use this for initialization
+	/// <summary>
+	/// Start this instance. Sets the initial values
+	/// </summary>
 	void Start () {
+		
+		// Set real world position near Camden for testing purposes.
+		// Final game will be based on user's position.
 		worldCoordinate = new Position(UnityEngine.Random.Range(51.5320f, 51.5380f), UnityEngine.Random.Range(0.1353f, 0.1453f));
 		UnityEngine.Debug.Log("Chest position is: " + worldCoordinate.latitude + ", " + worldCoordinate.longitude);
 		
+		// Set the box to display distance.
 		distance = new Rect((originalWidth/2.0f) - 100, MARGIN, 200, 100);
 		distanceText = "Distance\n";
 		
+		// Set the colour of the box.
 		Color white = new Color(0.9f, 0.9f, 0.9f, OPACITY);
 		normal = new Texture2D(1, 1);
 		normal.SetPixel(0,0,white);
 		normal.Apply();
 		
+		// Set the box for the GPS Lock indicator.
 		gpsLock =  new Rect(MARGIN, MARGIN, 200, 100);
 		
+		// Set the scale based on the size of the screen.
 		scale.x = (float)Screen.width / originalWidth;
 		scale.y = (float)Screen.height / originalHeight;
     	scale.z = 1;
 	}
 	
+	/// <summary>
+	/// Raises the GU event. Needs changing to nGUI
+	/// </summary>
 	void OnGUI ()
 	{
-		// Scale for devices
+		// Scale for devices.
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		GUI.depth = 10;
-		// Setting label font size
+		
+		// Setting label font size.
 		GUI.skin.label.fontSize = 15;
 		
-		// Setting GUI box attributes
+		// Setting GUI box attributes.
 		GUI.skin.box.wordWrap = true;
 		GUI.skin.box.fontSize = 30;
 		GUI.skin.box.fontStyle = FontStyle.Bold;
@@ -63,21 +94,25 @@ public class Treasure : MonoBehaviour {
 		GUI.skin.box.normal.background = normal;
 		GUI.skin.box.normal.textColor = Color.black;
 		
+		// Add a box for the treasure distance.
 		GUI.Box(distance, distanceText + treasureDist);
 		
+		// If there is no GPS lock, tell the player.
 		if(!Platform.Instance.HasLock())
 		{
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
 		
+		// If counting down.
 		if(countdown)
 		{
+			// Increase the label size.
 			GUI.skin.label.fontSize = 40;
 			
-			// Get the current time rounded up
+			// Get the current time rounded up.
 			int cur = Mathf.CeilToInt(countTime);
 			
-			// Display countdown on screen
+			// Display countdown on screen.
 			if(countTime > 0.0f)
 			{
 				GUI.Label(new Rect(300, 150, 200, 200), cur.ToString()); 
@@ -89,13 +124,16 @@ public class Treasure : MonoBehaviour {
 		}
 	}
 	
-	// Update is called once per frame
+	/// <summary>
+	/// Update this instance. Updates the position.
+	/// </summary>
 	void Update () {
 		
 		Platform.Instance.Poll();
 		
 		if(Platform.Instance.HasLock()) {
-			// Initiate the countdown
+			
+			// Initiate the countdown.
 			countdown = true;
 		 	if(countTime <= -1.0f && !started)
 			{
@@ -110,33 +148,51 @@ public class Treasure : MonoBehaviour {
 			}
 			UnityEngine.Debug.Log("Current Position is: " + Platform.Instance.Position().latitude + ", " + Platform.Instance.Position().longitude);
 			
+			// Get the current position of the treasure based on distance between the player and its real world position.
 			Vector2 currentPos = MercatorToPixel(worldCoordinate) - MercatorToPixel(Platform.Instance.Position());
 			
-			
+			// Set the game coordinates.
 			gameCoordinate = new Vector3(currentPos.x, 0, currentPos.y);
 			
+			// Get the magnitude of the distance.
 			treasureDist = currentPos.magnitude;
 			
+			// If the player is close enough, obtain the treasure.
 			if(treasureDist < 10 && !obtained) {
 				obtained = true;
 				GetComponent<MeshRenderer>().enabled = false;
 			}		
 			
+			// Set the position based on the game coordinate.
 			transform.position  = gameCoordinate;
 		} 
 		
+		// If its not started, set the treasure's position far away out of sight.
 		if(!started) {
 			transform.position = new Vector3(0.0f, 0.0f, 10000.0f);
 		}
 	}
 	
+	/// <summary>
+	/// Returns true if the treasure has been obtained
+	/// </summary>
+	/// <returns>
+	/// <c>true</c> if the treasure is obtained; otherwise, <c>false</c>.
+	/// </returns>
 	public bool IsObtained() {
 		return obtained;
 	}
 	
+	/// <summary>
+	/// Converts a Mercator projection position to pixel position.
+	/// </summary>
+	/// <returns>
+	/// The converted position.
+	/// </returns>
+	/// <param name='mercator'>
+	/// Original position in Lat and Long
+	/// </param>
 	Vector2 MercatorToPixel(Position mercator) {
-		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
-		//int scale = (int)Math.Pow(2, mapZoom);
 		
 		// Mercator to google world cooordinates
 		Vector2 world = new Vector2(
@@ -149,8 +205,6 @@ public class Treasure : MonoBehaviour {
 				) / 2
 			) * 256
 		);
-//		Debug.Log(mercator.latitude + "," + mercator.longitude + " => " + world.x + "," + world.y);
-		
 		return world * 100000;
 	}
 	

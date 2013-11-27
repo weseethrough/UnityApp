@@ -11,11 +11,17 @@ public class PBRunnerController : TargetController {
 	
 	// Use this for initialization
 	void Start () {
-		base.Start();
+		base.Start();		
+	}
+	
+	void OnEnable() {
+		base.OnEnable();
 		base.SetAttribs(0, 135, -254.6f, 50);
 		
+		if (target == null) return;
+		
 		anim = GetComponent<Animator>();
-		speed = target.GetCurrentSpeed();
+		speed = target.PollCurrentSpeed();
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f && speed < 4.0f) {
 			anim.speed = speed / 2.2f;
@@ -24,18 +30,13 @@ public class PBRunnerController : TargetController {
 		} else {
 			anim.speed = speed / 1.0f;
 		}
-		
 	}
 	
-	void OnEnable() {
-		base.OnEnable();
-		base.SetAttribs(0, 135, -254.6f, 50);
-	}
-	
-	void Update () {
-				
+	void Update () {				
 		base.Update();
-		float newSpeed = target.GetCurrentSpeed();
+		if (target == null) return;
+		UnityEngine.Debug.Log("PBRunner notnull!");
+		float newSpeed = target.PollCurrentSpeed();
 		if(speed != newSpeed)
 		{
 			speed = newSpeed;

@@ -22,6 +22,7 @@ public class TrainingSettings : MonoBehaviour {
 	
 	// Target speed
 	public float targSpeed = 1.8f;
+	public GameObject runner;
 	
 	// Texture for black background
 	public Texture blackTexture;
@@ -39,7 +40,7 @@ public class TrainingSettings : MonoBehaviour {
 		Color black = new Color(0.0f, 0.0f, 0.0f, 0.4f);
 		normal = new Texture2D(1, 1);
 		normal.SetPixel(0,0,black);
-		normal.Apply();
+		normal.Apply();		
 	}
 	
 	void OnGUI() {
@@ -85,7 +86,10 @@ public class TrainingSettings : MonoBehaviour {
 				if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
 					Platform.Instance.Reset();
-					Platform.Instance.SetTargetSpeed(targSpeed);
+					Platform.Instance.ResetTargets();
+					TrainingController controller = runner.GetComponent<TrainingController>();
+					// TODO: Ugly. Look into.
+					controller.SetSpeed(targSpeed);
 										
 					// Start countdown again
 					started = false;
@@ -128,17 +132,21 @@ public class TrainingSettings : MonoBehaviour {
 			}
 		}
 		
+		// If the game hasn't started, show the Start button.
 		if(!started) {
 			if(GUI.Button(new Rect(275, 400, 100, 100), "START") && !countdown && Platform.Instance.HasLock()) {
 				countdown = true;
 			}
 		} else {
+			// Else display the stop button.
 			if(GUI.Button(new Rect(275, 400, 100, 100), "STOP")) {
 				stopTimer = 0.0f;
 				stopped = true;
 				Platform.Instance.StopTrack();
 			}
 		}
+		
+		// If the reset button is pressed, stop tracking and reset.
 		if(GUI.Button(new Rect(425, 400, 100, 100), "RESET")) {
 			countdown = false;
 			Platform.Instance.StopTrack();
@@ -149,6 +157,8 @@ public class TrainingSettings : MonoBehaviour {
 		
 		GUI.skin.label.fontSize = 15;
 		GUI.skin.label.normal.background = normal;
+		
+		// When the player stops the game update the user with instructions
 		if(stopped) {
 			GUI.Label(new Rect(300, 100, 200, 100), "Congratulations, you just completed your first run! Your track has been saved so you can now race yourself! Tap to continue");
 		}
@@ -174,6 +184,7 @@ public class TrainingSettings : MonoBehaviour {
 			}
 		}
 		
+		// If the game is stopped and the screen is tapped, save the progress and load the hex menu.
 		if(stopped && Input.touchCount > 0 && stopTimer > 0.0f) {
 			PlayerPrefs.SetInt("StartLevel", 2);
 			Platform.Instance.Reset();
