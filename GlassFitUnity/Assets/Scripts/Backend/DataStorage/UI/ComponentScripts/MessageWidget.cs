@@ -2,6 +2,9 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// message data class containing all information required to display single message to the user
+/// </summary>
 public class MessageData
 {
     public string title;
@@ -10,6 +13,9 @@ public class MessageData
     public UIAtlas atlas;
 }
 
+/// <summary>
+/// widget component controlling animations and display order of the messages
+/// </summary>
 public class MessageWidget : MonoBehaviour
 {
     const string LABEL_TITLE_ENTER      = "MessageEnterAnim";
@@ -42,6 +48,10 @@ public class MessageWidget : MonoBehaviour
         maxStates
     }
 
+    /// <summary>
+    /// standard unity function initializing widget
+    /// </summary>
+    /// <returns></returns>
     void Start()
     {
         JumpToStart(title, LABEL_TITLE_ENTER);
@@ -68,6 +78,13 @@ public class MessageWidget : MonoBehaviour
         AddMessage("HEY!", "You have just get invited", "activity_run");
     }
 
+    /// <summary>
+    /// static function which adds message data to the queue to be shown to the user when widget instance is initialized
+    /// </summary>
+    /// <param name="title">title of the message, for example: "Congratulations!"</param>
+    /// <param name="content">message content with more detailed description of what we want to tell to the user</param>
+    /// <param name="iconName">icon to be shown along with the message. Its important to understand that icon animate from 0.5 to 0.8 of its maximum screen size when planing size of the icon. It could be changed by changing scael on icon container</param>
+    /// <returns></returns>
     static public void AddMessage(string title, string content, string iconName)
     {
         GraphComponent gc = null;
@@ -78,6 +95,14 @@ public class MessageWidget : MonoBehaviour
         AddMessage(title, content, iconName, gc.m_defaultHexagonalAtlas);        
     }
 
+    /// <summary>
+    /// static function which adds message data to the queue to be shown to the user when widget instance is initialized
+    /// </summary>
+    /// <param name="title">title of the message, for example: "Congratulations!"</param>
+    /// <param name="content">message content with more detailed description of what we want to tell to the user</param>
+    /// <param name="iconName">icon to be shown along with the message. Its important to understand that icon animate from 0.5 to 0.8 of its maximum screen size when planing size of the icon. It could be changed by changing scael on icon container</param>
+    /// <param name="atlasContainingIcon">atlass instance if not default altas is used. </param>
+    /// <returns></returns>
     static public void AddMessage(string title, string content, string iconName, UIAtlas atlasContainingIcon)
     {
         MessageData md = new MessageData();        
@@ -90,9 +115,12 @@ public class MessageWidget : MonoBehaviour
         messageStack.Add(md);
     }
 
+    /// <summary>
+    /// standard unity update function called once every frame. Used for state progress of internal message manager
+    /// </summary>
+    /// <returns></returns>
     void Update()
-    {
-        
+    {        
         switch (currentState)
         {
 
@@ -155,11 +183,28 @@ public class MessageWidget : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Function to trigger animation on specified clip
+    /// </summary>
+    /// <param name="go">game object containing animation component among children. Only one is expected</param>
+    /// <param name="animName">namination name existing on animation component</param>
+    /// <param name="requireReset">do you want to reset anmiation before play?</param>
+    /// <param name="notificationRequired">should this class eb notified by this play call and progress its state?</param>
+    /// <returns></returns>
     private void Play(GameObject go, string animName, bool requireReset, bool notificationRequired)
     {
         Play(go, animName, AnimationOrTween.Direction.Forward, requireReset, notificationRequired);
     }
 
+    /// <summary>
+    /// Function to trigger animation on specified clip
+    /// </summary>
+    /// <param name="go">game object containing animation component among children. Only one is expected</param>
+    /// <param name="animName">namination name existing on animation component</param>
+    /// <param name="direction">direction which animation should be animated to</param>
+    /// <param name="requireReset">do you want to reset anmiation before play?</param>
+    /// <param name="notificationRequired">should this class eb notified by this play call and progress its state?</param>
+    /// <returns></returns>
     private void Play(GameObject go, string animName, AnimationOrTween.Direction direction, bool requireReset, bool notificationRequired)
     {
         if (go == null) return;
@@ -180,6 +225,12 @@ public class MessageWidget : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// simplified animate call which instead just forces animation to jump to starting point and stop
+    /// </summary>
+    /// <param name="go">game object containing animation component among children. Only one is expected </param>
+    /// <param name="animName">namination name existing on animation component</param>
+    /// <returns></returns>
     private void JumpToStart(GameObject go, string animName)
     {
         if (go == null) return;
@@ -189,6 +240,10 @@ public class MessageWidget : MonoBehaviour
         anim[animName].time = 0.0f;
     }
 
+    /// <summary>
+    /// Animation function which should be triggered when longest animation among sequence ends, it allows to progress to next step (eg finished enter animation or finished closing animation)
+    /// </summary>
+    /// <returns></returns>
     public void AnimFinished()
     {
         Debug.Log("Auto switch");

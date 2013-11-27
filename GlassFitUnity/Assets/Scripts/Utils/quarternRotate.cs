@@ -1,11 +1,7 @@
 ﻿using UnityEngine;
 
- 
-
-public class quarternRotate : MonoBehaviour
-
-{
-    private Quaternion   gyroOrientation;
+public class QuarternRotate : MonoBehaviour {
+    private Quaternion gyroOrientation;
 
 	private Quaternion _targetCorrection1 = Quaternion.identity;
 
@@ -22,7 +18,6 @@ public class quarternRotate : MonoBehaviour
 	private bool timerActive = false;
 
     void Start()
-
     {
 
         Input.gyro.enabled = true;
@@ -41,21 +36,16 @@ public class quarternRotate : MonoBehaviour
 
     }
 
-    	void OnGUI()
+    void OnGUI()
 	{
 		if(!started)
 		{
 			offset = gyroOrientation;
-			//offset = Quaternion.Euler(0, offset.eulerAngles.y, 0);
 			started = true;
 		}
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX,scaleY, 1));		
 		GUI.depth = 7;
-//		if(GUI.Button (new Rect(0, Screen.height - 100, 100, 100), "setGyro"))
-//		{ 
-//			offset = gyroOrientation;
-//			//offset = Quaternion.Euler(0, offset.eulerAngles.y, 0);
-//		}
+
 		if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
 		{ 
 			if(timerActive) {
@@ -82,16 +72,12 @@ public class quarternRotate : MonoBehaviour
 	}
 
     void Update()
-
-    {
-		
+    {		
 //		if(this.camera.fieldOfView == 10)
 //		AutoFade.LoadLevel(1, 1, 1, Color.black);
 
-
         gyroOrientation =  Quaternion.Euler(Input.gyro.attitude.eulerAngles.y, -Input.gyro.attitude.eulerAngles.x, 0);
 
-    
         Quaternion halfway =  (offset * Quaternion.Inverse(gyroOrientation)) ;
 		
 		if(timerActive && gridOn)

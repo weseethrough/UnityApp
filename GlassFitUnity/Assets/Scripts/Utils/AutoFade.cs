@@ -1,14 +1,27 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Fades the level to a specified colour and loads the new level before fading in again.
+/// </summary>
 public class AutoFade : MonoBehaviour {
 	
+	// Singleton instance of AutoFade
 	private static AutoFade mInstance = null;
+	
+	// Material for the plane
 	private Material mMaterial = null;
+	
+	// Name of the level
 	private string mLevelName = "";
+	
+	// Integer for the level
 	private int mLevelIndex = 0;
+	
+	// Checks if the level is fading
 	private bool mFading = false;
 	
+	// Returns an instance of autofade
 	private static AutoFade Instance
 	{
 		get	
@@ -21,6 +34,7 @@ public class AutoFade : MonoBehaviour {
 		}
 	}
 	
+	// Checks if the scene is fading
 	public static bool Fading
 	{
 		get { return Instance.mFading; }
@@ -51,34 +65,83 @@ public class AutoFade : MonoBehaviour {
         GL.PopMatrix();
     }
 	
+	/// <summary>
+	/// Fades in and out based on the time and colour.
+	/// </summary>
+	/// <param name='aFadeOutTime'>
+	/// Time it takes to fade out.
+	/// </param>
+	/// <param name='aFadeInTime'>
+	/// Time it takes to fade in.
+	/// </param>
+	/// <param name='aColor'>
+	/// Colour to fade to.
+	/// </param>
 	private IEnumerator Fade(float aFadeOutTime, float aFadeInTime, Color aColor)
     {
+		// Float for time
         float t = 0.0f;
+		
+		// While the time is within range, draw a quad with the colour specified
+		// and an alpha value based on the current time
         while (t<1.0f)
         {
             yield return new WaitForEndOfFrame();
             t = Mathf.Clamp01(t + Time.deltaTime / aFadeOutTime);
             DrawQuad(aColor,t);
         }
+		
+		// The level is then loaded based on the name or number given
         if (mLevelName != "")
             Application.LoadLevel(mLevelName);
         else
             Application.LoadLevel(mLevelIndex);
-        while (t>0.0f)
+       
+		// Now the level is loaded we fade back in based on the time specified.
+		while (t>0.0f)
         {
             yield return new WaitForEndOfFrame();
             t = Mathf.Clamp01(t - Time.deltaTime / aFadeInTime);
             DrawQuad(aColor,t);
         }
+		
+		// Set fading to false
         mFading = false;
     }
 	
+	/// <summary>
+	/// Starts the fade to the next scene.
+	/// </summary>
+	/// <param name='aFadeOutTime'>
+	/// The fade out time.
+	/// </param>
+	/// <param name='aFadeInTime'>
+	/// The fade in time.
+	/// </param>
+	/// <param name='aColor'>
+	/// The colour of the quad.
+	/// </param>
 	private void StartFade(float aFadeOutTime, float aFadeInTime, Color aColor)
     {
         mFading = true;
         StartCoroutine(Fade(aFadeOutTime, aFadeInTime, aColor));
     }
 	
+	/// <summary>
+	/// Loads the level using a string for the name.
+	/// </summary>
+	/// <param name='aLevelName'>
+	/// The level name.
+	/// </param>
+	/// <param name='aFadeOutTime'>
+	/// The time in seconds to fade out.
+	/// </param>
+	/// <param name='aFadeInTime'>
+	/// The time in seconds to fade in.
+	/// </param>
+	/// <param name='aColor'>
+	/// The colour of the quad to use during the fade.
+	/// </param>
 	public static void LoadLevel(string aLevelName,float aFadeOutTime, float aFadeInTime, Color aColor)
     {
         if (Fading) return;
@@ -86,6 +149,21 @@ public class AutoFade : MonoBehaviour {
         Instance.StartFade(aFadeOutTime, aFadeInTime, aColor);
     }
 	
+	/// <summary>
+	/// Loads the level using an integer for the level.
+	/// </summary>
+	/// <param name='aLevelIndex'>
+	/// The level number.
+	/// </param>
+	/// <param name='aFadeOutTime'>
+	/// The time in seconds to fade out.
+	/// </param>
+	/// <param name='aFadeInTime'>
+	/// The time in seconds to fade in.
+	/// </param>
+	/// <param name='aColor'>
+	/// The colour of the quad to use during the fade.
+	/// </param>
 	public static void LoadLevel(int aLevelIndex,float aFadeOutTime, float aFadeInTime, Color aColor)
     {
         if (Fading) return;

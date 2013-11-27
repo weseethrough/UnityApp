@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Base class for the targets. Controls the movement and the target tracker
+/// </summary>
 public class TargetController : MonoBehaviour {
 	protected double scaledDistance = 0.0f;
 	public TargetTracker target { get; protected set; }

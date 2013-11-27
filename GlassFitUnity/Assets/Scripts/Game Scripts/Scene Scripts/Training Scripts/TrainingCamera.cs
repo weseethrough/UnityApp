@@ -2,9 +2,11 @@ using UnityEngine;
 using System.Collections;
 
 public class TrainingCamera : MonoBehaviour {
-
+	
+	// Rotation offset
 	public Quaternion offsetFromStart;
 	
+	// 
 	private bool gridSet = false;
 	private bool avatarSet = false;
 	private float scaleX;
@@ -36,27 +38,35 @@ public class TrainingCamera : MonoBehaviour {
 		GUI.depth = 7;
 		GUI.skin.label.normal.background = normal;
 		
+		// If the grid has not been set.
 		if(!gridSet)
 		{
+			// Show subtitles to make the user set the grid which change after a certain amount of time.
 			if(subtitleTime < 5.0f) {
 				GUI.Label(new Rect(300, 100, 200, 60), "Welcome to Race Yourself! In this tutorial we will teach you how to play the game.");
 			} else if(subtitleTime < 12.0f) {
 				GUI.Label(new Rect(300, 100, 200, 60), "Let's start with placing the grid. Align the grid with the floor and tap the touchpad to set it.");
 			}
 		} else if(!avatarSet) {
+			// Next prompt the user to set the avatar by looking at it.
 			if(transform.rotation.eulerAngles.y < 200 && transform.rotation.eulerAngles.y > 160) {
+				// If the player looks at the avatar, set the reset the subtitle time and make the avatar go to the start position.
 				subtitleTime = 0.0f;
 				Platform.Instance.Reset();
 				runner.GetComponent<TrainingController>().SetMove(true);
 				avatarSet = true;
 			} else {
+				// Else prompt the user.
 				GUI.Label(new Rect(300, 100, 200, 60), "Great! Now take a look around and try and spot the avatar you will be racing against");
 			}
 		} else if(!Platform.Instance.HasStarted()) {
+			// Once the player has set the avatar, it checks for a GPS lock.
 			if(!Platform.Instance.HasLock()){
+				// If there is no lock, tell the player.
 				GUI.Label(new Rect(300, 100, 200, 80), "There he is, he's just going to get into position and we can start once we have a lock on the GPS.");
 				subtitleTime = 0.0f;
 			} else {
+				// Else prompt the player to start the game.
 				if(subtitleTime < 8.0f) {
 					GUI.Label(new Rect(300, 100, 200, 100), "We now have a lock. Press start whenever you are ready, the avatar will run at a constant jogging speed of 2.2m/s");
 				}
@@ -65,7 +75,7 @@ public class TrainingCamera : MonoBehaviour {
 		
 		GUI.skin.label.normal.background = null;
 		
-		// Check if the button is being held
+		// Check if the button is being held.
 		if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
 		{ 
 			// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on

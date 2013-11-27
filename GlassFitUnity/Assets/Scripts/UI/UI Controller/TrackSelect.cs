@@ -4,30 +4,47 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 
+/// <summary>
+/// This class is used to display the map and control the Track Select screen.
+/// </summary>
 public class TrackSelect : MonoBehaviour {
 	
-	//private Platform inputData;
+	// Scaling values	
 	private float originalWidth = 800;
 	private float originalHeight = 500;
-	public static Texture2D lineTex;
 	private Vector3 scale;
+	
+	// Texture for the line drawing
+	public static Texture2D lineTex;
+	
+	// Tracklist
 	private List<Track> trackList;
+	
+	// Current track to display
 	private int currentTrack = 0;
 	Texture2D normal;
+	
+	// Boolean for when the game has started
 	private bool started = false;
+	
+	// Boolean to know when the track select screen is active
 	private bool active = true;
 	
+	// Map attributes
 	private Rect map;
 	private const int MAP_RADIUS = 100;
-	private const int MARGIN = 15;
-	private const float OPACITY = 0.5f;
 	Texture2D mapTexture = null;
 	Material mapStencil;
 	const int mapAtlasRadius = 315; // API max width/height is 640
 	int mapZoom = 18;
 	WWW mapWWW = null;
-	private bool mapChanged = true;
+	private bool mapChanged = true;	
 	
+	// Constants for the margin and opacity
+	private const int MARGIN = 15;
+	private const float OPACITY = 0.5f;
+	
+	// Limits and center for the latitude, longitude.
 	private float latHigh;
 	private float latLow;
 	private float longHigh;
@@ -35,145 +52,49 @@ public class TrackSelect : MonoBehaviour {
 	private float centerLat;
 	private float centerLong;
 	
+	// Boolean to know if anything is changed
 	private bool changed;
 	
-	// Use this for initialization
+	/// <summary>
+	/// Start this instance. Gets the tracklist
+	/// </summary>
 	void Start () {
 		trackList = Platform.Instance.GetTracks();
 	}
 	
+	/// <summary>
+	/// Determines whether this instance has changed.
+	/// </summary>
+	/// <returns>
+	/// <c>true</c> if this instance is changed; otherwise, <c>false</c>.
+	/// </returns>
 	public bool IsChanged() {
 		return changed;
 	}
 	
+	/// <summary>
+	/// Sets the changed boolean.
+	/// </summary>
+	/// <param name='c'>
+	/// Sets the changed boolean to c
+	/// </param>
 	public void SetChanged(bool c) {
 		changed = c;
 	}
 	
-	void OnGUI() {
-		
-//		Matrix4x4 defaultMatrix = GUI.matrix;
-//		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-//		//GUI.depth = 10;
-//		GUI.skin.box.wordWrap = true;
-//		GUI.skin.box.fontSize = 30;
-//		GUI.depth = 3;
-//		GUI.skin.box.fontStyle = FontStyle.Bold;
-//		GUI.skin.box.alignment = TextAnchor.MiddleCenter;				
-//		GUI.skin.box.normal.background = normal;
-//		GUI.skin.box.normal.textColor = Color.black;
-			
-//		if(GUI.Button(new Rect(0, originalHeight/2, 100, 100), "Previous Track")) {
-//			Platform.Instance.getPreviousTrack();
-//			curTrackPositions = Platform.Instance.getTrackPositions();
-//			GetLimits();
-//			mapChanged = true;
-//			mapTexture = null;
-//		}
-//		
-//		if(GUI.Button(new Rect(originalWidth-100, originalHeight/2, 100, 100), "Next Track")) {
-//			Platform.Instance.getNextTrack();
-//			curTrackPositions = Platform.Instance.getTrackPositions();
-//			GetLimits();
-//			mapChanged = true;
-//			mapTexture = null;
-//		}
-//		
-//		if(GUI.Button(new Rect(originalWidth-100, originalHeight-100, 100, 100), "Set Track")) {
-//			Platform.Instance.setTrack();
-//			changed = true;
-//		}
-//		
-//		if(GUI.Button(new Rect(originalWidth-100, 0, 100, 100), "Get Tracks")) {
-//			GetTracks();
-//		}
-			
-//		if(started) {
-//		
-//			double sin = Math.Sin(latHigh * Math.PI / 180);
-//			double radX2 = Math.Log((1 + sin) / (1-sin)) / 2;
-//			double neLat = Math.Max(Math.Min(radX2, Math.PI), -Math.PI) /2;
-//		
-//			sin = Math.Sin(latLow * Math.PI / 180);
-//			radX2 = Math.Log((1 + sin) / (1-sin)) / 2;
-//			double swLat = Math.Max(Math.Min(radX2, Math.PI), -Math.PI) / 2;
-//		
-//			double latFraction = (neLat - swLat) / Math.PI;
-//		
-//			double longDiff = longHigh - longLow;
-//			double longFraction = ((longDiff < 0) ? (longDiff + 360) : longDiff) / 360;
-//		
-//			double latZoom = Math.Floor (Math.Log(600 / 256 / latFraction) / 0.6931471805599453 );
-//			double longZoom = Math.Floor(Math.Log(400  / 256 / longFraction) / 0.6931471805599453);
-//			
-//			UnityEngine.Debug.Log("Zoom: Lat Zoom = " + latZoom.ToString());
-//			UnityEngine.Debug.Log("Zoom: long zoom = " + longZoom.ToString());
-//		
-//			mapZoom = (int)Math.Min(latZoom, longZoom);
-//			if(mapZoom > 21) {
-//				mapZoom = 21;
-//			}
-//		
-//			if ((mapWWW == null && mapTexture == null) && mapChanged){
-//				const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
-//				const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
-//				string url = endpoint + "?center="
-//			                      	  + centerLat.ToString() + "," + centerLong.ToString()
-//			               	      	  + "&zoom=" + mapZoom.ToString()
-//			  	                  	  + "&size=" + "600" + "x" + "400"
-//			       	              	  + "&maptype=roadmap" 
-//									  + "&sensor=true&key=" + API_KEY;
-//				mapWWW = new WWW(url);
-//				UnityEngine.Debug.Log("Map: URL is: " + url);
-//				}
-//			if (mapWWW != null && mapWWW.isDone) {
-//				if (mapWWW.error != null) {
-//				//debugText = mapWWW.error;
-//					UnityEngine.Debug.LogWarning(mapWWW.error);
-//					UnityEngine.Debug.LogWarning("Map: error with map");
-//				} else {
-//				//debugText = "";
-//					mapTexture = mapWWW.texture;
-//					mapChanged = false;
-//				//mapOrigo = fetchOrigo;
-//					UnityEngine.Debug.Log("Map: origo error");
-//				}
-//				mapWWW = null;
-//			}
-//						
-//			if (mapTexture == null) {
-//				GUI.Label(map, "Fetching map...    Number of Positions = " + curTrackPositions.Count.ToString());
-//			}
-//				GUI.DrawTexture(map, mapTexture);
-//				
-//			GUI.matrix = Matrix4x4.identity;
-//			
-//			Position center = new Position(centerLat, centerLong);
-//			
-//			for(int i=0; i<curTrackPositions.Count - 1; i++) {
-//				//UnityEngine.Debug.Log("Track: current track position = " + curTrackPositions[i].latitude + ", " + curTrackPositions[i].longitude);
-//				Vector2 currentPos = mercatorToPixel(curTrackPositions[i]) - mercatorToPixel(center); 
-//				currentPos += new Vector2(400.0f * scale.x, 250.0f * scale.y);
-//				
-//				Vector2 nextPos = mercatorToPixel(curTrackPositions[i+1]) - mercatorToPixel(center);
-//				nextPos += new Vector2(400.0f * scale.x, 250.0f * scale.y);
-//				
-//				if(currentPos != nextPos) {
-//					//UnityEngine.Debug.Log("Track: Current position = " + currentPos.x.ToString() + ", " + currentPos.y.ToString());
-//					//UnityEngine.Debug.Log("Track: Next position = " + nextPos.x.ToString() + ", " + nextPos.y.ToString());
-//					
-//					DrawLine(currentPos, nextPos, Color.black, 10.0f);	
-//				}
-//			}
-		
-		
-		
-	}
-	
+	/// <summary>
+	/// Update this instance. Gets and draws the map with the path to a texture
+	/// </summary>
 	void Update() {
+		// If the track has changed, update
 		if(currentTrack != Platform.Instance.currentTrack) {
-				UnityEngine.Debug.Log("TrackPanel: track change: " + Platform.Instance.currentTrack);
+			UnityEngine.Debug.Log("TrackPanel: track change: " + Platform.Instance.currentTrack);
+			
+			// Set mapChanged to true
 			mapChanged = true;
+			
+			// Handle limits of current track for platform
+			// TODO: handle this in platform
 			if(Platform.Instance.currentTrack > trackList.Count - 1 ) {
 				Platform.Instance.currentTrack = 0;
 			}
@@ -184,38 +105,58 @@ public class TrackSelect : MonoBehaviour {
 			
 			if (trackList.Count == 0) Platform.Instance.currentTrack = 0;
 			
+			// Set the current track based on platform
 			currentTrack = Platform.Instance.currentTrack;
 				UnityEngine.Debug.Log("TrackPanel: current track: " + currentTrack);
 		}
 		
+		// If the map has changed
 		if(mapChanged) {
+			// Get the new latitude and longitude limits and center points
 			GetLimits();
+			
+			// Remove the old texture
 			mapTexture = null;
 			
+			// The next section calculates the zoom for the static maps. 
+			
+			// First, the north-east latitude is calculated by finding the 
+			// sine of the latitude. Next the log of the value is found and
+			// then the value is set based on which value is higher.
 			double sin = Math.Sin(latHigh * Math.PI / 180);
 			double radX2 = Math.Log((1 + sin) / (1-sin)) / 2;
 			double neLat = Math.Max(Math.Min(radX2, Math.PI), -Math.PI) /2;
 		
+			// The same is then performed to the south west latitude
 			sin = Math.Sin(latLow * Math.PI / 180);
 			radX2 = Math.Log((1 + sin) / (1-sin)) / 2;
 			double swLat = Math.Max(Math.Min(radX2, Math.PI), -Math.PI) / 2;
 		
+			// A fraction is obtained from dividing the distance by Pi
 			double latFraction = (neLat - swLat) / Math.PI;
 		
+			// Next we calculate the longitude by finding the difference between
+			// the two and then obtaining a fraction.
 			double longDiff = longHigh - longLow;
 			double longFraction = ((longDiff < 0) ? (longDiff + 360) : longDiff) / 360;
 		
+			// The latitude zoom is then calculated based on the pixel width / map tile width / latitude fraction / ln2
 			double latZoom = Math.Floor (Math.Log(600 / 256 / latFraction) / 0.6931471805599453 );
+			
+			// The latitude zoom is then calculated based on the pixel height / map tile height / longitude fraction / ln2
 			double longZoom = Math.Floor(Math.Log(400  / 256 / longFraction) / 0.6931471805599453);
 			
 			UnityEngine.Debug.Log("Zoom: Lat Zoom = " + latZoom.ToString());
 			UnityEngine.Debug.Log("Zoom: long zoom = " + longZoom.ToString());
 		
+			// Finally, the zoom is set based on the smaller value.
 			mapZoom = (int)Math.Min(latZoom, longZoom);
 			if(mapZoom > 18) {
 				mapZoom = 18;
 			}
 		
+			// We now obtain the map from the Google Static Maps API using the values
+			// obtained above.
 			if ((mapWWW == null && mapTexture == null) && mapChanged){
 				const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
 				const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
@@ -229,8 +170,11 @@ public class TrackSelect : MonoBehaviour {
 				UnityEngine.Debug.Log("Map: URL is: " + url);
 			}
 			
+			// If the website worked.
 			if (mapWWW != null) {
+				// We wait for the map to download.
 				while(!mapWWW.isDone) {
+					// If there are any errors, tell the user and break out.
 					if (mapWWW.error != null) {
 						UnityEngine.Debug.LogWarning(mapWWW.error);
 						UnityEngine.Debug.LogWarning("Map: error with map");
@@ -238,32 +182,49 @@ public class TrackSelect : MonoBehaviour {
 					} 
 				}
 				
+				// The texture is then set.
 				mapTexture = mapWWW.texture;
 				
+				// The link is then nulled.
 				mapWWW = null;
 			}
 						
+			// The UITexture is then obtained and set.
 			UITexture tex = GetComponent<UITexture>();
 			tex.mainTexture = mapTexture;
 			mapChanged = false;
 		}
 	}
 	
+	/// <summary>
+	/// Gets the tracks.
+	/// </summary>
 	public void GetTracks() {
+		// Get the tracks from Platform
 		Platform.Instance.GetTracks();
-		//curTrackPositions = Platform.Instance.getTrackPositions();
+		
+		// Set the map to changed and get the new limits
 		started = true;
 		mapChanged = true;
 		mapTexture = null;
 		GetLimits();
-		
 	}
 	
+	/// <summary>
+	/// Returns the current track.
+	/// </summary>
+	/// <returns>
+	/// The track.
+	/// </returns>
 	public Track CurrentTrack() {
 		return trackList[currentTrack];
 	}
 	
+	/// <summary>
+	/// Gets the limits of latitude and logitude as well as the center.
+	/// </summary>
 	void GetLimits() {
+		// Set to impossible values so will straight away be overtaken
 		float newlatLow = 360;
 		float newlongLow = 360;
 		float newlatHigh = -360;
@@ -271,42 +232,55 @@ public class TrackSelect : MonoBehaviour {
 		float totalLat = 0;
 		float totalLong = 0;
 		
+		// Get the list of positions for the current track
 		List<Position> curTrackPositions = trackList[currentTrack].trackPositions;
 		
+		// Loop through all positions and test for limits
 		for(int i=0; i<curTrackPositions.Count; i++)
 		{
+			// Check for the lowest latitude
 			if(curTrackPositions[i].latitude < newlatLow) {
 				newlatLow = curTrackPositions[i].latitude;
 			}
 			
+			// Check for the highest latitude
 			if(curTrackPositions[i].latitude > newlatHigh) {
 				newlatHigh = curTrackPositions[i].latitude;
 			}
 			
+			// Check for the lowest longitude
 			if(curTrackPositions[i].longitude < newlongLow) {
 				newlongLow = curTrackPositions[i].longitude;
 			}
 			
+			// Check for the highest longitude
 			if(curTrackPositions[i].longitude > newlongHigh) {
 				newlongHigh = curTrackPositions[i].longitude;
 			}
+			
+			// Add to the total lat and long
 			totalLat += curTrackPositions[i].latitude;
 			totalLong += curTrackPositions[i].longitude;
 		}
+		
+		// Calculate the average lat and long for the center
 		float newcenterLat = totalLat / curTrackPositions.Count;
 		float newcenterLong = totalLong / curTrackPositions.Count;
 		
-		if(newcenterLat == centerLat && newcenterLong == centerLong && newlatHigh == latHigh && newlatLow == latLow && newlongLow == longLow && newlongHigh == longHigh)
-		{
-			mapChanged = true;
-			centerLat = newcenterLat;
-			centerLong = newcenterLong;
-			latHigh = newlatHigh;
-			latLow = newlatLow;
-			longHigh = newlongHigh;
-			longLow = newlongLow;
-		}
+		// Set the map changed to true
+		mapChanged = true;
 		
+		// Set the center positions
+		centerLat = newcenterLat;
+		centerLong = newcenterLong;
+		
+		// Set the limits of the latitude and longitude
+		latHigh = newlatHigh;
+		latLow = newlatLow;
+		longHigh = newlongHigh;
+		longLow = newlongLow;
+		 
+		// Print out the position
 		Position cent = new Position(centerLat, centerLong);
 		Position ne = new Position(latHigh, longHigh);
 		Position  sw = new Position(latLow, longLow);
@@ -316,6 +290,15 @@ public class TrackSelect : MonoBehaviour {
 		
 	}
 	
+	/// <summary>
+	/// Converts a Mercator Projection coordinate to pixel.
+	/// </summary>
+	/// <returns>
+	/// The coordinate in pixels.
+	/// </returns>
+	/// <param name='mercator'>
+	/// The coordinate in lat and long.
+	/// </param>
 	Vector2 MercatorToPixel(Position mercator) {
 		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
 		Vector2 mapScale = scale * (int)Math.Pow(2, mapZoom);
@@ -334,6 +317,21 @@ public class TrackSelect : MonoBehaviour {
 		return new Vector2(world.x * mapScale.x, world.y * mapScale.y);
 	}
 	
+	/// <summary>
+	/// Draws a 2D line.
+	/// </summary>
+	/// <param name='pointA'>
+	/// Start point.
+	/// </param>
+	/// <param name='pointB'>
+	/// End Point.
+	/// </param>
+	/// <param name='color'>
+	/// Color of the line.
+	/// </param>
+	/// <param name='width'>
+	/// Width of the line.
+	/// </param>
 	public void DrawLine(Vector2 pointA, Vector2 pointB, Color color, float width) {
 		Matrix4x4 matrix = GUI.matrix;
  

@@ -1,33 +1,77 @@
 using UnityEngine;
 using System.Collections;
 
+<<<<<<< HEAD
 public class SoundController : TargetController {
+=======
+/// <summary>
+/// Controls the music in the Music game
+/// </summary>
+public class SoundController : MonoBehaviour {
+	
+	// Number of audio tracks.
+>>>>>>> master
 	private const float NUM_TRACKS = 11;
+	
+	// Array of audio sources for the tracks.
 	private AudioSource[] stevies;
+	
+	// Current time to calculate when to start next track.
 	private float curTime = 0.0f;
+	
+	// Text for indoor mode.
 	private string indoorText = "Indoor Active";
+	
+	// Boolean for indoor/outdoor mode.
 	private bool indoor = true;
+	
+	// Score based on player's performance.
 	private float score = 0.0f;
+	
+	// Multiplier.
 	private int mult = 1;
+	
+	// Height, width and scale factor.
 	private int originalHeight = 500;
 	private int originalWidth = 800;
 	private Vector3 scale = Vector3.one;
+	
+	// Countdown and started variables.
 	private bool countdown = false;
 	private float countTime = 3.0f;
 	private bool started = false;
 	
+	// Current track the player is on.
 	private int currentTrack = 1;
 	
-	// Use this for initialization
+	/// <summary>
+	/// Initialises the music tracks
+	/// </summary>
 	void Start () {
+		
+		// Get all audio tracks.
 		stevies = GetComponents<AudioSource>();
+<<<<<<< HEAD
+=======
+		
+		// Set indoor mode and speed.
+		Platform.Instance.SetIndoor(true);
+		Platform.Instance.SetTargetSpeed(1.5f);
+		
+		// Set scale values.
+>>>>>>> master
 		scale.x = (float)Screen.width/originalWidth;
 		scale.y = (float)Screen.height/originalHeight;
 	}
 	
+	/// <summary>
+	/// Raises the GU event. Sets the buttons - needs updating
+	/// </summary>
 	void OnGUI() {
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		
+		// Button for Indoor mode.
+		// TODO: Update for nGUI.
 		if(GUI.Button(new Rect(originalWidth/2-100, originalHeight-100, 200, 100), indoorText))
 		{
 			if(indoor)
@@ -37,7 +81,7 @@ public class SoundController : TargetController {
 				Platform.Instance.StopTrack();
 				Platform.Instance.Reset();
 				Platform.Instance.SetIndoor(indoor);
-				//Platform.Instance.StartTrack(indoor);
+				
 				score = 0;
 				mult = 1;
 				curTime = 0.0f;
@@ -88,10 +132,15 @@ public class SoundController : TargetController {
 		}
 	}
 	
+	/// <summary>
+	/// Update this instance. Updates the playing track
+	/// </summary>
 	void Update () {
 		
+		// Update platform values.
 		Platform.Instance.Poll();
 		
+		// If indoor mode or gps has a lock, start countdown.
 		if(Platform.Instance.HasLock() || indoor)
 		{
 			countdown = true;
@@ -108,39 +157,62 @@ public class SoundController : TargetController {
 			}
 		}
 		
+<<<<<<< HEAD
 		double dist = Platform.Instance.DistanceBehindTarget(target) - 50;
+=======
+		// Get actual distance behind target based on offset.
+		double dist = Platform.Instance.DistanceBehindTarget() - 50;
+>>>>>>> master
 		
+		// If player is ahead, increase the score and bring in more tracks.
 		if(dist <= 0.0 && started)
 		{
+			// Increase time.
 			curTime += Time.deltaTime;
+			
+			// If time is greater than threshold.
 			if(curTime > 3.0f)
 			{
+				// reset time
 				curTime -= 3.0f;
+				
+				// Update multiplier if in range.
 				if(mult < 4)
 				{
 					mult++;
 				}
 				
+				// If another track is available, bring it in.
 				if(currentTrack < NUM_TRACKS)
 				{
 					stevies[currentTrack].volume = 1.0f;
 					currentTrack++;
 				}
 			}
+			
+			// Increase the score.
 			score += Time.deltaTime * mult;
 		}
+		// Else if target is ahead.
 		else if(started && dist > 0.0)
 		{
+			// Reduce time for multipler.
 			curTime -= Time.deltaTime;
+			
+			// If there is a multiplier, reset it.
 			if(mult > 1)
 			{
 				mult = 1;
 			}
 			
+			// If time reaches threshold and there are tracks left.
 			if(curTime < 0.0f && currentTrack > 0)
 			{
+				// Reduce the volume of current track.
 				stevies[currentTrack].volume = 0.0f;
 				curTime += 3.0f;
+				
+				// Reduce the current track.
 				currentTrack--;
 			}
 		}

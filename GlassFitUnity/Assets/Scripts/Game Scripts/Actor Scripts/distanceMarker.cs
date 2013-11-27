@@ -1,63 +1,80 @@
 using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Sets the distance markers
+/// </summary>
 public class DistanceMarker : MonoBehaviour {
 	
-	private int target = 50;
+	private int target = 500;
 	
-	//GameObjects for each marker
-	public GameObject fiftyMarker;
-	public GameObject fiftyMarker2;
+	// 3DText box. 
+	public GameObject textObject;
 	
-	// 3DText boxes 
-	public GameObject text1;
-	public GameObject text2;
-	
-	// Text Meshes for 3D Text
-	private TextMesh t1;
-	private TextMesh t2;
+	// Text Mesh for 3D Text.
+	private TextMesh textMesh;
 
-	// Boxes to check distance
+	// Variable for current distance travelled.
 	private double distance;
 	
+	/// <summary>
+	/// Obtains the text mesh
+	/// </summary>
 	void Start () 
 	{	
-		// Get initial components
-		t1 = text1.GetComponent<TextMesh>();
-		t2 = text2.GetComponent<TextMesh>();
+		// Get initial text mesh component.
+		textMesh = textObject.GetComponent<TextMesh>();
 	}
 	
-	void ResetMarkers()
-	{
-		// Resets markers out of camera's view
-		fiftyMarker.transform.position = new Vector3(0, 0, 500000);
-		fiftyMarker2.transform.position = new Vector3(0, 0, 500000);
-	}
-	
+	/// <summary>
+	/// Updates the position of the markers
+	/// </summary>
 	void Update () 
 	{
-		// Poll platform and set the new distance
-		Platform.Instance.Poll();
+		// Get current distance travelled.
 		distance = Platform.Instance.Distance();
 		
-		// Reset markers
-		ResetMarkers();
+		// Reset markers.
+		transform.position = new Vector3(0, 0, 500000);
 		
-		// If markers within range, set new position
-		if(distance > target - 20 && distance < target + 20)
+		// If markers within range, set new position.
+		if(distance > target - 50 && distance < target + 50)
 		{
 			double deltDist = target - distance;
-			deltDist *= 6.666f;
-			fiftyMarker.transform.position = new Vector3(15, 0, (float)deltDist);
-			fiftyMarker2.transform.position = new Vector3(-15, 0, (float)deltDist);
+			deltDist *= 135f;
+			transform.position = new Vector3(-582, -109, (float)deltDist);
 		}
 		
-		// If current distance is higher than target set the new text
-		if(distance > target + 20) 
+		// If current distance is higher than target set the new text and position.
+		if(distance > target + 50) 
 		{
 			target +=500;
-			t1.text = target.ToString() + "m";
-			t2.text = target.ToString() + "m";
+			textMesh.text = SiDistance(target);
 		}
+	}
+	
+	/// <summary>
+	/// Convert the distance text to the correct format.
+	/// </summary>
+	/// <returns>
+	/// The distance in either meters or kilometers
+	/// </returns>
+	/// <param name='meters'>
+	/// The start value in meters
+	/// </param>
+	string SiDistance(double meters) {
+		string postfix = "m";
+		string final;
+		float value = (float)meters;
+		if (value > 1000) {
+			value = value/1000;
+			postfix = "km";
+			final = value.ToString("f1");
+		}
+		else
+		{
+			final = value.ToString("f0");
+		}
+		return final+postfix;
 	}
 }

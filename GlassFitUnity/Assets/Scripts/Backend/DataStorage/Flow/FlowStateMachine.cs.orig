@@ -44,19 +44,23 @@ public class FlowStateMachine : MonoBehaviour
         }
     }
 	
+<<<<<<< HEAD
 	/// <summary>
 	/// static function allowing to take current flow state if one exists. Might be useful for some arbitrary calls in static locations which needs to know what panel is currently on or force navigation in/out
 	/// </summary>
 	/// <returns>returns current active flow state</returns>
+	static public FlowState GetCurentFlowState()
+=======
 	static public FlowState GetCurrentFlowState()
+>>>>>>> 5183dea52304a01eb7a0d53ce4778dead6fbbce8
     {
-        FlowStateMachine fsm = GameObject.FindObjectOfType(typeof(FlowStateMachine)) as FlowStateMachine;
-        if (fsm == null) return null;
-
-        if (fsm.activeFlow == null || fsm.activeFlow.Count == 0) return null;
-
-        return fsm.activeFlow[fsm.activeFlow.Count - 1];
-    }
+         FlowStateMachine fsm = GameObject.FindObjectOfType(typeof(FlowStateMachine)) as FlowStateMachine;
+         if (fsm == null) return null;
+ 
+         if (fsm.activeFlow == null || fsm.activeFlow.Count == 0) return null;
+ 
+         return fsm.activeFlow[fsm.activeFlow.Count - 1];
+     }
 	
     /// <summary>
     /// default unity function called once every frame. used by internal state machine to progress between states
@@ -249,5 +253,8 @@ public class FlowStateMachine : MonoBehaviour
         }
         return true;
     }
-
+<<<<<<< HEAD
+    
+=======
+>>>>>>> 5183dea52304a01eb7a0d53ce4778dead6fbbce8
 }

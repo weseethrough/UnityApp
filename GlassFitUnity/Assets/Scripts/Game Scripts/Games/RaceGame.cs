@@ -110,6 +110,7 @@ public class RaceGame : MonoBehaviour {
 		
 		finish = (int)DataVault.Get("finish");
 		
+<<<<<<< HEAD
 		// Set templates' active status
 		cyclistHolder.SetActive(false);
 		runnerHolder.SetActive(false);
@@ -122,6 +123,10 @@ public class RaceGame : MonoBehaviour {
 
 //		GetComponent<GetTrack>().setActive(false);
 		UnityEngine.Debug.Log("RaceGame: started");
+=======
+		// Set holders active status
+		SetTargets();
+>>>>>>> master
 	}
 	
 	public void SetActorType(ActorType targ) {
@@ -285,6 +290,8 @@ public class RaceGame : MonoBehaviour {
 		{
 			Platform.Instance.StopTrack();
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+			GameObject h = GameObject.Find("minimap");
+			h.renderer.enabled = false;
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 			if(gConect != null) {

@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
+/// <summary>
+/// advanced panel which allows to display complex hex menu screens
+/// </summary>
 [Serializable]
 public class HexPanel : Panel 
 {
@@ -14,11 +17,22 @@ public class HexPanel : Panel
     private bool camStartMouseAction;
     private bool camStartTouchAction;
 
+    /// <summary>
+    /// default constructor
+    /// </summary>
+    /// <returns></returns>
     public HexPanel()
         : base()
     {
         buttonData = new List<HexButtonData>();
     }
+
+    /// <summary>
+    /// deserialziation constructor
+    /// </summary>
+    /// <param name="info">seirilization info conataining class data</param>
+    /// <param name="ctxt">serialization context </param>
+    /// <returns></returns>
     public HexPanel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
     {
@@ -33,6 +47,12 @@ public class HexPanel : Panel
         }
     }
 
+    /// <summary>
+    /// serialization function called by serializer
+    /// </summary>
+    /// <param name="info">serialziation info where all data would be pushed to</param>
+    /// <param name="ctxt">serialzation context</param>
+    /// <returns></returns>
     public override void GetObjectData(SerializationInfo info, StreamingContext ctxt)
     {
         base.GetObjectData(info, ctxt);
@@ -40,6 +60,10 @@ public class HexPanel : Panel
         info.AddValue("buttonData", this.buttonData);
     }
 
+    /// <summary>
+    /// Gets display name of the node, helps with node identification in editor
+    /// </summary>
+    /// <returns>name of the node</returns>
     public override string GetDisplayName()
     {
         //base.GetDisplayName();
@@ -52,6 +76,10 @@ public class HexPanel : Panel
         return "HEX Panel: UnInitialzied";
     }
 
+    /// <summary>
+    /// initialzies node and creates name for it. Makes as well default iput/output connection sockets
+    /// </summary>
+    /// <returns></returns>
     protected override void Initialize()
     {
         base.Initialize();
@@ -61,6 +89,10 @@ public class HexPanel : Panel
 
     }
 
+    /// <summary>
+    /// hex screen have dynamic number of exits(and buttons) so it need function which updates its size dynamically as well
+    /// </summary>
+    /// <returns></returns>
     public void UpdateSize()
     {
         int count = Mathf.Max(Inputs.Count, Outputs.Count);
@@ -68,6 +100,10 @@ public class HexPanel : Panel
         Size.y = Mathf.Max(count * 25, 80);
     }
 
+    /// <summary>
+    /// refreshes connections lists
+    /// </summary>
+    /// <returns></returns>
     public override void RebuildConnections()
     {
         base.RebuildConnections();
@@ -76,6 +112,10 @@ public class HexPanel : Panel
 		GConnector connection;
     }
 
+    /// <summary>
+    /// function called when screen started enter process
+    /// </summary>
+    /// <returns></returns>
     public override void EnterStart()
     {
         base.EnterStart();
@@ -113,6 +153,10 @@ public class HexPanel : Panel
 
     }
 
+    /// <summary>
+    /// function called when panels started exiting process
+    /// </summary>
+    /// <returns></returns>
     public override void ExitStart()
     {
         base.ExitStart();
@@ -120,6 +164,10 @@ public class HexPanel : Panel
         Debug.Log("Panel Exit");
     }
 
+    /// <summary>
+    /// exit finalization and clearing process
+    /// </summary>
+    /// <returns></returns>
     public override void Exited()
     {
         base.Exited();
@@ -156,6 +204,11 @@ public class HexPanel : Panel
 #endif
     }
 
+    /// <summary>
+    /// whenever button get clicked it would be handled here
+    /// </summary>
+    /// <param name="button">button which send this event</param>
+    /// <returns></returns>
     public override void OnClick(FlowButton button)
     {
         //base.OnClick(button);
@@ -182,12 +235,20 @@ public class HexPanel : Panel
         }
     }
 
+    /// <summary>
+    /// checks if class have button data and at least one button. As well do the parent checks if screen type is set
+    /// </summary>
+    /// <returns></returns>
     public override bool IsValid()
     {
         //this panel is marked as invalid until some buttons are defined. It might be not the case later and condition changed.
         return base.IsValid() && buttonData != null && buttonData.Count > 0;
     }
 
+    /// <summary>
+    /// function used to ensure components of this panel are rendered by specific camera
+    /// </summary>
+    /// <returns></returns>
     public void ForceLayer()
     {
         //this is 3d interface so it should switch to use this layer
