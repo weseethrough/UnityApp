@@ -296,15 +296,17 @@ public class ButtonFunctionCollection
 	static public bool AcceptChallenges(FlowButton button, Panel panel) 
 	{
 		List<Challenge> relevant = new List<Challenge>();		
-		int? finish = null;
+		int? finish = 1;
 		
 		Notification[] notifications = Platform.Instance.Notifications();
 		foreach (Notification notification in notifications) {
 			if (string.Equals(notification.node["type"], "challenge")) {
 				int fromId = notification.node["from"].AsInt;
 				string challengeId = notification.node["challenge_id"];
+				if (challengeId == null) continue;
 				
 				Challenge potential = Platform.Instance.FetchChallenge(challengeId);
+				if (potential == null) continue;
 				if (potential is DistanceChallenge) {
 /*					DistanceChallenge challenge = potential as DistanceChallenge;
 					if (finish.HasValue && challenge.distance != finish.Value) continue; // Not relevant
@@ -326,7 +328,14 @@ public class ButtonFunctionCollection
 		}		
 		if (!finish.HasValue) return false;
 		
+		Platform.Instance.ResetTargets();
+		Platform.Instance.CreateTargetTracker(2.0f);
+		Platform.Instance.CreateTargetTracker(2.5f);
+		Platform.Instance.CreateTargetTracker(2.3f);
+		
 		DataVault.Set("finish", finish.Value);
+		
+		AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
 
 		return true;
 	}	

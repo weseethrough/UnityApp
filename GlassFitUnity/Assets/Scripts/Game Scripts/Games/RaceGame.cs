@@ -12,8 +12,7 @@ public class RaceGame : MonoBehaviour {
 	
 	public GameObject finishMarker;
 	
-	private double offset = 0;
-	
+
 	private int finish;
 	
 	// Enums for the actor types
@@ -114,10 +113,13 @@ public class RaceGame : MonoBehaviour {
 		cyclistHolder.SetActive(false);
 		runnerHolder.SetActive(false);
 		
-		Platform.Instance.ResetTargets();
-		Platform.Instance.CreateTargetTracker(targSpeed);
-		Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
-		Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
+		// TODO: Move tracker creation to a button/flow and keep this class generic
+		if (Platform.Instance.targetTrackers.Count == 0) {
+			Platform.Instance.CreateTargetTracker(targSpeed);
+			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
+			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
+		}
+		
 		InstantiateActors();
 
 //		GetComponent<GetTrack>().setActive(false);
@@ -228,16 +230,64 @@ public class RaceGame : MonoBehaviour {
 		GUI.matrix = Matrix4x4.identity;
 	}
 	
-	void Update () {
-		Platform.Instance.Poll();
+	protected void UpdateLeaderboard() {
+		double distance = Platform.Instance.Distance();
+		// TODO: Decide if we are allowed to sort in place or need to make a copy
+		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
+		trackers.Sort(delegate(TargetTracker x, TargetTracker y) {
+			return y.GetTargetDistance().CompareTo(x.GetTargetDistance());
+		});
+		int position = 1;
+		foreach (TargetTracker tracker in trackers) {
+			if (tracker.GetTargetDistance() > distance) position++;
+		}
+
+		DataVault.Set("ahead_col_box", "D20000EE");
 		
-		DataVault.Set("calories", Platform.Instance.Calories().ToString());
-		DataVault.Set("pace", Platform.Instance.Pace().ToString("f2") + "m/s");
-		DataVault.Set("distance", SiDistance(Platform.Instance.Distance()));
-		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
-		DataVault.Set("indoor_text", indoorText);
+		DataVault.Set("leader_header", "You are");
+		if (position == 1) { 
+			DataVault.Set("ahead_leader", "in the lead!");
+		} else {
+			DataVault.Set("ahead_leader", "behind by " + SiDistance(trackers[0].GetDistanceBehindTarget()));
+		}
 		
-		double targetDistance = Platform.Instance.GetHighestDistBehind()-offset;
+		DataVault.Set("position_header", "Position");
+		string nth = position.ToString();
+		if (position == 1) nth += "st";
+		if (position == 2) nth += "nd";
+		if (position == 3) nth += "rd";
+		if (position >= 4) nth += "th";
+		if (position > 2 && position == trackers.Count + 1) nth = "Last!";
+		DataVault.Set("position_box", nth);
+		
+		// Find closest (abs) target
+		TargetTracker nemesis = null;
+		TargetTracker upstream = null;
+		if (position > 1) upstream = trackers[position - 2]; // 1->0 indexing
+		TargetTracker downstream = null;
+		if (position < trackers.Count + 1) downstream = trackers[position - 1]; // 1->0 indexing
+			
+		if (upstream != null && downstream != null) {
+			if (Math.Abs(upstream.GetDistanceBehindTarget()) <= Math.Abs(downstream.GetDistanceBehindTarget())) nemesis = upstream;
+			else nemesis = downstream;
+		} 
+		else if (upstream != null) nemesis = upstream;
+		else if (downstream != null) nemesis = downstream;		
+		
+		if (nemesis != null) {
+			double d = nemesis.GetDistanceBehindTarget();
+			string which = " behind";
+			if (d > 0) which = " ahead";
+			DataVault.Set("follow_header", "Ted? is"); // TODO: TargetTracker name from track creator?
+			DataVault.Set("follow_box", SiDistance(Math.Abs(d)) + which);
+		} else {
+			DataVault.Set("follow_header", "Solo");
+			DataVault.Set("follow_box", "round!");
+		}
+	}
+	
+	protected void UpdateAhead() {
+		double targetDistance = Platform.Instance.GetHighestDistBehind();
 		
 		if (targetDistance > 0) {
 			DataVault.Set("ahead_header", "Behind!");
@@ -249,7 +299,23 @@ public class RaceGame : MonoBehaviour {
 			DataVault.Set("ahead_col_header", "19D200FF");
 		}
 		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
+	}
+	
+	void Update () {
+		Platform.Instance.Poll();
 		
+		DataVault.Set("calories", Platform.Instance.Calories().ToString());
+		DataVault.Set("pace", Platform.Instance.Pace().ToString("f2") + "m/s");
+		DataVault.Set("distance", SiDistance(Platform.Instance.Distance()));
+		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
+		DataVault.Set("indoor_text", indoorText);
+		
+		// TODO: Toggle based on panel type
+		UpdateAhead();
+		UpdateLeaderboard();
+		
+		// TODO: Multiple minimap targets
+		double targetDistance = Platform.Instance.GetHighestDistBehind();
 		Position position = Platform.Instance.Position();
 		float bearing = Platform.Instance.Bearing();
 		double bearingRad = bearing*Math.PI/180;
@@ -290,7 +356,7 @@ public class RaceGame : MonoBehaviour {
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 			if(gConect != null) {
-			fs.parentMachine.FollowConnection(gConect);
+				fs.parentMachine.FollowConnection(gConect);
 			} else {
 				UnityEngine.Debug.Log("Game: No connection found!");
 			}
@@ -363,7 +429,6 @@ public class RaceGame : MonoBehaviour {
 			actor.SetActive(true);
 			actors.Add(actor);
 		}
-		offset = 0;
 		UnityEngine.Debug.Log("RaceGame: instantiated actors");
 	}
 	
