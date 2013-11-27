@@ -27,7 +27,7 @@ public class PursuitGame : MonoBehaviour {
 	public GameObject zombieHolder;
 	public GameObject trainHolder;
 	
-	private List<GameObject> actors;
+	private List<GameObject> actors = new List<GameObject>();
 	
 	private double offset = 0;
 	
@@ -101,7 +101,7 @@ public class PursuitGame : MonoBehaviour {
 		// Set debug box
 		debug = new Rect((originalWidth-100), 0, 100, 100);
 		
-		string tar = (string)DataVault.Get("type");
+		string tar = (string)DataVault.Get("type");		
 		
 		switch(tar)
 		{
@@ -120,6 +120,11 @@ public class PursuitGame : MonoBehaviour {
 		case "Train":
 			currentActorType = ActorType.Train;
 			break;
+			
+		default:
+			UnityEngine.Debug.Log("PursuitGame: ERROR! No type specified");
+			currentActorType = ActorType.Train;
+			break;			
 		}
 		
 		finish = (int)DataVault.Get("finish");		
@@ -131,7 +136,10 @@ public class PursuitGame : MonoBehaviour {
 		boulderHolder.SetActive(false);
 		zombieHolder.SetActive(false);
 		trainHolder.SetActive(false);
-
+		
+		Platform.Instance.ResetTargets();
+		Platform.Instance.CreateTargetTracker(targSpeed);
+		
 		InstantiateActors();
 	}
 	
@@ -241,6 +249,7 @@ public class PursuitGame : MonoBehaviour {
 	}
 	
 	void Update () {
+		Platform.Instance.Poll();
 		
 		DataVault.Set("calories", Platform.Instance.Calories().ToString());
 		DataVault.Set("pace", Platform.Instance.Pace().ToString("f2") + "m/s");
@@ -398,7 +407,7 @@ public class PursuitGame : MonoBehaviour {
 			template = zombieHolder;
 			break;
 		default:
-			throw new NotImplementedException("Unknown actor type: " + currentActorType);
+			throw new NotImplementedException("PursuitGame: Unknown actor type: " + currentActorType);
 			break;
 		}
 		
@@ -406,7 +415,9 @@ public class PursuitGame : MonoBehaviour {
 		foreach (TargetTracker tracker in trackers) {
 			GameObject actor = Instantiate(template) as GameObject;
 			TargetController controller = actor.GetComponent<TargetController>();
+			if (controller == null) Debug.Log("PursuitGame: ERROR! Null controller for " + actor.ToString());
 			controller.SetTracker(tracker);
+			controller.IncreaseOffset(); // TODO: Change. This is not clean
 			actor.SetActive(true);
 			actors.Add(actor);
 		}
