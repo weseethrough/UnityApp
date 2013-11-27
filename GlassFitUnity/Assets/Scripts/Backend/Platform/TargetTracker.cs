@@ -46,10 +46,6 @@ public class TargetTracker : System.Object {
 	public float PollCurrentSpeed() {
 		try {
 			float ret = target.Call<float>("getCurrentSpeed", 0L);
-<<<<<<< HEAD
-=======
-			//UnityEngine.Debug.Log("Target Tracker: speed obtained, currently: " + ret.ToString());
->>>>>>> master
 			return ret;
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Target Tracker: Error getting speed" + e.Message);

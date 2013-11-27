@@ -225,7 +225,7 @@ public class ButtonFunctionCollection
 				
 				Challenge potential = Platform.Instance.FetchChallenge(challengeId);
 				if (potential is DistanceChallenge) {
-					DistanceChallenge challenge = potential as DistanceChallenge;
+/*					DistanceChallenge challenge = potential as DistanceChallenge;
 					if (finish.HasValue && challenge.distance != finish.Value) continue; // Not relevant
 					if (!finish.HasValue) {
 						// Lock distance and init world
@@ -240,7 +240,7 @@ public class ButtonFunctionCollection
 					
 					// Create target for game
 					Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
-				}
+*/				}
 			}
 		}		
 		if (!finish.HasValue) return false;

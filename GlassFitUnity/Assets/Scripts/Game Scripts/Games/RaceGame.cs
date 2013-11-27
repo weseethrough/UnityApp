@@ -110,7 +110,6 @@ public class RaceGame : MonoBehaviour {
 		
 		finish = (int)DataVault.Get("finish");
 		
-<<<<<<< HEAD
 		// Set templates' active status
 		cyclistHolder.SetActive(false);
 		runnerHolder.SetActive(false);
@@ -123,10 +122,6 @@ public class RaceGame : MonoBehaviour {
 
 //		GetComponent<GetTrack>().setActive(false);
 		UnityEngine.Debug.Log("RaceGame: started");
-=======
-		// Set holders active status
-		SetTargets();
->>>>>>> master
 	}
 	
 	public void SetActorType(ActorType targ) {

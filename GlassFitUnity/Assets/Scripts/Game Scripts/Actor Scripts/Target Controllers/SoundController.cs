@@ -1,16 +1,12 @@
 using UnityEngine;
 using System.Collections;
 
-<<<<<<< HEAD
-public class SoundController : TargetController {
-=======
 /// <summary>
 /// Controls the music in the Music game
 /// </summary>
-public class SoundController : MonoBehaviour {
+public class SoundController : TargetController {
 	
 	// Number of audio tracks.
->>>>>>> master
 	private const float NUM_TRACKS = 11;
 	
 	// Array of audio sources for the tracks.
@@ -51,21 +47,14 @@ public class SoundController : MonoBehaviour {
 		
 		// Get all audio tracks.
 		stevies = GetComponents<AudioSource>();
-<<<<<<< HEAD
-=======
-		
-		// Set indoor mode and speed.
-		Platform.Instance.SetIndoor(true);
-		Platform.Instance.SetTargetSpeed(1.5f);
 		
 		// Set scale values.
->>>>>>> master
 		scale.x = (float)Screen.width/originalWidth;
 		scale.y = (float)Screen.height/originalHeight;
 	}
 	
 	/// <summary>
-	/// Raises the GU event. Sets the buttons - needs updating
+	/// Raises the GUI event. Sets the buttons - needs updating
 	/// </summary>
 	void OnGUI() {
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
@@ -157,12 +146,8 @@ public class SoundController : MonoBehaviour {
 			}
 		}
 		
-<<<<<<< HEAD
-		double dist = Platform.Instance.DistanceBehindTarget(target) - 50;
-=======
 		// Get actual distance behind target based on offset.
-		double dist = Platform.Instance.DistanceBehindTarget() - 50;
->>>>>>> master
+		double dist = Platform.Instance.DistanceBehindTarget(target) - 50;
 		
 		// If player is ahead, increase the score and bring in more tracks.
 		if(dist <= 0.0 && started)

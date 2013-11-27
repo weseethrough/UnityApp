@@ -12,18 +12,11 @@ public class TrainSound : MonoBehaviour {
 	// Audio sources for train sounds.
 	private AudioSource trainMove;
 	private AudioSource trainWhistle;
-<<<<<<< HEAD
-	private bool movePlaying;
-	private GameObject train;
-	private TargetController controller;
-=======
-	
 	// Boolean for the train moving sound.
 	private bool movePlaying = false;
-	
 	// Gameobject for the train.
-	public GameObject train;
->>>>>>> master
+	private GameObject train;
+	private TargetController controller;
 	
 	/// <summary>
 	/// Gets the sounds from the object
@@ -66,12 +59,8 @@ public class TrainSound : MonoBehaviour {
 				whistleTime -= 10.0f;
 			}
 			
-<<<<<<< HEAD
-			transform.position = new Vector3(0, 0, (float)Platform.Instance.DistanceBehindTarget(controller.target)-50.0f);
-=======
 			// Set the position of the object based on distance behind object and offset.
-			transform.position = new Vector3(0, 0, (float)Platform.Instance.DistanceBehindTarget()-50.0f);
->>>>>>> master
+			transform.position = new Vector3(0, 0, (float)Platform.Instance.DistanceBehindTarget(controller.target)-50.0f);
 		}
 		else {
 			// Stop the train move sound and set boolean to false.

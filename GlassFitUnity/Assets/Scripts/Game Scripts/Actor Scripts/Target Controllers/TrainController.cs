@@ -8,6 +8,7 @@ using System;
 /// Controls the position of the train
 /// </summary>
 public class TrainController : TargetController {
+	private float whistleTime = 0;
 	
 	/// <summary>
 	/// Start this instance. Sets the attributes
@@ -33,8 +34,6 @@ public class TrainController : TargetController {
 	void Update () {
 		// Update the base
 		base.Update();
-<<<<<<< HEAD
-		if (target == null) return;
 		
 		whistleTime += Time.deltaTime;
 		
@@ -50,7 +49,5 @@ public class TrainController : TargetController {
 
 		//Vector3 movement = new Vector3(103.8f,-300,(float)scaledDistance);
 		//transform.position = movement;
-=======
->>>>>>> master
 	}
 }

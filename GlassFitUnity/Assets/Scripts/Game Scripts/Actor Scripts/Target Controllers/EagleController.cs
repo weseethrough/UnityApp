@@ -82,14 +82,10 @@ public class EagleController : TargetController {
 			// Update screech time.
 			screechTime += Time.deltaTime;
 			
-<<<<<<< HEAD
-			float time = -realDist / target.PollCurrentSpeed();
-=======
 			// Calculate the time it would take to reach the player.
-			float time = -realDist / target.GetCurrentSpeed();
+			float time = -realDist / target.PollCurrentSpeed();
 			
 			// Then calculate the speed of descent.
->>>>>>> master
 			speed = height / time;
 			
 			// If the eagle isn't low enough, descend.

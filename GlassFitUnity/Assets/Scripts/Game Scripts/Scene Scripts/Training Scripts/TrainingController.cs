@@ -8,12 +8,8 @@ public class TrainingController : TargetController {
 	
 	// Animator speed.
 	private float speed;
-<<<<<<< HEAD
-=======
-	
-	// Boolean to check if started and has moved.
-	private bool started = false;
->>>>>>> master
+
+	// Boolean to check if has moved.
 	private bool move = false;
 	
 	// Value for inital movement in the z-axis.
@@ -48,20 +44,7 @@ public class TrainingController : TargetController {
 		move = b;
 	}
 	
-	void Update () {
-<<<<<<< HEAD
-=======
-				
-		// First reset the targets and get a new target tracker.
-		if(!started) {
-			started = true;
-			Platform.Instance.ResetTargets();
-			target = Platform.Instance.GetTargetTracker();
-			anim.speed = 0.5f;
-			target.SetTargetSpeed(2.2f);
-		} 
->>>>>>> master
-		
+	void Update () {		
 		// If the avatar needs to move into position.
 		if(move) {
 			// Set the animation to "run".
@@ -73,14 +56,10 @@ public class TrainingController : TargetController {
 				SetAttribs(zMove, 135, -254.6f, 100);
 			}
 			
-<<<<<<< HEAD
-			float newSpeed = target.PollCurrentSpeed();
-=======
 			// Get the current target speed.
-			float newSpeed = target.GetCurrentSpeed();
+			float newSpeed = target.PollCurrentSpeed();
 			
 			// If there is a new target speed.
->>>>>>> master
 			if(speed != newSpeed)
 			{
 				// Set the speed and the animation variable.

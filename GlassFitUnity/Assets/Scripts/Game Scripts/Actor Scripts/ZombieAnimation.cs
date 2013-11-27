@@ -19,19 +19,11 @@ public class ZombieAnimation : MonoBehaviour {
 	void Start () {
 		// Get the animator.
 		anim = GetComponent<Animator>();
-<<<<<<< HEAD
-		//UnityEngine.Debug.Log("Zombie: getting speed");
 		controller = transform.parent.gameObject.GetComponent<TargetController>();
 		
-		speed = controller.target.PollCurrentSpeed();
-		//UnityEngine.Debug.Log("Zombie: setting anim float");
-=======
-		
 		// Get the speed of the target.
-		speed = Platform.Instance.GetCurrentSpeed(0);
-		
+		speed = controller.target.PollCurrentSpeed();
 		// Set the animation speed based on the target speed and scale the value.
->>>>>>> master
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f) {
 				anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2.5f);
@@ -44,15 +36,10 @@ public class ZombieAnimation : MonoBehaviour {
 	/// Update this instance. Updates animation speed
 	/// </summary>
 	void Update () {
-<<<<<<< HEAD
-		Platform.Instance.Poll();
-		float newSpeed = controller.target.PollCurrentSpeed();
-=======
 		// Get the speed of the target.
-		float newSpeed = Platform.Instance.GetCurrentSpeed(0);
+		float newSpeed = controller.target.PollCurrentSpeed();
 		
 		// If the speed has changed.
->>>>>>> master
 		if(newSpeed != speed)
 		{
 			// Set the new speed and animation speed.
