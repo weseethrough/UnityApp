@@ -17,7 +17,8 @@ public class PursuitGame : MonoBehaviour {
 		Boulder			= 1,
 		Eagle			= 2,
 		Train			= 3,
-		Zombie			= 4
+		Zombie			= 4,
+		Dinosaur        = 5
 	}
 	
 	private ActorType currentActorType;
@@ -26,6 +27,7 @@ public class PursuitGame : MonoBehaviour {
 	public GameObject boulderHolder;
 	public GameObject zombieHolder;
 	public GameObject trainHolder;
+	public GameObject dinoHolder;
 	
 	private List<GameObject> actors = new List<GameObject>();
 	
@@ -63,7 +65,7 @@ public class PursuitGame : MonoBehaviour {
 	private float countTime = 3.0f;
 	
 	// Target speed
-	public float targSpeed = 1.8f;
+	public float targSpeed = 6.4f;
 	
 	// Texture for black background
 	public Texture blackTexture;
@@ -121,6 +123,10 @@ public class PursuitGame : MonoBehaviour {
 			currentActorType = ActorType.Train;
 			break;
 			
+		case "Dinosaur":
+			currentActorType = ActorType.Dinosaur;
+			break;
+			
 		default:
 			UnityEngine.Debug.Log("PursuitGame: ERROR! No type specified");
 			currentActorType = ActorType.Train;
@@ -129,13 +135,14 @@ public class PursuitGame : MonoBehaviour {
 		
 		finish = (int)DataVault.Get("finish");		
 		
-		DataVault.Set("slider_val", 0.06f);
+		DataVault.Set("slider_val", 0.8f);
 		
 		// Set templates' active status
 		eagleHolder.SetActive(false);
 		boulderHolder.SetActive(false);
 		zombieHolder.SetActive(false);
 		trainHolder.SetActive(false);
+		dinoHolder.SetActive(false);
 		
 		Platform.Instance.ResetTargets();
 		Platform.Instance.CreateTargetTracker(targSpeed);
@@ -405,6 +412,9 @@ public class PursuitGame : MonoBehaviour {
 			break;
 		case ActorType.Zombie:
 			template = zombieHolder;
+			break;
+		case ActorType.Dinosaur:
+			template = dinoHolder;
 			break;
 		default:
 			throw new NotImplementedException("PursuitGame: Unknown actor type: " + currentActorType);

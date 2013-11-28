@@ -42,12 +42,5 @@ public class TrainController : TargetController {
 			//trainWhistle.Play();
 			whistleTime -= 10.0f;
 		}
-		
-		//Platform.Instance.Poll();
-	
-		//scaledDistance = (target.getTargetDistance() - 50) * 135;
-
-		//Vector3 movement = new Vector3(103.8f,-300,(float)scaledDistance);
-		//transform.position = movement;
 	}
 }

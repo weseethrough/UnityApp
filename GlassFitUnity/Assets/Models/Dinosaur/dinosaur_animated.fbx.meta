@@ -1,0 +1,313 @@
+fileFormatVersion: 2
+guid: a6598e421570b9747aceafff98155011
+ModelImporter:
+  serializedVersion: 15
+  fileIDToRecycleName:
+    100000: BodyCTRL
+    100002: BodyCTRL 1
+    100004: Chest
+    100006: Chest1
+    100008: dinosaur:Trex_Rigged
+    100010: //RootNode
+    100012: HeadBase
+    100014: HeadBase1
+    100016: HeadTop
+    100018: HeadTop1
+    100020: joint1
+    100022: joint10
+    100024: joint11
+    100026: joint12
+    100028: joint13
+    100030: joint14
+    100032: joint15
+    100034: joint16
+    100036: joint17
+    100038: joint18
+    100040: joint19
+    100042: joint2
+    100044: joint20
+    100046: joint21
+    100048: joint22
+    100050: joint23
+    100052: joint24
+    100054: joint25
+    100056: joint26
+    100058: joint27
+    100060: joint28
+    100062: joint29
+    100064: joint3
+    100066: joint30
+    100068: joint31
+    100070: joint32
+    100072: joint33
+    100074: joint34
+    100076: joint4
+    100078: joint41
+    100080: joint42
+    100082: joint43
+    100084: joint44
+    100086: joint45
+    100088: joint46
+    100090: joint47
+    100092: joint48
+    100094: joint5
+    100096: joint55
+    100098: joint56
+    100100: joint57
+    100102: joint6
+    100104: joint7
+    100106: joint8
+    100108: joint9
+    100110: LeftArmIK
+    100112: LeftFootCTRL
+    100114: LeftFootCTRL1
+    100116: LeftFootIK
+    100118: LeftFootIK 1
+    100120: LeftLegIK
+    100122: LeftLegIK 1
+    100124: LowerJawCTRL
+    100126: LowerNeck
+    100128: NeckCTRL
+    100130: NeckCTRL 1
+    100132: NeckCTRL1
+    100134: pPlane1
+    100136: Rib01
+    100138: Rib02
+    100140: Rib03
+    100142: Rib04
+    100144: Rib05
+    100146: RightArmIK
+    100148: RightFootCTRL
+    100150: RightFootCTRL1
+    100152: RightFootIK
+    100154: RightFootIK 1
+    100156: RightKneePole
+    100158: RightLegIK
+    100160: RightLegIK 1
+    100162: Root
+    100164: RootCTRL
+    100166: Spine01
+    100168: Spine02
+    100170: Tail1
+    100172: Tail1CTRL
+    100174: Tail2
+    100176: Tail2CTRL
+    100178: Tail3
+    100180: Tail4
+    100182: Tail5
+    100184: Tail6
+    100186: Tail7
+    100188: Tail8
+    100190: TailBase
+    100192: TailBaseCTRL
+    100194: TailEnd
+    100196: TailOut1
+    100198: TailOut2
+    100200: TopJaw
+    100202: UpperJawCTRL
+    100204: UpperNeck
+    400000: BodyCTRL
+    400002: BodyCTRL 1
+    400004: Chest
+    400006: Chest1
+    400008: dinosaur:Trex_Rigged
+    400010: //RootNode
+    400012: HeadBase
+    400014: HeadBase1
+    400016: HeadTop
+    400018: HeadTop1
+    400020: joint1
+    400022: joint10
+    400024: joint11
+    400026: joint12
+    400028: joint13
+    400030: joint14
+    400032: joint15
+    400034: joint16
+    400036: joint17
+    400038: joint18
+    400040: joint19
+    400042: joint2
+    400044: joint20
+    400046: joint21
+    400048: joint22
+    400050: joint23
+    400052: joint24
+    400054: joint25
+    400056: joint26
+    400058: joint27
+    400060: joint28
+    400062: joint29
+    400064: joint3
+    400066: joint30
+    400068: joint31
+    400070: joint32
+    400072: joint33
+    400074: joint34
+    400076: joint4
+    400078: joint41
+    400080: joint42
+    400082: joint43
+    400084: joint44
+    400086: joint45
+    400088: joint46
+    400090: joint47
+    400092: joint48
+    400094: joint5
+    400096: joint55
+    400098: joint56
+    400100: joint57
+    400102: joint6
+    400104: joint7
+    400106: joint8
+    400108: joint9
+    400110: LeftArmIK
+    400112: LeftFootCTRL
+    400114: LeftFootCTRL1
+    400116: LeftFootIK
+    400118: LeftFootIK 1
+    400120: LeftLegIK
+    400122: LeftLegIK 1
+    400124: LowerJawCTRL
+    400126: LowerNeck
+    400128: NeckCTRL
+    400130: NeckCTRL 1
+    400132: NeckCTRL1
+    400134: pPlane1
+    400136: Rib01
+    400138: Rib02
+    400140: Rib03
+    400142: Rib04
+    400144: Rib05
+    400146: RightArmIK
+    400148: RightFootCTRL
+    400150: RightFootCTRL1
+    400152: RightFootIK
+    400154: RightFootIK 1
+    400156: RightKneePole
+    400158: RightLegIK
+    400160: RightLegIK 1
+    400162: Root
+    400164: RootCTRL
+    400166: Spine01
+    400168: Spine02
+    400170: Tail1
+    400172: Tail1CTRL
+    400174: Tail2
+    400176: Tail2CTRL
+    400178: Tail3
+    400180: Tail4
+    400182: Tail5
+    400184: Tail6
+    400186: Tail7
+    400188: Tail8
+    400190: TailBase
+    400192: TailBaseCTRL
+    400194: TailEnd
+    400196: TailOut1
+    400198: TailOut2
+    400200: TopJaw
+    400202: UpperJawCTRL
+    400204: UpperNeck
+    2300000: pPlane1
+    3300000: pPlane1
+    4300000: dinosaur:Trex_Rigged
+    4300002: pPlane1
+    7400000: Dinosaur Walking
+    7400002: Dinosaur Scream
+    9500000: //RootNode
+    13700000: dinosaur:Trex_Rigged
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    clipAnimations:
+    - name: Dinosaur Walking
+      takeName: Take 001
+      firstFrame: 1
+      lastFrame: 40
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      transformMask: []
+    - name: Dinosaur Scream
+      takeName: Take 001
+      firstFrame: 50
+      lastFrame: 89
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopBlend: 1
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      transformMask: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    handles: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  additionalBone: 1
+  animationType: 2
+  userData: 
