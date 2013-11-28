@@ -183,6 +183,14 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	public User GetUser(int userId) {
+		// TODO: Implement me!
+		string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
+		string name = names[userId % names.Length];
+		
+		return new User(userId, name, name + " Who");
+	}
+	
 	// Starts tracking
 	public void StartTrack() {
 		try {
@@ -227,12 +235,14 @@ public class Platform : MonoBehaviour {
 	
 	// Returns the target tracker
 	public TargetTracker CreateTargetTracker(float constantSpeed){
-		TargetTracker t = new TargetTracker(helper, constantSpeed);
+		TargetTracker t = TargetTracker.Build(helper, constantSpeed);
+		if (t == null) return null;
 		targetTrackers.Add(t);
 		return t;
 	}
 	public TargetTracker CreateTargetTracker(int deviceId, int trackId){
-		TargetTracker t = new TargetTracker(helper, deviceId, trackId);
+		TargetTracker t = TargetTracker.Build(helper, deviceId, trackId);
+		if (t == null) return null;
 		targetTrackers.Add(t);
 		return t;
 	}
@@ -251,11 +261,15 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Stop tracking 
-	public void StopTrack() {
+	public Track StopTrack() {
 		try {
 			gps.Call("stopTracking");
+			using (AndroidJavaObject rawtrack = gps.Call<AndroidJavaObject>("getTrack")) {
+				return convertTrack(rawtrack);
+			}
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem stopping tracking");
+			return null;
 		}
 	}
 	
@@ -348,22 +362,26 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	private Track convertTrack(AndroidJavaObject rawtrack) {
+		string name = rawtrack.Call<string>("getName");
+		int[] ids = rawtrack.Call<int[]>("getIDs"); 
+		using(AndroidJavaObject poslist = rawtrack.Call<AndroidJavaObject>("getTrackPositions")) {
+			int numPositions = poslist.Call<int>("size");
+			List<Position> pos = new List<Position>(numPositions);
+			for(int j=0; j<numPositions; j++) {
+				AndroidJavaObject position = poslist.Call<AndroidJavaObject>("get", j);
+				Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
+				pos.Add(current);
+			}
+			return new Track(name, ids[0], ids[1], pos);
+		}
+	}
+	
 	public Track FetchTrack(int deviceId, int trackId) {
 		try {
 			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
-				string name = rawtrack.Call<string>("getName");
-				int[] ids = rawtrack.Call<int[]>("getIDs"); 
-				using(AndroidJavaObject poslist = helper_class.CallStatic<AndroidJavaObject>("getTrackPositions")) {
-					int numPositions = poslist.Call<int>("size");
-					List<Position> pos = new List<Position>(numPositions);
-					for(int j=0; j<numPositions; j++) {
-						AndroidJavaObject position = poslist.Call<AndroidJavaObject>("get", j);
-						Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
-						pos.Add(current);
-					}
-					Track track = new Track(name, ids[0], ids[1], pos);
+					Track track = convertTrack(rawtrack);
 					return track;
-				}
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
@@ -379,20 +397,9 @@ public class Platform : MonoBehaviour {
 				trackList = new List<Track>(size);
 				try {
 					for(int i=0; i<size; i++) {
-						using (AndroidJavaObject track = list.Call<AndroidJavaObject>("get", i)) {
-							string name = track.Call<string>("getName");
-							int[] ids = track.Call<int[]>("getIDs"); 
-							using(AndroidJavaObject poslist = helper_class.CallStatic<AndroidJavaObject>("getTrackPositions")) {
-								int numPositions = poslist.Call<int>("size");
-								List<Position> pos = new List<Position>(numPositions);
-								for(int j=0; j<numPositions; j++) {
-									AndroidJavaObject position = poslist.Call<AndroidJavaObject>("get", j);
-									Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
-									pos.Add(current);
-								}
-								Track currentTrack = new Track(name, ids[0], ids[1], pos);
-								trackList.Add(currentTrack);
-							}
+						using (AndroidJavaObject rawtrack = list.Call<AndroidJavaObject>("get", i)) {
+							Track currentTrack = convertTrack(rawtrack);
+							trackList.Add(currentTrack);
 						}
 					}
 					trackList.Reverse();

@@ -238,8 +238,33 @@ public class ButtonFunctionCollection
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
 		Platform.Instance.Reset();
-		
+		Platform.Instance.ResetTargets();
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
+		
+		// Log attempts
+		List<Challenge> challenges = DataVault.Get("challenges") as List<Challenge>;
+		if (challenges != null && challenges.Count > 0) {
+			double? distance = DataVault.Get("rawdistance") as double?;
+			long? time = DataVault.Get("rawtime") as long?;
+			
+			Track track = Platform.Instance.StopTrack();			
+			if (track != null) {
+				foreach (Challenge generic in challenges) {
+					if (generic is DistanceChallenge) {
+						DistanceChallenge challenge = generic as DistanceChallenge;
+						
+						Platform.Instance.QueueAction(string.Format(@"{{
+							'action' : 'challenge_attempt',
+							'challenge_id' : {0},
+							'track_id' : [ {1}, {2} ]
+						}}", challenge.id, track.deviceId, track.trackId).Replace("'", "\""));
+						Debug.Log ("Challenge: attempt " + track.deviceId + "-" + track.trackId + " logged for " + challenge.id);
+					}
+				}
+				Platform.Instance.SyncToServer();					
+			}
+		}		
+		
 		return true;
 	}
 
@@ -268,7 +293,7 @@ public class ButtonFunctionCollection
 	}
 
     /// <summary>
-    /// sends challenge asynchroneus challenge to other user over facebook
+    /// sends asynchronous challenge to other registered user
     /// </summary>
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
@@ -290,53 +315,74 @@ public class ButtonFunctionCollection
 					'stop_time': null,
 					'type': 'duration'
 			}}
-		}}", friendId).Replace("'", "\""));		
+		}}", friendId).Replace("'", "\""));
 		Debug.Log ("Challenge: " + friendId + " challenged");
 		Platform.Instance.SyncToServer();
 		
 		return true;
 	}
 	
+	
+    /// <summary>
+    /// accept all distance challenges and start a race
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>allow further navigation if pending challenges</returns>
 	static public bool AcceptChallenges(FlowButton button, Panel panel) 
 	{
+		Debug.Log("AcceptChallenges: click");
+		if (!Platform.Instance.HasPermissions("any", "login")) {			
+			Platform.Instance.Authorize("any", "login");
+			return false;
+		}
+		
+		// Reset world
+		Platform.Instance.ResetTargets();
+		DataVault.Remove("challenges");
+		DataVault.Remove("finish");
+		
 		List<Challenge> relevant = new List<Challenge>();		
-		int? finish = 1;
+		int? finish = null;
 		
 		Notification[] notifications = Platform.Instance.Notifications();
+		Debug.Log("AcceptChallenges: notes: " + notifications.Length);
 		foreach (Notification notification in notifications) {
 			if (string.Equals(notification.node["type"], "challenge")) {
-				int fromId = notification.node["from"].AsInt;
-				string challengeId = notification.node["challenge_id"];
-				if (challengeId == null) continue;
+				int challengerId = notification.node["from"].AsInt;
+				if (challengerId == null) continue;
+				string challengeId = notification.node["challenge_id"].ToString();
+				if (challengeId == null || challengeId.Length == 0) continue;
+				if (challengeId.Contains("$oid")) challengeId = notification.node["challenge_id"]["$oid"].ToString();
+				challengeId = challengeId.Replace("\"", "");
+				
+				Debug.Log("AcceptChallenges: " + challengeId + " from " + challengerId);
 				
 				Challenge potential = Platform.Instance.FetchChallenge(challengeId);
 				if (potential == null) continue;
 				if (potential is DistanceChallenge) {
-/*					DistanceChallenge challenge = potential as DistanceChallenge;
-					if (finish.HasValue && challenge.distance != finish.Value) continue; // Not relevant
-					if (!finish.HasValue) {
-						// Lock distance and init world
-						finish = challenge.distance;
-						Platform.Instance.ResetTargets();
-					}
+					DistanceChallenge challenge = potential as DistanceChallenge;					
 					
-					// TODO: User challenger = FetchUser(fromId);
-					// TODO: Find attempt by challenger
-					Track track;
-					if (challenge != null) relevant.Add(challenge); // TODO: Store somewhere so we can log attempts?
-					
-					// Create target for game
-					Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
-*/				}
+					Track track = challenge.UserTrack(challengerId);
+					if (track != null) {
+						Platform.Instance.FetchTrack(track.deviceId, track.trackId); // Make sure we have the track in the local db
+						Debug.Log("AcceptChallenges: t " + track.deviceId + " from " + track.trackId);
+						TargetTracker tracker = Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
+						User challenger = Platform.Instance.GetUser(challengerId);
+						tracker.name = challenger.username;
+						if (tracker.name == null || tracker.name.Length == 0) tracker.name = challenger.name;
+						Debug.Log("AcceptChallenges: tn " + tracker.name);
+						// TODO: Link target tracker to challenge?
+					} // else race leader/friends/creator?
+
+					relevant.Add(challenge); 					
+					if (!finish.HasValue || finish.Value < challenge.distance) finish = challenge.distance;					
+				}
 			}
 		}		
-		if (!finish.HasValue) return false;
+		if (!finish.HasValue || relevant.Count == 0) return false;
 		
-		Platform.Instance.ResetTargets();
-		Platform.Instance.CreateTargetTracker(2.0f);
-		Platform.Instance.CreateTargetTracker(2.5f);
-		Platform.Instance.CreateTargetTracker(2.3f);
-		
+		DataVault.Set("challenges", relevant);
 		DataVault.Set("finish", finish.Value);
 		
 		AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);

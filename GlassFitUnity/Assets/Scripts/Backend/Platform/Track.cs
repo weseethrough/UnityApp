@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 public class Track {
 	
-	public string trackName { get; set; }
+	public virtual string trackName { get; set; }
 	public int trackId { get; set; }
 	public int deviceId { get; set; }
-	public List<Position> trackPositions { get; set; }
+	public virtual List<Position> trackPositions { get; set; }
 	
 	public Track() {}
 	

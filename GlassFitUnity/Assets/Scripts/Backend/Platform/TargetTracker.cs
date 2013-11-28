@@ -3,26 +3,37 @@ using System.Collections;
 using System;
 
 public class TargetTracker : System.Object {
-
+	
+	public string name { get; set; }
 	private AndroidJavaObject target;
 	private double targetDistance = 0;
 	
-	public TargetTracker(AndroidJavaObject helper, float constantSpeed) {
+	private TargetTracker(AndroidJavaObject target) {
+		this.target = target;
+	}
+	
+	public static TargetTracker Build(AndroidJavaObject helper, float constantSpeed) {
 		try {
-			target = helper.Call<AndroidJavaObject>("getFauxTargetTracker", constantSpeed);
+			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getFauxTargetTracker", constantSpeed);
+			if (ajo.GetRawObject().ToInt32() == 0) return null;
 			UnityEngine.Debug.LogWarning("TargetTracker: faux target tracker obtained");
+			return new TargetTracker(ajo);
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("TargetTracker: Helper.getFauxTargetTracker() failed" + e.Message);
 			UnityEngine.Debug.LogException(e);
+			return null;
 		}			
 	}
-	public TargetTracker(AndroidJavaObject helper, int deviceId, int trackId) {
+	public static TargetTracker Build(AndroidJavaObject helper, int deviceId, int trackId) {
 		try {
-			target = helper.Call<AndroidJavaObject>("getTrackTargetTracker", deviceId, trackId);
+			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getTrackTargetTracker", deviceId, trackId);
+			if (ajo.GetRawObject().ToInt32() == 0) return null;
 			UnityEngine.Debug.LogWarning("TargetTracker: track target tracker obtained");
+			return new TargetTracker(ajo);
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("TargetTracker: Helper.getTrackTargetTracker() failed" + e.Message);
 			UnityEngine.Debug.LogException(e);
+			return null;
 		}			
 	}
 	
@@ -54,6 +65,6 @@ public class TargetTracker : System.Object {
 	}
 			
 	public string ToString() {
-		return "TargetTracker";
+		return "TargetTracker " + name;
 	}
 }
