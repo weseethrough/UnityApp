@@ -10,10 +10,10 @@ public class RaceGame : MonoBehaviour {
 	private bool changed = false;
 	public bool indoor = true;
 	
-	public GameObject finishMarker;
-	
-
+	public GameObject finishMarker;	
 	private int finish;
+	
+	List<Challenge> challenges;
 	
 	// Enums for the actor types
 	public enum ActorType
@@ -109,16 +109,19 @@ public class RaceGame : MonoBehaviour {
 		
 		finish = (int)DataVault.Get("finish");
 		
+		challenges = DataVault.Get("challenges") as List<Challenge>;
+		if (challenges == null) challenges = new List<Challenge>(0);
+		
 		// Set templates' active status
 		cyclistHolder.SetActive(false);
 		runnerHolder.SetActive(false);
 		
 		// TODO: Move tracker creation to a button/flow and keep this class generic
-		if (Platform.Instance.targetTrackers.Count == 0) {
+		if (challenges.Count == 0) {
 			Platform.Instance.CreateTargetTracker(targSpeed);
 			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
 			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
-		}
+		} // else trackers created earlier
 		
 		InstantiateActors();
 
@@ -278,7 +281,7 @@ public class RaceGame : MonoBehaviour {
 			double d = nemesis.GetDistanceBehindTarget();
 			string which = " behind";
 			if (d > 0) which = " ahead";
-			DataVault.Set("follow_header", "Ted? is"); // TODO: TargetTracker name from track creator?
+			DataVault.Set("follow_header", nemesis.name + " is"); 
 			DataVault.Set("follow_box", SiDistance(Math.Abs(d)) + which);
 		} else {
 			DataVault.Set("follow_header", "Solo");

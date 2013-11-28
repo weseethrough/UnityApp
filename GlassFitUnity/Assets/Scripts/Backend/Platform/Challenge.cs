@@ -7,7 +7,7 @@ public abstract class Challenge
 	private Nullable<DateTime> startTime = null;
 	private Nullable<DateTime> stopTime = null;
 	// location: GeoJSON?
-	private String[] attempts; // track foreign keys
+	private JSONArray attempts = new JSONArray(); // track foreign keys
 	private bool isPublic = false;
 	
 	public Challenge (string json) : this(JSON.Parse(json))
@@ -17,6 +17,7 @@ public abstract class Challenge
 		if (node["creator_id"] == null || String.Equals(node["creator_id"], "null")) creatorId = null;
 		else creatorId = node["creator_id"].AsInt;
 		if (node["public"] != null) isPublic = node["public"].AsBool;
+		if (node["attempts"] != null) attempts = node["attempts"].AsArray;
 	}
 	
 	public virtual JSONNode ToJson() {
@@ -39,6 +40,31 @@ public abstract class Challenge
 		default:
 			throw new NotImplementedException("Unknown challenge type: " + node["type"]);
 		}
+	}
+	
+	public Track CreatorTrack() {
+		if (!creatorId.HasValue) return null;
+		// TODO: Implement
+		return LatestAttempt();
+	}
+	
+	public Track LeaderTrack() {
+		// TODO: Implement
+		return LatestAttempt();
+	}
+	
+	public Track UserTrack(int userId) {
+		// TODO: Implement
+		return LatestAttempt();
+	}	
+
+	public Track LatestAttempt() {
+		if (attempts.Count == 0) return null;
+		UnityEngine.Debug.Log("Attempts: " + attempts.ToString());
+		JSONNode attempt = attempts[0];
+		UnityEngine.Debug.Log("LatestAttempt: " + attempt.ToString());
+		// TODO: Sort attempts?
+		return new LazyTrack(attempt["device_id"].AsInt, attempt["track_id"].AsInt);
 	}
 }
 
