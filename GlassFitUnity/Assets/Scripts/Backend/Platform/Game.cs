@@ -5,16 +5,14 @@ using System;
 public class Game {
 	
 	private AndroidJavaObject javaGame;  // reference to JNI object so we can call methods on it
-	public string gameId { get; set; } // Unique identifier of the game (e.g. "Zombies 2")
-	public string name { get; set; } // Pretty name to display to users
-	public string activity { get; set; }
-
-	public string description { get; set; } // Pretty description to display to users
-	public string state { get; set; } // "Locked" or "Unlocked"
-	public int tier { get; set; } // which tier the game sits in (1,2,3,4 etc)
-	public long priceInPoints { get; set; }
-
-	public long priceInGems { get; set; }
+	public string gameId { get; private set; } // Unique identifier of the game (e.g. "Zombies 2")
+	public string name { get; private set; } // Pretty name to display to users
+	public string activity { get; private set; }
+	public string description { get; private set; } // Pretty description to display to users
+	public string state { get; private set; } // "Locked" or "Unlocked"
+	public int tier { get; private set; } // which tier the game sits in (1,2,3,4 etc)
+	public long priceInPoints { get; private set; }
+	public long priceInGems { get; private set; }
 	
 	public Game () {
 	}
