@@ -155,7 +155,7 @@ public class Platform : MonoBehaviour {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
 					UnityEngine.Debug.LogException(e);
 				}
-				// for test only:
+				// Cache the list of games and states from java
 		        GetGames();
 				initialised = true;
         	}));
