@@ -313,6 +313,9 @@ public class RaceGame : MonoBehaviour {
 		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);
 		
+		DataVault.Set("rawdistance", Platform.Instance.Distance());
+		DataVault.Set("rawtime", Platform.Instance.Time());
+		
 		// TODO: Toggle based on panel type
 		UpdateAhead();
 		UpdateLeaderboard();
@@ -352,7 +355,6 @@ public class RaceGame : MonoBehaviour {
 		
 		if(Platform.Instance.Distance() / 1000 >= finish)
 		{
-			Platform.Instance.StopTrack();
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
 			GameObject h = GameObject.Find("minimap");
 			h.renderer.enabled = false;

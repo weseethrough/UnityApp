@@ -29,8 +29,6 @@ public class PlatformDummy {
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
 		Directory.CreateDirectory(blobassets);
 		UnityEngine.Debug.Log("Editor blobstore: " + blobstore + ", blobassets: " + blobassets);
-		SimpleJSON.JSONArray n = SimpleJSON.JSON.Parse("[ {'device_id':'1878722582', 'track_id':'11', 'user_id':'10'} ]".Replace("'", "\"")).AsArray;
-		UnityEngine.Debug.Log("Moo: " + n[0]["device_id"].AsInt);
 	}
 	
 	public void StartTrack(bool indoor) {

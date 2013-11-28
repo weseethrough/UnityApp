@@ -234,8 +234,33 @@ public class ButtonFunctionCollection
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
 		Platform.Instance.Reset();
-		
+		Platform.Instance.ResetTargets();
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
+		
+		// Log attempts
+		List<Challenge> challenges = DataVault.Get("challenges") as List<Challenge>;
+		if (challenges != null && challenges.Count > 0) {
+			double? distance = DataVault.Get("rawdistance") as double?;
+			long? time = DataVault.Get("rawtime") as long?;
+			
+			Track track = Platform.Instance.StopTrack();			
+			if (track != null) {
+				foreach (Challenge generic in challenges) {
+					if (generic is DistanceChallenge) {
+						DistanceChallenge challenge = generic as DistanceChallenge;
+						
+						Platform.Instance.QueueAction(string.Format(@"{{
+							'action' : 'challenge_attempt',
+							'challenge_id' : {0},
+							'track_id' : [ {1}, {2} ]
+						}}", challenge.id, track.deviceId, track.trackId).Replace("'", "\""));
+						Debug.Log ("Challenge: attempt " + track.deviceId + "-" + track.trackId + " logged for " + challenge.id);
+					}
+				}
+				Platform.Instance.SyncToServer();					
+			}
+		}		
+		
 		return true;
 	}
 
@@ -303,6 +328,11 @@ public class ButtonFunctionCollection
 	static public bool AcceptChallenges(FlowButton button, Panel panel) 
 	{
 		Debug.Log("AcceptChallenges: click");
+		if (!Platform.Instance.HasPermissions("any", "login")) {			
+			Platform.Instance.Authorize("any", "login");
+			return false;
+		}
+		
 		// Reset world
 		Platform.Instance.ResetTargets();
 		DataVault.Remove("challenges");
