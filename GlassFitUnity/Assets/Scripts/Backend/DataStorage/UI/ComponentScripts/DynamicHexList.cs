@@ -7,34 +7,34 @@ using System.Collections.Generic;
 /// </summary>
 public class DynamicHexList : MonoBehaviour
 {
-    HexPanel    parent                  = null;
+    HexPanel parent = null;
 
-    UICamera    guiCamera;
-    Vector2     hexLayoutOffset         = new Vector2(0.4330127f, 0.25f);
-    Vector3     distanceVector;
-    Vector3     cameraPosition;
-    float       radius;
+    UICamera guiCamera;
+    Vector2 hexLayoutOffset = new Vector2(0.4330127f, 0.25f);
+    Vector3 distanceVector;
+    Vector3 cameraPosition;
+    float radius;
 
     //default height and rotation is used as a default offset when reseting sensors
-    Quaternion  cameraDefaultRotation;
-    float       heightDefaultOffset;    
+    Quaternion cameraDefaultRotation;
+    float heightDefaultOffset;
 
-    float       screenEnterTime         = 0.8f;
-    float       buttonEnterDelay        = 0.0f;
-    float       buttonNextEnterDelay    = 0.0f;
-    int         buttonNextEnterIndex    = 0;
+    float screenEnterTime = 0.8f;
+    float buttonEnterDelay = 0.0f;
+    float buttonNextEnterDelay = 0.0f;
+    int buttonNextEnterIndex = 0;
 
-    int         buttonCount             = 0;
+    int buttonCount = 0;
 
     List<GameObject> buttons;
     UIImageButton selection;
-    private string btEnterAnimation     = "HexEnter";
+    private string btEnterAnimation = "HexEnter";
 
-    bool        buttonsReady            = false;
+    bool buttonsReady = false;
 
-    Vector2     draggingStartPos        = Vector2.zero;
-    bool        dragging                = false;
-    int         draggingFingerID        = -1;    
+    Vector2 draggingStartPos = Vector2.zero;
+    bool dragging = false;
+    int draggingFingerID = -1;
 
 
     /// <summary>
@@ -42,7 +42,7 @@ public class DynamicHexList : MonoBehaviour
     /// </summary>
     /// <returns></returns>
     void Start()
-    {        
+    {
 
         Camera[] camList = (Camera[])Camera.FindObjectsOfType(typeof(Camera));
         foreach (Camera c in camList)
@@ -55,10 +55,10 @@ public class DynamicHexList : MonoBehaviour
             }
         }
 
-//        if (!SensorHelper.gotFirstValue)
-//        {
-//            SensorHelper.ActivateRotation();
-//        }
+        //        if (!SensorHelper.gotFirstValue)
+        //        {
+        //            SensorHelper.ActivateRotation();
+        //        }
 
         if (guiCamera != null)
         {
@@ -69,12 +69,12 @@ public class DynamicHexList : MonoBehaviour
 
             radius = distanceVector.magnitude;
 
-           /* Quaternion rot = SensorHelper.rotation;
-            if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
-            {
-               // cameraStartingRotation = rot * Quaternion.Inverse(guiCamera.transform.rotation);
+            /* Quaternion rot = SensorHelper.rotation;
+             if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
+             {
+                // cameraStartingRotation = rot * Quaternion.Inverse(guiCamera.transform.rotation);
 
-                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
+                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
             Platform.Instance.ResetGyro();
             cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out heightDefaultOffset);
@@ -103,9 +103,9 @@ public class DynamicHexList : MonoBehaviour
 #if !UNITY_EDITOR 
         Platform.Instance.ResetGyro();
         cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out heightDefaultOffset);
-#endif        
+#endif
     }
-    
+
     /// <summary>
     /// function which allows us to process orientation and subtract height from it of it to separated variable
     /// </summary>
@@ -118,7 +118,7 @@ public class DynamicHexList : MonoBehaviour
         height = -q.eulerAngles.y;
         return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
     }
-    
+
     /// <summary>    
     /// function which converts from 
     /// </summary>
@@ -126,13 +126,13 @@ public class DynamicHexList : MonoBehaviour
     /// <returns>physical height used by camera to be lifted by</returns>
     private float HeightToPositionValue(float height)
     {
-        while(height < 0)
+        while (height < 0)
         {
             height += 360.0f;
         }
         height %= 360;
-        if (height > 90 && height <= 270) {height = 180 - height;}
-        else if (height > 270) {height = height - 360;}
+        if (height > 90 && height <= 270) { height = 180 - height; }
+        else if (height > 270) { height = height - 360; }
 
 
         return height * 0.1f;
@@ -174,14 +174,14 @@ public class DynamicHexList : MonoBehaviour
             buttonNextEnterIndex++;
             buttonNextEnterDelay = buttonEnterDelay;
         }
-		
-//		if(Input.touchCount == 1) 
-//		{
-//			if(Input.GetTouch(0).phase == TouchPhase.Began) {
-//				ResetGyro();
-//			}
-//		}
-		
+
+        //		if(Input.touchCount == 1) 
+        //		{
+        //			if(Input.GetTouch(0).phase == TouchPhase.Began) {
+        //				ResetGyro();
+        //			}
+        //		}
+
         //if button enter delay is below 0 at this stage then screen has finished loading
         if (parent.state == FlowState.State.Idle && guiCamera != null)
         {
@@ -300,7 +300,7 @@ public class DynamicHexList : MonoBehaviour
                     float scale = -offset.y / height;
 
                     scale = Mathf.Clamp(scale, -1, 1);
-                        
+
                     TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                     if (tp == null)
                     {
@@ -315,7 +315,7 @@ public class DynamicHexList : MonoBehaviour
                     TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
 
                     if (parent != null && scale > 0.6f)
-                    {                            
+                    {
                         FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
                         if (fb != null)
                         {
@@ -323,10 +323,10 @@ public class DynamicHexList : MonoBehaviour
                         }
                     }
                     else if (parent != null && scale < -0.6f)
-                    {                         
+                    {
                         parent.OnBack();
-                            
-                    }                        
+
+                    }
                 }
             }
             else
@@ -344,7 +344,7 @@ public class DynamicHexList : MonoBehaviour
                     }
                 }
             }
-        }        
+        }
     }
 
     /// <summary>
@@ -361,7 +361,7 @@ public class DynamicHexList : MonoBehaviour
         }
 
         buttons = new List<GameObject>();
-        buttonsReady = false;        
+        buttonsReady = false;
 
         if (elementsToKeep < 1) elementsToKeep = 1;
 
@@ -403,12 +403,12 @@ public class DynamicHexList : MonoBehaviour
             {
                 fb = ib.gameObject.AddComponent<FlowButton>();
             }
-            fb.owner = parent;            
+            fb.owner = parent;
         }
 
         float Z = child.transform.position.z;
         for (int i = 0; i < count; i++)
-        {            
+        {
             GameObject tile = null;
             if (i >= transform.childCount)
             {
@@ -448,9 +448,9 @@ public class DynamicHexList : MonoBehaviour
                 graphics.hoverSprite = graphics.pressedSprite;
                 graphics.normalSprite = graphics.pressedSprite;
                 graphics.disabledSprite = graphics.pressedSprite;
-            }            
+            }
 
-            buttons.Add(tile);           
+            buttons.Add(tile);
         }
 
         foreach (GameObject go in buttons)
@@ -467,8 +467,8 @@ public class DynamicHexList : MonoBehaviour
     /// <returns>flat 2d position for hex </returns>
     Vector2 GetLocation(int column, int row)
     {
-        int Yoffset = - (Mathf.Abs(column) % 2);
-        return new Vector2(hexLayoutOffset.x * column, -hexLayoutOffset.y * (Yoffset + row*2));
+        int Yoffset = -(Mathf.Abs(column) % 2);
+        return new Vector2(hexLayoutOffset.x * column, -hexLayoutOffset.y * (Yoffset + row * 2));
     }
 
     /// <summary>
@@ -608,7 +608,7 @@ public class DynamicHexList : MonoBehaviour
                 GameObject.Destroy(tp);
                 guiCamera.transform.position = cameraPosition;
             }
-        }            
+        }
     }
 
 }
