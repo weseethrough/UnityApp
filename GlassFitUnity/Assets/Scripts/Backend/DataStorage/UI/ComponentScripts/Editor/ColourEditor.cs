@@ -2,10 +2,16 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 
+/// <summary>
+/// custom color inspector wrapper required for some function calls
+/// </summary>
 [CustomEditor(typeof(UIColour))]
 public class ColourEditor : Editor
 {
-
+    /// <summary>
+    /// default unity function which draws inspector window components. In this case there is required some preparation before UIColor can be used for display or calculations.
+    /// </summary>
+    /// <returns></returns>
     public override void OnInspectorGUI()
     {
         UIColour script = (UIColour)target;

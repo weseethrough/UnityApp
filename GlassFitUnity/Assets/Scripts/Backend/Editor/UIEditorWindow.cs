@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;
 
+/// <summary>
+/// Main Ui management editor window
+/// </summary>
 public class UIEditorWindow : EditorWindow
 {
     static private string NEW_SCREEN = "New Screen";
@@ -13,6 +16,10 @@ public class UIEditorWindow : EditorWindow
     private string screenName = "require reload";
     private bool foreceRefresh = false;
 
+    /// <summary>
+    /// default static unity function called to show window using window type reference
+    /// </summary>
+    /// <returns></returns>
     [MenuItem("Race Yourself/UI Editor Window")]
 	public static void ShowWindow()
 	{
@@ -20,6 +27,10 @@ public class UIEditorWindow : EditorWindow
         EditorWindow.GetWindow(typeof(UIEditorWindow));
 	}
 
+	/// <summary>
+	/// advanced ui system allows for copying, modifying, naming and saving panels for further usage in flow editor
+	/// </summary>
+	/// <returns></returns>
 	void OnGUI()
 	{ 
 		GUILayout.Label ("Base Settings", EditorStyles.boldLabel);
@@ -96,6 +107,10 @@ public class UIEditorWindow : EditorWindow
         GUILayout.EndHorizontal();
 	}
 	
+	/// <summary>
+	/// prepares list of all stored in blob screens. Adds "new screen" option for ease of adding new panels
+	/// </summary>
+	/// <returns></returns>
 	void BuildScreenList()
 	{
         Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
@@ -115,6 +130,10 @@ public class UIEditorWindow : EditorWindow
         }
 	}
 
+    /// <summary>
+    /// finds manager and saves to the blob currently selected ui scene
+    /// </summary>
+    /// <returns>root point of current screen serializable structure</returns>
     ISerializable GetCurrentScreenStructure()
     {
         UIManager[] scripts = (UIManager[])FindObjectsOfType(typeof(UIManager));
@@ -132,6 +151,11 @@ public class UIEditorWindow : EditorWindow
         return scripts[0].SaveScene();
     }
 
+    /// <summary>
+    /// loads screens from blob
+    /// </summary>
+    /// <param name="index">index of the screen of the interest</param>
+    /// <returns></returns>
     void LoadSavedScreenStructure(int index)
     {
         UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
@@ -154,6 +178,11 @@ public class UIEditorWindow : EditorWindow
         }
     }
 
+    /// <summary>
+    /// clears current ui structure
+    /// </summary>
+    /// <param name="root">root point containing children with uiserialziables</param>
+    /// <returns></returns>
     void ClearCurrentStage(Transform root)
     {
         foreach (Transform t in root)
@@ -171,6 +200,10 @@ public class UIEditorWindow : EditorWindow
         }
     }
 
+    /// <summary>
+    /// reload/rebuild screen from blob
+    /// </summary>
+    /// <returns></returns>
     void RefreshFromSource()
     {
         Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
@@ -189,6 +222,11 @@ public class UIEditorWindow : EditorWindow
         screenName = screens[index];
     }
 
+    /// <summary>
+    /// saves screen with possibility to delete old name it were existing with
+    /// </summary>
+    /// <param name="deleteOld">is this rename instead of clone?</param>
+    /// <returns></returns>
     void SaveScreen(bool deleteOld)
     {
         Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);

@@ -5,20 +5,31 @@ using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;
 
+/// <summary>
+/// Simple activity editor window taking care of saving and loading activities from activity blob
+/// </summary>
 public class ActivityEditorWindow : EditorWindow
 {
     static string assetsPath = "ActivityComponents";
 	private GameObject[] activitis = {};
     private string[] activitiNames = { };
-	private int index = 0;    
+	private int index = 0;
 
-    [MenuItem("Race Yourself/Activity Editor Window")]
+    /// <summary>
+    /// default static unity function called to show window using window type reference
+    /// </summary>
+    /// <returns></returns>
+    [MenuItem("Race Yourself/Activity Editor Window")]	
 	public static void ShowWindow()
 	{
 		//Show existing window instance. If one doesn't exist, make one.
         EditorWindow.GetWindow(typeof(ActivityEditorWindow));
 	}
 
+    /// <summary>
+    /// draws all options available on activity editor. Mainly load and save option and list of curently managed activities
+    /// </summary>
+    /// <returns></returns>
     void OnGUI()
     {
 
@@ -43,6 +54,10 @@ public class ActivityEditorWindow : EditorWindow
         }
     }
 	
+	/// <summary>
+	/// prepares list of all known activities for editor display
+	/// </summary>
+	/// <returns></returns>
 	void BuildActivityList()
 	{
         UnityEngine.Object[] assets = Resources.LoadAll(assetsPath);
@@ -66,6 +81,10 @@ public class ActivityEditorWindow : EditorWindow
         }        
 	}
 
+    /// <summary>
+    /// write to memory blob all required activity data
+    /// </summary>
+    /// <returns></returns>
     void UpdateBlobData()
     {
         Storage s = DataStore.GetStorage(DataStore.BlobNames.activity);

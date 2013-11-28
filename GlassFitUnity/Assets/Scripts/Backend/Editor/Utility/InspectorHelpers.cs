@@ -3,6 +3,10 @@ using UnityEditor;
 using System.Collections;
 using System;
 
+/// <summary>
+/// collection of static functions used in inspectors for drawing custom types or customized ways of displaying regular types. 
+/// Eg split millisecond integer into hour, minutes, seconds and miliseconds for display and edit but store it still only in single integer.
+/// </summary>
 public class InspectorHelpers
 {
     static private int msToHour = 60 * 60 * 1000;
@@ -10,7 +14,7 @@ public class InspectorHelpers
     static private int msToSecond = 1000;
 
     /// <summary>
-    /// Function to display hours, minutes, seconds and miliseconds of the milisecond integer. It returns modified by the user time converting it back to miliseconds from all 4 components.
+    /// Function to display hours, minutes, seconds and miliseconds of the millisecond integer. It returns modified by the user time converting it back to miliseconds from all 4 components.
     /// </summary>
     /// <param name="label">label to be shown for this component</param>
     /// <param name="miliseconds">number of miliseconds to be converted into time</param>
@@ -45,6 +49,12 @@ public class InspectorHelpers
     static public int cmToKm = 100 * 1000;
     static public int cmToM = 100;
 
+    /// <summary>
+    /// draws custom distance inspector splitting double distance into cm, meters and kilometers.
+    /// </summary>
+    /// <param name="label">label of the ispector display for this value</param>
+    /// <param name="distance">value to be processed for display</param>
+    /// <returns></returns>
     static public int DrawDistance(string label, double distance)
     {
         EditorGUILayout.BeginHorizontal();
@@ -67,6 +77,12 @@ public class InspectorHelpers
         return km * cmToKm + m * cmToM + cm;
     }
 
+    /// <summary>
+    /// converts string into integer accepting certain maximum number of characters.
+    /// </summary>
+    /// <param name="data">string to be converted</param>
+    /// <param name="maxLength">maximum number of the caracters to be converted</param>
+    /// <returns>integer represented within selected number of the characters in string</returns>
     static private int ConvertStringBack(string data, int maxLength)
     {
         if (data.Length > maxLength)

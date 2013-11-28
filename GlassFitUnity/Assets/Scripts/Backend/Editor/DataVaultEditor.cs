@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+/// <summary>
+/// Variable vault editor offers number of options for variable management.
+/// </summary>
 [CustomEditor(typeof(DataVault))]
 public class DataVaultEditor : Editor
 {
@@ -20,6 +23,10 @@ public class DataVaultEditor : Editor
     private string          newVariableValue    = string.Empty;
     private Type            newVariableType     = Type.STRING;
     
+    /// <summary>
+    /// complex variable editor which as well allows for new variable creation and destruction
+    /// </summary>
+    /// <returns></returns>
     public override void OnInspectorGUI()
     {
         if (DataVault.data == null)
