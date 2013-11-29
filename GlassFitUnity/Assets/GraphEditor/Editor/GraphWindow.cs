@@ -629,7 +629,12 @@ public class GraphWindow : EditorWindow, IDraw
         case GraphValueType.String:
             EditorGUILayout.BeginHorizontal(GUILayout.Width(width));
             EditorGUILayout.LabelField(parm.Key, GUILayout.Width(width /2));
-            parm.Value = EditorGUILayout.TextField(parm.Value);
+            string value = EditorGUILayout.TextField(parm.Value);
+            if (value != parm.Value)
+            {
+                parm.Value = value;
+                dirtySave = true;
+            }
             EditorGUILayout.EndHorizontal();
             break;
 

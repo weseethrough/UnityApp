@@ -33,17 +33,25 @@ public class ButtonFunctionCollection
     /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
     static public bool GoToCustomExit(FlowButton fb, Panel panel)
     {
-        Debug.Log("Testing linked function true");
-        FlowState fs = FlowStateMachine.GetCurrentFlowState();
-        if (fs != null)
+        Debug.Log("Testing linked function true");       
+        if (panel != null)
         {
-            GConnector gc = fs.Outputs.Find(r => r.Name == "CustomExit");
-            if (gc != null)
+            if (panel is HexPanel)
             {
-                fs.parentMachine.FollowConnection(gc);
-            }            
+                List<HexButtonData> data = (panel as HexPanel).buttonData;
+                HexButtonData buttonData = data.Find(r => r.buttonName == fb.name);
+                if (buttonData != null && buttonData.locked == true)
+                {
+                    GConnector gc = panel.Outputs.Find(r => r.Name == "CustomExit");
+                    if (gc != null)
+                    {
+                        panel.parentMachine.FollowConnection(gc);
+                        return false;
+                    }
+                }                
+            }                        
         }
-        return false;
+        return true;
     }
 
     /// <summary>
