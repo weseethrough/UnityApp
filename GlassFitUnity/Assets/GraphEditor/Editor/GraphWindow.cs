@@ -62,6 +62,10 @@ public class GraphWindow : EditorWindow, IDraw
     bool m_drawInfo;
     bool m_dragConnector;
     bool m_selectionChanges;
+    bool m_showExitManager;
+
+    string m_newExitName;
+    Vector2 m_exitManagerScroll;
 
 	Vector2 m_dragStart;
 	Vector2 m_nodeStart; // Node.Postion at beginning of drag
@@ -720,49 +724,28 @@ public class GraphWindow : EditorWindow, IDraw
 
                     string name = EditorGUILayout.TextField(hexData.buttonName, GUILayout.Width(width * 0.3f));
                     GUI.color = Color.white;
-                    bool exitMode = EditorGUILayout.Toggle(hexData.expectedToHaveCustomExit, GUILayout.Width(width * 0.2f));
+                    if (GUILayout.Button("+", GUILayout.Width(width * 0.2f)))
+                    {
+                        GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
+                        if (connector == null)
+                        {
+                            hexPanel.NewOutput(hexData.buttonName, "Flow");
+                            hexPanel.UpdateSize();
+                            dirtySave = true;
+                        }
+                    }
+
                     int newIndex = EditorGUILayout.Popup(spriteIndex, spriteNamesArray);
 
                     if (name != hexData.buttonName)
-                    {
-                        if (hexData.expectedToHaveCustomExit)
-                        {
-                            GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
-                            if (connector == null)
-                            {
-                                hexPanel.NewOutput(name, "Flow");
-                            }
-                            else
-                            {
-                                connector.Name = name;
-                            }
-                        }
-                        hexData.buttonName = name;
-                        dirtySave = true;
-                    }
-
-                    if (exitMode != hexData.expectedToHaveCustomExit)
-                    {
-                        hexData.expectedToHaveCustomExit = exitMode;
-                        if (exitMode == true)
-                        {
-                            GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
-                            if (connector == null)
-                            {
-                                hexPanel.NewOutput(hexData.buttonName, "Flow");
-                            }
-                        }
-                        else
-                        {
+                    {                        
                             GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
                             if (connector != null)
-                            {
-                                Graph.Data.Disconnect(connector);
-                                hexPanel.Outputs.Remove(connector);
+                            {                                
+                                connector.Name = name;
                             }
-                        }
-
-                        hexPanel.UpdateSize();
+                        
+                        hexData.buttonName = name;
                         dirtySave = true;
                     }
 
@@ -774,8 +757,7 @@ public class GraphWindow : EditorWindow, IDraw
                     EditorGUILayout.EndHorizontal();
 
                     EditorGUILayout.BeginHorizontal();
-
-                  //  List<HexButtonData> hexPositionColumnSanityCheck    = hexPanel.buttonData.FindAll(r => r.column == hexData.column);
+                  
                     List<HexButtonData> hexPositionSanityCheck = hexPanel.buttonData.FindAll(r => (r.column == hexData.column && r.row == hexData.row));
 
                     if (hexPositionSanityCheck.Count > 1)
@@ -797,6 +779,23 @@ public class GraphWindow : EditorWindow, IDraw
                     }
 
                     GUI.color = Color.white;
+
+                    //allow to make button locked
+                    EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("Locked visually button :");
+                        bool locked =  EditorGUILayout.Toggle(hexData.locked);
+                        if (locked != hexData.locked)
+                        {                            
+                            hexData.locked = locked;
+                            dirtySave = true;
+                        }
+                    EditorGUILayout.EndHorizontal();
+
+                    //add simple divider
+                    if (i < hexPanel.buttonData.Count - 1)
+                    {
+                        EditorGUILayout.LabelField("------------------------");
+                    }
                 }
 
                 if (isScrolled)
@@ -872,7 +871,9 @@ public class GraphWindow : EditorWindow, IDraw
 		{
             EditorGUILayout.LabelField("No parameters");
 		}
-				
+
+        ExitManager();
+
         if (GUILayout.Button("Disconnect"))
 		{
 			Graph.Data.Disconnect(node);
@@ -918,6 +919,60 @@ public class GraphWindow : EditorWindow, IDraw
             dirtySave = true;
         }
 	}
+
+    void ExitManager()
+    {
+        EditorGUILayout.LabelField("------------");
+        m_showExitManager = EditorGUILayout.Foldout(m_showExitManager, "Exit Manager");
+        if (m_showExitManager && m_selection != null)
+        {
+
+            m_exitManagerScroll = EditorGUILayout.BeginScrollView(m_exitManagerScroll);
+            
+
+            for (int i=0; i< m_selection.Outputs.Count; i++)
+            {
+                GConnector output = m_selection.Outputs[i];
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField(output.Name);
+                if (GUILayout.Button("X", GUILayout.MaxWidth(30)))
+                {
+                    m_selection.Outputs.RemoveAt(i);                    
+                    if (m_selection is Panel)
+                    {
+                        (m_selection as Panel).UpdateSize();
+                    }
+
+                    i--;
+                    m_dirtySave = true;
+                }
+                EditorGUILayout.EndHorizontal();
+            }
+           
+            EditorGUILayout.LabelField("New output connector:");
+            EditorGUILayout.BeginHorizontal();
+            if (m_newExitName == null)
+            {
+                m_newExitName = "";
+            }
+            m_newExitName = EditorGUILayout.TextField(m_newExitName);
+            if (GUILayout.Button("Add", GUILayout.MaxWidth(40)) && m_newExitName.Length > 0)
+            {
+                m_selection.NewOutput(m_newExitName, "Flow");
+                if (m_selection is Panel)
+                {
+                    (m_selection as Panel).UpdateSize();
+                }
+
+                m_dirtySave = true;
+            }
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.EndScrollView();
+        }
+
+        
+    }
 
 	void FindNodeTypes()
 	{

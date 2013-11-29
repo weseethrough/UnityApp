@@ -87,18 +87,7 @@ public class HexPanel : Panel
         NewOutput(defaultExit, "Flow");
         NewParameter("HexListManager", GraphValueType.HexButtonManager, "true"); //fake variable just to trigger option visibility on graph editor
 
-    }
-
-    /// <summary>
-    /// hex screen have dynamic number of exits(and buttons) so it need function which updates its size dynamically as well
-    /// </summary>
-    /// <returns></returns>
-    public void UpdateSize()
-    {
-        int count = Mathf.Max(Inputs.Count, Outputs.Count);
-
-        Size.y = Mathf.Max(count * 25, 80);
-    }
+    }   
 
     /// <summary>
     /// refreshes connections lists

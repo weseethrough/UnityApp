@@ -21,8 +21,29 @@ public class ButtonFunctionCollection
     static public bool MyFunction1(FlowButton fb, Panel panel)
     {
         Debug.Log("Testing linked function true");
-
+      
         return true;
+    }
+
+    /// <summary>
+    /// example function which redirects navigation to custom exit named "CustomExit"
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
+    static public bool GoToCustomExit(FlowButton fb, Panel panel)
+    {
+        Debug.Log("Testing linked function true");
+        FlowState fs = FlowStateMachine.GetCurrentFlowState();
+        if (fs != null)
+        {
+            GConnector gc = fs.Outputs.Find(r => r.Name == "CustomExit");
+            if (gc != null)
+            {
+                fs.parentMachine.FollowConnection(gc);
+            }            
+        }
+        return false;
     }
 
     /// <summary>
