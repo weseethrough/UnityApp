@@ -74,8 +74,8 @@ public class MessageWidget : MonoBehaviour
 
         currentState = State.iddle;
          
-        AddMessage("CONGRATULATIONS!", "This is my content", "activity_bike");
-        AddMessage("HEY!", "You have just get invited", "activity_run");
+//        AddMessage("CONGRATULATIONS!", "This is my content", "activity_bike");
+//        AddMessage("HEY!", "You have just get invited", "activity_run");
     }
 
     /// <summary>

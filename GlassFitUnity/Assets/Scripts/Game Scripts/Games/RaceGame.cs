@@ -9,8 +9,12 @@ public class RaceGame : MonoBehaviour {
 	public bool menuOpen = false;
 	private bool changed = false;
 	public bool indoor = true;
+	private bool end = false;
 	
+	// Marker for the finish line
 	public GameObject finishMarker;	
+	
+	// Distance the player wants to run
 	private int finish;
 	
 	List<Challenge> challenges;
@@ -74,12 +78,20 @@ public class RaceGame : MonoBehaviour {
 	private String baseMultiplierString;
 	private float baseMultiplierStartTime;
 	
+	// Target for bonus points
+	private int bonusTarget = 1000;
+	
+	// Final sprint bonus points
+	private float finalBonus = 1000;
+	
 	void Start () {
 		// Set indoor mode
 		Platform.Instance.SetIndoor(indoor);
 		Platform.Instance.StopTrack();
 		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
+		
+		end = false;
 		
 		//UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
 		
@@ -250,6 +262,7 @@ public class RaceGame : MonoBehaviour {
 		DataVault.Set("leader_header", "You are");
 		if (position == 1) { 
 			DataVault.Set("ahead_leader", "in the lead!");
+			DataVault.Set("ahead_col_box", "19D200EE");
 		} else {
 			DataVault.Set("ahead_leader", "behind by " + SiDistance(trackers[0].GetDistanceBehindTarget()));
 		}
@@ -353,9 +366,12 @@ public class RaceGame : MonoBehaviour {
 			}
 		}
 		
-		if(Platform.Instance.Distance() / 1000 >= finish)
+		if(Platform.Instance.Distance() / 1000 >= finish && !end)
 		{
+			end = true;
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+			DataVault.Set("bonus", (int)finalBonus);
+			Platform.Instance.StopTrack();
 			GameObject h = GameObject.Find("minimap");
 			h.renderer.enabled = false;
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
@@ -365,6 +381,29 @@ public class RaceGame : MonoBehaviour {
 			} else {
 				UnityEngine.Debug.Log("Game: No connection found!");
 			}
+		}
+		
+		// Awards the player points for running certain milestones
+		if(Platform.Instance.Distance() >= bonusTarget)
+		{
+			int targetToKm = bonusTarget / 1000;
+			if(bonusTarget < finish * 1000) 
+			{
+				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
+			}
+			bonusTarget += 1000;
+			
+		}
+		
+		// Gives the player bonus points for sprinting the last 100m
+		if(Platform.Instance.Distance() >= (finish * 1000) - 100)
+		{
+			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
+			finalBonus -= 50f * Time.deltaTime;
+		}
+		else
+		{
+			DataVault.Set("ending_bonus", "");
 		}
 	}
 	

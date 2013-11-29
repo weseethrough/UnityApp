@@ -13,6 +13,9 @@ public class DistanceMarker : MonoBehaviour {
 	
 	// Text Mesh for 3D Text.
 	private TextMesh textMesh;
+	
+	// Value for goal distance
+	private int goal;
 
 	// Variable for current distance travelled.
 	private double distance;
@@ -24,6 +27,8 @@ public class DistanceMarker : MonoBehaviour {
 	{	
 		// Get initial text mesh component.
 		textMesh = textObject.GetComponent<TextMesh>();
+		textMesh.text = SiDistance(target);
+		goal = (int)DataVault.Get("finish") * 1000;
 	}
 	
 	/// <summary>
@@ -38,7 +43,7 @@ public class DistanceMarker : MonoBehaviour {
 		transform.position = new Vector3(0, 0, 500000);
 		
 		// If markers within range, set new position.
-		if(distance > target - 50 && distance < target + 50)
+		if(distance > target - 50 && distance < target + 50 && target < goal)
 		{
 			double deltDist = target - distance;
 			deltDist *= 135f;
@@ -66,7 +71,7 @@ public class DistanceMarker : MonoBehaviour {
 		string postfix = "m";
 		string final;
 		float value = (float)meters;
-		if (value > 1000) {
+		if (value >= 1000) {
 			value = value/1000;
 			postfix = "km";
 			final = value.ToString("f1");
