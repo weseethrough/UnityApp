@@ -154,6 +154,7 @@ public class Platform : MonoBehaviour {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
 					UnityEngine.Debug.LogException(e);
 				}
+				AwardPoints("platform", "free points for devs", 1000);
 				initialised = true;
         	}));
 			
@@ -634,6 +635,14 @@ public class Platform : MonoBehaviour {
 			points_helper.Call("setBaseSpeed", speed);
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error setting base points speed: " + e.Message);
+		}
+	}
+	
+	public void AwardPoints(String gameName, String awardName, long points) {
+		try {
+			points_helper.Call("awardPoints", "In game reward", awardName, gameName, (int)points);
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error awarding points: " + e.Message);
 		}
 	}
 	
