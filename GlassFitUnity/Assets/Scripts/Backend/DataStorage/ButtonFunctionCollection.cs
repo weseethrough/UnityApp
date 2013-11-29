@@ -174,7 +174,13 @@ public class ButtonFunctionCollection
 		ps.SetActorType(PursuitGame.ActorType.Eagle);
 		return false;
 	}
-
+	
+	static public bool DemoLeaderBoard(FlowButton fb, Panel panel)
+	{
+		
+		return true;
+	}
+	
     /// <summary>
     /// sets pursuit game mode to zombie mode
     /// </summary>
