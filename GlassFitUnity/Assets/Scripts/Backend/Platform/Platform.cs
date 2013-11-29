@@ -464,34 +464,47 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	// Load a list of games from the java database, together with lock state, cost, description etc.
-	// Typically used when building the main hex menu
-	public List<Game> GetGames() {
+	/// <summary>
+	/// Load a list of games from the java database, together with lock state, cost, description etc.
+	/// Typically used when building the main hex menu
+	/// </summary>
+	public List<Game> GetGames()
+	{
 		// if we already have a copy, return it. Games are unlikely to update except through Game.unlock.
-		if (gameList != null) return gameList;
+		if (gameList != null)
+		{
+			return gameList;
+		}
 		// otherwise, get the games from java
-		try {
+		try
+		{
 			UnityEngine.Debug.Log("Platform: Getting games from java...");
 			AndroidJavaObject javaGameList = helper.Call<AndroidJavaObject>("getGames");
 			int size = javaGameList.Call<int>("size");
 			UnityEngine.Debug.Log("Platform: Retrieved " + size + " games from java");
 			gameList = new List<Game>(size);
-			try {
-				for(int i=0; i<size; i++) {
+			try
+			{
+				for(int i=0; i<size; i++)
+				{
 					AndroidJavaObject javaGame = javaGameList.Call<AndroidJavaObject>("get", i);
 					Game csGame = new Game();
-					csGame.initialise(javaGame);
+					csGame.Initialise(javaGame);
 					gameList.Add(csGame);
 				}
 				UnityEngine.Debug.Log("Platform: Successfully imported " + size + " games.");
 				return gameList;
-			} catch (Exception e) {
+			}
+			catch (Exception e)
+			{
 				UnityEngine.Debug.LogWarning("Platform: Error getting game!");
 				UnityEngine.Debug.LogWarning(e.Message);
 				UnityEngine.Debug.LogException(e);
 				return null;
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			UnityEngine.Debug.LogWarning("Platform: Error getting Games!");
 			UnityEngine.Debug.LogWarning(e.Message);
 			UnityEngine.Debug.LogException(e);
