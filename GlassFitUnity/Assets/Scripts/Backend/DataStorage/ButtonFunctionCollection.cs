@@ -295,7 +295,7 @@ public class ButtonFunctionCollection
 			double? distance = DataVault.Get("rawdistance") as double?;
 			long? time = DataVault.Get("rawtime") as long?;
 			
-			if (track != null) {
+			if (track != null && track.trackPositions.Count > 0) {
 				foreach (Challenge generic in challenges) {
 					if (generic is DistanceChallenge) {
 						DistanceChallenge challenge = generic as DistanceChallenge;
@@ -349,6 +349,7 @@ public class ButtonFunctionCollection
     {
 		Track track = DataVault.Get("track") as Track;
 		if (track == null) return false; // TODO: Allow solo rounds?
+		if (track.trackPositions.Count == 0) return false; // TODO: Remove track?		
 		
 		int friendId = (int)DataVault.Get("current_friend");
 		if (friendId == 0) return false; // TODO: Challenge by third-party identity
