@@ -116,8 +116,9 @@ public class DynamicHexList : MonoBehaviour
     {
         //we stop pitch for the sake of height
         height = -q.eulerAngles.y;
-        return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
-    }
+        //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
+    	return q;
+	}
 
     /// <summary>    
     /// function which converts from 

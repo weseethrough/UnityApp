@@ -70,6 +70,10 @@ public class ButtonFunctionCollection
 		case "Train Level 1":
 			DataVault.Set("type", "Train");
 			break;
+			
+		case "Dinosaurs":
+			DataVault.Set("type", "Dinosaur");
+			break;
 		}
 		
 		return true;
@@ -170,7 +174,23 @@ public class ButtonFunctionCollection
 		ps.SetActorType(PursuitGame.ActorType.Eagle);
 		return false;
 	}
-
+	
+	static public bool DemoLeaderBoard(FlowButton fb, Panel panel)
+	{
+		// Reset world
+		Platform.Instance.ResetTargets();
+		DataVault.Remove("challenges");
+		
+		DataVault.Set("finish", 1);
+		Platform.Instance.CreateTargetTracker(2.01f);
+		Platform.Instance.CreateTargetTracker(1.9f);
+		Platform.Instance.CreateTargetTracker(2.2f);
+		
+		AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+		
+		return true;
+	}
+	
     /// <summary>
     /// sets pursuit game mode to zombie mode
     /// </summary>
@@ -236,6 +256,9 @@ public class ButtonFunctionCollection
 		Platform.Instance.Reset();
 		Platform.Instance.ResetTargets();
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
+
+		Track track = Platform.Instance.StopTrack();			
+		DataVault.Set("track", track);
 		
 		// Log attempts
 		List<Challenge> challenges = DataVault.Get("challenges") as List<Challenge>;
@@ -243,7 +266,6 @@ public class ButtonFunctionCollection
 			double? distance = DataVault.Get("rawdistance") as double?;
 			long? time = DataVault.Get("rawtime") as long?;
 			
-			Track track = Platform.Instance.StopTrack();			
 			if (track != null) {
 				foreach (Challenge generic in challenges) {
 					if (generic is DistanceChallenge) {
@@ -296,22 +318,29 @@ public class ButtonFunctionCollection
     /// <returns>always allow further navigation</returns>
     static public bool Challenge(FlowButton button, Panel panel)
     {
+		Track track = DataVault.Get("track") as Track;
+		if (track == null) return false; // TODO: Allow solo rounds?
+		
 		int friendId = (int)DataVault.Get("current_friend");
 		if (friendId == 0) return false; // TODO: Challenge by third-party identity
+		
 		Platform.Instance.QueueAction(string.Format(@"{{
 			'action' : 'challenge',
 			'target' : {0},
 			'taunt' : 'Your mother is a hamster!',
 			'challenge' : {{
-					'distance': 333,
-					'duration': 42,
+					'distance': 1000,
+					'time': 42,
 					'location': null,
-					'public': false,
+					'public': true,
 					'start_time': null,
 					'stop_time': null,
-					'type': 'duration'
+					'type': 'distance',
+					'attempts' : [
+                        {{  'device_id': {1}, 'track_id': {2} }}
+                    ]
 			}}
-		}}", friendId).Replace("'", "\""));
+		}}", friendId, track.deviceId, track.trackId).Replace("'", "\""));
 		Debug.Log ("Challenge: " + friendId + " challenged");
 		Platform.Instance.SyncToServer();
 		
