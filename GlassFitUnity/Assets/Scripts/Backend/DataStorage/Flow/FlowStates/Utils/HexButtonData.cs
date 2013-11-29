@@ -11,10 +11,10 @@ using System.Runtime.Serialization;
 public class HexButtonData : ISerializable 
 {
     public string imageName = string.Empty;
-    public string buttonName = string.Empty;
-    public bool expectedToHaveCustomExit = false;
+    public string buttonName = string.Empty;   
     public int column = 0;
     public int row = 0;
+    public bool locked = false;
 
     /// <summary>
     /// default constructor
@@ -39,15 +39,15 @@ public class HexButtonData : ISerializable
                     break;
                 case "buttonName":
                     this.buttonName = entry.Value as String;
-                    break;
-                case "expectedToHaveCustomExit":
-                    this.expectedToHaveCustomExit = (bool)entry.Value;
-                    break;
+                    break;                
                 case "column":
                     this.column = (int)entry.Value;
                     break;
                 case "row":
                     this.row = (int)entry.Value;
+                    break;
+                case "locked":
+                    this.locked = (bool)entry.Value;
                     break;
 
             }
@@ -63,10 +63,10 @@ public class HexButtonData : ISerializable
     public void GetObjectData(SerializationInfo info, StreamingContext ctxt)
     {
         info.AddValue("imageName", this.imageName);
-        info.AddValue("buttonName", this.buttonName);
-        info.AddValue("expectedToHaveCustomExit", this.expectedToHaveCustomExit);
+        info.AddValue("buttonName", this.buttonName);        
         info.AddValue("column", this.column);
         info.AddValue("row", this.row);
+        info.AddValue("locked", this.locked);
     }
 
 }
