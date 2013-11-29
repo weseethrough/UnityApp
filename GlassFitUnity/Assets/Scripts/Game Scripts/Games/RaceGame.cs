@@ -129,7 +129,7 @@ public class RaceGame : MonoBehaviour {
 		runnerHolder.SetActive(false);
 		
 		// TODO: Move tracker creation to a button/flow and keep this class generic
-		if (challenges.Count == 0) {
+		if (Platform.Instance.targetTrackers.Count == 0) {
 			Platform.Instance.CreateTargetTracker(targSpeed);
 			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
 			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
