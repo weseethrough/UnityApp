@@ -154,7 +154,7 @@ public class Platform : MonoBehaviour {
 					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
 					UnityEngine.Debug.LogException(e);
 				}
-				AwardPoints("platform", "free points for devs", 1000);
+				AwardPoints("Free points for devs", "Platform.cs", 10000);
 				initialised = true;
         	}));
 			
@@ -638,11 +638,28 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public void AwardPoints(String gameName, String awardName, long points) {
-		try {
-			points_helper.Call("awardPoints", "In game reward", awardName, gameName, (int)points);
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error awarding points: " + e.Message);
+	/// <summary>
+	/// Use this method to award the user points.
+	/// </summary>
+	/// <param name='reason'>
+	/// Reason that the points are being awarded, e.g. "1km bonus".
+	/// </param>
+	/// <param name='gameId'>
+	/// Game identifier so we can log which game the points came from.
+	/// </param>
+	/// <param name='points'>
+	/// Number of points to award.
+	/// </param>
+	public void AwardPoints(String reason, String gameId, long points)
+	{
+		try
+		{
+			points_helper.Call("awardPoints", "in-game bonus", reason, gameId, points);
+			UnityEngine.Debug.Log("Platform: " + gameId + " awarded " + points + " points for " + reason);
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.Log("Platform: Error awarding " + reason + " of " + points + " points in " + gameId);
 		}
 	}
 	
