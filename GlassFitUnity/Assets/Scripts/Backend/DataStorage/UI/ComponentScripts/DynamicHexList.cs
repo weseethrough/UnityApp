@@ -17,7 +17,7 @@ public class DynamicHexList : MonoBehaviour
 
     //default height and rotation is used as a default offset when reseting sensors
     Quaternion cameraDefaultRotation;
-    float heightDefaultOffset;
+    Vector2 cameraMoveOffset;
 
     float screenEnterTime = 0.8f;
     float buttonEnterDelay = 0.0f;
@@ -77,11 +77,10 @@ public class DynamicHexList : MonoBehaviour
                  Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
             Platform.Instance.ResetGyro();
-            cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out heightDefaultOffset);
-			//cameraStartingRotation = Quaternion.Euler(0, cameraStartingRotation.eulerAngles.y, 0);
+            cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out cameraMoveOffset);
 
-            Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * cameraDefaultRotation;
-            guiCamera.transform.rotation = newOffset;
+            //Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * cameraDefaultRotation;
+            //guiCamera.transform.rotation = newOffset;
 #endif
             /* }
             else
@@ -102,7 +101,7 @@ public class DynamicHexList : MonoBehaviour
     {
 #if !UNITY_EDITOR 
         Platform.Instance.ResetGyro();
-        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out heightDefaultOffset);
+        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out cameraMoveOffset);
 #endif
     }
 
@@ -112,10 +111,29 @@ public class DynamicHexList : MonoBehaviour
     /// <param name="q">input orientation</param>
     /// <param name="height">output height</param>
     /// <returns>output orientation</returns>
-    private Quaternion ConvertOrientation(Quaternion q, out float height)
+    private Quaternion ConvertOrientation(Quaternion q, out Vector2 dynamicCamPos)
     {
         //we stop pitch for the sake of height
-        height = -q.eulerAngles.y;
+        dynamicCamPos = new Vector2(-q.eulerAngles.x, -q.eulerAngles.y);
+		if (dynamicCamPos.x < -180)
+		{
+			dynamicCamPos.x += 360;	
+		}
+		else if (dynamicCamPos.x > 180)
+		{
+			dynamicCamPos.x -= 360;	
+		}
+		
+		if (dynamicCamPos.y < -180)
+		{
+			dynamicCamPos.y += 360;	
+		}
+		else if (dynamicCamPos.y > 180)
+		{
+			dynamicCamPos.y -= 360;	
+		}
+		
+		dynamicCamPos *= 0.02f;
         //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
     	return q;
 	}
@@ -203,11 +221,11 @@ public class DynamicHexList : MonoBehaviour
                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
                 float pitchHeight;
-                Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * Platform.Instance.GetOrientation();
-                guiCamera.transform.rotation = newOffset;
-                Vector3 cameraPos = guiCamera.transform.position;
-                //cameraPos.y = HeightToPositionValue(pitchHeight - heightDefaultOffset);
-                //guiCamera.transform.position = cameraPos;
+				Vector2 newCameraOffset; 
+				ConvertOrientation(Platform.Instance.GetOrientation(), out newCameraOffset);
+				float depth = -0.75f;//guiCamera.transform.position.z;
+				newCameraOffset -= cameraMoveOffset;
+                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, depth);
 #endif
             /*}
             else
@@ -434,20 +452,20 @@ public class DynamicHexList : MonoBehaviour
                 tile = transform.GetChild(i).gameObject;
             }
             Vector3 pos = GetLocation(GetButtonData()[i].column, GetButtonData()[i].row);
-            if (radius == 0)
-            {
-                Debug.LogError("RADIUS 0!");
-            }
+            //if (radius == 0)
+            //{
+            //    Debug.LogError("RADIUS 0!");
+            //}
 
-            float angle = pos.x / (Mathf.PI * radius);
+            //float angle = pos.x / (Mathf.PI * radius);
             //0.989 is value I found matching best to close ui line behind players back
-            angle *= 180 * 0.989f;
-            Quaternion rotation = Quaternion.Euler(new Vector3(0.0f, angle, 0.0f));
-            Vector3 rotationalPos = rotation * distanceVector;
+            //angle *= 180 * 0.989f;
+            //Quaternion rotation = Quaternion.Euler(new Vector3(0.0f, angle, 0.0f));
+            //Vector3 rotationalPos = rotation * distanceVector;
 
-            Vector3 hexPosition = cameraPosition + new Vector3(rotationalPos.x, pos.y, rotationalPos.z);
-            tile.transform.position = hexPosition;// transform.worldToLocalMatrix.MultiplyVector(hexPosition);            
-            tile.transform.Rotate(new Vector3(0.0f, angle, 0.0f));
+            Vector3 hexPosition = new Vector3(pos.x, pos.y, pos.z);
+            tile.transform.position = hexPosition;
+            //tile.transform.Rotate(new Vector3(0.0f, angle, 0.0f));
             tile.name = GetButtonData()[i].buttonName;
 
             FlowButton fb = tile.GetComponentInChildren<FlowButton>();
