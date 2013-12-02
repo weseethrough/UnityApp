@@ -47,8 +47,12 @@ public abstract class Challenge
 	
 	public Track CreatorTrack() {
 		if (!creatorId.HasValue) return null;
-		// TODO: Implement
-		return LatestAttempt();
+		foreach (JSONNode attempt in attempts.Childs) {
+			if (attempt["user_id"].AsInt == creatorId.Value) {
+				return new LazyTrack(attempt["device_id"].AsInt, attempt["track_id"].AsInt);
+			}
+		}
+		return null;
 	}
 	
 	public Track LeaderTrack() {
@@ -57,8 +61,12 @@ public abstract class Challenge
 	}
 	
 	public Track UserTrack(int userId) {
-		// TODO: Implement
-		return LatestAttempt();
+		foreach (JSONNode attempt in attempts.Childs) {
+			if (attempt["user_id"].AsInt == creatorId.Value) {
+				return new LazyTrack(attempt["device_id"].AsInt, attempt["track_id"].AsInt);
+			}
+		}
+		return null;
 	}	
 
 	public Track LatestAttempt() {

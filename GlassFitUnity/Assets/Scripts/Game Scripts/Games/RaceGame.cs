@@ -85,6 +85,16 @@ public class RaceGame : MonoBehaviour {
 	private float finalBonus = 1000;
 	
 	void Start () {
+		finish = (int)DataVault.Get("finish");
+		
+		challenges = DataVault.Get("challenges") as List<Challenge>;
+		if (challenges == null) challenges = new List<Challenge>(0);
+		
+		if (challenges.Count != 0) {
+			indoor = false;
+			DataVault.Set("indoor_text", "Outdoor Active");
+		}
+		
 		// Set indoor mode
 		Platform.Instance.SetIndoor(indoor);
 		Platform.Instance.StopTrack();
@@ -118,11 +128,6 @@ public class RaceGame : MonoBehaviour {
 			currentActorType = ActorType.Cyclist;
 			break;
 		}
-		
-		finish = (int)DataVault.Get("finish");
-		
-		challenges = DataVault.Get("challenges") as List<Challenge>;
-		if (challenges == null) challenges = new List<Challenge>(0);
 		
 		// Set templates' active status
 		cyclistHolder.SetActive(false);
