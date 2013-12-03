@@ -423,6 +423,53 @@ public class Platform : MonoBehaviour {
 	}
 	
 	/// <summary>
+	/// Gets the hardcoded games from Java.
+	/// </summary>
+	/// <returns>
+	/// The games.
+	/// </returns>
+	public List<Game> GetTempGames() {
+		if(gameList != null)
+		{
+			return gameList;
+		}
+		
+		try 
+		{
+			UnityEngine.Debug.Log("Platform: Getting temp games from java...");
+			AndroidJavaObject javaGameList = helper.Call<AndroidJavaObject>("getTempGames");
+			int size = javaGameList.Call<int>("size");
+			UnityEngine.Debug.Log("Platform: Retrieved " + size + " temp games from java");
+			gameList = new List<Game>(size);
+			try
+			{
+				for(int i=0; i<size; i++)
+				{
+					AndroidJavaObject javaGame = javaGameList.Call<AndroidJavaObject>("get", i);
+					Game csGame = new Game();
+					csGame.Initialise(javaGame);
+					gameList.Add(csGame);
+				}
+				UnityEngine.Debug.Log("Platform: Successfully imported " + size + " temp games.");
+				return gameList;
+			}
+			catch (Exception e)
+			{
+				UnityEngine.Debug.LogWarning("Platform: Error getting temp game!");
+				UnityEngine.Debug.LogWarning(e.Message);
+				UnityEngine.Debug.LogException(e);
+				return null;
+			}
+		} catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error getting temp Games!");
+			UnityEngine.Debug.LogWarning(e.Message);
+			UnityEngine.Debug.LogException(e);
+			return null;
+		}
+	}
+	
+	/// <summary>
 	/// Load a list of games from the java database, together with lock state, cost, description etc.
 	/// Typically used when building the main hex menu
 	/// </summary>

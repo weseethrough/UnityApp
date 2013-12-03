@@ -21,6 +21,12 @@ public class PursuitGame : MonoBehaviour {
 		Dinosaur        = 5
 	}
 	
+	// Variable for the ending sprint bonus
+	private float finalBonus = 1000f;
+	
+	// Variable for kilometer bonus
+	private int bonusTarget = 1000;
+	
 	private ActorType currentActorType;
 	
 	public GameObject eagleHolder;
@@ -352,6 +358,28 @@ public class PursuitGame : MonoBehaviour {
 					UnityEngine.Debug.Log("Game: No connection found!");
 				}
 			}
+		}
+		
+		// Awards the player points for running certain milestones
+		if(Platform.Instance.Distance() >= bonusTarget)
+		{
+			int targetToKm = bonusTarget / 1000;
+			if(bonusTarget < finish * 1000) 
+			{
+				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
+			}
+			bonusTarget += 1000;
+			
+		}
+		
+		if(Platform.Instance.Distance() >= (finish * 1000) - 100)
+		{
+			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
+			finalBonus -= 50f * Time.deltaTime;
+		}
+		else
+		{
+			DataVault.Set("ending_bonus", "");
 		}
 	}
 	

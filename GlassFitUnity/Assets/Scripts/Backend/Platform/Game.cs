@@ -17,6 +17,9 @@ public class Game
 	public int tier { get; private set; } // which tier the game sits in (1,2,3,4 etc)
 	public long priceInPoints { get; private set; }
 	public long priceInGems { get; private set; }
+	public string type { get; private set; }
+	public int column { get; private set; }
+	public int row { get; private set; }
 	
 	public Game ()
 	{
@@ -41,6 +44,9 @@ public class Game
 			tier = javaGame.Call<int> ("getTier");
 			priceInPoints = javaGame.Call<long> ("getPriceInPoints");
 			priceInGems = javaGame.Call<long> ("getPriceInGems");
+			type = javaGame.Call<string> ("getType");
+			column = javaGame.Call<int> ("getColumn");
+			row = javaGame.Call<int> ("getRow");
 			UnityEngine.Debug.Log ("Game: Successfuly imported game: " + gameId);
 		}
 		catch (Exception e) {
