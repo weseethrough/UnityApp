@@ -44,10 +44,10 @@ public class DataStore : MonoBehaviour
 
     //private properties
     private Dictionary<string, Storage> storageBank;
-
-#if UNITY_EDITOR
-	public PlatformDummy platform;
-#endif
+	
+//#if UNITY_EDITOR
+//	private PlatformDummy platform;
+//#endif
 
     /// <summary>
     /// initialized class and prepares for further use.
@@ -57,11 +57,11 @@ public class DataStore : MonoBehaviour
     {
         _instance = this;
 #if UNITY_EDITOR
-        if (platform != null)
-        {
-            Debug.LogWarning("Reinitialziation of datastorage canceled");
-            return;
-        }
+//        if (PlatformDummy.Instance != null)
+//        {
+//            Debug.LogWarning("Reinitialziation of datastorage canceled");
+//            return;
+//        }
 //
 //		if (Platform.Instance != null)
 //        {
@@ -69,10 +69,7 @@ public class DataStore : MonoBehaviour
 //            return;
 //        }
 #endif
-		
-#if UNITY_EDITOR
-        platform = new PlatformDummy();
-#endif
+	
 		storageBank = new Dictionary<string, Storage>();
 		
         Initialize();
@@ -98,7 +95,7 @@ public class DataStore : MonoBehaviour
             BlobNames bName = (BlobNames)i;
             string name = bName.ToString();
 #if UNITY_EDITOR
-            storageBank[name] = InitializeBlob(platform.LoadBlob(name));
+            storageBank[name] = InitializeBlob(PlatformDummy.Instance.LoadBlob(name));
 #else
 			storageBank[name] = InitializeBlob(Platform.Instance.LoadBlob(name));
 #endif
@@ -155,6 +152,7 @@ public class DataStore : MonoBehaviour
 	{
 		if (instance != null)
 		{
+			//UnityEngine.Debug.Log("DataStore: Name is " + name);
             return instance.storageBank[name.ToString()];	
 		}
 		
@@ -169,9 +167,10 @@ public class DataStore : MonoBehaviour
     static public void LoadStorage(BlobNames name)
     {
 #if UNITY_EDITOR
-        if (instance != null && instance.platform != null)
+        if (instance != null && PlatformDummy.Instance != null)
         {
-            instance.storageBank[name.ToString()] = instance.InitializeBlob(instance.platform.LoadBlob(name.ToString()));
+			//UnityEngine.Debug.Log("DataStore: Name is " + name);
+            instance.storageBank[name.ToString()] = instance.InitializeBlob(PlatformDummy.Instance.LoadBlob(name.ToString()));
         }
 #else
 		if (instance != null)
@@ -189,15 +188,15 @@ public class DataStore : MonoBehaviour
     static public void SaveStorage(BlobNames name)
     {
 #if UNITY_EDITOR
-        if (instance != null && instance.platform != null)
+        if (instance != null && PlatformDummy.Instance != null)
         {
             MemoryStream ms = new MemoryStream();
             BinaryFormatter bformatter = new BinaryFormatter();
             bformatter.Serialize(ms, GetStorage(name));
 
-            instance.platform.StoreBlob(name.ToString(), ms.GetBuffer());
+            PlatformDummy.Instance.StoreBlob(name.ToString(), ms.GetBuffer());
 
-            instance.platform.StoreBlobAsAsset(name.ToString(), ms.GetBuffer());
+            PlatformDummy.Instance.StoreBlobAsAsset(name.ToString(), ms.GetBuffer());
 		}
 #else
 		if (instance != null)

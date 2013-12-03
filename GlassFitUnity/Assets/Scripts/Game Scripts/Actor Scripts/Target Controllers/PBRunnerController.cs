@@ -18,6 +18,7 @@ public class PBRunnerController : TargetController {
 		base.OnEnable();
 		base.SetAttribs(0, 135, -254.6f, 50);
 		
+#if !UNITY_EDITOR
 		anim = GetComponent<Animator>();
 		speed = target.PollCurrentSpeed();
 		anim.SetFloat("Speed", speed);
@@ -28,10 +29,12 @@ public class PBRunnerController : TargetController {
 		} else {
 			anim.speed = speed / 1.0f;
 		}
+#endif
 	}
 	
 	void Update () {				
 		base.Update();
+#if !UNITY_EDITOR
 		float newSpeed = target.PollCurrentSpeed();
 		if(speed != newSpeed)
 		{
@@ -45,5 +48,6 @@ public class PBRunnerController : TargetController {
 				anim.speed = newSpeed / 1.0f;
 			}
 		}
+#endif
 	}
 }

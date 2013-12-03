@@ -7,6 +7,7 @@ using System.Collections;
 public class TargetController : MonoBehaviour {
 	protected double scaledDistance = 0.0f;
 	public TargetTracker target { get; protected set; }
+	
 	protected float distanceOffset = 0.0f;
 	protected float travelSpeed = 1.0f;
 	protected float height = 0.0f;
@@ -50,11 +51,15 @@ public class TargetController : MonoBehaviour {
 	
 	// Update is called once per frame
 	public virtual void Update () {
-		if (object.ReferenceEquals(null, target)) return;
+		
 	
+#if !UNITY_EDITOR
+		if (object.ReferenceEquals(null, target)) return;
 //		UnityEngine.Debug.Log("Target: Distance is " + target.GetTargetDistance().ToString());
 		scaledDistance = (target.GetDistanceBehindTarget() - distanceOffset) * travelSpeed;
-
+#else
+		scaledDistance = (PlatformDummy.Instance.DistanceBehindTarget() - distanceOffset) * travelSpeed;
+#endif
 		Vector3 movement = new Vector3(xOffset, height, (float)scaledDistance);
 		transform.position = movement;
 	}

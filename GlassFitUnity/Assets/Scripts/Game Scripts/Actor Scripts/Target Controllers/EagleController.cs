@@ -54,7 +54,11 @@ public class EagleController : TargetController {
 		base.Update();
 		
 		// Find the distance behind target based on the offset
+#if !UNITY_EDITOR
 		float realDist = (float)target.GetDistanceBehindTarget() - distanceOffset;
+#else
+		float realDist = PlatformDummy.Instance.DistanceBehindTarget() - distanceOffset;
+#endif
 		if(realDist < -49)
 		{
 			height = 2092;
@@ -83,8 +87,11 @@ public class EagleController : TargetController {
 			screechTime += Time.deltaTime;
 			
 			// Calculate the time it would take to reach the player.
+#if !UNITY_EDITOR
 			float time = -realDist / target.PollCurrentSpeed();
-			
+#else
+			float time = -realDist / PlatformDummy.Instance.GetTargetSpeed();
+#endif
 			// Then calculate the speed of descent.
 			speed = height / time;
 			
