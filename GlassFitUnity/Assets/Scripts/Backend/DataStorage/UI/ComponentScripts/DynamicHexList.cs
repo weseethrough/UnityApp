@@ -172,6 +172,17 @@ public class DynamicHexList : MonoBehaviour
         {
 
             PlayButtonEnter(buttons[buttonNextEnterIndex], true);
+
+            UISprite[] sprites = buttons[buttonNextEnterIndex].GetComponentsInChildren<UISprite>() as UISprite[];
+            foreach (UISprite spr in sprites)
+            {
+                if (spr.name == "Foreground")
+                {
+                    spr.gameObject.SetActive(GetButtonData()[buttonNextEnterIndex].locked);
+                    break;
+                }
+            }
+
             buttonNextEnterIndex++;
             buttonNextEnterDelay = buttonEnterDelay;
         }
@@ -448,7 +459,7 @@ public class DynamicHexList : MonoBehaviour
                 graphics.pressedSprite = GetButtonData()[i].imageName;
                 graphics.hoverSprite = graphics.pressedSprite;
                 graphics.normalSprite = graphics.pressedSprite;
-                graphics.disabledSprite = graphics.pressedSprite;
+                graphics.disabledSprite = graphics.pressedSprite;                
             }
 
             buttons.Add(tile);

@@ -74,8 +74,8 @@ public class MessageWidget : MonoBehaviour
 
         currentState = State.iddle;
          
-        AddMessage("CONGRATULATIONS!", "This is my content", "activity_bike");
-        AddMessage("HEY!", "You have just get invited", "activity_run");
+  //      AddMessage("CONGRATULATIONS!", "This is my content", "activity_bike");
+  //      AddMessage("HEY!", "You have just get invited", "activity_run");
     }
 
     /// <summary>
@@ -237,7 +237,7 @@ public class MessageWidget : MonoBehaviour
         Animation anim = go.GetComponentInChildren<Animation>();
         if (anim == null) return;
 
-        anim[animName].time = 0.0f;
+        anim[animName].time = 0.001f;
     }
 
     /// <summary>

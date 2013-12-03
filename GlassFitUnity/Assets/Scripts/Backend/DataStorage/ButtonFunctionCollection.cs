@@ -21,7 +21,36 @@ public class ButtonFunctionCollection
     static public bool MyFunction1(FlowButton fb, Panel panel)
     {
         Debug.Log("Testing linked function true");
+      
+        return true;
+    }
 
+    /// <summary>
+    /// example function which redirects navigation to custom exit named "CustomExit"
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
+    static public bool GoToCustomExit(FlowButton fb, Panel panel)
+    {
+        Debug.Log("Testing linked function true");       
+        if (panel != null)
+        {
+            if (panel is HexPanel)
+            {
+                List<HexButtonData> data = (panel as HexPanel).buttonData;
+                HexButtonData buttonData = data.Find(r => r.buttonName == fb.name);
+                if (buttonData != null && buttonData.locked == true)
+                {
+                    GConnector gc = panel.Outputs.Find(r => r.Name == "CustomExit");
+                    if (gc != null)
+                    {
+                        panel.parentMachine.FollowConnection(gc);
+                        return false;
+                    }
+                }                
+            }                        
+        }
         return true;
     }
 
@@ -266,7 +295,7 @@ public class ButtonFunctionCollection
 			double? distance = DataVault.Get("rawdistance") as double?;
 			long? time = DataVault.Get("rawtime") as long?;
 			
-			if (track != null) {
+			if (track != null && track.trackPositions.Count > 0) {
 				foreach (Challenge generic in challenges) {
 					if (generic is DistanceChallenge) {
 						DistanceChallenge challenge = generic as DistanceChallenge;
@@ -320,6 +349,7 @@ public class ButtonFunctionCollection
     {
 		Track track = DataVault.Get("track") as Track;
 		if (track == null) return false; // TODO: Allow solo rounds?
+		if (track.trackPositions.Count == 0) return false; // TODO: Remove track?		
 		
 		int friendId = (int)DataVault.Get("current_friend");
 		if (friendId == 0) return false; // TODO: Challenge by third-party identity

@@ -344,4 +344,15 @@ public class Panel : FlowState
 
         return base.IsValid() && gType != null && gType.Value != null && gType.Value != "Null";
     }
+
+    /// <summary>
+    /// screen might have dynamic number of exits(and buttons) so it need function which updates its size dynamically as well
+    /// </summary>
+    /// <returns></returns>
+    public void UpdateSize()
+    {
+        int count = Mathf.Max(Inputs.Count, Outputs.Count);
+
+        Size.y = Mathf.Max(count * 25, 80);
+    }
 }

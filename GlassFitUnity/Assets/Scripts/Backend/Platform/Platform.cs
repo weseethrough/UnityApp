@@ -21,6 +21,7 @@ public class Platform : MonoBehaviour {
 	
 	
 	private List<Track> trackList;
+	private List<Game> gameList;
 	
 	private Boolean tracking = false;
 	
@@ -155,13 +156,17 @@ public class Platform : MonoBehaviour {
 					UnityEngine.Debug.LogException(e);
 				}
 				AwardPoints("Free points for devs", "Platform.cs", 10000);
+				// Cache the list of games and states from java
+		        GetGames();
 				initialised = true;
         	}));
 			
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
 			UnityEngine.Debug.LogException(e);
-		} 
+		}
+		
+		
 		
 	}
 	
@@ -214,7 +219,7 @@ public class Platform : MonoBehaviour {
 			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				gps.Call("setIndoorMode", indoor);
 				if (indoor) {
-				    gps.Call("setIndoorSpeed", 2.0f);
+				    gps.Call("setIndoorSpeed", 7.0f);
 				    UnityEngine.Debug.LogWarning("Platform: Indoor mode set to true, indoor speed = 2.0m/s");
 				} else {
 					UnityEngine.Debug.LogWarning("Platform: Indoor mode set to false, will use true GPS speed");
@@ -413,6 +418,54 @@ public class Platform : MonoBehaviour {
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Tracks: " + e.Message);
+			return null;
+		}
+	}
+	
+	/// <summary>
+	/// Load a list of games from the java database, together with lock state, cost, description etc.
+	/// Typically used when building the main hex menu
+	/// </summary>
+	public List<Game> GetGames()
+	{
+		// if we already have a copy, return it. Games are unlikely to update except through Game.unlock.
+		if (gameList != null)
+		{
+			return gameList;
+		}
+		// otherwise, get the games from java
+		try
+		{
+			UnityEngine.Debug.Log("Platform: Getting games from java...");
+			AndroidJavaObject javaGameList = helper.Call<AndroidJavaObject>("getGames");
+			int size = javaGameList.Call<int>("size");
+			UnityEngine.Debug.Log("Platform: Retrieved " + size + " games from java");
+			gameList = new List<Game>(size);
+			try
+			{
+				for(int i=0; i<size; i++)
+				{
+					AndroidJavaObject javaGame = javaGameList.Call<AndroidJavaObject>("get", i);
+					Game csGame = new Game();
+					csGame.Initialise(javaGame);
+					gameList.Add(csGame);
+				}
+				UnityEngine.Debug.Log("Platform: Successfully imported " + size + " games.");
+				return gameList;
+			}
+			catch (Exception e)
+			{
+				UnityEngine.Debug.LogWarning("Platform: Error getting game!");
+				UnityEngine.Debug.LogWarning(e.Message);
+				UnityEngine.Debug.LogException(e);
+				return null;
+			}
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error getting Games!");
+			UnityEngine.Debug.LogWarning(e.Message);
+			UnityEngine.Debug.LogException(e);
 			return null;
 		}
 	}
