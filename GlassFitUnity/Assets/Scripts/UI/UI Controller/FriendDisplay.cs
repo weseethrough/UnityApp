@@ -28,8 +28,8 @@ public class FriendDisplay : MonoBehaviour {
 	// The current friend selected
 	private int currentFriend = 0;
 	
-	// The synchronise time
-	private float syncTime = 0;
+	// The synchronisation handler
+	Platform.OnSync handler = null;
 	
 	// Boolean for whether or not the image has been fetched
 	private bool imageFetched = false;
@@ -40,13 +40,7 @@ public class FriendDisplay : MonoBehaviour {
 	/// <summary>
 	/// Start this instance. Sets a loading texture and obtains necessary components
 	/// </summary>
-	void Start () {
-		// Get the type of friend
-		string type = (string) DataVault.Get("friend_type");
-		
-		// Change the type to lower case.
-		type = type.ToLower();
-		
+	void Start () {		
 		// Load the loading texture from resources.
 		loading = (Texture2D)Resources.Load("loading", typeof(Texture2D));
 		if(loading == null) {
@@ -59,7 +53,27 @@ public class FriendDisplay : MonoBehaviour {
 		
 		// Sync to the server
 		Platform.Instance.SyncToServer();
-		syncTime = Time.time;
+		
+		// Create a sync handler that updates the friends list
+		handler = new Platform.OnSync(() => {
+			UpdateFriendsList();
+		});
+		Platform.Instance.onSync += handler;	
+		
+		UpdateFriendsList();
+		
+		DataVault.Set("screen_name", "Loading Screen Name...");
+		UnityEngine.Debug.Log("Friend Display: started");
+	}
+	
+	/// <summary>
+	/// Update the friends list with data from the platform.
+	/// </summary>
+	void UpdateFriendsList() {
+		// Get the type of friend
+		string type = (string) DataVault.Get("friend_type");		
+		// Change the type to lower case.
+		type = type.ToLower();
 		
 		// Get the list of friends
 		friendList = Platform.Instance.Friends();
@@ -73,9 +87,14 @@ public class FriendDisplay : MonoBehaviour {
 		
 		// Set the friend list to the filtered list
 		friendList = filtered.ToArray();
-		DataVault.Set("screen_name", "Loading Screen Name...");
-		UnityEngine.Debug.Log("Friend Display: started");
 	}
+	
+	/// <summary>
+	/// Destroy this instance. Removes its sync handler.
+	/// </summary>
+	void Destroy () {
+		Platform.Instance.onSync -= handler;
+	}	
 	
 	/// <summary>
 	/// Update this instance. Updates the friend picture and checks for input
@@ -84,6 +103,7 @@ public class FriendDisplay : MonoBehaviour {
 		// If the user has no friends display a message
 		if(friendList.Length == 0) {
 			DataVault.Set("screen_name", "Ha ha, you have no friends!");
+			// TODO: Update list on sync
 		} else {
 			// Otherwise, if the picture hasn't been fetched
 			if(!imageFetched){
@@ -119,10 +139,8 @@ public class FriendDisplay : MonoBehaviour {
 			// Set the name of the friend
 			DataVault.Set("screen_name", friendList[currentFriend].name);
 			
-			// Set the current ID of the friend
-			int userId = 0;
-			if (friendList[currentFriend].userId.HasValue) userId = friendList[currentFriend].userId.Value;
-			DataVault.Set("current_friend", userId);
+			// Set the current friend
+			DataVault.Set("current_friend", friendList[currentFriend]);
 		}
 		
 		// If the screen is touched

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
 using System;
+using System.Runtime.CompilerServices;
 
 public class Platform : MonoBehaviour {
 	private double targetElapsedDistance = 0;
@@ -48,7 +49,8 @@ public class Platform : MonoBehaviour {
 	public OnSync onSync = null;
 	
 	// TEMP
-	private string notesLabel = "";
+	public string message = "Message area";
+	private string notesLabel = "Notifications area";
 	// TEMP
 	
 	private static Platform _instance;
@@ -116,10 +118,13 @@ public class Platform : MonoBehaviour {
 		}
 		/// TEMP
 	}
-	
+
+	/// TEMP
 	public void OnGUI() {
+		GUI.Label(new Rect(Screen.width/2 - 150, 50, 300, 50), message);
 		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
 	}
+	/// TEMP
 	
 	protected Platform() {
 		
@@ -177,6 +182,7 @@ public class Platform : MonoBehaviour {
 		return started;
 	}
 	
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public User User() {
 		try {
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getUser");
@@ -197,6 +203,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Starts tracking
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public void StartTrack() {
 		try {
 			gps.Call("startTracking");
@@ -210,6 +217,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Set the indoor mode
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public void SetIndoor(bool indoor) {
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -229,6 +237,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public void ResetTargets() {
 		try {
 			helper.Call("resetTargets");
@@ -239,12 +248,14 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Returns the target tracker
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public TargetTracker CreateTargetTracker(float constantSpeed){
 		TargetTracker t = TargetTracker.Build(helper, constantSpeed);
 		if (t == null) return null;
 		targetTrackers.Add(t);
 		return t;
 	}
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public TargetTracker CreateTargetTracker(int deviceId, int trackId){
 		TargetTracker t = TargetTracker.Build(helper, deviceId, trackId);
 		if (t == null) return null;
@@ -253,6 +264,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Check if has GPS lock
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public Boolean HasLock() {
 		try {
 			bool gpsLock = gps.Call<Boolean>("hasPosition");
@@ -266,6 +278,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Stop tracking 
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public Track StopTrack() {
 		try {
 			gps.Call("stopTracking");
@@ -280,6 +293,7 @@ public class Platform : MonoBehaviour {
 	
 	// Authentication 
 	// result returned through onAuthenticated
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public void Authorize(string provider, string permissions) {
 		try {
 			authenticated = helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
@@ -289,6 +303,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public bool HasPermissions(string provider, string permissions) {
 		try {
 			return helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
@@ -300,6 +315,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Sync to server
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public void SyncToServer() {
 		lastSync = DateTime.Now;
 		try {
@@ -311,6 +327,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Reset GPS tracker
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public void Reset() {
 		try {
 			gps.Call("reset");
@@ -355,7 +372,8 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error resetting gyros: " + e.Message);
 		}
 	}
-
+	
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public Challenge FetchChallenge(string id) {
 		try {
 			using (AndroidJavaObject rawch = helper_class.CallStatic<AndroidJavaObject>("fetchChallenge", id)) {
@@ -382,6 +400,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public Track FetchTrack(int deviceId, int trackId) {
 		try {
 			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
@@ -395,6 +414,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Load a list of tracks
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public List<Track> GetTracks() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getTracks")) {
@@ -477,6 +497,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 		
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public Friend[] Friends() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
@@ -496,7 +517,8 @@ public class Platform : MonoBehaviour {
 		}
 		return new Friend[0];
 	}
-		
+	
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public Notification[] Notifications() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getNotifications")) {
