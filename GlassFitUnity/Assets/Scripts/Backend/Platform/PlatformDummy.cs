@@ -29,16 +29,22 @@ public class PlatformDummy : MonoBehaviour {
 	
 	public static PlatformDummy Instance {
 		get {
-			if(applicationIsQuitting) {
-				UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
-				return null;
-			}
+//			if(applicationIsQuitting) {
+//				UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
+//				return null;
+//			}
 			lock(_lock) {
 				if(_instance == null) {
 					_instance = (PlatformDummy) FindObjectOfType(typeof(PlatformDummy));
 					if(FindObjectsOfType(typeof(PlatformDummy)).Length >= 1) {
+						for(int i=0; i < FindObjectsOfType(typeof(PlatformDummy)).Length; i++)
+						{
+							GameObject plat = GameObject.Find("PlatformDummy");
+							Destroy(plat);
+						}
 						UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-						return _instance;
+						_instance = null; 
+						//return _instance;
 					}
 					if(_instance == null) {
 						GameObject singleton = new GameObject();

@@ -130,15 +130,15 @@ public class DinosaurController : TargetController {
 	void UpdateRotation(Transform parent) 
 	{
 		UnityEngine.Debug.Log("Dino: current transform is for " + parent.gameObject.name);
-		headRotation = dinoHead.transform.rotation;
+		headRotation = parent.rotation;
 		parent.LookAt(Vector3.zero);
 		Quaternion finalRotation = parent.rotation;
-		finalRotation.x = headRotation.x;
-		finalRotation.y = headRotation.y;
-		parent.transform.rotation = finalRotation;
-		foreach(Transform child in parent) 
-		{
-			UpdateRotation(child);
-		}
+//		finalRotation.x = headRotation.x;
+//		finalRotation.y = headRotation.y;
+		parent.rotation = Quaternion.Euler(headRotation.eulerAngles.x, headRotation.eulerAngles.y, finalRotation.eulerAngles.z);
+//		foreach(Transform child in parent) 
+//		{
+//			UpdateRotation(child);
+//		}
 	}
 }
