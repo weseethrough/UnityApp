@@ -7,7 +7,9 @@ using System.Runtime.Serialization;
 [Serializable]
 public class GameSelectPanel : HexPanel 
 {
-
+	
+//	PlatformDummy platform = new PlatformDummy();
+	
 	public GameSelectPanel() {}
     public GameSelectPanel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
@@ -22,18 +24,16 @@ public class GameSelectPanel : HexPanel
 
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
+#if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
-		
+#else
+		List<Game> games = PlatformDummy.Instance.GetGames();
+#endif
 		UnityEngine.Debug.Log("Games: There are currently " + games.Count + " games");
         //generate some buttons
         for(int i=0; i<games.Count; i++)
         {
             HexButtonData hbd = new HexButtonData();
-//			UnityEngine.Debug.Log("Game: name is " + games[i].name);
-//			UnityEngine.Debug.Log("Game: column is " + games[i].column);
-//			UnityEngine.Debug.Log("Game: row is " + games[i].row);
-//			UnityEngine.Debug.Log("Game: imageName is " + games[i].name);
-//			UnityEngine.Debug.Log("Game: State is " + games[i].state);
             hbd.buttonName = games[i].name;
             hbd.column = games[i].column;
             hbd.row = games[i].row;

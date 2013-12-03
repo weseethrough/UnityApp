@@ -223,9 +223,9 @@ public class DynamicHexList : MonoBehaviour
                 float pitchHeight;
 				Vector2 newCameraOffset; 
 				ConvertOrientation(Platform.Instance.GetOrientation(), out newCameraOffset);
-				float depth = -0.75f;//guiCamera.transform.position.z;
+				Vector3 camPos = guiCamera.transform.position;
 				newCameraOffset -= cameraMoveOffset;
-                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, depth);
+                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, camPos.z);
 #endif
             /*}
             else
