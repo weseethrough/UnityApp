@@ -18,7 +18,8 @@ public class PursuitGame : MonoBehaviour {
 		Eagle			= 2,
 		Train			= 3,
 		Zombie			= 4,
-		Dinosaur        = 5
+		Dinosaur        = 5,
+		Fire			= 6
 	}
 	
 	private ActorType currentActorType;
@@ -28,6 +29,7 @@ public class PursuitGame : MonoBehaviour {
 	public GameObject zombieHolder;
 	public GameObject trainHolder;
 	public GameObject dinoHolder;
+	public GameObject fireHolder;
 	
 	private List<GameObject> actors = new List<GameObject>();
 	
@@ -127,6 +129,10 @@ public class PursuitGame : MonoBehaviour {
 			currentActorType = ActorType.Dinosaur;
 			break;
 			
+		case "Fire":
+			currentActorType = ActorType.Fire;
+			break;
+			
 		default:
 			UnityEngine.Debug.Log("PursuitGame: ERROR! No type specified");
 			currentActorType = ActorType.Train;
@@ -143,6 +149,7 @@ public class PursuitGame : MonoBehaviour {
 		zombieHolder.SetActive(false);
 		trainHolder.SetActive(false);
 		dinoHolder.SetActive(false);
+		fireHolder.SetActive(false);
 		
 		Platform.Instance.ResetTargets();
 		Platform.Instance.CreateTargetTracker(targSpeed);
@@ -415,6 +422,9 @@ public class PursuitGame : MonoBehaviour {
 			break;
 		case ActorType.Dinosaur:
 			template = dinoHolder;
+			break;
+		case ActorType.Fire:
+			template = fireHolder;
 			break;
 		default:
 			throw new NotImplementedException("PursuitGame: Unknown actor type: " + currentActorType);

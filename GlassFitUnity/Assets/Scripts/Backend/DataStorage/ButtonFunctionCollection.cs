@@ -103,6 +103,10 @@ public class ButtonFunctionCollection
 		case "Dinosaurs":
 			DataVault.Set("type", "Dinosaur");
 			break;
+			
+		case "Fire Level 1":
+			DataVault.Set("type", "Fire");
+			break;
 		}
 		
 		return true;
