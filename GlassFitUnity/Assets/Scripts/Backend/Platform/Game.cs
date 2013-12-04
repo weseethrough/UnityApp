@@ -17,9 +17,27 @@ public class Game
 	public int tier { get; private set; } // which tier the game sits in (1,2,3,4 etc)
 	public long priceInPoints { get; private set; }
 	public long priceInGems { get; private set; }
+	public string type { get; private set; }
+	public int column { get; private set; }
+	public int row { get; private set; }
 	
 	public Game ()
 	{
+	}
+	
+	public Game(string gameID, string name, string activity, string description, string state, int tier, long priceInPoints, long priceInGems, string type, int column, int row)
+	{
+		this.gameId = gameID;
+		this.name = name;
+		this.activity = activity;
+		this.description = description;
+		this.state = state;
+		this.tier = tier;
+		this.priceInPoints = priceInPoints;
+		this.priceInGems = priceInGems;
+		this.type = type;
+		this.column = column;
+		this.row = row;
 	}
 	
 	/// <summary>
@@ -41,6 +59,9 @@ public class Game
 			tier = javaGame.Call<int> ("getTier");
 			priceInPoints = javaGame.Call<long> ("getPriceInPoints");
 			priceInGems = javaGame.Call<long> ("getPriceInGems");
+			type = javaGame.Call<string> ("getType");
+			column = javaGame.Call<int> ("getColumn");
+			row = javaGame.Call<int> ("getRow");
 			UnityEngine.Debug.Log ("Game: Successfuly imported game: " + gameId);
 		}
 		catch (Exception e) {

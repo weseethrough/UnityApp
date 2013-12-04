@@ -24,6 +24,9 @@ public class DinosaurController : TargetController {
 	// Get the head of the dinosaur
 	private GameObject dinoHead;
 	
+	// Original head rotation
+	private Quaternion headRotation;
+	
 	// Get the camera
 	private GameObject cam;
 	
@@ -43,12 +46,12 @@ public class DinosaurController : TargetController {
 		scream = GetComponent<AudioSource>();
 		
 		// Get the dino's head
-		dinoHead = GameObject.Find("UpperNeck");
+		dinoHead = GameObject.Find("LowerNeck");
 		
 		if(dinoHead==null)
-		UnityEngine.Debug.Log("Dino: Upper neck not found");
+		UnityEngine.Debug.Log("Dino: Lower neck not found");
 		else
-			UnityEngine.Debug.Log("Dino: Upper neck found");
+			UnityEngine.Debug.Log("Dino: Lower neck found");
 		
 //		// Get the camera
 //		cam = GameObject.Find("ARCamera");
@@ -61,12 +64,12 @@ public class DinosaurController : TargetController {
 	void OnEnable() {
 		// Enable the base and set the attributes.
 		base.OnEnable();
-		dinoHead = GameObject.Find("UpperNeck");
+		dinoHead = GameObject.Find("LowerNeck");
 		
 		if(dinoHead==null)
-			UnityEngine.Debug.Log("Dino: Upper neck not found");
+			UnityEngine.Debug.Log("Dino: Lower neck not found");
 		else
-			UnityEngine.Debug.Log("Dino: Upper neck found");
+			UnityEngine.Debug.Log("Dino: Lower neck found");
 		
 		SetAttribs(50, 135, -240, 0f);
 	}
@@ -108,17 +111,34 @@ public class DinosaurController : TargetController {
 	/// <summary>
 	/// Used to override the animation so the dinosaur looks at the player
 	/// </summary>
-//	void LateUpdate() {
-//		if(dinoHead == null) 
+	void LateUpdate() {
+		if(dinoHead == null) 
+		{
+			dinoHead = GameObject.Find("LowerNeck");
+			UnityEngine.Debug.Log("Dino: Lower neck found");
+		}
+		
+		// Make the head look at the player
+		if(dinoHead != null) {
+			//UpdateRotation(dinoHead.transform);
+		}
+		else {
+			UnityEngine.Debug.Log("Dino: no head, no transform");
+		}
+	}
+	
+	void UpdateRotation(Transform parent) 
+	{
+		UnityEngine.Debug.Log("Dino: current transform is for " + parent.gameObject.name);
+		headRotation = parent.rotation;
+		parent.LookAt(Vector3.zero);
+		Quaternion finalRotation = parent.rotation;
+//		finalRotation.x = headRotation.x;
+//		finalRotation.y = headRotation.y;
+		parent.rotation = Quaternion.Euler(headRotation.eulerAngles.x, headRotation.eulerAngles.y, finalRotation.eulerAngles.z);
+//		foreach(Transform child in parent) 
 //		{
-//			dinoHead = GameObject.Find("UpperNeck");
-//			UnityEngine.Debug.Log("Dino: head found");
+//			UpdateRotation(child);
 //		}
-//		
-//		// Make the head look at the player
-//		if(dinoHead != null)
-//			dinoHead.transform.LookAt(Vector3.zero);
-//		else
-//			UnityEngine.Debug.Log("Dino: no head, no transform");
-//	}
+	}
 }

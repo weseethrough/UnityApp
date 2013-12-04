@@ -77,31 +77,31 @@ public class ButtonFunctionCollection
 	{
 		switch(fb.name) 
 		{
-		case "Run":
+		case "activity_run":
 			DataVault.Set("type", "Runner");
 			break;
 			
-		case "Bike":
+		case "activity_bike":
 			DataVault.Set("type", "Cyclist");
 			break;
 			
-		case "Boulder Level 1":
+		case "activity_boulder":
 			DataVault.Set("type", "Boulder");
 			break;
 			
-		case "Eagle Level 1":
+		case "activity_eagle":
 			DataVault.Set("type", "Eagle");
 			break;
 			
-		case "Zombie Level 1":
+		case "activity_zombie":
 			DataVault.Set("type", "Zombie");
 			break;
 			
-		case "Train Level 1":
+		case "activity_train":
 			DataVault.Set("type", "Train");
 			break;
 			
-		case "Dinosaurs":
+		case "activity_dinosaurs":
 			DataVault.Set("type", "Dinosaur");
 			break;
 		}
@@ -293,7 +293,7 @@ public class ButtonFunctionCollection
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
 
 		// TODO: Disable share and challenge hexes if (track == 0 || track.tracPositoons.Count == 0)
-		
+
 		// Log attempts
 		List<Challenge> challenges = DataVault.Get("challenges") as List<Challenge>;		
 		if (challenges != null && challenges.Count > 0) {

@@ -21,6 +21,12 @@ public class PursuitGame : MonoBehaviour {
 		Dinosaur        = 5
 	}
 	
+	// Variable for the ending sprint bonus
+	private float finalBonus = 1000f;
+	
+	// Variable for kilometer bonus
+	private int bonusTarget = 1000;
+	
 	private ActorType currentActorType;
 	
 	public GameObject eagleHolder;
@@ -86,9 +92,11 @@ public class PursuitGame : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		UnityEngine.Debug.Log("PursuitGame: started");
+#if !UNITY_EDITOR
 		Platform.Instance.SetIndoor(indoor);
 		Platform.Instance.StopTrack();
 		Platform.Instance.Reset();
+#endif
 		//DataVault.Set("indoor_text", "Indoor Active");
 		
 		
@@ -133,8 +141,11 @@ public class PursuitGame : MonoBehaviour {
 			break;			
 		}
 		
+#if !UNITY_EDITOR
 		finish = (int)DataVault.Get("finish");		
-		
+#else
+		finish = 5;
+#endif
 		DataVault.Set("slider_val", 0.8f);
 		
 		// Set templates' active status
@@ -144,8 +155,10 @@ public class PursuitGame : MonoBehaviour {
 		trainHolder.SetActive(false);
 		dinoHolder.SetActive(false);
 		
+#if !UNITY_EDITOR
 		Platform.Instance.ResetTargets();
 		Platform.Instance.CreateTargetTracker(targSpeed);
+#endif
 		
 		InstantiateActors();
 	}
@@ -177,16 +190,19 @@ public class PursuitGame : MonoBehaviour {
 		}
 		
 		if(changed) {
-					// Reset platform, set new target speed and indoor/outdoor mode
+			// Reset platform, set new target speed and indoor/outdoor mode
+#if !UNITY_EDITOR
 			Platform.Instance.Reset();
 			Platform.Instance.ResetTargets();
-					
 			if(!trackSelected) {
 				Platform.Instance.CreateTargetTracker(targSpeed);
 			}
 					
 			Platform.Instance.SetIndoor(indoor);
-				
+#else
+			PlatformDummy.Instance.Reset();
+#endif
+							
 			InstantiateActors();
 			
 			// Start countdown again
@@ -199,7 +215,11 @@ public class PursuitGame : MonoBehaviour {
 			changed = false;
 		} else {
 			// Else restart tracking
+#if !UNITY_EDITOR
 			Platform.Instance.StartTrack();
+#else
+			PlatformDummy.Instance.StartTrack();
+#endif
 		}
 	}
 	
@@ -256,6 +276,7 @@ public class PursuitGame : MonoBehaviour {
 	}
 	
 	void Update () {
+#if !UNITY_EDITOR
 		Platform.Instance.Poll();
 		
 		DataVault.Set("calories", Platform.Instance.Calories().ToString());
@@ -353,6 +374,151 @@ public class PursuitGame : MonoBehaviour {
 				}
 			}
 		}
+		
+		// Awards the player points for running certain milestones
+		if(Platform.Instance.Distance() >= bonusTarget)
+		{
+			int targetToKm = bonusTarget / 1000;
+			if(bonusTarget < finish * 1000) 
+			{
+				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
+			}
+			bonusTarget += 1000;
+			
+		}
+		
+		if(Platform.Instance.Distance() >= (finish * 1000) - 100)
+		{
+			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
+			finalBonus -= 50f * Time.deltaTime;
+		}
+		else
+		{
+			DataVault.Set("ending_bonus", "");
+		}
+		
+#else
+		PlatformDummy.Instance.Poll();
+		
+		DataVault.Set("calories", PlatformDummy.Instance.Calories().ToString());
+		DataVault.Set("pace", PlatformDummy.Instance.Pace().ToString("f2") + "m/s");
+		DataVault.Set("distance", SiDistance(PlatformDummy.Instance.Distance()));
+		DataVault.Set("time", TimestampMMSSdd( PlatformDummy.Instance.Time()));
+		DataVault.Set("indoor_text", indoorText);
+		
+		double targetDistance = PlatformDummy.Instance.DistanceBehindTarget()-offset;
+		
+		if (targetDistance > 0) {
+			DataVault.Set("ahead_header", "Behind!");
+			DataVault.Set("ahead_col_header", "D20000FF");
+			DataVault.Set("ahead_col_box", "D20000EE");
+		} else {
+			DataVault.Set("ahead_header", "Ahead!"); 
+			DataVault.Set("ahead_col_box", "19D200EE");
+			DataVault.Set("ahead_col_header", "19D200FF");
+		}
+		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
+		
+		Position position = PlatformDummy.Instance.Position();
+		float bearing = PlatformDummy.Instance.Bearing();
+		double bearingRad = bearing*Math.PI/180;
+		if (position != null) {
+			// Fake target coord using distance and bearing
+			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearingRad)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearingRad)*targetDistance/111229d));
+			GetMap(position, bearingRad, targetCoord);
+		}
+		
+		// If there is a GPS lock or indoor mode is active
+		if(PlatformDummy.Instance.HasLock() || indoor)
+		{
+			// Initiate the countdown
+			countdown = true;
+		 	if(countTime <= -1.0f && !started)
+			{
+				PlatformDummy.Instance.StartTrack();
+				UnityEngine.Debug.LogWarning("Tracking Started");
+				isDead = false;
+//				float s = (targSpeed - 1.25f) / 9.15f;
+//		
+//				DataVault.Set("slider_val", s);
+				started = true;
+			}
+			else if(countTime > -1.0f)
+			{
+				UnityEngine.Debug.LogWarning("Counting Down");
+				countTime -= Time.deltaTime;
+			}
+		}
+		
+		if(PlatformDummy.Instance.Distance() / 1000 >= finish)
+		{
+			PlatformDummy.Instance.StopTrack();
+			//DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+			DataVault.Set("ahead_col_box", "19D200EE");
+			DataVault.Set("ahead_col_header", "19D200FF");
+			DataVault.Set("finish_header", "You survived...for now");
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
+			if(gConect != null) {
+			fs.parentMachine.FollowConnection(gConect);
+			} else {
+				UnityEngine.Debug.Log("Game: No connection found!");
+			}
+		}
+		
+		if(PlatformDummy.Instance.DistanceBehindTarget() - offset >= 0)
+		{
+			
+			PlatformDummy.Instance.StopTrack();
+			
+			if(lives > 0) {
+				lives -= 1;
+				isDead = true;
+				offset += 50;
+				foreach (GameObject actor in actors) {
+					actor.GetComponent<TargetController>().IncreaseOffset();
+				}
+				started = false;
+				countdown = false;
+				countTime = 3.0f;
+			} else {
+				//DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+				DataVault.Set("ahead_col_header", "D20000FF");
+				DataVault.Set("ahead_col_box", "D20000EE");
+				DataVault.Set("finish_header", "You died!");
+				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+				GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
+				if(gConect != null) {
+					fs.parentMachine.FollowConnection(gConect);
+				} else {
+					UnityEngine.Debug.Log("Game: No connection found!");
+				}
+			}
+		}
+		
+		// Awards the player points for running certain milestones
+		if(PlatformDummy.Instance.Distance() >= bonusTarget)
+		{
+			int targetToKm = bonusTarget / 1000;
+			if(bonusTarget < finish * 1000) 
+			{
+				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
+			}
+			bonusTarget += 1000;
+			
+		}
+		
+		if(PlatformDummy.Instance.Distance() >= (finish * 1000) - 100)
+		{
+			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
+			finalBonus -= 50f * Time.deltaTime;
+		}
+		else
+		{
+			DataVault.Set("ending_bonus", "");
+		}
+		
+#endif
 	}
 	
 	string SiDistance(double meters) {
@@ -421,6 +587,7 @@ public class PursuitGame : MonoBehaviour {
 			break;
 		}
 		
+#if !UNITY_EDITOR
 		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
 		foreach (TargetTracker tracker in trackers) {
 			GameObject actor = Instantiate(template) as GameObject;
@@ -431,6 +598,11 @@ public class PursuitGame : MonoBehaviour {
 			actor.SetActive(true);
 			actors.Add(actor);
 		}
+#else
+		GameObject actorDummy = Instantiate(template) as GameObject;
+		actorDummy.SetActive(true);
+		actors.Add(actorDummy);
+#endif
 		offset = 50;
 	}
 		
