@@ -41,7 +41,7 @@ public abstract class Challenge
 		case "pace":
 			return new PaceChallenge(node);
 		default:
-			throw new NotImplementedException("Unknown challenge type: " + node["type"]);
+			throw new NotImplementedException("Unknown challenge type: " + node["type"] + " for " + node.ToString());
 		}
 	}
 	

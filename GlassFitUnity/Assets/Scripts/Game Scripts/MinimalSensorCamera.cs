@@ -24,6 +24,38 @@ public class MinimalSensorCamera : MonoBehaviour {
 		scaleY = (float)Screen.height / 500.0f;
 	}
 	
+	void ResetGyro() 
+	{
+#if !UNITY_EDITOR
+		// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
+		if(timerActive) {
+			gridOn = false;
+		} else {
+			offsetFromStart = Platform.Instance.GetOrientation();
+			Platform.Instance.ResetGyro();
+			gridOn = true;
+			gridTimer = 5.0f;
+			timerActive = true;
+		}
+			
+//		
+//		}
+//		else if(Event.current.type == EventType.Repaint)
+//		{
+//			// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
+//			if(gridOn)
+//			{
+//				timerActive = true;
+//			} else
+//			{
+//				gridTimer = 0.0f;
+//				timerActive = false;
+//			}
+//				
+//		}
+#endif
+	}
+	
 	/// <summary>
 	/// Raises the GU event. Creates a reset gyro button
 	/// </summary>

@@ -79,6 +79,7 @@ public class Game
 	/// </summary>
 	public void Unlock ()
 	{
+#if !UNITY_EDITOR
 		try {
 			// JNI method to perforn the unlock transaction
 			AndroidJavaObject updatedJavaGame = javaGame.Call<AndroidJavaObject> ("unlock");
@@ -88,6 +89,9 @@ public class Game
 			UnityEngine.Debug.LogWarning ("Game: Error unlocking game: " + gameId);
 			UnityEngine.Debug.LogException (e);
 		}
+#else
+		state = "unlocked";
+#endif
 	}
 	
 }
