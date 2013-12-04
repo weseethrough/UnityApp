@@ -63,7 +63,7 @@ public class GameSelectPanel : HexPanel
             	hbd.locked = true;
 			} else {
 				UnityEngine.Debug.Log("Game: " + games[i].name + " Set to unlocked");
-				hbd.locked = false;
+				hbd.locked = true;
 			}
 			
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
