@@ -13,7 +13,7 @@ public class PlatformDummy : MonoBehaviour {
 	private long update = 0;
 	private float distance = 0;
 	private float target = 1;
-	private float targetSpeed = 8;
+	private float targetSpeed = 4;
 	private Position position = null;
 	private float bearing = 45; // degrees	
 	

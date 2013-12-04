@@ -21,6 +21,7 @@ public class GameSelectPanel : HexPanel
         GConnector raceExit = Outputs.Find(r => r.Name == "raceExit");
         GConnector pursuitExit = Outputs.Find(r => r.Name == "pursuitExit");
 		GConnector challengeExit = Outputs.Find (r => r.Name == "challengeExit");
+		GConnector unlockExit = Outputs.Find (r => r.Name == "unlockExit");
 
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
@@ -50,7 +51,15 @@ public class GameSelectPanel : HexPanel
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
             gc.EventFunction = "SetType";
 			
-			if(games[i].type == "Race") 
+			if(games[i].state == "locked")
+			{
+				gc.EventFunction = "SetGameDesc";
+				if(unlockExit.Link.Count > 0)
+				{
+					gComponent.Data.Connect(gc, unlockExit.Link[0]);
+				}
+			}
+			else if(games[i].type == "Race") 
 			{
 				if(raceExit.Link.Count > 0) 
 				{

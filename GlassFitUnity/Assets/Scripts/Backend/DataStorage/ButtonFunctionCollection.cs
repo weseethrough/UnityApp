@@ -107,7 +107,43 @@ public class ButtonFunctionCollection
 		
 		return true;
 	}
-
+	
+	/// <summary>
+	/// Sets the game description for the locked game.
+	/// </summary>
+	/// <returns>
+	/// Boolean to allow traversal.
+	/// </returns>
+	/// <param name='fb'>
+	/// The button.
+	/// </param>
+	/// <param name='panel'>
+	/// The panel.
+	/// </param>
+	static public bool SetGameDesc(FlowButton fb, Panel panel)
+	{
+#if !UNITY_EDITOR
+		List<Game> games = Platform.Instance.GetGames();
+#else
+		List<Game> games = PlatformDummy.Instance.GetGames();
+#endif
+		
+		for(int i=0; i < games.Count; i++)
+		{
+			if(games[i].name == fb.name)
+			{
+				DataVault.Set("price_points", "Price in points: " + games[i].priceInPoints);
+				DataVault.Set("price_gems", "Price in gems: " + games[i].priceInGems);
+				DataVault.Set("game_desc", games[i].description);
+				DataVault.Set("game_name", games[i].name);
+				DataVault.Set("image_name", games[i].name);
+				break;
+			}
+		}
+				
+		return true;
+	}
+	
     /// <summary>
     /// loads next game level and initializes game with some custom settings based on button pressed
     /// </summary>
