@@ -33,7 +33,15 @@ public class GameSelectPanel : HexPanel
         //generate some buttons
         for(int i=0; i<games.Count; i++)
         {
-            HexButtonData hbd = new HexButtonData();
+            
+            HexButtonData hbd = GetButtonAt(games[i].column, games[i].row);
+            //if we do not have button at provided coordinates we will create new button data for it
+            if (hbd == null)
+            {
+                hbd = new HexButtonData();    
+				buttonData.Add(hbd);
+            }
+            
             hbd.buttonName = games[i].name;
             hbd.column = games[i].column;
             hbd.row = games[i].row;
@@ -73,7 +81,7 @@ public class GameSelectPanel : HexPanel
 				}
 			}
 			
-            buttonData.Add(hbd);
+            
 
             
             /*if (UnityEngine.Random.Range(0.0f, 1.0f) > 0.5f ? true : false)

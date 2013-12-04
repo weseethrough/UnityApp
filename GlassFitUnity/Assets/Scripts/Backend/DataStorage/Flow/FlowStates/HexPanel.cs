@@ -247,4 +247,27 @@ public class HexPanel : Panel
             child.CheckLayer();
         }
     }
+
+    /// <summary>
+    /// Function which allows to check if data contains button at certain coordinate position to protect from double position usage
+    /// </summary>
+    /// <param name="column">column coordinate in hex menu</param>
+    /// <param name="row">row coordinate in hex menu. Note that in hexes row is a horisontal "zigzac" based on number elements from the center "zigzac" axis.</param>
+    /// <returns>true if slot is empty</returns>
+    public bool IsPositionEmpty(int column, int row)
+    {        
+        return GetButtonAt(column, row) == null;
+    }
+
+    /// <summary>
+    /// Finds button data bou to provided coordinates
+    /// </summary>
+    /// <param name="column">column coordinate in hex menu</param>
+    /// <param name="row">row coordinate in hex menu. Note that in hexes row is a horisontal "zigzac" based on number elements from the center "zigzac" axis.</param>
+    /// <returns>null if slot is empty, object if button data exist at provided coordinates</returns>
+    public HexButtonData GetButtonAt(int column, int row)
+    {
+        HexButtonData hbd = buttonData.Find(r => ((r.column == column) && (r.row == row)));
+        return hbd;
+    }
 }
