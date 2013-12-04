@@ -42,8 +42,17 @@ public class GameSelectPanel : HexPanel
                 hbd = new HexButtonData();
 				buttonData.Add(hbd);
             }
-             
-			
+            else
+            {
+                //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
+                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                if (oldConnection != null)
+                {
+                    gComponent.Data.Disconnect(oldConnection);
+                    Outputs.Remove(oldConnection);
+                }
+            }
+            
             hbd.buttonName = games[i].name;
             hbd.column = games[i].column;
             hbd.row = games[i].row;

@@ -1,15 +1,18 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public class TargetTracker : System.Object {
 	
 	public string name { get; set; }
+	public Dictionary<string, object> metadata { get; protected set; }
 	private AndroidJavaObject target;
 	private double targetDistance = 0;
 	
 	private TargetTracker(AndroidJavaObject target) {
 		this.target = target;
+		this.metadata = new Dictionary<string, object>();
 	}
 	
 	public static TargetTracker Build(AndroidJavaObject helper, float constantSpeed) {
