@@ -165,6 +165,12 @@ public class Platform : MonoBehaviour {
 				AwardPoints("Free points for devs", "Platform.cs", 10000);
 				// Cache the list of games and states from java
 		        GetGames();
+				
+				UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
+				UnityEngine.Debug.Log("Current game points: " + GetCurrentPoints());
+				UnityEngine.Debug.Log("Current gems: " + GetCurrentGemBalance());
+				UnityEngine.Debug.Log("Current metabolism: " + GetCurrentMetabolism());
+					
 				initialised = true;
         	}));
 			
@@ -684,7 +690,6 @@ public class Platform : MonoBehaviour {
 				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
 			}
 		} catch (Exception e) {
-			
 			UnityEngine.Debug.Log("Platform: Error getting position: " + e.Message);
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
@@ -703,6 +708,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error getting current activity points: " + e.Message);
 			DataVault.Set("points", -1);
 		}
+		
 		
 		try {
 			openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
@@ -746,12 +752,30 @@ public class Platform : MonoBehaviour {
 		return bearing;
 	}
 	
-	public long OpeningPointsBalance() {
+	public long GetOpeningPointsBalance() {
 		return openingPointsBalance;
 	}
 	
 	public long GetCurrentPoints() {
 		return currentActivityPoints;
+	}
+	
+	public int GetCurrentGemBalance() {
+		try {
+			return points_helper.Call<int>("getCurrentGemBalance");
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting current gem balance: " + e.Message);
+			return 0;
+		}
+	}
+	
+	public float GetCurrentMetabolism() {
+		try {
+			return points_helper.Call<float>("getCurrentMetabolism");
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting current metabolism: " + e.Message);
+			return 0;
+		}
 	}
 	
 	public void SetBasePointsSpeed(float speed) {

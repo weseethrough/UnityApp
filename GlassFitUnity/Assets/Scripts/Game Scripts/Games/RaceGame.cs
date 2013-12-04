@@ -405,7 +405,7 @@ public class RaceGame : MonoBehaviour {
 		if(Platform.Instance.Distance() / 1000 >= finish && !end)
 		{
 			end = true;
-			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
 			DataVault.Set("bonus", (int)finalBonus);
 			Platform.Instance.StopTrack();
 			GameObject h = GameObject.Find("minimap");
