@@ -28,7 +28,7 @@ public class HexPanel : Panel
     }
 
     /// <summary>
-    /// deserialziation constructor
+    /// deserialization constructor
     /// </summary>
     /// <param name="info">seirilization info conataining class data</param>
     /// <param name="ctxt">serialization context </param>
@@ -77,7 +77,7 @@ public class HexPanel : Panel
     }
 
     /// <summary>
-    /// initialzies node and creates name for it. Makes as well default iput/output connection sockets
+    /// initializes node and creates name for it. Makes as well default input/output connection sockets
     /// </summary>
     /// <returns></returns>
     protected override void Initialize()
@@ -97,8 +97,7 @@ public class HexPanel : Panel
     {
         base.RebuildConnections();
 
-        NewOutput(defaultExit, "Flow");
-		GConnector connection;
+        NewOutput(defaultExit, "Flow");		
     }
 
     /// <summary>
@@ -230,8 +229,8 @@ public class HexPanel : Panel
     /// <returns></returns>
     public override bool IsValid()
     {
-        //this panel is marked as invalid until some buttons are defined. It might be not the case later and condition changed.
-        return base.IsValid() && buttonData != null && buttonData.Count > 0;
+        //this panel could be invalid if no buttons are defined but because this screen is defined dynamically we might have screen with no buttons before runtime
+        return base.IsValid();
     }
 
     /// <summary>
@@ -247,5 +246,28 @@ public class HexPanel : Panel
         {
             child.CheckLayer();
         }
+    }
+
+    /// <summary>
+    /// Function which allows to check if data contains button at certain coordinate position to protect from double position usage
+    /// </summary>
+    /// <param name="column">column coordinate in hex menu</param>
+    /// <param name="row">row coordinate in hex menu. Note that in hexes row is a horisontal "zigzac" based on number elements from the center "zigzac" axis.</param>
+    /// <returns>true if slot is empty</returns>
+    public bool IsPositionEmpty(int column, int row)
+    {        
+        return GetButtonAt(column, row) == null;
+    }
+
+    /// <summary>
+    /// Finds button data bou to provided coordinates
+    /// </summary>
+    /// <param name="column">column coordinate in hex menu</param>
+    /// <param name="row">row coordinate in hex menu. Note that in hexes row is a horisontal "zigzac" based on number elements from the center "zigzac" axis.</param>
+    /// <returns>null if slot is empty, object if button data exist at provided coordinates</returns>
+    public HexButtonData GetButtonAt(int column, int row)
+    {
+        HexButtonData hbd = buttonData.Find(r => ((r.column == column) && (r.row == row)));
+        return hbd;
     }
 }

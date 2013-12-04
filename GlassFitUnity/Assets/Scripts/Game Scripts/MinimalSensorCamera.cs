@@ -15,12 +15,45 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private bool gridOn = false;
 	private float gridTimer = 0.0f;
 	private bool timerActive = false;
+	private float yRotate = 0f;
 
 	// Set the grid and scale values
 	void Start () {
 		grid.SetActive(false);
 		scaleX = (float)Screen.width / 800.0f;
 		scaleY = (float)Screen.height / 500.0f;
+	}
+	
+	void ResetGyro() 
+	{
+#if !UNITY_EDITOR
+		// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
+		if(timerActive) {
+			gridOn = false;
+		} else {
+			offsetFromStart = Platform.Instance.GetOrientation();
+			Platform.Instance.ResetGyro();
+			gridOn = true;
+			gridTimer = 5.0f;
+			timerActive = true;
+		}
+			
+//		
+//		}
+//		else if(Event.current.type == EventType.Repaint)
+//		{
+//			// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
+//			if(gridOn)
+//			{
+//				timerActive = true;
+//			} else
+//			{
+//				gridTimer = 0.0f;
+//				timerActive = false;
+//			}
+//				
+//		}
+#endif
 	}
 	
 	/// <summary>
@@ -31,16 +64,19 @@ public class MinimalSensorCamera : MonoBehaviour {
 		// Set the offset if it hasn't been set already, doesn't work in Start() function
 		if(!started)
 		{
+#if !UNITY_EDITOR
 			offsetFromStart = Platform.Instance.GetOrientation();
 			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			Platform.Instance.ResetGyro();
 			started = true;
+#endif
 		}
 		
 		// Set the new GUI matrix based on scale and the depth
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX, scaleY, 1));		
 		GUI.depth = 7;
 		
+#if !UNITY_EDITOR
 		if(!started) {
 			if(GUI.Button(new Rect(200, 0, 400, 500), "", GUIStyle.none)) {
 				started = true;
@@ -73,6 +109,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 				}
 			}	
 		}
+#endif
 		GUI.matrix = Matrix4x4.identity;
 	}
 	
@@ -80,8 +117,19 @@ public class MinimalSensorCamera : MonoBehaviour {
 	/// Update this instance. Updates the rotation
 	/// </summary>
 	void Update () {
+		
+#if !UNITY_EDITOR
 		// Set the new rotation of the camera
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+#else
+		if(Input.GetKeyDown("space")) {
+			yRotate += 180f;
+			if(yRotate >= 360f) {
+				yRotate -= 360f;
+			}
+			transform.rotation = Quaternion.Euler(0, yRotate, 0);
+		}
+#endif
 		
 		// If the timer and grid are on, countdown the timer and switch it off if the timer runs out
 		if(timerActive && gridOn)
@@ -95,7 +143,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 		
 		grid.SetActive(gridOn);
-
-		transform.rotation =  newOffset;		
+		
+#if !UNITY_EDITOR
+		transform.rotation =  newOffset;	
+#endif
 	}
 }

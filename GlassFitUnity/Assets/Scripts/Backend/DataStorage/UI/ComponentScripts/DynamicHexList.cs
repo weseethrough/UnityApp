@@ -197,6 +197,10 @@ public class DynamicHexList : MonoBehaviour
                 if (spr.name == "Foreground")
                 {
                     spr.gameObject.SetActive(GetButtonData()[buttonNextEnterIndex].locked);
+                    if (GetButtonData()[buttonNextEnterIndex].locked)
+                    {
+                        Debug.Log("Button Locked at column: " + GetButtonData()[buttonNextEnterIndex].column + " row: " + GetButtonData()[buttonNextEnterIndex].row);
+                    }
                     break;
                 }
             }
@@ -211,7 +215,7 @@ public class DynamicHexList : MonoBehaviour
         //				ResetGyro();
         //			}
         //		}
-
+        
         //if button enter delay is below 0 at this stage then screen has finished loading
         if (parent.state == FlowState.State.Idle && guiCamera != null)
         {
@@ -223,9 +227,9 @@ public class DynamicHexList : MonoBehaviour
                 float pitchHeight;
 				Vector2 newCameraOffset; 
 				ConvertOrientation(Platform.Instance.GetOrientation(), out newCameraOffset);
-				float depth = -0.75f;//guiCamera.transform.position.z;
+				Vector3 camPos = guiCamera.transform.position;
 				newCameraOffset -= cameraMoveOffset;
-                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, depth);
+                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, camPos.z);
 #endif
             /*}
             else

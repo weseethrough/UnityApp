@@ -89,17 +89,14 @@ public class RaceGame : MonoBehaviour {
 		
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
-		
-		if (challenges.Count != 0) {
-			indoor = false;
-			DataVault.Set("indoor_text", "Outdoor Active");
-		}
-		
+				
 		// Set indoor mode
+#if !UNITY_EDITOR
 		Platform.Instance.SetIndoor(indoor);
 		Platform.Instance.StopTrack();
 		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
+#endif
 		
 		end = false;
 		
@@ -133,13 +130,14 @@ public class RaceGame : MonoBehaviour {
 		cyclistHolder.SetActive(false);
 		runnerHolder.SetActive(false);
 		
+#if !UNITY_EDITOR
 		// TODO: Move tracker creation to a button/flow and keep this class generic
 		if (Platform.Instance.targetTrackers.Count == 0) {
 			Platform.Instance.CreateTargetTracker(targSpeed);
 			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
 			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
 		} // else trackers created earlier
-		
+#endif
 		InstantiateActors();
 
 //		GetComponent<GetTrack>().setActive(false);
@@ -179,6 +177,7 @@ public class RaceGame : MonoBehaviour {
 		
 		if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
+#if !UNITY_EDITOR
 			Platform.Instance.Reset();
 			Platform.Instance.ResetTargets();
 					
@@ -186,10 +185,13 @@ public class RaceGame : MonoBehaviour {
 				Platform.Instance.CreateTargetTracker(targSpeed);
 			}
 					
+#endif
 			InstantiateActors();
 			
-			Platform.Instance.SetIndoor(indoor);
-				
+#if !UNITY_EDITOR
+			Platform.Instance.SetIndoor(indoor);			
+#endif
+			
 			// Start countdown again
 			started = false;
 			countdown = false;
@@ -200,7 +202,11 @@ public class RaceGame : MonoBehaviour {
 			changed = false;
 		} else {
 			// Else restart tracking
+#if !UNITY_EDITOR
 			Platform.Instance.StartTrack();
+#else
+			PlatformDummy.Instance.StartTrack();
+#endif
 		}
 	}
 	
@@ -308,8 +314,11 @@ public class RaceGame : MonoBehaviour {
 	}
 	
 	protected void UpdateAhead() {
+#if !UNITY_EDITOR
 		double targetDistance = Platform.Instance.GetHighestDistBehind();
-		
+#else
+		double targetDistance = PlatformDummy.Instance.DistanceBehindTarget();
+#endif
 		if (targetDistance > 0) {
 			DataVault.Set("ahead_header", "Behind!");
 			DataVault.Set("ahead_col_header", "D20000FF");
@@ -323,6 +332,8 @@ public class RaceGame : MonoBehaviour {
 	}
 	
 	void Update () {
+		
+#if !UNITY_EDITOR
 		Platform.Instance.Poll();
 		
 		DataVault.Set("calories", Platform.Instance.Calories().ToString());
@@ -334,14 +345,33 @@ public class RaceGame : MonoBehaviour {
 		DataVault.Set("rawdistance", Platform.Instance.Distance());
 		DataVault.Set("rawtime", Platform.Instance.Time());
 		
+		UpdateLeaderboard();
+#else
+		PlatformDummy.Instance.Poll();
+		
+		DataVault.Set("calories", PlatformDummy.Instance.Calories().ToString());
+		DataVault.Set("pace", PlatformDummy.Instance.Pace().ToString("f2") + "m/s");
+		DataVault.Set("distance", SiDistance(PlatformDummy.Instance.Distance()));
+		DataVault.Set("time", TimestampMMSSdd( PlatformDummy.Instance.Time()));
+		DataVault.Set("indoor_text", indoorText);
+		
+		DataVault.Set("rawdistance", PlatformDummy.Instance.Distance());
+		DataVault.Set("rawtime", PlatformDummy.Instance.Time());
+#endif
 		// TODO: Toggle based on panel type
 		UpdateAhead();
-		UpdateLeaderboard();
+		
 		
 		// TODO: Multiple minimap targets
+#if !UNITY_EDITOR
 		double targetDistance = Platform.Instance.GetHighestDistBehind();
 		Position position = Platform.Instance.Position();
 		float bearing = Platform.Instance.Bearing();
+#else
+		double targetDistance = PlatformDummy.Instance.DistanceBehindTarget();
+		Position position = PlatformDummy.Instance.Position();
+		float bearing = PlatformDummy.Instance.Bearing();
+#endif
 		double bearingRad = bearing*Math.PI/180;
 		if (position != null) {
 			// Fake target coord using distance and bearing
@@ -350,6 +380,7 @@ public class RaceGame : MonoBehaviour {
 		}
 		
 		// If there is a GPS lock or indoor mode is active
+#if !UNITY_EDITOR
 		if(Platform.Instance.HasLock() || indoor)
 		{
 			// Initiate the countdown
@@ -410,6 +441,68 @@ public class RaceGame : MonoBehaviour {
 		{
 			DataVault.Set("ending_bonus", "");
 		}
+#else
+		if(PlatformDummy.Instance.HasLock()) 
+		{
+			countdown = true;
+		 	if(countTime <= -1.0f && !started)
+			{
+				PlatformDummy.Instance.StartTrack();
+				UnityEngine.Debug.LogWarning("Tracking Started");
+				
+//				float s = (targSpeed - 1.25f) / 9.15f;
+//		
+//				DataVault.Set("slider_val", s);
+				started = true;
+			}
+			else if(countTime > -1.0f)
+			{
+				UnityEngine.Debug.LogWarning("Counting Down");
+				countTime -= Time.deltaTime;
+			}
+		}
+		
+		if(PlatformDummy.Instance.Distance() / 1000 >= finish && !end)
+		{
+			end = true;
+			//DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+			//DataVault.Set("bonus", (int)finalBonus);
+			PlatformDummy.Instance.StopTrack();
+			GameObject h = GameObject.Find("minimap");
+			h.renderer.enabled = false;
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
+			if(gConect != null) {
+				fs.parentMachine.FollowConnection(gConect);
+			} else {
+				UnityEngine.Debug.Log("Game: No connection found!");
+			}
+		}
+		
+		// Awards the player points for running certain milestones
+		if(PlatformDummy.Instance.Distance() >= bonusTarget)
+		{
+			int targetToKm = bonusTarget / 1000;
+			if(bonusTarget < finish * 1000) 
+			{
+				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
+			}
+			bonusTarget += 1000;
+			
+		}
+		
+		// Gives the player bonus points for sprinting the last 100m
+		if(PlatformDummy.Instance.Distance() >= (finish * 1000) - 100)
+		{
+			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
+			finalBonus -= 50f * Time.deltaTime;
+		}
+		else
+		{
+			DataVault.Set("ending_bonus", "");
+		}
+#endif	
+		
 	}
 	
 	string SiDistance(double meters) {
@@ -468,6 +561,7 @@ public class RaceGame : MonoBehaviour {
 			break;
 		}
 		
+#if !UNITY_EDITOR
 		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
 		int lane = 1;
 		foreach (TargetTracker tracker in trackers) {
@@ -478,6 +572,11 @@ public class RaceGame : MonoBehaviour {
 			actor.SetActive(true);
 			actors.Add(actor);
 		}
+#else
+		GameObject actorDummy = Instantiate(template) as GameObject;
+		actorDummy.SetActive(true);
+		actors.Add(actorDummy);
+#endif
 		UnityEngine.Debug.Log("RaceGame: instantiated actors");
 	}
 	

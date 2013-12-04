@@ -25,6 +25,21 @@ public class Game
 	{
 	}
 	
+	public Game(string gameID, string name, string activity, string description, string state, int tier, long priceInPoints, long priceInGems, string type, int column, int row)
+	{
+		this.gameId = gameID;
+		this.name = name;
+		this.activity = activity;
+		this.description = description;
+		this.state = state;
+		this.tier = tier;
+		this.priceInPoints = priceInPoints;
+		this.priceInGems = priceInGems;
+		this.type = type;
+		this.column = column;
+		this.row = row;
+	}
+	
 	/// <summary>
 	/// Initialise this model with data from an equivalent Java game model
 	/// </summary>
@@ -64,6 +79,7 @@ public class Game
 	/// </summary>
 	public void Unlock ()
 	{
+#if !UNITY_EDITOR
 		try {
 			// JNI method to perforn the unlock transaction
 			AndroidJavaObject updatedJavaGame = javaGame.Call<AndroidJavaObject> ("unlock");
@@ -73,6 +89,9 @@ public class Game
 			UnityEngine.Debug.LogWarning ("Game: Error unlocking game: " + gameId);
 			UnityEngine.Debug.LogException (e);
 		}
+#else
+		state = "unlocked";
+#endif
 	}
 	
 }
