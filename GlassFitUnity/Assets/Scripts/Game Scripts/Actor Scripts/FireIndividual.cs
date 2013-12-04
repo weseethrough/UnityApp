@@ -11,7 +11,7 @@ public class FireIndividual : MonoBehaviour {
 	public float scaleVariance = 1.0f;
 	public float moveVariance = 1.0f;
 	
-	public float baseScale = 60000;
+	public float baseScale = 1;
 	/// <summary>
 	/// Start this instance. Pick randomised variations for frequency and amplitudes
 	/// </summary>
@@ -23,14 +23,22 @@ public class FireIndividual : MonoBehaviour {
 		moveAmplitude = moveAmplitude + Random.Range (-moveVariance, moveVariance);
 	}
 	
-	// Update is called once per frame
+/// <summary>
+/// Update this instance. perturb position of the child mesh. Perturb scale of this container object (so we can scale from the bottom, not the centre)
+/// </summary>
 	public virtual void Update () {
 		//perturb based on frequencies
-		transform.position = new Vector3( 	moveAmplitude * Mathf.Sin(Time.fixedTime/moveFrequency) + Random.Range(-moveVariance,moveVariance),
+		
+		
+		
+		transform.FindChild("FireMesh").transform.localPosition = new Vector3( 	moveAmplitude * Mathf.Sin(Time.time/moveFrequency) + Random.Range(-moveVariance,moveVariance),
 											0,
 											Random.Range(-moveVariance, moveVariance));
-		float scaleY =  scaleAmplitude * (1.0f +  scaleVariance * Mathf.Sin(Time.fixedTime) + Random.Range(-scaleVariance, scaleVariance) );
+		float scaleY =  scaleAmplitude * (1.0f +  scaleVariance * Mathf.Sin(Time.time) + Random.Range(-scaleVariance, scaleVariance) );
 		//transform.localScale = new Vector3( baseScale, baseScale * scaleY, baseScale);
-		transform.localScale = new Vector3(baseScale, baseScale, baseScale * scaleY);
+		transform.localScale = new Vector3(baseScale, baseScale * scaleY, baseScale);
+		
+		
+	
 	}
 }

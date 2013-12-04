@@ -32,4 +32,5 @@ public class FireController : TargetController {
 		base.Update();
 		//move to new position
 	}
+
 }
