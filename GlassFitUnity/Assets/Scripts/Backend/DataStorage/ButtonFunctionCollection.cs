@@ -283,23 +283,26 @@ public class ButtonFunctionCollection
     /// <returns>always allow further navigation</returns>
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
+		Debug.Log("EndGame called");
+		Track track = Platform.Instance.StopTrack();			
+		if (track != null) DataVault.Set("track", track);
+		else DataVault.Remove("track");		
+		
 		Platform.Instance.Reset();
 		Platform.Instance.ResetTargets();
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
 
-		Track track = Platform.Instance.StopTrack();			
-		if (track != null) DataVault.Set("track", track);
-		else DataVault.Remove("track");
-		
-		// TODO: Disable share and challenge hexes if (track == 0 || track.tracPosiitons.Count == 0)
+		// TODO: Disable share and challenge hexes if (track == 0 || track.tracPositoons.Count == 0)
 		
 		// Log attempts
-		List<Challenge> challenges = DataVault.Get("challenges") as List<Challenge>;
+		List<Challenge> challenges = DataVault.Get("challenges") as List<Challenge>;		
 		if (challenges != null && challenges.Count > 0) {
 			double? distance = DataVault.Get("rawdistance") as double?;
 			long? time = DataVault.Get("rawtime") as long?;
+			Notification[] notifications = Platform.Instance.Notifications();
 			
 			if (track != null && track.trackPositions.Count > 0) {
+				User me = Platform.Instance.User();
 				foreach (Challenge generic in challenges) {
 					if (generic is DistanceChallenge) {
 						DistanceChallenge challenge = generic as DistanceChallenge;
@@ -310,6 +313,34 @@ public class ButtonFunctionCollection
 							'track_id' : [ {1}, {2} ]
 						}}", challenge.id, track.deviceId, track.trackId).Replace("'", "\""));
 						Debug.Log ("Challenge: attempt " + track.deviceId + "-" + track.trackId + " logged for " + challenge.id);
+					}
+					// Mark challenge notification as handled and challenge back
+					foreach (Notification notification in notifications) {
+						if (notification.read) continue;
+						if (string.Equals(notification.node["type"], "challenge")) {
+							string challengeId = notification.node["challenge_id"].ToString();
+							if (challengeId == null || challengeId.Length == 0) continue;
+//							if (challengeId.Contains("$oid")) challengeId = notification.node["challenge_id"]["$oid"].ToString();
+//							challengeId = challengeId.Replace("\"", "");
+//							Debug.Log(challengeId + " vs " + generic.id);
+							// TODO: Standardize oids
+							if (!challengeId.Equals(generic.id)) continue;
+							
+							notification.setRead(true);
+							
+							int challengerId = notification.node["from"].AsInt;
+							if (challengerId == 0) continue;
+							if (me != null && me.id == challengerId) continue;
+							// Challenge challenger back
+							Platform.Instance.QueueAction(string.Format(@"{{
+								'action' : 'challenge',
+								'target' : {0},
+								'taunt' : 'Defend thy honour, scoundrel!',
+								'challenge' : {{
+                                        '_id' : {1}
+								}}
+							}}", challengerId, challengeId).Replace("'", "\""));
+						}
 					}
 				}
 				Platform.Instance.SyncToServer();					
@@ -377,7 +408,7 @@ public class ButtonFunctionCollection
 			return false; // TODO: Allow solo rounds?
 		}
 		if (track.trackPositions.Count == 0) {
-			Platform.Instance.message = "Can't challenge with empty track";			
+			Platform.Instance.message = "Can't challenge with empty track " + track.deviceId + "-" + track.trackId;			
 			return false; // TODO: Remove track?		
 		}
 		Friend friend = DataVault.Get("current_friend") as Friend;
@@ -457,8 +488,8 @@ public class ButtonFunctionCollection
 					int? finish = null;
 					
 					Notification[] notifications = Platform.Instance.Notifications();
-					Debug.Log("AcceptChallenges: notes: " + notifications.Length);
 					foreach (Notification notification in notifications) {
+						if (notification.read) continue;
 						if (string.Equals(notification.node["type"], "challenge")) {
 							int challengerId = notification.node["from"].AsInt;
 							if (challengerId == null) continue;
@@ -483,7 +514,6 @@ public class ButtonFunctionCollection
 									User challenger = Platform.Instance.GetUser(challengerId);
 									tracker.name = challenger.username;
 									if (tracker.name == null || tracker.name.Length == 0) tracker.name = challenger.name;
-									tracker.metadata.Add("challenger", challenger);
 								} // else race leader/friends/creator?
 			
 								relevant.Add(challenge); 					

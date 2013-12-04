@@ -41,7 +41,7 @@ public class MessageWidget : MonoBehaviour
 
     enum State
     {
-        iddle,
+        idle,
         opening,
         showing,
         closing,
@@ -72,8 +72,8 @@ public class MessageWidget : MonoBehaviour
             iconSprite = icon.GetComponentInChildren<UISprite>();
         }
 
-        currentState = State.iddle;
-         
+        currentState = State.idle;         
+        messageStack = new List<MessageData>();
   //      AddMessage("CONGRATULATIONS!", "This is my content", "activity_bike");
   //      AddMessage("HEY!", "You have just get invited", "activity_run");
     }
@@ -111,7 +111,6 @@ public class MessageWidget : MonoBehaviour
         md.atlas = atlasContainingIcon;
         md.iconName = iconName;
 
-        if (messageStack == null) messageStack = new List<MessageData>();
         messageStack.Add(md);
     }
 
@@ -124,7 +123,7 @@ public class MessageWidget : MonoBehaviour
         switch (currentState)
         {
 
-            case State.iddle:
+            case State.idle:
                 if ( messageStack.Count > 0)
                 {
                     currentAnimation = messageStack[0];
@@ -250,7 +249,7 @@ public class MessageWidget : MonoBehaviour
         currentState = (State)((int)currentState + 1);
         if (currentState == State.maxStates)
         {
-            currentState = State.iddle;
+            currentState = State.idle;
         }
     }
 }

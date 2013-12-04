@@ -111,10 +111,12 @@ public class Platform : MonoBehaviour {
 		if (onSync != null) onSync();
 		/// TEMP
 		Notification[] notes = Notifications();
-		if (notes.Length > 0) {
-			notesLabel = notes[notes.Length-1].ToString() + "\n" + notes.Length + " notifications";
+		int unread = 0;
+		foreach (Notification note in notes) if(!note.read) unread++;
+		if (unread > 0) {
+			notesLabel = notes[notes.Length-1].ToString() + "\n" + notes.Length + " unread notifications";
 		} else {
-			notesLabel = "No notifications";
+			notesLabel = "No unread notifications";
 		}
 		/// TEMP
 	}
@@ -525,9 +527,9 @@ public class Platform : MonoBehaviour {
 				int length = list.Call<int>("size");
 				Notification[] notifications = new Notification[length];
 				for (int i=0;i<length;i++) {
-					using (AndroidJavaObject p = list.Call<AndroidJavaObject>("get", i)) {
-						notifications[i] = new Notification(p.Get<string>("id"), p.Get<bool>("read"), p.Get<string>("message"));
-					}
+					AndroidJavaObject p = list.Call<AndroidJavaObject>("get", i);
+					notifications[i] = new Notification(p.Get<string>("id"), p.Get<bool>("read"), p.Get<string>("message"));
+					notifications[i].ajo = p; // Store java handle, TODO: Only when not read so as to save handles?
 				}
 				UnityEngine.Debug.LogWarning("Platform: " + notifications.Length + " notifications fetched");
 				return notifications;
