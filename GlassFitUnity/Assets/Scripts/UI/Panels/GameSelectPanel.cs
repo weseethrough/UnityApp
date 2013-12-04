@@ -39,10 +39,11 @@ public class GameSelectPanel : HexPanel
             //if we do not have button at provided coordinates we will create new button data for it
             if (hbd == null)
             {
-                hbd = new HexButtonData();    
+                hbd = new HexButtonData();
 				buttonData.Add(hbd);
             }
-            
+             
+			
             hbd.buttonName = games[i].name;
             hbd.column = games[i].column;
             hbd.row = games[i].row;
@@ -59,11 +60,14 @@ public class GameSelectPanel : HexPanel
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
             gc.EventFunction = "SetType";
 			
+			gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
+			
 			if(games[i].state == "locked")
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
 				{
+					UnityEngine.Debug.Log("Game: Unlock exit set");
 					gComponent.Data.Connect(gc, unlockExit.Link[0]);
 				}
 			}
@@ -76,6 +80,7 @@ public class GameSelectPanel : HexPanel
 			} 
 			else if(games[i].type == "Pursuit") 
 			{
+				UnityEngine.Debug.Log("Game: Pursuit exit set");
 				if(pursuitExit.Link.Count > 0) 
 				{
 					gComponent.Data.Connect(gc, pursuitExit.Link[0]);

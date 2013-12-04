@@ -26,6 +26,7 @@ public class PlatformDummy : MonoBehaviour {
 	private static PlatformDummy _instance;
 	private bool initialised = false;
 	private static object _lock = new object();
+	private List<Game> games;
 	
 	public static PlatformDummy Instance {
 		get {
@@ -77,6 +78,31 @@ public class PlatformDummy : MonoBehaviour {
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
 		Directory.CreateDirectory(blobassets);
 		UnityEngine.Debug.Log("Editor blobstore: " + blobstore + ", blobassets: " + blobassets);
+		
+		games = new List<Game>(7);
+		
+		Game current = new Game("Race Yourself (run)", "activity_run","run", "Run against an avatar that follows your previous track","unlocked",1,0,0, "Race", 0, 0);
+		games.Add(current);
+		
+		current = new Game("Switch to cycle mode (run)","activity_bike","run","Switch to cycle mode","locked",1,1000,0, "Race", 1, 0);
+        games.Add(current);
+		
+		current = new Game("Zombies 1","activity_zombie","run","Get chased by zombies","locked",2,50000,0, "Pursuit", 0, -1);
+        games.Add(current);
+		
+		current = new Game("Boulder 1","activity_boulder","run","Run against an avatar that follows your previous track","locked",1,10000,0, "Pursuit", -1, 0);
+        games.Add(current);
+		
+		current = new Game("Dinosaur 1","activity_dinosaurs","run","Run against an avatar that follows your previous track","locked",3,100000,0, "Pursuit", 0, 1);
+        games.Add(current);
+		
+		current = new Game("Eagle 1","activity_eagle","run","Run against an avatar that follows your previous track","locked",2,70000,0, "Pursuit", -1, 1);
+        games.Add(current);
+		
+		current = new Game("Train 1","activity_train","run","Run against an avatar that follows your previous track","locked",2,20000,0, "Pursuit", 1, 1);
+		games.Add(current);
+		
+		
 		initialised = true;
 	}
 	
@@ -202,29 +228,7 @@ public class PlatformDummy : MonoBehaviour {
 	}
 	
 	public List<Game> GetGames() {
-		List<Game> games = new List<Game>(7);
-		
-		Game current = new Game("Race Yourself (run)", "activity_run","run", "Run against an avatar that follows your previous track","unlocked",1,0,0, "Race", 0, 0);
-		games.Add(current);
-		
-		current = new Game("Switch to cycle mode (run)","activity_bike","run","Switch to cycle mode","locked",1,1000,0, "Race", 1, 0);
-        games.Add(current);
-		
-		current = new Game("Zombies 1","activity_zombie","run","Get chased by zombies","locked",2,50000,0, "Pursuit", 0, -1);
-        games.Add(current);
-		
-		current = new Game("Boulder 1","activity_boulder","run","Run against an avatar that follows your previous track","locked",1,10000,0, "Pursuit", -1, 0);
-        games.Add(current);
-		
-		current = new Game("Dinosaur 1","activity_dinosaurs","run","Run against an avatar that follows your previous track","locked",3,100000,0, "Pursuit", 0, 1);
-        games.Add(current);
-		
-		current = new Game("Eagle 1","activity_eagle","run","Run against an avatar that follows your previous track","locked",2,70000,0, "Pursuit", -1, 1);
-        games.Add(current);
-		
-		current = new Game("Train 1","activity_train","run","Run against an avatar that follows your previous track","locked",2,20000,0, "Pursuit", 1, 1);
-		games.Add(current);
-		
+
 		return games;
 	}
 }

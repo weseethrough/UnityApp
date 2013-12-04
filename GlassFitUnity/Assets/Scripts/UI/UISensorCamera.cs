@@ -74,6 +74,19 @@ public class UISensorCamera : MonoBehaviour {
 		GUI.matrix = Matrix4x4.identity;
 	}
 	
+	void ResetGyro()
+	{
+#if !UNITY_EDITOR
+		Platform.Instance.ResetGyro();
+		offsetFromStart = Platform.Instance.GetOrientation();
+		DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
+        foreach (DynamicHexList dhl in lists)
+        {
+            dhl.ResetGyro();
+        }
+#endif
+	}
+	
 	/// <summary>
 	/// Update this instance. Sets the rotation of the camera from Platform
 	/// </summary>

@@ -132,6 +132,7 @@ public class ButtonFunctionCollection
 		{
 			if(games[i].name == fb.name)
 			{
+				DataVault.Set("actual_game", games[i]);
 				DataVault.Set("price_points", "Price in points: " + games[i].priceInPoints);
 				DataVault.Set("price_gems", "Price in gems: " + games[i].priceInGems);
 				DataVault.Set("game_desc", games[i].description);
@@ -179,7 +180,15 @@ public class ButtonFunctionCollection
 		
 		return true;
 	}
-
+	
+	static public bool Purchase(FlowButton fb, Panel panel)
+	{
+		Game current = (Game)DataVault.Get("actual_game");
+		UnityEngine.Debug.Log("Purchase: Game bought");
+		current.Unlock();
+		return true;
+	}
+	
     /// <summary>
     /// loads next game level and initializes game with some custom settings based on button pressed
     /// </summary>
