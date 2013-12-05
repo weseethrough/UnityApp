@@ -23,7 +23,9 @@ public class RaceGame : MonoBehaviour {
 	public enum ActorType
 	{
 		Runner			= 1,
-		Cyclist			= 2
+		Cyclist			= 2,
+		Mo				= 3,
+		Paula 			= 4
 	}
 	
 	// Minimap attributes
@@ -47,6 +49,8 @@ public class RaceGame : MonoBehaviour {
 	// Holds actor templates
 	public GameObject cyclistHolder;
 	public GameObject runnerHolder;
+	public GameObject moHolder;
+	public GameObject paulaHolder;
 	
 	// Holds actor instances
 	public List<GameObject> actors = new List<GameObject>();
@@ -86,7 +90,7 @@ public class RaceGame : MonoBehaviour {
 	
 	void Start () {
 		finish = (int)DataVault.Get("finish");
-		
+		UnityEngine.Debug.Log("RaceGame: finish distance is " + finish);
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
 				
@@ -124,6 +128,18 @@ public class RaceGame : MonoBehaviour {
 		case "Cyclist":
 			currentActorType = ActorType.Cyclist;
 			break;
+			
+		case "Mo":
+			currentActorType = ActorType.Mo;
+			DataVault.Set("slider_val", 0.525f);
+			targSpeed = 6.059f;
+			break;
+			
+		case "Paula":
+			currentActorType = ActorType.Paula;
+			DataVault.Set("slider_val", 0.4f);
+			targSpeed = 4.91f;
+			break;
 		}
 		
 		// Set templates' active status
@@ -132,11 +148,10 @@ public class RaceGame : MonoBehaviour {
 		
 #if !UNITY_EDITOR
 		// TODO: Move tracker creation to a button/flow and keep this class generic
-		if (Platform.Instance.targetTrackers.Count == 0) {
-			Platform.Instance.CreateTargetTracker(targSpeed);
-			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
-			Platform.Instance.CreateTargetTracker(targSpeed+0.3f);
-		} // else trackers created earlier
+		//if (Platform.Instance.targetTrackers.Count == 0) {
+		Platform.Instance.ResetTargets();
+		Platform.Instance.CreateTargetTracker(targSpeed);
+		//} // else trackers created earlier
 #endif
 		InstantiateActors();
 
@@ -405,7 +420,7 @@ public class RaceGame : MonoBehaviour {
 		if(Platform.Instance.Distance() / 1000 >= finish && !end)
 		{
 			end = true;
-			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
 			DataVault.Set("bonus", (int)finalBonus);
 			Platform.Instance.StopTrack();
 			GameObject h = GameObject.Find("minimap");
@@ -423,7 +438,7 @@ public class RaceGame : MonoBehaviour {
 		if(Platform.Instance.Distance() >= bonusTarget)
 		{
 			int targetToKm = bonusTarget / 1000;
-			if(bonusTarget < finish * 1000) 
+			if(bonusTarget < finish) 
 			{
 				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
 			}
@@ -432,7 +447,7 @@ public class RaceGame : MonoBehaviour {
 		}
 		
 		// Gives the player bonus points for sprinting the last 100m
-		if(Platform.Instance.Distance() >= (finish * 1000) - 100)
+		if(Platform.Instance.Distance() >= finish - 100)
 		{
 			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
 			finalBonus -= 50f * Time.deltaTime;
@@ -462,7 +477,7 @@ public class RaceGame : MonoBehaviour {
 			}
 		}
 		
-		if(PlatformDummy.Instance.Distance() / 1000 >= finish && !end)
+		if(PlatformDummy.Instance.Distance() >= finish && !end)
 		{
 			end = true;
 			//DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
@@ -483,7 +498,7 @@ public class RaceGame : MonoBehaviour {
 		if(PlatformDummy.Instance.Distance() >= bonusTarget)
 		{
 			int targetToKm = bonusTarget / 1000;
-			if(bonusTarget < finish * 1000) 
+			if(bonusTarget < finish) 
 			{
 				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
 			}
@@ -492,7 +507,7 @@ public class RaceGame : MonoBehaviour {
 		}
 		
 		// Gives the player bonus points for sprinting the last 100m
-		if(PlatformDummy.Instance.Distance() >= (finish * 1000) - 100)
+		if(PlatformDummy.Instance.Distance() >= finish - 100)
 		{
 			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
 			finalBonus -= 50f * Time.deltaTime;
@@ -555,6 +570,11 @@ public class RaceGame : MonoBehaviour {
 			break;
 		case ActorType.Cyclist:
 			template = cyclistHolder;
+			break;
+		case ActorType.Mo:
+			template = moHolder;
+			targSpeed = 6.059f;
+			DataVault.Set("slider_val", 0.525f);
 			break;
 		default:
 			throw new NotImplementedException("Unknown actor type: " + currentActorType);

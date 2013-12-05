@@ -380,7 +380,25 @@ public class DynamicHexList : MonoBehaviour
             }
         }
     }
-
+	
+	/// <summary>
+	/// Enters the currently selected game.
+	/// </summary>
+	public void EnterGame()
+	{
+		FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
+        if (fb != null)
+        {
+			guiCamera.transform.position =  new Vector3(0, 0, -1.5f);
+            parent.OnClick(fb);
+        }
+	}
+	
+	public void GoBack()
+	{
+		parent.OnBack();
+	}
+	
     /// <summary>
     /// Cleans up elements from the screen preparing for recreation
     /// </summary>
