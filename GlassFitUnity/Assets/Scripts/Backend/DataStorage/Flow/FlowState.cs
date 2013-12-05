@@ -24,6 +24,14 @@ public abstract class FlowState : GNode
     private State m_state;   
     private FlowState m_parent;    
     private List<FlowState> m_children;
+    private Vector2 m_minimumChildBorder = new Vector2(100, 40);
+    private Vector2 m_toParentOffest;
+
+    public UnityEngine.Vector2 ParentOffest
+    {
+        get { return m_toParentOffest; }
+        set { m_toParentOffest = value; }
+    }
 
     public FlowState.State state
     {
@@ -49,13 +57,31 @@ public abstract class FlowState : GNode
     public FlowState() : base() { }
 
     /// <summary>
-    /// deserialziation constructor
+    /// deserialization constructor
     /// </summary>
     /// <param name="info">seirilization info conataining class data</param>
     /// <param name="ctxt">serialization context </param>
     /// <returns></returns>
     public FlowState(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt)
 	{
+        foreach (SerializationEntry entry in info)
+        {
+            switch (entry.Name)
+            {
+                case "parent":
+                    this.m_parent = entry.Value as FlowState;
+                    break;
+                case "children":
+                    this.m_children = entry.Value as List<FlowState>;
+                    break;
+                case "ParentOffsetX":
+                    this.m_toParentOffest.x = (float)entry.Value;
+                    break;
+                case "ParentOffsetY":
+                    this.m_toParentOffest.y = (float)entry.Value;
+                    break;                
+            }
+        }
     }
 
     /// <summary>
@@ -67,6 +93,11 @@ public abstract class FlowState : GNode
     public override void GetObjectData(SerializationInfo info, StreamingContext ctxt)
    	{
         base.GetObjectData(info, ctxt);
+
+        info.AddValue("parent", this.m_parent);
+        info.AddValue("children", this.m_children);
+        info.AddValue("ParentOffsetX", this.m_toParentOffest.x);
+        info.AddValue("ParentOffsetY", this.m_toParentOffest.y);
    	}
 
 
@@ -113,4 +144,106 @@ public abstract class FlowState : GNode
         Size = new Vector2(160, 80);
     }
 
+    /// <summary>
+    /// Allows to add state as a child to current state
+    /// </summary>
+    /// <param name="child">state to be linked as a child to this one</param>
+    /// <returns></returns>
+    public void AddChild(FlowState child)
+    {
+        if (child.parent != null)
+        {
+            FlowState p = child.parent;
+            p.RemoveChild(child);
+            p.UpdateSize();
+        }
+
+        child.parent = this;
+        children.Add(child);
+        child.ParentOffest = child.Position - Position;
+        UpdateSize();
+    }
+
+    /// <summary>
+    /// Remove child from this state
+    /// </summary>
+    /// <param name="child">child to get removed from children list</param>
+    /// <returns></returns>
+    public void RemoveChild(FlowState child)
+    {
+        if (children.Contains(child))
+        {
+            children.Remove(child);
+            child.parent = null;
+            UpdateSize();
+        }        
+    }
+
+    /// <summary>
+    /// screen might have dynamic number of exits(and buttons) so it need function which updates its size dynamically as well
+    /// </summary>
+    /// <returns></returns>
+    public void UpdateSize()
+    {
+        int count = Mathf.Max(Inputs.Count, Outputs.Count);
+
+        int height = Mathf.Max(count * LineHeight + TitleHeight, 80);
+        Size.y = height;
+        Size.x = 175 + ((Inputs.Count > 0 && Outputs.Count > 0) ? 75 : 0); 
+        
+        foreach (FlowState child in children)
+        {
+            Position.x = Mathf.Min(child.Position.x - m_minimumChildBorder.x, Position.x);
+            Position.y = Mathf.Min(child.Position.y - m_minimumChildBorder.y, Position.y);
+            Size.x = Mathf.Max(child.Position.x - Position.x + child.Size.x + m_minimumChildBorder.x, Size.x);
+            Size.y = Mathf.Max(child.Position.y - Position.y + child.Size.y + m_minimumChildBorder.y, Size.y);
+        }
+
+        //cascade updates to the parents, update offset as well
+        if (parent != null)
+        {
+            parent.UpdateSize();
+            ParentOffest = Position - parent.Position;
+        }
+        		
+    }
+
+    /// <summary>
+    /// Functionality which moves node with content to new position or updates offset to the parent to new value
+    /// </summary>
+    /// <param name="fromOffset">True would update postion based on offset and parent position. False would save new offest to the parent</param>
+    /// <returns></returns>
+    public void UpdatePosition(bool fromOffset)
+    {        
+        if (parent != null)
+        {
+            if (fromOffset)
+            {
+                Position = parent.Position + ParentOffest;
+            }
+            else
+            {
+                ParentOffest = Position - parent.Position;
+            }
+        }
+
+        foreach (FlowState child in children)
+        {            
+            child.UpdatePosition(true);
+        }                                
+    }
+
+    /// <summary>
+    /// Find state among children and children of the children etc.
+    /// </summary>
+    /// <param name="fs">searched state</param>
+    /// <returns>true if state is found</returns>
+    public bool InChildSubtree(FlowState fs)
+    {
+        foreach (FlowState child in children)
+        {
+            if (child == fs || child.InChildSubtree(fs)) return true;            
+        }
+        return false;
+    }
 }

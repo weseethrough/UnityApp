@@ -28,36 +28,52 @@ public class PlatformDummy : MonoBehaviour {
 	private static object _lock = new object();
 	private List<Game> games;
 	
-	public static PlatformDummy Instance {
-		get {
+	public static PlatformDummy Instance 
+    {
+		get 
+        {
 //			if(applicationIsQuitting) {
 //				UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
 //				return null;
 //			}
-			lock(_lock) {
-				if(_instance == null) {
-					_instance = (PlatformDummy) FindObjectOfType(typeof(PlatformDummy));
-					if(FindObjectsOfType(typeof(PlatformDummy)).Length >= 1) {
-						for(int i=0; i < FindObjectsOfType(typeof(PlatformDummy)).Length; i++)
+			lock(_lock) 
+            {
+				if(_instance == null) 
+                {
+					
+                    PlatformDummy[] pDummies = FindObjectsOfType(typeof(PlatformDummy)) as PlatformDummy[];
+                    int count = pDummies.Length;
+					if(count >= 1) 
+                    {
+                        if (count > 1)
+                        {
+                            UnityEngine.Debug.Log("Singleton: there is more than one singleton");
+                        }
+
+						for(int i=1; i < count; i++)
 						{
 							GameObject plat = GameObject.Find("PlatformDummy");
 							Destroy(plat);
 						}
-						UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-						_instance = null; 
-						//return _instance;
+
+                        _instance = FindObjectOfType(typeof(PlatformDummy)) as PlatformDummy;	
 					}
-					if(_instance == null) {
+
+					if(_instance == null) 
+                    {
 						GameObject singleton = new GameObject();
 						_instance = singleton.AddComponent<PlatformDummy>();
 						singleton.name = "PlatformDummy"; // Used as target for messages
 						
 						DontDestroyOnLoad(singleton);
-					} else {
+					} 
+                    else 
+                    {
 						UnityEngine.Debug.Log("Singleton: already exists!!");
 					}
 				}
-				while(!_instance.initialised) {
+				while(!_instance.initialised) 
+                {
 					continue;
 				}
 					return _instance;
