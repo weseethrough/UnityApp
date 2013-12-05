@@ -18,7 +18,7 @@ public class UpdateFPS : MonoBehaviour {
 	{
 		if(Time.timeSinceLevelLoad - currentTime <= 1.0f)
 		{
-			fps++;	
+			fps++;
 		}
 		else
 		{
@@ -28,6 +28,6 @@ public class UpdateFPS : MonoBehaviour {
 		}
 		
 		//update the database value
-		DataVault.Set("fps", fps);
+		DataVault.Set("fps", lastFPS);
 	}
 }
