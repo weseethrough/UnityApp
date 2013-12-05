@@ -122,12 +122,23 @@ public class MinimalSensorCamera : MonoBehaviour {
 		// Set the new rotation of the camera
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
 #else
-		if(Input.GetKeyDown("space")) {
+		if(Input.GetKeyDown(KeyCode.B)) {
 			yRotate += 180f;
 			if(yRotate >= 360f) {
 				yRotate -= 360f;
 			}
 			transform.rotation = Quaternion.Euler(0, yRotate, 0);
+		}
+		
+		if(Input.GetKeyDown(KeyCode.G))
+		{
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConect = fs.Outputs.Find(r => r.Name == "straightPursuitExit");
+			if(gConect != null) {
+				fs.parentMachine.FollowConnection(gConect);
+			} else {
+				UnityEngine.Debug.Log("Game: No connection found!");
+			}
 		}
 #endif
 		

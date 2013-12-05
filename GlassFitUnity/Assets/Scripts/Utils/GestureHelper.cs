@@ -41,7 +41,21 @@ public class GestureHelper : MonoBehaviour {
 	
 	// Get a fling down message and set the timer
 	void flingDown(string message) {
+		GameObject scene = GameObject.Find("UIScene");
+		DynamicHexList list = scene.GetComponentInChildren<DynamicHexList>();
+		if(list != null) {
+			list.GoBack();
+		}
 		
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		
+		GConnector gConect = fs.Outputs.Find(r => r.Name == "MenuButton");
+		if(gConect != null) {
+			fs.parentMachine.FollowConnection(gConect);
+		}
+		
+		
+		UnityEngine.Debug.Log("Message Obtained: Fling down");
 	}
 	
 	void Update () {
