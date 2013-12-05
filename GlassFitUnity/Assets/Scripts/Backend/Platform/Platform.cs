@@ -811,4 +811,29 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	/// <summary>
+	/// Use this method to award the user gems.
+	/// </summary>
+	/// <param name='reason'>
+	/// Reason that the gems are being awarded, e.g. "race completion".
+	/// </param>
+	/// <param name='gameId'>
+	/// Game identifier so we can log which game the gems came from.
+	/// </param>
+	/// <param name='gems'>
+	/// Number of gems to award.
+	/// </param>
+	public void AwardGems(String reason, String gameId, int gems)
+	{
+		try
+		{
+			points_helper.Call("awardGems", "in-game bonus", reason, gameId, points);
+			UnityEngine.Debug.Log("Platform: " + gameId + " awarded " + gems + " gem(s) for " + reason);
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.Log("Platform: Error awarding " + reason + " of " + gems + " gems in " + gameId);
+		}
+	}	
+	
 }
