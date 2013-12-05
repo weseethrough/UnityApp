@@ -150,7 +150,7 @@ public class PursuitGame : MonoBehaviour {
 #if !UNITY_EDITOR
 		finish = (int)DataVault.Get("finish");		
 #else
-		finish = 5;
+		finish = 5000;
 #endif
 		DataVault.Set("slider_val", 0.8f);
 		
@@ -336,7 +336,7 @@ public class PursuitGame : MonoBehaviour {
 			}
 		}
 		
-		if(Platform.Instance.Distance() / 1000 >= finish)
+		if(Platform.Instance.Distance() >= finish)
 		{
 			Platform.Instance.StopTrack();
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
@@ -386,7 +386,7 @@ public class PursuitGame : MonoBehaviour {
 		if(Platform.Instance.Distance() >= bonusTarget)
 		{
 			int targetToKm = bonusTarget / 1000;
-			if(bonusTarget < finish * 1000) 
+			if(bonusTarget < finish) 
 			{
 				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
 			}
@@ -394,7 +394,7 @@ public class PursuitGame : MonoBehaviour {
 			
 		}
 		
-		if(Platform.Instance.Distance() >= (finish * 1000) - 100)
+		if(Platform.Instance.Distance() >= finish - 100)
 		{
 			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
 			finalBonus -= 50f * Time.deltaTime;
@@ -457,7 +457,7 @@ public class PursuitGame : MonoBehaviour {
 			}
 		}
 		
-		if(PlatformDummy.Instance.Distance() / 1000 >= finish)
+		if(PlatformDummy.Instance.Distance() >= finish)
 		{
 			PlatformDummy.Instance.StopTrack();
 			//DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
@@ -507,7 +507,7 @@ public class PursuitGame : MonoBehaviour {
 		if(PlatformDummy.Instance.Distance() >= bonusTarget)
 		{
 			int targetToKm = bonusTarget / 1000;
-			if(bonusTarget < finish * 1000) 
+			if(bonusTarget < finish ) 
 			{
 				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
 			}
@@ -515,7 +515,7 @@ public class PursuitGame : MonoBehaviour {
 			
 		}
 		
-		if(PlatformDummy.Instance.Distance() >= (finish * 1000) - 100)
+		if(PlatformDummy.Instance.Distance() >= finish - 100)
 		{
 			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
 			finalBonus -= 50f * Time.deltaTime;

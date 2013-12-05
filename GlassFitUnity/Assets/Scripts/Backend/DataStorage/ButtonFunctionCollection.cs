@@ -67,6 +67,30 @@ public class ButtonFunctionCollection
 		return false; 
 	}
 	
+	static public bool SetCeleb(FlowButton fb, Panel panel)
+	{
+		switch(fb.name)
+		{
+		case "activity_farah":
+			DataVault.Set("type", "Mo");
+			DataVault.Set("finish", 10000);
+			AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+			break;
+			
+		case "activity_paula_radcliffe":
+			DataVault.Set("type", "Paula");
+			DataVault.Set("finish", 42195);
+			AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+			break;
+			
+		default:
+			return false;
+			break;
+		}
+		
+		return true;
+	}
+	
 	/// <summary>
 	/// sets type f the challenge based on button which provided event
 	/// </summary>
@@ -141,7 +165,7 @@ public class ButtonFunctionCollection
 				DataVault.Set("price_points", "Price in points: " + games[i].priceInPoints);
 				DataVault.Set("price_gems", "Price in gems: " + games[i].priceInGems);
 				DataVault.Set("game_desc", games[i].description);
-				DataVault.Set("game_name", games[i].name);
+				DataVault.Set("game_name", games[i].gameId);
 				DataVault.Set("image_name", games[i].name);
 				break;
 			}
@@ -163,23 +187,23 @@ public class ButtonFunctionCollection
 		switch(fb.name) 
 		{
 		case "1km":
-			DataVault.Set("finish", 1);
+			DataVault.Set("finish", 1000);
 			break;
 			
 		case "2km":
-			DataVault.Set("finish", 2);
+			DataVault.Set("finish", 2000);
 			break;
 			
 		case "3km":
-			DataVault.Set("finish", 3);
+			DataVault.Set("finish", 3000);
 			break;
 			
 		case "4km":
-			DataVault.Set("finish", 4);
+			DataVault.Set("finish", 4000);
 			break;
 			
 		case "5km":
-			DataVault.Set("finish", 5);
+			DataVault.Set("finish", 5000);
 			break;
 		}
 		
@@ -206,23 +230,23 @@ public class ButtonFunctionCollection
 		
 		switch(fb.name) {
 		case "1km":
-			DataVault.Set("finish", 1);
+			DataVault.Set("finish", 1000);
 			break;
 			
 		case "2km":
-			DataVault.Set("finish", 2);
+			DataVault.Set("finish", 2000);
 			break;
 			
 		case "3km":
-			DataVault.Set("finish", 3);
+			DataVault.Set("finish", 3000);
 			break;
 			
 		case "4km":
-			DataVault.Set("finish", 4);
+			DataVault.Set("finish", 4000);
 			break;
 			
 		case "5km":
-			DataVault.Set("finish", 5);
+			DataVault.Set("finish", 5000);
 			break;
 		}
 		return true;
@@ -260,7 +284,7 @@ public class ButtonFunctionCollection
 		Platform.Instance.ResetTargets();
 		DataVault.Remove("challenges");
 		
-		DataVault.Set("finish", 1);
+		DataVault.Set("finish", 1000);
 		Platform.Instance.CreateTargetTracker(2.01f);
 		Platform.Instance.CreateTargetTracker(1.9f);
 		Platform.Instance.CreateTargetTracker(2.2f);

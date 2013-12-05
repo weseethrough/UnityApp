@@ -13,6 +13,11 @@ public class GestureHelper : MonoBehaviour {
 	
 	// Get a tapping message and set the timer
 	void isTap(string message) {
+		GameObject hex = GameObject.Find("UIScene");
+		DynamicHexList list = hex.GetComponentInChildren<DynamicHexList>();
+		if(list != null) {
+			list.EnterGame();
+		}
 		BroadcastMessage("ResetGyro");
 		UnityEngine.Debug.Log("Message Obtained: Tap");
 	}

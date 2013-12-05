@@ -22,6 +22,7 @@ public class GameSelectPanel : HexPanel
         GConnector pursuitExit = Outputs.Find(r => r.Name == "pursuitExit");
 		GConnector challengeExit = Outputs.Find (r => r.Name == "challengeExit");
 		GConnector unlockExit = Outputs.Find (r => r.Name == "unlockExit");
+		GConnector celebExit = Outputs.Find (r => r.Name == "celebExit");
 
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
@@ -103,45 +104,16 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, challengeExit.Link[0]);
 				}
 			}
-			
-            
-
-            
-            /*if (UnityEngine.Random.Range(0.0f, 1.0f) > 0.5f ? true : false)
-            {                
-                if (activityExit.Link.Count > 0)
-                {
-                    gComponent.Data.Connect(gc, activityExit.Link[0]); 
-                }
-            }
-            else if (UnityEngine.Random.Range(0.0f, 1.0f) > 0.5f ? true : false)
-            {                
-                if (unlockExit.Link.Count > 0)
-                {
-                    gComponent.Data.Connect(gc, unlockExit.Link[0]); 
-                }
-            }
-            else if (gComponent != null)*/
-//            {
-//                foreach (GNode node in gComponent.Data.Nodes)
-//                {
-//                    GParameter gName = node.Parameters.Find(r => r.Key == "Name");
-//                    if (gName.Value == "TargetScreen" && node.Inputs.Count > 0)
-//                    {
-//                        GConnector enter = node.Inputs[0];
-//                        gComponent.Data.Connect(gc, enter);                        
-//                    }
-//                }
-//                
-//            }
-            
-          //  gc.Link.Add()
+			else if(games[i].type == "Celebrity")
+			{
+				gc.EventFunction = "SetCeleb";
+				if(celebExit.Link.Count > 0)
+				{
+					gComponent.Data.Connect(gc, celebExit.Link[0]);
+				}
+			}
 
         }
-
-        //addConnections
-
-        
 
         base.EnterStart();   
     }
