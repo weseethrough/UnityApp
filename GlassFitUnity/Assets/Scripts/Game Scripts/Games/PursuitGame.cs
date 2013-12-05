@@ -339,7 +339,7 @@ public class PursuitGame : MonoBehaviour {
 		if(Platform.Instance.Distance() >= finish)
 		{
 			Platform.Instance.StopTrack();
-			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
 			DataVault.Set("ahead_col_box", "19D200EE");
 			DataVault.Set("ahead_col_header", "19D200FF");
 			DataVault.Set("finish_header", "You survived...for now");
@@ -368,7 +368,7 @@ public class PursuitGame : MonoBehaviour {
 				countdown = false;
 				countTime = 3.0f;
 			} else {
-				DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.OpeningPointsBalance());
+				DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
 				DataVault.Set("ahead_col_header", "D20000FF");
 				DataVault.Set("ahead_col_box", "D20000EE");
 				DataVault.Set("finish_header", "You died!");
