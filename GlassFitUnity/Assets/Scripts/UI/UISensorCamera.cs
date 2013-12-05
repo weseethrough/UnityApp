@@ -96,6 +96,7 @@ public class UISensorCamera : MonoBehaviour {
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
 
 		transform.rotation = newOffset;
+		
 #endif
     }
 }
