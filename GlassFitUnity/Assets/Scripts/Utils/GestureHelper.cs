@@ -18,7 +18,16 @@ public class GestureHelper : MonoBehaviour {
 		if(list != null) {
 			list.EnterGame();
 		}
+		
 		BroadcastMessage("ResetGyro");
+
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		
+		GConnector gConect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+		if(gConect != null) {
+			fs.parentMachine.FollowConnection(gConect);
+		}
+		
 		UnityEngine.Debug.Log("Message Obtained: Tap");
 	}
 	
@@ -54,6 +63,10 @@ public class GestureHelper : MonoBehaviour {
 			fs.parentMachine.FollowConnection(gConect);
 		}
 		
+		gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
+		if(gConect != null) {
+			fs.parentMachine.FollowConnection(gConect);
+		}
 		
 		UnityEngine.Debug.Log("Message Obtained: Fling down");
 	}
