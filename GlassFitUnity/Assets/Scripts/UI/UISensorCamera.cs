@@ -12,6 +12,10 @@ public class UISensorCamera : MonoBehaviour {
 	private bool started = false;
 	private Vector3 scale;
 	
+	private GestureHelper.OnTap tapHandler = null;
+	
+	private GestureHelper.OnSwipeLeft backHandler = null;
+	
 	/// <summary>
 	/// Start this instance. Sets the scale for OnGUI
 	/// </summary>
@@ -20,6 +24,27 @@ public class UISensorCamera : MonoBehaviour {
 		scale.x = (float)Screen.width / 800.0f;
 		scale.y = (float)Screen.height / 500.0f;
     	scale.z = 1;
+		
+		tapHandler = new GestureHelper.OnTap(() => {
+			ResetGyroGlass();
+		});
+		GestureHelper.onTap += tapHandler;
+		
+		backHandler = new GestureHelper.OnSwipeLeft(() => {
+			GoBack();
+		});
+		
+		GestureHelper.swipeLeft += backHandler;
+	}
+	
+	void GoBack() 
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		
+		GConnector gConect = fs.Outputs.Find(r => r.Name == "MenuButton");
+		if(gConect != null) {
+			fs.parentMachine.FollowConnection(gConect);
+		}
 	}
 	
 	/// <summary>
@@ -74,6 +99,11 @@ public class UISensorCamera : MonoBehaviour {
 		GUI.matrix = Matrix4x4.identity;
 	}
 	
+	void ResetGyroGlass()
+	{
+		ResetGyro();
+	}
+	
 	void ResetGyro()
 	{
 #if !UNITY_EDITOR
@@ -99,4 +129,9 @@ public class UISensorCamera : MonoBehaviour {
 		
 #endif
     }
+	
+	void OnDestroy() {
+		GestureHelper.onTap -= tapHandler;
+		GestureHelper.swipeLeft -= backHandler;
+	}
 }
