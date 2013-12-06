@@ -28,6 +28,7 @@ public class PlatformDummy : Platform {
 	private static object _lock = new object();
 	private List<Game> games;
 	
+	/*
 	public static PlatformDummy Instance {
 		get {
 //			if(applicationIsQuitting) {
@@ -64,6 +65,7 @@ public class PlatformDummy : Platform {
 			}
 		}
 	}
+	*/
 	
 	private static bool applicationIsQuitting = false;
 	
@@ -280,7 +282,7 @@ public class PlatformDummy : Platform {
 	/**
 	 * Editor-specific function. 
 	 */
-	public void StoreBlobAsAsset(string id, byte[] blob) {
+	public override void StoreBlobAsAsset(string id, byte[] blob) {
 		File.WriteAllBytes(Path.Combine(blobassets, id), blob);
 	}
 	
@@ -301,7 +303,6 @@ public class PlatformDummy : Platform {
 		//}
 	}
 	
-	
 	public override User User() {
 		return null;	
 	}
@@ -311,7 +312,7 @@ public class PlatformDummy : Platform {
 	}
 	
 	//specific to the platform dummy (ideally this would be provided by a TargetTracker dummy object)
-	public float GetTargetSpeed() {
+	public override float GetTargetSpeed() {
 		return targetSpeed;
 	}
 	
@@ -325,7 +326,7 @@ public class PlatformDummy : Platform {
 		return DistanceBehindTarget();
 	}
 	
-	public float DistanceBehindTarget() {
+	public override float DistanceBehindTarget() {
 		return target - distance;
 	}
 	

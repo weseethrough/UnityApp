@@ -612,7 +612,13 @@ public class Platform : MonoBehaviour {
 	public virtual void ReadNotification(string id) {
 		throw new NotImplementedException("Iterate through notifications and setRead(true) or add setRead(id) helper method?");
 	}
-		
+
+	//used by PlatformDummy
+	public virtual void StoreBlobAsAsset(string id, byte[] blob) {
+		return;
+	}
+
+	
 	// Store the blob
 	public virtual void StoreBlob(string id, byte[] blob) {
 		try {
@@ -623,6 +629,11 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		}
 	}
+	
+	public virtual float DistanceBehindTarget() {
+		return GetLowestDistBehind();	
+	}
+
 	
 	public virtual float GetHighestDistBehind() {
 		if(targetTrackers.Count <= 0)
@@ -648,6 +659,16 @@ public class Platform : MonoBehaviour {
 			}
 		}
 		return l;
+	}
+	
+	/// <summary>
+	/// Currently used by some of the games in the editor only.
+	/// </summary>
+	/// <returns>
+	/// The target speed.
+	/// </returns>
+	public virtual float GetTargetSpeed() {
+		return 0;	
 	}
 	
 	// Update the data
