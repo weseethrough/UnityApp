@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public class HexPanel : Panel 
 {
-    public const string CAMERA_3D_LAYER = "GUI3D";
+    public const string CAMERA_3D_LAYER = "GUI";
     const string defaultExit = "Default Exit";
 
     public List<HexButtonData> buttonData;        
@@ -112,8 +112,6 @@ public class HexPanel : Panel
         {
             DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));            
             list.SetParent(this);
-
-            ForceLayer();
         }
         
 
@@ -234,21 +232,6 @@ public class HexPanel : Panel
     }
 
     /// <summary>
-    /// function used to ensure components of this panel are rendered by specific camera
-    /// </summary>
-    /// <returns></returns>
-    public void ForceLayer()
-    {
-        //this is 3d interface so it should switch to use this layer
-        physicalWidgetRoot.layer = LayerMask.NameToLayer(CAMERA_3D_LAYER);
-        UIWidget[] children = physicalWidgetRoot.GetComponentsInChildren<UIWidget>();
-        foreach (UIWidget child in children)
-        {
-            child.CheckLayer();
-        }
-    }
-
-    /// <summary>
     /// Function which allows to check if data contains button at certain coordinate position to protect from double position usage
     /// </summary>
     /// <param name="column">column coordinate in hex menu</param>
@@ -278,5 +261,7 @@ public class HexPanel : Panel
     public override string GetWidgetRootName()
     {
         return "Widgets Container3D";
-    }
+    }
+
+
 }
