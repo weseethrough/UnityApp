@@ -28,11 +28,7 @@ public class FinishMarker : MonoBehaviour {
 	/// </summary>
 	void Update () {
 		// Get the current distance travelled.
-#if !UNITY_EDITOR
 		distance = Platform.Instance.Distance();
-#else
-		distance = PlatformDummy.Instance.Distance();
-#endif
 		// If the finish line is in range, display it.
 		if(distance > target - 100) 
 		{

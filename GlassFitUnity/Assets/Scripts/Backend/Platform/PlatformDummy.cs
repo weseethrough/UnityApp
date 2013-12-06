@@ -6,7 +6,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-public class PlatformDummy : MonoBehaviour {
+public class PlatformDummy : Platform {
 	
 	private Stopwatch timer = new Stopwatch();
 	private System.Random random = new System.Random();
@@ -108,22 +108,63 @@ public class PlatformDummy : MonoBehaviour {
 		current = new Game("Paula Radcliffe","activity_paula_radcliffe","run","Run a marathon with Paula Radcliffe! Try and beat her time at the 2007 NYC Marathon!","unlocked",2,20000,0, "Celebrity", 2, 1);
 		games.Add(current);
 		
+		//set the finish distance
+		DataVault.Set("finish", 5000);
+		
 		initialised = true;
 	}
 	
-	public void StartTrack() {
+	public override void StartTrack() {
+		//platform calls into the jar. We'll just start the stopwatch.
 		timer.Start();
 	}
 	
-	public Boolean HasLock() {
+	public override void SetIndoor(bool indoor) {
+		//nothing to do in dummy.
+		return;	
+	}
+	
+	public override void ResetTargets() {
+		//Nothing to do?
+		return;	
+	}
+	
+	public override TargetTracker CreateTargetTracker(float constantSpeed){
+		//don't want to create any target trackers in dummy.
+		return null;
+	}
+	
+	public override TargetTracker CreateTargetTracker(int deviceId, int trackId){
+		//don't want to create any target trackers in dummy.
+		return null;	
+	}
+	
+	public override Boolean HasLock() {
+		//always report that we have gps lock in editor
 		return true;
 	}
 	
-	public void StopTrack() {
+	public override Track StopTrack() {
 		timer.Stop();
+		return null;
+	}
+
+	public override void Authorize(string provider, string permissions) {
+		//ignore in dummy
+		return;
 	}
 	
-	public void Reset() {
+	public override bool HasPermissions(string provider, string permissions) {
+		//assume always have permissions in dummy
+		return true;
+	}
+	
+	public override void SyncToServer() {
+		//do nothing for dummy
+		return;	
+	}
+
+	public override void Reset() {
 		timer.Stop();
 		timer.Reset();
 		distance = 0;
@@ -131,17 +172,62 @@ public class PlatformDummy : MonoBehaviour {
 		target = 1;
 	}
 	
-	public void SetTargetSpeed(float speed)
-	{
-		throw new NotImplementedException();
+	public override Quaternion GetOrientation() {
+		//just return the identity quaternion, to look straight forward.
+		//might be useful to optionally have some wiggle on this in the future.
+		return Quaternion.identity;	
 	}
 	
-	public void SetTargetTrack(int trackID)
-	{
-		throw new NotImplementedException();
+	public override void ResetGyro() {
+		//do nothing
+		return;
 	}
 	
-	public Friend[] Friends() {
+	public override Challenge FetchChallenge(string id) {
+		//don't need any challenges in the dummy
+		return null;	
+	}
+
+	public override Track FetchTrack(int deviceID, int trackID) {
+		//don't need any tracks in the dummy.
+		return null;	
+	}
+	
+//	public void SetTargetSpeed(float speed)
+//	{
+//		throw new NotImplementedException();
+//	}
+//	
+//	public void SetTargetTrack(int trackID)
+//	{
+//		throw new NotImplementedException();
+//	}
+	
+	public override List<Track> GetTracks() {
+		//don't need any tracks in the dummy
+		return null;
+	}
+	
+	/// <summary>
+	/// Not too sure how TempGames differs from Games. AH
+	/// </summary>
+	/// <returns>
+	/// This function will simply return the games list for Platform Dummy, for now.
+	/// </returns>
+	public override List<Game> GetTempGames() {
+		return games;	
+	}
+	
+	public override List<Game> GetGames() {
+		return games;
+	}
+	
+	public override void QueueAction(string json) {
+		//do nothing
+		return;
+	}
+	
+	public override Friend[] Friends() {
 		var friend = @"{
 	        ""_id"": ""gplus107650962788507404146"",
 	        ""has_glass"": false,
@@ -155,8 +241,17 @@ public class PlatformDummy : MonoBehaviour {
 		friends[0] = new Friend(friend);
 		return friends;
 	}
+
+	public override Notification[] Notifications ()
+	{
+		return null;
+	}
 	
-	public byte[] LoadBlob(string id) {
+	public override void ReadNotification(string id) {
+		return;	
+	}
+	
+	public override byte[] LoadBlob(string id) {
 		try {
 			UnityEngine.Debug.Log("PlatformDummy: Trying id: " + id);
 			if (!File.Exists(Path.Combine(blobstore, id))) {
@@ -168,14 +263,20 @@ public class PlatformDummy : MonoBehaviour {
 		}
 	}
 	
-	public void StoreBlob(string id, byte[] blob) {
+	public override void StoreBlob(string id, byte[] blob) {
 		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
 	}
 	
-	public void EraseBlob(string id) {
+	public override void EraseBlob(string id) {
 		File.Delete(Path.Combine(blobstore, id));
 	}
 		
+	public override void ResetBlobs ()
+	{
+		//Not entirely sure what this is supposed to do. Wil do nothing for now. AH
+		return;
+	}
+	
 	/**
 	 * Editor-specific function. 
 	 */
@@ -183,7 +284,7 @@ public class PlatformDummy : MonoBehaviour {
 		File.WriteAllBytes(Path.Combine(blobassets, id), blob);
 	}
 	
-	public void Poll() {
+	public override void Poll() {
 		if (!timer.IsRunning) return;
 		//if (Time() - update > 1000) { 
 			distance += 4f * UnityEngine.Time.deltaTime;
@@ -200,40 +301,80 @@ public class PlatformDummy : MonoBehaviour {
 		//}
 	}
 	
+	
+	public override User User() {
+		return null;	
+	}
+	
+	public override User GetUser(int userID) {
+		return null;	
+	}
+	
+	//specific to the platform dummy (ideally this would be provided by a TargetTracker dummy object)
 	public float GetTargetSpeed() {
 		return targetSpeed;
+	}
+	
+	public override float GetHighestDistBehind ()
+	{
+		return DistanceBehindTarget();
+	}
+	
+	public override float GetLowestDistBehind ()
+	{
+		return DistanceBehindTarget();
 	}
 	
 	public float DistanceBehindTarget() {
 		return target - distance;
 	}
 	
-	public long Time() {
+	public override long Time() {
 		return timer.ElapsedMilliseconds;
 	}
 	
-	public float Distance() {
+	public override double Distance() {
 		return distance;
 	}
 	
-	public int Calories() {
+	public override int Calories() {
 		return (int)(factor * weight * distance/1000);
 	}
 	
-	public float Pace() {
+	public override float Pace() {
+		return 1.0f;
+	}
+
+	public override int GetCurrentGemBalance ()
+	{
+		//give lots of gems for testing in editor
+		return 100;
+	}
+	
+	public override float GetCurrentMetabolism ()
+	{
+		//return a default value
 		return 1.0f;
 	}
 	
-	public Position Position() {
-		return position;
-	}	
-	
-	public float Bearing() {
-		return bearing;
+	public override void SetBasePointsSpeed (float speed)
+	{
+		//do nothing
+		return;
 	}
 	
-	public List<Game> GetGames() {
-
-		return games;
+	public override void AwardPoints (string reason, string gameId, long points)
+	{
+		//do nothing
+		return;
 	}
+	
+	public override void AwardGems (string reason, string gameId, int gems)
+	{
+		//do nothing
+		return;
+	}
+	
+	
+	
 }
