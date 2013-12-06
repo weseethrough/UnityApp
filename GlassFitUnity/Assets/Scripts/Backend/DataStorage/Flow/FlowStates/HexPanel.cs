@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public class HexPanel : Panel 
 {
-    public const string CAMERA_3D_LAYER = "GUI";
+    public const string CAMERA_3D_LAYER = "GUI3D";
     const string defaultExit = "Default Exit";
 
     public List<HexButtonData> buttonData;        
@@ -270,4 +270,13 @@ public class HexPanel : Panel
         HexButtonData hbd = buttonData.Find(r => ((r.column == column) && (r.row == row)));
         return hbd;
     }
+
+    /// <summary>
+    /// Overridden version of widget root name. Allows to differ widget root designed for 3d assets
+    /// </summary>
+    /// <returns>const name widget root name</returns>
+    public override string GetWidgetRootName()
+    {
+        return "Widgets Container3D";
+    }
 }

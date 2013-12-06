@@ -63,7 +63,7 @@ public abstract class FlowState : GNode
     /// <param name="ctxt">serialization context </param>
     /// <returns></returns>
     public FlowState(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt)
-	{
+	{        
         foreach (SerializationEntry entry in info)
         {
             switch (entry.Name)
