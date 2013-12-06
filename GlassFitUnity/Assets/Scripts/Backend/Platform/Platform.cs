@@ -134,6 +134,11 @@ public class Platform : MonoBehaviour {
 		}
 		/// TEMP
 	}
+	
+	public void OnActionIntent(string message) {
+		UnityEngine.Debug.Log("Platform: action " + message); 
+		this.message = message;
+	}
 
 	/// TEMP
 	public virtual void OnGUI() {
