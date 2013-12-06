@@ -31,7 +31,7 @@ public class GameBase : MonoBehaviour {
 	public GameObject finishMarker;	
 	
 	// Distance the player wants to run
-	protected int targetDistance;
+	protected int finish;
 	
 	List<Challenge> challenges;
 	
@@ -69,9 +69,9 @@ public class GameBase : MonoBehaviour {
 	{
 		//Get target distance
 #if !UNITY_EDITOR
-		targetDistance = (int)DataVault.Get("finish");
+		finish = (int)DataVault.Get("finish");
 #else
-		UnityEngine.Debug.Log("RaceGame: finish distance is " + targetDistance);
+		UnityEngine.Debug.Log("RaceGame: finish distance is " + finish);
 #endif	
 		//retrieve or create list of challenges
 		challenges = DataVault.Get("challenges") as List<Challenge>;
@@ -260,7 +260,7 @@ public class GameBase : MonoBehaviour {
 		
 		//if we're finished, hide the map, and progress to the finished menu
 		//currently firing when targetDistance is 0...
-		if(Platform.Instance.Distance() / 1000 >= targetDistance && !hasEnded)
+		if(Platform.Instance.Distance() / 1000 >= finish && !hasEnded)
 		{
 			hasEnded = true;
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());

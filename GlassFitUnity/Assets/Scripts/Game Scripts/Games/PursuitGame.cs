@@ -79,9 +79,9 @@ public class PursuitGame : GameBase {
 
 		//if we've gone straight to game, pick a 5km run
 #if !UNITY_EDITOR
-		targetDistance = (int)DataVault.Get("finish");		
+		finish = (int)DataVault.Get("finish");		
 #else
-		targetDistance = 5000;
+		finish = 5000;
 #endif
 		
 		DataVault.Set("slider_val", 0.8f);
@@ -151,7 +151,7 @@ public class PursuitGame : GameBase {
 		if(Platform.Instance.Distance() >= bonusTarget)
 		{
 			int targetToKm = bonusTarget / 1000;
-			if(bonusTarget < targetDistance) 
+			if(bonusTarget < finish) 
 			{
 				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
 			}
@@ -159,7 +159,7 @@ public class PursuitGame : GameBase {
 			
 		}
 		
-		if(Platform.Instance.Distance() >= targetDistance - 100)
+		if(Platform.Instance.Distance() >= finish - 100)
 		{
 			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
 			finalBonus -= 50f * Time.deltaTime;
