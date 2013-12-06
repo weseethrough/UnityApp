@@ -832,7 +832,7 @@ public class Platform : MonoBehaviour {
 	{
 		try
 		{
-			points_helper.Call("awardGems", "in-game bonus", reason, gameId, points);
+			points_helper.Call("awardGems", "in-game bonus", reason, gameId, gems);
 			UnityEngine.Debug.Log("Platform: " + gameId + " awarded " + gems + " gem(s) for " + reason);
 		}
 		catch (Exception e)
