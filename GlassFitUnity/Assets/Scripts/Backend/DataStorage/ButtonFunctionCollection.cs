@@ -83,6 +83,18 @@ public class ButtonFunctionCollection
 			AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
 			break;
 			
+		case "activity_chris_hoy":
+			DataVault.Set("type", "Chris");
+			DataVault.Set("finish", 1000);
+			AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+			break;
+			
+		case "activity_bradley_wiggins":
+			DataVault.Set("type", "Bradley");
+			DataVault.Set("finish", 4000);
+			AutoFade.LoadLevel(1, 0.1f, 0.1f, Color.black);
+			break;
+			
 		default:
 			return false;
 			break;
