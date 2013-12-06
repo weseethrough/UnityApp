@@ -11,20 +11,43 @@ using SimpleJSON;
 /// </summary>
 public class GestureHelper : MonoBehaviour {
 	
+	public delegate void OnTap();
+	public static OnTap onTap = null;
+	
+	public delegate void OnSwipeLeft();
+	public static OnSwipeLeft swipeLeft = null;
+	
 	// Get a tapping message and set the timer
 	void isTap(string message) {
-		GameObject hex = GameObject.Find("UIScene");
-		DynamicHexList list = hex.GetComponentInChildren<DynamicHexList>();
-		if(list != null) {
-			list.EnterGame();
+		UnityEngine.Debug.Log("GestureHelper: Tap received - processing");
+		if(onTap != null) {
+			UnityEngine.Debug.Log("GestureHelper: Adding to the delegate");
+			onTap();
 		}
-		BroadcastMessage("ResetGyro");
+//		GameObject hex = GameObject.Find("UIScene");
+//		DynamicHexList list = hex.GetComponentInChildren<DynamicHexList>();
+//		if(list != null) {
+//			list.EnterGame();
+//		}
+//		
+//		BroadcastMessage("ResetGyro");
+//
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		
+//		GConnector gConect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+//		if(gConect != null) {
+//			fs.parentMachine.FollowConnection(gConect);
+//		}
+		
 		UnityEngine.Debug.Log("Message Obtained: Tap");
 	}
 	
 	// Get a fling left message and set the timer
 	void flingLeft(string message) {
-		
+		if(swipeLeft != null) {
+			UnityEngine.Debug.Log("GestureHelper: Swipe left setting");
+			swipeLeft();
+		}
 		UnityEngine.Debug.Log("Message Obtained: Fling Left");
 	}
 	
@@ -41,19 +64,28 @@ public class GestureHelper : MonoBehaviour {
 	
 	// Get a fling down message and set the timer
 	void flingDown(string message) {
-		GameObject scene = GameObject.Find("UIScene");
-		DynamicHexList list = scene.GetComponentInChildren<DynamicHexList>();
-		if(list != null) {
-			list.GoBack();
+//		GameObject scene = GameObject.Find("UIScene");
+//		DynamicHexList list = scene.GetComponentInChildren<DynamicHexList>();
+//		if(list != null) {
+//			list.GoBack();
+//		}
+//		Input.GetTouch(0);
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		
+//		GConnector gConect = fs.Outputs.Find(r => r.Name == "MenuButton");
+//		if(gConect != null) {
+//			fs.parentMachine.FollowConnection(gConect);
+//		}
+//		
+//		gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
+//		if(gConect != null) {
+//			fs.parentMachine.FollowConnection(gConect);
+//		}
+		
+		if(swipeLeft != null) {
+			UnityEngine.Debug.Log("GestureHelper: Swipe down setting");
+			swipeLeft();
 		}
-		
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		
-		GConnector gConect = fs.Outputs.Find(r => r.Name == "MenuButton");
-		if(gConect != null) {
-			fs.parentMachine.FollowConnection(gConect);
-		}
-		
 		
 		UnityEngine.Debug.Log("Message Obtained: Fling down");
 	}

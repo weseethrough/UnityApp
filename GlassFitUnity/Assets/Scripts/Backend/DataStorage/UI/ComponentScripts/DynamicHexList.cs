@@ -37,6 +37,10 @@ public class DynamicHexList : MonoBehaviour
     Vector2 draggingStartPos = Vector2.zero;
     bool dragging = false;
     int draggingFingerID = -1;
+	
+	private GestureHelper.OnTap tapHandler = null;
+	
+	private GestureHelper.OnSwipeLeft leftHandler = null;
 
 
     /// <summary>
@@ -91,7 +95,19 @@ public class DynamicHexList : MonoBehaviour
             }*/
 
         }
-
+		
+		tapHandler = new GestureHelper.OnTap(() => {
+			EnterGame();
+		});
+		
+		GestureHelper.onTap += tapHandler;
+		
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			GoBack();
+		});
+		
+		GestureHelper.swipeLeft += leftHandler;
+		
         InitializeItems();
     }
 
@@ -650,6 +666,9 @@ public class DynamicHexList : MonoBehaviour
                 guiCamera.transform.position = cameraPosition;
             }
         }
+		
+		GestureHelper.onTap -= tapHandler;
+		GestureHelper.swipeLeft -= leftHandler;
     }
 
 }
