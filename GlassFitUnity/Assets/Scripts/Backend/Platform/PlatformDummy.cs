@@ -102,10 +102,19 @@ public class PlatformDummy : MonoBehaviour {
 		current = new Game("Train 1","activity_train","run","Run away from a train!","locked",2,20000,0, "Pursuit", 1, 1);
 		games.Add(current);
 		
-		current = new Game("Mo Farah","activity_farah","run","Run against Mo Farah! Try and beat his almost world record 10km!","unlocked",2,70000,0, "Celebrity", 2, 0);
+		current = new Game("Mo Farah","activity_farah","run","Run against Mo Farah! See how you compare to his 2012 Olympic time!","unlocked",2,70000,0, "Celebrity", 2, 0);
         games.Add(current);
 		
 		current = new Game("Paula Radcliffe","activity_paula_radcliffe","run","Run a marathon with Paula Radcliffe! Try and beat her time at the 2007 NYC Marathon!","unlocked",2,20000,0, "Celebrity", 2, 1);
+		games.Add(current);
+		
+		current = new Game("Chris Hoy", "activity_chris_hoy", "run", "Cycle with Chris Hoy, in his almost record breaking 1km cycle in 2007", "unlocked", 2, 10000, 0, "Celebrity", 2, -1);
+        games.Add(current);
+		
+		current = new Game("Bradley Wiggins", "activity_bradley_wiggins", "cycle", "Participate in a 4km pursuit race with Bradley Wiggins on his 2008 Olympics gold medal time", "unlocked", 2, 10000, 0, "Celebrity", 1, -1);
+        games.Add(current);
+		
+		current = new Game("Fire", "activity_fire", "run", "Know what's good on a barbeque? Burgers. Know what isn't? You. So run before you get burned.", "unlocked", 2, 10000, 0, "Pursuit", 1, 2);
 		games.Add(current);
 		
 		initialised = true;
