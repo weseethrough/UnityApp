@@ -174,7 +174,12 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: getting current activity");
 			activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			
-			UnityEngine.Debug.Log("Platform: getting application context");
+			try {
+				activity.Call("onResume");
+			} catch (Exception e) {
+				UnityEngine.Debug.Log("Platform: onresume Didn't work, try again");
+			}
+			
 			context = activity.Call<AndroidJavaObject>("getApplicationContext");
 			
 			UnityEngine.Debug.Log("Platform: creating helper AndroidJavaClass");
@@ -302,7 +307,17 @@ public class Platform : MonoBehaviour {
 	// Returns the target tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual TargetTracker CreateTargetTracker(float constantSpeed){
-		TargetTracker t = TargetTracker.Build(helper, constantSpeed);
+		FauxTargetTracker t;
+		try {
+			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getFauxTargetTracker", constantSpeed);
+			if (ajo.GetRawObject().ToInt32() == 0) return null;
+			UnityEngine.Debug.LogWarning("TargetTracker: faux target tracker obtained");
+			t = new FauxTargetTracker(ajo);
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("TargetTracker: Helper.getFauxTargetTracker() failed" + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return null;
+		}
 		if (t == null) return null;
 		targetTrackers.Add(t);
 		return t;
@@ -899,5 +914,4 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error awarding " + reason + " of " + gems + " gems in " + gameId);
 		}
 	}	
-	
 }

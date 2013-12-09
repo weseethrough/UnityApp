@@ -7,6 +7,8 @@ using System.Collections.Generic;
 /// </summary>
 public class DynamicHexList : MonoBehaviour
 {
+    const float CAMERA_SENSITIVITY = 3.0f;
+	
     HexPanel parent = null;
 
     UICamera guiCamera;
@@ -39,6 +41,7 @@ public class DynamicHexList : MonoBehaviour
 	private GestureHelper.OnTap tapHandler = null;
 	
 	private GestureHelper.OnSwipeLeft leftHandler = null;
+    bool initialized = false;
 
 
     /// <summary>
@@ -47,6 +50,8 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     void Start()
     {
+
+        initialized = false;
 
         Camera[] camList = (Camera[])Camera.FindObjectsOfType(typeof(Camera));
         foreach (Camera c in camList)
@@ -105,7 +110,7 @@ public class DynamicHexList : MonoBehaviour
 		});
 		
 		GestureHelper.swipeLeft += leftHandler;
-		
+
         InitializeItems();
     }
 
@@ -122,36 +127,23 @@ public class DynamicHexList : MonoBehaviour
     }
 
     /// <summary>
-    /// function which allows us to process orientation and subtract height from it of it to separated variable
+    /// function which converts orienation quaternion into pitch and yaw, suitable for moving cam up/down, left/right on 2D menu
     /// </summary>
     /// <param name="q">input orientation</param>
-    /// <param name="height">output height</param>
-    /// <returns>output orientation</returns>
+    /// <param name="dynamicCamPos">(yaw, pitch)</param>
+    /// <return>the input quaternion</return>
     private Quaternion ConvertOrientation(Quaternion q, out Vector2 dynamicCamPos)
     {
-        //we stop pitch for the sake of height
-        dynamicCamPos = new Vector2(-q.eulerAngles.x, -q.eulerAngles.y);
-		if (dynamicCamPos.x < -180)
-		{
-			dynamicCamPos.x += 360;	
-		}
-		else if (dynamicCamPos.x > 180)
-		{
-			dynamicCamPos.x -= 360;	
-		}
+        float pitch = Mathf.Atan2(2*(q.w*q.x + q.y*q.z), 1-2*(q.x*q.x + q.y*q.y));
+        float roll = Mathf.Asin(2*(q.w*q.y - q.z*q.x));
+        float yaw = Mathf.Atan2(2*(q.w*q.z + q.x*q.y), 1-2*(q.y*q.y + q.z*q.z));
 		
-		if (dynamicCamPos.y < -180)
-		{
-			dynamicCamPos.y += 360;	
-		}
-		else if (dynamicCamPos.y > 180)
-		{
-			dynamicCamPos.y -= 360;	
-		}
-		
-		dynamicCamPos *= 0.02f;
+        dynamicCamPos = new Vector2(-yaw, -pitch);
+        dynamicCamPos *= CAMERA_SENSITIVITY;
+        UnityEngine.Debug.Log("MenuPosition:" + yaw + ", " + pitch + ", " + roll);
+        //dynamicCamPos *= 0.02f;
         //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
-    	return q;
+        return q;
 	}
 
     /// <summary>    
@@ -200,6 +192,8 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     void Update()
     {
+
+        if (!initialized) return;
 
         buttonNextEnterDelay -= Time.deltaTime;
         if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
@@ -443,7 +437,7 @@ public class DynamicHexList : MonoBehaviour
     /// Builds screen buttons based on first prefab button it contains
     /// </summary>
     /// <returns></returns>
-    private void InitializeItems()
+    public  void InitializeItems()
     {
         if (parent == null || radius == 0.0f)
         {
@@ -455,6 +449,8 @@ public class DynamicHexList : MonoBehaviour
             Debug.LogError("List doesn't have at least one button element to clone");
             return;
         }
+
+        initialized = true;
 
         int count = GetButtonData().Count;
         CleanupChildren(count);

@@ -6,7 +6,10 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
+[ExecuteInEditMode()] 
 public class PlatformDummy : Platform {
+public class PlatformDummy : MonoBehaviour 
+{
 	
 	private Stopwatch timer = new Stopwatch();
 	private System.Random random = new System.Random();
@@ -24,56 +27,73 @@ public class PlatformDummy : Platform {
 	private string blobassets = "blob";
 	
 	private static PlatformDummy _instance;
-	private bool initialised = false;
-	private static object _lock = new object();
-	private List<Game> games;
-	
+	private bool initialised = false;	
+
 	/*
 	public static PlatformDummy Instance {
-		get {
-//			if(applicationIsQuitting) {
-//				UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
-//				return null;
-//			}
-			lock(_lock) {
-				if(_instance == null) {
-					_instance = (PlatformDummy) FindObjectOfType(typeof(PlatformDummy));
-					if(FindObjectsOfType(typeof(PlatformDummy)).Length >= 1) {
-						for(int i=0; i < FindObjectsOfType(typeof(PlatformDummy)).Length; i++)
-						{
-							GameObject plat = GameObject.Find("PlatformDummy");
-							Destroy(plat);
-						}
-						UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-						_instance = null; 
-						//return _instance;
-					}
-					if(_instance == null) {
-						GameObject singleton = new GameObject();
-						_instance = singleton.AddComponent<PlatformDummy>();
-						singleton.name = "PlatformDummy"; // Used as target for messages
-						
-						DontDestroyOnLoad(singleton);
-					} else {
-						UnityEngine.Debug.Log("Singleton: already exists!!");
-					}
+
+ 
+		get 
+        {
+            if (_instance == null)
+            {
+                PlatformDummy[] pDummies = FindObjectsOfType(typeof(PlatformDummy)) as PlatformDummy[];
+                int count = pDummies.Length;
+                if (count >= 1)
+                {
+                    if (count > 1)
+                    {
+                        UnityEngine.Debug.Log("Singleton: there is more than one singleton");
+                    }
+
+                    for (int i = 1; i < count; i++)
+                    {
+                        GameObject plat = GameObject.Find("PlatformDummy");
+                        Destroy(plat);
+                    }
+
+                    _instance = FindObjectOfType(typeof(PlatformDummy)) as PlatformDummy;
+                }
+
+                if (_instance == null)
+                {
+                    GameObject singleton = new GameObject();
+                    _instance = singleton.AddComponent<PlatformDummy>();
+                    singleton.name = "PlatformDummy"; // Used as target for messages
+
+                    DontDestroyOnLoad(singleton);
+                }                
+            }
+			
+			if (_instance != null)
+			{
+				if (_instance.initialised == false)
+				{
+					_instance.Initialize();
 				}
-				while(!_instance.initialised) {
-					continue;
-				}
-					return _instance;
 			}
+            return _instance;
 		}
 	}
 	*/
 	
 	private static bool applicationIsQuitting = false;
 	
-	public void OnDestroy() {
+	public void OnDestroy() 
+	{
 		applicationIsQuitting = true;
 	}
 	
-	protected PlatformDummy() {
+	void Awake() 
+	{
+		if (initialised == false)
+		{
+			Initialize();
+		}
+	}
+	
+	void Initialize()
+	{
 		//timer.Start();
 		
 		UnityEngine.Debug.Log("Creating Platform Dummy instance");
@@ -106,16 +126,22 @@ public class PlatformDummy : Platform {
 		
 		current = new Game("Train 1","activity_train","run","Run away from a train!","locked",2,20000,0, "Pursuit", 1, 1);
 		games.Add(current);
-		
-		current = new Game("Mo Farah","activity_farah","run","Run against Mo Farah! Try and beat his almost world record 10km!","unlocked",2,70000,0, "Celebrity", 2, 0);
+
+        current = new Game("Mo Farah", "activity_farah", "run", "Run against Mo Farah! See how you compare to his 2012 Olympic time!", "unlocked", 2, 70000, 0, "Celebrity", 2, 0);
         games.Add(current);
 		
 		current = new Game("Paula Radcliffe","activity_paula_radcliffe","run","Run a marathon with Paula Radcliffe! Try and beat her time at the 2007 NYC Marathon!","unlocked",2,20000,0, "Celebrity", 2, 1);
 		games.Add(current);
-		
-		//set the finish distance
-		DataVault.Set("finish", 5000);
-		
+
+        current = new Game("Chris Hoy", "activity_chris_hoy", "run", "Cycle with Chris Hoy, in his almost record breaking 1km cycle in 2007", "unlocked", 2, 10000, 0, "Celebrity", 2, -1);
+        games.Add(current);
+
+        current = new Game("Bradley Wiggins", "activity_bradley_wiggins", "cycle", "Participate in a 4km pursuit race with Bradley Wiggins on his 2008 Olympics gold medal time", "unlocked", 2, 10000, 0, "Celebrity", 1, -1);
+        games.Add(current);
+
+        current = new Game("Fire", "activity_fire", "run", "Know what's good on a barbeque? Burgers. Know what isn't? You. So run before you get burned.", "unlocked", 2, 10000, 0, "Pursuit", 1, 2);
+        games.Add(current);
+
 		initialised = true;
 	}
 	

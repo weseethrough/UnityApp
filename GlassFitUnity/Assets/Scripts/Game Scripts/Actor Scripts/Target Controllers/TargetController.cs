@@ -49,6 +49,12 @@ public class TargetController : MonoBehaviour {
 		xOffset = xDist*(lane*3); // TODO: parent.gameObject.width?
 	}
 	
+	public void SetSpeed(float f) {
+		if(target is FauxTargetTracker) {
+			((FauxTargetTracker)target).SetTargetSpeed(f);
+		}
+	}
+	
 	// Update is called once per frame
 	public virtual void Update () {
 		
