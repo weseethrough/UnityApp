@@ -130,10 +130,16 @@ public class DataStore : MonoBehaviour
 		{
 			MemoryStream ms = new MemoryStream(source);	
 			ms.Position = 0;
-	
-	        BinaryFormatter bformatter = new BinaryFormatter();
-	        System.Object o = bformatter.Deserialize(ms);
-	        storage = (Storage)o;
+            if (ms.Length == 0)
+            {
+                return new Storage();
+            }
+	        else
+            {
+                BinaryFormatter bformatter = new BinaryFormatter();
+                System.Object o = bformatter.Deserialize(ms);
+                storage = (Storage)o;
+            }	        
 		}
         catch (Exception e)
 		{

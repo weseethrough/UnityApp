@@ -6,7 +6,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-public class PlatformDummy : MonoBehaviour {
+[ExecuteInEditMode()] 
+public class PlatformDummy : MonoBehaviour 
+{
 	
 	private Stopwatch timer = new Stopwatch();
 	private System.Random random = new System.Random();
@@ -24,54 +26,71 @@ public class PlatformDummy : MonoBehaviour {
 	private string blobassets = "blob";
 	
 	private static PlatformDummy _instance;
-	private bool initialised = false;
-	private static object _lock = new object();
+	private bool initialised = false;	
 	private List<Game> games;
 	
-	public static PlatformDummy Instance {
-		get {
-//			if(applicationIsQuitting) {
-//				UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
-//				return null;
-//			}
-			lock(_lock) {
-				if(_instance == null) {
-					_instance = (PlatformDummy) FindObjectOfType(typeof(PlatformDummy));
-					if(FindObjectsOfType(typeof(PlatformDummy)).Length >= 1) {
-						for(int i=0; i < FindObjectsOfType(typeof(PlatformDummy)).Length; i++)
-						{
-							GameObject plat = GameObject.Find("PlatformDummy");
-							Destroy(plat);
-						}
-						UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-						_instance = null; 
-						//return _instance;
-					}
-					if(_instance == null) {
-						GameObject singleton = new GameObject();
-						_instance = singleton.AddComponent<PlatformDummy>();
-						singleton.name = "PlatformDummy"; // Used as target for messages
-						
-						DontDestroyOnLoad(singleton);
-					} else {
-						UnityEngine.Debug.Log("Singleton: already exists!!");
-					}
+	public static PlatformDummy Instance 
+    {
+		get 
+        {
+            if (_instance == null)
+            {
+                PlatformDummy[] pDummies = FindObjectsOfType(typeof(PlatformDummy)) as PlatformDummy[];
+                int count = pDummies.Length;
+                if (count >= 1)
+                {
+                    if (count > 1)
+                    {
+                        UnityEngine.Debug.Log("Singleton: there is more than one singleton");
+                    }
+
+                    for (int i = 1; i < count; i++)
+                    {
+                        GameObject plat = GameObject.Find("PlatformDummy");
+                        Destroy(plat);
+                    }
+
+                    _instance = FindObjectOfType(typeof(PlatformDummy)) as PlatformDummy;
+                }
+
+                if (_instance == null)
+                {
+                    GameObject singleton = new GameObject();
+                    _instance = singleton.AddComponent<PlatformDummy>();
+                    singleton.name = "PlatformDummy"; // Used as target for messages
+
+                    DontDestroyOnLoad(singleton);
+                }                
+            }
+			
+			if (_instance != null)
+			{
+				if (_instance.initialised == false)
+				{
+					_instance.Initialize();
 				}
-				while(!_instance.initialised) {
-					continue;
-				}
-					return _instance;
 			}
+            return _instance;
 		}
 	}
 	
 	private static bool applicationIsQuitting = false;
 	
-	public void OnDestroy() {
+	public void OnDestroy() 
+	{
 		applicationIsQuitting = true;
 	}
 	
-	protected PlatformDummy() {
+	void Awake() 
+	{
+		if (initialised == false)
+		{
+			Initialize();
+		}
+	}
+	
+	void Initialize()
+	{
 		//timer.Start();
 		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 		Directory.CreateDirectory(blobstore);

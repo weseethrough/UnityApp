@@ -23,6 +23,13 @@ public class GNode : ISerializable
 	private int Evaluated; // 0=unknown, 1=ready, -1=false
 	private bool isEvaluating;
 
+
+    public const int R = 8;
+    public const int Border = 3;
+    public const int TitleHeight = 24;
+    public const int LineHeight = 16;
+
+
 	// Returns (true) if node's inputs/outputs have been processed.
 	public bool IsEvaluated
 	{
@@ -147,11 +154,8 @@ public class GNode : ISerializable
 		//}
 		return "?";
 	}
-	
-	const int R=8;
-	const int Border=3;
-	const int TitleHeight = 24;
-	const int LineHeight = 16;
+
+    
 	
 	public void AddInput(GConnector c)
 	{

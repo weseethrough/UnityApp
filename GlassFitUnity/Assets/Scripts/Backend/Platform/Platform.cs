@@ -54,36 +54,50 @@ public class Platform : MonoBehaviour {
 	// TEMP
 	
 	private static Platform _instance;
-	private static object _lock = new object();
 	
-	public static Platform Instance {
-		get {
-			if(applicationIsQuitting) {
+	public static Platform Instance 
+    {
+		get 
+        {
+			if(applicationIsQuitting) 
+            {
 				UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
 				return null;
 			}
-			lock(_lock) {
-				if(_instance == null) {
-					_instance = (Platform) FindObjectOfType(typeof(Platform));
-					if(FindObjectsOfType(typeof(Platform)).Length > 1) {
-						UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-						return _instance;
-					}
-					if(_instance == null) {
-						GameObject singleton = new GameObject();
-						_instance = singleton.AddComponent<Platform>();
-						singleton.name = "Platform"; // Used as target for messages
+			
+			if(_instance == null) 
+            {
+				_instance = (Platform) FindObjectOfType(typeof(Platform));
+				
+                /* Too heavy operation to be called by instance reference
+                 * if(FindObjectsOfType(typeof(Platform)).Length > 1) 
+                {
+					UnityEngine.Debug.Log("Singleton: there is more than one singleton");
+					//return _instance;
+				}*/
+				if(_instance == null) 
+                {
+					GameObject singleton = new GameObject();
+					_instance = singleton.AddComponent<Platform>();
+					singleton.name = "Platform"; // Used as target for messages
 						
-						DontDestroyOnLoad(singleton);
-					} else {
-						UnityEngine.Debug.Log("Singleton: already exists!!");
-					}
+					DontDestroyOnLoad(singleton);
+				} 
+                else 
+                {
+					UnityEngine.Debug.Log("Singleton: already exists!!");
 				}
-				while(!_instance.initialised) {
-					continue;
-				}
-					return _instance;
 			}
+
+            if (_instance != null)
+            {
+                if (_instance.initialised == false)
+                {
+                    _instance.Initialize();
+                }
+            }
+			return _instance;
+			
 		}
 	}
 	
@@ -133,7 +147,17 @@ public class Platform : MonoBehaviour {
 	}
 	/// TEMP
 	
-	protected Platform() {
+
+    void Awake() 
+	{
+		if (initialised == false)
+		{
+			Initialize();
+		}
+	}
+	
+	void Initialize()
+	{	
 		
 		authenticated = false;
 		targetTrackers = new List<TargetTracker>();
@@ -188,9 +212,6 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
-		
-		
-		
 	}
 	
 	public AndroidJavaObject GetHelper() {

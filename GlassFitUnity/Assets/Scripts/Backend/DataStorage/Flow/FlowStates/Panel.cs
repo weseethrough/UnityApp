@@ -18,8 +18,7 @@ public class Panel : FlowState
 												  "Friend List/ChallengeButton"};    
     public FlowPanelComponent panelNodeData;
 
-    [NonSerialized()] public GameObject physicalWidgetRoot;
-    [NonSerialized()] private string widgetRootName = "Widgets Container";
+    [NonSerialized()] public GameObject physicalWidgetRoot;    
 
     /// <summary>
     /// default constructor
@@ -102,7 +101,7 @@ public class Panel : FlowState
 
         int count = Mathf.Max(Inputs.Count, Outputs.Count);
 
-        Size.y = Mathf.Max(count * 25, 80) ;
+        UpdateSize();
 
         RefreshNodeData();
         
@@ -200,10 +199,10 @@ public class Panel : FlowState
             if (data != null)
             {                
                 GParameter gName = Parameters.Find(r => r.Key == "Name");
-                physicalWidgetRoot = script.LoadScene((SerializedNode)data, widgetRootName, panelNodeData);
+                physicalWidgetRoot = script.LoadScene((SerializedNode)data, GetWidgetRootName(), panelNodeData);
                 if (physicalWidgetRoot != null)
                 {
-                    physicalWidgetRoot.name = widgetRootName + "_" + gType.Value + "_" + gName.Value;
+                    physicalWidgetRoot.name = GetWidgetRootName() + "_" + gType.Value + "_" + gName.Value;
                     Debug.Log("Name " + physicalWidgetRoot.name);
                 }                
             }
@@ -344,15 +343,14 @@ public class Panel : FlowState
 
         return base.IsValid() && gType != null && gType.Value != null && gType.Value != "Null";
     }
+    
 
     /// <summary>
-    /// screen might have dynamic number of exits(and buttons) so it need function which updates its size dynamically as well
+    /// Provides name of the widget, by default it is a widget of 2d graphics
     /// </summary>
-    /// <returns></returns>
-    public void UpdateSize()
+    /// <returns>const name widget root name</returns>
+    public virtual string GetWidgetRootName()
     {
-        int count = Mathf.Max(Inputs.Count, Outputs.Count);
-
-        Size.y = Mathf.Max(count * 25, 80);
+        return "Widgets Container";
     }
 }

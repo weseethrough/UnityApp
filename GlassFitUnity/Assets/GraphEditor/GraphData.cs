@@ -118,6 +118,43 @@ public class GraphData : ISerializable
 		return null;
 	}
 
+    /// <summary>
+    /// Allows to find node which is on deepest position under mouse cursor. We select least parental state possible
+    /// </summary>
+    /// <param name="pos">mouse position</param>
+    /// <returns>deepest child state under mouse pointer</returns>
+    public FlowState PickDeepStateNode(Vector2 pos, GNode ignore)
+    {
+        FlowState fs = null;
+        int depth = -1;
+
+        foreach (FlowState node in Nodes)
+        {
+            if (ignore == node) continue;
+
+            float x0 = node.Position.x;
+            float y0 = node.Position.y;
+            float x1 = x0 + node.Size.x;
+            float y1 = y0 + node.Size.y;
+            if (pos.x >= x0 && pos.y >= y0 && pos.x <= x1 && pos.y <= y1)
+            {
+                int nodeDepth = 0;
+                FlowState walker = node;
+                while (walker.parent != null)
+                {
+                    walker = walker.parent;
+                    nodeDepth ++;
+                }
+                if (nodeDepth > depth)
+                {
+                    fs = node;
+                    depth = nodeDepth;
+                }                
+            }
+        }
+        return fs;
+    }
+
     public bool Disconnect(GConnector source)
     {
         if (source != null && source.Link != null)

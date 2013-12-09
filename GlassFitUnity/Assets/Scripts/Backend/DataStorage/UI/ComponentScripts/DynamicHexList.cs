@@ -41,6 +41,7 @@ public class DynamicHexList : MonoBehaviour
 	private GestureHelper.OnTap tapHandler = null;
 	
 	private GestureHelper.OnSwipeLeft leftHandler = null;
+    bool initialized = false;
 
 
     /// <summary>
@@ -49,6 +50,8 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     void Start()
     {
+
+        initialized = false;
 
         Camera[] camList = (Camera[])Camera.FindObjectsOfType(typeof(Camera));
         foreach (Camera c in camList)
@@ -107,7 +110,7 @@ public class DynamicHexList : MonoBehaviour
 		});
 		
 		GestureHelper.swipeLeft += leftHandler;
-		
+
         InitializeItems();
     }
 
@@ -189,6 +192,8 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     void Update()
     {
+
+        if (!initialized) return;
 
         buttonNextEnterDelay -= Time.deltaTime;
         if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
@@ -432,7 +437,7 @@ public class DynamicHexList : MonoBehaviour
     /// Builds screen buttons based on first prefab button it contains
     /// </summary>
     /// <returns></returns>
-    private void InitializeItems()
+    public  void InitializeItems()
     {
         if (parent == null || radius == 0.0f)
         {
@@ -444,6 +449,8 @@ public class DynamicHexList : MonoBehaviour
             Debug.LogError("List doesn't have at least one button element to clone");
             return;
         }
+
+        initialized = true;
 
         int count = GetButtonData().Count;
         CleanupChildren(count);

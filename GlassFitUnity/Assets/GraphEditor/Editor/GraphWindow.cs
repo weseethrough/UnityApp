@@ -88,6 +88,16 @@ public class GraphWindow : EditorWindow, IDraw
 		return null;
 	}
 
+    FlowState PickDeepestChildNode(Vector2 pos, GNode ignore)
+    {
+        GraphComponent g = Graph;
+        if (g != null)
+        {
+            return g.Data.PickDeepStateNode(pos, ignore);
+        }
+        return null;
+    }
+
 	private void SelectNode(GNode node)
 	{
 		if (node != m_selection)
@@ -123,11 +133,11 @@ public class GraphWindow : EditorWindow, IDraw
 		m_dragMain = true;
 		m_dragStart = Event.current.mousePosition;
 		m_viewStart = ViewPosition;
-		GNode sel = PickNode(pos);
+		GNode sel = PickDeepestChildNode(pos, null);
 		SelectNode( sel );
 		if (m_selection != null)
 		{
-			m_selectionConnector = m_selection.PickConnector(Graph.Data,pos);
+			m_selectionConnector = m_selection.PickConnector(Graph.Data, pos);
             if (m_selectionConnector != null)
             {
                 m_dragConnector = true;                
@@ -154,7 +164,7 @@ public class GraphWindow : EditorWindow, IDraw
 					return;
 				}
 				
-				GNode over = PickNode(pos);
+				GNode over = PickDeepestChildNode(pos, null);
 				if (over != null)
 				{
 					GConnector target = over.PickConnector(graph,pos);
@@ -174,6 +184,31 @@ public class GraphWindow : EditorWindow, IDraw
 			}
 			else if (m_nodeStart != m_selection.Position)
 			{
+                FlowState currentSelection = m_selection as FlowState;
+                if (currentSelection != null)
+                {
+                    FlowState over = PickDeepestChildNode(pos, currentSelection);
+
+                    if (over != null )
+                    {
+                        if ( !currentSelection.InChildSubtree(over))
+                        {
+                            over.AddChild(currentSelection);
+                        }                        
+                    }
+                    else if (currentSelection.parent != null)
+                    {                        
+                        if (Event.current.shift)
+                        {
+                            currentSelection.parent.UpdateSize();
+                        }
+                        else
+                        {
+                            currentSelection.parent.RemoveChild(currentSelection);
+                        }
+                        
+                    }
+                }
 				Debug.Log("Node movement saved.");
 				UnityEditor.EditorUtility.SetDirty(Graph.gameObject);
                 dirtySave = true;
@@ -199,6 +234,10 @@ public class GraphWindow : EditorWindow, IDraw
 					// Drag selected node(s)
 					Vector2 delta = Event.current.mousePosition - m_dragStart;
 					m_selection.Position = m_nodeStart + delta;
+                    if (m_selection is FlowState)
+                    {                        
+                        (m_selection as FlowState).UpdatePosition(false);
+                    }
 				}
 				else
 				{
@@ -305,7 +344,30 @@ public class GraphWindow : EditorWindow, IDraw
 	
 	const int GridSize = 512;
 	const int GridBlocks = 3;
-	
+
+    void DrawNode(IDraw g, GraphData graph, Material lineMaterial, GNode node, bool drawSelection)
+    {
+        if (!drawSelection && node == m_selection) return;
+        
+        // Reset material or Label() makes subsequent GL commands invisible!
+        lineMaterial.SetPass(0);
+        bool selected = (m_selection == node) && (m_selectionConnector == null);
+        GraphUtil.DrawPanel(this, graph, lineMaterial, node, selected, m_hoverConnector, m_selectionConnector);
+
+        lineMaterial.SetPass(0);
+        //node.TryEvaluate();
+        node.OnDraw(new Rect(0, 0, 0, 0));
+
+        FlowState fs = node as FlowState;
+        if (fs != null)
+        {
+            foreach (FlowState child in fs.children)
+            {
+                DrawNode(g, graph, lineMaterial, child, drawSelection);
+            }
+        }
+    }
+
 	void DrawGraph(int x, int y, int w, int h)
 	{       
 
@@ -356,17 +418,28 @@ public class GraphWindow : EditorWindow, IDraw
 			{
 				if (node != null)
 				{
-					// Reset material or Label() makes subsequent GL commands invisible!
-					lineMaterial.SetPass( 0 );
-					bool selected = (m_selection==node) && (m_selectionConnector == null);
-					GraphUtil.DrawPanel(this, data, lineMaterial,node,selected,m_hoverConnector,m_selectionConnector);
-					
-					lineMaterial.SetPass( 0 );
-					//node.TryEvaluate();
-					node.OnDraw(new Rect(0,0,0,0));
+                    FlowState fs = node as FlowState;
+
+                    if (fs != null)
+                    {
+                        if (fs.parent == null)
+                        {
+                            DrawNode(this, data, lineMaterial, node, false);
+                        }
+                    }
+                    else
+                    {
+                        DrawNode(this, data, lineMaterial, node, false);
+                    }					
 				}
 			}
-			
+
+            //this is section where we draw selected node to ensure its always on top of the other nodes on graph
+            if (m_selection != null)
+            {
+                DrawNode(this, data, lineMaterial, m_selection, true);
+            }
+
 			lineMaterial.SetPass( 0 );
 			foreach (GConnector c in data.Connections)
 			{                
