@@ -264,7 +264,17 @@ public class Platform : MonoBehaviour {
 	// Returns the target tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public TargetTracker CreateTargetTracker(float constantSpeed){
-		TargetTracker t = TargetTracker.Build(helper, constantSpeed);
+		FauxTargetTracker t;
+		try {
+			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getFauxTargetTracker", constantSpeed);
+			if (ajo.GetRawObject().ToInt32() == 0) return null;
+			UnityEngine.Debug.LogWarning("TargetTracker: faux target tracker obtained");
+			t = new FauxTargetTracker(ajo);
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("TargetTracker: Helper.getFauxTargetTracker() failed" + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return null;
+		}
 		if (t == null) return null;
 		targetTrackers.Add(t);
 		return t;
