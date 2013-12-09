@@ -166,11 +166,6 @@ public class Platform : MonoBehaviour {
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-			try {
-				activity.Call("onResume");
-			} catch (Exception e) {
-				UnityEngine.Debug.Log("Platform: onresume Didn't work, try again");
-			}
 			context = activity.Call<AndroidJavaObject>("getApplicationContext");
 			helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
 			points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
