@@ -7,8 +7,7 @@ using System.Diagnostics;
 using System.IO;
 
 [ExecuteInEditMode()] 
-public class PlatformDummy : Platform {
-public class PlatformDummy : MonoBehaviour 
+public class PlatformDummy : Platform
 {
 	
 	private Stopwatch timer = new Stopwatch();
@@ -27,7 +26,9 @@ public class PlatformDummy : MonoBehaviour
 	private string blobassets = "blob";
 	
 	private static PlatformDummy _instance;
-	private bool initialised = false;	
+	private bool initialised = false;
+	private List<Game> games;
+
 
 	/*
 	public static PlatformDummy Instance {
