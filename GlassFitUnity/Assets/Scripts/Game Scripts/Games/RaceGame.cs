@@ -45,11 +45,8 @@ public class RaceGame : GameBase {
 	public GameObject bradleyHolder;
 	
 	
-
-	
 	// Target for bonus points
 	private int bonusTarget = 1000;
-
 
 
 	
@@ -119,7 +116,7 @@ public class RaceGame : GameBase {
 	
 	public void OnGUI()
 	{
-
+		base.OnGUI();
 	}
 		
 
@@ -185,12 +182,12 @@ public class RaceGame : GameBase {
 
 	
 	void Update () {
-		
+		base.Update ();
 		// Awards the player points for running certain milestones
 		if(Platform.Instance.Distance() >= bonusTarget)
 		{
 			int targetToKm = bonusTarget / 1000;
-			if(bonusTarget < targetDistance) 
+			if(bonusTarget < finish) 
 			{
 				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
 			}

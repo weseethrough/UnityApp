@@ -141,7 +141,7 @@ public class ButtonFunctionCollection
 			DataVault.Set("type", "Dinosaur");
 			break;
 			
-		case "Fire Level 1":
+		case "activity_fire":
 			DataVault.Set("type", "Fire");
 			break;
 		}

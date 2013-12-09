@@ -75,6 +75,9 @@ public class PlatformDummy : Platform {
 	
 	protected PlatformDummy() {
 		//timer.Start();
+		
+		UnityEngine.Debug.Log("Creating Platform Dummy instance");
+		
 		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 		Directory.CreateDirectory(blobstore);
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
@@ -266,7 +269,7 @@ public class PlatformDummy : Platform {
 	}
 	
 	public override void StoreBlob(string id, byte[] blob) {
-		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
+		File.WriteAllBytes(Path.Combine(blobassets, id), blob);
 	}
 	
 	public override void EraseBlob(string id) {
@@ -283,7 +286,7 @@ public class PlatformDummy : Platform {
 	 * Editor-specific function. 
 	 */
 	public override void StoreBlobAsAsset(string id, byte[] blob) {
-		File.WriteAllBytes(Path.Combine(blobassets, id), blob);
+		return;
 	}
 	
 	public override void Poll() {

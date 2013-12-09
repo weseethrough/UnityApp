@@ -63,14 +63,23 @@ public class Platform : MonoBehaviour {
 				return null;
 			}
 #if !UNITY_EDITOR
+			UnityEngine.Debug.Log("About to look for Platform instance");
 			lock(_lock) {
+				UnityEngine.Debug.Log("Looking for Platform instance");
+				
 				if(_instance == null) {
+					UnityEngine.Debug.Log("Not yet stored Platform instance, looking for one which already exists.");
+					
 					_instance = (Platform) FindObjectOfType(typeof(Platform));
 					if(FindObjectsOfType(typeof(Platform)).Length > 1) {
 						UnityEngine.Debug.Log("Singleton: there is more than one singleton");
 						return _instance;
+					
 					}
 					if(_instance == null) {
+						
+						UnityEngine.Debug.Log("Didn't find existing Platform Instance. Creating one");
+						
 						GameObject singleton = new GameObject();
 						_instance = singleton.AddComponent<Platform>();
 
@@ -88,18 +97,21 @@ public class Platform : MonoBehaviour {
 			}
 #else
 			//create an instance of platform dummy instead
-			if(_instance == null) {
+			if(_instance == null) 
+			{
+				//look for one in the scene
+				_instance = (Platform) FindObjectOfType(typeof(PlatformDummy));
+			}
+			if(_instance == null)
+			{
 				GameObject singleton = new GameObject();
 				_instance = singleton.AddComponent<PlatformDummy>();
 				singleton.name = "Platform";
-				DontDestroyOnLoad(singleton);
 			}
 			return _instance;
 #endif
 		}
 	}
-	
-		
 	
 	private static bool applicationIsQuitting = false;
 	
@@ -154,16 +166,23 @@ public class Platform : MonoBehaviour {
 		UnityEngine.Debug.Log("Platform: constructor called");
 		
 		try {
+			
+			UnityEngine.Debug.Log("Platform: creating UnityPlayer androidJavaClass");
+			
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-    	    activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-			try {
-				activity.Call("onResume");
-			} catch (Exception e) {
-				UnityEngine.Debug.Log("Platform: onresume Didn't work, try again");
-			}
+    	    
+			UnityEngine.Debug.Log("Platform: getting current activity");
+			activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+			
+			UnityEngine.Debug.Log("Platform: getting application context");
 			context = activity.Call<AndroidJavaObject>("getApplicationContext");
+			
+			UnityEngine.Debug.Log("Platform: creating helper AndroidJavaClass");
 			helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
+			
+			UnityEngine.Debug.Log("Platform: creating points helper");
 			points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
+			
 			UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
 			
 			// call the following on the UI thread
