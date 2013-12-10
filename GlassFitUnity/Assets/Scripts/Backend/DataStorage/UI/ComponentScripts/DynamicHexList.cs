@@ -59,6 +59,7 @@ public class DynamicHexList : MonoBehaviour
             UICamera uicam = c.GetComponent<UICamera>();
             if (uicam != null && c.gameObject.layer == LayerMask.NameToLayer(HexPanel.CAMERA_3D_LAYER))
             {
+				UnityEngine.Debug.Log("DynamicHexList: Camera's name is: " + c.name);
                 guiCamera = uicam;
                 break;
             }
@@ -193,7 +194,7 @@ public class DynamicHexList : MonoBehaviour
     void Update()
     {
 
-        if (!initialized) return;
+        //if (!initialized) return;
 
         buttonNextEnterDelay -= Time.deltaTime;
 		if(buttons == null) {
