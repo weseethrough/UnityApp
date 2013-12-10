@@ -12,9 +12,9 @@ public class UISensorCamera : MonoBehaviour {
 	private bool started = false;
 	private Vector3 scale;
 	
-	private GestureHelper.OnTap tapHandler = null;
-	
 	private GestureHelper.OnSwipeLeft backHandler = null;
+	
+	private GestureHelper.TwoFingerTap twoTapHandler = null;
 	
 	/// <summary>
 	/// Start this instance. Sets the scale for OnGUI
@@ -25,10 +25,10 @@ public class UISensorCamera : MonoBehaviour {
 		scale.y = (float)Screen.height / 500.0f;
     	scale.z = 1;
 		
-		tapHandler = new GestureHelper.OnTap(() => {
+		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
 			ResetGyroGlass();
 		});
-		GestureHelper.onTap += tapHandler;
+		GestureHelper.onTwoTap += twoTapHandler;
 		
 		backHandler = new GestureHelper.OnSwipeLeft(() => {
 			GoBack();
@@ -131,7 +131,7 @@ public class UISensorCamera : MonoBehaviour {
     }
 	
 	void OnDestroy() {
-		GestureHelper.onTap -= tapHandler;
+		GestureHelper.onTwoTap -= twoTapHandler;
 		GestureHelper.swipeLeft -= backHandler;
 	}
 }

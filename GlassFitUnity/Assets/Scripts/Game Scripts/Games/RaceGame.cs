@@ -110,8 +110,8 @@ public class RaceGame : MonoBehaviour {
 		
 		//UnityEngine.Debug.Log("Settings: Initial speed set to: " + s.ToString());
 		
-		minimap = GameObject.Find("minimap");
-		minimap.renderer.material.renderQueue = 3000;
+//		minimap = GameObject.Find("minimap");
+//		minimap.renderer.material.renderQueue = 3000;
 		
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
@@ -404,11 +404,11 @@ public class RaceGame : MonoBehaviour {
 		float bearing = PlatformDummy.Instance.Bearing();
 #endif
 		double bearingRad = bearing*Math.PI/180;
-		if (position != null) {
-			// Fake target coord using distance and bearing
-			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearingRad)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearingRad)*targetDistance/111229d));
-			GetMap(position, bearingRad, targetCoord);
-		}
+//		if (position != null) {
+//			// Fake target coord using distance and bearing
+//			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearingRad)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearingRad)*targetDistance/111229d));
+//			GetMap(position, bearingRad, targetCoord);
+//		}
 		
 		// If there is a GPS lock or indoor mode is active
 #if !UNITY_EDITOR

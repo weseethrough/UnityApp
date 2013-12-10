@@ -16,7 +16,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private float gridTimer = 0.0f;
 	private bool timerActive = false;
 	private float yRotate = 0f;
-	private GestureHelper.OnTap handler = null;
+	private GestureHelper.TwoFingerTap handler = null;
 	
 
 	// Set the grid and scale values
@@ -25,10 +25,10 @@ public class MinimalSensorCamera : MonoBehaviour {
 		scaleX = (float)Screen.width / 800.0f;
 		scaleY = (float)Screen.height / 500.0f;
 		
-		handler = new GestureHelper.OnTap(() => {
+		handler = new GestureHelper.TwoFingerTap(() => {
 			ResetGyroGlass();
 		});
-		GestureHelper.onTap += handler;
+		GestureHelper.onTwoTap += handler;
 		
 //		backHandler = new GestureHelper.OnSwipeLeft(() => {
 //			GoBack();
@@ -180,6 +180,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	void OnDestroy() 
 	{
-		GestureHelper.onTap -= handler;
+		GestureHelper.onTwoTap -= handler;
 	}
 }

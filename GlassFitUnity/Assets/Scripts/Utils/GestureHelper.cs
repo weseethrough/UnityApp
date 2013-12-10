@@ -35,7 +35,7 @@ public class GestureHelper : MonoBehaviour {
 			UnityEngine.Debug.Log("GestureHelper: Adding to the delegate");
 			onTap();
 		}		
-		UnityEngine.Debug.Log("Message Obtained: Tap");
+		UnityEngine.Debug.Log("GestureHelper: message obtained - Tap");
 	}
 	
 	/// <summary>
@@ -58,7 +58,7 @@ public class GestureHelper : MonoBehaviour {
 			UnityEngine.Debug.Log("GestureHelper: Swipe left setting");
 			swipeLeft();
 		}
-		UnityEngine.Debug.Log("Message Obtained: Fling Left");
+		UnityEngine.Debug.Log("GestureHelper: message obtained - Fling Left");
 	}
 	
 	// Get a fling right message and set the timer
@@ -67,7 +67,7 @@ public class GestureHelper : MonoBehaviour {
 			UnityEngine.Debug.Log("GestureHelper: Swipe right setting");
 			swipeRight();
 		}
-		UnityEngine.Debug.Log("Message Obtained: Fling Right");
+		UnityEngine.Debug.Log("GestureHelper: message obtained - Fling Right");
 	}
 	
 	// Get a fling up message and set the timer
@@ -82,6 +82,6 @@ public class GestureHelper : MonoBehaviour {
 //			swipeLeft();
 //		}
 		
-		UnityEngine.Debug.Log("Message Obtained: Fling down");
+		UnityEngine.Debug.Log("GestureHelper: message obtained - Fling down");
 	}
 }
