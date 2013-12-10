@@ -169,7 +169,7 @@ public class MessageWidget : MonoBehaviour
                 break;
             case State.showing:
                 curentVisibleTime += Time.deltaTime;
-                Debug.Log(curentVisibleTime + " vs " + MAX_TIME_VISIBLE);
+                //Debug.Log(curentVisibleTime + " vs " + MAX_TIME_VISIBLE);
                 if (curentVisibleTime >= MAX_TIME_VISIBLE)
                 {
                     currentState = State.closing;
