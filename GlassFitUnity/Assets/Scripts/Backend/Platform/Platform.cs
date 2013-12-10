@@ -20,7 +20,6 @@ public class Platform : MonoBehaviour {
 	private long openingPointsBalance = 0;
 	public int currentTrack { get; set; }
 	
-	
 	private List<Track> trackList;
 	private List<Game> gameList;
 	
@@ -54,44 +53,119 @@ public class Platform : MonoBehaviour {
 	// TEMP
 	
 	private static Platform _instance;
-	private static object _lock = new object();
-	
-	public static Platform Instance {
-		get {
-			if(applicationIsQuitting) {
-				UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
-				return null;
-			}
-			lock(_lock) {
-				if(_instance == null) {
-					_instance = (Platform) FindObjectOfType(typeof(Platform));
-					if(FindObjectsOfType(typeof(Platform)).Length > 1) {
-						UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-						return _instance;
-					}
-					if(_instance == null) {
-						GameObject singleton = new GameObject();
-						_instance = singleton.AddComponent<Platform>();
-						singleton.name = "Platform"; // Used as target for messages
-						
-						DontDestroyOnLoad(singleton);
-					} else {
-						UnityEngine.Debug.Log("Singleton: already exists!!");
-					}
-				}
-				while(!_instance.initialised) {
-					continue;
-				}
-					return _instance;
-			}
-		}
-	}
+        
+        public static Platform Instance 
+    {
+                get 
+        {
+                        if(applicationIsQuitting) 
+            {
+                                UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
+                                return null;
+                        }
+                        
+                        if(_instance == null) 
+            {
+                                _instance = (Platform) FindObjectOfType(typeof(Platform));
+                                
+                /* Too heavy operation to be called by instance reference
+                 * if(FindObjectsOfType(typeof(Platform)).Length > 1) 
+                {
+                                        UnityEngine.Debug.Log("Singleton: there is more than one singleton");
+                                        //return _instance;
+                                }*/
+                                if(_instance == null) 
+                {
+                                        GameObject singleton = new GameObject();
+                                        _instance = singleton.AddComponent<Platform>();
+                                        singleton.name = "Platform"; // Used as target for messages
+                                                
+                                        DontDestroyOnLoad(singleton);
+                                } 
+                else 
+                {
+                                        UnityEngine.Debug.Log("Singleton: already exists!!");
+                                }
+                        }
+
+            if (_instance != null)
+            {
+                while (_instance.initialised == false)
+                {
+                    continue;
+                }
+            }
+                        return _instance;
+                        
+                }
+        }
 	
 	private static bool applicationIsQuitting = false;
 	
 	public void OnDestroy() {
 		applicationIsQuitting = true;
 	}
+	
+	 void Awake() 
+        {
+                if (initialised == false)
+                {
+                        Initialize();
+                }
+        }
+        
+	        void Initialize()
+	        {        
+	                
+	                authenticated = false;
+	                targetTrackers = new List<TargetTracker>();
+	                UnityEngine.Debug.Log("Platform: constructor called");
+	                
+	                try {
+	                        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+	                activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+	                        context = activity.Call<AndroidJavaObject>("getApplicationContext");
+	                        helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
+	                        points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
+	                        UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
+	                        
+	                        // call the following on the UI thread
+	                        activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
+	                                
+	                                // Get the singleton helper objects
+	                                try {
+	                                        helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+	                                        points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+	                              UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
+	                                } catch (Exception e) {
+	                                        UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
+	                                        UnityEngine.Debug.LogException(e);
+	                                }
+	                                // Try to get a Java GPSTracker object
+	                                try {
+	                                        gps = helper.Call<AndroidJavaObject>("getGPSTracker");
+	                                        UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
+	                                } catch (Exception e) {
+	                                        UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
+	                                        UnityEngine.Debug.LogException(e);
+	                                }
+	                                AwardPoints("Free points for devs", "Platform.cs", 10000);
+	                                // Cache the list of games and states from java
+	                        GetGames();
+	                                
+	                                UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
+	                                UnityEngine.Debug.Log("Current game points: " + GetCurrentPoints());
+	                                UnityEngine.Debug.Log("Current gems: " + GetCurrentGemBalance());
+	                                UnityEngine.Debug.Log("Current metabolism: " + GetCurrentMetabolism());
+	                                        
+	                                initialised = true;
+	                }));
+	                        
+	                } catch (Exception e) {
+	                        UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
+	                        UnityEngine.Debug.LogException(e);
+	                }
+	        }
 	
 	/// Message receivers
 	public void OnAuthentication(string message) {
@@ -132,61 +206,6 @@ public class Platform : MonoBehaviour {
 		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
 	}
 	/// TEMP
-	
-	protected Platform() {
-		
-		authenticated = false;
-		targetTrackers = new List<TargetTracker>();
-		UnityEngine.Debug.Log("Platform: constructor called");
-		
-		try {
-			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-    	    activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-			context = activity.Call<AndroidJavaObject>("getApplicationContext");
-			helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
-			points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
-			UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
-			
-			// call the following on the UI thread
-			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
-				
-				// Get the singleton helper objects
-				try {
-					helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
-					points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
-        	  	    UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
-				} catch (Exception e) {
-					UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
-					UnityEngine.Debug.LogException(e);
-				}
-				// Try to get a Java GPSTracker object
-				try {
-					gps = helper.Call<AndroidJavaObject>("getGPSTracker");
-					UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
-				} catch (Exception e) {
-					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
-					UnityEngine.Debug.LogException(e);
-				}
-				AwardPoints("Free points for devs", "Platform.cs", 10000);
-				// Cache the list of games and states from java
-		        GetGames();
-				
-				UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
-				UnityEngine.Debug.Log("Current game points: " + GetCurrentPoints());
-				UnityEngine.Debug.Log("Current gems: " + GetCurrentGemBalance());
-				UnityEngine.Debug.Log("Current metabolism: " + GetCurrentMetabolism());
-					
-				initialised = true;
-        	}));
-			
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
-			UnityEngine.Debug.LogException(e);
-		}
-		
-		
-		
-	}
 	
 	public AndroidJavaObject GetHelper() {
 		return helper;

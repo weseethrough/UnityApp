@@ -196,6 +196,9 @@ public class DynamicHexList : MonoBehaviour
         if (!initialized) return;
 
         buttonNextEnterDelay -= Time.deltaTime;
+		if(buttons == null) {
+			UnityEngine.Debug.Log("DynamicHexList: buttons is null");
+		}
         if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
         {
 

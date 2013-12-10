@@ -35,6 +35,7 @@ public class EagleController : TargetController {
 	
 		// Get the audiosource.
 		screech = GetComponent<AudioSource>();
+		//StartCoroutine(FlyingMovement(20));
 	}
 	
 	/// <summary>
@@ -43,6 +44,7 @@ public class EagleController : TargetController {
 	void OnEnable() {
 		// Enable the base and set the attributes
 		base.OnEnable();
+		//StartCoroutine(FlyingMovement(20));
 		SetAttribs(50, 135, 2092, 0);
 	}
 	
@@ -113,5 +115,25 @@ public class EagleController : TargetController {
 			}
 		}
 		
+	}
+	
+	IEnumerator FlyingMovement(float time) {
+		
+		// Do movement
+		
+		
+		yield return new WaitForSeconds(time);
+		UnityEngine.Debug.Log("Eagle: Testing the descent");
+		StartCoroutine(Descending());
+	}
+	
+	IEnumerator Descending() {
+		
+		// Start descending
+		
+		
+		yield return new WaitForSeconds(10);
+		UnityEngine.Debug.Log("Eagle: Testing the Flying");
+		StartCoroutine(FlyingMovement(20));
 	}
 }
