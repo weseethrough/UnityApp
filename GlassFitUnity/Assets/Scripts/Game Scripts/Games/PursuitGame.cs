@@ -28,7 +28,7 @@ public class PursuitGame : GameBase {
 	public GameObject dinoHolder;
 	public GameObject fireHolder;
 	
-	private double offset = 0;
+	private double offset = 50;
 	
 	private int lives = 1;
 	

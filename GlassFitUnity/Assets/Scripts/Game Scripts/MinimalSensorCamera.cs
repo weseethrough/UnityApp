@@ -158,6 +158,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton");
 		if(gConnect != null) {
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+			DataVault.Set("bonus", 0);
 			Platform.Instance.StopTrack();
 			GestureHelper.onTap -= tapHandler;
 			tapHandler = new GestureHelper.OnTap(() => {
