@@ -48,7 +48,9 @@ public class RaceGame : GameBase {
 	// Target for bonus points
 	private int bonusTarget = 1000;
 
-
+	void Awake() {
+		Application.targetFrameRate = 20;
+	}
 	
 	void Start () {
 		base.Start();
