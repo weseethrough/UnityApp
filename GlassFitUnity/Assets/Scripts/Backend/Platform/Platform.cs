@@ -20,7 +20,6 @@ public class Platform : MonoBehaviour {
 	private long openingPointsBalance = 0;
 	public int currentTrack { get; set; }
 	
-	
 	private List<Track> trackList;
 	private List<Game> gameList;
 	
@@ -34,9 +33,9 @@ public class Platform : MonoBehaviour {
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
 	
-	public List<TargetTracker> targetTrackers { get; protected set; }
+	public List<TargetTracker> targetTrackers { get; private set; }
 	
-	public bool authenticated { get; protected set; }	
+	public bool authenticated { get; private set; }	
 	
 	// Other components may change this to disable sync temporarily?
 	public int syncInterval = 10;
@@ -54,64 +53,52 @@ public class Platform : MonoBehaviour {
 	// TEMP
 	
 	private static Platform _instance;
-	private static object _lock = new object();
-	
-	public static Platform Instance {
-		get {
-			if(applicationIsQuitting) {
-				UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
-				return null;
-			}
-#if !UNITY_EDITOR
-			UnityEngine.Debug.Log("About to look for Platform instance");
-			lock(_lock) {
-				UnityEngine.Debug.Log("Looking for Platform instance");
-				
-				if(_instance == null) {
-					UnityEngine.Debug.Log("Not yet stored Platform instance, looking for one which already exists.");
-					
-					_instance = (Platform) FindObjectOfType(typeof(Platform));
-					if(FindObjectsOfType(typeof(Platform)).Length > 1) {
-						UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-						return _instance;
-					
-					}
-					if(_instance == null) {
-						
-						UnityEngine.Debug.Log("Didn't find existing Platform Instance. Creating one");
-						
-						GameObject singleton = new GameObject();
-						_instance = singleton.AddComponent<Platform>();
+        
+        public static Platform Instance 
+    {
+                get 
+        {
+                        if(applicationIsQuitting) 
+            {
+                                UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
+                                return null;
+                        }
+                        
+                        if(_instance == null) 
+            {
+                                _instance = (Platform) FindObjectOfType(typeof(Platform));
+                                
+                /* Too heavy operation to be called by instance reference
+                 * if(FindObjectsOfType(typeof(Platform)).Length > 1) 
+                {
+                                        UnityEngine.Debug.Log("Singleton: there is more than one singleton");
+                                        //return _instance;
+                                }*/
+                                if(_instance == null) 
+                {
+                                        GameObject singleton = new GameObject();
+                                        _instance = singleton.AddComponent<Platform>();
+                                        singleton.name = "Platform"; // Used as target for messages
+                                                
+                                        DontDestroyOnLoad(singleton);
+                                } 
+                else 
+                {
+                                        UnityEngine.Debug.Log("Singleton: already exists!!");
+                                }
+                        }
 
-						singleton.name = "Platform"; // Used as target for messages
-						
-						DontDestroyOnLoad(singleton);
-					} else {
-						UnityEngine.Debug.Log("Singleton: already exists!!");
-					}
-				}
-				while(!_instance.initialised) {
-					continue;
-				}
-					return _instance;
-			}
-#else
-			//create an instance of platform dummy instead
-			if(_instance == null) 
-			{
-				//look for one in the scene
-				_instance = (Platform) FindObjectOfType(typeof(PlatformDummy));
-			}
-			if(_instance == null)
-			{
-				GameObject singleton = new GameObject();
-				_instance = singleton.AddComponent<PlatformDummy>();
-				singleton.name = "Platform";
-			}
-			return _instance;
-#endif
-		}
-	}
+            if (_instance != null)
+            {
+                while (_instance.initialised == false)
+                {
+                    continue;
+                }
+            }
+                        return _instance;
+                        
+                }
+        }
 	
 	private static bool applicationIsQuitting = false;
 	
@@ -119,8 +106,69 @@ public class Platform : MonoBehaviour {
 		applicationIsQuitting = true;
 	}
 	
+	 void Awake() 
+        {
+                if (initialised == false)
+                {
+                        Initialize();
+                }
+        }
+        
+	        void Initialize()
+	        {        
+	                
+	                authenticated = false;
+	                targetTrackers = new List<TargetTracker>();
+	                UnityEngine.Debug.Log("Platform: constructor called");
+	                
+	                try {
+	                        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+	                activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+	                        context = activity.Call<AndroidJavaObject>("getApplicationContext");
+	                        helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
+	                        points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
+	                        UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
+	                        
+	                        // call the following on the UI thread
+	                        activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
+	                                
+	                                // Get the singleton helper objects
+	                                try {
+	                                        helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+	                                        points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+	                              UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
+	                                } catch (Exception e) {
+	                                        UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
+	                                        UnityEngine.Debug.LogException(e);
+	                                }
+	                                // Try to get a Java GPSTracker object
+	                                try {
+	                                        gps = helper.Call<AndroidJavaObject>("getGPSTracker");
+	                                        UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
+	                                } catch (Exception e) {
+	                                        UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
+	                                        UnityEngine.Debug.LogException(e);
+	                                }
+	                                AwardPoints("Free points for devs", "Platform.cs", 10000);
+	                                // Cache the list of games and states from java
+	                        GetGames();
+	                                
+	                                UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
+	                                UnityEngine.Debug.Log("Current game points: " + GetCurrentPoints());
+	                                UnityEngine.Debug.Log("Current gems: " + GetCurrentGemBalance());
+	                                UnityEngine.Debug.Log("Current metabolism: " + GetCurrentMetabolism());
+	                                        
+	                                initialised = true;
+	                }));
+	                        
+	                } catch (Exception e) {
+	                        UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
+	                        UnityEngine.Debug.LogException(e);
+	                }
+	        }
+	
 	/// Message receivers
-	public virtual void OnAuthentication(string message) {
+	public void OnAuthentication(string message) {
 		if (string.Equals(message, "Success")) {
 			authenticated = true;
 			if (onAuthenticated != null) onAuthenticated(true);
@@ -132,7 +180,7 @@ public class Platform : MonoBehaviour {
 		UnityEngine.Debug.Log("Platform: authentication " + message.ToLower()); 
 	}
 	
-	public virtual void OnSynchronization(string message) {
+	public void OnSynchronization(string message) {
 		lastSync = DateTime.Now;
 		if (onSync != null) onSync();
 		/// TEMP
@@ -153,94 +201,22 @@ public class Platform : MonoBehaviour {
 	}
 
 	/// TEMP
-	public virtual void OnGUI() {
+	public void OnGUI() {
 		GUI.Label(new Rect(Screen.width/2 - 150, 50, 300, 50), message);
 		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
 	}
 	/// TEMP
 	
-	protected Platform() {
-		
-		authenticated = false;
-		targetTrackers = new List<TargetTracker>();
-		UnityEngine.Debug.Log("Platform: constructor called");
-		
-		try {
-			
-			UnityEngine.Debug.Log("Platform: creating UnityPlayer androidJavaClass");
-			
-			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-    	    
-			UnityEngine.Debug.Log("Platform: getting current activity");
-			activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-			
-			try {
-				activity.Call("onResume");
-			} catch (Exception e) {
-				UnityEngine.Debug.Log("Platform: onresume Didn't work, try again");
-			}
-			
-			context = activity.Call<AndroidJavaObject>("getApplicationContext");
-			
-			UnityEngine.Debug.Log("Platform: creating helper AndroidJavaClass");
-			helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
-			
-			UnityEngine.Debug.Log("Platform: creating points helper");
-			points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
-			
-			UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
-			
-			// call the following on the UI thread
-			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
-				
-				// Get the singleton helper objects
-				try {
-					helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
-					points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
-        	  	    UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
-				} catch (Exception e) {
-					UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
-					UnityEngine.Debug.LogException(e);
-				}
-				// Try to get a Java GPSTracker object
-				try {
-					gps = helper.Call<AndroidJavaObject>("getGPSTracker");
-					UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
-				} catch (Exception e) {
-					UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
-					UnityEngine.Debug.LogException(e);
-				}
-				AwardPoints("Free points for devs", "Platform.cs", 10000);
-				// Cache the list of games and states from java
-		        GetGames();
-				
-				UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
-				UnityEngine.Debug.Log("Current game points: " + GetCurrentPoints());
-				UnityEngine.Debug.Log("Current gems: " + GetCurrentGemBalance());
-				UnityEngine.Debug.Log("Current metabolism: " + GetCurrentMetabolism());
-					
-				initialised = true;
-        	}));
-			
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
-			UnityEngine.Debug.LogException(e);
-		}
-		
-		
-		
-	}
-	
-	public virtual AndroidJavaObject GetHelper() {
+	public AndroidJavaObject GetHelper() {
 		return helper;
 	}
 	
-	public virtual bool HasStarted() {
+	public bool HasStarted() {
 		return started;
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual User User() {
+	public User User() {
 		try {
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getUser");
 			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
@@ -251,7 +227,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public virtual User GetUser(int userId) {
+	public User GetUser(int userId) {
 		// TODO: Implement me!
 		string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
 		string name = names[userId % names.Length];
@@ -261,7 +237,7 @@ public class Platform : MonoBehaviour {
 	
 	// Starts tracking
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual void StartTrack() {
+	public void StartTrack() {
 		try {
 			gps.Call("startTracking");
 			tracking = true;
@@ -275,7 +251,7 @@ public class Platform : MonoBehaviour {
 	
 	// Set the indoor mode
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual void SetIndoor(bool indoor) {
+	public void SetIndoor(bool indoor) {
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
@@ -295,7 +271,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual void ResetTargets() {
+	public void ResetTargets() {
 		try {
 			helper.Call("resetTargets");
 			targetTrackers.Clear();
@@ -306,7 +282,7 @@ public class Platform : MonoBehaviour {
 	
 	// Returns the target tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual TargetTracker CreateTargetTracker(float constantSpeed){
+	public TargetTracker CreateTargetTracker(float constantSpeed){
 		FauxTargetTracker t;
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getFauxTargetTracker", constantSpeed);
@@ -323,7 +299,7 @@ public class Platform : MonoBehaviour {
 		return t;
 	}
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual TargetTracker CreateTargetTracker(int deviceId, int trackId){
+	public TargetTracker CreateTargetTracker(int deviceId, int trackId){
 		TargetTracker t = TargetTracker.Build(helper, deviceId, trackId);
 		if (t == null) return null;
 		targetTrackers.Add(t);
@@ -332,7 +308,7 @@ public class Platform : MonoBehaviour {
 	
 	// Check if has GPS lock
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Boolean HasLock() {
+	public Boolean HasLock() {
 		try {
 			bool gpsLock = gps.Call<Boolean>("hasPosition");
 //			UnityEngine.Debug.Log("Platform: hasLock() returned " + gpsLock);
@@ -346,7 +322,7 @@ public class Platform : MonoBehaviour {
 	
 	// Stop tracking 
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Track StopTrack() {
+	public Track StopTrack() {
 		try {
 			gps.Call("stopTracking");
 			using (AndroidJavaObject rawtrack = gps.Call<AndroidJavaObject>("getTrack")) {
@@ -361,7 +337,7 @@ public class Platform : MonoBehaviour {
 	// Authentication 
 	// result returned through onAuthenticated
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual void Authorize(string provider, string permissions) {
+	public void Authorize(string provider, string permissions) {
 		try {
 			authenticated = helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
 		} catch(Exception e) {
@@ -371,7 +347,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual bool HasPermissions(string provider, string permissions) {
+	public bool HasPermissions(string provider, string permissions) {
 		try {
 			return helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
 		} catch(Exception e) {
@@ -383,7 +359,7 @@ public class Platform : MonoBehaviour {
 	
 	// Sync to server
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual void SyncToServer() {
+	public void SyncToServer() {
 		lastSync = DateTime.Now;
 		try {
 			helper_class.CallStatic("syncToServer", context);
@@ -395,7 +371,7 @@ public class Platform : MonoBehaviour {
 	
 	// Reset GPS tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual void Reset() {
+	public void Reset() {
 		try {
 			gps.Call("reset");
 			started = false;
@@ -407,7 +383,7 @@ public class Platform : MonoBehaviour {
 	}
 		
 	// Load the game blob
-	public virtual byte[] LoadBlob(string id) {
+	public byte[] LoadBlob(string id) {
 		try {
 			byte[] blob = helper_class.CallStatic<byte[]>("loadBlob", id);
 			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " loaded");
@@ -420,7 +396,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Get the device's orientation
-	public virtual Quaternion GetOrientation() {
+	public Quaternion GetOrientation() {
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getOrientation");
             Quaternion q = new Quaternion(ajo.Call<float>("getX"), ajo.Call<float>("getY"), ajo.Call<float>("getZ"),ajo.Call<float>("getW"));
@@ -432,7 +408,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Reset the Gyros and accelerometer
-	public virtual void ResetGyro() {
+	public void ResetGyro() {
 		try {
 			helper.Call("resetGyros");
 		} catch (Exception e) {
@@ -441,7 +417,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Challenge FetchChallenge(string id) {
+	public Challenge FetchChallenge(string id) {
 		try {
 			using (AndroidJavaObject rawch = helper_class.CallStatic<AndroidJavaObject>("fetchChallenge", id)) {
 				return Challenge.Build(rawch.Get<string>("json"));
@@ -468,7 +444,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Track FetchTrack(int deviceId, int trackId) {
+	public Track FetchTrack(int deviceId, int trackId) {
 		try {
 			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
 					Track track = convertTrack(rawtrack);
@@ -482,7 +458,7 @@ public class Platform : MonoBehaviour {
 	
 	// Load a list of tracks
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual List<Track> GetTracks() {
+	public List<Track> GetTracks() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getTracks")) {
 				int size = list.Call<int>("size");
@@ -514,7 +490,7 @@ public class Platform : MonoBehaviour {
 	/// <returns>
 	/// The games.
 	/// </returns>
-	public virtual List<Game> GetTempGames() {
+	public List<Game> GetTempGames() {
 		if(gameList != null)
 		{
 			return gameList;
@@ -559,7 +535,7 @@ public class Platform : MonoBehaviour {
 	/// Load a list of games from the java database, together with lock state, cost, description etc.
 	/// Typically used when building the main hex menu
 	/// </summary>
-	public virtual List<Game> GetGames()
+	public List<Game> GetGames()
 	{
 		// if we already have a copy, return it. Games are unlikely to update except through Game.unlock.
 		if (gameList != null)
@@ -603,7 +579,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public virtual void QueueAction(string json) {
+	public void QueueAction(string json) {
 		try {
 			helper_class.CallStatic("queueAction", json);
 		} catch (Exception e) {
@@ -612,7 +588,7 @@ public class Platform : MonoBehaviour {
 	}
 		
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Friend[] Friends() {
+	public Friend[] Friends() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
 				int length = list.Call<int>("size");
@@ -633,7 +609,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Notification[] Notifications() {
+	public Notification[] Notifications() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getNotifications")) {
 				int length = list.Call<int>("size");
@@ -653,18 +629,12 @@ public class Platform : MonoBehaviour {
 		return new Notification[0];
 	}
 	
-	public virtual void ReadNotification(string id) {
+	public void ReadNotification(string id) {
 		throw new NotImplementedException("Iterate through notifications and setRead(true) or add setRead(id) helper method?");
 	}
-
-	//used by PlatformDummy
-	public virtual void StoreBlobAsAsset(string id, byte[] blob) {
-		return;
-	}
-
-	
+		
 	// Store the blob
-	public virtual void StoreBlob(string id, byte[] blob) {
+	public void StoreBlob(string id, byte[] blob) {
 		try {
 			helper_class.CallStatic("storeBlob", id, blob);
 			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " stored");
@@ -674,12 +644,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public virtual float DistanceBehindTarget() {
-		return GetLowestDistBehind();	
-	}
-
-	
-	public virtual float GetHighestDistBehind() {
+	public float GetHighestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
@@ -692,7 +657,7 @@ public class Platform : MonoBehaviour {
 		return h;
 	}
 	
-	public virtual float GetLowestDistBehind() {
+	public float GetLowestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
@@ -705,18 +670,8 @@ public class Platform : MonoBehaviour {
 		return l;
 	}
 	
-	/// <summary>
-	/// Currently used by some of the games in the editor only.
-	/// </summary>
-	/// <returns>
-	/// The target speed.
-	/// </returns>
-	public virtual float GetTargetSpeed() {
-		return 0;	
-	}
-	
 	// Update the data
-	public virtual void EraseBlob(string id) {
+	public void EraseBlob(string id) {
 		try {
 			helper_class.CallStatic("eraseBlob", id);
 			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " erased");
@@ -726,7 +681,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public virtual void ResetBlobs() {
+	public void ResetBlobs() {
 		try {
 			helper_class.CallStatic("resetBlobs");
 			UnityEngine.Debug.LogWarning("Platform: Game blobs reset");
@@ -736,7 +691,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public virtual void Poll() {
+	public void Poll() {
 		
 //		if (!hasLock ()) return;
 		try {
@@ -801,45 +756,45 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Return the distance behind target
-	public virtual double DistanceBehindTarget(TargetTracker tracker) {
+	public double DistanceBehindTarget(TargetTracker tracker) {
 		double returnDistance = (tracker.GetTargetDistance() - distance);
 		return returnDistance;
 	}
 	
-	public virtual long Time() {
+	public long Time() {
 		return time;
 	}
 	
-	public virtual double Distance() {
+	public double Distance() {
 		return distance;
 	}
 	
-	public virtual int Calories() {
+	public int Calories() {
 		double cal = 76.0 / 1000.0 * distance;
 		return (int)cal;
 	}
 	
-	public virtual float Pace() {
+	public float Pace() {
 		return pace;
 	}
 	
-	public virtual Position Position() {
+	public Position Position() {
 		return position;
 	}
 	
-	public virtual float Bearing() {
+	public float Bearing() {
 		return bearing;
 	}
 	
-	public virtual long GetOpeningPointsBalance() {
+	public long GetOpeningPointsBalance() {
 		return openingPointsBalance;
 	}
 	
-	public virtual long GetCurrentPoints() {
+	public long GetCurrentPoints() {
 		return currentActivityPoints;
 	}
 	
-	public virtual int GetCurrentGemBalance() {
+	public int GetCurrentGemBalance() {
 		try {
 			return points_helper.Call<int>("getCurrentGemBalance");
 		} catch (Exception e) {
@@ -848,7 +803,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public virtual float GetCurrentMetabolism() {
+	public float GetCurrentMetabolism() {
 		try {
 			return points_helper.Call<float>("getCurrentMetabolism");
 		} catch (Exception e) {
@@ -857,7 +812,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public virtual void SetBasePointsSpeed(float speed) {
+	public void SetBasePointsSpeed(float speed) {
 		try {
 			points_helper.Call("setBaseSpeed", speed);
 		} catch (Exception e) {
@@ -877,7 +832,7 @@ public class Platform : MonoBehaviour {
 	/// <param name='points'>
 	/// Number of points to award.
 	/// </param>
-	public virtual void AwardPoints(String reason, String gameId, long points)
+	public void AwardPoints(String reason, String gameId, long points)
 	{
 		try
 		{
@@ -902,7 +857,7 @@ public class Platform : MonoBehaviour {
 	/// <param name='gems'>
 	/// Number of gems to award.
 	/// </param>
-	public virtual void AwardGems(String reason, String gameId, int gems)
+	public void AwardGems(String reason, String gameId, int gems)
 	{
 		try
 		{

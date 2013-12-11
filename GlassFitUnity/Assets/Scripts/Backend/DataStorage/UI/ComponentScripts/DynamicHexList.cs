@@ -59,6 +59,7 @@ public class DynamicHexList : MonoBehaviour
             UICamera uicam = c.GetComponent<UICamera>();
             if (uicam != null && c.gameObject.layer == LayerMask.NameToLayer(HexPanel.CAMERA_3D_LAYER))
             {
+				UnityEngine.Debug.Log("DynamicHexList: Camera's name is: " + c.name);
                 guiCamera = uicam;
                 break;
             }
@@ -193,9 +194,12 @@ public class DynamicHexList : MonoBehaviour
     void Update()
     {
 
-        if (!initialized) return;
+        //if (!initialized) return;
 
         buttonNextEnterDelay -= Time.deltaTime;
+		if(buttons == null) {
+			UnityEngine.Debug.Log("DynamicHexList: buttons is null");
+		}
         if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
         {
 
@@ -399,8 +403,9 @@ public class DynamicHexList : MonoBehaviour
 		FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
         if (fb != null)
         {
-			guiCamera.transform.position =  new Vector3(0, 0, -1.5f);
+			
             parent.OnClick(fb);
+			//guiCamera.transform.position =  new Vector3(0, 0, -1.5f);
         }
 	}
 	
