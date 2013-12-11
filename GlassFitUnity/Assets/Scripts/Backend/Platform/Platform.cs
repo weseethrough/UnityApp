@@ -35,6 +35,7 @@ public class Platform : MonoBehaviour {
 	
 	public List<TargetTracker> targetTrackers { get; private set; }
 	
+	// Are we authenticated? Note: we mark it false at init and true when any auth call passes
 	public bool authenticated { get; private set; }	
 	
 	// Other components may change this to disable sync temporarily?
@@ -46,6 +47,12 @@ public class Platform : MonoBehaviour {
 	public OnAuthenticated onAuthenticated = null;
 	public delegate void OnSync();
 	public OnSync onSync = null;
+	public delegate void OnRegistered(string message);
+	public OnRegistered onDeviceRegistered = null;
+	
+	// The current user and device
+	private User user = null;
+	private Device device = null;
 	
 	// TEMP
 	public string message = "Message area";
@@ -78,7 +85,10 @@ public class Platform : MonoBehaviour {
                 {
                                         GameObject singleton = new GameObject();
                                         _instance = singleton.AddComponent<Platform>();
-                                        singleton.name = "Platform"; // Used as target for messages
+                                        singleton.name = "Platform"; // Used as target for messages										
+										// Enable Update() function
+										_instance.enabled = true; 
+										singleton.SetActive(true);
                                                 
                                         DontDestroyOnLoad(singleton);
                                 } 
@@ -174,8 +184,11 @@ public class Platform : MonoBehaviour {
 			if (onAuthenticated != null) onAuthenticated(true);
 		}
 		if (string.Equals(message, "Failure")) {
-			authenticated = false;
 			if (onAuthenticated != null) onAuthenticated(false);
+		}
+		if (string.Equals(message, "OutOfBand")) {
+			if (onAuthenticated != null) onAuthenticated(false);
+			// TODO: Pop up message 
 		}
 		UnityEngine.Debug.Log("Platform: authentication " + message.ToLower()); 
 	}
@@ -193,7 +206,13 @@ public class Platform : MonoBehaviour {
 			notesLabel = "No unread notifications";
 		}
 		/// TEMP
+		notesLabel += " " + lastSync.ToLongTimeString();
 	}
+	
+	public void OnRegistration(string message) {
+		message = "reg: " + message;
+		onDeviceRegistered(message);
+	}	
 	
 	public void OnActionIntent(string message) {
 		UnityEngine.Debug.Log("Platform: action " + message); 
@@ -215,10 +234,23 @@ public class Platform : MonoBehaviour {
 		return started;
 	}
 	
+	public Device Device() {
+		try {
+			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getDevice");
+			if (ajo.GetRawObject().ToInt32() == 0) return null;
+			return new Device(ajo.Get<int>("id"), ajo.Get<string>("manufacturer"), ajo.Get<string>("model"), ajo.Get<int>("glassfit_version"));
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: failed to fetch user " + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return null;
+		}
+	}	
+	
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public User User() {
 		try {
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getUser");
+			if (ajo.GetRawObject().ToInt32() == 0) return null;
 			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: failed to fetch user " + e.Message);
@@ -306,6 +338,46 @@ public class Platform : MonoBehaviour {
 		return t;
 	}
 	
+	public bool OnGlass() {
+		try {
+			return helper_class.CallStatic<bool>("onGlass");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: onGlass() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return false;
+		}
+	}
+	
+	public bool IsPluggedIn() {
+		try {
+			return helper.Call<bool>("isPluggedIn");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: isPluggedIn() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return false;
+		}
+	}
+	
+	public bool HasInternet() {
+		try {
+			return helper.Call<bool>("hasInternet");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: hasInternet() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return false;
+		}
+	}
+	
+	public bool HasWifi() {
+		try {
+			return helper.Call<bool>("hasWifi");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: hasWifi() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return false;
+		}
+	}
+	
 	// Check if has GPS lock
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public Boolean HasLock() {
@@ -339,7 +411,8 @@ public class Platform : MonoBehaviour {
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public void Authorize(string provider, string permissions) {
 		try {
-			authenticated = helper_class.CallStatic<bool>("authorize", activity, provider, permissions);
+			bool auth = helper.Call<bool>("authorize", activity, provider, permissions);
+			if (!authenticated && auth) authenticated = true;
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
 			UnityEngine.Debug.LogException(e);
@@ -349,7 +422,9 @@ public class Platform : MonoBehaviour {
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public bool HasPermissions(string provider, string permissions) {
 		try {
-			return helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
+			bool auth = helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
+			if (!authenticated && auth) authenticated = true;
+			return auth;
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem checking permissions for provider: " + provider);
 			UnityEngine.Debug.LogException(e);
@@ -691,6 +766,15 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	public void Update() {
+		if (device == null) device = Device();
+		if (user == null) user = User();
+		
+		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval && IsPluggedIn()) {
+			SyncToServer();
+		}				
+	}	
+	
 	public void Poll() {
 		
 //		if (!hasLock ()) return;
@@ -741,18 +825,13 @@ public class Platform : MonoBehaviour {
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting current activity points: " + e.Message);
 			DataVault.Set("points", -1);
-		}
-		
+		}		
 		
 		try {
 			openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting opening points balance: " + e.Message);
 		}
-		
-		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval) {
-			SyncToServer();
-		}		
 	}
 	
 	// Return the distance behind target
