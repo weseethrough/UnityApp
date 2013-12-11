@@ -7,6 +7,10 @@ using System.Collections;
 public class MinimalSensorCamera : MonoBehaviour {
 	
 	public Quaternion offsetFromStart;
+	private Quaternion bearingOffset = Quaternion.identity; // rotation between initialBearing and player's current bearing.
+	                                                        // applied to camera in each update() call.
+	private Quaternion? initialBearing = null;  // first valid bearing we receive. Updated on ResetGyros.
+	                                            // null iff no valid bearing has been calculated yet
 	
 	private bool started;
 	private float scaleX;
@@ -57,6 +61,13 @@ public class MinimalSensorCamera : MonoBehaviour {
 			gridOn = false;
 		} else {
 			offsetFromStart = Platform.Instance.GetOrientation();
+			if (Platform.Instance.Bearing() != -999.0f) {
+				initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+				bearingOffset = Quaternion.identity;
+			} else {
+				initialBearing = null;
+				bearingOffset = Quaternion.identity;
+			}
 			Platform.Instance.ResetGyro();
 			gridOn = true;
 			gridTimer = 5.0f;
@@ -191,12 +202,23 @@ public class MinimalSensorCamera : MonoBehaviour {
 	void Update () {
 		
 #if !UNITY_EDITOR
+		// Check for changes in the player's bearing
+		if (Platform.Instance.Bearing() != -999.0f) {
+			Quaternion currentBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+			if (initialBearing.HasValue == false) {
+				// if this is the first valid bearing we've had, use it as the reference point and return identity
+				initialBearing = currentBearing;
+			}
+			bearingOffset = initialBearing.Value * Quaternion.Inverse (currentBearing);
+		}
+		UnityEngine.Debug.Log("Bearing w-component: " + bearingOffset);
+		
 		// Set the new rotation of the camera
-		Quaternion newOffset = Quaternion.identity;
+		Quaternion newOffset;
 		if(rearview) {
-			newOffset = Quaternion.Inverse(Quaternion.Euler(0, 180, 0)) * (Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation());
+			newOffset = bearingOffset * Quaternion.Inverse(Quaternion.Euler(0, 180, 0)) * (Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation());
 		} else {
-			newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+			newOffset = bearingOffset * Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
 		}
 #else
 		if(Input.GetKeyDown(KeyCode.B)) {

@@ -13,7 +13,7 @@ public class Platform : MonoBehaviour {
 	private int calories = 0;
 	private float pace = 0;
 	private Position position = null;
-	private float bearing = 0;
+	private float bearing = -999.0f;
 	private bool started = false;
 	private bool initialised = false;
 	private long currentActivityPoints = 0;
@@ -812,8 +812,10 @@ public class Platform : MonoBehaviour {
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
 		try {
-			if (HasLock()) {
+			if (gps.Call<bool>("hasBearing")) {
 				bearing = gps.Call<float>("getCurrentBearing");
+			} else {
+				bearing = -999.0f;
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting bearing: " + e.Message);
