@@ -141,7 +141,7 @@ public class ButtonFunctionCollection
 			DataVault.Set("type", "Dinosaur");
 			break;
 			
-		case "Fire Level 1":
+		case "activity_fire":
 			DataVault.Set("type", "Fire");
 			break;
 		}
@@ -678,4 +678,30 @@ public class ButtonFunctionCollection
 		
 		return false;
 	}	
+	
+	/// <summary>
+	/// Enables the flow to go straight to game if we are in the editor
+	/// </summary>
+	static public bool GoStraightToGameInEditor(FlowButton button, Panel panel)
+	{
+		if(Application.isEditor)
+		{
+			//go straight to the editor, by following the 'StraightToGame' exit
+			if(panel != null)
+			{
+				GConnector gc = panel.Outputs.Find((r) => r.Name == "StraightToGame");
+                if (gc != null)
+                {
+					Debug.Log("Found connection");
+                    panel.parentMachine.FollowConnection(gc);
+                    return false;
+                }
+			}
+			return false;	
+		}
+		else
+		{
+			return true;
+		}
+	}
 }

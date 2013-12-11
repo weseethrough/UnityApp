@@ -17,8 +17,11 @@ public class FinishMarker : MonoBehaviour {
 	/// </summary>
 	void Start () {
 		// Get the player's target.
+#if UNITY_EDITOR
+		target = 5000;
+#else
 		target = (int)DataVault.Get("finish") * 1000;
-		
+#endif	
 		// Set the initial position out of view.
 		transform.position = new Vector3(0f, -595f, 500000f);
 	}
@@ -28,11 +31,7 @@ public class FinishMarker : MonoBehaviour {
 	/// </summary>
 	void Update () {
 		// Get the current distance travelled.
-#if !UNITY_EDITOR
 		distance = Platform.Instance.Distance();
-#else
-		distance = PlatformDummy.Instance.Distance();
-#endif
 		// If the finish line is in range, display it.
 		if(distance > target - 100) 
 		{

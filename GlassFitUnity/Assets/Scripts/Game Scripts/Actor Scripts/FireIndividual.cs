@@ -10,6 +10,7 @@ public class FireIndividual : MonoBehaviour {
 	public float frequencyVariance = 0.2f;
 	public float scaleVariance = 1.0f;
 	public float moveVariance = 1.0f;
+	private float phase = 0.0f;
 	
 	public float baseScale = 1;
 	/// <summary>
@@ -21,6 +22,9 @@ public class FireIndividual : MonoBehaviour {
 		scaleAmplitude = scaleAmplitude + Random.Range(-scaleVariance, scaleVariance);
 		moveFrequency = moveFrequency + Random.Range(-frequencyVariance, frequencyVariance);
 		moveAmplitude = moveAmplitude + Random.Range (-moveVariance, moveVariance);
+		
+		//pick a random phase
+		phase = Random.Range(0, 2.0f * Mathf.PI);
 	}
 	
 /// <summary>
@@ -31,14 +35,12 @@ public class FireIndividual : MonoBehaviour {
 		
 		
 		
-		transform.FindChild("FireMesh").transform.localPosition = new Vector3( 	moveAmplitude * Mathf.Sin(Time.time/moveFrequency) + Random.Range(-moveVariance,moveVariance),
-											0,
+		transform.FindChild("FireMesh").transform.localPosition = new Vector3( 	moveAmplitude * Mathf.Sin(Time.time*moveFrequency + phase) + Random.Range(-moveVariance,moveVariance),
+											0.0f,
 											Random.Range(-moveVariance, moveVariance));
-		float scaleY =  scaleAmplitude * (1.0f +  scaleVariance * Mathf.Sin(Time.time) + Random.Range(-scaleVariance, scaleVariance) );
+		float scaleY =  1.0f +  0.5f * scaleAmplitude * (Mathf.Sin(Time.time*scaleFrequency + phase) +1) + Random.Range(0,scaleVariance);
 		//transform.localScale = new Vector3( baseScale, baseScale * scaleY, baseScale);
 		transform.localScale = new Vector3(baseScale, baseScale * scaleY, baseScale);
-		
-		
 	
 	}
 }

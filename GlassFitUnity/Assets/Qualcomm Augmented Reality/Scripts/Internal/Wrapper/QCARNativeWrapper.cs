@@ -90,84 +90,97 @@ public class QCARNativeWrapper : IQCARWrapper
 
     public int DataSetExists(string relativePath, int storageType)
     {
-        return dataSetExists(relativePath, storageType);
+       //return dataSetExists(relativePath, storageType);
+		return 0;
     }
 
     public int DataSetLoad(string relativePath, int storageType, IntPtr dataSetPtr)
     {
-        return dataSetLoad(relativePath, storageType, dataSetPtr);
+       //return dataSetLoad(relativePath, storageType, dataSetPtr);
+		return 0;
     }
 
     public int DataSetGetNumTrackableType(int trackableType, IntPtr dataSetPtr)
     {
-        return dataSetGetNumTrackableType(trackableType, dataSetPtr);
+       //return dataSetGetNumTrackableType(trackableType, dataSetPtr);
+		return 0;
     }
 
     public int DataSetGetTrackablesOfType(int trackableType, [In, Out] IntPtr trackableDataArray,
                                                          int trackableDataArrayLength, IntPtr dataSetPtr)
     {
-        return dataSetGetTrackablesOfType(trackableType, trackableDataArray, trackableDataArrayLength, dataSetPtr);
+       //return dataSetGetTrackablesOfType(trackableType, trackableDataArray, trackableDataArrayLength, dataSetPtr);
+		return 0;
     }
 
     public int DataSetGetTrackableName(IntPtr dataSetPtr, int trackableId,
                                                         System.Text.StringBuilder trackableName,
                                                         int nameMaxLength)
     {
-        return dataSetGetTrackableName(dataSetPtr, trackableId,trackableName, nameMaxLength);
+       //return dataSetGetTrackableName(dataSetPtr, trackableId,trackableName, nameMaxLength);
+		return 0;
     }
 
     public int DataSetCreateTrackable(IntPtr dataSetPtr, IntPtr trackableSourcePtr, System.Text.StringBuilder trackableName,
                                                 int nameMaxLength, [In, Out] IntPtr trackableData)
     {
-        return dataSetCreateTrackable(dataSetPtr, trackableSourcePtr, trackableName, nameMaxLength, trackableData);
+       //return dataSetCreateTrackable(dataSetPtr, trackableSourcePtr, trackableName, nameMaxLength, trackableData);
+		return 0;
     }
 
     public int DataSetDestroyTrackable(IntPtr dataSetPtr, int trackableId)
     {
-        return dataSetDestroyTrackable(dataSetPtr, trackableId);
+       //return dataSetDestroyTrackable(dataSetPtr, trackableId);
+		return 0;
     }
 
     public int DataSetHasReachedTrackableLimit(IntPtr dataSetPtr)
     {
-        return dataSetHasReachedTrackableLimit(dataSetPtr);
+       //return dataSetHasReachedTrackableLimit(dataSetPtr);
+		return 0;
     }
 
     public int ImageTargetBuilderBuild(string targetName, float sceenSizeWidth)
     {
-        return imageTargetBuilderBuild(targetName, sceenSizeWidth);
+        //return imageTargetBuilderBuild(targetName, sceenSizeWidth);
+		return 0;
     }
 
     public void ImageTargetBuilderStartScan()
     {
-        imageTargetBuilderStartScan();
+       // imageTargetBuilderStartScan();
     }
 
     public void ImageTargetBuilderStopScan()
     {
-        imageTargetBuilderStopScan();
+        //imageTargetBuilderStopScan();
     }
 
     public int ImageTargetBuilderGetFrameQuality()
     {
-        return imageTargetBuilderGetFrameQuality();
+        //return imageTargetBuilderGetFrameQuality();
+		return 0;
     }
 
     public IntPtr ImageTargetBuilderGetTrackableSource()
     {
-        return imageTargetBuilderGetTrackableSource();
+        //return imageTargetBuilderGetTrackableSource();
+		return new IntPtr(0);
     }
 
     public int ImageTargetCreateVirtualButton(IntPtr dataSetPtr,
                                               string trackableName, string virtualButtonName,
                                               [In, Out] IntPtr rectData)
     {
-        return imageTargetCreateVirtualButton(dataSetPtr, trackableName, virtualButtonName, rectData);
+        //return imageTargetCreateVirtualButton(dataSetPtr, trackableName, virtualButtonName, rectData);
+		return 0;
     }
 
     public int ImageTargetDestroyVirtualButton(IntPtr dataSetPtr,
                                                string trackableName, string virtualButtonName)
     {
-        return imageTargetDestroyVirtualButton(dataSetPtr, trackableName, virtualButtonName);
+        //return imageTargetDestroyVirtualButton(dataSetPtr, trackableName, virtualButtonName);
+		return 0;
     }
 
     public int VirtualButtonGetId(IntPtr dataSetPtr, string trackableName, string virtualButtonName)
@@ -177,7 +190,8 @@ public class QCARNativeWrapper : IQCARWrapper
 
     public int ImageTargetGetNumVirtualButtons(IntPtr dataSetPtr, string trackableName)
     {
-        return imageTargetGetNumVirtualButtons(dataSetPtr, trackableName);
+        //return imageTargetGetNumVirtualButtons(dataSetPtr, trackableName);
+		return 0;
     }
 
     public int ImageTargetGetVirtualButtons([In, Out]IntPtr virtualButtonDataArray,
@@ -185,8 +199,9 @@ public class QCARNativeWrapper : IQCARWrapper
                                             int virtualButtonDataArrayLength,
                                             IntPtr dataSetPtr, string trackableName)
     {
-        return imageTargetGetVirtualButtons(virtualButtonDataArray, rectangleDataArray, virtualButtonDataArrayLength,
-                                            dataSetPtr, trackableName);
+        //return imageTargetGetVirtualButtons(virtualButtonDataArray, rectangleDataArray, virtualButtonDataArrayLength,
+                                            //dataSetPtr, trackableName);
+		return 0;
     }
 
     public int ImageTargetGetVirtualButtonName(IntPtr dataSetPtr,
@@ -195,17 +210,20 @@ public class QCARNativeWrapper : IQCARWrapper
                                                System.Text.StringBuilder vbName,
                                                int nameMaxLength)
     {
-        return imageTargetGetVirtualButtonName(dataSetPtr, trackableName, idx, vbName, nameMaxLength);
+        //return imageTargetGetVirtualButtonName(dataSetPtr, trackableName, idx, vbName, nameMaxLength);
+		return 0;
     }
 
     public int ImageTargetSetSize(IntPtr dataSetPtr, string trackableName, [In, Out]IntPtr size)
     {
-        return imageTargetSetSize(dataSetPtr, trackableName, size);
+        //return imageTargetSetSize(dataSetPtr, trackableName, size);
+		return 0;
     }
 
     public int ImageTargetGetSize(IntPtr dataSetPtr, string trackableName, [In, Out]IntPtr size)
     {
-        return imageTargetGetSize(dataSetPtr, trackableName, size);
+        //return imageTargetGetSize(dataSetPtr, trackableName, size);
+		return 0;
     }
 
     public int CylinderTargetGetSize(IntPtr dataSetPtr, string trackableName, [In, Out]IntPtr dimensions)
@@ -230,7 +248,8 @@ public class QCARNativeWrapper : IQCARWrapper
 
     public int ImageTrackerStart()
     {
-        return imageTrackerStart();
+        //return imageTrackerStart();
+		return 0;
     }
 
     public void ImageTrackerStop()
@@ -240,27 +259,32 @@ public class QCARNativeWrapper : IQCARWrapper
 
     public IntPtr ImageTrackerCreateDataSet()
     {
-        return imageTrackerCreateDataSet();
+        //return imageTrackerCreateDataSet();
+		return new IntPtr(0);
     }
 
     public int ImageTrackerDestroyDataSet(IntPtr dataSetPtr)
     {
-        return imageTrackerDestroyDataSet(dataSetPtr);
+        //return imageTrackerDestroyDataSet(dataSetPtr);
+		return 0;
     }
 
     public int ImageTrackerActivateDataSet(IntPtr dataSetPtr)
     {
-        return imageTrackerActivateDataSet(dataSetPtr);
+        //return imageTrackerActivateDataSet(dataSetPtr);
+		return 0;
     }
 
     public int ImageTrackerDeactivateDataSet(IntPtr dataSetPtr)
     {
-        return imageTrackerDeactivateDataSet(dataSetPtr);
+        //return imageTrackerDeactivateDataSet(dataSetPtr);
+		return 0;
     }
 
     public int MarkerTrackerStart()
     {
-        return markerTrackerStart();
+        //return markerTrackerStart();
+		return 0;
     }
 
     public void MarkerTrackerStop()
@@ -270,12 +294,14 @@ public class QCARNativeWrapper : IQCARWrapper
 
     public int MarkerTrackerCreateMarker(int id, String trackableName, float size)
     {
-        return markerTrackerCreateMarker(id, trackableName, size);
+        //return markerTrackerCreateMarker(id, trackableName, size);
+		return 0;
     }
 
     public int MarkerTrackerDestroyMarker(int trackableId)
     {
-        return markerTrackerDestroyMarker(trackableId);
+        //return markerTrackerDestroyMarker(trackableId);
+		return 0;
     }
 
     public void InitFrameState([In, Out] IntPtr frameIndex)
@@ -384,52 +410,59 @@ public class QCARNativeWrapper : IQCARWrapper
 
     public int TargetFinderStartInit(string userKey, string secretKey)
     {
-        return targetFinderStartInit(userKey, secretKey);
+        ////return targetFinderStartInit(userKey, secretKey);
+		return 0;
     }
 
     public int TargetFinderGetInitState()
     {
-        return targetFinderGetInitState();
+        ////return targetFinderGetInitState();
+		return 0;
     }
 
     public int TargetFinderDeinit()
     {
-        return targetFinderDeinit();
+        ////return targetFinderDeinit();
+		return 0;
     }
 
     public int TargetFinderStartRecognition()
     {
-        return targetFinderStartRecognition();
+        ////return targetFinderStartRecognition();
+		return 0;
     }
 
     public int TargetFinderStop()
     {
-        return targetFinderStop();
+        ////return targetFinderStop();
+		return 0;
     }
 
     public void TargetFinderSetUIScanlineColor(float r, float g, float b)
     {
-        targetFinderSetUIScanlineColor(r, g, b);
+       // targetFinderSetUIScanlineColor(r, g, b);
     }
 
     public void TargetFinderSetUIPointColor(float r, float g, float b)
     {
-        targetFinderSetUIPointColor(r, g, b);
+       // targetFinderSetUIPointColor(r, g, b);
     }
 
     public void TargetFinderUpdate([In, Out] IntPtr targetFinderState)
     {
-        targetFinderUpdate(targetFinderState);
+        //targetFinderUpdate(targetFinderState);
     }
 
     public int TargetFinderGetResults([In, Out] IntPtr searchResultArray, int searchResultArrayLength)
     {
-        return targetFinderGetResults(searchResultArray, searchResultArrayLength);
+        ////return targetFinderGetResults(searchResultArray, searchResultArrayLength);
+		return 0;
     }
 
     public int TargetFinderEnableTracking(IntPtr searchResult, [In, Out] IntPtr trackableData)
     {
-        return targetFinderEnableTracking(searchResult, trackableData);
+        ////return targetFinderEnableTracking(searchResult, trackableData);
+		return 0;
     }
 
     public void TargetFinderGetImageTargets([In, Out] IntPtr trackableIdArray, int trackableIdArrayLength)

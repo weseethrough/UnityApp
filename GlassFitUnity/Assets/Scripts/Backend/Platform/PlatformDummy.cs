@@ -7,7 +7,8 @@ using System.Diagnostics;
 using System.IO;
 
 [ExecuteInEditMode()] 
-public class PlatformDummy : MonoBehaviour 
+
+public class PlatformDummy : MonoBehaviour
 {
 	
 	private Stopwatch timer = new Stopwatch();
@@ -26,11 +27,11 @@ public class PlatformDummy : MonoBehaviour
 	private string blobassets = "blob";
 	
 	private static PlatformDummy _instance;
+
 	private bool initialised = false;	
 	private List<Game> games;
 	
-	public static PlatformDummy Instance 
-    {
+	public static PlatformDummy Instance {
 		get 
         {
             if (_instance == null)
@@ -92,6 +93,9 @@ public class PlatformDummy : MonoBehaviour
 	void Initialize()
 	{
 		//timer.Start();
+
+		UnityEngine.Debug.Log("Creating Platform Dummy instance");
+		
 		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 		Directory.CreateDirectory(blobstore);
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
@@ -151,6 +155,41 @@ public class PlatformDummy : MonoBehaviour
 		timer.Stop();
 	}
 	
+	public void SetIndoor(bool indoor) {
+		//nothing to do in dummy.
+		return;	
+	}
+	
+	public void ResetTargets() {
+		//Nothing to do?
+		return;	
+	}
+	
+	public TargetTracker CreateTargetTracker(float constantSpeed){
+		//don't want to create any target trackers in dummy.
+		return null;
+	}
+	
+	public TargetTracker CreateTargetTracker(int deviceId, int trackId){
+		//don't want to create any target trackers in dummy.
+		return null;	
+	}
+
+	public void Authorize(string provider, string permissions) {
+		//ignore in dummy
+		return;
+	}
+	
+	public bool HasPermissions(string provider, string permissions) {
+		//assume always have permissions in dummy
+		return true;
+	}
+	
+	public void SyncToServer() {
+		//do nothing for dummy
+		return;	
+	}
+
 	public void Reset() {
 		timer.Stop();
 		timer.Reset();
@@ -169,6 +208,61 @@ public class PlatformDummy : MonoBehaviour
 		throw new NotImplementedException();
 	}
 	
+	public Quaternion GetOrientation() {
+		//just return the identity quaternion, to look straight forward.
+		//might be useful to optionally have some wiggle on this in the future.
+		return Quaternion.identity;	
+	}
+	
+	public void ResetGyro() {
+		//do nothing
+		return;
+	}
+	
+	public Challenge FetchChallenge(string id) {
+		//don't need any challenges in the dummy
+		return null;	
+	}
+
+	public Track FetchTrack(int deviceID, int trackID) {
+		//don't need any tracks in the dummy.
+		return null;	
+	}
+	
+//	public void SetTargetSpeed(float speed)
+//	{
+//		throw new NotImplementedException();
+//	}
+//	
+//	public void SetTargetTrack(int trackID)
+//	{
+//		throw new NotImplementedException();
+//	}
+	
+	public List<Track> GetTracks() {
+		//don't need any tracks in the dummy
+		return null;
+	}
+	
+	/// <summary>
+	/// Not too sure how TempGames differs from Games. AH
+	/// </summary>
+	/// <returns>
+	/// This function will simply return the games list for Platform Dummy, for now.
+	/// </returns>
+	public List<Game> GetTempGames() {
+		return games;	
+	}
+	
+	public List<Game> GetGames() {
+		return games;
+	}
+	
+	public void QueueAction(string json) {
+		//do nothing
+		return;
+	}
+	
 	public Friend[] Friends() {
 		var friend = @"{
 	        ""_id"": ""gplus107650962788507404146"",
@@ -182,6 +276,15 @@ public class PlatformDummy : MonoBehaviour
 		Friend[] friends = new Friend[1];
 		friends[0] = new Friend(friend);
 		return friends;
+	}
+
+	public Notification[] Notifications ()
+	{
+		return null;
+	}
+	
+	public void ReadNotification(string id) {
+		return;	
 	}
 	
 	public byte[] LoadBlob(string id) {
@@ -203,12 +306,19 @@ public class PlatformDummy : MonoBehaviour
 	public void EraseBlob(string id) {
 		File.Delete(Path.Combine(blobstore, id));
 	}
-		
+
+	public void ResetBlobs ()
+	{
+		//Not entirely sure what this is supposed to do. Wil do nothing for now. AH
+		return;
+	}
+	
 	/**
 	 * Editor-specific function. 
 	 */
 	public void StoreBlobAsAsset(string id, byte[] blob) {
 		File.WriteAllBytes(Path.Combine(blobassets, id), blob);
+		return;
 	}
 	
 	public void Poll() {
@@ -228,8 +338,27 @@ public class PlatformDummy : MonoBehaviour
 		//}
 	}
 	
+	public User User() {
+		return null;	
+	}
+	
+	public User GetUser(int userID) {
+		return null;	
+	}
+	
+	//specific to the platform dummy (ideally this would be provided by a TargetTracker dummy object)
 	public float GetTargetSpeed() {
 		return targetSpeed;
+	}
+	
+	public float GetHighestDistBehind ()
+	{
+		return DistanceBehindTarget();
+	}
+	
+	public float GetLowestDistBehind ()
+	{
+		return DistanceBehindTarget();
 	}
 	
 	public float DistanceBehindTarget() {
@@ -240,7 +369,8 @@ public class PlatformDummy : MonoBehaviour
 		return timer.ElapsedMilliseconds;
 	}
 	
-	public float Distance() {
+
+	public double Distance() {
 		return distance;
 	}
 	
@@ -259,9 +389,35 @@ public class PlatformDummy : MonoBehaviour
 	public float Bearing() {
 		return bearing;
 	}
-	
-	public List<Game> GetGames() {
 
-		return games;
+	public int GetCurrentGemBalance ()
+	{
+		//give lots of gems for testing in editor
+		return 100;
 	}
+	
+	public float GetCurrentMetabolism ()
+	{
+		//return a default value
+		return 1.0f;
+	}
+	
+	public void SetBasePointsSpeed (float speed)
+	{
+		//do nothing
+		return;
+	}
+	
+	public void AwardPoints (string reason, string gameId, long points)
+	{
+		//do nothing
+		return;
+	}
+	
+	public void AwardGems (string reason, string gameId, int gems)
+	{
+		//do nothing
+		return;
+	}
+	
 }
