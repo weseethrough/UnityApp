@@ -141,7 +141,7 @@ public class DynamicHexList : MonoBehaviour
 		
         dynamicCamPos = new Vector2(-yaw, -pitch);
         dynamicCamPos *= CAMERA_SENSITIVITY;
-        UnityEngine.Debug.Log("MenuPosition:" + yaw + ", " + pitch + ", " + roll);
+        //UnityEngine.Debug.Log("MenuPosition:" + yaw + ", " + pitch + ", " + roll);
         //dynamicCamPos *= 0.02f;
         //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
         return q;
