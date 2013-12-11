@@ -60,7 +60,11 @@ public class MinimalSensorCamera : MonoBehaviour {
 		if(timerActive) {
 			gridOn = false;
 		} else {
+			
+			// reset orientation offset
 			offsetFromStart = Platform.Instance.GetOrientation();
+			
+			// reset bearing offset
 			if (Platform.Instance.Bearing() != -999.0f) {
 				initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
 				bearingOffset = Quaternion.identity;
@@ -68,6 +72,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 				initialBearing = null;
 				bearingOffset = Quaternion.identity;
 			}
+			
 			Platform.Instance.ResetGyro();
 			gridOn = true;
 			gridTimer = 5.0f;
@@ -209,17 +214,19 @@ public class MinimalSensorCamera : MonoBehaviour {
 				// if this is the first valid bearing we've had, use it as the reference point and return identity
 				initialBearing = currentBearing;
 			}
-			bearingOffset = initialBearing.Value * Quaternion.Inverse (currentBearing);
+			bearingOffset = Quaternion.Inverse (currentBearing) * initialBearing.Value;
 		}
 		UnityEngine.Debug.Log("Bearing w-component: " + bearingOffset);
 		
-		// Set the new rotation of the camera
-		Quaternion newOffset;
-		if(rearview) {
-			newOffset = bearingOffset * Quaternion.Inverse(Quaternion.Euler(0, 180, 0)) * (Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation());
-		} else {
-			newOffset = bearingOffset * Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
-		}
+		// Check for changes in players head orientation
+		Quaternion headOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+		
+		// Check for rearview
+		Quaternion rearviewOffset = Quaternion.Euler(0, (rearview ? 180 : 0), 0);
+				
+		// Rotate the camera
+		transform.rotation = bearingOffset * rearviewOffset * headOffset;
+
 #else
 		if(Input.GetKeyDown(KeyCode.B)) {
 			yRotate += 180f;
@@ -254,9 +261,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 		
 		grid.SetActive(gridOn);
 		
-#if !UNITY_EDITOR
-		transform.rotation =  newOffset;	
-#endif
 	}
 	
 	void OnDestroy() 
