@@ -149,26 +149,35 @@ public class MinimalSensorCamera : MonoBehaviour {
 		ResetGyro();
 	}
 	
+	/// <summary>
+	/// Delegate function for Glass - when the user swipes back this is called to end the game
+	/// </summary>
 	void FinishGame()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
-		if(gConect != null) {
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton");
+		if(gConnect != null) {
+			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+			Platform.Instance.StopTrack();
 			GestureHelper.onTap -= tapHandler;
 			tapHandler = new GestureHelper.OnTap(() => {
 				Continue();
 			});
 			GestureHelper.onTap += tapHandler;
-			fs.parentMachine.FollowConnection(gConect);
+			fs.parentMachine.FollowConnection(gConnect);
 		} else {
 			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
 		}
 	}
 	
+	/// <summary>
+	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
+	/// </summary>
 	void Continue() {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
 		if(gConnect != null) {
+			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
 			fs.parentMachine.FollowConnection(gConnect);
 		} else {
 			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
