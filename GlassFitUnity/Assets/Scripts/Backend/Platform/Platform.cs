@@ -150,12 +150,12 @@ public class Platform : MonoBehaviour {
                 }
         }
         
-	        void Initialize()
+	        public virtual void Initialize()
 	        {        
 	                
 	                authenticated = false;
 	                targetTrackers = new List<TargetTracker>();
-	                UnityEngine.Debug.Log("Platform: constructor called");
+	                UnityEngine.Debug.Log("Platform: Initialize() called");
 	                
 	                try {
 	                        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
@@ -252,15 +252,15 @@ public class Platform : MonoBehaviour {
 	}
 	/// TEMP
 	
-	public AndroidJavaObject GetHelper() {
+	public virtual AndroidJavaObject GetHelper() {
 		return helper;
 	}
 	
-	public bool HasStarted() {
+	public virtual bool HasStarted() {
 		return started;
 	}
 	
-	public Device Device() {
+	public virtual Device Device() {
 		try {
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getDevice");
 			if (ajo.GetRawObject().ToInt32() == 0) return null;
@@ -273,7 +273,7 @@ public class Platform : MonoBehaviour {
 	}	
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public User User() {
+	public virtual User User() {
 		try {
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getUser");
 			if (ajo.GetRawObject().ToInt32() == 0) return null;
@@ -285,7 +285,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public User GetUser(int userId) {
+	public virtual User GetUser(int userId) {
 		// TODO: Implement me!
 		string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
 		string name = names[userId % names.Length];
@@ -295,7 +295,7 @@ public class Platform : MonoBehaviour {
 	
 	// Starts tracking
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public void StartTrack() {
+	public virtual void StartTrack() {
 		try {
 			gps.Call("startTracking");
 			tracking = true;
@@ -309,7 +309,7 @@ public class Platform : MonoBehaviour {
 	
 	// Set the indoor mode
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public void SetIndoor(bool indoor) {
+	public virtual void SetIndoor(bool indoor) {
 		try {
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
@@ -329,7 +329,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public void ResetTargets() {
+	public virtual void ResetTargets() {
 		try {
 			helper.Call("resetTargets");
 			targetTrackers.Clear();
@@ -340,7 +340,7 @@ public class Platform : MonoBehaviour {
 	
 	// Returns the target tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public TargetTracker CreateTargetTracker(float constantSpeed){
+	public virtual TargetTracker CreateTargetTracker(float constantSpeed){
 		FauxTargetTracker t;
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getFauxTargetTracker", constantSpeed);
@@ -357,7 +357,7 @@ public class Platform : MonoBehaviour {
 		return t;
 	}
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public TargetTracker CreateTargetTracker(int deviceId, int trackId){
+	public virtual TargetTracker CreateTargetTracker(int deviceId, int trackId){
 		TargetTracker t = TargetTracker.Build(helper, deviceId, trackId);
 		if (t == null) return null;
 		targetTrackers.Add(t);
@@ -420,7 +420,7 @@ public class Platform : MonoBehaviour {
 	
 	// Stop tracking 
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public Track StopTrack() {
+	public virtual Track StopTrack() {
 		try {
 			gps.Call("stopTracking");
 			using (AndroidJavaObject rawtrack = gps.Call<AndroidJavaObject>("getTrack")) {
@@ -435,7 +435,7 @@ public class Platform : MonoBehaviour {
 	// Authentication 
 	// result returned through onAuthenticated
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public void Authorize(string provider, string permissions) {
+	public virtual void Authorize(string provider, string permissions) {
 		try {
 			bool auth = helper.Call<bool>("authorize", activity, provider, permissions);
 			if (!authenticated && auth) authenticated = true;
@@ -446,7 +446,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public bool HasPermissions(string provider, string permissions) {
+	public virtual bool HasPermissions(string provider, string permissions) {
 		try {
 			bool auth = helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
 			if (!authenticated && auth) authenticated = true;
@@ -460,7 +460,7 @@ public class Platform : MonoBehaviour {
 	
 	// Sync to server
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public void SyncToServer() {
+	public virtual void SyncToServer() {
 		lastSync = DateTime.Now;
 		try {
 			helper_class.CallStatic("syncToServer", context);
@@ -472,7 +472,7 @@ public class Platform : MonoBehaviour {
 	
 	// Reset GPS tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public void Reset() {
+	public virtual void Reset() {
 		try {
 			gps.Call("reset");
 			started = false;
@@ -484,7 +484,7 @@ public class Platform : MonoBehaviour {
 	}
 		
 	// Load the game blob
-	public byte[] LoadBlob(string id) {
+	public virtual byte[] LoadBlob(string id) {
 		try {
 			byte[] blob = helper_class.CallStatic<byte[]>("loadBlob", id);
 			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " loaded");
@@ -497,7 +497,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Get the device's orientation
-	public Quaternion GetOrientation() {
+	public virtual Quaternion GetOrientation() {
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getOrientation");
             Quaternion q = new Quaternion(ajo.Call<float>("getX"), ajo.Call<float>("getY"), ajo.Call<float>("getZ"),ajo.Call<float>("getW"));
@@ -509,7 +509,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Reset the Gyros and accelerometer
-	public void ResetGyro() {
+	public virtual void ResetGyro() {
 		try {
 			helper.Call("resetGyros");
 		} catch (Exception e) {
@@ -518,7 +518,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public Challenge FetchChallenge(string id) {
+	public virtual Challenge FetchChallenge(string id) {
 		try {
 			using (AndroidJavaObject rawch = helper_class.CallStatic<AndroidJavaObject>("fetchChallenge", id)) {
 				return Challenge.Build(rawch.Get<string>("json"));
@@ -545,7 +545,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public Track FetchTrack(int deviceId, int trackId) {
+	public virtual Track FetchTrack(int deviceId, int trackId) {
 		try {
 			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
 					Track track = convertTrack(rawtrack);
@@ -559,7 +559,7 @@ public class Platform : MonoBehaviour {
 	
 	// Load a list of tracks
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public List<Track> GetTracks() {
+	public virtual List<Track> GetTracks() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getTracks")) {
 				int size = list.Call<int>("size");
@@ -591,7 +591,7 @@ public class Platform : MonoBehaviour {
 	/// <returns>
 	/// The games.
 	/// </returns>
-	public List<Game> GetTempGames() {
+	public virtual List<Game> GetTempGames() {
 		if(gameList != null)
 		{
 			return gameList;
@@ -636,7 +636,7 @@ public class Platform : MonoBehaviour {
 	/// Load a list of games from the java database, together with lock state, cost, description etc.
 	/// Typically used when building the main hex menu
 	/// </summary>
-	public List<Game> GetGames()
+	public virtual List<Game> GetGames()
 	{
 		// if we already have a copy, return it. Games are unlikely to update except through Game.unlock.
 		if (gameList != null)
@@ -680,7 +680,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public void QueueAction(string json) {
+	public virtual void QueueAction(string json) {
 		try {
 			helper_class.CallStatic("queueAction", json);
 		} catch (Exception e) {
@@ -689,7 +689,7 @@ public class Platform : MonoBehaviour {
 	}
 		
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public Friend[] Friends() {
+	public virtual Friend[] Friends() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
 				int length = list.Call<int>("size");
@@ -710,7 +710,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public Notification[] Notifications() {
+	public virtual Notification[] Notifications() {
 		try {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getNotifications")) {
 				int length = list.Call<int>("size");
@@ -730,7 +730,7 @@ public class Platform : MonoBehaviour {
 		return new Notification[0];
 	}
 	
-	public void ReadNotification(string id) {
+	public virtual void ReadNotification(string id) {
 		throw new NotImplementedException("Iterate through notifications and setRead(true) or add setRead(id) helper method?");
 	}
 		
@@ -749,7 +749,7 @@ public class Platform : MonoBehaviour {
 	 * Editor-specific function.
 	 * Now defunct
 	 */
-	public void StoreBlobAsAsset(string id, byte[] blob) {
+	public virtual void StoreBlobAsAsset(string id, byte[] blob) {
 		return;
 	}
 	
@@ -780,7 +780,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Update the data
-	public void EraseBlob(string id) {
+	public virtual void EraseBlob(string id) {
 		try {
 			helper_class.CallStatic("eraseBlob", id);
 			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " erased");
@@ -790,7 +790,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public void ResetBlobs() {
+	public virtual void ResetBlobs() {
 		try {
 			helper_class.CallStatic("resetBlobs");
 			UnityEngine.Debug.LogWarning("Platform: Game blobs reset");
@@ -800,7 +800,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public void Update() {
+	public virtual void Update() {
 		if (device == null) device = Device();
 		if (user == null) user = User();
 		
@@ -869,7 +869,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Return the distance behind target
-	public double DistanceBehindTarget(TargetTracker tracker) {
+	public virtual double DistanceBehindTarget(TargetTracker tracker) {
 		double returnDistance = (tracker.GetTargetDistance() - distance);
 		return returnDistance;
 	}
@@ -878,40 +878,40 @@ public class Platform : MonoBehaviour {
 		return GetLowestDistBehind();
 	}
 	
-	public long Time() {
+	public virtual long Time() {
 		return time;
 	}
 	
-	public double Distance() {
+	public virtual double Distance() {
 		return distance;
 	}
 	
-	public int Calories() {
+	public virtual int Calories() {
 		double cal = 76.0 / 1000.0 * distance;
 		return (int)cal;
 	}
 	
-	public float Pace() {
+	public virtual float Pace() {
 		return pace;
 	}
 	
-	public Position Position() {
+	public virtual Position Position() {
 		return position;
 	}
 	
-	public float Bearing() {
+	public virtual float Bearing() {
 		return bearing;
 	}
 	
-	public long GetOpeningPointsBalance() {
+	public virtual long GetOpeningPointsBalance() {
 		return openingPointsBalance;
 	}
 	
-	public long GetCurrentPoints() {
+	public virtual long GetCurrentPoints() {
 		return currentActivityPoints;
 	}
 	
-	public int GetCurrentGemBalance() {
+	public virtual int GetCurrentGemBalance() {
 		try {
 			return points_helper.Call<int>("getCurrentGemBalance");
 		} catch (Exception e) {
@@ -930,7 +930,7 @@ public class Platform : MonoBehaviour {
 		return 0.0f;
 	}
 	
-	public float GetCurrentMetabolism() {
+	public virtual float GetCurrentMetabolism() {
 		try {
 			return points_helper.Call<float>("getCurrentMetabolism");
 		} catch (Exception e) {
@@ -939,7 +939,7 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public void SetBasePointsSpeed(float speed) {
+	public virtual void SetBasePointsSpeed(float speed) {
 		try {
 			points_helper.Call("setBaseSpeed", speed);
 		} catch (Exception e) {
@@ -959,7 +959,7 @@ public class Platform : MonoBehaviour {
 	/// <param name='points'>
 	/// Number of points to award.
 	/// </param>
-	public void AwardPoints(String reason, String gameId, long points)
+	public virtual void AwardPoints(String reason, String gameId, long points)
 	{
 		try
 		{
@@ -984,7 +984,7 @@ public class Platform : MonoBehaviour {
 	/// <param name='gems'>
 	/// Number of gems to award.
 	/// </param>
-	public void AwardGems(String reason, String gameId, int gems)
+	public virtual void AwardGems(String reason, String gameId, int gems)
 	{
 		try
 		{
