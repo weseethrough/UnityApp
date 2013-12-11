@@ -7,21 +7,33 @@ using System.Collections.Generic;
 /// </summary>
 public class HexInfoManager : MonoBehaviour
 {
+    enum State
+    {
+        Entering,        
+        Exiting,        
+    }
+
     Animation animation;
     string anmationName = "HexInfoEnter";
 
     UISprite    icon;
     UILabel     title;
     UILabel     content;
+    
+    public const string DV_HEX_DATA = "HexInfoDataBlock";
 
-    const string DV_ICON_NAME = "HexMenuIconName";
-    const string DV_TITLE_NAME = "HexMenuTitleName";
-    const string DV_CONTENT_NAME = "HexMenuContentName";
+    float maximumDelay = 1.00f;
+    float currentDelay;
+    bool hexInfoRequired;
 
+    State currentState;
 
     void Awake()
     {
         animation = GetComponent<Animation>();
+        currentDelay = 0.0f;
+        hexInfoRequired = false;
+        currentState = State.Exiting;
 
         if (animation == null)
         {
@@ -29,9 +41,12 @@ public class HexInfoManager : MonoBehaviour
         }
         else
         {
-            animation[anmationName].time = 0.000f;
+            animation[anmationName].time = 0.010f;
         }
+    }
 
+    void FindComponents()
+    {
         GameObject go = GameObject.Find("HexInfoContent");
         if (go != null)
         {
@@ -49,21 +64,54 @@ public class HexInfoManager : MonoBehaviour
         {
             icon = go.GetComponentInChildren<UISprite>();
         }
+    }
 
+    void Update()
+    {
+        if (hexInfoRequired)
+        {
+            currentDelay += Time.deltaTime;
+            if (currentDelay >= maximumDelay)
+            {
+                AnimEnter();
+                hexInfoRequired = false;
+            }
+        }
+    }
+
+    public void PrepareForNewData()
+    {
+        HexButtonData data = DataVault.Get(DV_HEX_DATA) as HexButtonData;
+        currentDelay = 0.0f;
+        hexInfoRequired = data != null ? data.displayInfoData : false;
+        AnimExit();
     }
 
     void AnimEnter()
-    {        
-        title.text = DataVault.Get(DV_TITLE_NAME).ToString();
-        content.text = DataVault.Get(DV_CONTENT_NAME).ToString();
-        icon.spriteName = DataVault.Get(DV_ICON_NAME).ToString();
+    {
+        HexButtonData data = DataVault.Get(DV_HEX_DATA) as HexButtonData;
+        if (data != null)
+        {            
+            if (title == null)
+            {
+                FindComponents();
+            }
+            //at this stage we will crash if those components doesnt exist. We want to catch it as soon as possible
+            title.text = data.activityName;
+            content.text = data.activityContent;
+            icon.spriteName = data.imageName;
 
-        ActiveAnimation activeAnim = ActiveAnimation.Play(animation, anmationName, AnimationOrTween.Direction.Forward);
-        activeAnim.Reset();
+            ActiveAnimation activeAnim = ActiveAnimation.Play(animation, anmationName, AnimationOrTween.Direction.Forward);
+            activeAnim.Reset();
+            animation[anmationName].time = 0.010f;
+            currentState = State.Entering;
+        }
     }
 
-    void AnimExit()
+    public void AnimExit()
     {
+        if (currentState == State.Exiting) return;
+        currentState = State.Exiting;
         ActiveAnimation.Play(animation, anmationName, AnimationOrTween.Direction.Reverse);
     }
 
