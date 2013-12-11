@@ -252,17 +252,37 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
-	static public bool SetRearview(FlowButton fb, Panel panel) 
+	static public bool SetMode(FlowButton fb, Panel panel) 
 	{
-		bool rearview = (bool)DataVault.Get("rearview");
-		if(rearview) {
-			DataVault.Set("active_mode", "Press to turn off");
-			rearview = false;
-			DataVault.Set("rearview", rearview);
-		} else {
-			DataVault.Set("active_mode", "Press to turn on");
-			rearview = true;
-			DataVault.Set("rearview", rearview);
+		string currentMode = (string)DataVault.Get("game_name");
+		
+		if(currentMode == "Rearview") 
+		{
+			bool rearview = (bool)DataVault.Get("rearview");
+			if(rearview) {
+				DataVault.Set("active_mode", "Press to turn on");
+				rearview = false;
+				DataVault.Set("rearview", rearview);
+			} else {
+				DataVault.Set("active_mode", "Press to turn off");
+				rearview = true;
+				DataVault.Set("rearview", rearview);
+			}
+		} else if(currentMode == "Settings") 
+		{
+			bool indoor = (bool)DataVault.Get("indoor");
+			if(indoor) {
+				UnityEngine.Debug.Log("Button: Indoor turning false now");
+				DataVault.Set("active_mode", "Tap to turn on");
+				indoor = false;
+				DataVault.Set("indoor", indoor);
+			} else 
+			{
+				UnityEngine.Debug.Log("Button: Indoor turning true now"); 
+				DataVault.Set("active_mode", "Tap to turn off");
+				indoor = true;
+				DataVault.Set("indoor", indoor);
+			}
 		}
 		
 		return true;
@@ -411,7 +431,10 @@ public class ButtonFunctionCollection
 		if (track != null) DataVault.Set("track", track);
 		else DataVault.Remove("track");		
 		
-		Platform.Instance.Reset();
+		DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+		DataVault.Set("bonus", 0);
+		
+		//Platform.Instance.Reset();
 		Platform.Instance.ResetTargets();
 		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
 

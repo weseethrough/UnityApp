@@ -139,7 +139,10 @@ public class PlatformDummy : MonoBehaviour
 
         current = new Game("Fire", "activity_fire", "run", "Know what's good on a barbeque? Burgers. Know what isn't? You. So run before you get burned.", "unlocked", 2, 10000, 0, "Pursuit", 1, 2);
         games.Add(current);
-
+		
+		current = new Game("Settings", "settings", "run", "Settings for Indoor mode", "unlocked", 2, 0, 0, "Mode", -1, 2);
+		games.Add(current);
+		
 		initialised = true;
 	}
 	

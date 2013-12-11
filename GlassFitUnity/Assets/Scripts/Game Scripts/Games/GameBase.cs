@@ -12,7 +12,7 @@ using System;
 /// </summary>
 public class GameBase : MonoBehaviour {
 	
-			// Variables to set the scale
+	// Variables to set the scale
 	private int originalHeight = 500;
 	private int originalWidth = 800;
 	private Vector3 scale;
@@ -23,9 +23,13 @@ public class GameBase : MonoBehaviour {
 	public bool indoor = true;
 	private bool hasEnded = false;
 	
-		
+	// Bonus distance milestones
+	private int bonusTarget = 1000;
+	
 	// Final sprint bonus points.		TODO is this a feature of ALL games or just some?
 	protected float finalBonus = 1000;
+	
+	protected double offset = 0;
 	
 	// Marker for the finish line
 	public GameObject finishMarker;	
@@ -37,7 +41,6 @@ public class GameBase : MonoBehaviour {
 	
 	// Holds actor instances. Assume we will always have at least one actor in a game, even a non-AR one.
 	public List<GameObject> actors = new List<GameObject>();
-	
 		
 	// Start tracking and 3-2-1 countdown variables
 	protected bool started = false;
@@ -70,13 +73,17 @@ public class GameBase : MonoBehaviour {
 		//Get target distance
 #if !UNITY_EDITOR
 		finish = (int)DataVault.Get("finish");
-#else
-		UnityEngine.Debug.Log("RaceGame: finish distance is " + finish);
+
 #endif	
+		UnityEngine.Debug.Log("BaseGame: finish distance is " + finish);
 		//retrieve or create list of challenges
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
 				
+		indoor = (bool)DataVault.Get("indoor");
+		
+		UnityEngine.Debug.Log("GameBase: indoor set to: " + indoor.ToString());
+		
 		// Set indoor mode
 		Platform.Instance.SetIndoor(indoor);
 		Platform.Instance.StopTrack();
@@ -204,7 +211,7 @@ public class GameBase : MonoBehaviour {
 	
 		protected void UpdateAhead() {
 
-		double targetDistance = Platform.Instance.GetHighestDistBehind();
+		double targetDistance = Platform.Instance.GetHighestDistBehind() - offset;
 
 		if (targetDistance > 0) {
 			DataVault.Set("ahead_header", "Behind!");
@@ -256,6 +263,18 @@ public class GameBase : MonoBehaviour {
 				UnityEngine.Debug.LogWarning("Counting Down");
 				countTime -= Time.deltaTime;
 			}
+		}
+		
+		// Awards the player points for running certain milestones
+		if(Platform.Instance.Distance() >= bonusTarget)
+		{
+			int targetToKm = bonusTarget / 1000;
+			if(bonusTarget < finish) 
+			{
+				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
+			}
+			bonusTarget += 1000;
+			
 		}
 		
 		//if we're finished, hide the map, and progress to the finished menu

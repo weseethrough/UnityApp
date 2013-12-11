@@ -273,29 +273,8 @@ public class RaceGame : GameBase {
 //		}
 //		
 //=======
+	
 		base.Update ();
-		// Awards the player points for running certain milestones
-		if(Platform.Instance.Distance() >= bonusTarget)
-		{
-			int targetToKm = bonusTarget / 1000;
-			if(bonusTarget < finish) 
-			{
-				MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
-			}
-			bonusTarget += 1000;
-			
-		}
-		
-		// Gives the player bonus points for sprinting the last 100m
-		if(Platform.Instance.Distance() >=  - 100)
-		{
-			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
-			finalBonus -= 50f * Time.deltaTime;
-		}
-		else
-		{
-			DataVault.Set("ending_bonus", "");
-		}
 	
 		UpdateLeaderboard();
 	}
