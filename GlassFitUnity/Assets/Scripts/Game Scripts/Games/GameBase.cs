@@ -269,7 +269,10 @@ public class GameBase : MonoBehaviour {
 			
 			//hide the  map
 			GameObject h = GameObject.Find("minimap");
-			h.renderer.enabled = false;
+			if(h != null)
+			{
+				h.renderer.enabled = false;
+			}
 			
 			//go to the 'finish' menu
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();

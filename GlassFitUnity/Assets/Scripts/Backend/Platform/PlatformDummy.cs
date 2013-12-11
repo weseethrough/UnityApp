@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 
 [ExecuteInEditMode()] 
-public class PlatformDummy : MonoBehaviour
+public class PlatformDummy : Platform
 {
 	
 	private Stopwatch timer = new Stopwatch();
@@ -30,7 +30,7 @@ public class PlatformDummy : MonoBehaviour
 	private List<Game> games;
 
 
-	
+	/*
 	public static PlatformDummy Instance {
 
  
@@ -76,7 +76,7 @@ public class PlatformDummy : MonoBehaviour
             return _instance;
 		}
 	}
-	
+	*/
 	
 	private static bool applicationIsQuitting = false;
 	
@@ -87,6 +87,8 @@ public class PlatformDummy : MonoBehaviour
 	
 	void Awake() 
 	{
+		UnityEngine.Debug.Log("Platform: Awakening PlatformDummy object");
+		
 		if (initialised == false)
 		{
 			Initialize();
@@ -96,6 +98,8 @@ public class PlatformDummy : MonoBehaviour
 	void Initialize()
 	{
 		//timer.Start();
+		
+		
 		
 		UnityEngine.Debug.Log("Creating Platform Dummy instance");
 		
@@ -171,7 +175,7 @@ public class PlatformDummy : MonoBehaviour
 		return null;	
 	}
 	
-	public Boolean HasLock() {
+	public override Boolean HasLock() {
 		//always report that we have gps lock in editor
 		return true;
 	}
@@ -295,7 +299,7 @@ public class PlatformDummy : MonoBehaviour
 		}
 	}
 	
-	public void StoreBlob(string id, byte[] blob) {
+	public override void StoreBlob(string id, byte[] blob) {
 		File.WriteAllBytes(Path.Combine(blobassets, id), blob);
 	}
 	
@@ -309,14 +313,9 @@ public class PlatformDummy : MonoBehaviour
 		return;
 	}
 	
-	/**
-	 * Editor-specific function. 
-	 */
-	public void StoreBlobAsAsset(string id, byte[] blob) {
-		return;
-	}
+
 	
-	public void Poll() {
+	public override void Poll() {
 		if (!timer.IsRunning) return;
 		//if (Time() - update > 1000) { 
 			distance += 4f * UnityEngine.Time.deltaTime;
@@ -346,17 +345,17 @@ public class PlatformDummy : MonoBehaviour
 		return targetSpeed;
 	}
 	
-	public float GetHighestDistBehind ()
+	public override float GetHighestDistBehind ()
 	{
 		return DistanceBehindTarget();
 	}
 	
-	public float GetLowestDistBehind ()
+	public override float GetLowestDistBehind ()
 	{
 		return DistanceBehindTarget();
 	}
 	
-	public float DistanceBehindTarget() {
+	public override float DistanceBehindTarget() {
 		return target - distance;
 	}
 	

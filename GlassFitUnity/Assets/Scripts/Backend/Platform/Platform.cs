@@ -61,8 +61,10 @@ public class Platform : MonoBehaviour {
 	
 	private static Platform _instance;
         
+
         public static Platform Instance 
     {
+#if !UNITY_EDITOR
                 get 
         {
                         if(applicationIsQuitting) 
@@ -108,6 +110,30 @@ public class Platform : MonoBehaviour {
                         return _instance;
                         
                 }
+#else
+		//create an instance of platformdummy
+		get
+		{
+			if(_instance == null)
+			{
+				//Look for an instance already in existence
+				//_instance = (PlatformDummy)FindObjectOfType(typeof(PlatformDummy));
+				_instance = FindObjectOfType(typeof(PlatformDummy)) as PlatformDummy;
+			}
+			if(_instance == null)
+			{
+				//create instance
+				GameObject singleton = new GameObject();
+                _instance = singleton.AddComponent<PlatformDummy>();
+                singleton.name = "PlatformDummy"; // Used as target for messages
+				
+				_instance.enabled = true;
+				singleton.SetActive(true);
+			}
+			return _instance;	
+		}
+		
+#endif
         }
 	
 	private static bool applicationIsQuitting = false;
@@ -380,7 +406,7 @@ public class Platform : MonoBehaviour {
 	
 	// Check if has GPS lock
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public Boolean HasLock() {
+	public virtual Boolean HasLock() {
 		try {
 			bool gpsLock = gps.Call<Boolean>("hasPosition");
 //			UnityEngine.Debug.Log("Platform: hasLock() returned " + gpsLock);
@@ -709,7 +735,7 @@ public class Platform : MonoBehaviour {
 	}
 		
 	// Store the blob
-	public void StoreBlob(string id, byte[] blob) {
+	public virtual void StoreBlob(string id, byte[] blob) {
 		try {
 			helper_class.CallStatic("storeBlob", id, blob);
 			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " stored");
@@ -719,7 +745,15 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public float GetHighestDistBehind() {
+	 /**
+	 * Editor-specific function.
+	 * Now defunct
+	 */
+	public void StoreBlobAsAsset(string id, byte[] blob) {
+		return;
+	}
+	
+	public virtual float GetHighestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
@@ -732,7 +766,7 @@ public class Platform : MonoBehaviour {
 		return h;
 	}
 	
-	public float GetLowestDistBehind() {
+	public virtual float GetLowestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
@@ -775,7 +809,7 @@ public class Platform : MonoBehaviour {
 		}				
 	}	
 	
-	public void Poll() {
+	public virtual void Poll() {
 		
 //		if (!hasLock ()) return;
 		try {
@@ -840,6 +874,10 @@ public class Platform : MonoBehaviour {
 		return returnDistance;
 	}
 	
+	public virtual float DistanceBehindTarget() {
+		return GetLowestDistBehind();
+	}
+	
 	public long Time() {
 		return time;
 	}
@@ -880,6 +918,16 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error getting current gem balance: " + e.Message);
 			return 0;
 		}
+	}
+	
+	/// <summary>
+	/// Gets the target speed. Only used by Eagle? Will be better done by a dummy targetController.
+	/// </summary>
+	/// <returns>
+	/// The target speed.
+	/// </returns>
+	public virtual float GetTargetSpeed() {
+		return 0.0f;
 	}
 	
 	public float GetCurrentMetabolism() {
@@ -948,4 +996,15 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error awarding " + reason + " of " + gems + " gems in " + gameId);
 		}
 	}	
+	
+	/// <summary>
+	/// Stores the BLOB. Called by 
+	/// </summary>
+	/// <param name='id'>
+	/// Identifier.
+	/// </param>
+	/// <param name='blob'>
+	/// BLOB.
+	/// </param>
+
 }
