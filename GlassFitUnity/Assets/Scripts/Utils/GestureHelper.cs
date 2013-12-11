@@ -23,6 +23,9 @@ public class GestureHelper : MonoBehaviour {
 	public delegate void OnSwipeRight();
 	public static OnSwipeRight swipeRight = null;
 	
+	public delegate void ThreeFingerTap();
+	public static ThreeFingerTap onThreeTap = null;
+	
 	/// <summary>
 	/// Handles the tap message from Java
 	/// </summary>
@@ -83,5 +86,13 @@ public class GestureHelper : MonoBehaviour {
 //		}
 		
 		UnityEngine.Debug.Log("GestureHelper: message obtained - Fling down");
+	}
+	
+	void ThreeTap(string message) {
+		if(onThreeTap != null) {
+			UnityEngine.Debug.Log("GestureHelper: Three tap setting");
+			onThreeTap();
+		}
+		UnityEngine.Debug.Log("GestureHelper: message obtained - three tap");
 	}
 }

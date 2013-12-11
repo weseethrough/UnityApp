@@ -34,6 +34,8 @@ public class UISensorCamera : MonoBehaviour {
 			GoBack();
 		});
 		
+		DataVault.Set("rearview", false);
+		
 		GestureHelper.swipeLeft += backHandler;
 	}
 	

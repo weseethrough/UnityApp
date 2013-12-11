@@ -23,6 +23,7 @@ public class GameSelectPanel : HexPanel
 		GConnector challengeExit = Outputs.Find (r => r.Name == "challengeExit");
 		GConnector unlockExit = Outputs.Find (r => r.Name == "unlockExit");
 		GConnector celebExit = Outputs.Find (r => r.Name == "celebExit");
+		GConnector modeExit = Outputs.Find (r => r.Name == "modeExit");
 
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
@@ -110,6 +111,14 @@ public class GameSelectPanel : HexPanel
 				if(celebExit.Link.Count > 0)
 				{
 					gComponent.Data.Connect(gc, celebExit.Link[0]);
+				}
+			}
+			else if(games[i].type == "Mode")
+			{
+				gc.EventFunction = "SetModeDesc";
+				if(modeExit.Link.Count > 0)
+				{
+					gComponent.Data.Connect(gc, modeExit.Link[0]);
 				}
 			}
 

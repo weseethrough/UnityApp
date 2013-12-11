@@ -596,15 +596,15 @@ public class QCARBehaviour : MonoBehaviour
         CameraDevice.Instance.SelectVideoMode(CameraDeviceModeSetting);
         CameraDevice.Instance.Start();
 
-        if (TrackerManager.Instance.GetTracker(Tracker.Type.MARKER_TRACKER) != null)
-        {
-            TrackerManager.Instance.GetTracker(Tracker.Type.MARKER_TRACKER).Start();
-        }
-
-        if (TrackerManager.Instance.GetTracker(Tracker.Type.IMAGE_TRACKER) != null)
-        {
-            TrackerManager.Instance.GetTracker(Tracker.Type.IMAGE_TRACKER).Start();
-        }
+//        if (TrackerManager.Instance.GetTracker(Tracker.Type.MARKER_TRACKER) != null)
+//        {
+//            TrackerManager.Instance.GetTracker(Tracker.Type.MARKER_TRACKER).Start();
+//        }
+//
+//        if (TrackerManager.Instance.GetTracker(Tracker.Type.IMAGE_TRACKER) != null)
+//        {
+//            TrackerManager.Instance.GetTracker(Tracker.Type.IMAGE_TRACKER).Start();
+//        }
 
         ScreenOrientation surfaceOrientation = (ScreenOrientation)QCARWrapper.Instance.GetSurfaceOrientation();
         UpdateProjection(surfaceOrientation);

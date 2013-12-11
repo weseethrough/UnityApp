@@ -149,6 +149,28 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
+	static public bool SetModeDesc(FlowButton fb, Panel panel) 
+	{
+		#if !UNITY_EDITOR
+		List<Game> games = Platform.Instance.GetGames();
+#else
+		List<Game> games = PlatformDummy.Instance.GetGames();
+		return false;
+#endif
+		for(int i=0; i < games.Count; i++)
+		{
+			if(games[i].name == fb.name)
+			{
+				DataVault.Set("actual_game", games[i]);
+				DataVault.Set("game_desc", games[i].description);
+				DataVault.Set("game_name", games[i].gameId);
+				DataVault.Set("image_name", games[i].name);
+				break;
+			}
+		}
+		return true;
+	}
+	
 	/// <summary>
 	/// Sets the game description for the locked game.
 	/// </summary>
@@ -227,6 +249,22 @@ public class ButtonFunctionCollection
 		Game current = (Game)DataVault.Get("actual_game");
 		UnityEngine.Debug.Log("Purchase: Game bought");
 		current.Unlock();
+		return true;
+	}
+	
+	static public bool SetRearview(FlowButton fb, Panel panel) 
+	{
+		bool rearview = (bool)DataVault.Get("rearview");
+		if(rearview) {
+			DataVault.Set("active_mode", "Press to turn off");
+			rearview = false;
+			DataVault.Set("rearview", rearview);
+		} else {
+			DataVault.Set("active_mode", "Press to turn on");
+			rearview = true;
+			DataVault.Set("rearview", rearview);
+		}
+		
 		return true;
 	}
 	

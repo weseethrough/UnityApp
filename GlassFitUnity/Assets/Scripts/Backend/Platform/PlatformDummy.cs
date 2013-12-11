@@ -98,7 +98,7 @@ public class PlatformDummy : MonoBehaviour
 		Directory.CreateDirectory(blobassets);
 		UnityEngine.Debug.Log("Editor blobstore: " + blobstore + ", blobassets: " + blobassets);
 		
-		games = new List<Game>(9);
+		games = new List<Game>();
 		
 		Game current = new Game("Race Yourself (run)", "activity_run","run", "Run against an avatar that follows your previous track","unlocked",1,0,0, "Race", 0, 0);
 		games.Add(current);

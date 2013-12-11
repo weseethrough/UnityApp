@@ -440,7 +440,9 @@ public class RaceGame : MonoBehaviour {
 			DataVault.Set("bonus", (int)finalBonus);
 			Platform.Instance.StopTrack();
 			GameObject h = GameObject.Find("minimap");
-			h.renderer.enabled = false;
+			if(h != null) {
+				h.renderer.enabled = false;
+			}
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 			if(gConect != null) {
