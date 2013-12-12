@@ -17,7 +17,7 @@ public class PursuitGame : GameBase {
 	}
 	
 	// Variable for kilometer bonus
-	private int bonusTarget = 1000;
+	//private int bonusTarget = 1000;
 	
 	private ActorType currentActorType;
 	
