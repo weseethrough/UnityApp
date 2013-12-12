@@ -46,7 +46,8 @@ public class GameBase : MonoBehaviour {
 	protected bool started = false;
 	protected bool countdown = false;
 	protected float countTime = 3.0f;
-		
+	protected bool readyToStart = false;	//becomes true when the user resets the gyro. Countdown can start when this is true.
+	
 	// Texture for black background
 	public Texture blackTexture;
 	
@@ -98,7 +99,25 @@ public class GameBase : MonoBehaviour {
 		
 		hasEnded = false;
 		
-		UnityEngine.Debug.Log("RaceGame: started");
+		//handler for OnReset
+		//this seems to get automatically called as soon as the scene loads. Trying an onTap instead.
+//		Platform.OnResetGyro handler = null;
+//		handler = new Platform.OnResetGyro(() => {
+//			GyroDidReset();
+//		});
+//		Platform.Instance.onResetGyro += handler;	
+		
+//		GestureHelper.OnTap handler = null;
+//		handler = new GestureHelper.OnTap( () => {
+//			Platform.Instance.ResetGyro();
+//			GyroDidReset();	
+//			GestureHelper.onTap -= handler;
+//		});
+//		GestureHelper.onTap += handler;
+		
+		
+		UnityEngine.Debug.Log("GameBase: started");
+		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
 	}
 	
 	/// <summary>
@@ -200,6 +219,12 @@ public class GameBase : MonoBehaviour {
 			}
 		}
 		
+		//prompt the user to reset the gyro
+		if(!readyToStart)
+		{
+			GUI.Label (new Rect(300, 150, 200, 200), "Centre View to start", labelStyle);
+		}
+		
 		GUI.matrix = Matrix4x4.identity;
 		
 		// Display a message if the multiplier has changed in the last second and a half
@@ -246,8 +271,28 @@ public class GameBase : MonoBehaviour {
 		// TODO: Toggle based on panel type
 		UpdateAhead();
 		
-		//start the contdown once we've got GPS (or if we don't need it)
-		if(Platform.Instance.HasLock() || indoor)
+		//detect the touch and reset/start if it's there
+		// Non-Glass devices
+		if(!readyToStart)
+		{
+			UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
+			if(Input.touchCount > 0)
+			{
+				UnityEngine.Debug.Log("GameBase: Update: Touch detected");
+					if(Platform.Instance.HasLock() || indoor)
+					{
+						UnityEngine.Debug.Log("GameBase: Now ready to start");
+						readyToStart = true;
+					}
+			}
+			//In the editor, just go straight away
+#if UNITY_EDITOR
+			readyToStart = true;
+#endif
+		}
+	
+		//start the contdown once we've got reset the gyro		
+		if(readyToStart)
 		{
 			// Initiate the countdown
 			countdown = true;
@@ -355,5 +400,22 @@ public class GameBase : MonoBehaviour {
 		// remember the current time so we know how long to display for:
 		this.baseMultiplierStartTime = Time.time;
 		UnityEngine.Debug.Log("New base multiplier received:" + this.baseMultiplier);
+	}
+	
+	/// <summary>
+	/// handler for when the gyro is reset.
+	/// In this case, indicate that we're ready to start, if we previously weren't
+	/// </summary>
+	public void GyroDidReset()
+	{
+		UnityEngine.Debug.Log("GameBase: Gyro did reset");
+		if(!readyToStart)
+		{
+			if(Platform.Instance.HasLock() || indoor)
+			{
+				UnityEngine.Debug.Log("GameBase: Now ready to start");
+				readyToStart = true;
+			}
+		}
 	}
 }

@@ -220,7 +220,8 @@ public class PlatformDummy : Platform
 	}
 	
 	public override void ResetGyro() {
-		//do nothing
+		// just call handlers
+		if(onResetGyro != null) onResetGyro();
 		return;
 	}
 	
