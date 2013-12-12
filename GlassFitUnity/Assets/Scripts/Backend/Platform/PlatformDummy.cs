@@ -26,14 +26,12 @@ public class PlatformDummy : Platform
 	private string blobassets = "blob";
 	
 	private static PlatformDummy _instance;
-	private bool initialised = false;
+
+	private bool initialised = false;	
 	private List<Game> games;
-
-
+	
 	/*
 	public static PlatformDummy Instance {
-
- 
 		get 
         {
             if (_instance == null)
@@ -77,7 +75,6 @@ public class PlatformDummy : Platform
 		}
 	}
 	*/
-	
 	private static bool applicationIsQuitting = false;
 	
 	public void OnDestroy() 
@@ -98,7 +95,7 @@ public class PlatformDummy : Platform
 		Directory.CreateDirectory(blobassets);
 		UnityEngine.Debug.Log("Editor blobstore: " + blobstore + ", blobassets: " + blobassets);
 		
-		games = new List<Game>(9);
+		games = new List<Game>();
 		
 		Game current = new Game("Race Yourself (run)", "activity_run","run", "Run against an avatar that follows your previous track","unlocked",1,0,0, "Race", 0, 0);
 		games.Add(current);
@@ -135,12 +132,14 @@ public class PlatformDummy : Platform
 
         current = new Game("Fire", "activity_fire", "run", "Know what's good on a barbeque? Burgers. Know what isn't? You. So run before you get burned.", "unlocked", 2, 10000, 0, "Pursuit", 1, 2);
         games.Add(current);
-
+		
+		current = new Game("Settings", "settings", "run", "Settings for Indoor mode", "unlocked", 2, 0, 0, "Mode", -1, 2);
+		games.Add(current);
+		
 		initialised = true;
 	}
 	
 	public override void StartTrack() {
-		//platform calls into the jar. We'll just start the stopwatch.
 		timer.Start();
 	}
 	
@@ -163,8 +162,8 @@ public class PlatformDummy : Platform
 		//don't want to create any target trackers in dummy.
 		return null;	
 	}
-	
-	public override Boolean HasLock() {
+
+	public Boolean HasLock() {
 		//always report that we have gps lock in editor
 		return true;
 	}
@@ -197,7 +196,17 @@ public class PlatformDummy : Platform
 		target = 1;
 	}
 	
-	public override Quaternion GetOrientation() {
+	public void SetTargetSpeed(float speed)
+	{
+		throw new NotImplementedException();
+	}
+	
+	public void SetTargetTrack(int trackID)
+	{
+		throw new NotImplementedException();
+	}
+	
+	public Quaternion GetOrientation() {
 		//just return the identity quaternion, to look straight forward.
 		//might be useful to optionally have some wiggle on this in the future.
 		return Quaternion.identity;	
@@ -289,20 +298,18 @@ public class PlatformDummy : Platform
 	}
 	
 	public override void StoreBlob(string id, byte[] blob) {
-		File.WriteAllBytes(Path.Combine(blobassets, id), blob);
+		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
 	}
 	
 	public override void EraseBlob(string id) {
 		File.Delete(Path.Combine(blobstore, id));
 	}
-		
+
 	public override void ResetBlobs ()
 	{
 		//Not entirely sure what this is supposed to do. Wil do nothing for now. AH
 		return;
 	}
-	
-
 	
 	public override void Poll() {
 		if (!timer.IsRunning) return;
@@ -363,8 +370,16 @@ public class PlatformDummy : Platform
 	public override float Pace() {
 		return 1.0f;
 	}
+	
+	public Position Position() {
+		return position;
+	}	
+	
+	public float Bearing() {
+		return bearing;
+	}
 
-	public override int GetCurrentGemBalance ()
+	public int GetCurrentGemBalance ()
 	{
 		//give lots of gems for testing in editor
 		return 100;
@@ -393,7 +408,5 @@ public class PlatformDummy : Platform
 		//do nothing
 		return;
 	}
-	
-	
 	
 }

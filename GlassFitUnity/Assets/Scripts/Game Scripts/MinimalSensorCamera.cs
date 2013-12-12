@@ -16,25 +16,37 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private float gridTimer = 0.0f;
 	private bool timerActive = false;
 	private float yRotate = 0f;
-	private GestureHelper.TwoFingerTap handler = null;
+	private bool rearview = false;
 	
-
+	private GestureHelper.OnTap tapHandler = null;
+	
+	private GestureHelper.TwoFingerTap twoHandler = null;
+	
+	private GestureHelper.ThreeFingerTap threeHandler = null;
+	
+	private GestureHelper.OnSwipeLeft leftHandler = null;
+	
 	// Set the grid and scale values
 	void Start () {
 		grid.SetActive(false);
 		scaleX = (float)Screen.width / 800.0f;
 		scaleY = (float)Screen.height / 500.0f;
 		
-		handler = new GestureHelper.TwoFingerTap(() => {
+		twoHandler = new GestureHelper.TwoFingerTap(() => {
 			ResetGyroGlass();
 		});
-		GestureHelper.onTwoTap += handler;
+		GestureHelper.onTwoTap += twoHandler;
 		
-//		backHandler = new GestureHelper.OnSwipeLeft(() => {
-//			GoBack();
-//		});
-//		
-//		GestureHelper.swipeLeft += backHandler;
+		threeHandler = new GestureHelper.ThreeFingerTap(() => {
+			SetRearview();
+		});
+		GestureHelper.onThreeTap += threeHandler;
+
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			FinishGame();
+		});
+		
+		GestureHelper.swipeLeft += leftHandler;
 	}
 	
 	void ResetGyro() 
@@ -67,6 +79,12 @@ public class MinimalSensorCamera : MonoBehaviour {
 //				
 //		}
 #endif
+	}
+	
+	void SetRearview() {
+		if((bool)DataVault.Get("rearview")) {
+			rearview = !rearview;
+		}
 	}
 	
 	/// <summary>
@@ -132,13 +150,54 @@ public class MinimalSensorCamera : MonoBehaviour {
 	}
 	
 	/// <summary>
+	/// Delegate function for Glass - when the user swipes back this is called to end the game
+	/// </summary>
+	void FinishGame()
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton");
+		if(gConnect != null) {
+			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+			DataVault.Set("bonus", 0);
+			Platform.Instance.StopTrack();
+			GestureHelper.onTap -= tapHandler;
+			tapHandler = new GestureHelper.OnTap(() => {
+				Continue();
+			});
+			GestureHelper.onTap += tapHandler;
+			fs.parentMachine.FollowConnection(gConnect);
+		} else {
+			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
+		}
+	}
+	
+	/// <summary>
+	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
+	/// </summary>
+	void Continue() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+		if(gConnect != null) {
+			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+			fs.parentMachine.FollowConnection(gConnect);
+		} else {
+			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
+		}
+	}
+	
+	/// <summary>
 	/// Update this instance. Updates the rotation
 	/// </summary>
 	void Update () {
 		
 #if !UNITY_EDITOR
 		// Set the new rotation of the camera
-		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+		Quaternion newOffset = Quaternion.identity;
+		if(rearview) {
+			newOffset = Quaternion.Inverse(Quaternion.Euler(0, 180, 0)) * (Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation());
+		} else {
+			newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+		}
 #else
 		if(Input.GetKeyDown(KeyCode.B)) {
 			yRotate += 180f;
@@ -180,6 +239,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	void OnDestroy() 
 	{
-		GestureHelper.onTwoTap -= handler;
+		GestureHelper.onTwoTap -= twoHandler;
+		GestureHelper.onThreeTap -= threeHandler;
+		GestureHelper.swipeLeft -= leftHandler;
+		GestureHelper.onTap -= tapHandler;
 	}
 }
