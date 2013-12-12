@@ -9,13 +9,13 @@ using System.Runtime.CompilerServices;
 public class Platform : MonoBehaviour {
 	private double targetElapsedDistance = 0;
 	private long time = 0;
-	private double distance = 0.0;
+	protected double distance = 0.0;
 	private int calories = 0;
 	private float pace = 0;
-	private Position position = null;
-	private float bearing = -999.0f;
+	protected Position position = null;
+	protected float bearing = -999.0f;
 	private bool started = false;
-	private bool initialised = false;
+	protected bool initialised = false;
 	private long currentActivityPoints = 0;
 	private long openingPointsBalance = 0;
 	public int currentTrack { get; set; }
@@ -876,7 +876,7 @@ public class Platform : MonoBehaviour {
 		return returnDistance;
 	}
 	
-	public virtual float DistanceBehindTarget() {
+	public virtual double DistanceBehindTarget() {
 		return GetLowestDistBehind();
 	}
 	

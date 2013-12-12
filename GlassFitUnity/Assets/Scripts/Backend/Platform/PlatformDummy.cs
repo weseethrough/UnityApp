@@ -13,11 +13,11 @@ public class PlatformDummy : Platform
 	private Stopwatch timer = new Stopwatch();
 	private System.Random random = new System.Random();
 	private long update = 0;
-	private float distance = 0;
+//	private float distance = 0;
 	private float target = 1;
 	private float targetSpeed = 4;
-	private Position position = null;
-	private float bearing = 45; // degrees	
+//	private Position position = null;
+//	private float bearing = 45; // degrees	
 	
 	private const float weight = 75.0f;
 	private const float factor = 1.2f;
@@ -27,7 +27,7 @@ public class PlatformDummy : Platform
 	
 	private static PlatformDummy _instance;
 
-	private bool initialised = false;	
+//	private bool initialised = false;	
 	private List<Game> games;
 	
 	/*
@@ -350,15 +350,15 @@ public class PlatformDummy : Platform
 	
 	public override float GetHighestDistBehind ()
 	{
-		return DistanceBehindTarget();
+		return (float)DistanceBehindTarget();
 	}
 	
 	public override float GetLowestDistBehind ()
 	{
-		return DistanceBehindTarget();
+		return (float)DistanceBehindTarget();
 	}
 	
-	public override float DistanceBehindTarget() {
+	public override double DistanceBehindTarget() {
 		return target - distance;
 	}
 	
