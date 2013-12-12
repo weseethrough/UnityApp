@@ -19,15 +19,22 @@ public class HexInfoManager : MonoBehaviour
     UISprite    icon;
     UILabel     title;
     UILabel     content;
+    GameObject  buyNowBcg;
+    GameObject  buyNowText;
+    GameObject  buyNowPrice;
     
     public const string DV_HEX_DATA = "HexInfoDataBlock";
 
-    float maximumDelay = 1.00f;
+    float maximumDelay = 1.50f;
     float currentDelay;
     bool hexInfoRequired;
 
     State currentState;
 
+    /// <summary>
+    /// Default unity initialziation function used to setup animation to frame 1 and reseting variables
+    /// </summary>
+    /// <returns></returns>
     void Awake()
     {
         animation = GetComponent<Animation>();
@@ -45,6 +52,10 @@ public class HexInfoManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Function used after whole structore is initialized to find components which are changed during runtime
+    /// </summary>
+    /// <returns></returns>
     void FindComponents()
     {
         GameObject go = GameObject.Find("HexInfoContent");
@@ -64,8 +75,30 @@ public class HexInfoManager : MonoBehaviour
         {
             icon = go.GetComponentInChildren<UISprite>();
         }
+
+        go = GameObject.Find("BuyNowBcg");
+        if (go != null)
+        {
+            buyNowBcg = go;
+        }
+
+        go = GameObject.Find("HexInfoBuyNow");
+        if (go != null)
+        {
+            buyNowText = go;
+        }
+
+        go = GameObject.Find("HexInfoBuyCost");
+        if (go != null)
+        {
+            buyNowPrice = go;
+        }
     }
 
+    /// <summary>
+    /// Default unity function used to call enter animation when needed
+    /// </summary>
+    /// <returns></returns>
     void Update()
     {
         if (hexInfoRequired)
@@ -79,6 +112,10 @@ public class HexInfoManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// triggers leaving previous info box and prepares for new one
+    /// </summary>
+    /// <returns></returns>
     public void PrepareForNewData()
     {
         HexButtonData data = DataVault.Get(DV_HEX_DATA) as HexButtonData;
@@ -87,6 +124,10 @@ public class HexInfoManager : MonoBehaviour
         AnimExit();
     }
 
+    /// <summary>
+    /// Triggers animation and setup required data for new info panel
+    /// </summary>
+    /// <returns></returns>
     void AnimEnter()
     {
         HexButtonData data = DataVault.Get(DV_HEX_DATA) as HexButtonData;
@@ -96,10 +137,29 @@ public class HexInfoManager : MonoBehaviour
             {
                 FindComponents();
             }
-            //at this stage we will crash if those components doesnt exist. We want to catch it as soon as possible
+            //at this stage we will crash if those components doesn't exist. We want to catch it as soon as possible
             title.text = data.activityName;
             content.text = data.activityContent;
             icon.spriteName = data.imageName;
+
+            if (data.locked == true)
+            {
+                buyNowBcg.SetActive(true);
+                buyNowText.SetActive(true); 
+                buyNowPrice.SetActive(true);
+
+                UILabel label = buyNowPrice.GetComponentInChildren<UILabel>();
+                if (label != null)
+                {
+                    label.text = data.activityPrice + " RP";
+                }
+            }
+            else
+            {
+                buyNowBcg.SetActive(false);
+                buyNowText.SetActive(false);
+                buyNowPrice.SetActive(false); 
+            }
 
             ActiveAnimation activeAnim = ActiveAnimation.Play(animation, anmationName, AnimationOrTween.Direction.Forward);
             activeAnim.Reset();
@@ -108,6 +168,10 @@ public class HexInfoManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// triggers animation out for info box
+    /// </summary>
+    /// <returns></returns>
     public void AnimExit()
     {
         if (currentState == State.Exiting) return;
