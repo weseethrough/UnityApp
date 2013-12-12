@@ -236,6 +236,7 @@ public class Platform : MonoBehaviour {
 	
 	public Device Device() {
 		try {
+			UnityEngine.Debug.Log("Platform: Getting user details");
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getDevice");
 			if (ajo.GetRawObject().ToInt32() == 0) return null;
 			return new Device(ajo.Get<int>("id"), ajo.Get<string>("manufacturer"), ajo.Get<string>("model"), ajo.Get<int>("glassfit_version"));

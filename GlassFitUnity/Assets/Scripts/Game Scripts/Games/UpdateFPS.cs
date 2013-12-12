@@ -7,10 +7,23 @@ public class UpdateFPS : MonoBehaviour {
 	public int fps;
     public int lastFPS;
 	
+	private Vector3 scale;
+	
 	// Use this for initialization
 	void Start () 
 	{
 		currentTime = Time.timeSinceLevelLoad;
+		scale.x = Screen.width/800f;
+		scale.y = Screen.height/500f;
+	}
+	
+	void OnGUI() {
+		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
+		
+		GUIStyle labelStyle = new GUIStyle();
+		labelStyle.fontSize = 40;
+		
+		GUI.Label(new Rect(300, 200, 200, 100), lastFPS.ToString(), labelStyle);
 	}
 	
 	// Update is called once per frame
@@ -28,6 +41,6 @@ public class UpdateFPS : MonoBehaviour {
 		}
 		
 		//update the database value
-		DataVault.Set("fps", lastFPS);
+		//DataVault.Set("fps", lastFPS);
 	}
 }
