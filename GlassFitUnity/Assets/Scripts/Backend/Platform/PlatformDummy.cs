@@ -82,6 +82,13 @@ public class PlatformDummy : Platform
 		applicationIsQuitting = true;
 	}
 	
+	//if there is a platform dummy about on the device, kill it.
+#if !UNITY_EDITOR
+	public void Awake()
+	{
+		Destroy(gameObject);			
+	}
+#endif
 
 	public override void Initialize()
 	{

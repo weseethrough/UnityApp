@@ -83,7 +83,7 @@ public class Platform : MonoBehaviour {
                                         UnityEngine.Debug.Log("Singleton: there is more than one singleton");
                                         //return _instance;
                                 }*/
-                                if(_instance == null) 
+                                if(_instance == null || (_instance is PlatformDummy) )
                 {
                                         GameObject singleton = new GameObject();
                                         _instance = singleton.AddComponent<Platform>();
