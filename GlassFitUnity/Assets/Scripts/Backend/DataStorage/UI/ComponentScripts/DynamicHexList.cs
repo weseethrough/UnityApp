@@ -29,6 +29,7 @@ public class DynamicHexList : MonoBehaviour
     int buttonCount = 0;
 
     List<GameObject> buttons;
+    List<UIImageButton> buttonsImageComponents;
     UIImageButton selection;
     private string btEnterAnimation = "HexEnter";
 
@@ -280,24 +281,33 @@ public class DynamicHexList : MonoBehaviour
                     {
 
                         TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
-                    }
+                    }                    
                 }
                 selection = newSelection;
                 newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+
+                HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+                if (info != null)
+                {
+                    int index = buttonsImageComponents.FindIndex(x => x ==selection);
+                    HexButtonData data = GetButtonData()[index];
+                    DataVault.Set(HexInfoManager.DV_HEX_DATA, data);                                        
+                    info.PrepareForNewData();
+                }
 
                 //selection changed we want to stop dragging, user need to start drag from the start
                 dragging = false;
             }
 
-            bool debugMouse = Input.GetMouseButton(0);
+            bool buttonClick = Input.GetMouseButton(0);
 
-            if (selection != null && (Input.touchCount > 0 || debugMouse))
+            if (selection != null && (Input.touchCount > 0 || buttonClick))
             {
 
                 Touch touch = new Touch();
                 bool found = false;
 
-                if (!debugMouse)
+                if (!buttonClick)
                 {
                     touch = Input.touches[0];
                     if (dragging == false)
@@ -334,7 +344,7 @@ public class DynamicHexList : MonoBehaviour
                 if (found)
                 {
                     Vector2 offset;
-                    if (!debugMouse)
+                    if (!buttonClick)
                     {
                         offset = touch.position - draggingStartPos;
                     }
@@ -428,6 +438,7 @@ public class DynamicHexList : MonoBehaviour
         }
 
         buttons = new List<GameObject>();
+        buttonsImageComponents = new List<UIImageButton>();
         buttonsReady = false;
 
         if (elementsToKeep < 1) elementsToKeep = 1;
@@ -520,6 +531,7 @@ public class DynamicHexList : MonoBehaviour
             }
 
             buttons.Add(tile);
+            buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
         }
 
         foreach (GameObject go in buttons)
