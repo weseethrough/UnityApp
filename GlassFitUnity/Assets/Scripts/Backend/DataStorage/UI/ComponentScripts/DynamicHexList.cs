@@ -299,15 +299,15 @@ public class DynamicHexList : MonoBehaviour
                 dragging = false;
             }
 
-            bool debugMouse = Input.GetMouseButton(0);
+            bool buttonClick = Input.GetMouseButton(0);
 
-            if (selection != null && (Input.touchCount > 0 || debugMouse))
+            if (selection != null && (Input.touchCount > 0 || buttonClick))
             {
 
                 Touch touch = new Touch();
                 bool found = false;
 
-                if (!debugMouse)
+                if (!buttonClick)
                 {
                     touch = Input.touches[0];
                     if (dragging == false)
@@ -344,7 +344,7 @@ public class DynamicHexList : MonoBehaviour
                 if (found)
                 {
                     Vector2 offset;
-                    if (!debugMouse)
+                    if (!buttonClick)
                     {
                         offset = touch.position - draggingStartPos;
                     }
