@@ -23,6 +23,7 @@ public class UpdateFPS : MonoBehaviour {
 		GUIStyle labelStyle = new GUIStyle();
 		labelStyle.fontSize = 40;
 		
+		labelStyle.normal.textColor = Color.white;
 		GUI.Label(new Rect(300, 200, 200, 100), lastFPS.ToString(), labelStyle);
 	}
 	

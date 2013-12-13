@@ -513,6 +513,7 @@ public class ButtonFunctionCollection
 		panel.parentMachine.ForbidBack();
 		return true;
 	}
+	
 
     /// <summary>
     /// sets friend name in database from button name, authorize friend provider and asynchronously follow button connection
