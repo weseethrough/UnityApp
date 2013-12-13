@@ -57,9 +57,9 @@ public class EagleController : TargetController {
 		
 		// Find the distance behind target based on the offset
 #if !UNITY_EDITOR
-		float realDist = (float)target.GetDistanceBehindTarget() - distanceOffset;
+		float realDist = (float)target.GetDistanceBehindTarget() - (float)distanceOffset;
 #else
-		float realDist = PlatformDummy.Instance.DistanceBehindTarget() - distanceOffset;
+		float realDist = (float)PlatformDummy.Instance.DistanceBehindTarget() - (float)distanceOffset;
 #endif
 		if(realDist < -49)
 		{

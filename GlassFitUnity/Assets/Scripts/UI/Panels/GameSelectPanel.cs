@@ -24,7 +24,10 @@ public class GameSelectPanel : HexPanel
 		GConnector unlockExit = Outputs.Find (r => r.Name == "unlockExit");
 		GConnector celebExit = Outputs.Find (r => r.Name == "celebExit");
 		GConnector modeExit = Outputs.Find (r => r.Name == "modeExit");
-
+		
+		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
+		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentGemBalance());
+		
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
 #if !UNITY_EDITOR
@@ -56,6 +59,9 @@ public class GameSelectPanel : HexPanel
             }
             
             hbd.buttonName = games[i].name;
+			hbd.activityName = games[i].gameId;
+			hbd.activityContent = games[i].description;
+			hbd.activityPrice = (int)games[i].priceInPoints;
             hbd.column = games[i].column;
             hbd.row = games[i].row;
             hbd.imageName = games[i].name;
@@ -99,7 +105,7 @@ public class GameSelectPanel : HexPanel
 			} 
 			else if(games[i].type == "Challenge") 
 			{
-				gc.EventFunction = "AcceptChallenge";
+				gc.EventFunction = "AuthenticateUser";
 				if(challengeExit.Link.Count > 0) 
 				{
 					gComponent.Data.Connect(gc, challengeExit.Link[0]);
