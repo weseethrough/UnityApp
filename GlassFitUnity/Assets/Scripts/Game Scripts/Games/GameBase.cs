@@ -70,6 +70,11 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	public virtual void Start () 
 	{
+		// Calculate and set scale
+		float x = (float)Screen.width/originalWidth;
+		float y = (float)Screen.height/originalHeight;
+		scale = new Vector3(x, y, 1);
+		
 		//Get target distance
 #if !UNITY_EDITOR
 		finish = (int)DataVault.Get("finish");
@@ -91,10 +96,7 @@ public class GameBase : MonoBehaviour {
 		//DataVault.Set("indoor_text", "Indoor Active");
 
 		
-		// Calculate and set scale
-		float x = (float)Screen.width/originalWidth;
-		float y = (float)Screen.height/originalHeight;
-		scale = new Vector3(x, y, 1);
+		
 		
 		hasEnded = false;
 		
@@ -297,6 +299,7 @@ public class GameBase : MonoBehaviour {
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 			if(gConect != null) {
+				//finish = finish * 10;
 				fs.parentMachine.FollowConnection(gConect);
 			} else {
 				UnityEngine.Debug.Log("Game: No connection found!");

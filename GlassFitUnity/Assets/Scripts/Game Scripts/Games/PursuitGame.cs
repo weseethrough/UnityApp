@@ -21,12 +21,16 @@ public class PursuitGame : GameBase {
 	
 	private ActorType currentActorType;
 	
+	private GestureHelper.OnTap tapHandler;
+	
 	public GameObject eagleHolder;
 	public GameObject boulderHolder;
 	public GameObject zombieHolder;
 	public GameObject trainHolder;
 	public GameObject dinoHolder;
 	public GameObject fireHolder;
+	
+	private bool finished = false;
 	
 	//private double offset = 0;
 	
@@ -131,7 +135,7 @@ public class PursuitGame : GameBase {
 				started = false;
 				countdown = false;
 				countTime = 3.0f;
-			} else {
+			} else if(!finished) {
 				//restart - should consolidate this with the 'back' function
 				DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
 				DataVault.Set("ahead_col_header", "D20000FF");
@@ -140,6 +144,12 @@ public class PursuitGame : GameBase {
 				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 				if(gConect != null) {
+					finished = true;
+					tapHandler = new GestureHelper.OnTap(() => {
+						UnityEngine.Debug.Log("FinishListener: Setting tap handler");
+						ContinueGame();
+					});
+					GestureHelper.onTap += tapHandler;
 					fs.parentMachine.FollowConnection(gConect);
 				} else {
 					UnityEngine.Debug.Log("Game: No connection found!");
@@ -172,6 +182,21 @@ public class PursuitGame : GameBase {
 
 	}
 	
+	void ContinueGame() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+		UnityEngine.Debug.Log("FinishListener: Finding output");
+		if(gConnect != null)
+		{
+			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+			fs.parentMachine.FollowConnection(gConnect);
+			started = false;
+		}
+		else
+		{
+			UnityEngine.Debug.Log("FinishListener: Couldn't find connection - continue button");
+		}
+	}
 
 	
 	// Instantiate target actors based on actor type
@@ -239,5 +264,9 @@ public class PursuitGame : GameBase {
 	public void SetActorType(ActorType type) {
 		currentActorType = type;
 		gameParamsChanged = true;
+	}
+	
+	public void OnDestroy() {
+		GestureHelper.onTap -= tapHandler;
 	}
 }

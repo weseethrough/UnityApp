@@ -9,6 +9,24 @@ public class BoulderController : TargetController {
 	// Rotation in the x-axis.
 	private float xRot;
 	
+	// Rotation speed
+	private float rotationSpeed = 10;
+	
+	// Rotation limit
+	private static float rotationLimit = 360f;
+	
+	// Time passed for speed up
+	private float currentTime = 0;
+	
+	// Threshold for speed increase
+	private float updateTime = 30f;
+	
+	// Value to increase speed by
+	private float speedIncrease = 0.5f;
+	
+	// Current speed
+	private float currentSpeed = 1.25f;
+	
 	/// <summary>
 	/// Sets the attributes
 	/// </summary>
@@ -16,6 +34,10 @@ public class BoulderController : TargetController {
 		// Set attributes and initial rotation.
 		SetAttribs(50f, 135f, 420f, 0f);
 		xRot = 0;
+		if(target is FauxTargetTracker)
+		{
+			((FauxTargetTracker) target).SetTargetSpeed(currentSpeed);
+		}
 	}
 	
 	/// <summary>
@@ -36,13 +58,27 @@ public class BoulderController : TargetController {
 		// Update the base.
 		base.Update();
 		
+		currentTime += Time.deltaTime;
+		
+		if(currentTime > updateTime) 
+		{
+			currentTime -= updateTime;
+			
+			currentSpeed += speedIncrease;
+			
+			if(target is FauxTargetTracker)
+			{
+				((FauxTargetTracker) target).SetTargetSpeed(currentSpeed);
+			}
+		}
+		
 		// Rotate the object based on speed.
-		xRot += (10 * (((float)DataVault.Get("slider_val")* 9.15f) + 1.25f)) * Time.deltaTime;
+		xRot += (rotationSpeed * currentSpeed) * Time.deltaTime;
 		
 		// If greater than 360, reset.
-		if(xRot > 360)
+		if(xRot > rotationLimit)
 		{
-			xRot -= 360;
+			xRot -= rotationLimit;
 		}
 		
 		// Make a new quaternion based on the rotation and apply
