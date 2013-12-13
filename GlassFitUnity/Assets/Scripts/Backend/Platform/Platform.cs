@@ -244,13 +244,13 @@ public class Platform : MonoBehaviour {
 		UnityEngine.Debug.Log("Platform: action " + message); 
 		this.message = message;
 	}
-
-	/// TEMP
-	public void OnGUI() {
-		GUI.Label(new Rect(Screen.width/2 - 150, 50, 300, 50), message);
-		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
-	}
-	/// TEMP
+//
+//	/// TEMP
+//	public void OnGUI() {
+//		GUI.Label(new Rect(Screen.width/2 - 150, 50, 300, 50), message);
+//		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
+//	}
+//	/// TEMP
 	
 	public virtual AndroidJavaObject GetHelper() {
 		return helper;
@@ -262,6 +262,7 @@ public class Platform : MonoBehaviour {
 	
 	public virtual Device Device() {
 		try {
+			UnityEngine.Debug.Log("Platform: Getting user details");
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getDevice");
 			if (ajo.GetRawObject().ToInt32() == 0) return null;
 			return new Device(ajo.Get<int>("id"), ajo.Get<string>("manufacturer"), ajo.Get<string>("model"), ajo.Get<int>("glassfit_version"));

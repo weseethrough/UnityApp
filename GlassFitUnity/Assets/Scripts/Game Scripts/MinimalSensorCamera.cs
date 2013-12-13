@@ -21,6 +21,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private bool timerActive = false;
 	private float yRotate = 0f;
 	private bool rearview = false;
+	private bool noGrid = false;
 	
 	private GestureHelper.OnTap tapHandler = null;
 	
@@ -32,7 +33,11 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	// Set the grid and scale values
 	void Start () {
-		grid.SetActive(false);
+		if(grid != null) {
+			grid.SetActive(false);
+		} else {
+			noGrid = true;
+		}
 		scaleX = (float)Screen.width / 800.0f;
 		scaleY = (float)Screen.height / 500.0f;
 		
@@ -57,12 +62,13 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 #if !UNITY_EDITOR
 		// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
-		if(timerActive) {
-			gridOn = false;
-		} else {
+		if(!noGrid) {
+			if(timerActive) {
+				gridOn = false;
+			} else {
 			
 			// reset orientation offset
-			offsetFromStart = Platform.Instance.GetOrientation();
+				offsetFromStart = Platform.Instance.GetOrientation();
 			
 			// reset bearing offset
 			if (Platform.Instance.Bearing() != -999.0f) {
@@ -73,27 +79,28 @@ public class MinimalSensorCamera : MonoBehaviour {
 				bearingOffset = Quaternion.identity;
 			}
 			
-			Platform.Instance.ResetGyro();
-			gridOn = true;
-			gridTimer = 5.0f;
-			timerActive = true;
+				Platform.Instance.ResetGyro();
+				gridOn = true;
+				gridTimer = 5.0f;
+				timerActive = true;
+			}
+				
+	//		
+	//		}
+	//		else if(Event.current.type == EventType.Repaint)
+	//		{
+	//			// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
+	//			if(gridOn)
+	//			{
+	//				timerActive = true;
+	//			} else
+	//			{
+	//				gridTimer = 0.0f;
+	//				timerActive = false;
+	//			}
+	//				
+	//		}
 		}
-			
-//		
-//		}
-//		else if(Event.current.type == EventType.Repaint)
-//		{
-//			// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
-//			if(gridOn)
-//			{
-//				timerActive = true;
-//			} else
-//			{
-//				gridTimer = 0.0f;
-//				timerActive = false;
-//			}
-//				
-//		}
 #endif
 	}
 	
@@ -124,37 +131,39 @@ public class MinimalSensorCamera : MonoBehaviour {
 		GUI.depth = 7;
 		
 #if !UNITY_EDITOR
-		if(!started) {
-			if(GUI.Button(new Rect(200, 0, 400, 500), "", GUIStyle.none)) {
-				started = true;
-			}
-		} else {
-			// Check if the button is being held
-			if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
-			{ 
-				// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
-				if(timerActive) {
-					gridOn = false;
-				} else {
-					offsetFromStart = Platform.Instance.GetOrientation();
-					Platform.Instance.ResetGyro();
-					gridOn = true;
+		if(!noGrid) {
+			if(!started) {
+				if(GUI.Button(new Rect(200, 0, 400, 500), "", GUIStyle.none)) {
+					started = true;
 				}
-				gridTimer = 5.0f;
-			
-			}
-			else if(Event.current.type == EventType.Repaint)
-			{
-				// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
-				if(gridOn)
-				{
-					timerActive = true;
-				} else
-				{
-					gridTimer = 0.0f;
-					timerActive = false;
+			} else {
+				// Check if the button is being held
+				if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
+				{ 
+					// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
+					if(timerActive) {
+						gridOn = false;
+					} else {
+						offsetFromStart = Platform.Instance.GetOrientation();
+						Platform.Instance.ResetGyro();
+						gridOn = true;
+					}
+					gridTimer = 5.0f;
+				
 				}
-			}	
+				else if(Event.current.type == EventType.Repaint)
+				{
+					// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
+					if(gridOn)
+					{
+						timerActive = true;
+					} else
+					{
+						gridTimer = 0.0f;
+						timerActive = false;
+					}
+				}	
+			}
 		}
 #endif
 		GUI.matrix = Matrix4x4.identity;
@@ -249,17 +258,19 @@ public class MinimalSensorCamera : MonoBehaviour {
 #endif
 		
 		// If the timer and grid are on, countdown the timer and switch it off if the timer runs out
-		if(timerActive && gridOn)
-		{
-			gridTimer -= Time.deltaTime;
-			if(gridTimer < 0.0f)
+		if(!noGrid) {
+			if(timerActive && gridOn)
 			{
-				gridOn = false;
-				timerActive = false;
+				gridTimer -= Time.deltaTime;
+				if(gridTimer < 0.0f)
+				{
+					gridOn = false;
+					timerActive = false;
+				}
 			}
+			
+			grid.SetActive(gridOn);
 		}
-		
-		grid.SetActive(gridOn);
 		
 	}
 	

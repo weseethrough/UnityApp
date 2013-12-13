@@ -10,12 +10,16 @@ using System.Runtime.Serialization;
 [Serializable]
 public class HexButtonData : ISerializable 
 {
-    public string imageName = string.Empty;
-    public string buttonName = string.Empty;   
-    public int column = 0;
-    public int row = 0;
-    public bool locked = false;
-
+    public string   imageName       = string.Empty;
+    public string   buttonName      = string.Empty;
+    public string   activityName    = "default activity name";
+    public string   activityContent = "default activity content";
+    public int      column          = 0;
+    public int      row             = 0;
+    public int      activityPrice   = 12345;    
+    public bool     locked          = false;
+    public bool     displayInfoData = true;
+        
     /// <summary>
     /// default constructor
     /// </summary>
@@ -23,7 +27,7 @@ public class HexButtonData : ISerializable
     public HexButtonData() { }
 
     /// <summary>
-    /// deserialziation constructor
+    /// deserialization constructor
     /// </summary>
     /// <param name="info">seirilization info conataining class data</param>
     /// <param name="ctxt">serialization context </param>
@@ -39,6 +43,12 @@ public class HexButtonData : ISerializable
                     break;
                 case "buttonName":
                     this.buttonName = entry.Value as String;
+                    break;
+                case "activityName":
+                    this.activityName = entry.Value as String;
+                    break;
+                case "activityContent":
+                    this.activityContent = entry.Value as String;
                     break;                
                 case "column":
                     this.column = (int)entry.Value;
@@ -46,8 +56,14 @@ public class HexButtonData : ISerializable
                 case "row":
                     this.row = (int)entry.Value;
                     break;
+                case "activityPrice":
+                    this.activityPrice = (int)entry.Value;
+                    break;
                 case "locked":
                     this.locked = (bool)entry.Value;
+                    break;
+                case "displayInfoData":
+                    this.displayInfoData = (bool)entry.Value;
                     break;
 
             }
@@ -67,6 +83,10 @@ public class HexButtonData : ISerializable
         info.AddValue("column", this.column);
         info.AddValue("row", this.row);
         info.AddValue("locked", this.locked);
+        info.AddValue("activityName", this.activityName);
+        info.AddValue("activityContent", this.activityContent);
+        info.AddValue("activityPrice", this.activityPrice);
+        info.AddValue("displayInfoData", this.displayInfoData);
     }
 
 }

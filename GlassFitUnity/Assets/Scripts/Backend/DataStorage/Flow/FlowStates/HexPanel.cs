@@ -129,11 +129,13 @@ public class HexPanel : Panel
 
         if (uicam != null)
         {         
+            
             camStartMouseAction = uicam.useMouse;
             camStartTouchAction = uicam.useTouch;                        
 
+            /* do not block button clicks, current design is expecting clicks on hexes
             uicam.useMouse = false;
-            uicam.useTouch = false;                
+            uicam.useTouch = false;      */          
         }                   
 #endif
 

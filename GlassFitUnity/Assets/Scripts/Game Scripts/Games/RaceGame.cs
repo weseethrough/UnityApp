@@ -43,13 +43,7 @@ public class RaceGame : GameBase {
 	public GameObject paulaHolder;
 	public GameObject chrisHolder;
 	public GameObject bradleyHolder;
-	
-	
-	// Target for bonus points
-	//private int bonusTarget = 1000;
-
-
-	
+		
 	void Start () {
 		base.Start();
 		
