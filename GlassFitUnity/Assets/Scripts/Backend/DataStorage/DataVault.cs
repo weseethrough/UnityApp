@@ -45,7 +45,7 @@ public class DataVault : MonoBehaviour
     /// default unity initialziation function is preparing datavault and loads variables to useful easy to search dictionaries
     /// </summary>
     /// <returns></returns>
-    void Start()
+    void Awake()
     {        
         Initialize();
     }
@@ -103,6 +103,7 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     static public void Initialize()
     {
+        if (data != null) return;
 
         data = new Dictionary<string, DataEntry>();
         registeredListeners = new Dictionary<string, List<UIComponentSettings>>();
@@ -183,8 +184,7 @@ public class DataVault : MonoBehaviour
     {
         if (data == null) 
         {
-            Debug.LogError("Database is not initialized yet, value set will be ignored!");
-            return;
+            Initialize();
         }
 
         DataEntry de;
@@ -236,8 +236,7 @@ public class DataVault : MonoBehaviour
     {
         if (data == null)
         {
-            Debug.LogError("Database is not initialized yet, value set will be ignored!");
-            return;
+            Initialize();
         }
 
         if (!data.ContainsKey(name))
@@ -274,7 +273,7 @@ public class DataVault : MonoBehaviour
     {
         if (data == null)
         {
-            return null;
+            Initialize();
         }
 
         if (!data.ContainsKey(name))
@@ -292,7 +291,12 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     static public void Remove(string name)
     {
-        if (data == null || !data.ContainsKey(name))
+        if (data == null )
+        {
+            Initialize();
+        }
+        
+        if ( !data.ContainsKey(name))
         {            
             return;
         }

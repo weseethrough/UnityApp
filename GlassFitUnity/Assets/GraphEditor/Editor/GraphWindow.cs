@@ -755,11 +755,9 @@ public class GraphWindow : EditorWindow, IDraw
                 }
 
                 //String[] spriteNames = Graph.m_defaultHexagonalAtlas.GetListOfSprites().ToArray();
-                BetterList<string> spriteNames = Graph.m_defaultHexagonalAtlas.GetListOfSprites();
-                string[] spriteNamesArray = spriteNames.ToArray();
-
+                BetterList<string> spriteNames = Graph.m_defaultHexagonalAtlas.GetListOfSprites();    
+                string[] spriteNamesArray = spriteNames.ToArray();                
                 bool isScrolled = false;
-
 
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField("name:", GUILayout.Width(width * 0.3f));
@@ -783,7 +781,7 @@ public class GraphWindow : EditorWindow, IDraw
                 {
                     HexButtonData hexData = hexPanel.buttonData[i];
 
-                    int spriteIndex = 0;
+                    int spriteIndex = spriteNamesArray.Length -1;
                     for (int arrayIndex = 0; arrayIndex < spriteNamesArray.Length; arrayIndex++)
                     {
                         if (spriteNamesArray[arrayIndex] == hexData.imageName)
@@ -829,7 +827,7 @@ public class GraphWindow : EditorWindow, IDraw
 
                     if (spriteIndex != newIndex)
                     {
-                        hexData.imageName = spriteNamesArray[newIndex];
+                        hexData.imageName = spriteNamesArray[newIndex] == "--" ? "" : spriteNamesArray[newIndex];
                         dirtySave = true;
                     }
                     EditorGUILayout.EndHorizontal();
