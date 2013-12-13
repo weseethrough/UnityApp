@@ -30,13 +30,6 @@ public class UISensorCamera : MonoBehaviour {
 		});
 		GestureHelper.onTwoTap += twoTapHandler;
 		
-		backHandler = new GestureHelper.OnSwipeLeft(() => {
-			GoBack();
-		});
-		
-		DataVault.Set("rearview", false);
-		
-		GestureHelper.swipeLeft += backHandler;
 	}
 	
 	void GoBack() 
@@ -123,7 +116,7 @@ public class UISensorCamera : MonoBehaviour {
 	/// Update this instance. Sets the rotation of the camera from Platform
 	/// </summary>
 	void Update () {
-		// Update the rotation and set it
+		
 #if !UNITY_EDITOR
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
 

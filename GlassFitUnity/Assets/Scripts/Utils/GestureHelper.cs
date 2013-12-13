@@ -95,4 +95,17 @@ public class GestureHelper : MonoBehaviour {
 		}
 		UnityEngine.Debug.Log("GestureHelper: message obtained - three tap");
 	}
+	
+	void TwoSwipeLeft(string message) {
+		//Application.Quit();
+	}
+	
+	void Update() 
+	{
+		// Update the rotation and set it
+		if(Input.GetKeyDown(KeyCode.Escape)) 
+		{
+			Application.Quit();
+		}
+	}
 }

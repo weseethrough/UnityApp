@@ -67,6 +67,12 @@ public class ButtonFunctionCollection
 		return false; 
 	}
 	
+	static public bool RegisterDevice(FlowButton fb, Panel panel) 
+	{
+		
+		return false;
+	}
+	
 	static public bool SetCeleb(FlowButton fb, Panel panel)
 	{
 		switch(fb.name)
@@ -74,25 +80,25 @@ public class ButtonFunctionCollection
 		case "activity_farah":
 			DataVault.Set("type", "Mo");
 			DataVault.Set("finish", 10000);
-			AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+			AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 			break;
 			
 		case "activity_paula_radcliffe":
 			DataVault.Set("type", "Paula");
 			DataVault.Set("finish", 42195);
-			AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+			AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 			break;
 			
 		case "activity_chris_hoy":
 			DataVault.Set("type", "Chris");
 			DataVault.Set("finish", 1000);
-			AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+			AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 			break;
 			
 		case "activity_bradley_wiggins":
 			DataVault.Set("type", "Bradley");
 			DataVault.Set("finish", 4000);
-			AutoFade.LoadLevel(1, 0.1f, 0.1f, Color.black);
+			AutoFade.LoadLevel("Race Mode", 0.1f, 0.1f, Color.black);
 			break;
 			
 		default:
@@ -216,7 +222,7 @@ public class ButtonFunctionCollection
     /// <returns>always allow for further navigation</returns>
     static public bool StartGame(FlowButton fb, Panel panel)
 	{
-		AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 		
 		switch(fb.name) 
 		{
@@ -296,7 +302,7 @@ public class ButtonFunctionCollection
     /// <returns>always allow for further navigation</returns>
 	static public bool StartPursuitGame(FlowButton fb, Panel panel) 
 	{
-		AutoFade.LoadLevel(3, 0f, 1.0f, Color.black);
+		AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
 		
 		switch(fb.name) {
 		case "1km":
@@ -359,7 +365,7 @@ public class ButtonFunctionCollection
 		Platform.Instance.CreateTargetTracker(1.9f);
 		Platform.Instance.CreateTargetTracker(2.2f);
 		
-		AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 		
 		return true;
 	}
@@ -436,7 +442,7 @@ public class ButtonFunctionCollection
 		
 		//Platform.Instance.Reset();
 		Platform.Instance.ResetTargets();
-		AutoFade.LoadLevel(2, 0f, 1.0f, Color.black);
+		AutoFade.LoadLevel("Game End", 0f, 1.0f, Color.black);
 
 		// TODO: Disable share and challenge hexes if (track == 0 || track.tracPositoons.Count == 0)
 
@@ -507,6 +513,7 @@ public class ButtonFunctionCollection
 		panel.parentMachine.ForbidBack();
 		return true;
 	}
+	
 
     /// <summary>
     /// sets friend name in database from button name, authorize friend provider and asynchronously follow button connection
@@ -539,7 +546,46 @@ public class ButtonFunctionCollection
 		
 		return false;
 	}
-
+	
+	static public bool AuthenticateUser(FlowButton fb, Panel panel) {
+		GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
+		// Follow connection once authentication has returned asynchronously
+		Platform.OnAuthenticated handler = null;
+		handler = new Platform.OnAuthenticated((authenticated) => {
+			if (authenticated) {
+				//Platform.Instance.SyncToServer();
+				panel.parentMachine.FollowConnection(gConect);
+			}
+			Platform.Instance.onAuthenticated -= handler;
+		});
+		Platform.Instance.onAuthenticated += handler;	
+		
+		Platform.Instance.Authorize("any", "login");
+		
+		return false;
+	}
+	
+	static public bool ShareTrack(FlowButton button, Panel panel)
+	{
+		Platform.OnAuthenticated handler = null;
+		handler = new Platform.OnAuthenticated((authenticated) => {
+			if (authenticated) {
+				Track track = DataVault.Get("track") as Track;
+				Platform.Instance.QueueAction(string.Format(@"{{
+					'action' : 'share',
+					'provider' : 'facebook',
+					'message' : 'Dummy message',
+					'track' : [{0}, {1}]
+				}}", track.deviceId, track.trackId).Replace("'", "\""));		
+				Debug.Log ("Track: [" + track.deviceId + "," + track.trackId + "] shared to Facebook");
+			}
+			Platform.Instance.onAuthenticated -= handler;
+		});
+		Platform.Instance.onAuthenticated += handler;	
+		Platform.Instance.Authorize("facebook", "share");
+		return false;
+	}
+	
     /// <summary>
     /// sends asynchronous challenge to other registered user
     /// </summary>
@@ -679,7 +725,7 @@ public class ButtonFunctionCollection
 						DataVault.Set("challenges", relevant);
 						DataVault.Set("finish", finish.Value);
 						
-						AutoFade.LoadLevel(1, 0.1f, 1.0f, Color.black);
+						AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 						
 						// Follow connection since the function may have been called asynchronously
 						panel.parentMachine.FollowConnection(gConect);

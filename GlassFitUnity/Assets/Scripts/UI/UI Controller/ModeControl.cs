@@ -100,23 +100,23 @@ public class ModeControl : MonoBehaviour {
 		if(currentMode == "Rearview") 
 		{
 			if(rearview) {
-				DataVault.Set("active_mode", "Press to turn on");
+				DataVault.Set("active_mode", "Tap to turn on");
 				rearview = false;
 				DataVault.Set("rearview", rearview);
 			} else {
-				DataVault.Set("active_mode", "Press to turn off");
+				DataVault.Set("active_mode", "Tap to turn off");
 				rearview = true;
 				DataVault.Set("rearview", rearview);
 			}
 		} else if(currentMode == "Settings") 
 		{
 			if(indoor) {
-				DataVault.Set("active_mode", "Press to turn on");
+				DataVault.Set("active_mode", "Tap to turn on");
 				indoor = false;
 				DataVault.Set("indoor", indoor);
 			} else 
 			{
-				DataVault.Set("active_mode", "Press to turn off");
+				DataVault.Set("active_mode", "Tap to turn off");
 				indoor = true;
 				DataVault.Set("indoor", indoor);
 			}
