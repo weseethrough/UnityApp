@@ -7,6 +7,10 @@ using System.Collections;
 public class MinimalSensorCamera : MonoBehaviour {
 	
 	public Quaternion offsetFromStart;
+	private Quaternion bearingOffset = Quaternion.identity; // rotation between initialBearing and player's current bearing.
+	                                                        // applied to camera in each update() call.
+	private Quaternion? initialBearing = null;  // first valid bearing we receive. Updated on ResetGyros.
+	                                            // null iff no valid bearing has been calculated yet
 	
 	private bool started;
 	private float scaleX;
@@ -62,7 +66,19 @@ public class MinimalSensorCamera : MonoBehaviour {
 			if(timerActive) {
 				gridOn = false;
 			} else {
+			
+			// reset orientation offset
 				offsetFromStart = Platform.Instance.GetOrientation();
+			
+			// reset bearing offset
+			if (Platform.Instance.Bearing() != -999.0f) {
+				initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+				bearingOffset = Quaternion.identity;
+			} else {
+				initialBearing = null;
+				bearingOffset = Quaternion.identity;
+			}
+			
 				Platform.Instance.ResetGyro();
 				gridOn = true;
 				gridTimer = 5.0f;
@@ -200,13 +216,26 @@ public class MinimalSensorCamera : MonoBehaviour {
 	void Update () {
 		
 #if !UNITY_EDITOR
-		// Set the new rotation of the camera
-		Quaternion newOffset = Quaternion.identity;
-		if(rearview) {
-			newOffset = Quaternion.Inverse(Quaternion.Euler(0, 180, 0)) * (Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation());
-		} else {
-			newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+		// Check for changes in the player's bearing
+		if (Platform.Instance.Bearing() != -999.0f) {
+			Quaternion currentBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+			if (initialBearing.HasValue == false) {
+				// if this is the first valid bearing we've had, use it as the reference point and return identity
+				initialBearing = currentBearing;
+			}
+			bearingOffset = Quaternion.Inverse (currentBearing) * initialBearing.Value;
 		}
+		UnityEngine.Debug.Log("Bearing w-component: " + bearingOffset);
+		
+		// Check for changes in players head orientation
+		Quaternion headOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+		
+		// Check for rearview
+		Quaternion rearviewOffset = Quaternion.Euler(0, (rearview ? 180 : 0), 0);
+				
+		// Rotate the camera
+		transform.rotation = bearingOffset * rearviewOffset * headOffset;
+
 #else
 		if(Input.GetKeyDown(KeyCode.B)) {
 			yRotate += 180f;
@@ -243,9 +272,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 			grid.SetActive(gridOn);
 		}
 		
-#if !UNITY_EDITOR
-		transform.rotation =  newOffset;	
-#endif
 	}
 	
 	void OnDestroy() 

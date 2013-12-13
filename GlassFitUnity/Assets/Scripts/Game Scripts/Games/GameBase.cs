@@ -24,7 +24,7 @@ public class GameBase : MonoBehaviour {
 	private bool hasEnded = false;
 	
 	// Bonus distance milestones
-	private int bonusTarget = 1000;
+	protected int bonusTarget = 1000;
 	
 	// Final sprint bonus points.		TODO is this a feature of ALL games or just some?
 	protected float finalBonus = 1000;
@@ -288,7 +288,10 @@ public class GameBase : MonoBehaviour {
 			
 			//hide the  map
 			GameObject h = GameObject.Find("minimap");
-			h.renderer.enabled = false;
+			if(h != null)
+			{
+				h.renderer.enabled = false;
+			}
 			
 			//go to the 'finish' menu
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
