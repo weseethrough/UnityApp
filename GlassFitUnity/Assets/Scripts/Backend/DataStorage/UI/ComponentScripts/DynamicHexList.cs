@@ -197,6 +197,10 @@ public class DynamicHexList : MonoBehaviour
 
         //if (!initialized) return;
 
+		if(Input.GetKeyDown(KeyCode.Escape)) {
+			GoBack();
+		}
+		
         buttonNextEnterDelay -= Time.deltaTime;
 		if(buttons == null) {
 			UnityEngine.Debug.Log("DynamicHexList: buttons is null");

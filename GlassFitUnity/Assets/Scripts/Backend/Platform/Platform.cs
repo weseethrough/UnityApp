@@ -218,13 +218,13 @@ public class Platform : MonoBehaviour {
 		UnityEngine.Debug.Log("Platform: action " + message); 
 		this.message = message;
 	}
-
-	/// TEMP
-	public void OnGUI() {
-		GUI.Label(new Rect(Screen.width/2 - 150, 50, 300, 50), message);
-		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
-	}
-	/// TEMP
+//
+//	/// TEMP
+//	public void OnGUI() {
+//		GUI.Label(new Rect(Screen.width/2 - 150, 50, 300, 50), message);
+//		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
+//	}
+//	/// TEMP
 	
 	public AndroidJavaObject GetHelper() {
 		return helper;
