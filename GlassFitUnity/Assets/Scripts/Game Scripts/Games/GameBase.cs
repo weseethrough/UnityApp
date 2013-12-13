@@ -203,6 +203,8 @@ public class GameBase : MonoBehaviour {
 		
 		GUIStyle labelStyle = getLabelStyle();
 		
+		Rect messageRect = new Rect(300, 150, 300, 200);
+		
 		if(countdown)
 		{
 			// Get the current time rounded up
@@ -211,18 +213,34 @@ public class GameBase : MonoBehaviour {
 			// Display countdown on screen
 			if(countTime > 0.0f)
 			{
-				GUI.Label(new Rect(300, 150, 200, 200), cur.ToString(), labelStyle); 
+				GUI.Label(messageRect, cur.ToString(), labelStyle); 
 			}
 			else if(countTime > -1.0f && countTime < 0.0f)
 			{
-				GUI.Label(new Rect(300, 150, 200, 200), "GO!", labelStyle); 
+				GUI.Label(messageRect, "GO!", labelStyle); 
 			}
 		}
 		
-		//prompt the user to reset the gyro
+		//feedback to user
 		if(!readyToStart)
 		{
-			GUI.Label (new Rect(300, 150, 200, 200), "Centre View to start", labelStyle);
+			//are we waiting for GPS?
+			if(!Platform.Instance.HasLock() && !indoor)
+			{
+				GUI.Label(messageRect, "Awaiting GPS lock...", labelStyle);
+			}
+			else
+			{
+				//notify if we're indoor
+				if(indoor)
+				{
+					GUIStyle indoorTextStyle = new GUIStyle(labelStyle);
+					indoorTextStyle.fontSize -= 10;
+					GUI.Label(new Rect(messageRect.xMin, 15, messageRect.width, 100), "Indoor mode", indoorTextStyle);
+				}
+				
+				GUI.Label(messageRect, "Centre View to start", labelStyle);
+			}
 		}
 		
 		GUI.matrix = Matrix4x4.identity;
@@ -230,7 +248,7 @@ public class GameBase : MonoBehaviour {
 		// Display a message if the multiplier has changed in the last second and a half
 		// See NewBaseMultiplier method in this class for more detail on how this is set
 		if(started && baseMultiplierStartTime > (Time.time - 1.5f)) {
-			GUI.Label(new Rect(300, 150, 200, 200), baseMultiplierString, labelStyle);
+			GUI.Label(messageRect, baseMultiplierString, labelStyle);
 		}
 	}
 	
@@ -273,7 +291,7 @@ public class GameBase : MonoBehaviour {
 		
 		//detect the touch and reset/start if it's there
 		// Non-Glass devices
-		if(!readyToStart)
+		if(!readyToStart && (Platform.Instance.HasLock() || indoor) )
 		{
 			UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
 			if(Input.touchCount > 0)
