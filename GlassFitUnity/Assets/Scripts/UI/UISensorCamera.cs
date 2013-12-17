@@ -87,11 +87,27 @@ public class UISensorCamera : MonoBehaviour {
 
 		}
 		
+		//draw a reticle if we're in the hex menu
+		if(FindObjectOfType(typeof(DynamicHexList)))
+		{
+			DrawReticle();
+		}
+		
 		// Delete the save for the training mode
 		if(GUI.Button(new Rect(730, 450, 70, 50), "Reset Save")) {
 			PlayerPrefs.DeleteAll();
 		}
 		GUI.matrix = Matrix4x4.identity;
+	}
+	
+	void DrawReticle()
+	{
+		Texture tex = Resources.Load("Reticle", typeof(Texture)) as Texture;
+		float width = 800;
+		float height = 500;
+		float boxHalfSize = 10;
+		Rect textureRect = new Rect(width/2.0f - boxHalfSize, height/2.0f - boxHalfSize, 2*boxHalfSize, 2*boxHalfSize);
+		GUI.DrawTexture(textureRect, tex, ScaleMode.ScaleToFit, true);
 	}
 	
 	void ResetGyroGlass()

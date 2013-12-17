@@ -7,7 +7,8 @@ using System.Collections.Generic;
 /// </summary>
 public class DynamicHexList : MonoBehaviour
 {
-    const float CAMERA_SENSITIVITY = 3.0f;
+    const float CAMERA_SENSITIVITY_X = 4.5f;
+	const float CAMERA_SENSITIVITY_Y = 5.5f;
 	
     HexPanel parent = null;
 
@@ -141,7 +142,9 @@ public class DynamicHexList : MonoBehaviour
         float yaw = Mathf.Atan2(2*(q.w*q.z + q.x*q.y), 1-2*(q.y*q.y + q.z*q.z));
 		
         dynamicCamPos = new Vector2(-yaw, -pitch);
-        dynamicCamPos *= CAMERA_SENSITIVITY;
+        dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
+		dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
+		
         //UnityEngine.Debug.Log("MenuPosition:" + yaw + ", " + pitch + ", " + roll);
         //dynamicCamPos *= 0.02f;
         //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
