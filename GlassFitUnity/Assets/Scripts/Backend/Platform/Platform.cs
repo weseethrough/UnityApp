@@ -50,6 +50,9 @@ public class Platform : MonoBehaviour {
 	public delegate void OnRegistered(string message);
 	public OnRegistered onDeviceRegistered = null;
 	
+	public delegate void OnResetGyro();
+	public OnResetGyro onResetGyro = null;
+	
 	// The current user and device
 	private User user = null;
 	private Device device = null;
@@ -516,6 +519,13 @@ public class Platform : MonoBehaviour {
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error resetting gyros: " + e.Message);
 		}
+		//call handlers
+		if (onResetGyro != null)
+		{
+			UnityEngine.Debug.Log("Platform: calling reset gyros delegate");
+			onResetGyro();
+		}
+		UnityEngine.Debug.Log("Platform: reset gyros");
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
