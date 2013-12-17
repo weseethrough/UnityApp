@@ -18,8 +18,14 @@ public class virtualTrack : MonoBehaviour {
 		//calculate the UV phase
 		
 		float Repeats = renderer.material.mainTextureScale.y;
-		float Phase = -(Platform.Instance.GetDistance() / Repeats) % TrackLength;
+		float Phase = -((float)Platform.Instance.Distance() / Repeats) % TrackLength;
 				
+		//apply to the material to pass to the shader
 		renderer.material.SetFloat("_Phase", Phase);
 	}
+	
+	void OnGUI() {
+		//show readout of distance run;	
+	}
+		
 }
