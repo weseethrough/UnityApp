@@ -120,14 +120,17 @@ public class RaceGame : GameBase {
 		double distance = Platform.Instance.Distance();
 		// TODO: Decide if we are allowed to sort in place or need to make a copy
 		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
-		trackers.Sort(delegate(TargetTracker x, TargetTracker y) {
-			return y.GetTargetDistance().CompareTo(x.GetTargetDistance());
-		} );
 		int position = 1;
-		foreach (TargetTracker tracker in trackers) {
-			if (tracker.GetTargetDistance() > distance) position++;
-		}
 
+		if(trackers != null){
+			trackers.Sort(delegate(TargetTracker x, TargetTracker y) {
+				return y.GetTargetDistance().CompareTo(x.GetTargetDistance());
+			} );
+		
+			foreach (TargetTracker tracker in trackers) {
+				if (tracker.GetTargetDistance() > distance) position++;
+		}
+		}
 		DataVault.Set("ahead_col_box", "D20000EE");
 		
 		DataVault.Set("leader_header", "You are");
