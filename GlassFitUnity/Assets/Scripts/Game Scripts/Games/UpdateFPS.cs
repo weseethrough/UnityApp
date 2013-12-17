@@ -15,6 +15,7 @@ public class UpdateFPS : MonoBehaviour {
 		currentTime = Time.timeSinceLevelLoad;
 		scale.x = Screen.width/800f;
 		scale.y = Screen.height/500f;
+		scale.z = 1;
 	}
 	
 	void OnGUI() {
