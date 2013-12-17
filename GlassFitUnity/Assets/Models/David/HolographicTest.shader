@@ -48,17 +48,17 @@ Properties {
           
           
           
-          //TODO Friday, make this progress smoothly from normal to expanded, and clamp expansion?
+          //expand the verts outward in camera space to make the model chunkier and more visible at range.
           
-          if (distance > _expandDistance)
-          {
-          		float fExpansion = (distance - _expandDistance) * 0.001f;
-          		//phase in the expansion gradually over 1/10th of the expand threshold
-          		float fExpandRange = _expandDistance * 0.5;
-          		float fExpandFactor = distance / fExpandRange;
-          		
-          		o.pos.xy += fExpansion * fExpandFactor * normal_screenspace.xy;
-          }
+//          if (distance > _expandDistance)
+//          {
+//          		float fExpansion = (distance - _expandDistance) * 0.001f;
+//          		//phase in the expansion gradually over 1/10th of the expand threshold
+//          		float fExpandRange = _expandDistance * 0.5;
+//          		float fExpandFactor = distance / fExpandRange;
+//          		
+//          		o.pos.xy += fExpansion * fExpandFactor * normal_screenspace.xy;
+//          }
           
           return o;
       }
