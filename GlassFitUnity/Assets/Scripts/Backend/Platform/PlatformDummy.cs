@@ -146,6 +146,11 @@ public class PlatformDummy : Platform
 		initialised = true;
 	}
 	
+    public override Device Device()
+    {
+        return null;
+    }
+
 	public override void StartTrack() {
 		timer.Start();
 	}
