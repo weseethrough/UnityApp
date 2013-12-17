@@ -21,8 +21,7 @@ public class PlatformDummy : Platform
 	
 	private const float weight = 75.0f;
 	private const float factor = 1.2f;
-	
-	private string blobstore = "editor-blobstore";
+		
 	private string blobassets = "blob";
 	
 	private static PlatformDummy _instance;
@@ -96,11 +95,11 @@ public class PlatformDummy : Platform
 
 		UnityEngine.Debug.Log("Creating Platform Dummy instance");
 		
-		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
-		Directory.CreateDirectory(blobstore);
+		//blobstore = Path.Combine(Application.persistentDataPath, blobstore);
+		//Directory.CreateDirectory(blobstore);
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
 		Directory.CreateDirectory(blobassets);
-		UnityEngine.Debug.Log("Editor blobstore: " + blobstore + ", blobassets: " + blobassets);
+		UnityEngine.Debug.Log("Editor blobassets: " + blobassets);
 		
 		games = new List<Game>();
 		
@@ -301,22 +300,18 @@ public class PlatformDummy : Platform
 	public override byte[] LoadBlob(string id) {
 		try {
 			UnityEngine.Debug.Log("PlatformDummy: Trying id: " + id);
-			if (!File.Exists(Path.Combine(blobstore, id))) {
-				return File.ReadAllBytes(Path.Combine(blobassets, id));
-			}
-			return File.ReadAllBytes(Path.Combine(blobstore, id));
+			
+			return File.ReadAllBytes(Path.Combine(blobassets, id));
+			
 		} catch (FileNotFoundException e) {
 			return new byte[0];
 		}
 	}
-	
-	public override void StoreBlob(string id, byte[] blob) {
-		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
-	}
-	
-	public override void EraseBlob(string id) {
-		File.Delete(Path.Combine(blobstore, id));
-	}
+
+    public override void StoreBlob(string id, byte[] blob)
+    {
+        File.WriteAllBytes(Path.Combine(blobassets, id), blob);
+    }
 
 	public override void ResetBlobs ()
 	{
