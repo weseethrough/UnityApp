@@ -50,6 +50,9 @@ public class Platform : MonoBehaviour {
 	public delegate void OnRegistered(string message);
 	public OnRegistered onDeviceRegistered = null;
 	
+	public delegate void OnResetGyro();
+	public OnResetGyro onResetGyro = null;
+	
 	// The current user and device
 	private User user = null;
 	private Device device = null;
@@ -142,66 +145,66 @@ public class Platform : MonoBehaviour {
 		applicationIsQuitting = true;
 	}
 	
-	 void Awake() 
+	 void Awake()
+    {
+        if (initialised == false)
         {
-                if (initialised == false)
-                {
-                        Initialize();
-                }
+            Initialize();
         }
+    }
         
-	        public virtual void Initialize()
-	        {        
+	public virtual void Initialize()
+	{        
 	                
-	                authenticated = false;
-	                targetTrackers = new List<TargetTracker>();
-	                UnityEngine.Debug.Log("Platform: Initialize() called");
+	    authenticated = false;
+	    targetTrackers = new List<TargetTracker>();
+	    UnityEngine.Debug.Log("Platform: Initialize() called");
 	                
-	                try {
-	                        AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-	                activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-	                        context = activity.Call<AndroidJavaObject>("getApplicationContext");
-	                        helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
-	                        points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
-	                        UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
+	    try {
+	            AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+	    activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+	            context = activity.Call<AndroidJavaObject>("getApplicationContext");
+	            helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
+	            points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
+	            UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
 	                        
-	                        // call the following on the UI thread
-	                        activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
+	            // call the following on the UI thread
+	            activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 	                                
-	                                // Get the singleton helper objects
-	                                try {
-	                                        helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
-	                                        points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
-	                              UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
-	                                } catch (Exception e) {
-	                                        UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
-	                                        UnityEngine.Debug.LogException(e);
-	                                }
-	                                // Try to get a Java GPSTracker object
-	                                try {
-	                                        gps = helper.Call<AndroidJavaObject>("getGPSTracker");
-	                                        UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
-	                                } catch (Exception e) {
-	                                        UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
-	                                        UnityEngine.Debug.LogException(e);
-	                                }
-	                                AwardPoints("Free points for devs", "Platform.cs", 10000);
-	                                // Cache the list of games and states from java
-	                        GetGames();
+	                    // Get the singleton helper objects
+	                    try {
+	                            helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+	                            points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+	                    UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
+	                    } catch (Exception e) {
+	                            UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
+	                            UnityEngine.Debug.LogException(e);
+	                    }
+	                    // Try to get a Java GPSTracker object
+	                    try {
+	                            gps = helper.Call<AndroidJavaObject>("getGPSTracker");
+	                            UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
+	                    } catch (Exception e) {
+	                            UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
+	                            UnityEngine.Debug.LogException(e);
+	                    }
+	                    AwardPoints("Free points for devs", "Platform.cs", 10000);
+	                    // Cache the list of games and states from java
+	            GetGames();
 	                                
-	                                UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
-	                                UnityEngine.Debug.Log("Current game points: " + GetCurrentPoints());
-	                                UnityEngine.Debug.Log("Current gems: " + GetCurrentGemBalance());
-	                                UnityEngine.Debug.Log("Current metabolism: " + GetCurrentMetabolism());
+	                    UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
+	                    UnityEngine.Debug.Log("Current game points: " + GetCurrentPoints());
+	                    UnityEngine.Debug.Log("Current gems: " + GetCurrentGemBalance());
+	                    UnityEngine.Debug.Log("Current metabolism: " + GetCurrentMetabolism());
 	                                        
-	                                initialised = true;
-	                }));
+	                    initialised = true;
+	    }));
 	                        
-	                } catch (Exception e) {
-	                        UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
-	                        UnityEngine.Debug.LogException(e);
-	                }
-	        }
+	    } catch (Exception e) {
+	            UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
+	            UnityEngine.Debug.LogException(e);
+	    }
+	}
 	
 	/// Message receivers
 	public void OnAuthentication(string message) {
@@ -516,6 +519,13 @@ public class Platform : MonoBehaviour {
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error resetting gyros: " + e.Message);
 		}
+		//call handlers
+		if (onResetGyro != null)
+		{
+			UnityEngine.Debug.Log("Platform: calling reset gyros delegate");
+			onResetGyro();
+		}
+		UnityEngine.Debug.Log("Platform: reset gyros");
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]

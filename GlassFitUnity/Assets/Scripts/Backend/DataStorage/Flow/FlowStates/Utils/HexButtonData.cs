@@ -10,15 +10,21 @@ using System.Runtime.Serialization;
 [Serializable]
 public class HexButtonData : ISerializable 
 {
-    public string   imageName       = string.Empty;
+    public const string  NO_IMAGE   = "!none";
+
+    public string   imageName       = NO_IMAGE;
     public string   buttonName      = string.Empty;
     public string   activityName    = "default activity name";
     public string   activityContent = "default activity content";
+    public string   onButtonCustomString = string.Empty;
     public int      column          = 0;
     public int      row             = 0;
-    public int      activityPrice   = 12345;    
+    public int      activityPrice   = 12345;
+    public int      count           = -1;
     public bool     locked          = false;
     public bool     displayInfoData = true;
+    
+
         
     /// <summary>
     /// default constructor

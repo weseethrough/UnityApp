@@ -201,8 +201,6 @@ public class DataStore : MonoBehaviour
             bformatter.Serialize(ms, GetStorage(name));
 
             PlatformDummy.Instance.StoreBlob(name.ToString(), ms.GetBuffer());
-
-            PlatformDummy.Instance.StoreBlobAsAsset(name.ToString(), ms.GetBuffer());
 		}
 #else
 		if (instance != null)

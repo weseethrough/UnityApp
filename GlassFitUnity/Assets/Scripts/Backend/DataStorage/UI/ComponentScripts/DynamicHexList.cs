@@ -7,7 +7,8 @@ using System.Collections.Generic;
 /// </summary>
 public class DynamicHexList : MonoBehaviour
 {
-    const float CAMERA_SENSITIVITY = 3.0f;
+    const float CAMERA_SENSITIVITY_X = 4.5f;
+    const float CAMERA_SENSITIVITY_Y = 5.5f;
 	
     HexPanel parent = null;
 
@@ -141,7 +142,9 @@ public class DynamicHexList : MonoBehaviour
         float yaw = Mathf.Atan2(2*(q.w*q.z + q.x*q.y), 1-2*(q.y*q.y + q.z*q.z));
 		
         dynamicCamPos = new Vector2(-yaw, -pitch);
-        dynamicCamPos *= CAMERA_SENSITIVITY;
+        dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
+	dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
+		
         //UnityEngine.Debug.Log("MenuPosition:" + yaw + ", " + pitch + ", " + roll);
         //dynamicCamPos *= 0.02f;
         //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
@@ -493,6 +496,7 @@ public class DynamicHexList : MonoBehaviour
         float Z = child.transform.position.z;
         for (int i = 0; i < count; i++)
         {
+            HexButtonData data = GetButtonData()[i];
             GameObject tile = null;
             if (i >= transform.childCount)
             {
@@ -505,33 +509,42 @@ public class DynamicHexList : MonoBehaviour
             {
                 tile = transform.GetChild(i).gameObject;
             }
-            Vector3 pos = GetLocation(GetButtonData()[i].column, GetButtonData()[i].row);
-            //if (radius == 0)
-            //{
-            //    Debug.LogError("RADIUS 0!");
-            //}
-
-            //float angle = pos.x / (Mathf.PI * radius);
-            //0.989 is value I found matching best to close ui line behind players back
-            //angle *= 180 * 0.989f;
-            //Quaternion rotation = Quaternion.Euler(new Vector3(0.0f, angle, 0.0f));
-            //Vector3 rotationalPos = rotation * distanceVector;
+            Vector3 pos = GetLocation(data.column, data.row);    
 
             Vector3 hexPosition = new Vector3(pos.x, pos.y, pos.z);
             tile.transform.position = hexPosition;
-            //tile.transform.Rotate(new Vector3(0.0f, angle, 0.0f));
-            tile.name = GetButtonData()[i].buttonName;
+            tile.name = data.buttonName;
 
             FlowButton fb = tile.GetComponentInChildren<FlowButton>();
             if (fb != null)
             {
                 fb.owner = parent;
-                fb.name = GetButtonData()[i].buttonName;
+                fb.name = data.buttonName;
                 UIImageButton graphics = fb.GetComponentInChildren<UIImageButton>();
-                graphics.pressedSprite = GetButtonData()[i].imageName;
+                               
+                
+                graphics.pressedSprite = data.imageName;
                 graphics.hoverSprite = graphics.pressedSprite;
                 graphics.normalSprite = graphics.pressedSprite;
-                graphics.disabledSprite = graphics.pressedSprite;                
+                graphics.disabledSprite = graphics.pressedSprite;
+                
+            }
+
+            UILabel[] labels = tile.GetComponentsInChildren<UILabel>() as UILabel[];
+            if (labels != null)
+            {
+                foreach(UILabel label in labels)
+                {
+                    switch (label.gameObject.name)
+                    {
+                        case "Counter":
+                            label.text = data.count < 0 ? "" : ""+data.count;
+                            break;
+                        case "TextContent":
+                            label.text = data.onButtonCustomString;
+                            break;
+                    }                    
+                }
             }
 
             buttons.Add(tile);

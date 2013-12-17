@@ -9,20 +9,34 @@ public class GraphComponent : MonoBehaviour
 	public GraphData m_graph;
     public UIAtlas m_defaultHexagonalAtlas;
 
-    void Awake()
-    {                
-        DataStore.LoadStorage(DataStore.BlobNames.flow);
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
-        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
+    private bool initialize = false;
 
-        GraphData data = flowDictionary.Get("MainFlow") as GraphData;
-        data.Style = m_graph.Style;
-        m_graph = data;
+    void Start()
+    {       
+        MakeAwake();        
+    }
+
+    void MakeAwake()
+    {
+        if (!initialize)
+        {
+            initialize = true;
+            DataStore.LoadStorage(DataStore.BlobNames.flow);
+            Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
+            StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
+
+            GraphData data = flowDictionary.Get("MainFlow") as GraphData;
+            data.Style = m_graph.Style;
+            m_graph = data;
+        }
     }
 
 	public GraphData Data
 	{
-		get { return m_graph; }
+		get {
+            MakeAwake();
+            return m_graph; 
+        }
 	}
 	
 	public GraphComponent()

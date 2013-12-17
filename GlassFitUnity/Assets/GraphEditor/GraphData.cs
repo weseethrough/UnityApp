@@ -232,6 +232,12 @@ public class GraphData : ISerializable
 		if (node != null)
 		{
 			Disconnect(node);
+            FlowState fs = node as FlowState;
+            if (fs != null && fs.parent != null)
+            {
+                fs.parent.RemoveChild(fs);
+                fs.parent = null;
+            }
 			bool ok = this.Nodes.Remove(node);
 			if (!ok) Debug.LogWarning("Remove failed?");
 			node.Id = 0; // clear the identifier

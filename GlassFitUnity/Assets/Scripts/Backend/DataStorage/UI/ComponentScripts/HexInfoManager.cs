@@ -19,6 +19,7 @@ public class HexInfoManager : MonoBehaviour
     UISprite    icon;
     UILabel     title;
     UILabel     content;
+    UILabel     textualIcon;
     GameObject  buyNowBcg;
     GameObject  buyNowText;
     GameObject  buyNowPrice;
@@ -69,6 +70,12 @@ public class HexInfoManager : MonoBehaviour
         {
             title = go.GetComponentInChildren<UILabel>();
         }
+
+        go = GameObject.Find("HexInfoTextGraphic");
+        if (go != null)
+        {
+            textualIcon = go.GetComponentInChildren<UILabel>();
+        }        
 
         go = GameObject.Find("HexInfoIcon");
         if (go != null)
@@ -141,6 +148,7 @@ public class HexInfoManager : MonoBehaviour
             title.text = data.activityName;
             content.text = data.activityContent;
             icon.spriteName = data.imageName;
+            textualIcon.text = data.onButtonCustomString;
 
             if (data.locked == true)
             {
