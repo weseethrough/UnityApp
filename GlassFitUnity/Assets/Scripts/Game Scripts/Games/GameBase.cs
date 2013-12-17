@@ -64,6 +64,9 @@ public class GameBase : MonoBehaviour {
 	// Target speed
 	public float targSpeed = 1.8f;
 	
+	private bool pause = false;
+	
+	private GestureHelper.OnTap tapHandler = null;
 	
 		/// <summary>
 	/// Start this instance.
@@ -75,6 +78,11 @@ public class GameBase : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
+		tapHandler = new GestureHelper.OnTap(() => {
+			PauseGame();
+		});
+		
+		GestureHelper.onTap += tapHandler;
 		//Get target distance
 #if !UNITY_EDITOR
 		finish = (int)DataVault.Get("finish");
@@ -101,6 +109,26 @@ public class GameBase : MonoBehaviour {
 		hasEnded = false;
 		
 		UnityEngine.Debug.Log("RaceGame: started");
+	}
+	
+	public void PauseGame()
+	{
+		if(!pause)
+		{
+			pause = true;
+			Platform.Instance.StopTrack();
+		} else {
+			pause = false;
+			if(started)
+			{
+				Platform.Instance.StartTrack();
+			} 
+			else
+			{
+				countdown = false;
+				countTime = 3.0f;
+			}
+		}
 	}
 	
 	/// <summary>
@@ -186,7 +214,15 @@ public class GameBase : MonoBehaviour {
 		
 		GUIStyle labelStyle = getLabelStyle();
 		
-		if(countdown)
+		if(pause)
+		{
+			labelStyle.fontSize = 60;
+			GUI.Label(new Rect(300, 150, 200, 200), "PAUSED", labelStyle);
+		}
+		
+		labelStyle.fontSize = 40;
+		
+		if(countdown && !pause)
 		{
 			// Get the current time rounded up
 			int cur = Mathf.CeilToInt(countTime);

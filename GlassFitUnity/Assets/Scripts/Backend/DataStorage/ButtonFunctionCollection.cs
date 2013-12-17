@@ -169,8 +169,8 @@ public class ButtonFunctionCollection
 			{
 				DataVault.Set("actual_game", games[i]);
 				DataVault.Set("game_desc", games[i].description);
-				DataVault.Set("game_name", games[i].gameId);
-				DataVault.Set("image_name", games[i].name);
+				DataVault.Set("game_name", games[i].name);
+				DataVault.Set("image_name", games[i].iconName);
 				break;
 			}
 		}

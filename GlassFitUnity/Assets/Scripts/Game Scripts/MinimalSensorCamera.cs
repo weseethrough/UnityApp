@@ -11,7 +11,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 	                                                        // applied to camera in each update() call.
 	private Quaternion? initialBearing = null;  // first valid bearing we receive. Updated on ResetGyros.
 	                                            // null iff no valid bearing has been calculated yet
-	
 	private bool started;
 	private float scaleX;
 	private float scaleY;
@@ -22,6 +21,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private float yRotate = 0f;
 	private bool rearview = false;
 	private bool noGrid = false;
+	private Vector3 scale;
 	
 	private GestureHelper.OnTap tapHandler = null;
 	
@@ -33,6 +33,11 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	// Set the grid and scale values
 	void Start () {
+		// Calculate and set scale
+		float x = (float)Screen.width/800f;
+		float y = (float)Screen.height/500f;
+		scale = new Vector3(x, y, 1);
+		
 		if(grid != null) {
 			grid.SetActive(false);
 		} else {
@@ -66,40 +71,18 @@ public class MinimalSensorCamera : MonoBehaviour {
 			if(timerActive) {
 				gridOn = false;
 			} else {
-			
-			// reset orientation offset
+				// reset orientation offset
 				offsetFromStart = Platform.Instance.GetOrientation();
 			
-			// reset bearing offset
-			if (Platform.Instance.Bearing() != -999.0f) {
-				initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
-				bearingOffset = Quaternion.identity;
-			} else {
-				initialBearing = null;
-				bearingOffset = Quaternion.identity;
-			}
-			
-				Platform.Instance.ResetGyro();
-				gridOn = true;
-				gridTimer = 5.0f;
-				timerActive = true;
-			}
-				
-	//		
-	//		}
-	//		else if(Event.current.type == EventType.Repaint)
-	//		{
-	//			// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
-	//			if(gridOn)
-	//			{
-	//				timerActive = true;
-	//			} else
-	//			{
-	//				gridTimer = 0.0f;
-	//				timerActive = false;
-	//			}
-	//				
-	//		}
+				// reset bearing offset
+				if (Platform.Instance.Bearing() != -999.0f) {
+					initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+					bearingOffset = Quaternion.identity;
+				} else {
+					initialBearing = null;
+					bearingOffset = Quaternion.identity;
+				}
+			}		
 		}
 #endif
 	}
@@ -127,8 +110,15 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 		
 		// Set the new GUI matrix based on scale and the depth
-		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(scaleX, scaleY, 1));		
+		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);		
 		GUI.depth = 7;
+		
+		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
+		labelStyle.alignment = TextAnchor.UpperCenter;
+		labelStyle.fontSize = 40;
+		labelStyle.fontStyle = FontStyle.Bold;
+		
+		GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
 		
 #if !UNITY_EDITOR
 		if(!noGrid) {
@@ -144,7 +134,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 					if(timerActive) {
 						gridOn = false;
 					} else {
-						offsetFromStart = Platform.Instance.GetOrientation();
+						ResetGyro();
 						Platform.Instance.ResetGyro();
 						gridOn = true;
 					}
@@ -171,7 +161,29 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	void ResetGyroGlass()
 	{
-		ResetGyro();
+		if(!noGrid) {
+			if(timerActive) {
+				gridOn = false;
+			} else {
+			
+			// reset orientation offset
+				offsetFromStart = Platform.Instance.GetOrientation();
+			
+			// reset bearing offset
+			if (Platform.Instance.Bearing() != -999.0f) {
+				initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+				bearingOffset = Quaternion.identity;
+			} else {
+				initialBearing = null;
+				bearingOffset = Quaternion.identity;
+			}
+			
+				Platform.Instance.ResetGyro();
+				gridOn = true;
+				gridTimer = 5.0f;
+				timerActive = true;
+			}
+		}
 	}
 	
 	/// <summary>
@@ -235,7 +247,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 				
 		// Rotate the camera
 		transform.rotation = bearingOffset * rearviewOffset * headOffset;
-
+//		transform.rotation = Quaternion.Inverse(bearingOffset) * headOffset;
 #else
 		if(Input.GetKeyDown(KeyCode.B)) {
 			yRotate += 180f;

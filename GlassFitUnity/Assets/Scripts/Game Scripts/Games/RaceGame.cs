@@ -89,9 +89,6 @@ public class RaceGame : GameBase {
 		cyclistHolder.SetActive(false);
 		runnerHolder.SetActive(false);
 		
-		
-		//
-
 		// TODO: Move tracker creation to a button/flow and keep this class generic
 		//if (Platform.Instance.targetTrackers.Count == 0) {
 		Platform.Instance.ResetTargets();

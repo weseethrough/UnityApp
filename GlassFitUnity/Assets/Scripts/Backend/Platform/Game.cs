@@ -11,6 +11,7 @@ public class Game
 	private AndroidJavaObject javaGame;  // reference to JNI object so we can call methods on it
 	public string gameId { get; private set; } // Unique identifier of the game (e.g. "Zombies 2")
 	public string name { get; private set; } // Pretty name to display to users
+	public string iconName { get; private set; }
 	public string activity { get; private set; }
 	public string description { get; private set; } // Pretty description to display to users
 	public string state { get; private set; } // "Locked" or "Unlocked"
@@ -25,10 +26,11 @@ public class Game
 	{
 	}
 	
-	public Game(string gameID, string name, string activity, string description, string state, int tier, long priceInPoints, long priceInGems, string type, int column, int row)
+	public Game(string gameID, string name, string iconName, string activity, string description, string state, int tier, long priceInPoints, long priceInGems, string type, int column, int row)
 	{
 		this.gameId = gameID;
 		this.name = name;
+		this.iconName = iconName;
 		this.activity = activity;
 		this.description = description;
 		this.state = state;
@@ -53,6 +55,7 @@ public class Game
 			// Extract fields from the java object using JNI calls
 			gameId = javaGame.Call<string> ("getGameId");
 			name = javaGame.Call<string> ("getName");
+			iconName = javaGame.Call<string>("getIconName");
 			activity = javaGame.Call<string> ("getActivity");
 			description = javaGame.Call<string> ("getDescription");
 			state = javaGame.Call<string> ("getState");

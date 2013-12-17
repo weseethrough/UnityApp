@@ -59,18 +59,19 @@ public class GameSelectPanel : HexPanel
             }
             
             hbd.buttonName = games[i].name;
-			hbd.activityName = games[i].gameId;
+			hbd.activityName = games[i].name;
 			hbd.activityContent = games[i].description;
 			hbd.activityPrice = (int)games[i].priceInPoints;
             hbd.column = games[i].column;
             hbd.row = games[i].row;
-            hbd.imageName = games[i].name;
+			UnityEngine.Debug.Log("Game: position of " + games[i].name + " is: " + games[i].column + ", " + games[i].row);
+            hbd.imageName = games[i].iconName;
 			
-			if(games[i].state == "locked") {
-				UnityEngine.Debug.Log("Game: " + games[i].name + " Set to locked");
+			if(games[i].state == "Locked") {
+				//UnityEngine.Debug.Log("Game: " + games[i].name + " Set to locked");
             	hbd.locked = true;
 			} else {
-				UnityEngine.Debug.Log("Game: " + games[i].name + " Set to unlocked");
+				//UnityEngine.Debug.Log("Game: " + games[i].name + " Set to unlocked");
 				hbd.locked = false;
 			}
 			
@@ -79,7 +80,7 @@ public class GameSelectPanel : HexPanel
 			
 			gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
 			
-			if(games[i].state == "locked")
+			if(games[i].state == "Locked")
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
@@ -111,7 +112,7 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, challengeExit.Link[0]);
 				}
 			}
-			else if(games[i].type == "Celebrity")
+			else if(games[i].type == "Celeb")
 			{
 				gc.EventFunction = "SetCeleb";
 				if(celebExit.Link.Count > 0)

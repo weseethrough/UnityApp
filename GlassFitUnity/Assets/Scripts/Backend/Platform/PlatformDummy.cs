@@ -104,43 +104,43 @@ public class PlatformDummy : Platform
 		
 		games = new List<Game>();
 		
-		Game current = new Game("Race Yourself (run)", "activity_run","run", "Run against an avatar that follows your previous track","unlocked",1,0,0, "Race", 0, 0);
+		Game current = new Game("Race Yourself (run)", "activity_run", "activity_run", "run", "Run against an avatar that follows your previous track","unlocked",1,0,0, "Race", 0, 0);
 		games.Add(current);
 		
-		current = new Game("Switch to cycle mode (run)","activity_bike","run","Switch to cycle mode","locked",1,1000,0, "Race", 1, 0);
+		current = new Game("Switch to cycle mode (run)","activity_bike", "activity_bike", "run","Switch to cycle mode","locked",1,1000,0, "Race", 1, 0);
         games.Add(current);
 		
-		current = new Game("Zombies 1","activity_zombie","run","We all want to see if we could survive the zombie apocalypse, and now you can! Remember the #1 rule - cardio.","locked",2,50000,0, "Pursuit", 0, -1);
+		current = new Game("Zombies 1","activity_zombie", "activity_zombie","run","We all want to see if we could survive the zombie apocalypse, and now you can! Remember the #1 rule - cardio.","locked",2,50000,0, "Pursuit", 0, -1);
         games.Add(current);
 		
-		current = new Game("Boulder 1","activity_boulder","run","Relive that classic moment in Indiana Jones, run from the boulder! No treasure this time though.","locked",1,10000,0, "Pursuit", -1, 0);
+		current = new Game("Boulder 1","activity_boulder", "activity_boulder", "run","Relive that classic moment in Indiana Jones, run from the boulder! No treasure this time though.","locked",1,10000,0, "Pursuit", -1, 0);
         games.Add(current);
 		
-		current = new Game("Dinosaur 1","activity_dinosaurs","run","Remember that time in Jurassic Park when the T-Rex ate those guys? Try to avoid the same fate!","locked",3,100000,0, "Pursuit", 0, 1);
+		current = new Game("Dinosaur 1","activity_dinosaurs", "activity_dinosaurs","run","Remember that time in Jurassic Park when the T-Rex ate those guys? Try to avoid the same fate!","locked",3,100000,0, "Pursuit", 0, 1);
         games.Add(current);
 		
-		current = new Game("Eagle 1","activity_eagle","run","You stole her eggs, now the giant eagle is after you! It's not your fault the eggs are really tasty...","locked",2,70000,0, "Pursuit", -1, 1);
+		current = new Game("Eagle 1","activity_eagle", "activity_eagle","run","You stole her eggs, now the giant eagle is after you! It's not your fault the eggs are really tasty...","locked",2,70000,0, "Pursuit", -1, 1);
         games.Add(current);
 		
-		current = new Game("Train 1","activity_train","run","Run away from a train!","locked",2,20000,0, "Pursuit", 1, 1);
+		current = new Game("Train 1","activity_train", "activity_train","run","Run away from a train!","locked",2,20000,0, "Pursuit", 1, 1);
 		games.Add(current);
 
-        current = new Game("Mo Farah", "activity_farah", "run", "Run against Mo Farah! See how you compare to his 2012 Olympic time!", "unlocked", 2, 70000, 0, "Celebrity", 2, 0);
+        current = new Game("Mo Farah", "activity_farah", "activity_farah", "run", "Run against Mo Farah! See how you compare to his 2012 Olympic time!", "unlocked", 2, 70000, 0, "Celebrity", 2, 0);
         games.Add(current);
 		
-		current = new Game("Paula Radcliffe","activity_paula_radcliffe","run","Run a marathon with Paula Radcliffe! Try and beat her time at the 2007 NYC Marathon!","unlocked",2,20000,0, "Celebrity", 2, 1);
+		current = new Game("Paula Radcliffe","activity_paula_radcliffe", "activity_paula_radcliffe", "run","Run a marathon with Paula Radcliffe! Try and beat her time at the 2007 NYC Marathon!","unlocked",2,20000,0, "Celebrity", 2, 1);
 		games.Add(current);
 
-        current = new Game("Chris Hoy", "activity_chris_hoy", "run", "Cycle with Chris Hoy, in his almost record breaking 1km cycle in 2007", "unlocked", 2, 10000, 0, "Celebrity", 2, -1);
+        current = new Game("Chris Hoy", "activity_chris_hoy", "activity_chris_hoy","run", "Cycle with Chris Hoy, in his almost record breaking 1km cycle in 2007", "unlocked", 2, 10000, 0, "Celebrity", 2, -1);
         games.Add(current);
 
-        current = new Game("Bradley Wiggins", "activity_bradley_wiggins", "cycle", "Participate in a 4km pursuit race with Bradley Wiggins on his 2008 Olympics gold medal time", "unlocked", 2, 10000, 0, "Celebrity", 1, -1);
+        current = new Game("Bradley Wiggins", "activity_bradley_wiggins", "activity_bradley_wiggins","cycle", "Participate in a 4km pursuit race with Bradley Wiggins on his 2008 Olympics gold medal time", "unlocked", 2, 10000, 0, "Celebrity", 1, -1);
         games.Add(current);
 
-        current = new Game("Fire", "activity_fire", "run", "Know what's good on a barbeque? Burgers. Know what isn't? You. So run before you get burned.", "unlocked", 2, 10000, 0, "Pursuit", 1, 2);
+        current = new Game("Fire", "activity_fire", "activity_fire","run", "Know what's good on a barbeque? Burgers. Know what isn't? You. So run before you get burned.", "unlocked", 2, 10000, 0, "Pursuit", 1, 2);
         games.Add(current);
 		
-		current = new Game("Settings", "settings", "run", "Settings for Indoor mode", "unlocked", 2, 0, 0, "Mode", -1, 2);
+		current = new Game("Settings", "settings", "settings", "run", "Settings for Indoor mode", "unlocked", 2, 0, 0, "Mode", -1, 2);
 		games.Add(current);
 		
 		initialised = true;
