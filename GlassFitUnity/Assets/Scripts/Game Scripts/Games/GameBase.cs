@@ -351,7 +351,7 @@ public class GameBase : MonoBehaviour {
 		// Non-Glass devices
 		if(!readyToStart && (Platform.Instance.HasLock() || indoor) )
 		{
-			UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
+			//UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
 			if(Input.touchCount > 0)
 			{
 				UnityEngine.Debug.Log("GameBase: Update: Touch detected");
