@@ -313,7 +313,7 @@ public class DynamicHexList : MonoBehaviour
 
             bool buttonClick = Input.GetMouseButton(0);
 
-            if (selection != null && (Input.touchCount == 1))
+            if (selection != null && (Input.touchCount == 1 || buttonClick))
             {
 				UnityEngine.Debug.Log("DynamicHexList: In the first loop (Shouldn't be!!)");
                 Touch touch = new Touch();
