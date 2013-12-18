@@ -69,6 +69,8 @@ public class GameBase : MonoBehaviour {
 	
 	private GestureHelper.OnTap tapHandler = null;
 	
+	private GestureHelper.TwoFingerTap twoTapHandler = null;
+	
 		/// <summary>
 	/// Start this instance.
 	/// </summary>
@@ -94,7 +96,7 @@ public class GameBase : MonoBehaviour {
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
 				
-		indoor = (bool)DataVault.Get("indoor");
+		indoor = (bool)DataVault.Get("indoor_settings");
 		
 		UnityEngine.Debug.Log("GameBase: indoor set to: " + indoor.ToString());
 		
@@ -103,19 +105,18 @@ public class GameBase : MonoBehaviour {
 		Platform.Instance.StopTrack();
 		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
-
-		
-		
 		
 		hasEnded = false;
 		
+		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
+			GyroDidReset();
+			GestureHelper.onTwoTap -= twoTapHandler;
+		});
+		
+		GestureHelper.onTwoTap += twoTapHandler;
+		
 		//handler for OnReset
-		//this seems to get automatically called as soon as the scene loads. Trying an onTap instead.
-//		Platform.OnResetGyro handler = null;
-//		handler = new Platform.OnResetGyro(() => {
-//			GyroDidReset();
-//		});
-//		Platform.Instance.onResetGyro += handler;	
+		//this seems to get automatically called as soon as the scene loads. Trying an onTap instead.	
 		
 //		GestureHelper.OnTap handler = null;
 //		handler = new GestureHelper.OnTap( () => {
@@ -236,12 +237,12 @@ public class GameBase : MonoBehaviour {
 		if(pause)
 		{
 			labelStyle.fontSize = 60;
-			GUI.Label(new Rect(300, 150, 200, 200), "PAUSED", labelStyle);
+			GUI.Label(new Rect(250, 150, 300, 200), "PAUSED", labelStyle);
 		}
 		
 		labelStyle.fontSize = 40;
 		
-		Rect messageRect = new Rect(300, 150, 300, 200);
+		Rect messageRect = new Rect(250, 150, 300, 200);
 		
 		if(countdown && !pause)
 		{

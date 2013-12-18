@@ -262,33 +262,48 @@ public class ButtonFunctionCollection
 	{
 		string currentMode = (string)DataVault.Get("game_name");
 		
-		if(currentMode == "Rearview") 
-		{
-			bool rearview = (bool)DataVault.Get("rearview");
-			if(rearview) {
-				DataVault.Set("active_mode", "Press to turn on");
-				rearview = false;
-				DataVault.Set("rearview", rearview);
-			} else {
-				DataVault.Set("active_mode", "Press to turn off");
-				rearview = true;
-				DataVault.Set("rearview", rearview);
-			}
-		} else if(currentMode == "Settings") 
-		{
-			bool indoor = (bool)DataVault.Get("indoor");
-			if(indoor) {
-				UnityEngine.Debug.Log("Button: Indoor turning false now");
-				DataVault.Set("active_mode", "Tap to turn on");
-				indoor = false;
-				DataVault.Set("indoor", indoor);
-			} else 
-			{
-				UnityEngine.Debug.Log("Button: Indoor turning true now"); 
-				DataVault.Set("active_mode", "Tap to turn off");
-				indoor = true;
-				DataVault.Set("indoor", indoor);
-			}
+		currentMode = currentMode.Replace(" ", "_");
+		
+		UnityEngine.Debug.Log("BFC: Name is: " + currentMode.ToLower());
+		
+		bool setting = (bool)DataVault.Get(currentMode.ToLower());
+		
+//		if(currentMode == "Rearview") 
+//		{
+//			bool rearview = (bool)DataVault.Get("rearview");
+//			if(rearview) {
+//				DataVault.Set("active_mode", "Press to turn on");
+//				rearview = false;
+//				DataVault.Set("rearview", rearview);
+//			} else {
+//				DataVault.Set("active_mode", "Press to turn off");
+//				rearview = true;
+//				DataVault.Set("rearview", rearview);
+//			}
+//		} else if(currentMode == "Settings") 
+//		{
+//			bool indoor = (bool)DataVault.Get("indoor");
+//			if(indoor) {
+//				UnityEngine.Debug.Log("Button: Indoor turning false now");
+//				DataVault.Set("active_mode", "Tap to turn on");
+//				indoor = false;
+//				DataVault.Set("indoor", indoor);
+//			} else 
+//			{
+//				UnityEngine.Debug.Log("Button: Indoor turning true now"); 
+//				DataVault.Set("active_mode", "Tap to turn off");
+//				indoor = true;
+//				DataVault.Set("indoor", indoor);
+//			}
+//		}
+		if(setting) {
+			DataVault.Set("active_mode", "Tap to turn on");
+			setting = false;
+			DataVault.Set(currentMode.ToLower(), setting);
+		} else {
+			DataVault.Set("active_mode", "Tap to turn off");
+			setting = true;
+			DataVault.Set(currentMode.ToLower(), setting);
 		}
 		
 		return true;
