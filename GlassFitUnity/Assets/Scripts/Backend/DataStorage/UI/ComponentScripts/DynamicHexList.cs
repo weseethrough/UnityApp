@@ -309,17 +309,19 @@ public class DynamicHexList : MonoBehaviour
 
             bool buttonClick = Input.GetMouseButton(0);
 
-            if (selection != null && (Input.touchCount > 0 || buttonClick))
+            if (selection != null && (Input.touchCount == 1))
             {
-
+				UnityEngine.Debug.Log("DynamicHexList: In the first loop (Shouldn't be!!)");
                 Touch touch = new Touch();
                 bool found = false;
 
                 if (!buttonClick)
                 {
+					UnityEngine.Debug.Log("DynamicHexList: No button click, checking touches)");
                     touch = Input.touches[0];
                     if (dragging == false)
                     {
+						UnityEngine.Debug.Log("DynamicHexList: Not dragging, starting now");
                         dragging = true;
                         draggingFingerID = touch.fingerId;
                         draggingStartPos = touch.position;
@@ -331,6 +333,7 @@ public class DynamicHexList : MonoBehaviour
                         {
                             if (t.fingerId == draggingFingerID)
                             {
+								UnityEngine.Debug.Log("DynamicHexList: Found a dragging finger");
                                 found = true;
                                 touch = t;
                                 break;
@@ -340,8 +343,10 @@ public class DynamicHexList : MonoBehaviour
                 }
                 else
                 {
+					UnityEngine.Debug.Log("DynamicHexList: Button click false, checking dragging");
                     if (dragging == false)
                     {
+						UnityEngine.Debug.Log("DynamicHexList: Dragging false, setting start position");
                         draggingStartPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
                         dragging = true;
                     }
@@ -351,37 +356,45 @@ public class DynamicHexList : MonoBehaviour
 
                 if (found)
                 {
+					UnityEngine.Debug.Log("DynamicHexList: Something found");
                     Vector2 offset;
                     if (!buttonClick)
                     {
+						UnityEngine.Debug.Log("DynamicHexList: No button, setting touch offset");
                         offset = touch.position - draggingStartPos;
                     }
                     else
                     {
+						UnityEngine.Debug.Log("DynamicHexList: Button pressed, setting mouse offset");
                         Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
                         offset = mousePos - draggingStartPos;
                     }
-
+					
+					UnityEngine.Debug.Log("DynamicHexList: Setting height and scale");
                     float height = Screen.currentResolution.height;
                     float scale = -offset.y / height;
 
                     scale = Mathf.Clamp(scale, -1, 1);
-
+					
+					UnityEngine.Debug.Log("DynamicHexList: Getting Tween position");
                     TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                     if (tp == null)
                     {
                         tp = guiCamera.gameObject.AddComponent<TweenPosition>();
                     }
+					UnityEngine.Debug.Log("DynamicHexList: Getting camera direction");
                     Vector3 cameraCoreAxis = cameraPosition;
                     cameraCoreAxis.y = selection.transform.position.y;
                     Vector3 direction = selection.transform.position - cameraCoreAxis;
-
+					
+					UnityEngine.Debug.Log("DynamicHexList: Getting position");
                     Vector3 pos = cameraCoreAxis + (direction * scale);
 
                     TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
 
                     if (parent != null && scale > 0.6f)
                     {
+						UnityEngine.Debug.Log("DynamicHexList: found button, entering");
                         FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
                         if (fb != null)
                         {
@@ -397,6 +410,7 @@ public class DynamicHexList : MonoBehaviour
             }
             else
             {
+				UnityEngine.Debug.Log("DynamicHexList: Nothing found, expected route");
                 dragging = false;
 
                 if (selection != null)
