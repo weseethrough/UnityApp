@@ -72,20 +72,20 @@ public class UISensorCamera : MonoBehaviour {
 		}
 		
 		// Resets the gyro after a button press
-		if(GUI.Button (new Rect(0, 450, 70, 50), "Set Gyro"))
-		{ 
-#if !UNITY_EDITOR
-			Platform.Instance.ResetGyro();
-			offsetFromStart = Platform.Instance.GetOrientation();
-#endif
-			// Reset the gyros in the hex lists
-            DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
-            foreach (DynamicHexList dhl in lists)
-            {
-                dhl.ResetGyro();
-            }
-
-		}
+//		if(GUI.Button (new Rect(0, 450, 70, 50), "Set Gyro"))
+//		{ 
+//#if !UNITY_EDITOR
+//			Platform.Instance.ResetGyro();
+//			offsetFromStart = Platform.Instance.GetOrientation();
+//#endif
+//			// Reset the gyros in the hex lists
+//            DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
+//            foreach (DynamicHexList dhl in lists)
+//            {
+//                dhl.ResetGyro();
+//            }
+//
+//		}
 		
 		//draw a reticle if we're in the hex menu
 		if(FindObjectOfType(typeof(DynamicHexList)))
@@ -93,10 +93,10 @@ public class UISensorCamera : MonoBehaviour {
 			DrawReticle();
 		}
 		
-		// Delete the save for the training mode
-		if(GUI.Button(new Rect(730, 450, 70, 50), "Reset Save")) {
-			PlayerPrefs.DeleteAll();
-		}
+//		// Delete the save for the training mode
+//		if(GUI.Button(new Rect(730, 450, 70, 50), "Reset Save")) {
+//			PlayerPrefs.DeleteAll();
+//		}
 		GUI.matrix = Matrix4x4.identity;
 	}
 	
@@ -132,6 +132,10 @@ public class UISensorCamera : MonoBehaviour {
 	/// Update this instance. Sets the rotation of the camera from Platform
 	/// </summary>
 	void Update () {
+		
+		if(Input.touchCount == 2) {
+			ResetGyro();
+		}
 		
 #if !UNITY_EDITOR
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
