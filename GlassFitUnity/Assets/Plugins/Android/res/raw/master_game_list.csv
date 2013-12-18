@@ -1,114 +1,114 @@
 ID,Title,Icon name,Menu to display on,Description,Initial State,Tier,Price in Points,Price in Gems,Type,Column,Row
-activity_eagle,Eagle,activity_eagle,run,You stole her eggs and now the giant eagle is after you! It's not your fault the eggs are really tasty...,Locked,1,1000,10,Pursuit,-7,-2
-activity_eagle_level2,Eagle level 2,activity_eagle_level2,run,You still want more eggs? She's really mad now.,Locked,2,15000,30,N/A,-7,-1
-activity_skiing,Indoor skiing,activity_skiing,gym,Race on a skiing machine in the gym,Locked,3,5000,4,N/A,-7,0
-activity_trail,Trail mode,activity_trail,run,Trailblazing mode,Locked,3,5000,4,N/A,-7,3
-activity_camera,Camera Setting,camera,run,Toggle the AR Camera on/off,Unlocked,1,0,0,Mode,-7,2
-activity_visible,Icon Visibility,eye,run,Turn on the visibility of the icons,Unlocked,1,0,0,Mode,-7,1
-activity_dinosaurs,T-rex challenge,activity_dinosaurs,run,Remember that time in Jurassic Park when the T-Rex ate those guys? Try to avoid the same fate!,Locked,2,50000,50,Pursuit,-6,-3
-activity_dodo,Dodo Challenge,activity_dodo,run,Try to keep away so you don't become as dead as the Dodo!,Locked,3,10000,10,N/A,-6,-2
-activity_heart2,Heart-rate monitor 2,activity_heart2,all,Further integration with the heart-rate monitor,Locked,3,5000,4,N/A,-6,2
-activity_pull_up,Pull-ups,activity_pull_up,all,This mode will teach you the proper technique for pull ups and will also count yours.,Locked,3,5000,4,N/A,-6,0
-activity_wristband,Wristband add-on,activity_wristband,all,Connect to a bluetooth wristband to measure your running style,Locked,3,5000,4,N/A,-6,3
-activity_yoga_level3,Hardcore yoga workout,activity_yoga_level3,all,Complete an advanced yoga workout,Locked,3,5000,4,N/A,-6,-1
-activity_zoom,Zoom,activity_zoom,all,Zoom in to get a better view of your competitors,Locked,3,5000,3,N/A,-6,1
-activity_heart,Heart-rate monitor,activity_heart,all,Connect to bluetooth heart-rate monitor. Required for some games.,Locked,3,5000,4,N/A,-5,3
-activity_monster,Giant Monster Challenge,activity_monster,run,You have woken up this giant monster and he's after you. Clearly not a morning person.,Locked,3,5000,4,N/A,-5,-2
-activity_monster_level2,Giant Monster Challenge 2,activity_monster_level2,run,Why do you insist on playing and eating in his cave. Now he's tired AND hungry.,Locked,3,5000,4,N/A,-5,-3
-activity_squat,Squats,activity_squat,all,This mode will teach you the proper technique for sqauts and will also count yours.,Locked,3,5000,4,N/A,-5,1
-activity_tortoise_hare,Tortoise and the Hare,activity_tortoise_hare,all,The classic story of the Tortoise and the Hare reimagined,Locked,3,5000,4,N/A,-5,2
-activity_unknown3,Unknown Challenge 3,activity_unknown3,run,Race against the fastest mystery,Locked,3,5000,4,N/A,-5,-1
-activity_yoga_level2,Intermediate yoga workout,activity_yoga_level2,all,Complete an intermediate yoga workout,Locked,3,5000,4,N/A,-5,0
+activity_achievement,Achievements,activity_achievement,run,View your achievements and overall progress,Locked,2,5000,3,N/A,0,2
 activity_autopause,Auto-Pause,activity_autopause,run,Pauses the game when you stop for a traffic light,Locked,2,4000,2,N/A,-4,3
-activity_hiit,High Intensity Interval Training,activity_hiit,run,Try some high intensity interval training,Locked,3,5000,4,N/A,-4,2
-activity_rest,Resting,activity_rest,all,Use this mode to ensure that you get the proper amount of rest after exercise,Locked,3,5000,4,N/A,-4,4
-activity_situp,Sit-ups,activity_situp,all,This mode will teach you the proper technique for sit ups and will also count yours.,Locked,3,5000,4,N/A,-4,1
-activity_train,The train game,activity_train,all,There's a damsel in distress on the crossing - hurry before the train gets her!,Locked,1,5000,5,Pursuit,-4,-2
-activity_train_level2,The train game II,activity_train_level2,all,She's got stuck again but this time the train is driven by her jealous ex - hurry!,Locked,2,20000,10,N/A,-4,-3
-activity_unknown2,Unknown Challenge 2,activity_unknown2,run,Race against a faster unknown entity,Locked,3,5000,4,N/A,-4,-1
-activity_yoga_level1,Basic yoga workout,activity_yoga_level1,all,Complete a basic yoga workout,Locked,3,5000,4,N/A,-4,0
-activity_orchestra,Orchestra Mode,activity_orchestra,all,Motivational music that adapts to your speed.,Locked,3,5000,4,N/A,-3,4
-activity_press_up,Press-ups,activity_press_up,all,This mode will teach you the proper technique for press ups and will also count yours.,Locked,3,5000,4,N/A,-3,1
-activity_spotify,Spotify integration,activity_spotify,all,Control your Spotify playlist without leaving RaceYourself,Locked,3,5000,4,N/A,-3,2
-activity_unknown1,Unknown Challenge 1,activity_unknown1,run,Race against an unknown entity,Locked,3,5000,4,N/A,-3,0
-activity_zombie,Zombie Chase,activity_zombie,run,We all want to see if we could survive the zombie apocalypse - now you can! Remember the #1 rule - cardio.,Locked,2,30000,25,Pursuit,-3,-1
-activity_zombie_level2,Zombie Chase level 2,activity_zombie_level2,run,Seems to be more zombies and they are hungrier. Still want the zombie apocalypse?,Locked,3,50000,40,N/A,-3,-2
-activity_zombie_level3,Zombie Chase level 3,activity_zombie_level3,run,A huge horde of zombies are approaching with speed. Survival isn't as easy as it is on TV.,Locked,4,80000,75,N/A,-3,-3
-settings,Settings,settings,settings,Change Indoor mode,Unlocked,3,0,0,Mode,-3,3
-activity_cross_trainer,Cross Trainer,activity_cross_trainer,gym,Use the attachment to make the Cross Trainer more interesting,Locked,3,5000,3,N/A,-2,4
-activity_fire_level1,Fire Challenge 1,activity_fire_level1,run,Know what's good on a barbeque? Burgers. Know what isn't? You. So run before you get burned.,Locked,3,10000,10,Pursuit,-2,-1
-activity_fire_level2,Fire Challenge 2,activity_fire_level2,run,This fire is more aggressive so you better keep moving.,Locked,3,5000,3,N/A,-2,-2
-activity_fire_level3,Fire Challenge 3,activity_fire_level3,run,You shouldn't have kept all those gas cannisters round the house - this fire is the fastest.,Locked,3,5000,3,N/A,-2,-3
-activity_injury,Injury Mode,activity_injury,all,Tailor exercises to your injuries,Locked,3,5000,4,N/A,-2,1
-activity_rearview,Rear-view mirror,activity_rearview,all,Tap with three fingers to see behind you whilst you exercise,Locked,2,10000,10,Mode,-2,0
-activity_stationary_bike,Cycling Machine,activity_stationary_bike,gym,Race on a cycling machine in the gym or at home.,Locked,3,5000,4,N/A,-2,2
-activity_treadmill,Treadmill,activity_treadmill,gym,Race on a treadmill in the gym or at home.,Locked,3,5000,4,N/A,-2,3
+activity_banana,Banana skin x10,activity_banana,run,Throw banana skins in front of your opponents to slow them down. Requires real-time challenge.,Locked,2,5000,3,N/A,7,0
+activity_barclays,Barclays bike,activity_barclays,cycle,Set a record on a London Boris Bike,Locked,2,5000,3,N/A,1,4
+activity_batman_skin,Batman skin for your avatar,activity_batman_skin,run,Now you can be Batman when playing with friends.,Locked,2,5000,3,N/A,7,3
+activity_bet,Bet a friend,share,run,Want to challenge your friend? Make a bet with them with points,Locked,1,5000,4,N/A,3,0
+activity_bike,Race Yourself,activity_bike,cycle,Cycle against your own avatar for points,Unlocked,0,0,0,Race,0,-1
+activity_bike,Cycle mode,activity_bike,run,Switch to cycle mode,Locked,1,1000,1,N/A,,
+activity_bike_level2,Race Yourself level 2,activity_bike_level2,cycle,See your average and best pace avatars at the same time,Locked,1,10000,5,N/A,0,-2
+activity_bike_level3,Race Yourself level 3,activity_bike_level3,cycle,See a range of avatars coving all your past performance,Locked,2,100000,20,N/A,0,-3
 activity_bleep,Bleep test,activity_bleep,run,50m sprints at increasing pace,Locked,2,5000,3,N/A,-1,3
+activity_bolt_level1,Beat Bolt,activity_bolt_level1,run,100m sprint vs. Usain Bolt. How close can you get?,Locked,2,5000,3,N/A,3,-1
+activity_bolt_level2,Beat Bolt,activity_bolt_level2,run,200m sprint vs. Usain Bolt. How close can you get?,Locked,3,5000,3,N/A,4,-2
 activity_boulder,Boulder Dash,activity_boulder,run,Relive that classic moment in Indiana Jones - run from the boulder! No treasure this time though.,Locked,1,1000,1,Pursuit,-1,0
 activity_boulder_level2,Boulder Dash level 2,activity_boulder_level2,run,This time the boulders accelerate faster. Think you can handle it?,Locked,2,5000,5,N/A,-1,-1
 activity_boulder_level3,Boulder Dash level 3,activity_boulder_level3,run,The boulder is incredibly fast. Try to survive as long as possible,Locked,3,20000,15,N/A,-1,-2
 activity_boulder_level4,Boulder Dash level 4,activity_boulder_level4,run,Indiana Jones can't outrun this. Can you?,Locked,4,50000,40,N/A,-1,-3
-activity_mariokart,Mario Kart mode,activity_mariokart,run,Play a game similar to Mario Kart with your friends!,Locked,3,5000,4,N/A,-1,4
-activity_music,Sound effects,activity_music,all,Sound effects on/off,Locked,3,5000,4,N/A,-1,1
-activity_rowing,Indoor rower,activity_rowing,gym,Race on a rowing machine in the gym,Locked,3,5000,4,N/A,-1,2
-activity_achievement,Achievements,activity_achievement,run,View your achievements and overall progress,Locked,2,5000,3,N/A,0,2
-activity_bike,Race Yourself,activity_bike,cycle,Cycle against your own avatar for points,Unlocked,0,0,0,Race,0,-1
-activity_bike_level2,Race Yourself level 2,activity_bike_level2,cycle,See your average and best pace avatars at the same time,Locked,1,10000,5,N/A,0,-2
-activity_bike_level3,Race Yourself level 3,activity_bike_level3,cycle,See a range of avatars coving all your past performance,Locked,2,100000,20,N/A,0,-3
-activity_onepercent,One Percent Mode,activity_onepercent,run,Now you are the 1%.,Locked,3,5000,4,N/A,0,4
-activity_race_yourself,Race Yourself,activity_run,run,Race against your own avatar,Unlocked,0,0,0,Race,0,0
-activity_traffic,The commuter's challenge,activity_traffic,cycle,Bring life to your daily commute..,Locked,3,5000,4,N/A,0,3
-activity_challenge_mode,Challenge Mode,activity_versus,run,Challenge a friend to beat your time,Locked,1,1000,1,Challenge,0,1
-activity_barclays,Barclays bike,activity_barclays,cycle,Set a record on a London Boris Bike,Locked,2,5000,3,N/A,1,4
 activity_bradley_wiggins,Bradley Wiggins,activity_bradley_wiggins,cycle,See how you compare to Bradley Wiggins on his best Olympic run!,Locked,3,5000,3,Celeb,1,-1
+activity_burn_10,Burn 10% Extra,activity_burn_10,run,Add a 10% increase to your metabolism,Locked,3,5000,3,N/A,4,0
+activity_burn_20,Burn 20% Extra,activity_burn_20,run,Add a 20% increase to your metabolism,Locked,3,5000,3,N/A,5,0
+activity_burn_30,Burn 30% Extra,activity_burn_30,run,Add a 30% increase to your metabolism,Locked,3,5000,3,N/A,6,-1
+activity_camera,Camera Setting,camera,run,Toggle the AR Camera on/off,Unlocked,1,0,0,Mode,-7,2
 activity_celebrity_cycle,Cycle with Celebrities,activity_celebrity_cycle,cycle,Cycle against a celebrity!,Locked,3,5000,3,N/A,1,-3
+activity_celebrity_run1,Run with a Celebrity,activity_celebrity_run1,run,Race against a celebrity,Locked,3,5000,3,N/A,5,-2
+activity_celebrity_run2,Run with more Celebrities,activity_celebrity_run2,run,Race against another celebrity!,Locked,3,5000,3,N/A,6,-3
+activity_challenge_mode,Challenge Mode,activity_versus,run,Challenge a friend to beat your time,Locked,1,1000,1,Challenge,0,1
+activity_cheetah_skin,Cheetah skin for your avatar,activity_cheetah_skin,run,With the Cheetah skin you can be the fastest animal when racing friends,Locked,3,5000,3,N/A,6,1
 activity_chris_hoy,Sir Chris Hoy,activity_chris_hoy,cycle,Race against Chris Hoy in a 1km cycle ,Locked,3,5000,3,Celeb,1,-2
+activity_cross_trainer,Cross Trainer,activity_cross_trainer,gym,Use the attachment to make the Cross Trainer more interesting,Locked,3,5000,3,N/A,-2,4
+activity_diamond,Extra Gems,activity_diamond,run,Buy more gems so you can unlock more awesome games,Locked,3,5000,3,N/A,7,-2
+activity_dinosaurs,T-rex challenge,activity_dinosaurs,run,Remember that time in Jurassic Park when the T-Rex ate those guys? Try to avoid the same fate!,Locked,2,50000,50,Pursuit,-6,-3
+activity_dodo,Dodo Challenge,activity_dodo,run,Try to keep away so you don't become as dead as the Dodo!,Locked,3,10000,10,N/A,-6,-2
+activity_eagle,Eagle,activity_eagle,run,You stole her eggs and now the giant eagle is after you! It's not your fault the eggs are really tasty...,Locked,1,1000,10,Pursuit,-7,-2
+activity_eagle_level2,Eagle level 2,activity_eagle_level2,run,You still want more eggs? She's really mad now.,Locked,2,15000,30,N/A,-7,-1
+activity_endomondo,Endomondo,activity_endomondo,run,Link your account to Endomondo to challenge your friends.,Locked,3,5000,3,N/A,3,-2
 activity_farah,Mo Farah,activity_farah,run,Run a 5k with Mo Farah and recreate the 2012 Olympics.,Locked,3,10000,10,Celeb,1,0
+activity_fire_level1,Fire Challenge 1,activity_fire_level1,run,Know what's good on a barbeque? Burgers. Know what isn't? You. So run before you get burned.,Locked,3,10000,10,Pursuit,-2,-1
+activity_fire_level2,Fire Challenge 2,activity_fire_level2,run,This fire is more aggressive so you better keep moving.,Locked,3,5000,3,N/A,-2,-2
+activity_fire_level3,Fire Challenge 3,activity_fire_level3,run,You shouldn't have kept all those gas cannisters round the house - this fire is the fastest.,Locked,3,5000,3,N/A,-2,-3
+activity_fitbit,FitBit,activity_fitbit,run,Link your account Fitbit to see your progress there.,Locked,3,5000,4,N/A,5,-3
+activity_food_burn,Food Burning Challenge,activity_food_burn,run,Ate a donut too many? Watch it burn in front of your eyes in this mode!,Locked,3,5000,3,N/A,2,4
+activity_food_planner1,Food planner,activity_food_planner1,run,Plan your meals for the week with this planner,Locked,3,5000,3,N/A,3,4
+activity_food_planner2,Food planner level 2,activity_food_planner2,run,Plan your meals for the month with this extensive planner,Locked,3,5000,3,N/A,4,4
+activity_food_scan,Food scanner,activity_food_scan,run,Scan your food to find out nutritional values.,Locked,3,5000,3,N/A,2,3
+activity_gorilla_skin,Gorilla skin for your avatar,activity_gorilla_skin,run,Upgrade your avatar to earn extra points when racing friends,Locked,3,5000,4,N/A,7,2
+activity_half_marathon,Half marathon,activity_half_marathon,run,Race a half marathon,Locked,3,5000,4,N/A,4,2
+activity_heart,Heart-rate monitor,activity_heart,all,Connect to bluetooth heart-rate monitor. Required for some games.,Locked,3,5000,4,N/A,-5,3
+activity_heart2,Heart-rate monitor 2,activity_heart2,all,Further integration with the heart-rate monitor,Locked,3,5000,4,N/A,-6,2
+activity_hiit,High Intensity Interval Training,activity_hiit,run,Try some high intensity interval training,Locked,3,5000,4,N/A,-4,2
+activity_injury,Injury Mode,activity_injury,all,Tailor exercises to your injuries,Locked,3,5000,4,N/A,-2,1
+activity_lightning,Speed Boost,activity_lightning,run,Your avatar now moves lightning fast in Multiplayer!,Locked,3,5000,4,N/A,7,-1
+activity_marathon,Marathon,activity_marathon,run,Race a full marathon,Locked,3,5000,4,N/A,5,3
+activity_mariokart,Mario Kart mode,activity_mariokart,run,Play a game similar to Mario Kart with your friends!,Locked,3,5000,4,N/A,-1,4
+activity_matthew_pincent,Matthew Pinsent,activity_matthew_pincent,gym,Try your luck rowing against Matthew Pinsent,Locked,3,5000,4,N/A,2,-2
+activity_monster,Giant Monster Challenge,activity_monster,run,You have woken up this giant monster and he's after you. Clearly not a morning person.,Locked,3,5000,4,N/A,-5,-2
+activity_monster_level2,Giant Monster Challenge 2,activity_monster_level2,run,Why do you insist on playing and eating in his cave. Now he's tired AND hungry.,Locked,3,5000,4,N/A,-5,-3
+activity_month,Personal Best - Month,activity_month,run,Run against your personal best for the month.,Locked,3,5000,4,N/A,2,1
+activity_morning,Morning mode,activity_morning,run,Use this in the morning to earn extra points,Locked,3,5000,4,N/A,4,3
+activity_mushroom,Magic Mushroom Power-up,activity_mushroom,run,Achieve the feeling of speed with some Augmented Reality magic,Locked,3,5000,4,N/A,6,0
+activity_music,Sound effects,activity_music,all,Sound effects on/off,Locked,3,5000,4,N/A,-1,1
+activity_mystery3,Incomplete,activity_question,run,Unfinished,Locked,1,0,0,N/A,7,1
+activity_onepercent,One Percent Mode,activity_onepercent,run,Now you are the 1%.,Locked,3,5000,4,N/A,0,4
+activity_orchestra,Orchestra Mode,activity_orchestra,all,Motivational music that adapts to your speed.,Locked,3,5000,4,N/A,-3,4
 activity_pacman,Pacman Mode,activity_pacman,run,Collect all items around the area to earn more points,Locked,3,5000,4,N/A,1,2
 activity_park,Park Mode,activity_park,run,This mode allows for games over a large spread out area,Locked,3,5000,4,N/A,1,3
-activity_year_avg,Personal Best - Year,activity_year_avg,run,Race against your personal best for the year,Locked,3,5000,4,N/A,1,1
-activity_food_burn,Food Burning Challenge,activity_food_burn,run,Ate a donut too many? Watch it burn in front of your eyes in this mode!,Locked,3,5000,3,N/A,2,4
-activity_food_scan,Food scanner,activity_food_scan,run,Scan your food to find out nutritional values.,Locked,3,5000,3,N/A,2,3
-activity_matthew_pincent,Matthew Pinsent,activity_matthew_pincent,gym,Try your luck rowing against Matthew Pinsent,Locked,3,5000,4,N/A,2,-2
-activity_month,Personal Best - Month,activity_month,run,Run against your personal best for the month.,Locked,3,5000,4,N/A,2,1
 activity_paula_radcliffe,Paula Radcliffe,activity_paula_radcliffe,run,Race against Paula Radcliffe for a whole marathon,Locked,3,10000,10,Celeb,2,-1
-activity_steve_redgrave,Steve Redgrave,activity_steve_redgrave,gym,Race against Steve Redgrave's classic Olympic time.,Locked,3,5000,4,N/A,2,-3
-activity_timer,Timer Challenge,activity_timer,all,Reach the target before the time runs out!,Locked,3,5000,4,N/A,2,2
-facebook,Facebook,facebook,share,Post on your facebook wall,Locked,3,5000,3,N/A,2,0
-activity_bolt_level1,Beat Bolt,activity_bolt_level1,run,100m sprint vs. Usain Bolt. How close can you get?,Locked,2,5000,3,N/A,3,-1
-activity_endomondo,Endomondo,activity_endomondo,run,Link your account to Endomondo to challenge your friends.,Locked,3,5000,3,N/A,3,-2
-activity_food_planner1,Food planner,activity_food_planner1,run,Plan your meals for the week with this planner,Locked,3,5000,3,N/A,3,4
+activity_press_up,Press-ups,activity_press_up,all,This mode will teach you the proper technique for press ups and will also count yours.,Locked,3,5000,4,N/A,-3,1
+activity_pull_up,Pull-ups,activity_pull_up,all,This mode will teach you the proper technique for pull ups and will also count yours.,Locked,3,5000,4,N/A,-6,0
+activity_question,Take a chance,activity_question,run,Unlock for a chance to win a random game from the grid,Locked,3,5000,4,N/A,5,4
+activity_race_yourself,Race Yourself,activity_run,run,Race against your own avatar,Unlocked,0,0,0,Race,0,0
+activity_rain,Rainy day,activity_rain,all,Earn extra points by exercising in the rain,Locked,3,5000,4,N/A,5,1
+activity_rearview,Rearview mirror,activity_rearview,all,Tap with three fingers to see behind you whilst you exercise,Locked,2,10000,10,Mode,-2,0
+activity_rest,Resting,activity_rest,all,Use this mode to ensure that you get the proper amount of rest after exercise,Locked,3,5000,4,N/A,-4,4
+activity_rowing,Indoor rower,activity_rowing,gym,Race on a rowing machine in the gym,Locked,3,5000,4,N/A,-1,2
+activity_run_zombies_run,Run Zombies Run,activity_run_zombies_run,run,Link to Run Zombies Run for an improved zombies game.,Locked,3,5000,4,N/A,4,-3
 activity_runtracker,Runkeeper,activity_runtracker,run,Link to your Runkeeper account,Locked,3,5000,4,N/A,3,-3
 activity_shopping,Shopping,activity_shopping,run,Add more Race Points to your game.,Locked,3,5000,4,N/A,3,3
-activity_week,Personal Best - Week,activity_week,run,Race against your personal best for the week,Locked,3,5000,4,N/A,3,2
-twitter,Twitter,twitter,share,Tweet to your followers,Locked,3,5000,3,N/A,3,1
-activity_bet,Bet a friend,share,run,Want to challenge your friend? Make a bet with them with points,Locked,1,5000,4,N/A,3,0
-activity_bolt_level2,Beat Bolt,activity_bolt_level2,run,200m sprint vs. Usain Bolt. How close can you get?,Locked,3,5000,3,N/A,4,-2
-activity_burn_10,Burn 10% Extra,activity_burn_10,run,Add a 10% increase to your metabolism,Locked,3,5000,3,N/A,4,0
-activity_food_planner2,Food planner level 2,activity_food_planner2,run,Plan your meals for the month with this extensive planner,Locked,3,5000,3,N/A,4,4
-activity_half_marathon,Half marathon,activity_half_marathon,run,Race a half marathon,Locked,3,5000,4,N/A,4,2
-activity_morning,Morning mode,activity_morning,run,Use this in the morning to earn extra points,Locked,3,5000,4,N/A,4,3
-activity_run_zombies_run,Run Zombies Run,activity_run_zombies_run,run,Link to Run Zombies Run for an improved zombies game.,Locked,3,5000,4,N/A,4,-3
-activity_timer_10,Speed Boost 10%,activity_timer_10,all,Add a 10% speed boost to your avatar during multiplayer,Locked,3,5000,4,N/A,4,-1
-activity_whistle,Whistle,activity_whistle,run,This is a secret.,Locked,2,5000,1,N/A,4,1
-activity_burn_20,Burn 20% Extra,activity_burn_20,run,Add a 20% increase to your metabolism,Locked,3,5000,3,N/A,5,0
-activity_celebrity_run1,Run with a Celebrity,activity_celebrity_run1,run,Race against a celebrity,Locked,3,5000,3,N/A,5,-2
-activity_fitbit,FitBit,activity_fitbit,run,Link your account Fitbit to see your progress there.,Locked,3,5000,4,N/A,5,-3
-activity_marathon,Marathon,activity_marathon,run,Race a full marathon,Locked,3,5000,4,N/A,5,3
-activity_question,Take a chance,activity_question,run,Unlock for a chance to win a random game from the grid,Locked,3,5000,4,N/A,5,4
-activity_rain,Rainy day,activity_rain,all,Earn extra points by exercising in the rain,Locked,3,5000,4,N/A,5,1
+activity_situp,Sit-ups,activity_situp,all,This mode will teach you the proper technique for sit ups and will also count yours.,Locked,3,5000,4,N/A,-4,1
+activity_skiing,Indoor skiing,activity_skiing,gym,Race on a skiing machine in the gym,Locked,3,5000,4,N/A,-7,0
+activity_spotify,Spotify integration,activity_spotify,all,Control your Spotify playlist without leaving RaceYourself,Locked,3,5000,4,N/A,-3,2
 activity_spy_skin,Spy skin,activity_spy_skin,run,You can be 007 now when racing against your friends,Locked,3,5000,4,N/A,5,2
+activity_squat,Squats,activity_squat,all,This mode will teach you the proper technique for sqauts and will also count yours.,Locked,3,5000,4,N/A,-5,1
+activity_stationary_bike,Cycling Machine,activity_stationary_bike,gym,Race on a cycling machine in the gym or at home.,Locked,3,5000,4,N/A,-2,2
+activity_steve_redgrave,Steve Redgrave,activity_steve_redgrave,gym,Race against Steve Redgrave's classic Olympic time.,Locked,3,5000,4,N/A,2,-3
+activity_timer,Timer Challenge,activity_timer,all,Reach the target before the time runs out!,Locked,3,5000,4,N/A,2,2
+activity_timer_10,Speed Boost 10%,activity_timer_10,all,Add a 10% speed boost to your avatar during multiplayer,Locked,3,5000,4,N/A,4,-1
 activity_timer_20,Speed Boost 20%,activity_timer_20,all,Add a 20% speed boost to your avatar during multiplayer,Locked,3,5000,4,N/A,5,-1
-activity_burn_30,Burn 30% Extra,activity_burn_30,run,Add a 30% increase to your metabolism,Locked,3,5000,3,N/A,6,-1
-activity_celebrity_run2,Run with more Celebrities,activity_celebrity_run2,run,Race against another celebrity!,Locked,3,5000,3,N/A,6,-3
-activity_cheetah_skin,Cheetah skin for your avatar,activity_cheetah_skin,run,With the Cheetah skin you can be the fastest animal when racing friends,Locked,3,5000,3,N/A,6,1
-activity_mushroom,Magic Mushroom Power-up,activity_mushroom,run,Achieve the feeling of speed with some Augmented Reality magic,Locked,3,5000,4,N/A,6,0
 activity_timer_30,Speed Boost 30%,activity_timer_30,all,Add a 30% speed boost to your avatar during multiplayer,Locked,3,5000,4,N/A,6,-2
+activity_tortoise_hare,Tortoise and the Hare,activity_tortoise_hare,all,The classic story of the Tortoise and the Hare reimagined,Locked,3,5000,4,N/A,-5,2
+activity_traffic,The commuter's challenge,activity_traffic,cycle,Bring life to your daily commute..,Locked,3,5000,4,N/A,0,3
+activity_trail,Trail mode,activity_trail,run,Trailblazing mode,Locked,3,5000,4,N/A,-7,3
+activity_train,The train game,activity_train,all,There's a damsel in distress on the crossing - hurry before the train gets her!,Locked,1,5000,5,Pursuit,-4,-2
+activity_train_level2,The train game II,activity_train_level2,all,She's got stuck again but this time the train is driven by her jealous ex - hurry!,Locked,2,20000,10,N/A,-4,-3
+activity_treadmill,Treadmill,activity_treadmill,gym,Race on a treadmill in the gym or at home.,Locked,3,5000,4,N/A,-2,3
+activity_unknown1,Unknown Challenge 1,activity_unknown1,run,Race against an unknown entity,Locked,3,5000,4,N/A,-3,0
+activity_unknown2,Unknown Challenge 2,activity_unknown2,run,Race against a faster unknown entity,Locked,3,5000,4,N/A,-4,-1
+activity_unknown3,Unknown Challenge 3,activity_unknown3,run,Race against the fastest mystery,Locked,3,5000,4,N/A,-5,-1
+activity_visible,Icon Visibility,eye,run,Turn on the visibility of the icons,Unlocked,1,0,0,Mode,-7,1
+activity_week,Personal Best - Week,activity_week,run,Race against your personal best for the week,Locked,3,5000,4,N/A,3,2
+activity_whistle,Whistle,activity_whistle,run,This is a secret.,Locked,2,5000,1,N/A,4,1
+activity_wristband,Wristband add-on,activity_wristband,all,Connect to a bluetooth wristband to measure your running style,Locked,3,5000,4,N/A,-6,3
+activity_year_avg,Personal Best - Year,activity_year_avg,run,Race against your personal best for the year,Locked,3,5000,4,N/A,1,1
+activity_yoga_level1,Basic yoga workout,activity_yoga_level1,all,Complete a basic yoga workout,Locked,3,5000,4,N/A,-4,0
+activity_yoga_level2,Intermediate yoga workout,activity_yoga_level2,all,Complete an intermediate yoga workout,Locked,3,5000,4,N/A,-5,0
+activity_yoga_level3,Hardcore yoga workout,activity_yoga_level3,all,Complete an advanced yoga workout,Locked,3,5000,4,N/A,-6,-1
+activity_zombie,Zombie Chase,activity_zombie,run,We all want to see if we could survive the zombie apocalypse - now you can! Remember the #1 rule - cardio.,Locked,2,30000,25,Pursuit,-3,-1
+activity_zombie_level2,Zombie Chase level 2,activity_zombie_level2,run,Seems to be more zombies and they are hungrier. Still want the zombie apocalypse?,Locked,3,50000,40,N/A,-3,-2
+activity_zombie_level3,Zombie Chase level 3,activity_zombie_level3,run,A huge horde of zombies are approaching with speed. Survival isn't as easy as it is on TV.,Locked,4,80000,75,N/A,-3,-3
 activity_zombie_skin,Zombie skin for your avatar,activity_zombie_skin,run,Looks like the zombies got you so use this skin in multiplayer!,Locked,3,5000,3,N/A,6,2
-activity_banana,Banana skin x10,activity_banana,run,Throw banana skins in front of your opponents to slow them down. Requires real-time challenge.,Locked,2,5000,3,N/A,7,0
-activity_batman_skin,Batman skin for your avatar,activity_batman_skin,run,Now you can be Batman when playing with friends.,Locked,2,5000,3,N/A,7,3
-activity_diamond,Extra Gems,activity_diamond,run,Buy more gems so you can unlock more awesome games,Locked,3,5000,3,N/A,7,-2
-activity_gorilla_skin,Gorilla skin for your avatar,activity_gorilla_skin,run,Upgrade your avatar to earn extra points when racing friends,Locked,3,5000,4,N/A,7,2
-activity_lightning,Speed Boost,activity_lightning,run,Your avatar now moves lightning fast in Multiplayer!,Locked,3,5000,4,N/A,7,-1
-activity_bike,Cycle mode,activity_bike,run,Switch to cycle mode,Locked,1,1000,1,N/A,,
-activity_mystery3,Incomplete,activity_question,run,Unfinished,Locked,1,0,0,N/A,7,1
+activity_zoom,Zoom,activity_zoom,all,Zoom in to get a better view of your competitors,Locked,3,5000,3,N/A,-6,1
+facebook,Facebook,facebook,share,Post on your facebook wall,Locked,3,5000,3,N/A,2,0
+settings,Indoor Settings,settings,settings,Change Indoor mode,Unlocked,3,0,0,Mode,-3,3
+twitter,Twitter,twitter,share,Tweet to your followers,Locked,3,5000,3,N/A,3,1

@@ -61,6 +61,15 @@ public class MinimalSensorCamera : MonoBehaviour {
 		});
 		
 		GestureHelper.swipeLeft += leftHandler;
+		
+		bool ARCameraOn = (bool)DataVault.Get("camera_setting");
+		if(!ARCameraOn)
+		{
+			GetComponent<QCARBehaviour>().enabled = false;
+			GetComponent<DefaultInitializationErrorHandler>().enabled = false;
+			GetComponent<WebCamBehaviour>().enabled = false;
+			GetComponent<KeepAliveBehaviour>().enabled = false;
+		}
 	}
 	
 	void ResetGyro() 
@@ -88,7 +97,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	}
 	
 	void SetRearview() {
-		if((bool)DataVault.Get("rearview")) {
+		if((bool)DataVault.Get("rearview_mirror")) {
 			rearview = !rearview;
 		}
 	}
@@ -118,7 +127,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		labelStyle.fontSize = 40;
 		labelStyle.fontStyle = FontStyle.Bold;
 		
-		GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
+		//GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
 		
 #if !UNITY_EDITOR
 		if(!noGrid) {
