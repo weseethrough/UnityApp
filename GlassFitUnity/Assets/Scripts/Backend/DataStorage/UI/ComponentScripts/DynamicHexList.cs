@@ -227,7 +227,8 @@ public class DynamicHexList : MonoBehaviour
                 }
             }
 
-            buttonNextEnterIndex++;
+            buttonNextEnterIndex++;             
+            
             buttonNextEnterDelay = buttonEnterDelay;
         }
 
@@ -551,10 +552,10 @@ public class DynamicHexList : MonoBehaviour
             buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
         }
 
-        foreach (GameObject go in buttons)
+      /*  foreach (GameObject go in buttons)
         {
             go.SetActive(false);
-        }
+        }*/
     }
 
     /// <summary>
@@ -669,7 +670,7 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     public void PlayButtonEnter(GameObject buttonRoot, bool forward)
     {
-        buttonRoot.SetActive(true);
+       // buttonRoot.SetActive(true);
         UIImageButton bi = buttonRoot.GetComponentInChildren<UIImageButton>();
 
         Animation target = buttonRoot.GetComponentInChildren<Animation>();
