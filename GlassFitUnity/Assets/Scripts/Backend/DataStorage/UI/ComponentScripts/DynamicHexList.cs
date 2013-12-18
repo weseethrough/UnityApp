@@ -281,30 +281,34 @@ public class DynamicHexList : MonoBehaviour
 
             if (!selectionStillActive && newSelection != null)
             {
-                if (selection != null)
+                UIButtonAnimationLocker lockScript = newSelection.GetComponent<UIButtonAnimationLocker>();
+                if (lockScript == null || !lockScript.locked)
                 {
-                    selection.SendMessage("OnHover", false, SendMessageOptions.DontRequireReceiver);
-                    TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
-                    if (tp != null)
+                    if (selection != null)
                     {
+                        selection.SendMessage("OnHover", false, SendMessageOptions.DontRequireReceiver);
+                        TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
+                        if (tp != null)
+                        {
 
-                        TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
-                    }                    
+                            TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
+                        }
+                    }
+                    selection = newSelection;
+                    newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+
+                    HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+                    if (info != null)
+                    {
+                        int index = buttonsImageComponents.FindIndex(x => x == selection);
+                        HexButtonData data = GetButtonData()[index];
+                        DataVault.Set(HexInfoManager.DV_HEX_DATA, data);
+                        info.PrepareForNewData();
+                    }
+
+                    //selection changed we want to stop dragging, user need to start drag from the start
+                    dragging = false;
                 }
-                selection = newSelection;
-                newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
-
-                HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
-                if (info != null)
-                {
-                    int index = buttonsImageComponents.FindIndex(x => x ==selection);
-                    HexButtonData data = GetButtonData()[index];
-                    DataVault.Set(HexInfoManager.DV_HEX_DATA, data);                                        
-                    info.PrepareForNewData();
-                }
-
-                //selection changed we want to stop dragging, user need to start drag from the start
-                dragging = false;
             }
 
             bool buttonClick = Input.GetMouseButton(0);

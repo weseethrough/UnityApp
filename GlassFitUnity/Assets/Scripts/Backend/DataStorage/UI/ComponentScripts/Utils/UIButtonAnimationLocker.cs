@@ -11,6 +11,8 @@ public class UIButtonAnimationLocker : MonoBehaviour
     UIImageButton button;    
     CallbackAnimFinished callbackFunction;
 
+    public bool locked = true;
+
     public UIButtonAnimationLocker.CallbackAnimFinished CallbackFunction
     {
         get { return callbackFunction; }
@@ -24,6 +26,7 @@ public class UIButtonAnimationLocker : MonoBehaviour
     /// <returns></returns>
     public void OnButtonAnimStarted()
     {
+        locked = true;
         if (button == null)
         {
             button = GetComponent<UIImageButton>();
@@ -38,6 +41,8 @@ public class UIButtonAnimationLocker : MonoBehaviour
     /// <returns></returns>
     public void OnButtonAnimFinished()
     {
+        locked = false;
+
         if (button == null)
         {
             button = GetComponent<UIImageButton>();
