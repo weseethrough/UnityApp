@@ -165,7 +165,7 @@ public class ButtonFunctionCollection
 #endif
 		for(int i=0; i < games.Count; i++)
 		{
-			if(games[i].name == fb.name)
+			if(games[i].iconName == fb.name)
 			{
 				DataVault.Set("actual_game", games[i]);
 				DataVault.Set("game_desc", games[i].description);
@@ -199,14 +199,14 @@ public class ButtonFunctionCollection
 		
 		for(int i=0; i < games.Count; i++)
 		{
-			if(games[i].name == fb.name)
+			if(games[i].iconName == fb.name)
 			{
 				DataVault.Set("actual_game", games[i]);
 				DataVault.Set("price_points", "Price in points: " + games[i].priceInPoints);
 				DataVault.Set("price_gems", "Price in gems: " + games[i].priceInGems);
 				DataVault.Set("game_desc", games[i].description);
-				DataVault.Set("game_name", games[i].gameId);
-				DataVault.Set("image_name", games[i].name);
+				DataVault.Set("game_name", games[i].name);
+				DataVault.Set("image_name", games[i].iconName);
 				break;
 			}
 		}
