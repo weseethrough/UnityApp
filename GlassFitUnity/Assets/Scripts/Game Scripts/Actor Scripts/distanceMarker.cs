@@ -28,7 +28,7 @@ public class DistanceMarker : MonoBehaviour {
 		// Get initial text mesh component.
 		textMesh = textObject.GetComponent<TextMesh>();
 		textMesh.text = SiDistance(target);
-		goal = (int)DataVault.Get("finish") * 1000;
+		goal = (int)DataVault.Get("finish");
 	}
 	
 	/// <summary>

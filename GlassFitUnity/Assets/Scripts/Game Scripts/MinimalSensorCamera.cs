@@ -246,7 +246,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 			}
 			bearingOffset = Quaternion.Inverse (currentBearing) * initialBearing.Value;
 		}
-		UnityEngine.Debug.Log("Bearing w-component: " + bearingOffset);
+//		UnityEngine.Debug.Log("Bearing w-component: " + bearingOffset);
 		
 		// Check for changes in players head orientation
 		Quaternion headOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();

@@ -58,7 +58,7 @@ public class GameSelectPanel : HexPanel
                 }
             }
             
-            hbd.buttonName = games[i].name;
+            hbd.buttonName = games[i].iconName;
 			hbd.activityName = games[i].name;
 			hbd.activityContent = games[i].description;
 			hbd.activityPrice = (int)games[i].priceInPoints;
