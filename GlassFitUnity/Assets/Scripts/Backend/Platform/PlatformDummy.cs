@@ -81,9 +81,13 @@ public class PlatformDummy : Platform
 		applicationIsQuitting = true;
 	}
 	
+	public virtual float GetDistance() {
+		return (float)distance;
+	}
+
 	//if there is a platform dummy about on the device, kill it.
 #if !UNITY_EDITOR
-	public void Awake()
+	void Awake()
 	{
 		Destroy(gameObject);			
 	}

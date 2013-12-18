@@ -764,6 +764,11 @@ public class Platform : MonoBehaviour {
 		return;
 	}
 	
+	public virtual float GetDistance() {
+		return (float)distance;
+	}
+	
+	
 	public virtual float GetHighestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
@@ -776,6 +781,7 @@ public class Platform : MonoBehaviour {
 		}
 		return h;
 	}
+	
 	
 	public virtual float GetLowestDistBehind() {
 		if(targetTrackers.Count <= 0)
