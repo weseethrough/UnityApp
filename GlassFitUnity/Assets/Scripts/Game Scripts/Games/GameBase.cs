@@ -137,8 +137,27 @@ public class GameBase : MonoBehaviour {
 		{
 			pause = true;
 			Platform.Instance.StopTrack();
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
+		 	if(gConnect != null)
+			{
+				fs.parentMachine.FollowConnection(gConnect);
+			} else
+			{
+				UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
+			}
 		} else {
 			pause = false;
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "ReturnExit");
+		 	if(gConnect != null)
+			{
+				fs.parentMachine.FollowConnection(gConnect);
+			} else
+			{
+				UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
+			}
+			
 			if(started)
 			{
 				Platform.Instance.StartTrack();
@@ -175,7 +194,7 @@ public class GameBase : MonoBehaviour {
 	/// Called on returning to game when exiting the Settings menu.
 	/// Should maybe be called 'OnResume()' instead? AH
 	/// </summary>
-		public void Back() 
+	public void Back() 
 	{
 		
 		float settingsTargetSpeed = ((float)DataVault.Get("slider_val") * 9.15f) + 1.25f;
@@ -261,7 +280,7 @@ public class GameBase : MonoBehaviour {
 		}
 		
 		//feedback to user
-		if(!readyToStart)
+		if(!readyToStart && !pause && !hasEnded)
 		{
 			//are we waiting for GPS?
 			if(!Platform.Instance.HasLock() && !indoor)
