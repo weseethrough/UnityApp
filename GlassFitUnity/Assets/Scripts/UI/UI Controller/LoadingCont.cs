@@ -6,9 +6,13 @@ using System.Collections.Generic;
 public class LoadingCont : MonoBehaviour {
 	
 	private float rotate = 0;
+	private Platform.OnSyncProgress progressHandler = new Platform.OnSyncProgress((message) => {
+		DataVault.Set("loading", "Synchronizing with server: " + message);
+	});
 	
 	// Use this for initialization
 	void Start () {
+		Platform.Instance.onSyncProgress += progressHandler;
 		AcceptChallenges();
 	}
 	
@@ -64,13 +68,13 @@ public class LoadingCont : MonoBehaviour {
 								
 								Debug.Log("AcceptChallenges: " + challengeId + " from " + challengerId);
 								
-								Platform.Instance.message = "Please wait while we fetch challenge"; 
+								DataVault.Set("loading", "Please wait while we fetch a challenge");
 								Challenge potential = Platform.Instance.FetchChallenge(challengeId);
 								if (potential == null) continue;
 								if (potential is DistanceChallenge) {
 									DistanceChallenge challenge = potential as DistanceChallenge;					
 									
-									Platform.Instance.message = "Please wait while we fetch track"; 
+									DataVault.Set("loading", "Please wait while we fetch a track");
 									Track track = challenge.UserTrack(challengerId);
 									if (track != null) {
 										Platform.Instance.FetchTrack(track.deviceId, track.trackId); // Make sure we have the track in the local db
@@ -86,13 +90,13 @@ public class LoadingCont : MonoBehaviour {
 							}
 						}		
 						if (!finish.HasValue || relevant.Count == 0) {
-							Platform.Instance.message = "No relevant challenges";
+							MessageWidget.AddMessage("Challenges", "No relevant challenges", "settings");
 							fs.parentMachine.FollowConnection(back);
 							return;
 						}
 						
+						MessageWidget.AddMessage("Challenges", "Accepted " + relevant.Count + " challenges", "settings");
 						Debug.Log("AcceptChallenges: Accepted " + relevant.Count + " challenges");
-						Platform.Instance.message = "Accepted " + relevant.Count + " challenges";
 						DataVault.Set("challenges", relevant);
 						DataVault.Set("finish", finish.Value);
 						
@@ -113,7 +117,7 @@ public class LoadingCont : MonoBehaviour {
 		});
 		Platform.Instance.onSync += shandler;
 		
-		Platform.Instance.message = "Please wait while we sync the database";
+		DataVault.Set("loading", "Please wait while we sync the database");
 		Platform.Instance.SyncToServer();
 		
 		return;		
@@ -124,5 +128,13 @@ public class LoadingCont : MonoBehaviour {
 		rotate += 10 * Time.deltaTime;
 		
 		transform.rotation = Quaternion.Euler(0, 0, rotate);
+	}
+	
+	void OnDisable () {
+		Platform.Instance.onSyncProgress -= progressHandler;
+	}
+	
+	void OnDestroy () {
+		Platform.Instance.onSyncProgress -= progressHandler;
 	}
 }
