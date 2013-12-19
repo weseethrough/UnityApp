@@ -113,8 +113,8 @@ public class HexPanel : Panel
             DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));            
             list.SetParent(this);            
         }
-        
 
+        SortHexesFromCenter();
 #if !UNITY_EDITOR         
         Camera[] camList = (Camera[])Camera.FindObjectsOfType(typeof(Camera));
         UICamera uicam = null;
@@ -201,6 +201,25 @@ public class HexPanel : Panel
     {
         //base.OnClick(button);
 
+        //check type of click
+        if (Input.touchCount > 1)
+        {
+            //two fingers click are not click event for us
+            return;
+        }
+
+        HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+        if (info != null)
+        {
+            if (!info.IsInOpenStage())
+            {
+                HexButtonData data = button.userData["HexButtonData"] as HexButtonData;
+                DataVault.Set(HexInfoManager.DV_HEX_DATA, data);
+                info.PrepareForNewData();
+                return;
+            }
+        }
+
         if (Outputs.Count > 0 && parentMachine != null)
         {
             GConnector gConect = Outputs.Find(r => r.Name == button.name);
@@ -265,5 +284,34 @@ public class HexPanel : Panel
         return "Widgets Container3D";
     }
 
+    /// <summary>
+    /// Allows to sort hexes in order to show them in more desirable sequence starting from center -> out
+    /// </summary>
+    /// <returns></returns>
+    public void SortHexesFromCenter()
+    {
+        buttonData.Sort
+            (
+                delegate(HexButtonData p1, HexButtonData p2)
+                {
+                    Vector2 pos1 = DynamicHexList.GetLocation(p1.column, p1.row);
+                    Vector2 pos2 = DynamicHexList.GetLocation(p2.column, p2.row);
+                    float sqrMag1 = pos1.sqrMagnitude;
+                    float sqrMag2 = pos2.sqrMagnitude;
+
+                    if (sqrMag1 < sqrMag2)
+                    {
+                        return -1;
+                    }
+                    if (sqrMag1 > sqrMag2)
+                    {
+                        return 1;
+                    }
+
+                    return 0;
+                }
+
+            );
+    }
 
 }
