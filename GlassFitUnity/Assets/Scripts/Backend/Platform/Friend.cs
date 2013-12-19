@@ -3,16 +3,13 @@ using SimpleJSON;
 
 public class Friend
 {
-	public string name { get; set; }
-	public string uid { get; set; }
-	public string image { get; set; }
-	public bool hasGlass { get; set; }
-	public string provider { get; set; }
-	public Nullable<int> userId { get; set; }
+	public string name { get; protected set; }
+	public string uid { get; protected set; }
+	public string image { get; protected set; }
+	public bool hasGlass { get; protected set; }
+	public string provider { get; protected set; }
+	public Nullable<int> userId { get; protected set; }
 		
-	public Friend ()
-	{
-	}
 	public Friend (string json) 
 	{
 		var node = JSON.Parse(json);

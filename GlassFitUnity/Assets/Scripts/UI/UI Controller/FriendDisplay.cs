@@ -17,7 +17,7 @@ public class FriendDisplay : MonoBehaviour {
 	private WWW displayPic = null;
 	
 	// Retrieve the list of friends
-	private Friend[] friendList;
+	private Friend[] friendList = new Friend[0];
 	
 	// Get the start touch 
 	private Vector2 startTouch = new Vector2(0, 0);
@@ -54,6 +54,8 @@ public class FriendDisplay : MonoBehaviour {
 		// Sync to the server
 		Platform.Instance.SyncToServer();
 		
+		DataVault.Set("screen_name", "Loading Screen Name...");
+		
 		// Create a sync handler that updates the friends list
 		handler = new Platform.OnSync(() => {
 			UpdateFriendsList();
@@ -62,7 +64,6 @@ public class FriendDisplay : MonoBehaviour {
 		
 		UpdateFriendsList();
 		
-		DataVault.Set("screen_name", "Loading Screen Name...");
 		UnityEngine.Debug.Log("Friend Display: started");
 	}
 	
@@ -76,17 +77,21 @@ public class FriendDisplay : MonoBehaviour {
 		type = type.ToLower();
 		
 		// Get the list of friends
-		friendList = Platform.Instance.Friends();
+		Friend[] temp = Platform.Instance.Friends();
 		
 		// Filter the friends based on whether they have glass and the type of friend 
 		// previously selected
 		List<Friend> filtered = new List<Friend>();
-		foreach (Friend friend in friendList) {
+		foreach (Friend friend in temp) {
 			if ((friend.userId.HasValue || friend.hasGlass) && friend.provider == type) filtered.Add(friend);
 		}
 		
 		// Set the friend list to the filtered list
 		friendList = filtered.ToArray();
+		Debug.Log("Friends: " + temp.Length + " filtered by " + type + " = " + friendList.Length);
+		
+		if (currentFriend < 0) currentFriend += friendList.Length;
+		currentFriend = currentFriend % friendList.Length;		
 	}
 	
 	/// <summary>
@@ -102,11 +107,18 @@ public class FriendDisplay : MonoBehaviour {
 	void Update () {
 		// If the user has no friends display a message
 		if(friendList.Length == 0) {
-			DataVault.Set("screen_name", "Ha ha, you have no friends!");
-			// TODO: Update list on sync
-		} else {
+			DataVault.Set("screen_name", "You do not have any friends through this provider");
+		} else {				
+			// Set the name of the friend
+			string name = friendList[currentFriend].name;
+			if (name == null || name.Length == 0) name = "incognito";
+			DataVault.Set("screen_name", name);
+			
+			// Set the current friend
+			DataVault.Set("current_friend", friendList[currentFriend]);
+			
 			// Otherwise, if the picture hasn't been fetched
-			if(!imageFetched){
+			if(!imageFetched && friendList[currentFriend].image != null && friendList[currentFriend].image.Length > 0){
 				UnityEngine.Debug.Log("URL is: " + friendList[currentFriend].image);
 				
 				// Create a link to the image
@@ -131,16 +143,9 @@ public class FriendDisplay : MonoBehaviour {
 					
 					// Set the image fetched boolean to true
 					imageFetched = true;
-					UnityEngine.Debug.Log("Friend Display: image obtained!");
-					
+					UnityEngine.Debug.Log("Friend Display: image obtained!");					
 				}
-			}
-			
-			// Set the name of the friend
-			DataVault.Set("screen_name", friendList[currentFriend].name);
-			
-			// Set the current friend
-			DataVault.Set("current_friend", friendList[currentFriend]);
+			}			
 		}
 		
 		// If the screen is touched
