@@ -269,12 +269,29 @@ public class DynamicHexList : MonoBehaviour
                         TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                         if (tp != null)
                         {
-
                             TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
+                        }
+
+                        if (parent != null)
+                        {
+                            FlowButton fb = selection.GetComponent<FlowButton>();
+                            if (fb != null)
+                            {
+                                parent.OnHover(fb, false);
+                            }
                         }
                     }
                     selection = newSelection;
                     newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+
+                    if (parent != null)
+                    {
+                        FlowButton fb = newSelection.GetComponent<FlowButton>();
+                        if (fb != null)
+                        {
+                            parent.OnHover(fb, true);
+                        }
+                    }
 
                      HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
                      if (info != null)
