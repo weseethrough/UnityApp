@@ -593,6 +593,7 @@ public class ButtonFunctionCollection
 					'track' : [{0}, {1}]
 				}}", track.deviceId, track.trackId).Replace("'", "\""));		
 				Debug.Log ("Track: [" + track.deviceId + "," + track.trackId + "] shared to Facebook");
+				MessageWidget.AddMessage("Share", "Track shared to Facebook", "settings");
 			}
 			Platform.Instance.onAuthenticated -= handler;
 		});
