@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// base component for all flow buttons, injected by panels to the buttons handles their internal events and forwards them back to the parent class
@@ -19,6 +20,7 @@ public class FlowButton : MonoBehaviour
         }
     }
     public string name;
+    public Dictionary<string, System.Object> userData = new Dictionary<string,object>();
 
 	/// <summary>
 	/// Event called by the button when it were clicked (pressed and then released). Sends message to the parent about it
@@ -26,6 +28,13 @@ public class FlowButton : MonoBehaviour
 	/// <returns></returns>
 	public void OnClick()
     {
+        //check type of click
+        if (Input.touchCount > 1)
+        {
+            //two fingers click are not click event for us
+            return;
+        }
+
         if (owner != null)
         {
             owner.OnClick(this);
