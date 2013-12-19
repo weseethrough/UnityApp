@@ -31,6 +31,18 @@ public class FriendDisplay : MonoBehaviour {
 	// The synchronisation handler
 	Platform.OnSync handler = null;
 	
+	// Gesture to challenge friend
+	GestureHelper.OnTap tapHandler = null;
+	
+	// Gesture to go back
+	GestureHelper.DownSwipe downHandler = null;
+	
+	// Gesture for next friend
+	GestureHelper.OnSwipeLeft leftHandler = null;
+	
+	// Gesture for previous friend
+	GestureHelper.OnSwipeRight rightHandler = null;
+	
 	// Boolean for whether or not the image has been fetched
 	private bool imageFetched = false;
 	
@@ -62,9 +74,60 @@ public class FriendDisplay : MonoBehaviour {
 		});
 		Platform.Instance.onSync += handler;	
 		
+		downHandler = new GestureHelper.DownSwipe(() => {
+			GoBack();
+		});
+		GestureHelper.onSwipeDown += downHandler;
+		
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			PreviousFriend();
+		});
+		GestureHelper.swipeLeft += leftHandler;
+		
+		rightHandler = new GestureHelper.OnSwipeRight(() => {
+			NextFriend();
+		});
+		GestureHelper.swipeRight += rightHandler;
+		
 		UpdateFriendsList();
 		
 		UnityEngine.Debug.Log("Friend Display: started");
+	}
+	
+	void ChallengeFriend() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ChallengeButton");
+		if(gConnect != null) {
+			if((gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null)) {
+				fs.parentMachine.FollowConnection(gConnect);
+			}
+		} else {
+			UnityEngine.Debug.Log("FriendDisplay: Didn't find connection - BackSettingsButton");
+		}
+	}
+	
+	void GoBack() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "BackSettingsButton");
+		if(gConnect != null) {
+			fs.parentMachine.FollowConnection(gConnect);
+		} else {
+			UnityEngine.Debug.Log("FriendDisplay: Didn't find connection - BackSettingsButton");
+		}
+	}
+	
+	void PreviousFriend() {
+		if(currentFriend > 0) {
+			currentFriend--;
+			imageFetched = false;
+		}
+	} 
+	
+	void NextFriend() {
+		if(currentFriend < friendList.Length - 1) {
+			currentFriend ++;		
+			imageFetched = false;
+		}
 	}
 	
 	/// <summary>

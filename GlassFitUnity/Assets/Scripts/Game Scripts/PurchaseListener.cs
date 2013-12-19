@@ -5,7 +5,7 @@ public class PurchaseListener : MonoBehaviour {
 	
 	private GestureHelper.OnTap tapHandler = null;
 	
-	private GestureHelper.OnSwipeLeft backHandler = null;
+	private GestureHelper.DownSwipe backHandler = null;
 	
 	// Use this for initialization
 	void Start () {
@@ -15,11 +15,11 @@ public class PurchaseListener : MonoBehaviour {
 		
 		GestureHelper.onTap +=  tapHandler;
 		
-		backHandler = new GestureHelper.OnSwipeLeft(() => {
+		backHandler = new GestureHelper.DownSwipe(() => {
 			GoBack();
 		});
 		
-		GestureHelper.swipeLeft += backHandler;
+		GestureHelper.onSwipeDown += backHandler;
 	}
 	
 	void GoBack() 
@@ -47,21 +47,21 @@ public class PurchaseListener : MonoBehaviour {
 	}
 	
 	void Update() {
-//		if(Input.GetKeyDown(KeyCode.Escape)) {
-//			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//			GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuButton");
-//			
-//			if(gConnect != null) {
-//				fs.parentMachine.FollowConnection(gConnect);
-//			} else {
-//				UnityEngine.Debug.Log("Purchase: No connection found, cannot purchase");
-//			}
-//		}
+		if(Input.GetKeyDown(KeyCode.Escape)) {
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuButton");
+			
+			if(gConnect != null) {
+				fs.parentMachine.FollowConnection(gConnect);
+			} else {
+				UnityEngine.Debug.Log("Purchase: No connection found, cannot purchase");
+			}
+		}
 	}
 	
 	// Update is called once per frame
 	void OnDestroy() {
 		GestureHelper.onTap -= tapHandler;
-		GestureHelper.swipeLeft -= backHandler;
+		GestureHelper.onSwipeDown -= backHandler;
 	}
 }

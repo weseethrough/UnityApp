@@ -84,6 +84,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 			} else {
 				// reset orientation offset
 				offsetFromStart = Platform.Instance.GetOrientation();
+				UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
+				//offsetFromStart = Quaternion.Euler(offsetFromStart.eulerAngles.x, 0, 0);
 			
 				// reset bearing offset
 				if (Platform.Instance.Bearing() != -999.0f) {

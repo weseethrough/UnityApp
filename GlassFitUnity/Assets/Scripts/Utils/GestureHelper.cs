@@ -26,6 +26,9 @@ public class GestureHelper : MonoBehaviour {
 	public delegate void ThreeFingerTap();
 	public static ThreeFingerTap onThreeTap = null;
 	
+	public delegate void DownSwipe();
+	public static DownSwipe onSwipeDown = null;
+	
 	/// <summary>
 	/// Handles the tap message from Java
 	/// </summary>
@@ -105,7 +108,9 @@ public class GestureHelper : MonoBehaviour {
 		// Update the rotation and set it
 		if(Input.GetKeyDown(KeyCode.Escape)) 
 		{
-			Application.Quit();
+			if(onSwipeDown != null) {
+				onSwipeDown();
+			}
 		}
 	}
 }

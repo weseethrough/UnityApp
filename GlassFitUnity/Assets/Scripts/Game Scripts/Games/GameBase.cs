@@ -71,6 +71,8 @@ public class GameBase : MonoBehaviour {
 	
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
 	
+	private GestureHelper.DownSwipe downHandler = null;
+	
 		/// <summary>
 	/// Start this instance.
 	/// </summary>
@@ -86,6 +88,19 @@ public class GameBase : MonoBehaviour {
 		});
 		
 		GestureHelper.onTap += tapHandler;
+		
+		downHandler = new GestureHelper.DownSwipe(() => {
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+			if(gConnect != null) {
+				GestureHelper.onSwipeDown -= downHandler;
+				fs.parentMachine.FollowConnection(gConnect);
+				Platform.Instance.StopTrack();
+				Platform.Instance.Reset();
+				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+			}
+		});
+		GestureHelper.onSwipeDown += downHandler;
 		//Get target distance
 #if !UNITY_EDITOR
 		finish = (int)DataVault.Get("finish");
@@ -316,12 +331,12 @@ public class GameBase : MonoBehaviour {
 
 		if (targetDistance > 0) {
 			DataVault.Set("ahead_header", "Behind!");
-			DataVault.Set("ahead_col_header", "D20000FF");
+			//DataVault.Set("ahead_col_header", "D20000FF");
 			DataVault.Set("ahead_col_box", "D20000EE");
 		} else {
 			DataVault.Set("ahead_header", "Ahead!"); 
 			DataVault.Set("ahead_col_box", "19D200EE");
-			DataVault.Set("ahead_col_header", "19D200FF");
+			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
 		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
 	}

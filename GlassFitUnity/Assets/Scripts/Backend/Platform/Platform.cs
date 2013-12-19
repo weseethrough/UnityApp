@@ -200,6 +200,8 @@ public class Platform : MonoBehaviour {
 						}
 				
 	                    initialised = true;
+				
+						//ExportCSV();
 	    }));
 	                        
 	    } catch (Exception e) {
@@ -538,6 +540,17 @@ public class Platform : MonoBehaviour {
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
 			return null;
+		}
+	}
+	
+	private void ExportCSV() {
+		try {
+			helper.Call("exportDatabaseToCsv");
+			UnityEngine.Debug.Log("Platform: Database Successfully exported to CSV");
+		} catch (Exception e)
+		{
+			UnityEngine.Debug.Log("Platform: Error exporting database");
+			UnityEngine.Debug.Log(e.Message);
 		}
 	}
 	

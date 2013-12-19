@@ -16,7 +16,7 @@ public class ModeControl : MonoBehaviour {
 	
 	GestureHelper.OnTap tapHandler = null;
 	
-	GestureHelper.OnSwipeLeft leftHandler = null;
+	GestureHelper.DownSwipe downHandler = null;
 	
 	private string currentMode = "";
 	
@@ -105,11 +105,11 @@ public class ModeControl : MonoBehaviour {
 		});
 		GestureHelper.onTap += tapHandler;
 			
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+		downHandler = new GestureHelper.DownSwipe(() => {
 			BackToMenu();
 		});
 		
-		GestureHelper.swipeLeft += leftHandler;
+		GestureHelper.onSwipeDown += downHandler;
 			
 	}
 	
@@ -163,6 +163,6 @@ public class ModeControl : MonoBehaviour {
 	// Update is called once per frame
 	void OnDestroy () {
 		GestureHelper.onTap -= tapHandler;
-		GestureHelper.swipeLeft -= leftHandler;
+		GestureHelper.onSwipeDown -= downHandler;
 	}
 }
