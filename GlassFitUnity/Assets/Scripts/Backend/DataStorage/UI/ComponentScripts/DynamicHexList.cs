@@ -13,7 +13,7 @@ public class DynamicHexList : MonoBehaviour
     HexPanel parent = null;
 
     UICamera guiCamera;
-    Vector2 hexLayoutOffset = new Vector2(0.4330127f, 0.25f);
+    public static Vector2 hexLayoutOffset = new Vector2(0.4330127f, 0.25f);
     Vector3 distanceVector;
     Vector3 cameraPosition;
     float radius;
@@ -69,11 +69,6 @@ public class DynamicHexList : MonoBehaviour
             }
         }
 
-        //        if (!SensorHelper.gotFirstValue)
-        //        {
-        //            SensorHelper.ActivateRotation();
-        //        }
-
         if (guiCamera != null)
         {
             cameraPosition = guiCamera.transform.position;
@@ -83,25 +78,13 @@ public class DynamicHexList : MonoBehaviour
 
             radius = distanceVector.magnitude;
 
-            /* Quaternion rot = SensorHelper.rotation;
-             if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
-             {
-                // cameraStartingRotation = rot * Quaternion.Inverse(guiCamera.transform.rotation);
-
-                 Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
 #if !UNITY_EDITOR
             Platform.Instance.ResetGyro();
             cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out cameraMoveOffset);
 
             //Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * cameraDefaultRotation;
             //guiCamera.transform.rotation = newOffset;
-#endif
-            /* }
-            else
-            {
-                Debug.LogError("Sensor data invalid");
-            }*/
-
+#endif         
         }
 		
 		tapHandler = new GestureHelper.OnTap(() => {
@@ -145,7 +128,7 @@ public class DynamicHexList : MonoBehaviour
 		
         dynamicCamPos = new Vector2(-yaw, -pitch);
         dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
-	dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
+	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
 		
         //UnityEngine.Debug.Log("MenuPosition:" + yaw + ", " + pitch + ", " + roll);
         //dynamicCamPos *= 0.02f;
@@ -220,11 +203,7 @@ public class DynamicHexList : MonoBehaviour
             {
                 if (spr.name == "Foreground")
                 {
-                    spr.gameObject.SetActive(GetButtonData()[buttonNextEnterIndex].locked);
-                    if (GetButtonData()[buttonNextEnterIndex].locked)
-                    {
-                        Debug.Log("Button Locked at column: " + GetButtonData()[buttonNextEnterIndex].column + " row: " + GetButtonData()[buttonNextEnterIndex].row);
-                    }
+                    spr.gameObject.SetActive(GetButtonData()[buttonNextEnterIndex].locked);                    
                     break;
                 }
             }
@@ -299,32 +278,28 @@ public class DynamicHexList : MonoBehaviour
                     selection = newSelection;
                     newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
 
-                    HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
-                    if (info != null)
-                    {
-                        int index = buttonsImageComponents.FindIndex(x => x == selection);
-                        HexButtonData data = GetButtonData()[index];
-                        DataVault.Set(HexInfoManager.DV_HEX_DATA, data);
-                        info.PrepareForNewData();
-                    }
-
+                     HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+                     if (info != null)
+                     {
+                         info.AnimExit();
+                     }
                     //selection changed we want to stop dragging, user need to start drag from the start
                     dragging = false;
                 }
             }
-
+            
             bool buttonClick = Input.GetMouseButton(0);
 
             if (selection != null && (Input.touchCount == 1 || buttonClick))
-            {
+            {				
                 Touch touch = new Touch();
                 bool found = false;
 
                 if (!buttonClick)
-                {
+                {					
                     touch = Input.touches[0];
                     if (dragging == false)
-                    {
+                    {						
                         dragging = true;
                         draggingFingerID = touch.fingerId;
                         draggingStartPos = touch.position;
@@ -335,7 +310,7 @@ public class DynamicHexList : MonoBehaviour
                         foreach (Touch t in Input.touches)
                         {
                             if (t.fingerId == draggingFingerID)
-                            {
+                            {								
                                 found = true;
                                 touch = t;
                                 break;
@@ -344,9 +319,9 @@ public class DynamicHexList : MonoBehaviour
                     }
                 }
                 else
-                {
+                {					
                     if (dragging == false)
-                    {
+                    {						
                         draggingStartPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
                         dragging = true;
                     }
@@ -355,38 +330,38 @@ public class DynamicHexList : MonoBehaviour
                 }
 
                 if (found)
-                {
+                {					
                     Vector2 offset;
                     if (!buttonClick)
-                    {
+                    {						
                         offset = touch.position - draggingStartPos;
                     }
                     else
-                    {
+                    {						
                         Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
                         offset = mousePos - draggingStartPos;
                     }
-					
+										
                     float height = Screen.currentResolution.height;
                     float scale = -offset.y / height;
 
                     scale = Mathf.Clamp(scale, -1, 1);
-					
+										
                     TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                     if (tp == null)
                     {
                         tp = guiCamera.gameObject.AddComponent<TweenPosition>();
-                    }
+                    }					
                     Vector3 cameraCoreAxis = cameraPosition;
                     cameraCoreAxis.y = selection.transform.position.y;
                     Vector3 direction = selection.transform.position - cameraCoreAxis;
-					
+										
                     Vector3 pos = cameraCoreAxis + (direction * scale);
 
                     TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
 
                     if (parent != null && scale > 0.6f)
-                    {
+                    {						
                         FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
                         if (fb != null)
                         {
@@ -402,6 +377,7 @@ public class DynamicHexList : MonoBehaviour
             }
             else
             {
+				
                 dragging = false;
 
                 if (selection != null)
@@ -533,7 +509,8 @@ public class DynamicHexList : MonoBehaviour
                 graphics.hoverSprite = graphics.pressedSprite;
                 graphics.normalSprite = graphics.pressedSprite;
                 graphics.disabledSprite = graphics.pressedSprite;
-                
+
+                fb.userData["HexButtonData"] = data;
             }
 
             UILabel[] labels = tile.GetComponentsInChildren<UILabel>() as UILabel[];
@@ -569,7 +546,7 @@ public class DynamicHexList : MonoBehaviour
     /// <param name="column">horizontal position (might be negative)</param>
     /// <param name="row">vertical position (might be negative)</param>
     /// <returns>flat 2d position for hex </returns>
-    Vector2 GetLocation(int column, int row)
+    public static Vector2 GetLocation(int column, int row)
     {
         int Yoffset = -(Mathf.Abs(column) % 2);
         return new Vector2(hexLayoutOffset.x * column, -hexLayoutOffset.y * (Yoffset + row * 2));

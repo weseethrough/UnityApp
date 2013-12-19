@@ -548,7 +548,7 @@ public class UIPanel : MonoBehaviour
 			panel.UpdateLayers();
 			panel.UpdateWidgets();
 		}
-
+               
 		// Fill the draw calls for all of the changed materials
 		if (mFullRebuild)
 		{
