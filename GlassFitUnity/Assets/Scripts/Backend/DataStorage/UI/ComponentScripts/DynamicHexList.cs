@@ -22,7 +22,7 @@ public class DynamicHexList : MonoBehaviour
     Quaternion cameraDefaultRotation;
     Vector2 cameraMoveOffset;
 
-    float screenEnterTime = 0.8f;
+    //float screenEnterTime = 8.0f;
     float buttonEnterDelay = 0.0f;
     float buttonNextEnterDelay = 0.0f;
     int buttonNextEnterIndex = 0;
@@ -459,7 +459,7 @@ public class DynamicHexList : MonoBehaviour
 
         int count = GetButtonData().Count;
         CleanupChildren(count);
-        buttonEnterDelay = screenEnterTime / count;
+        buttonEnterDelay = 0.07f;// screenEnterTime / count;
 
         Transform child = transform.GetChild(0);
         child.gameObject.SetActive(true);
