@@ -23,6 +23,8 @@ public class GameBase : MonoBehaviour {
 	public bool indoor = true;
 	private bool hasEnded = false;
 	
+	private bool maybeQuit = false;
+	
 	// Bonus distance milestones
 	protected int bonusTarget = 1000;
 	
@@ -90,17 +92,10 @@ public class GameBase : MonoBehaviour {
 		GestureHelper.onTap += tapHandler;
 		
 		downHandler = new GestureHelper.DownSwipe(() => {
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-			if(gConnect != null) {
-				GestureHelper.onSwipeDown -= downHandler;
-				fs.parentMachine.FollowConnection(gConnect);
-				Platform.Instance.StopTrack();
-				Platform.Instance.Reset();
-				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-			}
+			ConsiderQuit();
 		});
 		GestureHelper.onSwipeDown += downHandler;
+		
 		//Get target distance
 #if !UNITY_EDITOR
 		finish = (int)DataVault.Get("finish");
@@ -144,6 +139,72 @@ public class GameBase : MonoBehaviour {
 		
 		UnityEngine.Debug.Log("GameBase: started");
 		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
+	}
+	
+	public void ConsiderQuit() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "QuitExit");
+		if(gConnect != null) {
+			maybeQuit = true;
+			Platform.Instance.StopTrack();
+			GestureHelper.onSwipeDown -= downHandler;
+			fs.parentMachine.FollowConnection(gConnect);
+			
+			downHandler = new GestureHelper.DownSwipe(() => {
+				ReturnGame();
+			});
+			GestureHelper.onSwipeDown += downHandler;
+			
+			GestureHelper.onTap -= tapHandler;
+			
+			tapHandler = new GestureHelper.OnTap(() => {
+				QuitGame();
+			});
+			GestureHelper.onTap += tapHandler;
+		}		
+	}
+	
+	public void QuitGame() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+		if(gConnect != null) {
+			Platform.Instance.Reset();
+			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onTap -= tapHandler;
+			fs.parentMachine.FollowConnection(gConnect);
+			Platform.Instance.Reset();
+			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+		}
+	}
+	
+	public void ReturnGame() {
+		
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
+		if(gConnect != null) {
+			maybeQuit = false;
+			if(started) {
+				Platform.Instance.StartTrack();
+			} else {
+				countTime = 3.0f;
+				countdown = false;
+			}
+			fs.parentMachine.FollowConnection(gConnect);
+			GestureHelper.onSwipeDown -= downHandler;
+		
+			downHandler = new GestureHelper.DownSwipe(() => {
+				ConsiderQuit();
+			});
+			GestureHelper.onSwipeDown += downHandler;
+			
+			GestureHelper.onTap -= tapHandler;
+			
+			tapHandler = new GestureHelper.OnTap(() => {
+				PauseGame();
+			});
+			
+			GestureHelper.onTap += tapHandler;
+		}
 	}
 	
 	public void PauseGame()
@@ -295,10 +356,10 @@ public class GameBase : MonoBehaviour {
 		}
 		
 		//feedback to user
-		if(!readyToStart && !pause && !hasEnded)
+		if(!readyToStart && !pause && !hasEnded && !pause && !maybeQuit)
 		{
 			//are we waiting for GPS?
-			if(!Platform.Instance.HasLock() && !indoor)
+			if(!Platform.Instance.HasLock() && !indoor && !maybeQuit && !pause)
 			{
 				GUI.Label(messageRect, "Awaiting GPS lock...", labelStyle);
 			}
