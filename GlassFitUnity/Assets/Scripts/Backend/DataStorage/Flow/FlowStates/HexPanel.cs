@@ -16,6 +16,7 @@ public class HexPanel : Panel
     public List<HexButtonData> buttonData;        
     private bool camStartMouseAction;
     private bool camStartTouchAction;
+    private bool dirtyButtonData;
 
     /// <summary>
     /// default constructor
@@ -242,6 +243,19 @@ public class HexPanel : Panel
         }
     }
 
+
+    /// <summary>
+    /// feedback function informing when button get hover over and hover out states. it is useful if some external systems need to be triggered on those events
+    /// function would be called in most cases twice, once for button leaving and then second time for button entering in this order.
+    /// </summary>
+    /// <param name="button">button which trigered evet. </param>
+    /// <param name="justStarted">information if its entering or leaving event</param>
+    /// <returns></returns>
+    public virtual void OnHover(FlowButton button, bool justStarted)
+    {
+
+    }
+
     /// <summary>
     /// checks if class have button data and at least one button. As well do the parent checks if screen type is set
     /// </summary>
@@ -264,7 +278,7 @@ public class HexPanel : Panel
     }
 
     /// <summary>
-    /// Finds button data bou to provided coordinates
+    /// Finds button data bound to provided coordinates
     /// </summary>
     /// <param name="column">column coordinate in hex menu</param>
     /// <param name="row">row coordinate in hex menu. Note that in hexes row is a horisontal "zigzac" based on number elements from the center "zigzac" axis.</param>
