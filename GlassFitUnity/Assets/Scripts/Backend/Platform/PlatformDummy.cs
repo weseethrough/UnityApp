@@ -163,6 +163,12 @@ public class PlatformDummy : Platform
 		return;	
 	}
 	
+	public override bool IsIndoor() {
+		//always indoor in editor
+		return true;
+	}
+
+	
 	public override void ResetTargets() {
 		//Nothing to do?
 		return;	

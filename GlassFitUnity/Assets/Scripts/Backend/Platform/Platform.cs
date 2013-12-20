@@ -336,6 +336,17 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
+	public virtual bool IsIndoor() {
+  		try {
+		   return gps.Call<bool>("isIndoorMode");
+		  } catch (Exception e) {
+		   UnityEngine.Debug.Log("Platform: Error returning isIndoor");
+		   UnityEngine.Debug.Log(e.Message);
+		   return false;
+		  }
+	}
+	
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void ResetTargets() {
 		try {
 			helper.Call("resetTargets");
