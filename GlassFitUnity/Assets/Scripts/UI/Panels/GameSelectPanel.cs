@@ -7,9 +7,6 @@ using System.Runtime.Serialization;
 [Serializable]
 public class GameSelectPanel : HexPanel 
 {
-	
-//	PlatformDummy platform = new PlatformDummy();
-	
 	GestureHelper.DownSwipe downHandler = null;
 	
 	public GameSelectPanel() {}
@@ -47,6 +44,8 @@ public class GameSelectPanel : HexPanel
 		downHandler = new GestureHelper.DownSwipe(() => {
 			QuitApp();
 		});
+		
+		//LoadingTextComponent.SetVisibility(true);
 		
 		GestureHelper.onSwipeDown += downHandler;
 		
@@ -150,7 +149,9 @@ public class GameSelectPanel : HexPanel
 			}
 
         }
-
+		
+		//LoadingTextComponent.SetVisibility(false);
+		
         base.EnterStart();   
     }
 	
