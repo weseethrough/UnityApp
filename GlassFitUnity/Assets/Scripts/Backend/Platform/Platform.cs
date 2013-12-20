@@ -477,6 +477,17 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	public bool IsIndoor() {
+		try {
+			bool indoor = gps.Call<bool>("isIndoorMode");
+			return indoor;
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error returning isIndoor");
+			UnityEngine.Debug.Log(e.Message);
+			return false;
+		}
+	}
+	
 	// Reset GPS tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void Reset() {

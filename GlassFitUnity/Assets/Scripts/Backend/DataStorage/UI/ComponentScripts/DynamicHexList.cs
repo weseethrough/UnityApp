@@ -26,6 +26,8 @@ public class DynamicHexList : MonoBehaviour
     float buttonEnterDelay = 0.0f;
     float buttonNextEnterDelay = 0.0f;
     int buttonNextEnterIndex = 0;
+	
+	private float zoomLevel = -1.5f;
 
     int buttonCount = 0;
 
@@ -43,6 +45,9 @@ public class DynamicHexList : MonoBehaviour
 	private GestureHelper.OnTap tapHandler = null;
 	
 	private GestureHelper.OnSwipeLeft leftHandler = null;
+	
+	private GestureHelper.OnSwipeRight rightHandler = null;
+	
     bool initialized = false;
 	
 	private GestureHelper.DownSwipe downHandler = null;
@@ -99,6 +104,22 @@ public class DynamicHexList : MonoBehaviour
 		
 		GestureHelper.onSwipeDown += downHandler;
 
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			if(zoomLevel > -1.5f) {
+				zoomLevel -= 0.5f;
+			}
+		});
+		
+		GestureHelper.swipeLeft += leftHandler;
+		
+		rightHandler = new GestureHelper.OnSwipeRight(() => {
+			if(zoomLevel < -0.5f) {
+				zoomLevel += 0.5f;
+			}
+		});
+		
+		GestureHelper.swipeRight += rightHandler;
+		
         InitializeItems();
     }
 
@@ -233,7 +254,7 @@ public class DynamicHexList : MonoBehaviour
 				ConvertOrientation(Platform.Instance.GetOrientation(), out newCameraOffset);
 				Vector3 camPos = guiCamera.transform.position;
 				newCameraOffset -= cameraMoveOffset;
-                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, camPos.z);
+                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
 #endif
             /*}
             else
