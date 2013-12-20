@@ -46,6 +46,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 		scaleX = (float)Screen.width / 800.0f;
 		scaleY = (float)Screen.height / 500.0f;
 		
+			
+		
 		twoHandler = new GestureHelper.TwoFingerTap(() => {
 			ResetGyroGlass();
 		});
@@ -82,6 +84,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 			} else {
 				// reset orientation offset
 				offsetFromStart = Platform.Instance.GetOrientation();
+				UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
+				//offsetFromStart = Quaternion.Euler(offsetFromStart.eulerAngles.x, 0, 0);
 			
 				// reset bearing offset
 				if (Platform.Instance.Bearing() != -999.0f) {
@@ -106,18 +110,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	/// Raises the GU event. Creates a reset gyro button
 	/// </summary>
 	void OnGUI()
-	{
-		// Set the offset if it hasn't been set already, doesn't work in Start() function
-		if(!started)
-		{
-#if !UNITY_EDITOR
-			offsetFromStart = Platform.Instance.GetOrientation();
-			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
-			Platform.Instance.ResetGyro();
-			started = true;
-#endif
-		}
-		
+	{		
 		// Set the new GUI matrix based on scale and the depth
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);		
 		GUI.depth = 7;
@@ -127,7 +120,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		labelStyle.fontSize = 40;
 		labelStyle.fontStyle = FontStyle.Bold;
 		
-		//GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
+		GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
 		
 #if !UNITY_EDITOR
 		if(!noGrid) {
@@ -235,8 +228,19 @@ public class MinimalSensorCamera : MonoBehaviour {
 	/// Update this instance. Updates the rotation
 	/// </summary>
 	void Update () {
+
+#if !UNITY_EDITOR		
+		// Set the offset if it hasn't been set already, doesn't work in Start() function
+		if(!started)
+		{
+
+			offsetFromStart = Platform.Instance.GetOrientation();
+			//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			Platform.Instance.ResetGyro();
+			started = true;
+
+		}
 		
-#if !UNITY_EDITOR
 		// Check for changes in the player's bearing
 		if (Platform.Instance.Bearing() != -999.0f) {
 			Quaternion currentBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);

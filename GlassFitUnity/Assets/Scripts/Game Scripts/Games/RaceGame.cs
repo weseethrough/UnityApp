@@ -6,6 +6,8 @@ using System;
 
 public class RaceGame : GameBase {
 	 
+	public bool end = false;
+	
 	// Enums for the actor types
 	public enum ActorType
 	{
@@ -176,36 +178,7 @@ public class RaceGame : GameBase {
 
 	
 	void Update () {
-//<<<<<<< HEAD
-//		
-//#if !UNITY_EDITOR
-//		Platform.Instance.Poll();
-//		
-//		DataVault.Set("calories", Platform.Instance.Calories().ToString());
-//		DataVault.Set("pace", Platform.Instance.Pace().ToString("f2") + "m/s");
-//		DataVault.Set("distance", SiDistance(Platform.Instance.Distance()));
-//		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
-//		DataVault.Set("indoor_text", indoorText);
-//		
-//		DataVault.Set("rawdistance", Platform.Instance.Distance());
-//		DataVault.Set("rawtime", Platform.Instance.Time());
-//		
-//		UpdateLeaderboard();
-//#else
-//		PlatformDummy.Instance.Poll();
-//		
-//		DataVault.Set("calories", PlatformDummy.Instance.Calories().ToString());
-//		DataVault.Set("pace", PlatformDummy.Instance.Pace().ToString("f2") + "m/s");
-//		DataVault.Set("distance", SiDistance(PlatformDummy.Instance.Distance()));
-//		DataVault.Set("time", TimestampMMSSdd( PlatformDummy.Instance.Time()));
-//		DataVault.Set("indoor_text", indoorText);
-//		
-//		DataVault.Set("rawdistance", PlatformDummy.Instance.Distance());
-//		DataVault.Set("rawtime", PlatformDummy.Instance.Time());
-//#endif
-//		// TODO: Toggle based on panel type
-//		UpdateAhead();
-//		
+
 //		
 //		// TODO: Multiple minimap targets
 //#if !UNITY_EDITOR
@@ -223,50 +196,26 @@ public class RaceGame : GameBase {
 ////			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearingRad)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearingRad)*targetDistance/111229d));
 ////			GetMap(position, bearingRad, targetCoord);
 ////		}
-//		
-//		// If there is a GPS lock or indoor mode is active
-//#if !UNITY_EDITOR
-//		if(Platform.Instance.HasLock() || indoor)
-//		{
-//			// Initiate the countdown
-//			countdown = true;
-//		 	if(countTime <= -1.0f && !started)
-//			{
-//				Platform.Instance.StartTrack();
-//				UnityEngine.Debug.LogWarning("Tracking Started");
-//				
-////				float s = (targSpeed - 1.25f) / 9.15f;
-////		
-////				DataVault.Set("slider_val", s);
-//				started = true;
-//			}
-//			else if(countTime > -1.0f)
-//			{
-//				UnityEngine.Debug.LogWarning("Counting Down");
-//				countTime -= Time.deltaTime;
-//			}
-//		}
-//		
-//		if(Platform.Instance.Distance() / 1000 >= finish && !end)
-//		{
-//			end = true;
-//			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-//			DataVault.Set("bonus", (int)finalBonus);
-//			Platform.Instance.StopTrack();
-//			GameObject h = GameObject.Find("minimap");
-//			if(h != null) {
-//				h.renderer.enabled = false;
-//			}
-//			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
-//			if(gConect != null) {
-//				fs.parentMachine.FollowConnection(gConect);
-//			} else {
-//				UnityEngine.Debug.Log("Game: No connection found!");
-//			}
-//		}
-//		
-//=======
+
+		if(Platform.Instance.Distance() / 1000 >= finish && !end)
+		{
+			end = true;
+			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+			DataVault.Set("bonus", (int)finalBonus);
+			Platform.Instance.StopTrack();
+			GameObject h = GameObject.Find("minimap");
+			if(h != null) {
+				h.renderer.enabled = false;
+			}
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
+			if(gConect != null) {
+				fs.parentMachine.FollowConnection(gConect);
+			} else {
+				UnityEngine.Debug.Log("Game: No connection found!");
+			}
+		}
+
 	
 		base.Update ();
 	
