@@ -45,7 +45,7 @@ public class GameSelectPanel : HexPanel
 			QuitApp();
 		});
 		
-		//LoadingTextComponent.SetVisibility(true);
+		LoadingTextComponent.SetVisibility(true);
 		
 		GestureHelper.onSwipeDown += downHandler;
 		
@@ -150,7 +150,7 @@ public class GameSelectPanel : HexPanel
 
         }
 		
-		//LoadingTextComponent.SetVisibility(false);
+		LoadingTextComponent.SetVisibility(false);
 		
         base.EnterStart();   
     }
