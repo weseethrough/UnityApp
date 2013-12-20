@@ -23,6 +23,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private bool noGrid = false;
 	private Vector3 scale;
 	
+	private bool indoor = false;
+	
 	private GestureHelper.OnTap tapHandler = null;
 	
 	private GestureHelper.TwoFingerTap twoHandler = null;
@@ -46,7 +48,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		scaleX = (float)Screen.width / 800.0f;
 		scaleY = (float)Screen.height / 500.0f;
 		
-			
+		indoor = (bool)DataVault.Get("indoor_settings");
 		
 		twoHandler = new GestureHelper.TwoFingerTap(() => {
 			ResetGyroGlass();
@@ -259,8 +261,11 @@ public class MinimalSensorCamera : MonoBehaviour {
 		Quaternion rearviewOffset = Quaternion.Euler(0, (rearview ? 180 : 0), 0);
 				
 		// Rotate the camera
-		transform.rotation = bearingOffset * rearviewOffset * headOffset;
-//		transform.rotation = Quaternion.Inverse(bearingOffset) * headOffset;
+		if(!indoor) {
+			transform.rotation = bearingOffset * rearviewOffset * headOffset;
+		} else {
+			transform.rotation = rearviewOffset * headOffset;
+		}
 #else
 		if(Input.GetKeyDown(KeyCode.B)) {
 			yRotate += 180f;
