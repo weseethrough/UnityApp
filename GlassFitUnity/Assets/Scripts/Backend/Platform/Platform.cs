@@ -47,6 +47,8 @@ public class Platform : MonoBehaviour {
 	public OnAuthenticated onAuthenticated = null;
 	public delegate void OnSync();
 	public OnSync onSync = null;
+	public delegate void OnSyncProgress(string message);
+	public OnSyncProgress onSyncProgress = null;
 	public delegate void OnRegistered(string message);
 	public OnRegistered onDeviceRegistered = null;
 	
@@ -56,11 +58,6 @@ public class Platform : MonoBehaviour {
 	// The current user and device
 	private User user = null;
 	private Device device = null;
-	
-	// TEMP
-	public string message = "Message area";
-	private string notesLabel = "Notifications area";
-	// TEMP
 	
 	private static Platform _instance;
         
@@ -190,14 +187,21 @@ public class Platform : MonoBehaviour {
 	                    }
 	                    AwardPoints("Free points for devs", "Platform.cs", 10000);
 	                    // Cache the list of games and states from java
-	            GetGames();
-	                                
+			            GetGames();
+			                       
+						Poll();
 	                    UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
 	                    UnityEngine.Debug.Log("Current game points: " + GetCurrentPoints());
 	                    UnityEngine.Debug.Log("Current gems: " + GetCurrentGemBalance());
 	                    UnityEngine.Debug.Log("Current metabolism: " + GetCurrentMetabolism());
 	                                        
+						if (OnGlass() && HasInternet()) {
+							Authorize("any", "login");
+						}
+				
 	                    initialised = true;
+				
+						//ExportCSV();
 	    }));
 	                        
 	    } catch (Exception e) {
@@ -209,6 +213,10 @@ public class Platform : MonoBehaviour {
 	/// Message receivers
 	public void OnAuthentication(string message) {
 		if (string.Equals(message, "Success")) {
+			if (authenticated == false) {
+				User me = User();
+				if (me != null) MessageWidget.AddMessage("Logged in", "Welcome " + me.name, "settings");
+			}
 			authenticated = true;
 			if (onAuthenticated != null) onAuthenticated(true);
 		}
@@ -217,7 +225,8 @@ public class Platform : MonoBehaviour {
 		}
 		if (string.Equals(message, "OutOfBand")) {
 			if (onAuthenticated != null) onAuthenticated(false);
-			// TODO: Pop up message 
+			// TODO: Use confirmation dialog instead of message
+			MessageWidget.AddMessage("Notice", "Please use the web interface to link your account to this provider", "settings");
 		}
 		UnityEngine.Debug.Log("Platform: authentication " + message.ToLower()); 
 	}
@@ -225,35 +234,29 @@ public class Platform : MonoBehaviour {
 	public void OnSynchronization(string message) {
 		lastSync = DateTime.Now;
 		if (onSync != null) onSync();
-		/// TEMP
+		/// TODO
 		Notification[] notes = Notifications();
 		int unread = 0;
 		foreach (Notification note in notes) if(!note.read) unread++;
-		if (unread > 0) {
-			notesLabel = notes[notes.Length-1].ToString() + "\n" + notes.Length + " unread notifications";
-		} else {
-			notesLabel = "No unread notifications";
-		}
-		/// TEMP
-		notesLabel += " " + lastSync.ToLongTimeString();
+//		if (unread > 0) {
+//			notesLabel = notes[notes.Length-1].ToString() + "\n" + notes.Length + " unread notifications";
+//		} else {
+//			notesLabel = "No unread notifications";
+//		}
+	}
+
+	public void OnSynchronizationProgress(string message) {
+		if (onSyncProgress != null) onSyncProgress(message);
 	}
 	
 	public void OnRegistration(string message) {
-		message = "reg: " + message;
 		onDeviceRegistered(message);
 	}	
 	
 	public void OnActionIntent(string message) {
 		UnityEngine.Debug.Log("Platform: action " + message); 
-		this.message = message;
+		MessageWidget.AddMessage("Internal", "App opened with intent " + message, "settings");
 	}
-//
-//	/// TEMP
-//	public void OnGUI() {
-//		GUI.Label(new Rect(Screen.width/2 - 150, 50, 300, 50), message);
-//		GUI.Label(new Rect(Screen.width/2 - 150, Screen.height - 50, 300, 50), notesLabel);
-//	}
-//	/// TEMP
 	
 	public virtual AndroidJavaObject GetHelper() {
 		return helper;
@@ -540,6 +543,17 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	private void ExportCSV() {
+		try {
+			helper.Call("exportDatabaseToCsv");
+			UnityEngine.Debug.Log("Platform: Database Successfully exported to CSV");
+		} catch (Exception e)
+		{
+			UnityEngine.Debug.Log("Platform: Error exporting database");
+			UnityEngine.Debug.Log(e.Message);
+		}
+	}
+	
 	private Track convertTrack(AndroidJavaObject rawtrack) {
 		string name = rawtrack.Call<string>("getName");
 		int[] ids = rawtrack.Call<int[]>("getIDs"); 
@@ -764,6 +778,11 @@ public class Platform : MonoBehaviour {
 		return;
 	}
 	
+	public virtual float GetDistance() {
+		return (float)distance;
+	}
+	
+	
 	public virtual float GetHighestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
@@ -776,6 +795,7 @@ public class Platform : MonoBehaviour {
 		}
 		return h;
 	}
+	
 	
 	public virtual float GetLowestDistBehind() {
 		if(targetTrackers.Count <= 0)

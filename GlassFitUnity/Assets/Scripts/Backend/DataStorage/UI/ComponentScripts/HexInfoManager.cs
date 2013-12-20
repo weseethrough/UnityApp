@@ -26,7 +26,7 @@ public class HexInfoManager : MonoBehaviour
     
     public const string DV_HEX_DATA = "HexInfoDataBlock";
 
-    float maximumDelay = 1.50f;
+    float maximumDelay = 0.10f;
     float currentDelay;
     bool hexInfoRequired;
 
@@ -187,4 +187,9 @@ public class HexInfoManager : MonoBehaviour
         ActiveAnimation.Play(animation, anmationName, AnimationOrTween.Direction.Reverse);
     }
 
+
+    public bool IsInOpenStage()
+    {
+        return State.Entering == currentState;
+    }
 }

@@ -69,6 +69,10 @@ public class GameBase : MonoBehaviour {
 	
 	private GestureHelper.OnTap tapHandler = null;
 	
+	private GestureHelper.TwoFingerTap twoTapHandler = null;
+	
+	private GestureHelper.DownSwipe downHandler = null;
+	
 		/// <summary>
 	/// Start this instance.
 	/// </summary>
@@ -84,6 +88,19 @@ public class GameBase : MonoBehaviour {
 		});
 		
 		GestureHelper.onTap += tapHandler;
+		
+		downHandler = new GestureHelper.DownSwipe(() => {
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+			if(gConnect != null) {
+				GestureHelper.onSwipeDown -= downHandler;
+				fs.parentMachine.FollowConnection(gConnect);
+				Platform.Instance.StopTrack();
+				Platform.Instance.Reset();
+				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+			}
+		});
+		GestureHelper.onSwipeDown += downHandler;
 		//Get target distance
 #if !UNITY_EDITOR
 		finish = (int)DataVault.Get("finish");
@@ -94,7 +111,7 @@ public class GameBase : MonoBehaviour {
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
 				
-		indoor = (bool)DataVault.Get("indoor");
+		indoor = (bool)DataVault.Get("indoor_settings");
 		
 		UnityEngine.Debug.Log("GameBase: indoor set to: " + indoor.ToString());
 		
@@ -103,19 +120,18 @@ public class GameBase : MonoBehaviour {
 		Platform.Instance.StopTrack();
 		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
-
-		
-		
 		
 		hasEnded = false;
 		
+		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
+			GyroDidReset();
+			GestureHelper.onTwoTap -= twoTapHandler;
+		});
+		
+		GestureHelper.onTwoTap += twoTapHandler;
+		
 		//handler for OnReset
-		//this seems to get automatically called as soon as the scene loads. Trying an onTap instead.
-//		Platform.OnResetGyro handler = null;
-//		handler = new Platform.OnResetGyro(() => {
-//			GyroDidReset();
-//		});
-//		Platform.Instance.onResetGyro += handler;	
+		//this seems to get automatically called as soon as the scene loads. Trying an onTap instead.	
 		
 //		GestureHelper.OnTap handler = null;
 //		handler = new GestureHelper.OnTap( () => {
@@ -136,8 +152,27 @@ public class GameBase : MonoBehaviour {
 		{
 			pause = true;
 			Platform.Instance.StopTrack();
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
+		 	if(gConnect != null)
+			{
+				fs.parentMachine.FollowConnection(gConnect);
+			} else
+			{
+				UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
+			}
 		} else {
 			pause = false;
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "ReturnExit");
+		 	if(gConnect != null)
+			{
+				fs.parentMachine.FollowConnection(gConnect);
+			} else
+			{
+				UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
+			}
+			
 			if(started)
 			{
 				Platform.Instance.StartTrack();
@@ -174,7 +209,7 @@ public class GameBase : MonoBehaviour {
 	/// Called on returning to game when exiting the Settings menu.
 	/// Should maybe be called 'OnResume()' instead? AH
 	/// </summary>
-		public void Back() 
+	public void Back() 
 	{
 		
 		float settingsTargetSpeed = ((float)DataVault.Get("slider_val") * 9.15f) + 1.25f;
@@ -236,12 +271,12 @@ public class GameBase : MonoBehaviour {
 		if(pause)
 		{
 			labelStyle.fontSize = 60;
-			GUI.Label(new Rect(300, 150, 200, 200), "PAUSED", labelStyle);
+			GUI.Label(new Rect(250, 150, 300, 200), "PAUSED", labelStyle);
 		}
 		
 		labelStyle.fontSize = 40;
 		
-		Rect messageRect = new Rect(300, 150, 300, 200);
+		Rect messageRect = new Rect(250, 150, 300, 200);
 		
 		if(countdown && !pause)
 		{
@@ -260,7 +295,7 @@ public class GameBase : MonoBehaviour {
 		}
 		
 		//feedback to user
-		if(!readyToStart)
+		if(!readyToStart && !pause && !hasEnded)
 		{
 			//are we waiting for GPS?
 			if(!Platform.Instance.HasLock() && !indoor)
@@ -296,12 +331,12 @@ public class GameBase : MonoBehaviour {
 
 		if (targetDistance > 0) {
 			DataVault.Set("ahead_header", "Behind!");
-			DataVault.Set("ahead_col_header", "D20000FF");
+			//DataVault.Set("ahead_col_header", "D20000FF");
 			DataVault.Set("ahead_col_box", "D20000EE");
 		} else {
 			DataVault.Set("ahead_header", "Ahead!"); 
 			DataVault.Set("ahead_col_box", "19D200EE");
-			DataVault.Set("ahead_col_header", "19D200FF");
+			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
 		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
 	}
@@ -331,7 +366,7 @@ public class GameBase : MonoBehaviour {
 		// Non-Glass devices
 		if(!readyToStart && (Platform.Instance.HasLock() || indoor) )
 		{
-			UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
+			//UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
 			if(Input.touchCount > 0)
 			{
 				UnityEngine.Debug.Log("GameBase: Update: Touch detected");

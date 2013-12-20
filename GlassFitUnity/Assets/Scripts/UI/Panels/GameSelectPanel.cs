@@ -10,12 +10,19 @@ public class GameSelectPanel : HexPanel
 	
 //	PlatformDummy platform = new PlatformDummy();
 	
+	GestureHelper.DownSwipe downHandler = null;
+	
 	public GameSelectPanel() {}
     public GameSelectPanel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
     {
 	}
 
+	public void QuitApp() {
+		GestureHelper.onSwipeDown -= downHandler;
+		Application.Quit();
+	}
+	
     public override void EnterStart()
     {
         GConnector raceExit = Outputs.Find(r => r.Name == "raceExit");
@@ -29,6 +36,12 @@ public class GameSelectPanel : HexPanel
 		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentGemBalance());
 		
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+		
+		downHandler = new GestureHelper.DownSwipe(() => {
+			QuitApp();
+		});
+		
+		GestureHelper.onSwipeDown += downHandler;
 		
 #if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
@@ -58,7 +71,7 @@ public class GameSelectPanel : HexPanel
                 }
             }
             
-            hbd.buttonName = games[i].name;
+            hbd.buttonName = games[i].iconName;
 			hbd.activityName = games[i].name;
 			hbd.activityContent = games[i].description;
 			hbd.activityPrice = (int)games[i].priceInPoints;
@@ -133,4 +146,10 @@ public class GameSelectPanel : HexPanel
 
         base.EnterStart();   
     }
+	
+	public override void Exited ()
+	{
+		base.Exited ();
+		GestureHelper.onSwipeDown -= downHandler;
+	}
 }

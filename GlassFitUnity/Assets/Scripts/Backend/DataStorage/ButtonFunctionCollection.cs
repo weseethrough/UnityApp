@@ -165,7 +165,7 @@ public class ButtonFunctionCollection
 #endif
 		for(int i=0; i < games.Count; i++)
 		{
-			if(games[i].name == fb.name)
+			if(games[i].iconName == fb.name)
 			{
 				DataVault.Set("actual_game", games[i]);
 				DataVault.Set("game_desc", games[i].description);
@@ -199,14 +199,14 @@ public class ButtonFunctionCollection
 		
 		for(int i=0; i < games.Count; i++)
 		{
-			if(games[i].name == fb.name)
+			if(games[i].iconName == fb.name)
 			{
 				DataVault.Set("actual_game", games[i]);
 				DataVault.Set("price_points", "Price in points: " + games[i].priceInPoints);
 				DataVault.Set("price_gems", "Price in gems: " + games[i].priceInGems);
 				DataVault.Set("game_desc", games[i].description);
-				DataVault.Set("game_name", games[i].gameId);
-				DataVault.Set("image_name", games[i].name);
+				DataVault.Set("game_name", games[i].name);
+				DataVault.Set("image_name", games[i].iconName);
 				break;
 			}
 		}
@@ -262,33 +262,48 @@ public class ButtonFunctionCollection
 	{
 		string currentMode = (string)DataVault.Get("game_name");
 		
-		if(currentMode == "Rearview") 
-		{
-			bool rearview = (bool)DataVault.Get("rearview");
-			if(rearview) {
-				DataVault.Set("active_mode", "Press to turn on");
-				rearview = false;
-				DataVault.Set("rearview", rearview);
-			} else {
-				DataVault.Set("active_mode", "Press to turn off");
-				rearview = true;
-				DataVault.Set("rearview", rearview);
-			}
-		} else if(currentMode == "Settings") 
-		{
-			bool indoor = (bool)DataVault.Get("indoor");
-			if(indoor) {
-				UnityEngine.Debug.Log("Button: Indoor turning false now");
-				DataVault.Set("active_mode", "Tap to turn on");
-				indoor = false;
-				DataVault.Set("indoor", indoor);
-			} else 
-			{
-				UnityEngine.Debug.Log("Button: Indoor turning true now"); 
-				DataVault.Set("active_mode", "Tap to turn off");
-				indoor = true;
-				DataVault.Set("indoor", indoor);
-			}
+		currentMode = currentMode.Replace(" ", "_");
+		
+		UnityEngine.Debug.Log("BFC: Name is: " + currentMode.ToLower());
+		
+		bool setting = (bool)DataVault.Get(currentMode.ToLower());
+		
+//		if(currentMode == "Rearview") 
+//		{
+//			bool rearview = (bool)DataVault.Get("rearview");
+//			if(rearview) {
+//				DataVault.Set("active_mode", "Press to turn on");
+//				rearview = false;
+//				DataVault.Set("rearview", rearview);
+//			} else {
+//				DataVault.Set("active_mode", "Press to turn off");
+//				rearview = true;
+//				DataVault.Set("rearview", rearview);
+//			}
+//		} else if(currentMode == "Settings") 
+//		{
+//			bool indoor = (bool)DataVault.Get("indoor");
+//			if(indoor) {
+//				UnityEngine.Debug.Log("Button: Indoor turning false now");
+//				DataVault.Set("active_mode", "Tap to turn on");
+//				indoor = false;
+//				DataVault.Set("indoor", indoor);
+//			} else 
+//			{
+//				UnityEngine.Debug.Log("Button: Indoor turning true now"); 
+//				DataVault.Set("active_mode", "Tap to turn off");
+//				indoor = true;
+//				DataVault.Set("indoor", indoor);
+//			}
+//		}
+		if(setting) {
+			DataVault.Set("active_mode", "Tap to turn on");
+			setting = false;
+			DataVault.Set(currentMode.ToLower(), setting);
+		} else {
+			DataVault.Set("active_mode", "Tap to turn off");
+			setting = true;
+			DataVault.Set(currentMode.ToLower(), setting);
 		}
 		
 		return true;
@@ -578,6 +593,7 @@ public class ButtonFunctionCollection
 					'track' : [{0}, {1}]
 				}}", track.deviceId, track.trackId).Replace("'", "\""));		
 				Debug.Log ("Track: [" + track.deviceId + "," + track.trackId + "] shared to Facebook");
+				MessageWidget.AddMessage("Share", "Track shared to Facebook", "settings");
 			}
 			Platform.Instance.onAuthenticated -= handler;
 		});
@@ -596,16 +612,16 @@ public class ButtonFunctionCollection
     {
 		Track track = DataVault.Get("track") as Track;
 		if (track == null) {
-			Platform.Instance.message = "Can't challenge with null track";			
+			MessageWidget.AddMessage("ERROR", "Can't challenge with null track", "settings");
 			return false; // TODO: Allow solo rounds?
 		}
 		if (track.trackPositions.Count == 0) {
-			Platform.Instance.message = "Can't challenge with empty track " + track.deviceId + "-" + track.trackId;			
+			MessageWidget.AddMessage("ERROR", "Can't challenge with empty track " + track.deviceId + "-" + track.trackId, "settings");
 			return false; // TODO: Remove track?		
 		}
 		Friend friend = DataVault.Get("current_friend") as Friend;
 		if (friend == null ) {
-			Platform.Instance.message = "Can't challenge with null friend";			
+			MessageWidget.AddMessage("ERROR", "Can't challenge null friend", "settings");
 			return false; // TODO: Challenge by third-party identity
 		}
 		string friendUid = friend.uid;
@@ -629,8 +645,7 @@ public class ButtonFunctionCollection
 			}}
 		}}", friendUid, track.deviceId, track.trackId).Replace("'", "\""));
 		Debug.Log ("Challenge: " + friendUid + " challenged");
-		// TODO: Real message
-		Platform.Instance.message = "You challenged " + friendUid;
+		MessageWidget.AddMessage("Challenge", "You challenged " + friendUid, "settings");
 		Platform.Instance.SyncToServer();
 		
 		return true;
@@ -645,106 +660,7 @@ public class ButtonFunctionCollection
     /// <returns>never allow further navigation</returns>
 	static public bool AcceptChallenges(FlowButton button, Panel panel) 
 	{
-		Debug.Log("AcceptChallenges: click");
-		if (!Platform.Instance.HasPermissions("any", "login")) {			
-			// Restart function once authenticated
-			Platform.OnAuthenticated handler = null;
-			handler = new Platform.OnAuthenticated((authenticated) => {
-				Platform.Instance.onAuthenticated -= handler;
-				if (authenticated) {
-					AcceptChallenges(button, panel);
-				}
-			});
-			Platform.Instance.onAuthenticated += handler;	
-			
-			Platform.Instance.Authorize("any", "login");
-			return false;
-		}
-		
-	    GConnector gConect = panel.Outputs.Find(r => r.Name == button.name);	
-		Platform.OnSync shandler = null;
-		shandler = new Platform.OnSync(() => {
-			Platform.Instance.onSync -= shandler;
-			
-			lock(DataVault.data) {
-				if (DataVault.Get("loaderthread") != null) return;
-				Thread loaderThread = new Thread(() => {
-#if !UNITY_EDITOR
-					AndroidJNI.AttachCurrentThread();
-#endif				
-					try {
-						// Reset world
-						Platform.Instance.ResetTargets();
-						DataVault.Remove("challenges");
-						DataVault.Remove("finish");
-						
-						List<Challenge> relevant = new List<Challenge>();		
-						int? finish = null;
-						
-						Notification[] notifications = Platform.Instance.Notifications();
-						foreach (Notification notification in notifications) {
-							if (notification.read) continue;
-							if (string.Equals(notification.node["type"], "challenge")) {
-								int challengerId = notification.node["from"].AsInt;
-								if (challengerId == null) continue;
-								string challengeId = notification.node["challenge_id"].ToString();
-								if (challengeId == null || challengeId.Length == 0) continue;
-								if (challengeId.Contains("$oid")) challengeId = notification.node["challenge_id"]["$oid"].ToString();
-								challengeId = challengeId.Replace("\"", "");
-								
-								Debug.Log("AcceptChallenges: " + challengeId + " from " + challengerId);
-								
-								Platform.Instance.message = "Please wait while we fetch challenge"; 
-								Challenge potential = Platform.Instance.FetchChallenge(challengeId);
-								if (potential == null) continue;
-								if (potential is DistanceChallenge) {
-									DistanceChallenge challenge = potential as DistanceChallenge;					
-									
-									Platform.Instance.message = "Please wait while we fetch track"; 
-									Track track = challenge.UserTrack(challengerId);
-									if (track != null) {
-										Platform.Instance.FetchTrack(track.deviceId, track.trackId); // Make sure we have the track in the local db
-										TargetTracker tracker = Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
-										User challenger = Platform.Instance.GetUser(challengerId);
-										tracker.name = challenger.username;
-										if (tracker.name == null || tracker.name.Length == 0) tracker.name = challenger.name;
-									} // else race leader/friends/creator?
-				
-									relevant.Add(challenge); 					
-									if (!finish.HasValue || finish.Value < challenge.distance) finish = challenge.distance;					
-								}
-							}
-						}		
-						if (!finish.HasValue || relevant.Count == 0) {
-							Platform.Instance.message = "No relevant challenges";
-							return;
-						}
-						
-						Debug.Log("AcceptChallenges: Accepted " + relevant.Count + " challenges");
-						Platform.Instance.message = "Accepted " + relevant.Count + " challenges";
-						DataVault.Set("challenges", relevant);
-						DataVault.Set("finish", finish.Value);
-						
-						AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
-						
-						// Follow connection since the function may have been called asynchronously
-						panel.parentMachine.FollowConnection(gConect);
-					} finally {
-						DataVault.Remove("loaderthread");
-#if !UNITY_EDITOR
-						AndroidJNI.DetachCurrentThread();
-#endif					
-					}
-				});
-				DataVault.Set("loaderthread", loaderThread);
-				loaderThread.Start();
-			}
-		});
-		Platform.Instance.onSync += shandler;
-		
-		Platform.Instance.message = "Please wait while we sync the database";
-		Platform.Instance.SyncToServer();
-		
+		MessageWidget.AddMessage("ERROR", "Deprecated. Stop using and remove once all links removed.", "settings");		
 		return false;
 	}	
 	
