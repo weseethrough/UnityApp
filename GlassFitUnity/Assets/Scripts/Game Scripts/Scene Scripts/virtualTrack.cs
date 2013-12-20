@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+//note - current tarmac texture comes from here:
+// http://seamless-pixels.blogspot.co.uk/p/blog-page.html
+
 public class virtualTrack : MonoBehaviour {
 	
 	private const float TrackLength = 3600;
