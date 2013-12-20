@@ -19,6 +19,13 @@ public class GameSelectPanel : HexPanel
 	}
 
 	public void QuitApp() {
+		HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+		if(info != null) {
+			if(info.IsInOpenStage()) {
+				info.AnimExit();
+				return;
+			}
+		}
 		GestureHelper.onSwipeDown -= downHandler;
 		Application.Quit();
 	}
