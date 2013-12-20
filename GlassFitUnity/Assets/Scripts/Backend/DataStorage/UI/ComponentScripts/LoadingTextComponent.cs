@@ -18,6 +18,11 @@ public class LoadingTextComponent : MonoBehaviour
         SetVisibility(false);
     }
 
+    void OnDestroy()
+    {
+        instance = null;
+    }
+
     public static void SetVisibility(bool visible)
     {
         if (instance != null)
