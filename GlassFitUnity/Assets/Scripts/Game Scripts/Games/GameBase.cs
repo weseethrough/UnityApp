@@ -332,8 +332,8 @@ public class GameBase : MonoBehaviour {
 		//Update variables for GUI	
 		Platform.Instance.Poll();
 		
-		DataVault.Set("calories", Platform.Instance.Calories().ToString());
-		DataVault.Set("pace", Platform.Instance.Pace().ToString("f2") + "m/s");
+		DataVault.Set("calories", Platform.Instance.Calories().ToString() + "kcal");
+		DataVault.Set("pace", SpeedToKmPace(Platform.Instance.Pace()).ToString("f2") + "min/km");
 		DataVault.Set("distance", SiDistance(Platform.Instance.Distance()));
 		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);

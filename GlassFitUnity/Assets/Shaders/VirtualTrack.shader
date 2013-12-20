@@ -39,14 +39,14 @@
 			//apply the scroll factor - uv comes in as [0,1]
 			o.uv.y = o.uv.y * _Repeats + _Phase;
 		
-			if(o.pos.z > _FadeDist)
-			{
-				float DistIntoFade = o.pos.z - _FadeDist;
-				float Fade = clamp(DistIntoFade/_FadeRange, 0.0, 1.0);
-				o.col.b = Fade;
-				o.col.a = 1-Fade;
-				//o.col.r = o.pos.z / (_FadeDist * 50);
-			}
+//			if(o.pos.z > _FadeDist)
+//			{
+//				float DistIntoFade = o.pos.z - _FadeDist;
+//				float Fade = clamp(DistIntoFade/_FadeRange, 0.0, 1.0);
+//				o.col.b = Fade;
+//				o.col.a = 1-Fade;
+//				//o.col.r = o.pos.z / (_FadeDist * 50);
+//			}
 			
       		return o;
       	}
@@ -56,12 +56,12 @@
       
       	fixed4 frag (v2f i) : COLOR0 { 
       		return i.col * tex2D( _MainTex, i.uv);
-      		if(i.pos.z > _FadeDist)
-      		{
-      			//fade out over 1000m
-      			float Fade = min( (i.pos.z - _FadeDist)/_FadeRange, 1.0);
-      			Fade = 1 - Fade;
-      		}
+//      		if(i.pos.z > _FadeDist)
+//      		{
+//      			//fade out over 1000m
+//      			float Fade = min( (i.pos.z - _FadeDist)/_FadeRange, 1.0);
+//      			Fade = 1 - Fade;
+//      		}
       	}
 
 		ENDCG
