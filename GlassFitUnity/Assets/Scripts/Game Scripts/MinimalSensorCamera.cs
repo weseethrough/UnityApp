@@ -120,7 +120,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		labelStyle.fontSize = 40;
 		labelStyle.fontStyle = FontStyle.Bold;
 		
-		GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
+		//GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
 		
 #if !UNITY_EDITOR
 		if(!noGrid) {
