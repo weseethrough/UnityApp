@@ -45,7 +45,7 @@ public class DataVault : MonoBehaviour
     /// default unity initialziation function is preparing datavault and loads variables to useful easy to search dictionaries
     /// </summary>
     /// <returns></returns>
-    void Awake()
+    void Start()
     {        
         Initialize();
     }
