@@ -13,7 +13,7 @@ public class DynamicHexList : MonoBehaviour
     HexPanel parent = null;
 
     UICamera guiCamera;
-    public static Vector2 hexLayoutOffset = new Vector2(0.4330127f, 0.25f);
+    public static Vector2 hexLayoutOffset = new Vector2(0.25f, 0.4330127f);
     Vector3 distanceVector;
     Vector3 cameraPosition;
     float radius;
@@ -674,8 +674,8 @@ public class DynamicHexList : MonoBehaviour
     /// <returns>flat 2d position for hex </returns>
     public static Vector2 GetLocation(int column, int row)
     {
-        int Yoffset = -(Mathf.Abs(column) % 2);
-        return new Vector2(hexLayoutOffset.x * column, -hexLayoutOffset.y * (Yoffset + row * 2));
+        int Xoffset = -(Mathf.Abs(row) % 2);
+        return new Vector2(-hexLayoutOffset.x * (Xoffset + column * 2), hexLayoutOffset.y * row);
     }
 
     /// <summary>
