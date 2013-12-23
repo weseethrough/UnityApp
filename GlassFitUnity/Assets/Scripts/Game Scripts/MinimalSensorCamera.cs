@@ -183,9 +183,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 			}
 			
 				Platform.Instance.ResetGyro();
-				gridOn = true;
-				gridTimer = 5.0f;
-				timerActive = true;
+				//gridOn = true;
+				//gridTimer = 5.0f;
+				//timerActive = true;
 			}
 		}
 	}

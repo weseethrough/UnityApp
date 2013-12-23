@@ -41,9 +41,15 @@ public class FirstRun : GameBase {
 	private bool runReadyToStart = false;
 	public GameObject runner;		//a runner object. This will be cloned around for various benchmark paces.
 	
-	//tuneable parameters
-	const float hintCycleDelay = 7.0f;
+	public Camera camera;
+	const float paceLabelYOffset = 100.0f;
 	
+	//tuneable parameters
+	const float hintCycleDelay = 4.0f;
+	
+	bool shouldShowPaceLabels = false;
+	const float showLabelMinRange = 5.0f;
+	const float showLabelMaxRange = 500.0f;
 	
 	// Use this for initialization
 	void Start () {
@@ -164,6 +170,18 @@ public class FirstRun : GameBase {
 		return labelStyle;
 	}
 	
+	protected GUIStyle getLabelStylePace()
+	{
+		// set style for our labels
+		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
+		labelStyle.alignment = TextAnchor.MiddleCenter;
+		labelStyle.fontSize = 25;
+		labelStyle.fontStyle = FontStyle.Normal;
+		labelStyle.clipping = TextClipping.Overflow;
+
+		return labelStyle;
+	}
+	
 	private void DrawTintBox() {
 		//rect for the tint box
 		float width = Screen.width;
@@ -200,6 +218,7 @@ public class FirstRun : GameBase {
 		GUIStyle MainMessageStyle = getLabelStyleLarge();
 		GUIStyle NavMessageStyle = getLabelStyleNav();
 		GUIStyle HintStyle = getLabelStyleHint();
+		GUIStyle PaceLabelStyle = getLabelStylePace();
 		
 		switch(eCurrentScreen)
 		{
@@ -262,6 +281,39 @@ public class FirstRun : GameBase {
 			break;
 		}
 
+		}
+		
+		if(shouldShowPaceLabels)
+		{
+			foreach(GameObject actor in actors)
+			{
+				//if they're within range
+				TargetController controller = actor.GetComponent<TargetController>();
+				float distance = controller.target.GetDistanceBehindTarget();
+				
+				if(distance <= showLabelMaxRange && distance >= showLabelMinRange)
+				{
+					//calculate screenspace position
+					Vector2 screenPos = camera.WorldToScreenPoint(actor.transform.position);
+					
+					//create label
+					GUIStyle paceStyle = getLabelStylePace();
+					float paceHalfWidth = 200;
+				
+					//calculate yPos. Note, camera screen pos calculation comes out with y inverted.
+					float yPos = Screen.height - screenPos.y - paceLabelYOffset;
+				
+					Rect paceRect = new Rect(screenPos.x - paceHalfWidth, yPos, 2*paceHalfWidth, 1);
+					
+					//determine pace
+					float speed = controller.target.PollCurrentSpeed();
+					long totalTime = (long)((float)finish*1000/speed);
+					string paceString = TimestampMMSSdd(totalTime);
+					UnityEngine.Debug.Log("speed:"+speed+" totalTime:"+totalTime + " distancePace:" + paceString);
+					
+					GUI.Label(paceRect, paceString, paceStyle);
+				}
+			}
 		}
 	}
 	
@@ -441,7 +493,8 @@ public class FirstRun : GameBase {
 			}
 			} catch(Exception e) {
 				UnityEngine.Debug.LogWarning("Error iterating actors list");	
-			}	
+			}
+			shouldShowPaceLabels = true;
 	}
 	
 	private void GetNextHint() {
