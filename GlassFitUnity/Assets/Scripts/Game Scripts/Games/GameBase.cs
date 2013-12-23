@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using System.Threading;
 using System;
 
 /// <summary>
@@ -119,9 +120,12 @@ public class GameBase : MonoBehaviour {
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
 		
-		indoor = (bool)DataVault.Get("indoor_settings");
+		
+		indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
 		
 		UnityEngine.Debug.Log("GameBase: indoor set to: " + indoor.ToString());
+			
+		indoor = true;
 		
 		// Set indoor mode
 		Platform.Instance.SetIndoor(indoor);

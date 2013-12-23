@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 /// <summary>
 /// Rotates the camera in-game and sets the grid
@@ -48,7 +49,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		scaleX = (float)Screen.width / 800.0f;
 		scaleY = (float)Screen.height / 500.0f;
 		
-		indoor = (bool)DataVault.Get("indoor_settings");
+		indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
 		
 		twoHandler = new GestureHelper.TwoFingerTap(() => {
 			ResetGyroGlass();
@@ -66,7 +67,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		
 		GestureHelper.swipeLeft += leftHandler;
 		
-		bool ARCameraOn = (bool)DataVault.Get("camera_setting");
+		bool ARCameraOn = Convert.ToBoolean(DataVault.Get("camera_setting"));
 		if(!ARCameraOn)
 		{
 			GetComponent<QCARBehaviour>().enabled = false;
@@ -103,7 +104,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	}
 	
 	void SetRearview() {
-		if((bool)DataVault.Get("rearview_mirror")) {
+		if(Convert.ToBoolean(DataVault.Get("rearview_mirror"))) {
 			rearview = !rearview;
 		}
 	}

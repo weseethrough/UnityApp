@@ -197,7 +197,7 @@ public class RaceGame : GameBase {
 ////			GetMap(position, bearingRad, targetCoord);
 ////		}
 
-		if(Platform.Instance.Distance() / 1000 >= finish && !end)
+		if(Platform.Instance.Distance() >= finish && !end)
 		{
 			end = true;
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
