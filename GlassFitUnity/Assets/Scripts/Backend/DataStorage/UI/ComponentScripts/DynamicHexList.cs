@@ -136,7 +136,7 @@ public class DynamicHexList : MonoBehaviour
     }
 
     /// <summary>
-    /// function which converts orienation quaternion into pitch and yaw, suitable for moving cam up/down, left/right on 2D menu
+    /// function which converts orientation quaternion into pitch and yaw, suitable for moving cam up/down, left/right on 2D menu
     /// </summary>
     /// <param name="q">input orientation</param>
     /// <param name="dynamicCamPos">(yaw, pitch)</param>
@@ -306,8 +306,8 @@ public class DynamicHexList : MonoBehaviour
                 if (lockScript == null || !lockScript.locked)
                 {
                     if (selection != null)
-                    {
-                        selection.SendMessage("OnHover", false, SendMessageOptions.DontRequireReceiver);
+                    {                        
+                        //selection.SendMessage("OnHover", false, SendMessageOptions.DontRequireReceiver);
                         TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                         if (tp != null)
                         {
@@ -324,7 +324,8 @@ public class DynamicHexList : MonoBehaviour
                         }
                     }
                     selection = newSelection;
-                    newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+                    //newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+                    HexMarkerLogic.SetTarget(newSelection.transform.parent.localPosition);                    
 
                     if (parent != null)
                     {
@@ -492,6 +493,12 @@ public class DynamicHexList : MonoBehaviour
         while (transform.childCount > elementsToKeep)
         {
             GameObject.Destroy(transform.GetChild(transform.childCount - 1));
+        }
+
+        Animation anim = GetButtonBase().gameObject.GetComponentInChildren<Animation>();
+        if (anim != null)
+        {
+            anim.gameObject.transform.localScale = new Vector3(0.001f, 0.001f, 1);
         }
     }
 
