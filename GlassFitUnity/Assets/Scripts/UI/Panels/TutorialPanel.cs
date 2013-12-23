@@ -70,19 +70,8 @@ public class TutorialPanel : HexPanel
             hbd.onButtonCustomString = "Look here";
 
             buttonData.Add(hbd);
-   
-			hbd = new HexButtonData();
-            hbd.row = 1;
-            hbd.column = 1;
-            hbd.buttonName = "tutorialButton3";
-            hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "move your head to navigate in this menu";
 
-            buttonData.Add(hbd);
-
-        }
-
-        if (buttonData.Count == 2)
+        } else if (buttonData.Count == 2)
         {
             HexButtonData hbd = new HexButtonData();
             hbd.row = -1;
@@ -92,9 +81,7 @@ public class TutorialPanel : HexPanel
             hbd.onButtonCustomString = "Some more important info";
 
             buttonData.Add(hbd);
-        }
-
-        if (buttonData.Count == 3)
+        } else if (buttonData.Count == 3)
         {
             HexButtonData hbd = new HexButtonData();
             hbd.row = 0;
@@ -104,9 +91,7 @@ public class TutorialPanel : HexPanel
             hbd.onButtonCustomString = "Some more important info";
 
             buttonData.Add(hbd);
-        }
-
-        if (buttonData.Count == 4)
+        } else if (buttonData.Count == 4)
         {
             HexButtonData hbd = new HexButtonData();
             hbd.row = 1;
@@ -116,9 +101,7 @@ public class TutorialPanel : HexPanel
             hbd.onButtonCustomString = "Some more important info";
 
             buttonData.Add(hbd);
-        }
-
-        if (buttonData.Count == 5)
+        } else if (buttonData.Count == 5)
         {
             HexButtonData hbd = new HexButtonData();
             hbd.row = 1;
@@ -160,81 +143,81 @@ public class TutorialPanel : HexPanel
     {
  	     base.OnHover(button, justStarted);
 
-         if (justStarted == true && button != null)
-        {                        
-            if (button.name == "tutorialButton1" && buttonData.Count == 1)
-            {
-                HexButtonData hbd = new HexButtonData();
-                hbd.row = 1;
-                hbd.column = 1;
-                hbd.buttonName = "tutorialButton2";
-                hbd.displayInfoData = false;
-                hbd.onButtonCustomString = "Look here";
-
-                buttonData.Add(hbd);
-
-                hbd = new HexButtonData();
-                hbd.row = 0;
-                hbd.column = 1;
-                hbd.buttonName = "tutorialButton3";
-                hbd.displayInfoData = false;
-                hbd.onButtonCustomString = "move your head to navigate in this menu";
-
-                buttonData.Add(hbd);
-
-            }
-
-            if (button.name == "tutorialButton2" && buttonData.Count == 3)
-            {
-                HexButtonData hbd = new HexButtonData();
-                hbd.row = -1;
-                hbd.column = 0;
-                hbd.buttonName = "tutorialButton4";
-                hbd.displayInfoData = false;
-                hbd.onButtonCustomString = "Some more important info";
-
-                buttonData.Add(hbd);
-            }
-
-            if (button.name == "tutorialButton4" && buttonData.Count == 4)
-            {
-                HexButtonData hbd = new HexButtonData();
-                hbd.row = 0;
-                hbd.column = -1;
-                hbd.buttonName = "tutorialButton5";
-                hbd.displayInfoData = false;
-                hbd.onButtonCustomString = "Some more important info";
-
-                buttonData.Add(hbd);
-            }
-
-            if (button.name == "tutorialButton5" && buttonData.Count == 5)
-            {
-                HexButtonData hbd = new HexButtonData();
-                hbd.row = 1;
-                hbd.column = -1;
-                hbd.buttonName = "tutorialButton6";
-                hbd.displayInfoData = false;
-                hbd.onButtonCustomString = "Some more important info";
-
-                buttonData.Add(hbd);
-            }
-
-            if (button.name == "tutorialButton6" && buttonData.Count == 6)
-            {
-                HexButtonData hbd = new HexButtonData();
-                hbd.row = 1;
-                hbd.column = 0;
-                hbd.buttonName = "tutorialButton7";
-                hbd.displayInfoData = false;
-                hbd.onButtonCustomString = "Some more important info";
-
-                buttonData.Add(hbd);
-            }            
-
-            DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
-            list.UpdateButtonList();
-        }
+//         if (justStarted == true && button != null)
+//        {                        
+//            if (button.name == "tutorialButton1" && buttonData.Count == 1)
+//            {
+//                HexButtonData hbd = new HexButtonData();
+//                hbd.row = 1;
+//                hbd.column = 1;
+//                hbd.buttonName = "tutorialButton2";
+//                hbd.displayInfoData = false;
+//                hbd.onButtonCustomString = "Look here";
+//
+//                buttonData.Add(hbd);
+//
+//                hbd = new HexButtonData();
+//                hbd.row = 0;
+//                hbd.column = 1;
+//                hbd.buttonName = "tutorialButton3";
+//                hbd.displayInfoData = false;
+//                hbd.onButtonCustomString = "move your head to navigate in this menu";
+//
+//                buttonData.Add(hbd);
+//
+//            }
+//
+//            if (button.name == "tutorialButton2" && buttonData.Count == 3)
+//            {
+//                HexButtonData hbd = new HexButtonData();
+//                hbd.row = -1;
+//                hbd.column = 0;
+//                hbd.buttonName = "tutorialButton4";
+//                hbd.displayInfoData = false;
+//                hbd.onButtonCustomString = "Some more important info";
+//
+//                buttonData.Add(hbd);
+//            }
+//
+//            if (button.name == "tutorialButton4" && buttonData.Count == 4)
+//            {
+//                HexButtonData hbd = new HexButtonData();
+//                hbd.row = 0;
+//                hbd.column = -1;
+//                hbd.buttonName = "tutorialButton5";
+//                hbd.displayInfoData = false;
+//                hbd.onButtonCustomString = "Some more important info";
+//
+//                buttonData.Add(hbd);
+//            }
+//
+//            if (button.name == "tutorialButton5" && buttonData.Count == 5)
+//            {
+//                HexButtonData hbd = new HexButtonData();
+//                hbd.row = 1;
+//                hbd.column = -1;
+//                hbd.buttonName = "tutorialButton6";
+//                hbd.displayInfoData = false;
+//                hbd.onButtonCustomString = "Some more important info";
+//
+//                buttonData.Add(hbd);
+//            }
+//
+//            if (button.name == "tutorialButton6" && buttonData.Count == 6)
+//            {
+//                HexButtonData hbd = new HexButtonData();
+//                hbd.row = 1;
+//                hbd.column = 0;
+//                hbd.buttonName = "tutorialButton7";
+//                hbd.displayInfoData = false;
+//                hbd.onButtonCustomString = "Some more important info";
+//
+//                buttonData.Add(hbd);
+//            }            
+//
+//            DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+//            list.UpdateButtonList();
+//        }
          
     }            
 }
