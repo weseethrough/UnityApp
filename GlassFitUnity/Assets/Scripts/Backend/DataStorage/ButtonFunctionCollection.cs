@@ -222,7 +222,7 @@ public class ButtonFunctionCollection
     /// <returns>always allow for further navigation</returns>
     static public bool StartGame(FlowButton fb, Panel panel)
 	{
-		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
+		AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
 		
 		switch(fb.name) 
 		{

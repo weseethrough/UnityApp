@@ -18,7 +18,7 @@ public enum FirstRunScreen
 	ResetGyrosScreen,
 	AwaitGPSScreen,
 	ConfirmIndoorScreen,
-	StartScreen,
+	ReadyToStartScreen,
 };
 
 public enum FirstRunHint
@@ -30,16 +30,19 @@ public enum FirstRunHint
 
 public class FirstRun : GameBase {
 	
+	const float MIN_PACE = 1.5f;
+	const float MAX_PACE = 6.0f;
+	const int NUM_PACES = 6;
+	
 	protected FirstRunScreen eCurrentScreen;
-	protected FirstRunHint eCurrentHint;
-	protected GestureHelper.OnTap tapHandler;
- 	//protected GestureHelper.OnSwipeRight backHandler;
+	protected FirstRunHint eCurrentHint = FirstRunHint.NoHint;
+ 	protected GestureHelper.OnSwipeRight swipeHandler;
 	
 	private bool runReadyToStart = false;
 	public GameObject runner;		//a runner object. This will be cloned around for various benchmark paces.
 	
 	//tuneable parameters
-	const float hintCycleDelay = 5.0f;
+	const float hintCycleDelay = 7.0f;
 	
 	
 	// Use this for initialization
@@ -55,11 +58,12 @@ public class FirstRun : GameBase {
 		DataVault.Set("time", "");
 		DataVault.Set("ahead_box", "");
 		
-		// create and register handlers for tap, double tap, back
-		tapHandler = new GestureHelper.OnTap(() => {
-			HandleTap();
+		
+		swipeHandler = new GestureHelper.OnSwipeRight( () => {
+			HandleForward();
 		});
-		GestureHelper.onTap += tapHandler;
+		GestureHelper.swipeRight += swipeHandler;
+		
 		
 //		backHandler = new GestureHelper.onSwipeDown(() => {
 //			HandleBack();
@@ -79,9 +83,15 @@ public class FirstRun : GameBase {
 		//hide virtual track to begin with
 		SetVirtualTrackVisible(false);
 		
-		//create target tracker - TODO create ones for various different pace benchmarks
+		//create target trackers for a few different paces
+		float fInterval = (MAX_PACE - MIN_PACE) / NUM_PACES;
+		
 		Platform.Instance.ResetTargets();
-		Platform.Instance.CreateTargetTracker(3.0f);
+		
+		for(float pace = 1.2f; pace < 5.0f; pace += fInterval)
+		{
+			Platform.Instance.CreateTargetTracker(pace);
+		}
 		
 		//create actors for each target tracker
 		InstantiateActors();
@@ -104,7 +114,7 @@ public class FirstRun : GameBase {
 #if UNITY_EDITOR
 		if(Input.GetKeyDown(KeyCode.Y))	{ tapped = true; }			
 #endif
-		if(tapped) { HandleTap(); }
+		if(tapped) { HandleForward(); }
 			
 		//check for GPS lock
 		if(eCurrentScreen == FirstRunScreen.AwaitGPSScreen)
@@ -113,7 +123,7 @@ public class FirstRun : GameBase {
 			if(Platform.Instance.HasLock())
 			{
 				Platform.Instance.SetIndoor(false);
-				eCurrentScreen = FirstRunScreen.StartScreen;
+				eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
 			}
 		}
 	}
@@ -123,8 +133,9 @@ public class FirstRun : GameBase {
 		// set style for our labels
 		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
 		labelStyle.alignment = TextAnchor.UpperCenter;
-		labelStyle.fontSize = 65;
+		labelStyle.fontSize = 55;
 		labelStyle.fontStyle = FontStyle.Normal;
+		//labelStyle.clipping = TextClipping.Overflow;
 				
 		return labelStyle;
 	}
@@ -133,9 +144,10 @@ public class FirstRun : GameBase {
 	{
 		// set style for our labels
 		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-		labelStyle.alignment = TextAnchor.UpperCenter;
+		labelStyle.alignment = TextAnchor.LowerCenter;
 		labelStyle.fontSize = 35;
 		labelStyle.fontStyle = FontStyle.Normal;
+		//labelStyle.clipping = TextClipping.Overflow;
 		
 		return labelStyle;
 	}
@@ -147,7 +159,8 @@ public class FirstRun : GameBase {
 		labelStyle.alignment = TextAnchor.UpperLeft;
 		labelStyle.fontSize = 35;
 		labelStyle.fontStyle = FontStyle.Normal;
-		
+		//labelStyle.clipping = TextClipping.Overflow;
+
 		return labelStyle;
 	}
 	
@@ -169,16 +182,20 @@ public class FirstRun : GameBase {
 			base.OnGUI();
 		}
 		
+		//if the user has swiped down to quit, and is seeing the quit confirmation box, dont' show anything here.
+		if(maybeQuit) {
+			base.OnGUI();
+		}
+		
 		float width = Screen.width;
 		float height = Screen.height;
-		float border = 10.0f;
-		float mainHeight = height * 0.4f;
-		float navHeight = height * 0.15f;
+		float border = 35.0f;
+		
 		//rect for the main 'headline'
-		Rect MainMessageRect = new Rect(border, border, width - 2*border , mainHeight);
+		Rect MainMessageRect = new Rect(border, border, width - 2*border , height - 2*border);
 		//rect for the navigation prompt
-		Rect NavMessageRect = new Rect(border, height - border - navHeight, width - 2*border, navHeight);
-		Rect HintRect = new Rect(border, border, width - 2*border, mainHeight);
+		Rect NavMessageRect = new Rect(border, border, width - 2*border, height - 2*border);
+		Rect HintRect = new Rect(border, border, width*0.5f - border, height - 2*border);
 		
 		GUIStyle MainMessageStyle = getLabelStyleLarge();
 		GUIStyle NavMessageStyle = getLabelStyleNav();
@@ -190,14 +207,14 @@ public class FirstRun : GameBase {
 		{
 			DrawTintBox();
 			GUI.Label(MainMessageRect, "Welcome to the First Run", MainMessageStyle); 
-			GUI.Label(NavMessageRect, "Tap to Continue", NavMessageStyle);
+			GUI.Label(NavMessageRect, "Swipe Right to Continue", NavMessageStyle);
 			break;
 		}
 		case FirstRunScreen.ResetGyrosScreen:
 		{
 			DrawTintBox();
 			GUI.Label(MainMessageRect, "Step 1: Reset Gyros", MainMessageStyle);
-			GUI.Label(NavMessageRect, "Look Directly Forward and Tap", NavMessageStyle);
+			GUI.Label(NavMessageRect, "Look Directly Forward and Tap with two fingers", NavMessageStyle);
 			
 			//draw reticle
 			Texture tex = Resources.Load("FirstRace_HorizonReticle", typeof(Texture)) as Texture;
@@ -211,7 +228,7 @@ public class FirstRun : GameBase {
 		{
 			DrawTintBox();
 			GUI.Label(MainMessageRect, "Step 2: Awaiting GPS Lock", MainMessageStyle);
-			GUI.Label(NavMessageRect, "Tap to continue in Indoor Mode", NavMessageStyle);
+			GUI.Label(NavMessageRect, "Swipe Right to continue in Indoor Mode", NavMessageStyle);
 			
 			//draw gps icon
 			Texture tex = Resources.Load("FirstRace_gpsLogo", typeof(Texture)) as Texture;
@@ -225,15 +242,15 @@ public class FirstRun : GameBase {
 		{
 			DrawTintBox();
 			GUI.Label(MainMessageRect, "Indoor Mode\nAre you sure?", MainMessageStyle);
-			GUI.Label(NavMessageRect, "Tap to continue\nSwipe down to cancel", NavMessageStyle);
+			GUI.Label(NavMessageRect, "Swipe Right to continue\nSwipe down to cancel", NavMessageStyle);
 			break;
 		}
-		case FirstRunScreen.StartScreen:
+		case FirstRunScreen.ReadyToStartScreen:
 		{
 			DrawTintBox();
 			string mainMessage = Platform.Instance.IsIndoor() ? "Indoor Mode Active" : "GPS Lock Acquired";
 			GUI.Label(MainMessageRect, mainMessage, MainMessageStyle);
-			GUI.Label(NavMessageRect, "Tap to Begin", NavMessageStyle);
+			GUI.Label(NavMessageRect, "Swipe Right to Begin", NavMessageStyle);
 			break;
 		}
 		default:
@@ -261,7 +278,14 @@ public class FirstRun : GameBase {
 		}
 	}
 	
-	protected void DidResetGyros()
+	protected override void OnUnpause ()
+	{
+		UnityEngine.Debug.Log("First Run: exiting pause");
+		//re-hide the distance
+		SetAheadBoxVisible(false);
+	}
+	
+	public override void GyroDidReset()
 	{
 		if (eCurrentScreen == FirstRunScreen.ResetGyrosScreen)
 		{
@@ -272,10 +296,58 @@ public class FirstRun : GameBase {
 		}
 	}
 	
+	public override void HandleLeftSwipe ()
+	{
+		if(started || countdown)
+		{
+			base.HandleLeftSwipe ();
+		}
+		else
+		{
+			//navigate backwards through the order of cards
+			// N.B. The most important step here is the ability to step back from Indoor Ready to awaiting GPS
+			switch(eCurrentScreen)
+			{
+			case FirstRunScreen.WelcomeScreen:
+			{
+				//nothing to do
+				break;
+			}
+			case FirstRunScreen.ResetGyrosScreen:
+			{
+				eCurrentScreen = FirstRunScreen.WelcomeScreen;
+				break;
+			}
+			case FirstRunScreen.AwaitGPSScreen:
+			{
+				eCurrentScreen = FirstRunScreen.ResetGyrosScreen;
+				break;
+			}
+			case FirstRunScreen.ConfirmIndoorScreen:
+			{
+				Platform.Instance.SetIndoor(false);
+				eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
+				break;
+			}
+			case FirstRunScreen.ReadyToStartScreen:
+			{
+				Platform.Instance.SetIndoor(false);
+				eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
+				break;
+			}
+			default:
+			{
+				//do nothing
+				break;
+			}
+			}
+		}
+	}
+	
 	/// <summary>
 	/// Handle the user performing a tap gesture
 	/// </summary>
-	void HandleTap() {
+	void HandleForward() {
 		
 		UnityEngine.Debug.Log("FirstRun: tap detected");
 		
@@ -289,38 +361,27 @@ public class FirstRun : GameBase {
 		}
 		case FirstRunScreen.ResetGyrosScreen:
 		{
-			//consider this a tap for now
-			DidResetGyros();
+			//Do nothing for a tap/swipe on this screen
 			break;
 		}
 		case FirstRunScreen.AwaitGPSScreen:
-		{
-			//if we tap here, go to the confirm indoor mode screen
-			eCurrentScreen = FirstRunScreen.ConfirmIndoorScreen;
-			break;
-		}
+		// In fact, don't use the confirmation screen. Go straight to the start.
+		//{
+		//	//if we tap here, go to the confirm indoor mode screen
+		//	eCurrentScreen = FirstRunScreen.ConfirmIndoorScreen;
+		//	break;
+		//}
 		case FirstRunScreen.ConfirmIndoorScreen:
 		{
 			//tap means confirmation. Set indoor mode and proceed.
 			Platform.Instance.SetIndoor(true);
-			eCurrentScreen = FirstRunScreen.StartScreen;			
+			eCurrentScreen = FirstRunScreen.ReadyToStartScreen;	
 			break;
 		}
-		case FirstRunScreen.StartScreen:
+		case FirstRunScreen.ReadyToStartScreen:
 		{
 			//flag that the countdown can begin
 			runReadyToStart = true;
-			
-			try{
-			//show all of the actors
-			foreach (GameObject actor in actors)
-			{
-				UnityEngine.Debug.Log("First Run: activating actor");
-				actor.SetActive(true);	
-			}
-			} catch(Exception e) {
-				UnityEngine.Debug.LogWarning("Error iterating actors list");	
-			}
 			
 			try{
 			//show instrumentation numbers
@@ -337,6 +398,9 @@ public class FirstRun : GameBase {
 			//fire off coroutine to cycle hint, show other actors etc
 			StartCoroutine(ProgressInfoOnceStarted());
 			
+			//flag to gameBase, that the countdown can commence
+			readyToStart = true;
+			
 			break;
 		}
 		case FirstRunScreen.NoScreen:
@@ -349,6 +413,9 @@ public class FirstRun : GameBase {
 	}
 	
 	IEnumerator ProgressInfoOnceStarted() {
+		//wait for the countdown
+		yield return new WaitForSeconds(hintCycleDelay);
+		
 		//cycle the hints
 		while(eCurrentHint != FirstRunHint.NoHint)
 		{
@@ -361,16 +428,28 @@ public class FirstRun : GameBase {
 		//reveal the benchmark actors
 		yield return new WaitForSeconds(hintCycleDelay);
 		
-		foreach( GameObject actor in actors)
-		{
-			actor.SetActive(true);
-		}
-		
+		ShowActors();
 	}
-
+	
+	private void ShowActors() {
+			try{
+			//show all of the actors
+			foreach (GameObject actor in actors)
+			{
+				UnityEngine.Debug.Log("First Run: activating actor");
+				actor.SetActive(true);	
+			}
+			} catch(Exception e) {
+				UnityEngine.Debug.LogWarning("Error iterating actors list");	
+			}	
+	}
+	
 	private void GetNextHint() {
 		switch(eCurrentHint)
 			{
+			case FirstRunHint.NoHint:
+				eCurrentHint = FirstRunHint.MenuHint;
+				break;
 			case FirstRunHint.MenuHint:
 				eCurrentHint = FirstRunHint.ResetGyrosHint;
 				break;
@@ -396,14 +475,18 @@ public class FirstRun : GameBase {
 	
 	void OnDestroy() {
 		//deregister handlers
-		if(tapHandler != null)
-		{
-			GestureHelper.onTap -= tapHandler;
-		}
+//		if(tapHandler != null)
+//		{
+//			GestureHelper.onTap -= tapHandler;
+//		}
 //		if(backHandler != null)
 //		{
 //			GestureHelper.onSwipeDown -= backHandler;
 //		}
+		if(swipeHandler != null)
+		{
+			GestureHelper.swipeRight -= swipeHandler;
+		}
 	}
 	
 	private void InstantiateActors() {

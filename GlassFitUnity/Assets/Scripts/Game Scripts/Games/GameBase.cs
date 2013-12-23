@@ -23,7 +23,7 @@ public class GameBase : MonoBehaviour {
 	public bool indoor = true;
 	private bool hasEnded = false;
 	
-	private bool maybeQuit = false;
+	protected bool maybeQuit = false;
 	
 	// Bonus distance milestones
 	protected int bonusTarget = 1000;
@@ -70,12 +70,12 @@ public class GameBase : MonoBehaviour {
 	private bool pause = false;
 	
 	private GestureHelper.OnTap tapHandler = null;
-	
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
-	
 	private GestureHelper.DownSwipe downHandler = null;
-	
+	private GestureHelper.OnSwipeLeft leftHandler = null;
+
 	protected GameObject aheadBox;
+	private bool shouldShowAheadBox = true;
 	private GameObject timeBox;
 	private GameObject distanceBox;
 	private GameObject paceBox;
@@ -104,6 +104,11 @@ public class GameBase : MonoBehaviour {
 		});
 		GestureHelper.onSwipeDown += downHandler;
 		
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			HandleLeftSwipe();
+		});
+		GestureHelper.swipeLeft += leftHandler;
+		
 		//Get target distance
 #if !UNITY_EDITOR
 		finish = (int)DataVault.Get("finish");
@@ -113,7 +118,7 @@ public class GameBase : MonoBehaviour {
 		//retrieve or create list of challenges
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
-				
+		
 		indoor = (bool)DataVault.Get("indoor_settings");
 		
 		UnityEngine.Debug.Log("GameBase: indoor set to: " + indoor.ToString());
@@ -128,14 +133,14 @@ public class GameBase : MonoBehaviour {
 		
 		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
 			GyroDidReset();
-			GestureHelper.onTwoTap -= twoTapHandler;
+			//GestureHelper.onTwoTap -= twoTapHandler;
 		});
 		
 		GestureHelper.onTwoTap += twoTapHandler;
 		
 		//handler for OnReset
 		//this seems to get automatically called as soon as the scene loads. Trying an onTap instead.	
-		
+
 //		GestureHelper.OnTap handler = null;
 //		handler = new GestureHelper.OnTap( () => {
 //			Platform.Instance.ResetGyro();
@@ -187,9 +192,15 @@ public class GameBase : MonoBehaviour {
 	{
 		if(aheadBox == null)
 		{
+			UnityEngine.Debug.Log("GameBase:aheadbox is null");
 			aheadBox = GameObject.Find("AheadBox");
+			//if we still can't find it, it may not have been created yet.
+			shouldShowAheadBox = visible;
 		}
-		aheadBox.SetActive(visible);
+		if(aheadBox != null)
+		{
+			aheadBox.SetActive(visible);
+		}
 	}
 	
 	protected void SetVirtualTrackVisible(bool visible)
@@ -264,27 +275,89 @@ public class GameBase : MonoBehaviour {
 			GestureHelper.onTap -= tapHandler;
 			
 			tapHandler = new GestureHelper.OnTap(() => {
-				PauseGame();
+				GameHandleTap();
 			});
 			
 			GestureHelper.onTap += tapHandler;
+			
+			OnUnpause();
 		}
+	}
+	
+	/// <summary>
+	/// Handles a left swipe gesture. Finishes the run by default. Can be overridden by game modes, esp tutorials.
+	/// </summary>
+	public virtual void HandleLeftSwipe() {
+		//Taking this out for now. We don't need both the exit via swipe down AND this shortcut. The exit should go via the 'Finished' Menu.
+		//FinishGame();	
+	}
+	
+		/// <summary>
+	/// Delegate function for Glass - when the user swipes back this is called to end the game
+	/// </summary>
+	protected void FinishGame()
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton");
+		if(gConnect != null) {
+			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+			DataVault.Set("bonus", 0);
+			Platform.Instance.StopTrack();
+			GestureHelper.onTap -= tapHandler;
+			tapHandler = new GestureHelper.OnTap(() => {
+				Continue();
+			});
+			GestureHelper.onTap += tapHandler;
+			fs.parentMachine.FollowConnection(gConnect);
+		} else {
+			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
+		}
+	}
+	
+	/// <summary>
+	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
+	/// </summary>
+	void Continue() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+		if(gConnect != null) {
+			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+			fs.parentMachine.FollowConnection(gConnect);
+		} else {
+			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
+		}
+	}
+	
+	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
+	public virtual void GameHandleTap() {
+		PauseGame();
 	}
 	
 	public void PauseGame()
 	{
 		if(!pause)
 		{
-			pause = true;
-			Platform.Instance.StopTrack();
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
-		 	if(gConnect != null)
+			//only pause if we've actually started, or the countdown has started
+			if(started || countdown)
 			{
-				fs.parentMachine.FollowConnection(gConnect);
-			} else
-			{
-				UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
+				pause = true;
+				Platform.Instance.StopTrack();
+				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+				GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
+			 	if(gConnect != null)
+				{
+					fs.parentMachine.FollowConnection(gConnect);
+					//clear references to the various HUD elements we're keeping track of
+					aheadBox = null;
+					paceBox = null;
+					caloriesBox = null;
+					distanceBox = null;
+					timeBox = null;
+					pointsBox = null;
+				} else
+				{
+					UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
+				}
 			}
 		} else {
 			UnityEngine.Debug.Log("GameBase: Pause pressed, turning off");
@@ -312,7 +385,13 @@ public class GameBase : MonoBehaviour {
 				countdown = false;
 				countTime = 3.0f;
 			}
+			OnUnpause();
 		}
+	}
+	
+	protected virtual void OnUnpause() {
+		//any extra steps which might be needed when we unpause. Intended to be overriden in child classes.
+		return;
 	}
 	
 	/// <summary>
@@ -452,6 +531,12 @@ public class GameBase : MonoBehaviour {
 		// See NewBaseMultiplier method in this class for more detail on how this is set
 		if(started && baseMultiplierStartTime > (Time.time - 1.5f)) {
 			GUI.Label(messageRect, baseMultiplierString, labelStyle);
+		}
+		
+		//hide the ahead box if we need to. We should only get here if we wanted to hide it, but it didn't exist yet.
+		if(aheadBox == null && !shouldShowAheadBox)
+		{
+			SetAheadBoxVisible(false);
 		}
 	}
 	
@@ -634,7 +719,7 @@ public class GameBase : MonoBehaviour {
 	/// handler for when the gyro is reset.
 	/// In this case, indicate that we're ready to start, if we previously weren't
 	/// </summary>
-	public void GyroDidReset()
+	public virtual void GyroDidReset()
 	{
 		UnityEngine.Debug.Log("GameBase: Gyro did reset");
 		if(!readyToStart)
