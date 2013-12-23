@@ -7,7 +7,9 @@ using System.Runtime.Serialization;
 [Serializable]
 public class TutorialPanel : HexPanel
 {
-
+	private float elapsedTime = 0.0f;
+	
+	private float maxTime = 5.0f;
     //	PlatformDummy platform = new PlatformDummy();
 
     public TutorialPanel() { }
@@ -42,6 +44,95 @@ public class TutorialPanel : HexPanel
 
         base.EnterStart();
     }
+	
+	public override void StateUpdate ()
+	{
+		base.StateUpdate ();
+		
+		elapsedTime += Time.deltaTime;
+		
+		if(elapsedTime > maxTime)
+		{
+			AddButton();
+			elapsedTime -= maxTime;
+		}
+	}
+	
+	public void AddButton() 
+	{
+		if (buttonData.Count == 1)
+        {
+            HexButtonData hbd = new HexButtonData();
+            hbd.row = 1;
+            hbd.column = 0;
+            hbd.buttonName = "tutorialButton2";
+            hbd.displayInfoData = false;
+            hbd.onButtonCustomString = "Look here";
+
+            buttonData.Add(hbd);
+   
+			hbd = new HexButtonData();
+            hbd.row = 1;
+            hbd.column = 1;
+            hbd.buttonName = "tutorialButton3";
+            hbd.displayInfoData = false;
+            hbd.onButtonCustomString = "move your head to navigate in this menu";
+
+            buttonData.Add(hbd);
+
+        }
+
+        if (buttonData.Count == 2)
+        {
+            HexButtonData hbd = new HexButtonData();
+            hbd.row = -1;
+            hbd.column = 0;
+            hbd.buttonName = "tutorialButton4";
+            hbd.displayInfoData = false;
+            hbd.onButtonCustomString = "Some more important info";
+
+            buttonData.Add(hbd);
+        }
+
+        if (buttonData.Count == 3)
+        {
+            HexButtonData hbd = new HexButtonData();
+            hbd.row = 0;
+            hbd.column = -1;
+            hbd.buttonName = "tutorialButton5";
+            hbd.displayInfoData = false;
+            hbd.onButtonCustomString = "Some more important info";
+
+            buttonData.Add(hbd);
+        }
+
+        if (buttonData.Count == 4)
+        {
+            HexButtonData hbd = new HexButtonData();
+            hbd.row = 1;
+            hbd.column = -1;
+            hbd.buttonName = "tutorialButton6";
+            hbd.displayInfoData = false;
+            hbd.onButtonCustomString = "Some more important info";
+
+            buttonData.Add(hbd);
+        }
+
+        if (buttonData.Count == 5)
+        {
+            HexButtonData hbd = new HexButtonData();
+            hbd.row = 1;
+            hbd.column = 0;
+            hbd.buttonName = "tutorialButton7";
+            hbd.displayInfoData = false;
+            hbd.onButtonCustomString = "Some more important info";
+
+            buttonData.Add(hbd);
+        }            
+
+        DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+        list.UpdateButtonList();
+	}
 
     /// <summary>
     /// Initial button definitions
@@ -54,7 +145,7 @@ public class TutorialPanel : HexPanel
         hbd.column = 0;
         hbd.buttonName = "tutorialButton1";
         hbd.displayInfoData = false;
-        hbd.onButtonCustomString = "Hello";
+        hbd.onButtonCustomString = "Welcome";
 
         buttonData.Add(hbd);
     }

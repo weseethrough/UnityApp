@@ -105,16 +105,20 @@ public class DynamicHexList : MonoBehaviour
 		GestureHelper.onSwipeDown += downHandler;
 
 		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			if(zoomLevel > -1.5f) {
-				zoomLevel -= 0.5f;
+			if(!IsPopupDisplayed()) {
+				if(zoomLevel > -1.5f) {
+					zoomLevel -= 0.5f;
+				}
 			}
 		});
 		
 		GestureHelper.swipeLeft += leftHandler;
 		
 		rightHandler = new GestureHelper.OnSwipeRight(() => {
-			if(zoomLevel < -0.5f) {
-				zoomLevel += 0.5f;
+			if(!IsPopupDisplayed()) {
+				if(zoomLevel < -0.5f) {
+					zoomLevel += 0.5f;
+				}
 			}
 		});
 		
@@ -122,7 +126,18 @@ public class DynamicHexList : MonoBehaviour
 		
         InitializeItems();
     }
-
+	
+	public bool IsPopupDisplayed() {
+		HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+		if(info != null) {
+			if(info.IsInOpenStage()) {
+				info.AnimExit();
+				return true;
+			}
+		}
+		return false;
+	}	
+	
     /// <summary>
     /// Resets gyro offset against the screen, visually it setts screen to the "zero" position
     /// </summary>

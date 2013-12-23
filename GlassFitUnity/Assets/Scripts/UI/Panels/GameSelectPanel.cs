@@ -16,15 +16,21 @@ public class GameSelectPanel : HexPanel
 	}
 
 	public void QuitApp() {
+		if(!IsPopupDisplayed()) {
+			GestureHelper.onSwipeDown -= downHandler;
+			Application.Quit();
+		}
+	}
+	
+	public bool IsPopupDisplayed() {
 		HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
 		if(info != null) {
 			if(info.IsInOpenStage()) {
 				info.AnimExit();
-				return;
+				return true;
 			}
 		}
-		GestureHelper.onSwipeDown -= downHandler;
-		Application.Quit();
+		return false;
 	}
 	
     public override void EnterStart()
@@ -44,8 +50,6 @@ public class GameSelectPanel : HexPanel
 		downHandler = new GestureHelper.DownSwipe(() => {
 			QuitApp();
 		});
-		
-		LoadingTextComponent.SetVisibility(true);
 		
 		GestureHelper.onSwipeDown += downHandler;
 		
