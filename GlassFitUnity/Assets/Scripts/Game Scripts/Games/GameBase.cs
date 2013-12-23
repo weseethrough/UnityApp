@@ -75,7 +75,15 @@ public class GameBase : MonoBehaviour {
 	
 	private GestureHelper.DownSwipe downHandler = null;
 	
-		/// <summary>
+	protected GameObject aheadBox;
+	private GameObject timeBox;
+	private GameObject distanceBox;
+	private GameObject paceBox;
+	private GameObject caloriesBox;
+	private GameObject pointsBox;
+	private GameObject virtualTrack;
+	
+	/// <summary>
 	/// Start this instance.
 	/// </summary>
 	public virtual void Start () 
@@ -139,6 +147,58 @@ public class GameBase : MonoBehaviour {
 		
 		UnityEngine.Debug.Log("GameBase: started");
 		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
+	}
+	
+	protected void SetInstrumentationVisible(bool visible) {
+		//todo: store an array by finding by tag?
+		
+		if(distanceBox == null)
+		{
+			distanceBox = GameObject.Find("DistanceBox");
+		}
+		distanceBox.SetActive(visible);
+				
+		if(timeBox == null)
+		{
+			timeBox = GameObject.Find("TimeBox");
+		}
+		timeBox.SetActive(visible);
+		
+		if(pointsBox == null)
+		{
+			pointsBox = GameObject.Find("PointsBox");
+		}
+		pointsBox.SetActive(visible);		
+	
+		if(caloriesBox == null)
+		{
+			caloriesBox = GameObject.Find("CaloriesBox");
+		}
+		caloriesBox.SetActive(visible);
+		
+		if(paceBox == null)
+		{
+			paceBox = GameObject.Find("PaceBox");
+		}
+		paceBox.SetActive(visible);
+	}
+	
+	protected void SetAheadBoxVisible(bool visible)
+	{
+		if(aheadBox == null)
+		{
+			aheadBox = GameObject.Find("AheadBox");
+		}
+		aheadBox.SetActive(visible);
+	}
+	
+	protected void SetVirtualTrackVisible(bool visible)
+	{
+		if(virtualTrack == null)
+		{
+			virtualTrack = GameObject.Find("VirtualTrack");
+		}
+		virtualTrack.SetActive(visible);
 	}
 	
 	public void ConsiderQuit() {
