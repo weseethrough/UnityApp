@@ -222,7 +222,7 @@ public class ButtonFunctionCollection
     /// <returns>always allow for further navigation</returns>
     static public bool StartGame(FlowButton fb, Panel panel)
 	{
-		AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
+		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 		
 		switch(fb.name) 
 		{
@@ -689,4 +689,30 @@ public class ButtonFunctionCollection
 			return true;
 		}
 	}
+
+    /// <summary>
+    /// Development function which is designed for test purposes only. Adding new buttons to currently calling panel
+    /// </summary>
+    /// <param name="button"></param>
+    /// <param name="panel"></param>
+    /// <returns></returns>
+    static public bool AddButton(FlowButton button, Panel panel)
+    {
+        if (panel != null)
+        {
+            HexPanel hp = panel as HexPanel;
+            if (hp != null)
+            {
+                HexButtonData hbd = new HexButtonData();
+                hbd.row = -1;
+                hbd.column = 0;
+                hbd.buttonName = "testButton1";
+                hbd.displayInfoData = false;
+                hbd.onButtonCustomString = "Go to point 1";
+
+                hp.buttonData.Add(hbd);
+            }
+        }
+        return false;
+    }
 }

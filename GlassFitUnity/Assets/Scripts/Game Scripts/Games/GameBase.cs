@@ -202,26 +202,30 @@ public class GameBase : MonoBehaviour {
 	}
 	
 	public void ConsiderQuit() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "QuitExit");
-		if(gConnect != null) {
-			maybeQuit = true;
-			Platform.Instance.StopTrack();
-			GestureHelper.onSwipeDown -= downHandler;
-			fs.parentMachine.FollowConnection(gConnect);
-			
-			downHandler = new GestureHelper.DownSwipe(() => {
-				ReturnGame();
-			});
-			GestureHelper.onSwipeDown += downHandler;
-			
-			GestureHelper.onTap -= tapHandler;
-			
-			tapHandler = new GestureHelper.OnTap(() => {
-				QuitGame();
-			});
-			GestureHelper.onTap += tapHandler;
-		}		
+		if(pause) {
+			PauseGame();
+		} else {
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "QuitExit");
+			if(gConnect != null) {
+				maybeQuit = true;
+				Platform.Instance.StopTrack();
+				GestureHelper.onSwipeDown -= downHandler;
+				fs.parentMachine.FollowConnection(gConnect);
+				
+				downHandler = new GestureHelper.DownSwipe(() => {
+					ReturnGame();
+				});
+				GestureHelper.onSwipeDown += downHandler;
+				
+				GestureHelper.onTap -= tapHandler;
+				
+				tapHandler = new GestureHelper.OnTap(() => {
+					QuitGame();
+				});
+				GestureHelper.onTap += tapHandler;
+			}		
+		}
 	}
 	
 	public void QuitGame() {
@@ -283,11 +287,14 @@ public class GameBase : MonoBehaviour {
 				UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
 			}
 		} else {
+			UnityEngine.Debug.Log("GameBase: Pause pressed, turning off");
 			pause = false;
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			UnityEngine.Debug.Log("GameBase: flowstate obtained");
 			GConnector gConnect = fs.Outputs.Find(r => r.Name == "ReturnExit");
 		 	if(gConnect != null)
 			{
+				UnityEngine.Debug.Log("GameBase: found connection, following");
 				fs.parentMachine.FollowConnection(gConnect);
 			} else
 			{
@@ -296,7 +303,9 @@ public class GameBase : MonoBehaviour {
 			
 			if(started)
 			{
+				UnityEngine.Debug.Log("GameBase: Starting to track");
 				Platform.Instance.StartTrack();
+				UnityEngine.Debug.Log("GameBase: Track started successfully");
 			} 
 			else
 			{
@@ -465,6 +474,12 @@ public class GameBase : MonoBehaviour {
 	// Update is called once per frame
 	public virtual void Update () 
 	{
+		if(Input.touchCount > 2) {
+			if(Input.GetTouch(0).phase == TouchPhase.Began) {
+				PauseGame();
+			}
+		}
+		
 		//Update variables for GUI	
 		Platform.Instance.Poll();
 		

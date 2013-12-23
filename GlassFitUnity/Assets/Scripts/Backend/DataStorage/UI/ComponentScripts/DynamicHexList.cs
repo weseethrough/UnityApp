@@ -26,6 +26,8 @@ public class DynamicHexList : MonoBehaviour
     float buttonEnterDelay = 0.0f;
     float buttonNextEnterDelay = 0.0f;
     int buttonNextEnterIndex = 0;
+	
+	private float zoomLevel = -1.5f;
 
     int buttonCount = 0;
 
@@ -43,6 +45,9 @@ public class DynamicHexList : MonoBehaviour
 	private GestureHelper.OnTap tapHandler = null;
 	
 	private GestureHelper.OnSwipeLeft leftHandler = null;
+	
+	private GestureHelper.OnSwipeRight rightHandler = null;
+	
     bool initialized = false;
 	
 	private GestureHelper.DownSwipe downHandler = null;
@@ -99,6 +104,22 @@ public class DynamicHexList : MonoBehaviour
 		
 		GestureHelper.onSwipeDown += downHandler;
 
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			if(zoomLevel > -1.5f) {
+				zoomLevel -= 0.5f;
+			}
+		});
+		
+		GestureHelper.swipeLeft += leftHandler;
+		
+		rightHandler = new GestureHelper.OnSwipeRight(() => {
+			if(zoomLevel < -0.5f) {
+				zoomLevel += 0.5f;
+			}
+		});
+		
+		GestureHelper.swipeRight += rightHandler;
+		
         InitializeItems();
     }
 
@@ -164,6 +185,25 @@ public class DynamicHexList : MonoBehaviour
         if (parent == null) return null;
 
         return parent.buttonData;
+    }
+
+    /// <summary>
+    /// finds base all other buttons are initialized from
+    /// </summary>
+    /// <returns></returns>
+    public Transform GetButtonBase()
+    {
+        return transform.GetChild(0);
+    }
+
+    /// <summary>
+    /// finds button on transform child list
+    /// </summary>
+    /// <param name="index">zero based index</param>
+    /// <returns></returns>
+    public Transform GetButton(int index)
+    {
+        return transform.GetChild(index + 1);
     }
 
     /// <summary>
@@ -233,7 +273,7 @@ public class DynamicHexList : MonoBehaviour
 				ConvertOrientation(Platform.Instance.GetOrientation(), out newCameraOffset);
 				Vector3 camPos = guiCamera.transform.position;
 				newCameraOffset -= cameraMoveOffset;
-                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, camPos.z);
+                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
 #endif
             /*}
             else
@@ -271,12 +311,29 @@ public class DynamicHexList : MonoBehaviour
                         TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                         if (tp != null)
                         {
-
                             TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
+                        }
+
+                        if (parent != null)
+                        {
+                            FlowButton fb = selection.GetComponent<FlowButton>();
+                            if (fb != null)
+                            {
+                                parent.OnHover(fb, false);
+                            }
                         }
                     }
                     selection = newSelection;
                     newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+
+                    if (parent != null)
+                    {
+                        FlowButton fb = newSelection.GetComponent<FlowButton>();
+                        if (fb != null)
+                        {
+                            parent.OnHover(fb, true);
+                        }
+                    }
 
                      HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
                      if (info != null)
@@ -438,11 +495,80 @@ public class DynamicHexList : MonoBehaviour
         }
     }
 
+    public void UpdateButtonList()
+    {
+        if (buttons.Count == 0)
+        {
+            InitializeItems();
+            return;
+        }
+
+        Transform child = GetButtonBase();
+        float Z = child.transform.position.z;
+        for (int i = buttons.Count; i < GetButtonData().Count; i++)
+        {
+            HexButtonData data = GetButtonData()[i];
+            GameObject tile = null;
+            if (i+1 >= transform.childCount)
+            {
+                tile = (GameObject)GameObject.Instantiate(child.gameObject);
+                tile.transform.parent = child.parent;
+                tile.transform.rotation = child.rotation;
+                tile.transform.localScale = child.localScale;
+            }
+            else
+            {
+                tile = GetButton(i).gameObject;
+            }
+            Vector3 pos = GetLocation(data.column, data.row);
+
+            Vector3 hexPosition = new Vector3(pos.x, pos.y, pos.z);
+            tile.transform.position = hexPosition;
+            tile.name = data.buttonName;
+
+            FlowButton fb = tile.GetComponentInChildren<FlowButton>();
+            if (fb != null)
+            {
+                fb.owner = parent;
+                fb.name = data.buttonName;
+                UIImageButton graphics = fb.GetComponentInChildren<UIImageButton>();
+
+
+                graphics.pressedSprite = data.imageName;
+                graphics.hoverSprite = graphics.pressedSprite;
+                graphics.normalSprite = graphics.pressedSprite;
+                graphics.disabledSprite = graphics.pressedSprite;
+
+                fb.userData["HexButtonData"] = data;
+            }
+
+            UILabel[] labels = tile.GetComponentsInChildren<UILabel>() as UILabel[];
+            if (labels != null)
+            {
+                foreach (UILabel label in labels)
+                {
+                    switch (label.gameObject.name)
+                    {
+                        case "Counter":
+                            label.text = data.count < 0 ? "" : "" + data.count;
+                            break;
+                        case "TextContent":
+                            label.text = data.onButtonCustomString;
+                            break;
+                    }
+                }
+            }
+
+            buttons.Add(tile);
+            buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
+        }
+    }
+
     /// <summary>
     /// Builds screen buttons based on first prefab button it contains
     /// </summary>
     /// <returns></returns>
-    public  void InitializeItems()
+    public void InitializeItems()
     {
         if (parent == null || radius == 0.0f)
         {
@@ -461,7 +587,7 @@ public class DynamicHexList : MonoBehaviour
         CleanupChildren(count);
         buttonEnterDelay = 0.07f;// screenEnterTime / count;
 
-        Transform child = transform.GetChild(0);
+        Transform child = GetButtonBase();
         child.gameObject.SetActive(true);
 
         UIImageButton ib = child.gameObject.GetComponentInChildren<UIImageButton>();
@@ -480,7 +606,7 @@ public class DynamicHexList : MonoBehaviour
         {
             HexButtonData data = GetButtonData()[i];
             GameObject tile = null;
-            if (i >= transform.childCount)
+            if (i+1 >= transform.childCount)
             {
                 tile = (GameObject)GameObject.Instantiate(child.gameObject);
                 tile.transform.parent = child.parent;
@@ -489,7 +615,7 @@ public class DynamicHexList : MonoBehaviour
             }
             else
             {
-                tile = transform.GetChild(i).gameObject;
+                tile = GetButton(i).gameObject;
             }
             Vector3 pos = GetLocation(data.column, data.row);    
 
