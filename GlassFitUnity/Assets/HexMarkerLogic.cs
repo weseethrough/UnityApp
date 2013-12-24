@@ -21,21 +21,25 @@ public class HexMarkerLogic : MonoBehaviour
         TweenPosition tween = gameObject.GetComponent<TweenPosition>();
         if (tween == null)
         {
-            tween = gameObject.AddComponent<TweenPosition>();
+            tween = gameObject.AddComponent<TweenPosition>();            
         }
+        tween.method = UITweener.Method.EaseInOut;
         
         gameObject.SetActive(false);
 
 	}
 	
+    /// <summary>
+    /// Allows to set new position for marker to animate to
+    /// </summary>
+    /// <param name="target">target position for marker</param>
+    /// <returns></returns>
     public static void SetTarget(Vector3 target)
     {
         if ( instance != null)
         {
-
-            Debug.Log("New target " + target);
             instance.gameObject.SetActive(true);            
-            TweenPosition.Begin(instance.gameObject, 0.3f, target);
+            TweenPosition.Begin(instance.gameObject, 0.2f, target);
         }
     }	
 }
