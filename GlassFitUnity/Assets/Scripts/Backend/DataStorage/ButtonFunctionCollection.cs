@@ -77,7 +77,7 @@ public class ButtonFunctionCollection
 	{
 		DataVault.Set("type", "Runner");
 		DataVault.Set("finish", 1000);
-		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
+		AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
 		return true;
 	}
 	
@@ -230,7 +230,7 @@ public class ButtonFunctionCollection
     /// <returns>always allow for further navigation</returns>
     static public bool StartGame(FlowButton fb, Panel panel)
 	{
-		AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
+		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 		
 		switch(fb.name) 
 		{

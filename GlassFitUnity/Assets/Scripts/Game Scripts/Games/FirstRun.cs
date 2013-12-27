@@ -42,13 +42,14 @@ public class FirstRun : GameBase {
 	public GameObject runner;		//a runner object. This will be cloned around for various benchmark paces.
 	
 	public Camera camera;
-	const float paceLabelYOffset = 100.0f;
+	const float paceLabelYOffsetScreen = 0.0f;
+	const float paceLabelYOffsetWorld = 300.0f;
 	
 	//tuneable parameters
 	const float hintCycleDelay = 4.0f;
 	
 	bool shouldShowPaceLabels = false;
-	const float showLabelMinRange = 5.0f;
+	const float showLabelMinRange = 0.1f;
 	const float showLabelMaxRange = 500.0f;
 	
 	// Use this for initialization
@@ -120,7 +121,10 @@ public class FirstRun : GameBase {
 #if UNITY_EDITOR
 		if(Input.GetKeyDown(KeyCode.Y))	{ tapped = true; }			
 #endif
-		if(tapped) { HandleForward(); }
+		if(tapped) { 
+			if(eCurrentScreen == FirstRunScreen.ResetGyrosScreen) { GyroDidReset(); }
+			else HandleForward(); 
+		}
 			
 		//check for GPS lock
 		if(eCurrentScreen == FirstRunScreen.AwaitGPSScreen)
@@ -188,10 +192,11 @@ public class FirstRun : GameBase {
 		float height = Screen.height;
 		
 		//draw tint box
-		Texture tex = Resources.Load("tint", typeof(Texture)) as Texture;
+		Texture tex = Resources.Load("tint_green", typeof(Texture)) as Texture;
 
 		float border = 30.0f;
-		Rect textureRect = new Rect(border, border, width-2*border, height-2*border);
+		//Rect textureRect = new Rect(border, border, width-2*border, height-2*border);
+		Rect textureRect = new Rect(0,0, Screen.width, Screen.height);
 		GUI.DrawTexture(textureRect, tex, ScaleMode.StretchToFill, true);	
 	}
 	
@@ -283,38 +288,87 @@ public class FirstRun : GameBase {
 
 		}
 		
+		//show pace labels for closest actors in front and behind us
+		//TODO this needs optimising, don't need to look at every target every frame.
 		if(shouldShowPaceLabels)
 		{
+
+			GameObject closestAhead = null;
+			GameObject closestBehind = null;
+			float closestAheadDist = 99999;
+			float closestBehindDist = -99999;
+			
 			foreach(GameObject actor in actors)
 			{
-				//if they're within range
 				TargetController controller = actor.GetComponent<TargetController>();
 				float distance = controller.target.GetDistanceBehindTarget();
 				
-				if(distance <= showLabelMaxRange && distance >= showLabelMinRange)
+				//UnityEngine.Debug.Log("first run: dist to actor" + distance);
+				
+				//test if this is the closest ahead of us
+				if(distance > 0 && distance < closestAheadDist)
 				{
-					//calculate screenspace position
-					Vector2 screenPos = camera.WorldToScreenPoint(actor.transform.position);
-					
-					//create label
-					GUIStyle paceStyle = getLabelStylePace();
-					float paceHalfWidth = 200;
-				
-					//calculate yPos. Note, camera screen pos calculation comes out with y inverted.
-					float yPos = Screen.height - screenPos.y - paceLabelYOffset;
-				
-					Rect paceRect = new Rect(screenPos.x - paceHalfWidth, yPos, 2*paceHalfWidth, 1);
-					
-					//determine pace
-					float speed = controller.target.PollCurrentSpeed();
-					long totalTime = (long)((float)finish*1000/speed);
-					string paceString = TimestampMMSSdd(totalTime);
-					UnityEngine.Debug.Log("speed:"+speed+" totalTime:"+totalTime + " distancePace:" + paceString);
-					
-					GUI.Label(paceRect, paceString, paceStyle);
+					UnityEngine.Debug.Log("closest ahead: " + distance);
+					closestAhead = actor;
+					closestAheadDist = distance;
+				}
+				//... or the closest behind us
+				if(distance <=0 && distance > closestBehindDist)
+				{
+					UnityEngine.Debug.Log("closest behind: " + distance);
+					closestBehind = actor;
+					closestBehindDist = distance;
 				}
 			}
+			
+			if(closestAhead != null)
+			{
+				showPaceLabel(closestAhead);
+			}
+			if(closestBehind != null)
+			{
+				showPaceLabel(closestBehind);
+			}
+			
 		}
+	}
+	
+	private void showPaceLabel(GameObject labelActor)
+	{
+		if(labelActor == null)
+		{
+			UnityEngine.Debug.LogWarning("FirstRun: can't show label for null actor.");
+			return;
+		}
+		
+		Vector3 actorPos = labelActor.transform.position;
+		
+		
+		Vector3 headPos = actorPos + new Vector3(0, paceLabelYOffsetWorld, 0);
+		//UnityEngine.Debug.Log("FirstRun: actor height: " + actorTop);
+		//UnityEngine.Debug.Log("FirstRun: actor world pos y: " + actor.transform.position);
+		Vector3 screenPos = camera.WorldToScreenPoint(headPos);
+		
+		//only shown actors in front of us.
+		if(screenPos.z < 0) return;
+		
+		//create label
+		GUIStyle paceStyle = getLabelStylePace();
+		float paceHalfWidth = 200;
+	
+		//calculate yPos. Note, camera screen pos calculation comes out with y inverted.
+		float yPos = Screen.height - screenPos.y - paceLabelYOffsetScreen;
+	
+		Rect paceRect = new Rect(screenPos.x - paceHalfWidth, yPos, 2*paceHalfWidth, 1);
+		
+		//determine pace
+		TargetController controller = labelActor.GetComponent<TargetController>();
+		float speed = controller.target.PollCurrentSpeed();
+		long totalTime = (long)((float)finish*1000/speed);
+		string paceString = TimestampMMSSdd(totalTime);
+		//UnityEngine.Debug.Log("speed:"+speed+" totalTime:"+totalTime + " distancePace:" + paceString);
+		
+		GUI.Label(paceRect, paceString, paceStyle);
 	}
 	
 	private string GetHintString(FirstRunHint hint)
@@ -345,6 +399,8 @@ public class FirstRun : GameBase {
 			eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
 			//reveal virtual track
 			SetVirtualTrackVisible(true);
+			//assume outdoor and try that initially.
+			Platform.Instance.SetIndoor(false);
 		}
 	}
 	

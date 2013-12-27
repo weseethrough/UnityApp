@@ -694,8 +694,16 @@ public class GameBase : MonoBehaviour {
 	
 	protected string TimestampMMSSdd(long milliseconds) {
 		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
-
-		return string.Format("{0:00}:{1:00}:{2:00}",span.Minutes,span.Seconds,span.Milliseconds/10);	
+		//if we're into hours, show them
+		if(span.Hours > 0)
+		{
+			return string.Format("{0:0}:{1:00}:{2:00}:{3:00}", span.Hours, span.Minutes, span.Seconds, span.Milliseconds/10);
+		}
+		else
+		{				
+			return string.Format("{0:0}:{1:00}:{2:00}",span.Hours*60 + span.Minutes, span.Seconds, span.Milliseconds/10);
+		}
+			
 	}
 	protected string TimestampMMSS(long minutes) {
 		TimeSpan span = TimeSpan.FromMinutes(minutes);
