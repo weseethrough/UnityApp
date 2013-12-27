@@ -125,7 +125,7 @@ public class GameBase : MonoBehaviour {
 		
 		UnityEngine.Debug.Log("GameBase: indoor set to: " + indoor.ToString());
 			
-		indoor = true;
+		//indoor = true;
 		
 		// Set indoor mode
 		Platform.Instance.SetIndoor(indoor);

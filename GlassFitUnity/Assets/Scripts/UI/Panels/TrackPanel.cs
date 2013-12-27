@@ -8,6 +8,8 @@ using System.Runtime.Serialization;
 public class TrackPanel : Panel {
 	private TrackSelect trackHandler = null;
 	
+	UITexture tex;
+	
 	public TrackPanel(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt) {
 	}
 	
@@ -19,13 +21,7 @@ public class TrackPanel : Panel {
 	}
 
 	protected void Startup() {
-		Debug.Log ("TrackPanel: Startup");
-		// Get the map texture
-		GameObject go = GameObject.Find("MapTexture");
-		Debug.Log ("TrackPanel: GameObject");
-		// Get the track select object
-		trackHandler = (TrackSelect)go.GetComponent(typeof(TrackSelect));
-		Debug.Log ("TrackPanel: trackHandler");
+		
 	}
 	
 	public override void OnClick(FlowButton button)
@@ -55,23 +51,23 @@ public class TrackPanel : Panel {
 				break;		
 			
 			// Set the share button
-			case "ShareButton":
-				if (trackHandler == null) Startup ();
-				if (!Platform.Instance.HasPermissions("facebook", "share")) {
-					Platform.Instance.Authorize("facebook", "share");
-					// TODO: Async continue
-					break;
-				}
-				Track track = trackHandler.CurrentTrack();
-				Platform.Instance.QueueAction(string.Format(@"{{
-					'action' : 'share',
-					'provider' : 'facebook',
-					'message' : 'Dummy message',
-					'track' : [{0}, {1}]
-				}}", track.deviceId, track.trackId).Replace("'", "\""));		
-				Debug.Log ("Track: [" + track.deviceId + "," + track.trackId + "] shared to Facebook");
-			
-				break;
+			//case "ShareButton":
+//				if (trackHandler == null) Startup ();
+//				if (!Platform.Instance.HasPermissions("facebook", "share")) {
+//					Platform.Instance.Authorize("facebook", "share");
+//					// TODO: Async continue
+//					break;
+//				}
+//				//Track track = trackHandler.CurrentTrack();
+//				Platform.Instance.QueueAction(string.Format(@"{{
+//					'action' : 'share',
+//					'provider' : 'facebook',
+//					'message' : 'Dummy message',
+//					'track' : [{0}, {1}]
+//				}}", track.deviceId, track.trackId).Replace("'", "\""));		
+//				Debug.Log ("Track: [" + track.deviceId + "," + track.trackId + "] shared to Facebook");
+//			
+//				break;
 		}
 		Debug.Log("TrackPanel: track " + Platform.Instance.currentTrack);
 	}
