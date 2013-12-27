@@ -61,9 +61,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 		});
 		GestureHelper.onThreeTap += threeHandler;
 
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			FinishGame();
-		});
+		//leftHandler = new GestureHelper.OnSwipeLeft(() => {
+		//	FinishGame();
+		//});
 		
 		GestureHelper.swipeLeft += leftHandler;
 		
@@ -184,48 +184,49 @@ public class MinimalSensorCamera : MonoBehaviour {
 			}
 			
 				Platform.Instance.ResetGyro();
-				gridOn = true;
-				gridTimer = 5.0f;
-				timerActive = true;
+				//gridOn = true;
+				//gridTimer = 5.0f;
+				//timerActive = true;
 			}
 		}
 	}
 	
-	/// <summary>
-	/// Delegate function for Glass - when the user swipes back this is called to end the game
-	/// </summary>
-	void FinishGame()
-	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton");
-		if(gConnect != null) {
-			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-			DataVault.Set("bonus", 0);
-			Platform.Instance.StopTrack();
-			GestureHelper.onTap -= tapHandler;
-			tapHandler = new GestureHelper.OnTap(() => {
-				Continue();
-			});
-			GestureHelper.onTap += tapHandler;
-			fs.parentMachine.FollowConnection(gConnect);
-		} else {
-			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
-		}
-	}
+	//Moving this to GameBase, since individual game modes may need to customise the behaviour.
+//	/// <summary>
+//	/// Delegate function for Glass - when the user swipes back this is called to end the game
+//	/// </summary>
+//	void FinishGame()
+//	{
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton");
+//		if(gConnect != null) {
+//			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+//			DataVault.Set("bonus", 0);
+//			Platform.Instance.StopTrack();
+//			GestureHelper.onTap -= tapHandler;
+//			tapHandler = new GestureHelper.OnTap(() => {
+//				Continue();
+//			});
+//			GestureHelper.onTap += tapHandler;
+//			fs.parentMachine.FollowConnection(gConnect);
+//		} else {
+//			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
+//		}
+//	}
 	
-	/// <summary>
-	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
-	/// </summary>
-	void Continue() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
-		if(gConnect != null) {
-			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-			fs.parentMachine.FollowConnection(gConnect);
-		} else {
-			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
-		}
-	}
+//	/// <summary>
+//	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
+//	/// </summary>
+//	void Continue() {
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+//		if(gConnect != null) {
+//			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+//			fs.parentMachine.FollowConnection(gConnect);
+//		} else {
+//			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
+//		}
+//	}
 	
 	/// <summary>
 	/// Update this instance. Updates the rotation
@@ -309,7 +310,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;
-		GestureHelper.swipeLeft -= leftHandler;
+		//GestureHelper.swipeLeft -= leftHandler;
 		GestureHelper.onTap -= tapHandler;
 	}
 }
