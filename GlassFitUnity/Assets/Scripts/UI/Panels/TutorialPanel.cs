@@ -9,7 +9,7 @@ public class TutorialPanel : HexPanel
 {
 	private float elapsedTime = 0.0f;
 	
-	private bool shouldAdd = true;
+	protected bool shouldAdd = true;
 	
 	private float maxTime = 3.0f;
 	
@@ -81,7 +81,7 @@ public class TutorialPanel : HexPanel
 		}
 	}
 	
-	public void AddFinalButton()
+	public virtual void AddFinalButton()
 	{
 		HexButtonData hbd = new HexButtonData();
         hbd.row = 0;
@@ -98,7 +98,7 @@ public class TutorialPanel : HexPanel
         list.UpdateButtonList();
 	}
 	
-	public void AddButton() 
+	public virtual void AddButton() 
 	{
 		if (buttonData.Count == 1)
         {
@@ -181,7 +181,7 @@ public class TutorialPanel : HexPanel
     /// Initial button definitions
     /// </summary>
     /// <returns></returns>
-    public void InitialButtons()
+    public virtual void InitialButtons()
     {
         HexButtonData hbd = new HexButtonData();
         hbd.row = 0;
