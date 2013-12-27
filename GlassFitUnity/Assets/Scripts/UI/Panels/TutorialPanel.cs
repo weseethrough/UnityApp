@@ -11,7 +11,9 @@ public class TutorialPanel : HexPanel
 	
 	private bool shouldAdd = true;
 	
-	private float maxTime = 2.0f;
+	private float maxTime = 3.0f;
+	
+	private GestureHelper.ThreeFingerTap threeHandler = null;
     //	PlatformDummy platform = new PlatformDummy();
 
     public TutorialPanel() { }
@@ -43,7 +45,21 @@ public class TutorialPanel : HexPanel
     public override void EnterStart()
     {
         InitialButtons();
-
+		
+		threeHandler = new GestureHelper.ThreeFingerTap(() => {
+			GConnector gConnect = Outputs.Find(r => r.Name == "MenuExit");
+			if(gConnect != null) 
+			{
+				GestureHelper.onThreeTap -= threeHandler;
+				parentMachine.FollowConnection(gConnect);
+			} else 
+			{
+				UnityEngine.Debug.Log("TutorialPanel: Error finding menu exit");
+			}
+		});
+		
+		GestureHelper.onThreeTap += threeHandler;
+		
         base.EnterStart();
     }
 	
@@ -74,6 +90,8 @@ public class TutorialPanel : HexPanel
 		hbd.displayInfoData = false;
 		hbd.onButtonCustomString = "Highlight the hex and tap to start";
 		
+		hbd.displayInfoData = false;
+		
 		buttonData.Add(hbd);
 		
 		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
@@ -90,6 +108,7 @@ public class TutorialPanel : HexPanel
             hbd.buttonName = "LookHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "Look at this hex to select it";
+			hbd.displayInfoData = false;
 			
 			shouldAdd = false;
 			
@@ -103,6 +122,7 @@ public class TutorialPanel : HexPanel
             hbd.buttonName = "TheseHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "These hexes";
+			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
         } else if (buttonData.Count == 4)
@@ -113,6 +133,7 @@ public class TutorialPanel : HexPanel
             hbd.buttonName = "ChallengeHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "are challenges";
+			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
         } else if (buttonData.Count == 5)
@@ -123,6 +144,7 @@ public class TutorialPanel : HexPanel
             hbd.buttonName = "TryHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "Try this one ^";
+			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
         } else if(buttonData.Count == 6) 
@@ -132,9 +154,10 @@ public class TutorialPanel : HexPanel
             hbd.column = -1;
             hbd.buttonName = "TryHex";
 			hbd.imageName = "activity_run";
-            hbd.displayInfoData = false;
+            hbd.displayInfoData = true;
+			hbd.activityName = "Race James";
+			hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer and sample some of the other games available to unlock";
 			
-            //hbd.onButtonCustomString = "Try this one ^";
 			shouldAdd = false;
 			buttonData.Add(hbd);
 			
@@ -166,7 +189,8 @@ public class TutorialPanel : HexPanel
         hbd.buttonName = "tutorialButton1";
         hbd.displayInfoData = false;
         hbd.onButtonCustomString = "Welcome";
-
+		hbd.displayInfoData = false;
+		
         buttonData.Add(hbd);
     }
 
@@ -190,12 +214,75 @@ public class TutorialPanel : HexPanel
 	            hbd.buttonName = "NiceHex";
 	            hbd.displayInfoData = false;
 	            hbd.onButtonCustomString = "Nice!";
+				hbd.displayInfoData = false;
 				
 				elapsedTime = 0f;
 				shouldAdd = true;
 				
 	            buttonData.Add(hbd);
+			} 
+			else if (button.name == "NiceHex" && buttonData.Count == 3)
+	        {
+	            HexButtonData hbd = new HexButtonData();
+	            hbd.row = 1;
+	            hbd.column = 1;
+	            hbd.buttonName = "TheseHex";
+	            hbd.displayInfoData = false;
+	            hbd.onButtonCustomString = "These hexes";
+				hbd.displayInfoData = false;
+				
+				elapsedTime = 0f;
+	            buttonData.Add(hbd);
+	        } else if (button.name == "TheseHex" && buttonData.Count == 4)
+	        {
+	            HexButtonData hbd = new HexButtonData();
+	            hbd.row = 1;
+	            hbd.column = 0;
+	            hbd.buttonName = "ChallengeHex";
+	            hbd.displayInfoData = false;
+	            hbd.onButtonCustomString = "are challenges";
+				hbd.displayInfoData = false;
+	
+				elapsedTime = 0f;
+	            buttonData.Add(hbd);
+	        } else if (button.name == "ChallengeHex" && buttonData.Count == 5)
+	        {
+	            HexButtonData hbd = new HexButtonData();
+	            hbd.row = 1;
+	            hbd.column = -1;
+	            hbd.buttonName = "TryHex";
+	            hbd.displayInfoData = false;
+	            hbd.onButtonCustomString = "Try this one ^";
+				hbd.displayInfoData = false;
+	
+	            buttonData.Add(hbd);
+	        } else if(button.name == "TryHex" && buttonData.Count == 6) 
+			{
+				HexButtonData hbd = new HexButtonData();
+	            hbd.row = 0;
+	            hbd.column = -1;
+	            hbd.buttonName = "TryHex";
+				hbd.imageName = "activity_run";
+	            hbd.displayInfoData = true;
+				hbd.activityName = "Race James";
+				hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer and sample some of the other games available to unlock";
+				
+	            elapsedTime = 0f;
+				shouldAdd = false;
+				buttonData.Add(hbd);
+				
+				GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
+				
+				GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+				
+				GConnector gc = NewOutput(hbd.buttonName, "Flow");
+	            gc.EventFunction = "SetTutorial";
+				
+				if(gameExit.Link.Count > 0) {
+					gComponent.Data.Connect(gc, gameExit.Link[0]);
+				}
 			}
+			
 	        
 			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
 	        list.UpdateButtonList();
