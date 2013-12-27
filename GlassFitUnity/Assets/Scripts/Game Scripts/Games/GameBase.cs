@@ -196,7 +196,6 @@ public class GameBase : MonoBehaviour {
 	{
 		if(aheadBox == null)
 		{
-			UnityEngine.Debug.Log("GameBase:aheadbox is null");
 			aheadBox = GameObject.Find("AheadBox");
 			//if we still can't find it, it may not have been created yet.
 			shouldShowAheadBox = visible;
@@ -205,6 +204,7 @@ public class GameBase : MonoBehaviour {
 		{
 			aheadBox.SetActive(visible);
 		}
+
 	}
 	
 	protected void SetVirtualTrackVisible(bool visible)
@@ -709,6 +709,25 @@ public class GameBase : MonoBehaviour {
 		TimeSpan span = TimeSpan.FromMinutes(minutes);
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
+	}
+	
+	/// <summary>
+	/// Show a timestamp in the form MM:SS, without milliseconds
+	/// </summary>
+	/// <returns>
+	/// The MMSS from M.
+	/// </returns>
+	protected string TimestampMMSSFromMS(long milliseconds) {
+		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
+				//if we're into hours, show them
+		if(span.Hours > 0)
+		{
+			return string.Format("{0:0}:{1:00}:{2:00}", span.Hours, span.Minutes, span.Seconds);
+		}
+		else
+		{				
+			return string.Format("{0:0}:{1:00}",span.Hours*60 + span.Minutes, span.Seconds);
+		}
 	}
 	
 	public void NewBaseMultiplier(String message) {

@@ -52,10 +52,14 @@ public class FirstRun : GameBase {
 	const float showLabelMinRange = 0.1f;
 	const float showLabelMaxRange = 500.0f;
 	
+	public UINavProgressBar progressBar;
+	
 	// Use this for initialization
 	void Start () {
 		
 		base.Start ();
+		
+		progressBar.numPages = 4;
 		
 		UnityEngine.Debug.Log("FirstRun: Start");
 		
@@ -71,11 +75,6 @@ public class FirstRun : GameBase {
 		});
 		GestureHelper.swipeRight += swipeHandler;
 		
-		
-//		backHandler = new GestureHelper.onSwipeDown(() => {
-//			HandleBack();
-//		});
-//		GestureHelper.onSwipeDown += backHandler;
 		
 		//deactivate template objects
 		runner.SetActive(false);
@@ -132,10 +131,21 @@ public class FirstRun : GameBase {
 			//if we've got GPS, proceed to the start
 			if(Platform.Instance.HasLock())
 			{
-				Platform.Instance.SetIndoor(false);
-				eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
+				StartCoroutine(ProgressToStartOnceGPS());
 			}
 		}
+	}
+	
+	/// <summary>
+	/// Progresses to start once GP. This exists just to insert a short delay.
+	/// </summary>
+	/// <returns>
+	/// The to start once GP.
+	/// </returns>
+	IEnumerator ProgressToStartOnceGPS() {
+		yield return new WaitForSeconds(0.75f);
+		eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
+		progressBar.currentPage ++;
 	}
 	
 	protected GUIStyle getLabelStyleLarge()
@@ -365,7 +375,7 @@ public class FirstRun : GameBase {
 		TargetController controller = labelActor.GetComponent<TargetController>();
 		float speed = controller.target.PollCurrentSpeed();
 		long totalTime = (long)((float)finish*1000/speed);
-		string paceString = TimestampMMSSdd(totalTime);
+		string paceString = TimestampMMSSFromMS(totalTime);
 		//UnityEngine.Debug.Log("speed:"+speed+" totalTime:"+totalTime + " distancePace:" + paceString);
 		
 		GUI.Label(paceRect, paceString, paceStyle);
@@ -395,13 +405,23 @@ public class FirstRun : GameBase {
 	{
 		if (eCurrentScreen == FirstRunScreen.ResetGyrosScreen)
 		{
-			//progress to next screen
-			eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
+			StartCoroutine(ProgressPastResetGyroScreen());
 			//reveal virtual track
 			SetVirtualTrackVisible(true);
 			//assume outdoor and try that initially.
 			Platform.Instance.SetIndoor(false);
 		}
+	}
+	
+	//want a delay for this so the reticle and virtual track are together briefly
+	IEnumerator ProgressPastResetGyroScreen() {
+		//shuffle the progress bar along midway through the delay
+		yield return new WaitforSeconds(0.4f);
+		progressBar.currentPage++;
+		yield return new WaitForSeconds(0.5f);
+		
+		//progress to next screen
+		eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
 	}
 	
 	public override void HandleLeftSwipe ()
@@ -424,23 +444,27 @@ public class FirstRun : GameBase {
 			case FirstRunScreen.ResetGyrosScreen:
 			{
 				eCurrentScreen = FirstRunScreen.WelcomeScreen;
+				progressBar.currentPage--;
 				break;
 			}
 			case FirstRunScreen.AwaitGPSScreen:
 			{
 				eCurrentScreen = FirstRunScreen.ResetGyrosScreen;
+				progressBar.currentPage--;
 				break;
 			}
 			case FirstRunScreen.ConfirmIndoorScreen:
 			{
 				Platform.Instance.SetIndoor(false);
 				eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
+				progressBar.currentPage--;
 				break;
 			}
 			case FirstRunScreen.ReadyToStartScreen:
 			{
 				Platform.Instance.SetIndoor(false);
 				eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
+				progressBar.currentPage--;
 				break;
 			}
 			default:
@@ -465,6 +489,7 @@ public class FirstRun : GameBase {
 		{
 			//proceed to next screen
 			eCurrentScreen = FirstRunScreen.ResetGyrosScreen;	
+			progressBar.currentPage++;
 			break;
 		}
 		case FirstRunScreen.ResetGyrosScreen:
@@ -483,7 +508,8 @@ public class FirstRun : GameBase {
 		{
 			//tap means confirmation. Set indoor mode and proceed.
 			Platform.Instance.SetIndoor(true);
-			eCurrentScreen = FirstRunScreen.ReadyToStartScreen;	
+			eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
+			progressBar.currentPage++;
 			break;
 		}
 		case FirstRunScreen.ReadyToStartScreen:
@@ -500,6 +526,7 @@ public class FirstRun : GameBase {
 			
 			//set no first run screen
 			eCurrentScreen = FirstRunScreen.NoScreen;
+			progressBar.show = false;			
 			
 			//set menu hint
 			eCurrentHint = FirstRunHint.MenuHint;
@@ -545,7 +572,7 @@ public class FirstRun : GameBase {
 			foreach (GameObject actor in actors)
 			{
 				UnityEngine.Debug.Log("First Run: activating actor");
-				actor.SetActive(true);	
+				actor.SetActive(true);
 			}
 			} catch(Exception e) {
 				UnityEngine.Debug.LogWarning("Error iterating actors list");	
@@ -571,16 +598,7 @@ public class FirstRun : GameBase {
 			}
 		}
 		
-	/// <summary>
-	/// Handle the user performing the back gesture.
-	/// </summary>
-	void HandleBack() {
-			//go back if on the confirm indoor screen
-			if(eCurrentScreen == FirstRunScreen.ConfirmIndoorScreen)
-			{
-				eCurrentScreen = FirstRunScreen.AwaitGPSScreen;	
-			}
-		}
+
 	
 	void OnDestroy() {
 		//deregister handlers
