@@ -416,7 +416,7 @@ public class FirstRun : GameBase {
 	//want a delay for this so the reticle and virtual track are together briefly
 	IEnumerator ProgressPastResetGyroScreen() {
 		//shuffle the progress bar along midway through the delay
-		yield return new WaitforSeconds(0.4f);
+		yield return new WaitForSeconds(0.4f);
 		progressBar.currentPage++;
 		yield return new WaitForSeconds(0.5f);
 		
