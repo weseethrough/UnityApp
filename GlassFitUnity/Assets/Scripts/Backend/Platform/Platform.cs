@@ -201,7 +201,7 @@ public class Platform : MonoBehaviour {
 				
 	                    initialised = true;
 				
-						ExportCSV();
+						//ExportCSV();
 	    }));
 	                        
 	    } catch (Exception e) {
