@@ -482,6 +482,7 @@ public class Platform : MonoBehaviour {
 		lastSync = DateTime.Now;
 		try {
 			helper_class.CallStatic("syncToServer", context);
+			UnityEngine.Debug.Log("Platform: sync to server called");
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem syncing to server");
 			UnityEngine.Debug.LogException(e);

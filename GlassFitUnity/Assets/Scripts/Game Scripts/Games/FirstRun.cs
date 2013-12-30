@@ -82,9 +82,16 @@ public class FirstRun : GameBase {
 		//initialise screen
 		eCurrentScreen = FirstRunScreen.WelcomeScreen;
 		
+		//UnityEngine.Debug.Log("FirstRun: about to set instrumentation invisible");
+		
 		//set any necessary flags in game base to delay start, suppress normal UI etc.
 		SetInstrumentationVisible(false);
+		
+		//UnityEngine.Debug.Log("FirstRun: about to make ahead box invisible");
+		
 		SetAheadBoxVisible(false);
+		
+		//UnityEngine.Debug.Log("FirstRun: about to make virtual track invisible");
 		
 		//hide virtual track to begin with
 		SetVirtualTrackVisible(false);
@@ -197,16 +204,14 @@ public class FirstRun : GameBase {
 	}
 	
 	private void DrawTintBox() {
-		//rect for the tint box
+		//draw tint box
 		float width = Screen.width;
 		float height = Screen.height;
-		
-		//draw tint box
-		Texture tex = Resources.Load("tint_green", typeof(Texture)) as Texture;
-
 		float border = 30.0f;
+		Texture tex = Resources.Load("tint_green", typeof(Texture)) as Texture;
 		//Rect textureRect = new Rect(border, border, width-2*border, height-2*border);
 		Rect textureRect = new Rect(0,0, Screen.width, Screen.height);
+		
 		GUI.DrawTexture(textureRect, tex, ScaleMode.StretchToFill, true);	
 	}
 	
@@ -318,14 +323,14 @@ public class FirstRun : GameBase {
 				//test if this is the closest ahead of us
 				if(distance > 0 && distance < closestAheadDist)
 				{
-					UnityEngine.Debug.Log("closest ahead: " + distance);
+					//UnityEngine.Debug.Log("closest ahead: " + distance);
 					closestAhead = actor;
 					closestAheadDist = distance;
 				}
 				//... or the closest behind us
 				if(distance <=0 && distance > closestBehindDist)
 				{
-					UnityEngine.Debug.Log("closest behind: " + distance);
+					//UnityEngine.Debug.Log("closest behind: " + distance);
 					closestBehind = actor;
 					closestBehindDist = distance;
 				}
@@ -396,7 +401,7 @@ public class FirstRun : GameBase {
 	
 	protected override void OnUnpause ()
 	{
-		UnityEngine.Debug.Log("First Run: exiting pause");
+		//UnityEngine.Debug.Log("First Run: exiting pause");
 		//re-hide the distance
 		SetAheadBoxVisible(false);
 	}
@@ -481,7 +486,7 @@ public class FirstRun : GameBase {
 	/// </summary>
 	void HandleForward() {
 		
-		UnityEngine.Debug.Log("FirstRun: tap detected");
+		//UnityEngine.Debug.Log("FirstRun: tap detected");
 		
 		switch(eCurrentScreen)
 		{
@@ -571,7 +576,7 @@ public class FirstRun : GameBase {
 			//show all of the actors
 			foreach (GameObject actor in actors)
 			{
-				UnityEngine.Debug.Log("First Run: activating actor");
+				//UnityEngine.Debug.Log("First Run: activating actor");
 				actor.SetActive(true);
 			}
 			} catch(Exception e) {

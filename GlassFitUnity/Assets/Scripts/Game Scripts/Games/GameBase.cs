@@ -83,6 +83,8 @@ public class GameBase : MonoBehaviour {
 	private GameObject caloriesBox;
 	private GameObject pointsBox;
 	private GameObject virtualTrack;
+	private bool shouldShowInstrumentation = true;	//flag for whether it should be visible
+	private bool InstrumentationIsVisible = true;	//flag for whether it actually is visible
 	
 	/// <summary>
 	/// Start this instance.
@@ -160,36 +162,61 @@ public class GameBase : MonoBehaviour {
 	
 	protected void SetInstrumentationVisible(bool visible) {
 		//todo: store an array by finding by tag?
-		
+		shouldShowInstrumentation = visible;
 		if(distanceBox == null)
 		{
+			UnityEngine.Debug.Log("FirstRun: distancebox");
 			distanceBox = GameObject.Find("DistanceBox");
 		}
-		distanceBox.SetActive(visible);
-				
+		if(distanceBox != null)
+		{
+			distanceBox.SetActive(visible);
+		}
+		else
+		{
+			//GUI doesn't yet exist. Set flag to hide later
+			InstrumentationIsVisible = false;
+		}
+		
 		if(timeBox == null)
 		{
+			UnityEngine.Debug.Log("FirstRun: timebox");
 			timeBox = GameObject.Find("TimeBox");
 		}
-		timeBox.SetActive(visible);
+		if(timeBox != null)
+		{
+			timeBox.SetActive(visible);
+		}
 		
 		if(pointsBox == null)
 		{
+			UnityEngine.Debug.Log("FirstRun: pointsbox");
 			pointsBox = GameObject.Find("PointsBox");
 		}
-		pointsBox.SetActive(visible);		
+		if(pointsBox != null)
+		{
+			pointsBox.SetActive(visible);		
+		}
 	
 		if(caloriesBox == null)
-		{
+		{	
+			UnityEngine.Debug.Log("FirstRun: caloriesbox");
 			caloriesBox = GameObject.Find("CaloriesBox");
 		}
-		caloriesBox.SetActive(visible);
+		if(caloriesBox != null)
+		{
+			caloriesBox.SetActive(visible);
+		}
 		
 		if(paceBox == null)
 		{
+			UnityEngine.Debug.Log("FirstRun: pacebox");
 			paceBox = GameObject.Find("PaceBox");
 		}
-		paceBox.SetActive(visible);
+		if(paceBox != null)
+		{
+			paceBox.SetActive(visible);
+		}
 	}
 	
 	protected void SetAheadBoxVisible(bool visible)
@@ -541,6 +568,10 @@ public class GameBase : MonoBehaviour {
 		if(aheadBox == null && !shouldShowAheadBox)
 		{
 			SetAheadBoxVisible(false);
+		}
+		if(InstrumentationIsVisible && !shouldShowInstrumentation)
+		{
+			SetInstrumentationVisible(false);
 		}
 	}
 	
