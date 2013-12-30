@@ -138,6 +138,12 @@ public class FirstRun : GameBase {
 		}
 	}
 	
+	public override GConnector GetFinalConnection ()
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		return fs.Outputs.Find(r => r.Name == "TutorialExit");
+	}
+	
 	protected GUIStyle getLabelStyleLarge()
 	{
 		// set style for our labels
@@ -364,7 +370,7 @@ public class FirstRun : GameBase {
 		//determine pace
 		TargetController controller = labelActor.GetComponent<TargetController>();
 		float speed = controller.target.PollCurrentSpeed();
-		long totalTime = (long)((float)finish*1000/speed);
+		long totalTime = (long)((float)finish/speed);
 		string paceString = TimestampMMSSdd(totalTime);
 		//UnityEngine.Debug.Log("speed:"+speed+" totalTime:"+totalTime + " distancePace:" + paceString);
 		

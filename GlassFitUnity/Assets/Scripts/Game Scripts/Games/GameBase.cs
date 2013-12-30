@@ -296,22 +296,29 @@ public class GameBase : MonoBehaviour {
 		//FinishGame();	
 	}
 	
+	public virtual GConnector GetFinalConnection() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		return fs.Outputs.Find(r => r.Name == "FinishButton");
+	}
+	
 		/// <summary>
 	/// Delegate function for Glass - when the user swipes back this is called to end the game
 	/// </summary>
 	protected void FinishGame()
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton");
+		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
 			DataVault.Set("bonus", 0);
 			Platform.Instance.StopTrack();
 			GestureHelper.onTap -= tapHandler;
-			tapHandler = new GestureHelper.OnTap(() => {
-				Continue();
-			});
-			GestureHelper.onTap += tapHandler;
+			if(gConnect.Name == "FinishButton") {
+				tapHandler = new GestureHelper.OnTap(() => {
+					Continue();
+				});
+				GestureHelper.onTap += tapHandler;
+			}
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowConnection(gConnect);
 		} else {
 			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
