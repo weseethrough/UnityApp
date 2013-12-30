@@ -96,6 +96,8 @@ public class GameBase : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
+		
+		
 		tapHandler = new GestureHelper.OnTap(() => {
 			GameHandleTap();
 		});
@@ -130,7 +132,6 @@ public class GameBase : MonoBehaviour {
 		
 		// Set indoor mode
 		Platform.Instance.SetIndoor(indoor);
-		Platform.Instance.StopTrack();
 		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
 		

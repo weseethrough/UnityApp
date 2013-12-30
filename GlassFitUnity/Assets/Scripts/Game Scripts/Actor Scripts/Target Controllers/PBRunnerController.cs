@@ -20,14 +20,21 @@ public class PBRunnerController : TargetController {
 		
 #if !UNITY_EDITOR
 		anim = GetComponent<Animator>();
-		speed = target.PollCurrentSpeed();
-		anim.SetFloat("Speed", speed);
-		if(speed > 2.2f && speed < 4.0f) {
-			anim.speed = speed / 2.2f;
-		} else if(speed > 4.0f) {
-			anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2);
-		} else {
-			anim.speed = speed / 1.0f;
+		if(target != null)
+		{
+			speed = target.PollCurrentSpeed();
+			anim.SetFloat("Speed", speed);
+			if(speed > 2.2f && speed < 4.0f) {
+				anim.speed = speed / 2.2f;
+			} else if(speed > 4.0f) {
+				anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2);
+			} else {
+				anim.speed = speed / 1.0f;
+			}
+		}
+		else
+		{
+			UnityEngine.Debug.LogWarning("PBRunnerController: Target is null in OnEnable");
 		}
 #endif
 	}
