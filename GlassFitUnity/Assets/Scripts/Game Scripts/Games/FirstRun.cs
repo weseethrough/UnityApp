@@ -158,12 +158,7 @@ public class FirstRun : GameBase {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		return fs.Outputs.Find(r => r.Name == "TutorialExit");
 	}
-	
-	IEnumerator ProgressToStartOnceGPS() {
-		yield return new WaitForSeconds(0.75f);
-		eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
-		progressBar.currentPage ++;
-	}
+
 	
 	protected GUIStyle getLabelStyleLarge()
 	{
