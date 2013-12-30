@@ -31,12 +31,8 @@ public class EndTutorialPanel : TutorialPanel {
         return "End Tutorial Panel: Uninitialized";
     }
 	
-	public override void EnterStart ()
-	{
-		base.EnterStart ();
-		
-		tapHandler = new GestureHelper.OnTap(() => {
-			HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+	public void UnlockHex() {
+		HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
 			if(info != null) {
 				if(info.IsInOpenStage()) {
 					info.AnimExit();
@@ -57,6 +53,15 @@ public class EndTutorialPanel : TutorialPanel {
 								if(gameExit.Link.Count > 0) {
 									gComponent.Data.Connect(gc, gameExit.Link[0]);
 								}
+								
+								HexButtonData hbd = new HexButtonData();
+						        hbd.row = -1;
+						        hbd.column = -2;
+						        hbd.buttonName = "FinalHex";
+						        hbd.displayInfoData = false;
+						        hbd.onButtonCustomString = "This is now unlocked! Enter it to go to the main menu";
+								
+						        buttonData.Add(hbd);
 							}
 							
 							DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
@@ -68,11 +73,28 @@ public class EndTutorialPanel : TutorialPanel {
 					}
 				}
 			}
+	}
+	
+	public override void EnterStart ()
+	{
+		base.EnterStart ();
+		
+		tapHandler = new GestureHelper.OnTap(() => {
+			UnlockHex();
 		});
 		
 		GestureHelper.onTap += tapHandler;
 	}
 
+	
+	public override void StateUpdate ()
+	{
+		base.StateUpdate ();
+		
+		if(Input.GetTouch(0).phase == TouchPhase.Began) {
+			UnlockHex();
+		}
+	}
 	
 	public override void InitialButtons() {
 		HexButtonData hbd = new HexButtonData();
@@ -81,7 +103,6 @@ public class EndTutorialPanel : TutorialPanel {
         hbd.buttonName = "PointsHex";
         hbd.displayInfoData = false;
         hbd.onButtonCustomString = "500RP";
-		hbd.displayInfoData = false;
 		
         buttonData.Add(hbd);
 		
@@ -91,7 +112,6 @@ public class EndTutorialPanel : TutorialPanel {
 		hbd.buttonName = "CongratsHex";
 		hbd.displayInfoData = false;
 		hbd.onButtonCustomString = "Congrats!";
-		hbd.displayInfoData = false;
 		
 		buttonData.Add(hbd);
 	}
@@ -110,6 +130,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.onButtonCustomString = "RP is used";
 				hbd.displayInfoData = false;
 	
+				elapsedTime = 0f;
 	            buttonData.Add(hbd);
 	        } else if (button.name == "UseHex" && buttonData.Count == 4)
 	        {
@@ -121,6 +142,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.onButtonCustomString = "To unlock new challenges.";
 				hbd.displayInfoData = false;
 	
+				elapsedTime = 0f;
 	            buttonData.Add(hbd);
 	        } else if (button.name == "ChallengeHex" && buttonData.Count == 5)
 	        {
@@ -132,6 +154,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.onButtonCustomString = "Try this one ^";
 				hbd.displayInfoData = false;
 	
+				elapsedTime = 0f;
 	            buttonData.Add(hbd);
 	        } else if(button.name == "TryHex" && buttonData.Count == 6) 
 			{
@@ -145,9 +168,9 @@ public class EndTutorialPanel : TutorialPanel {
 				hbd.activityName = "Challenge a Friend";
 				hbd.activityContent = "Unlock the ability to accept challenges from friends";
 				
+				elapsedTime = 0f;
 				shouldAdd = false;
 				buttonData.Add(hbd);
-				
 			}
 			
 			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
@@ -234,15 +257,15 @@ public class EndTutorialPanel : TutorialPanel {
 			shouldAdd = false;
 			buttonData.Add(hbd);
 			
-			GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
-			
-			GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-			
-			GConnector gc = NewOutput(hbd.buttonName, "Flow");
-            
-			if(gameExit.Link.Count > 0) {
-				gComponent.Data.Connect(gc, gameExit.Link[0]);
-			}
+//			GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
+//			
+//			GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+//			
+//			GConnector gc = NewOutput(hbd.buttonName, "Flow");
+//            
+//			if(gameExit.Link.Count > 0) {
+//				gComponent.Data.Connect(gc, gameExit.Link[0]);
+//			}
 		}
 
         DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));

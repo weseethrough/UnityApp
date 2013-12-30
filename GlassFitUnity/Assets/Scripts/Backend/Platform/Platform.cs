@@ -669,6 +669,17 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	public virtual void ResetGames() 
+	{
+		try {
+			helper.Call("loadDefaultGames");
+			gameList = null;
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error resetting games: ");
+			UnityEngine.Debug.Log(e.Message);
+		}
+	}
+	
 	/// <summary>
 	/// Load a list of games from the java database, together with lock state, cost, description etc.
 	/// Typically used when building the main hex menu
