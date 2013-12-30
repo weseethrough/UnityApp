@@ -83,6 +83,8 @@ public class GameBase : MonoBehaviour {
 	private GameObject caloriesBox;
 	private GameObject pointsBox;
 	private GameObject virtualTrack;
+	private bool shouldShowInstrumentation = true;	//flag for whether it should be visible
+	private bool InstrumentationIsVisible = true;	//flag for whether it actually is visible
 	
 	/// <summary>
 	/// Start this instance.
@@ -94,10 +96,11 @@ public class GameBase : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
-		tapHandler = new GestureHelper.OnTap(() => {
-			PauseGame();
-		});
 		
+		
+		tapHandler = new GestureHelper.OnTap(() => {
+			GameHandleTap();
+		});
 		GestureHelper.onTap += tapHandler;
 		
 		downHandler = new GestureHelper.DownSwipe(() => {
@@ -129,7 +132,6 @@ public class GameBase : MonoBehaviour {
 		
 		// Set indoor mode
 		Platform.Instance.SetIndoor(indoor);
-		Platform.Instance.StopTrack();
 		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
 		
@@ -160,43 +162,63 @@ public class GameBase : MonoBehaviour {
 	
 	protected void SetInstrumentationVisible(bool visible) {
 		//todo: store an array by finding by tag?
-		
+		shouldShowInstrumentation = visible;
 		if(distanceBox == null)
 		{
+			UnityEngine.Debug.Log("FirstRun: distancebox");
 			distanceBox = GameObject.Find("DistanceBox");
 		}
-		distanceBox.SetActive(visible);
-				
+		if(distanceBox != null)
+		{
+			distanceBox.SetActive(visible);
+		}
+		else
+		{
+			//GUI doesn't yet exist. Set flag to hide later
+			InstrumentationIsVisible = false;
+		}
+		
 		if(timeBox == null)
 		{
 			timeBox = GameObject.Find("TimeBox");
 		}
-		timeBox.SetActive(visible);
+		if(timeBox != null)
+		{
+			timeBox.SetActive(visible);
+		}
 		
 		if(pointsBox == null)
 		{
 			pointsBox = GameObject.Find("PointsBox");
 		}
-		pointsBox.SetActive(visible);		
+		if(pointsBox != null)
+		{
+			pointsBox.SetActive(visible);		
+		}
 	
 		if(caloriesBox == null)
-		{
+		{	
 			caloriesBox = GameObject.Find("CaloriesBox");
 		}
-		caloriesBox.SetActive(visible);
+		if(caloriesBox != null)
+		{
+			caloriesBox.SetActive(visible);
+		}
 		
 		if(paceBox == null)
 		{
 			paceBox = GameObject.Find("PaceBox");
 		}
-		paceBox.SetActive(visible);
+		if(paceBox != null)
+		{
+			paceBox.SetActive(visible);
+		}
 	}
 	
 	protected void SetAheadBoxVisible(bool visible)
 	{
 		if(aheadBox == null)
 		{
-			UnityEngine.Debug.Log("GameBase:aheadbox is null");
 			aheadBox = GameObject.Find("AheadBox");
 			//if we still can't find it, it may not have been created yet.
 			shouldShowAheadBox = visible;
@@ -205,6 +227,7 @@ public class GameBase : MonoBehaviour {
 		{
 			aheadBox.SetActive(visible);
 		}
+
 	}
 	
 	protected void SetVirtualTrackVisible(bool visible)
@@ -247,11 +270,9 @@ public class GameBase : MonoBehaviour {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 		if(gConnect != null) {
-			Platform.Instance.Reset();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
 			fs.parentMachine.FollowConnection(gConnect);
-			Platform.Instance.Reset();
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		}
 	}
@@ -341,6 +362,7 @@ public class GameBase : MonoBehaviour {
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
 	public virtual void GameHandleTap() {
+		UnityEngine.Debug.Log("GameBase: tap detected");
 		PauseGame();
 	}
 	
@@ -549,6 +571,10 @@ public class GameBase : MonoBehaviour {
 		{
 			SetAheadBoxVisible(false);
 		}
+		if(InstrumentationIsVisible && !shouldShowInstrumentation)
+		{
+			SetInstrumentationVisible(false);
+		}
 	}
 	
 		protected void UpdateAhead() {
@@ -716,6 +742,26 @@ public class GameBase : MonoBehaviour {
 		TimeSpan span = TimeSpan.FromMinutes(minutes);
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
+	}
+	
+	/// <summary>
+	/// Show a timestamp in the form MM:SS, without milliseconds
+	/// </summary>
+	/// <returns>
+	/// The MMSS from M.
+	/// </returns>
+	protected string TimestampMMSSFromMS(long milliseconds) {
+		//UnityEngine.Debug.Log("Converting Timestamp in milliseconds" + milliseconds);
+		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
+		//if we're into hours, show them
+		if(span.Hours > 0)
+		{
+			return string.Format("{0:0}:{1:00}:{2:00}", span.Hours, span.Minutes, span.Seconds);
+		}
+		else
+		{
+			return string.Format("{0:0}:{1:00}",span.Hours*60 + span.Minutes, span.Seconds);
+		}
 	}
 	
 	public void NewBaseMultiplier(String message) {

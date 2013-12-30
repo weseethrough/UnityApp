@@ -482,6 +482,7 @@ public class Platform : MonoBehaviour {
 		lastSync = DateTime.Now;
 		try {
 			helper_class.CallStatic("syncToServer", context);
+			UnityEngine.Debug.Log("Platform: sync to server called");
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem syncing to server");
 			UnityEngine.Debug.LogException(e);
@@ -493,7 +494,7 @@ public class Platform : MonoBehaviour {
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void Reset() {
 		try {
-			gps.Call("reset");
+			gps.Call("startNewTrack");
 			started = false;
 			UnityEngine.Debug.LogWarning("Platform: GPS has been reset");
 		} catch (Exception e) {
