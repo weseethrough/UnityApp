@@ -97,9 +97,8 @@ public class GameBase : MonoBehaviour {
 		scale = new Vector3(x, y, 1);
 		
 		tapHandler = new GestureHelper.OnTap(() => {
-			PauseGame();
+			GameHandleTap();
 		});
-		
 		GestureHelper.onTap += tapHandler;
 		
 		downHandler = new GestureHelper.DownSwipe(() => {
@@ -180,7 +179,6 @@ public class GameBase : MonoBehaviour {
 		
 		if(timeBox == null)
 		{
-			UnityEngine.Debug.Log("FirstRun: timebox");
 			timeBox = GameObject.Find("TimeBox");
 		}
 		if(timeBox != null)
@@ -190,7 +188,6 @@ public class GameBase : MonoBehaviour {
 		
 		if(pointsBox == null)
 		{
-			UnityEngine.Debug.Log("FirstRun: pointsbox");
 			pointsBox = GameObject.Find("PointsBox");
 		}
 		if(pointsBox != null)
@@ -200,7 +197,6 @@ public class GameBase : MonoBehaviour {
 	
 		if(caloriesBox == null)
 		{	
-			UnityEngine.Debug.Log("FirstRun: caloriesbox");
 			caloriesBox = GameObject.Find("CaloriesBox");
 		}
 		if(caloriesBox != null)
@@ -210,7 +206,6 @@ public class GameBase : MonoBehaviour {
 		
 		if(paceBox == null)
 		{
-			UnityEngine.Debug.Log("FirstRun: pacebox");
 			paceBox = GameObject.Find("PaceBox");
 		}
 		if(paceBox != null)
@@ -368,6 +363,7 @@ public class GameBase : MonoBehaviour {
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
 	public virtual void GameHandleTap() {
+		UnityEngine.Debug.Log("GameBase: tap detected");
 		PauseGame();
 	}
 	
@@ -756,14 +752,15 @@ public class GameBase : MonoBehaviour {
 	/// The MMSS from M.
 	/// </returns>
 	protected string TimestampMMSSFromMS(long milliseconds) {
+		//UnityEngine.Debug.Log("Converting Timestamp in milliseconds" + milliseconds);
 		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
-				//if we're into hours, show them
+		//if we're into hours, show them
 		if(span.Hours > 0)
 		{
 			return string.Format("{0:0}:{1:00}:{2:00}", span.Hours, span.Minutes, span.Seconds);
 		}
 		else
-		{				
+		{
 			return string.Format("{0:0}:{1:00}",span.Hours*60 + span.Minutes, span.Seconds);
 		}
 	}

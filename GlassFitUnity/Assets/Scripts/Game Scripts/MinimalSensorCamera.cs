@@ -70,10 +70,10 @@ public class MinimalSensorCamera : MonoBehaviour {
 		bool ARCameraOn = Convert.ToBoolean(DataVault.Get("camera_setting"));
 		if(!ARCameraOn)
 		{
-			GetComponent<QCARBehaviour>().enabled = false;
-			GetComponent<DefaultInitializationErrorHandler>().enabled = false;
-			GetComponent<WebCamBehaviour>().enabled = false;
-			GetComponent<KeepAliveBehaviour>().enabled = false;
+			GetComponentInChildren<QCARBehaviour>().enabled = false;
+			GetComponentInChildren<DefaultInitializationErrorHandler>().enabled = false;
+			GetComponentInChildren<WebCamBehaviour>().enabled = false;
+			GetComponentInChildren<KeepAliveBehaviour>().enabled = false;
 		}
 	}
 	
@@ -123,7 +123,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		labelStyle.fontSize = 40;
 		labelStyle.fontStyle = FontStyle.Bold;
 		
-		GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
+		//GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
 		
 #if !UNITY_EDITOR
 		if(!noGrid) {
@@ -160,8 +160,12 @@ public class MinimalSensorCamera : MonoBehaviour {
 				}	
 			}
 		}
+		
+		
 #endif
 		GUI.matrix = Matrix4x4.identity;
+		
+		
 	}
 	
 	void ResetGyroGlass()
@@ -311,6 +315,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;
 		//GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.onTap -= tapHandler;
+		//GestureHelper.onTap -= tapHandler;
 	}
 }
