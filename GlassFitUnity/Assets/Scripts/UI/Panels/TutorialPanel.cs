@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public class TutorialPanel : HexPanel
 {
-	private float elapsedTime = 0.0f;
+	protected float elapsedTime = 0.0f;
 	
 	protected bool shouldAdd = true;
 	
@@ -255,6 +255,7 @@ public class TutorialPanel : HexPanel
 	            hbd.onButtonCustomString = "Try this one ^";
 				hbd.displayInfoData = false;
 	
+				elapsedTime = 0f;
 	            buttonData.Add(hbd);
 	        } else if(button.name == "TryHex" && buttonData.Count == 6) 
 			{

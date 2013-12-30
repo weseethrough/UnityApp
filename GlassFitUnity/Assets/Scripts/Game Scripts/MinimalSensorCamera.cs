@@ -13,8 +13,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private Quaternion? initialBearing = null;  // first valid bearing we receive. Updated on ResetGyros.
 	                                            // null iff no valid bearing has been calculated yet
 	private bool started;
-	private float scaleX;
-	private float scaleY;
 	public GameObject grid;
 	private bool gridOn = false;
 	private float gridTimer = 0.0f;
@@ -26,13 +24,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	private bool indoor = false;
 	
-	private GestureHelper.OnTap tapHandler = null;
-	
 	private GestureHelper.TwoFingerTap twoHandler = null;
 	
 	private GestureHelper.ThreeFingerTap threeHandler = null;
-	
-	private GestureHelper.OnSwipeLeft leftHandler = null;
 	
 	// Set the grid and scale values
 	void Start () {
@@ -46,8 +40,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 		} else {
 			noGrid = true;
 		}
-		scaleX = (float)Screen.width / 800.0f;
-		scaleY = (float)Screen.height / 500.0f;
 		
 		indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
 		
@@ -61,12 +53,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 		});
 		GestureHelper.onThreeTap += threeHandler;
 
-		//leftHandler = new GestureHelper.OnSwipeLeft(() => {
-		//	FinishGame();
-		//});
-		
-		GestureHelper.swipeLeft += leftHandler;
-		
 		bool ARCameraOn = Convert.ToBoolean(DataVault.Get("camera_setting"));
 		if(!ARCameraOn)
 		{
@@ -88,7 +74,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 				// reset orientation offset
 				offsetFromStart = Platform.Instance.GetOrientation();
 				UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
-				//offsetFromStart = Quaternion.Euler(offsetFromStart.eulerAngles.x, 0, 0);
+				//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			
 				// reset bearing offset
 				if (Platform.Instance.Bearing() != -999.0f) {
@@ -176,8 +162,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 			} else {
 			
 			// reset orientation offset
-				offsetFromStart = Platform.Instance.GetOrientation();
+			offsetFromStart = Platform.Instance.GetOrientation();
 			
+			UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
 			// reset bearing offset
 			if (Platform.Instance.Bearing() != -999.0f) {
 				initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
@@ -194,43 +181,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 			}
 		}
 	}
-	
-	//Moving this to GameBase, since individual game modes may need to customise the behaviour.
-//	/// <summary>
-//	/// Delegate function for Glass - when the user swipes back this is called to end the game
-//	/// </summary>
-//	void FinishGame()
-//	{
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton");
-//		if(gConnect != null) {
-//			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-//			DataVault.Set("bonus", 0);
-//			Platform.Instance.StopTrack();
-//			GestureHelper.onTap -= tapHandler;
-//			tapHandler = new GestureHelper.OnTap(() => {
-//				Continue();
-//			});
-//			GestureHelper.onTap += tapHandler;
-//			fs.parentMachine.FollowConnection(gConnect);
-//		} else {
-//			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
-//		}
-//	}
-	
-//	/// <summary>
-//	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
-//	/// </summary>
-//	void Continue() {
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
-//		if(gConnect != null) {
-//			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-//			fs.parentMachine.FollowConnection(gConnect);
-//		} else {
-//			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
-//		}
-//	}
 	
 	/// <summary>
 	/// Update this instance. Updates the rotation
