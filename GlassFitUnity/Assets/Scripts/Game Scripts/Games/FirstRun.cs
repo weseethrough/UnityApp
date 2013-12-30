@@ -543,8 +543,11 @@ public class FirstRun : GameBase {
 		//}
 		case FirstRunScreen.SelectIndoorOutdoor:
 		{
-			eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
-			progressBar.currentPage++;
+			if(Platform.Instance.IsIndoor() || Platform.Instance.HasLock())
+			{
+				eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
+				progressBar.currentPage++;
+			}
 			break;
 		}
 		case FirstRunScreen.ConfirmIndoorScreen:

@@ -494,7 +494,7 @@ public class Platform : MonoBehaviour {
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void Reset() {
 		try {
-			gps.Call("reset");
+			gps.Call("startNewTrack");
 			started = false;
 			UnityEngine.Debug.LogWarning("Platform: GPS has been reset");
 		} catch (Exception e) {

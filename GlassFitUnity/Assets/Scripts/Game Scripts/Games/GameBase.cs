@@ -269,11 +269,9 @@ public class GameBase : MonoBehaviour {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 		if(gConnect != null) {
-			Platform.Instance.Reset();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
 			fs.parentMachine.FollowConnection(gConnect);
-			Platform.Instance.Reset();
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		}
 	}
