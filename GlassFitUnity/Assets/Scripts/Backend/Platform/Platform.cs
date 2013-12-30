@@ -201,7 +201,7 @@ public class Platform : MonoBehaviour {
 				
 	                    initialised = true;
 				
-						ExportCSV();
+						//ExportCSV();
 	    }));
 	                        
 	    } catch (Exception e) {
@@ -333,6 +333,17 @@ public class Platform : MonoBehaviour {
 		} catch(Exception e) {
 			UnityEngine.Debug.Log("Platform: Error setting indoor mode " + e.Message);
 		}
+	}
+	
+	[MethodImpl(MethodImplOptions.Synchronized)]
+	public virtual bool IsIndoor() {
+  		try {
+		   return gps.Call<bool>("isIndoorMode");
+		  } catch (Exception e) {
+		   UnityEngine.Debug.Log("Platform: Error returning isIndoor");
+		   UnityEngine.Debug.Log(e.Message);
+		   return false;
+		  }
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
@@ -476,17 +487,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		}
 	}
-	
-	public bool IsIndoor() {
-		try {
-			bool indoor = gps.Call<bool>("isIndoorMode");
-			return indoor;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error returning isIndoor");
-			UnityEngine.Debug.Log(e.Message);
-			return false;
-		}
-	}
+
 	
 	// Reset GPS tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
@@ -899,7 +900,9 @@ public class Platform : MonoBehaviour {
 		
 		try {
 			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
-			DataVault.Set("points", (int)currentActivityPoints);
+			//DataVault.Set("points", (int)currentActivityPoints.ToString("n") + "RP");
+			string pointsFormatted = currentActivityPoints.ToString("n0");
+			DataVault.Set ("points", pointsFormatted + "RP");
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting current activity points: " + e.Message);
 			DataVault.Set("points", -1);

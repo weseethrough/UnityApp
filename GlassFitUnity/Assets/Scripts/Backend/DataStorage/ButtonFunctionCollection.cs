@@ -77,7 +77,7 @@ public class ButtonFunctionCollection
 	{
 		DataVault.Set("type", "Runner");
 		DataVault.Set("finish", 1000);
-		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
+		AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
 		return true;
 	}
 	

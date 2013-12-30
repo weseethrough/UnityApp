@@ -30,6 +30,7 @@ public class UISensorCamera : MonoBehaviour {
 		});
 		GestureHelper.onTwoTap += twoTapHandler;
 		
+		LoadingTextComponent.SetVisibility(false);
 	}
 	
 	void GoBack() 
@@ -139,7 +140,18 @@ public class UISensorCamera : MonoBehaviour {
 		
 #if !UNITY_EDITOR
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
-
+		
+		//UnityEngine.Debug.Log("UISensorCamera: Euler angles are: " + newOffset.eulerAngles.x + ", " + newOffset.eulerAngles.y + ", " + newOffset.eulerAngles.z);
+		
+		if((newOffset.eulerAngles.x > 30 && newOffset.eulerAngles.x < 330) || (newOffset.eulerAngles.y > 40 && newOffset.eulerAngles.y < 320)) 
+		{
+			LoadingTextComponent.SetVisibility(true);
+		}
+		else
+		{
+			LoadingTextComponent.SetVisibility(false);
+		}
+		
 		transform.rotation = newOffset;
 		
 #endif
