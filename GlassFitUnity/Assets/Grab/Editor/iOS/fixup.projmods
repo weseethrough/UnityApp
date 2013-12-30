@@ -1,0 +1,10 @@
+{
+    "group": "Grab",
+    "libs": [],
+    "frameworks": ["AdSupport.framework", "StoreKit.framework"],
+    "headerpaths": [],                    
+    "files":   ["../../../Plugins/iOS/Grab.framework"],
+    "folders": [],    
+    "excludes": ["^.*.meta$", "^.*.mdown^", "^.*.pdf$"],
+    "linker_flags":[]
+}
