@@ -146,9 +146,19 @@ public class FirstRun : GameBase {
 	/// <summary>
 	/// Progresses to start once GP. This exists just to insert a short delay.
 	/// </summary>
-	/// <returns>
-	/// The to start once GP.
-	/// </returns>
+	IEnumerator ProgressToStartOnceGPS() {
+		yield return new WaitForSeconds(0.75f);
+		eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
+		progressBar.currentPage ++;
+	}
+
+	
+	public override GConnector GetFinalConnection ()
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		return fs.Outputs.Find(r => r.Name == "TutorialExit");
+	}
+	
 	IEnumerator ProgressToStartOnceGPS() {
 		yield return new WaitForSeconds(0.75f);
 		eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
@@ -379,7 +389,7 @@ public class FirstRun : GameBase {
 		//determine pace
 		TargetController controller = labelActor.GetComponent<TargetController>();
 		float speed = controller.target.PollCurrentSpeed();
-		long totalTime = (long)((float)finish*1000/speed);
+		long totalTime = (long)((float)finish/speed);
 		string paceString = TimestampMMSSFromMS(totalTime);
 		//UnityEngine.Debug.Log("speed:"+speed+" totalTime:"+totalTime + " distancePace:" + paceString);
 		

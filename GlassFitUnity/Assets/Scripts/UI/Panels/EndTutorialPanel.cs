@@ -7,11 +7,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public class EndTutorialPanel : TutorialPanel {
 	
-//	private float elapsedTime = 0.0f;
-//	
-//	private bool shouldAdd = true;
-//	
-//	private float maxTime = 3.0f;
+	private GestureHelper.OnTap tapHandler;
 	
 	public EndTutorialPanel() { }
     public EndTutorialPanel(SerializationInfo info, StreamingContext ctxt)
@@ -34,6 +30,48 @@ public class EndTutorialPanel : TutorialPanel {
         }
         return "End Tutorial Panel: Uninitialized";
     }
+	
+	public override void EnterStart ()
+	{
+		base.EnterStart ();
+		
+		tapHandler = new GestureHelper.OnTap(() => {
+			HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+			if(info != null) {
+				if(info.IsInOpenStage()) {
+					info.AnimExit();
+					
+					for(int i=0; i<buttonData.Count; i++) 
+					{
+						if(buttonData[i].buttonName == "VersusHex") 
+						{
+							if(buttonData[i].locked) {
+								buttonData[i].locked = false;
+								
+								GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
+				
+								GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+				
+								GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
+	            
+								if(gameExit.Link.Count > 0) {
+									gComponent.Data.Connect(gc, gameExit.Link[0]);
+								}
+							}
+							
+							DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+	        				list.UpdateButtonList();
+							
+							GestureHelper.onTap -= tapHandler;
+							break;
+						}
+					}
+				}
+			}
+		});
+		
+		GestureHelper.onTap += tapHandler;
+	}
 
 	
 	public override void InitialButtons() {
@@ -60,13 +98,78 @@ public class EndTutorialPanel : TutorialPanel {
 	
 	public override void OnHover(FlowButton button, bool justStarted) 
 	{
-		
+		if (justStarted == true && button != null)
+        {                        
+			if (button.name == "EarnHex" && buttonData.Count == 3)
+	        {
+	            HexButtonData hbd = new HexButtonData();
+	            hbd.row = 1;
+	            hbd.column = 1;
+	            hbd.buttonName = "UseHex";
+	            hbd.displayInfoData = false;
+	            hbd.onButtonCustomString = "RP is used";
+				hbd.displayInfoData = false;
+	
+	            buttonData.Add(hbd);
+	        } else if (button.name == "UseHex" && buttonData.Count == 4)
+	        {
+	            HexButtonData hbd = new HexButtonData();
+	            hbd.row = 1;
+	            hbd.column = 0;
+	            hbd.buttonName = "ChallengeHex";
+	            hbd.displayInfoData = false;
+	            hbd.onButtonCustomString = "To unlock new challenges.";
+				hbd.displayInfoData = false;
+	
+	            buttonData.Add(hbd);
+	        } else if (button.name == "ChallengeHex" && buttonData.Count == 5)
+	        {
+	            HexButtonData hbd = new HexButtonData();
+	            hbd.row = 1;
+	            hbd.column = -1;
+	            hbd.buttonName = "TryHex";
+	            hbd.displayInfoData = false;
+	            hbd.onButtonCustomString = "Try this one ^";
+				hbd.displayInfoData = false;
+	
+	            buttonData.Add(hbd);
+	        } else if(button.name == "TryHex" && buttonData.Count == 6) 
+			{
+				HexButtonData hbd = new HexButtonData();
+	            hbd.row = 0;
+	            hbd.column = -1;
+				hbd.locked = true;
+	            hbd.buttonName = "VersusHex";
+				hbd.imageName = "activity_versus";
+	            hbd.displayInfoData = true;
+				hbd.activityName = "Challenge a Friend";
+				hbd.activityContent = "Unlock the ability to accept challenges from friends";
+				
+				shouldAdd = false;
+				buttonData.Add(hbd);
+				
+			}
+			
+			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+	        list.UpdateButtonList();
+		}
 	}
 	
 	public override void AddFinalButton()
 	{
+		HexButtonData hbd = new HexButtonData();
+        hbd.row = 0;
+        hbd.column = -2;
+        hbd.buttonName = "FinalHex";
+		hbd.displayInfoData = false;
+		hbd.onButtonCustomString = "Highlight the locked hex and tap to unlock";
 		
+		hbd.displayInfoData = false;
 		
+		buttonData.Add(hbd);
+		
+		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+        list.UpdateButtonList();
 	}
 	
 	public override void AddButton ()
@@ -80,8 +183,6 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "You earned 500RP!";
 			hbd.displayInfoData = false;
-			
-			shouldAdd = false;
 			
             buttonData.Add(hbd);
 
@@ -138,8 +239,7 @@ public class EndTutorialPanel : TutorialPanel {
 			GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 			
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
-            gc.EventFunction = "SetTutorial";
-			
+            
 			if(gameExit.Link.Count > 0) {
 				gComponent.Data.Connect(gc, gameExit.Link[0]);
 			}
@@ -147,6 +247,5 @@ public class EndTutorialPanel : TutorialPanel {
 
         DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
         list.UpdateButtonList();
-		
 	}
 }
