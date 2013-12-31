@@ -67,7 +67,6 @@ public class SoundController : TargetController {
 			{
 				indoor = false;
 				indoorText = "Outdoor Active";
-				Platform.Instance.StopTrack();
 				Platform.Instance.Reset();
 				Platform.Instance.SetIndoor(indoor);
 				
@@ -87,7 +86,6 @@ public class SoundController : TargetController {
 			{
 				indoor = true;
 				indoorText = "Indoor Active";
-				Platform.Instance.StopTrack();
 				Platform.Instance.Reset();
 				Platform.Instance.SetIndoor(indoor);
 				//Platform.Instance.StartTrack(indoor);

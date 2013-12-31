@@ -17,6 +17,7 @@ public enum FirstRunScreen
 	WelcomeScreen,
 	ResetGyrosScreen,
 	AwaitGPSScreen,
+	SelectIndoorOutdoor,
 	ConfirmIndoorScreen,
 	ReadyToStartScreen,
 };
@@ -42,8 +43,8 @@ public class FirstRun : GameBase {
 	public GameObject runner;		//a runner object. This will be cloned around for various benchmark paces.
 	
 	public Camera camera;
-	const float paceLabelYOffsetScreen = 0.0f;
-	const float paceLabelYOffsetWorld = 300.0f;
+	//const float paceLabelYOffsetScreen = 0.0f;
+	//const float paceLabelYOffsetWorld = 300.0f;
 	
 	//tuneable parameters
 	const float hintCycleDelay = 4.0f;
@@ -52,10 +53,14 @@ public class FirstRun : GameBase {
 	const float showLabelMinRange = 0.1f;
 	const float showLabelMaxRange = 500.0f;
 	
+	public UINavProgressBar progressBar;
+	
 	// Use this for initialization
 	void Start () {
 		
 		base.Start ();
+		
+		progressBar.numPages = 4;
 		
 		UnityEngine.Debug.Log("FirstRun: Start");
 		
@@ -65,17 +70,10 @@ public class FirstRun : GameBase {
 		DataVault.Set("time", "");
 		DataVault.Set("ahead_box", "");
 		
-		
 		swipeHandler = new GestureHelper.OnSwipeRight( () => {
 			HandleForward();
 		});
 		GestureHelper.swipeRight += swipeHandler;
-		
-		
-//		backHandler = new GestureHelper.onSwipeDown(() => {
-//			HandleBack();
-//		});
-//		GestureHelper.onSwipeDown += backHandler;
 		
 		//deactivate template objects
 		runner.SetActive(false);
@@ -83,9 +81,16 @@ public class FirstRun : GameBase {
 		//initialise screen
 		eCurrentScreen = FirstRunScreen.WelcomeScreen;
 		
+		//UnityEngine.Debug.Log("FirstRun: about to set instrumentation invisible");
+		
 		//set any necessary flags in game base to delay start, suppress normal UI etc.
 		SetInstrumentationVisible(false);
+		
+		//UnityEngine.Debug.Log("FirstRun: about to make ahead box invisible");
+		
 		SetAheadBoxVisible(false);
+		
+		//UnityEngine.Debug.Log("FirstRun: about to make virtual track invisible");
 		
 		//hide virtual track to begin with
 		SetVirtualTrackVisible(false);
@@ -95,9 +100,18 @@ public class FirstRun : GameBase {
 		
 		Platform.Instance.ResetTargets();
 		
-		for(float pace = 1.2f; pace < 5.0f; pace += fInterval)
+//		for(float pace = 1.2f; pace < 5.0f; pace += fInterval)
+//		{
+//			TargetTracker tracker = Platform.Instance.CreateTargetTracker(pace);
+//		}
+		
+		for(float TotalTimePace = 2.0f; TotalTimePace <= 10.0f; TotalTimePace += 1.0f)
 		{
-			Platform.Instance.CreateTargetTracker(pace);
+			float TotalSeconds = TotalTimePace * 60;	
+			
+			float speed = finish/TotalSeconds;
+			
+			TargetTracker tracker = Platform.Instance.CreateTargetTracker(speed);
 		}
 		
 		//create actors for each target tracker
@@ -126,23 +140,33 @@ public class FirstRun : GameBase {
 			else HandleForward(); 
 		}
 			
-		//check for GPS lock
-		if(eCurrentScreen == FirstRunScreen.AwaitGPSScreen)
-		{
-			//if we've got GPS, proceed to the start
-			if(Platform.Instance.HasLock())
-			{
-				Platform.Instance.SetIndoor(false);
-				eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
-			}
-		}
+//		//check for GPS lock
+//		if(eCurrentScreen == FirstRunScreen.AwaitGPSScreen)
+//		{
+//			//if we've got GPS, proceed to the start
+//			if(Platform.Instance.HasLock())
+//			{
+//				StartCoroutine(ProgressToStartOnceGPS());
+//			}
+//		}
 	}
+	
+	/// <summary>
+	/// Progresses to start once GP. This exists just to insert a short delay.
+	/// </summary>
+	IEnumerator ProgressToStartOnceGPS() {
+		yield return new WaitForSeconds(0.75f);
+		eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
+		progressBar.currentPage ++;
+	}
+
 	
 	public override GConnector GetFinalConnection ()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		return fs.Outputs.Find(r => r.Name == "TutorialExit");
 	}
+
 	
 	protected GUIStyle getLabelStyleLarge()
 	{
@@ -152,7 +176,7 @@ public class FirstRun : GameBase {
 		labelStyle.fontSize = 55;
 		labelStyle.fontStyle = FontStyle.Normal;
 		//labelStyle.clipping = TextClipping.Overflow;
-				
+		
 		return labelStyle;
 	}
 		
@@ -179,30 +203,17 @@ public class FirstRun : GameBase {
 
 		return labelStyle;
 	}
-	
-	protected GUIStyle getLabelStylePace()
-	{
-		// set style for our labels
-		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-		labelStyle.alignment = TextAnchor.MiddleCenter;
-		labelStyle.fontSize = 25;
-		labelStyle.fontStyle = FontStyle.Normal;
-		labelStyle.clipping = TextClipping.Overflow;
 
-		return labelStyle;
-	}
 	
 	private void DrawTintBox() {
-		//rect for the tint box
+		//draw tint box
 		float width = Screen.width;
 		float height = Screen.height;
-		
-		//draw tint box
-		Texture tex = Resources.Load("tint_green", typeof(Texture)) as Texture;
-
 		float border = 30.0f;
+		Texture tex = Resources.Load("tint_green", typeof(Texture)) as Texture;
 		//Rect textureRect = new Rect(border, border, width-2*border, height-2*border);
 		Rect textureRect = new Rect(0,0, Screen.width, Screen.height);
+		
 		GUI.DrawTexture(textureRect, tex, ScaleMode.StretchToFill, true);	
 	}
 	
@@ -229,7 +240,7 @@ public class FirstRun : GameBase {
 		GUIStyle MainMessageStyle = getLabelStyleLarge();
 		GUIStyle NavMessageStyle = getLabelStyleNav();
 		GUIStyle HintStyle = getLabelStyleHint();
-		GUIStyle PaceLabelStyle = getLabelStylePace();
+		//GUIStyle PaceLabelStyle = getLabelStylePace();
 		
 		switch(eCurrentScreen)
 		{
@@ -268,11 +279,32 @@ public class FirstRun : GameBase {
 			
 			break;
 		}
+		case FirstRunScreen.SelectIndoorOutdoor:
+		{
+			DrawTintBox();
+			bool indoor = Platform.Instance.IsIndoor();
+			string onoffString = indoor ? "ON" : "OFF";
+			string mainMessage = "Indoor Mode is" + onoffString;
+			if(!indoor)
+			{
+				if(Platform.Instance.HasLock())
+				{
+					mainMessage += "\nGPS Lock Acquired";
+				}
+				else
+				{
+					mainMessage += "\nAwaiting GPS Lock";
+				}
+			}
+			GUI.Label(MainMessageRect, mainMessage, MainMessageStyle);
+			GUI.Label(NavMessageRect, "Tap to toggle Indoor mode\nSwipe Right to proceed", NavMessageStyle);
+			break;
+		}
 		case FirstRunScreen.ConfirmIndoorScreen:
 		{
 			DrawTintBox();
 			GUI.Label(MainMessageRect, "Indoor Mode\nAre you sure?", MainMessageStyle);
-			GUI.Label(NavMessageRect, "Swipe Right to continue\nSwipe down to cancel", NavMessageStyle);
+			GUI.Label(NavMessageRect, "Swipe Right to continue\nSwipe Left to cancel", NavMessageStyle);
 			break;
 		}
 		case FirstRunScreen.ReadyToStartScreen:
@@ -296,85 +328,71 @@ public class FirstRun : GameBase {
 		
 		//show pace labels for closest actors in front and behind us
 		//TODO this needs optimising, don't need to look at every target every frame.
+		
 		if(shouldShowPaceLabels)
 		{
-
-			GameObject closestAhead = null;
-			GameObject closestBehind = null;
+			
+			TargetController closestAhead = null;
+			TargetController closestBehind = null;
 			float closestAheadDist = 99999;
 			float closestBehindDist = -99999;
+			
+			float closestDistToCentre = 99999;
+			TargetController closestTargetToCentre = null;
 			
 			foreach(GameObject actor in actors)
 			{
 				TargetController controller = actor.GetComponent<TargetController>();
+				//set labels off by default
+				controller.shouldShowOverheadLabel = false;
 				float distance = controller.target.GetDistanceBehindTarget();
 				
 				//UnityEngine.Debug.Log("first run: dist to actor" + distance);
 				
-				//test if this is the closest ahead of us
-				if(distance > 0 && distance < closestAheadDist)
+//				//test if this is the closest ahead of us
+//				if(distance > 0 && distance < closestAheadDist)
+//				{
+//					//UnityEngine.Debug.Log("closest ahead: " + distance);
+//					closestAhead = controller;
+//					closestAheadDist = distance;
+//				}
+//				//... or the closest behind us
+//				if(distance <=0 && distance > closestBehindDist)
+//				{
+//					//UnityEngine.Debug.Log("closest behind: " + distance);
+//					closestBehind = controller;
+//					closestBehindDist = distance;
+//				}
+				
+				Vector3 screenPos = Camera.main.WorldToScreenPoint(actor.transform.position);
+				Vector2 screenPos2D = new Vector2(screenPos.x, screenPos.y);
+				Vector2 screenCentre = new Vector2(Screen.width/2, Screen.height/2);
+				
+				float dist = (screenPos2D - screenCentre).magnitude;
+				if (screenPos.z > 0)
 				{
-					UnityEngine.Debug.Log("closest ahead: " + distance);
-					closestAhead = actor;
-					closestAheadDist = distance;
+					if(dist < closestDistToCentre)
+					{
+						closestDistToCentre = dist;
+						closestTargetToCentre = controller;
+					}
 				}
-				//... or the closest behind us
-				if(distance <=0 && distance > closestBehindDist)
-				{
-					UnityEngine.Debug.Log("closest behind: " + distance);
-					closestBehind = actor;
-					closestBehindDist = distance;
-				}
+				
 			}
 			
-			if(closestAhead != null)
+//			if(closestAhead != null)
+//			{
+//				closestAhead.shouldShowOverheadLabel = true;
+//			}
+//			if(closestBehind != null)
+//			{
+//				closestAhead.shouldShowOverheadLabel = true;
+//			}
+			if(closestTargetToCentre != null)
 			{
-				showPaceLabel(closestAhead);
+				closestTargetToCentre.shouldShowOverheadLabel = true;
 			}
-			if(closestBehind != null)
-			{
-				showPaceLabel(closestBehind);
-			}
-			
 		}
-	}
-	
-	private void showPaceLabel(GameObject labelActor)
-	{
-		if(labelActor == null)
-		{
-			UnityEngine.Debug.LogWarning("FirstRun: can't show label for null actor.");
-			return;
-		}
-		
-		Vector3 actorPos = labelActor.transform.position;
-		
-		
-		Vector3 headPos = actorPos + new Vector3(0, paceLabelYOffsetWorld, 0);
-		//UnityEngine.Debug.Log("FirstRun: actor height: " + actorTop);
-		//UnityEngine.Debug.Log("FirstRun: actor world pos y: " + actor.transform.position);
-		Vector3 screenPos = camera.WorldToScreenPoint(headPos);
-		
-		//only shown actors in front of us.
-		if(screenPos.z < 0) return;
-		
-		//create label
-		GUIStyle paceStyle = getLabelStylePace();
-		float paceHalfWidth = 200;
-	
-		//calculate yPos. Note, camera screen pos calculation comes out with y inverted.
-		float yPos = Screen.height - screenPos.y - paceLabelYOffsetScreen;
-	
-		Rect paceRect = new Rect(screenPos.x - paceHalfWidth, yPos, 2*paceHalfWidth, 1);
-		
-		//determine pace
-		TargetController controller = labelActor.GetComponent<TargetController>();
-		float speed = controller.target.PollCurrentSpeed();
-		long totalTime = (long)((float)finish/speed);
-		string paceString = TimestampMMSSdd(totalTime);
-		//UnityEngine.Debug.Log("speed:"+speed+" totalTime:"+totalTime + " distancePace:" + paceString);
-		
-		GUI.Label(paceRect, paceString, paceStyle);
 	}
 	
 	private string GetHintString(FirstRunHint hint)
@@ -392,22 +410,48 @@ public class FirstRun : GameBase {
 	
 	protected override void OnUnpause ()
 	{
-		UnityEngine.Debug.Log("First Run: exiting pause");
+		//UnityEngine.Debug.Log("First Run: exiting pause");
 		//re-hide the distance
 		SetAheadBoxVisible(false);
+	}
+	
+	public override void GameHandleTap ()
+	{
+		UnityEngine.Debug.Log("FirstRun: Tap received");
+		if(started)
+		{
+			base.GameHandleTap();
+		}
+		if(eCurrentScreen == FirstRunScreen.SelectIndoorOutdoor)
+		{
+			UnityEngine.Debug.Log("FirstRun: Toggling indoor");
+			bool indoor = Platform.Instance.IsIndoor();
+			Platform.Instance.SetIndoor(!indoor);
+		}
+
 	}
 	
 	public override void GyroDidReset()
 	{
 		if (eCurrentScreen == FirstRunScreen.ResetGyrosScreen)
 		{
-			//progress to next screen
-			eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
+			StartCoroutine(ProgressPastResetGyroScreen());
 			//reveal virtual track
 			SetVirtualTrackVisible(true);
 			//assume outdoor and try that initially.
 			Platform.Instance.SetIndoor(false);
 		}
+	}
+	
+	//want a delay for this so the reticle and virtual track are together briefly
+	IEnumerator ProgressPastResetGyroScreen() {
+		//shuffle the progress bar along midway through the delay
+		yield return new WaitForSeconds(0.4f);
+		progressBar.currentPage++;
+		yield return new WaitForSeconds(0.5f);
+		
+		//progress to next screen
+		eCurrentScreen = FirstRunScreen.SelectIndoorOutdoor;
 	}
 	
 	public override void HandleLeftSwipe ()
@@ -430,23 +474,34 @@ public class FirstRun : GameBase {
 			case FirstRunScreen.ResetGyrosScreen:
 			{
 				eCurrentScreen = FirstRunScreen.WelcomeScreen;
+				progressBar.currentPage--;
 				break;
 			}
 			case FirstRunScreen.AwaitGPSScreen:
 			{
 				eCurrentScreen = FirstRunScreen.ResetGyrosScreen;
+				progressBar.currentPage--;
+				break;
+			}
+			case FirstRunScreen.SelectIndoorOutdoor:
+			{
+				//back to reset gyros
+				eCurrentScreen = FirstRunScreen.ResetGyrosScreen;
+				progressBar.currentPage--;
 				break;
 			}
 			case FirstRunScreen.ConfirmIndoorScreen:
 			{
 				Platform.Instance.SetIndoor(false);
 				eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
+				progressBar.currentPage--;
 				break;
 			}
 			case FirstRunScreen.ReadyToStartScreen:
 			{
 				Platform.Instance.SetIndoor(false);
-				eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
+				eCurrentScreen = FirstRunScreen.SelectIndoorOutdoor;
+				progressBar.currentPage--;
 				break;
 			}
 			default:
@@ -463,7 +518,7 @@ public class FirstRun : GameBase {
 	/// </summary>
 	void HandleForward() {
 		
-		UnityEngine.Debug.Log("FirstRun: tap detected");
+		//UnityEngine.Debug.Log("FirstRun: tap detected");
 		
 		switch(eCurrentScreen)
 		{
@@ -471,11 +526,12 @@ public class FirstRun : GameBase {
 		{
 			//proceed to next screen
 			eCurrentScreen = FirstRunScreen.ResetGyrosScreen;	
+			progressBar.currentPage++;
 			break;
 		}
 		case FirstRunScreen.ResetGyrosScreen:
 		{
-			//Do nothing for a tap/swipe on this screen
+			//Do nothing for a tap/swipe on this screenhandleforward()
 			break;
 		}
 		case FirstRunScreen.AwaitGPSScreen:
@@ -485,11 +541,21 @@ public class FirstRun : GameBase {
 		//	eCurrentScreen = FirstRunScreen.ConfirmIndoorScreen;
 		//	break;
 		//}
+		case FirstRunScreen.SelectIndoorOutdoor:
+		{
+			if(Platform.Instance.IsIndoor() || Platform.Instance.HasLock())
+			{
+				eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
+				progressBar.currentPage++;
+			}
+			break;
+		}
 		case FirstRunScreen.ConfirmIndoorScreen:
 		{
 			//tap means confirmation. Set indoor mode and proceed.
 			Platform.Instance.SetIndoor(true);
-			eCurrentScreen = FirstRunScreen.ReadyToStartScreen;	
+			eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
+			progressBar.currentPage++;
 			break;
 		}
 		case FirstRunScreen.ReadyToStartScreen:
@@ -506,6 +572,7 @@ public class FirstRun : GameBase {
 			
 			//set no first run screen
 			eCurrentScreen = FirstRunScreen.NoScreen;
+			progressBar.show = false;			
 			
 			//set menu hint
 			eCurrentHint = FirstRunHint.MenuHint;
@@ -550,8 +617,8 @@ public class FirstRun : GameBase {
 			//show all of the actors
 			foreach (GameObject actor in actors)
 			{
-				UnityEngine.Debug.Log("First Run: activating actor");
-				actor.SetActive(true);	
+				//UnityEngine.Debug.Log("First Run: activating actor");
+				actor.SetActive(true);
 			}
 			} catch(Exception e) {
 				UnityEngine.Debug.LogWarning("Error iterating actors list");	
@@ -577,16 +644,7 @@ public class FirstRun : GameBase {
 			}
 		}
 		
-	/// <summary>
-	/// Handle the user performing the back gesture.
-	/// </summary>
-	void HandleBack() {
-			//go back if on the confirm indoor screen
-			if(eCurrentScreen == FirstRunScreen.ConfirmIndoorScreen)
-			{
-				eCurrentScreen = FirstRunScreen.AwaitGPSScreen;	
-			}
-		}
+
 	
 	void OnDestroy() {
 		//deregister handlers
@@ -615,6 +673,15 @@ public class FirstRun : GameBase {
 			controller.SetLane(lane++);
 			//actor.SetActive(true);
 			actors.Add(actor);
+			
+			//determine pace and set string
+			float speed = tracker.PollCurrentSpeed();
+			long totalTime = (long)((float)finish/speed)*1000;
+			//UnityEngine.Debug.Log("FirstRun: Speed = " + speed);
+			//UnityEngine.Debug.Log("FirstRun: totalTime = " + totalTime);
+			string paceString = TimestampMMSSFromMS(totalTime);
+			//UnityEngine.Debug.Log("FirstRun: pace = " + paceString);
+			controller.overheadLabelString = paceString;
 		}
 		
 	}

@@ -146,11 +146,21 @@ public class GameSelectPanel : HexPanel
 		List<Game> games = PlatformDummy.Instance.GetGames();
 #endif
 		UnityEngine.Debug.Log("Games: There are currently " + games.Count + " games");
+		
+		HexButtonData hbd = new HexButtonData();
+		hbd.row = 0;
+		hbd.column = 0;
+		hbd.buttonName = "current_balance";
+		hbd.onButtonCustomString = Platform.Instance.GetCurrentMetabolism().ToString("f0");
+		//hbd.imageName = "";
+		
+		buttonData.Add(hbd);
+		
         //generate some buttons
         for(int i=0; i<games.Count; i++)
         {
             
-            HexButtonData hbd = GetButtonAt(games[i].column, games[i].row);
+            hbd = GetButtonAt(games[i].column, games[i].row);
             //if we do not have button at provided coordinates we will create new button data for it
             if (hbd == null)
             {

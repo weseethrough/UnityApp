@@ -39,7 +39,6 @@ public class QuitListener : MonoBehaviour {
 		if(gConnect != null) {
 			GestureHelper.onTap -= tapHandler;
 			fs.parentMachine.FollowConnection(gConnect);
-			Platform.Instance.Reset();
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		} else {
 			UnityEngine.Debug.Log("QuitListener: Error finding output - MenuExit");
