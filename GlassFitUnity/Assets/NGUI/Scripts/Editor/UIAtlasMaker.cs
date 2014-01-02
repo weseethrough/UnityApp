@@ -338,6 +338,7 @@ public class UIAtlasMaker : EditorWindow
 				se.tex = null;
 			}
 		}
+        Debug.Log("ULOADING CALL!");
 		Resources.UnloadUnusedAssets();
 	}
 
