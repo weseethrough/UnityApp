@@ -570,6 +570,8 @@ public class Platform : MonoBehaviour {
 	private Track convertTrack(AndroidJavaObject rawtrack) {
 		string name = rawtrack.Call<string>("getName");
 		int[] ids = rawtrack.Call<int[]>("getIDs"); 
+		double trackDistance = rawtrack.Call<double>("getDistance");
+		long trackTime = rawtrack.Call<long>("getTime");
 		using(AndroidJavaObject poslist = rawtrack.Call<AndroidJavaObject>("getTrackPositions")) {
 			int numPositions = poslist.Call<int>("size");
 			List<Position> pos = new List<Position>(numPositions);
@@ -578,7 +580,7 @@ public class Platform : MonoBehaviour {
 				Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
 				pos.Add(current);
 			}
-			return new Track(name, ids[0], ids[1], pos);
+			return new Track(name, ids[0], ids[1], pos, trackDistance, trackTime);
 		}
 	}
 	
@@ -595,11 +597,38 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
+	// Obtain tracks based on distance
+	public virtual List<Track> GetTracks(double distance) {
+		try {
+			using(AndroidJavaObject list = helper.Call<AndroidJavaObject>("getTracks", distance)) {
+				int size = list.Call<int>("size");
+				trackList = new List<Track>(size);
+				try {
+					for(int i=0; i<size; i++) {
+						using(AndroidJavaObject rawTrack = list.Call<AndroidJavaObject>("get", i)) {
+							Track currentTrack = convertTrack(rawTrack);
+							trackList.Add(currentTrack);
+						}
+					}
+					trackList.Reverse();
+					this.currentTrack = 0;
+					return trackList;
+				} catch (Exception e) {
+					UnityEngine.Debug.LogWarning("Platform: Error getting track based on distance: " + e.Message);
+					return null;
+				}
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting Tracks based on distance: " + e.Message);
+			return null;
+		}
+	}
+	
 	// Load a list of tracks
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual List<Track> GetTracks() {
 		try {
-			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getTracks")) {
+			using(AndroidJavaObject list = helper_class.Call<AndroidJavaObject>("getTracks")) {
 				int size = list.Call<int>("size");
 				trackList = new List<Track>(size);
 				try {

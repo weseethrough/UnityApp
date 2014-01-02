@@ -65,6 +65,9 @@ public class GameBase : MonoBehaviour {
 	private String baseMultiplierString;
 	private float baseMultiplierStartTime;
 	
+	// Selected Track
+	public Track selectedTrack = null;
+	
 	// Target speed
 	public float targSpeed = 1.8f;
 	
@@ -96,8 +99,6 @@ public class GameBase : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
-		
-		
 		tapHandler = new GestureHelper.OnTap(() => {
 			GameHandleTap();
 		});
@@ -115,14 +116,20 @@ public class GameBase : MonoBehaviour {
 		
 		//Get target distance
 #if !UNITY_EDITOR
-		finish = (int)DataVault.Get("finish");
+		
+		selectedTrack = (Track)DataVault.Get("current_track");
+		
+		if(selectedTrack != null) {
+			finish = (int)selectedTrack.distance;
+		} else {
+			finish = (int)DataVault.Get("finish");
+		}
 
 #endif	
 		UnityEngine.Debug.Log("BaseGame: finish distance is " + finish);
 		//retrieve or create list of challenges
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
-		
 		
 		indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
 		

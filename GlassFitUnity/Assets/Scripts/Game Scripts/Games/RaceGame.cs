@@ -94,7 +94,13 @@ public class RaceGame : GameBase {
 		// TODO: Move tracker creation to a button/flow and keep this class generic
 		//if (Platform.Instance.targetTrackers.Count == 0) {
 		Platform.Instance.ResetTargets();
-		Platform.Instance.CreateTargetTracker(targSpeed);
+		
+		if(selectedTrack != null) {
+			Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
+		} else {
+			Platform.Instance.CreateTargetTracker(targSpeed);
+		}
+		
 		//} // else trackers created earlier
 
 		
@@ -120,7 +126,7 @@ public class RaceGame : GameBase {
 		// TODO: Decide if we are allowed to sort in place or need to make a copy
 		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
 		int position = 1;
-
+		
 		if(trackers != null){
 			trackers.Sort(delegate(TargetTracker x, TargetTracker y) {
 				return y.GetTargetDistance().CompareTo(x.GetTargetDistance());

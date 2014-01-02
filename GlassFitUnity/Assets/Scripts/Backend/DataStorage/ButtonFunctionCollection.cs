@@ -258,6 +258,57 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
+	static public bool CheckTracks(FlowButton fb, Panel panel) 
+	{
+		int finish = (int)DataVault.Get("finish");
+		List<Track> trackList = Platform.Instance.GetTracks((double)finish);
+		if(trackList != null) {
+			if(trackList.Count == 0) {
+				MessageWidget.AddMessage("Sorry!", "You currently have no tracks for this distance", "activity_delete");
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			MessageWidget.AddMessage("Sorry!", "You currently have no tracks for this distance", "activity_delete");
+			return false;
+		}
+	}
+	
+	static public bool StartPresetSpeed(FlowButton fb, Panel panel) {
+		//DataVault.Set("current_track", null);
+		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
+		return true;
+	}
+	
+	static public bool SetFinish(FlowButton fb, Panel panel)
+	{
+		switch(fb.name) 
+		{
+		case "1km":
+			DataVault.Set("finish", 1000);
+			break;
+			
+		case "2km":
+			DataVault.Set("finish", 2000);
+			break;
+			
+		case "3km":
+			DataVault.Set("finish", 3000);
+			break;
+			
+		case "4km":
+			DataVault.Set("finish", 4000);
+			break;
+			
+		case "5km":
+			DataVault.Set("finish", 5000);
+			break;
+		}
+		
+		return true;
+	}
+	
 	static public bool Purchase(FlowButton fb, Panel panel)
 	{
 		Game current = (Game)DataVault.Get("actual_game");
