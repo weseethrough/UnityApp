@@ -44,94 +44,59 @@ public class TrackSelect : MonoBehaviour {
 	// Texture for the map
 	private UITexture tex;
 	
+	private GestureHelper.OnTap tapHandler = null;
+	
+	private GestureHelper.OnSwipeLeft leftHandler = null;
+	
+	private GestureHelper.OnSwipeRight rightHandler = null;
+	
+	private GestureHelper.DownSwipe downHandler = null;
+	
 	/// <summary>
 	/// Start this instance. Gets the tracklist
 	/// </summary>
 	void Start () {
-		trackList = Platform.Instance.GetTracks();
+		int finish = (int)DataVault.Get("finish");
+		trackList = Platform.Instance.GetTracks((double)finish);
 		tex = GetComponent<UITexture>();
 		
 		LoadTrack();
+		
+		tapHandler = new GestureHelper.OnTap(() => {
+			SetTrack();
+		});
+		
+		GestureHelper.onTap += tapHandler;
+		
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			PreviousTrack();
+		});
+		
+		GestureHelper.swipeLeft += leftHandler;
+		
+		rightHandler = new GestureHelper.OnSwipeRight(() => {
+			NextTrack();
+		});
+		
+		GestureHelper.swipeRight += rightHandler;
+		
+		downHandler = new GestureHelper.DownSwipe(() => {
+			GoBack();
+		});
+		
+		GestureHelper.onSwipeDown += downHandler;
 	}
 	
-	/// <summary>
-	/// Update this instance. Gets and draws the map with the path to a texture
-	/// </summary>
-	void Update() {
-//		// If the track has changed, update
-//		if(currentTrack != Platform.Instance.currentTrack) {
-//			UnityEngine.Debug.Log("TrackPanel: track change: " + Platform.Instance.currentTrack);
-//			
-//			// Set mapChanged to true
-//			mapChanged = true;
-//			
-//			// Handle limits of current track for platform
-//			// TODO: handle this in platform
-//			if(Platform.Instance.currentTrack > trackList.Count - 1 ) {
-//				Platform.Instance.currentTrack = 0;
-//			}
-//			
-//			if(Platform.Instance.currentTrack < 0) {
-//				Platform.Instance.currentTrack = trackList.Count - 1;
-//			}
-//			
-//			if (trackList.Count == 0) Platform.Instance.currentTrack = 0;
-//			
-//			// Set the current track based on platform
-//			currentTrack = Platform.Instance.currentTrack;
-//				UnityEngine.Debug.Log("TrackPanel: current track: " + currentTrack);
-//		}
-//		
-//		// If the map has changed
-//		if(mapChanged) {
-//			// Get the new latitude and longitude limits and center points
-//			GetLimits();
-//			
-//			// Remove the old texture
-//			mapTexture = null;
-//			
-//			// The next section calculates the zoom for the static maps. 
-//			CalculateMapZoom();
-//		
-//			// We now obtain the map from the Google Static Maps API using the values
-//			// obtained above.
-//			if ((mapWWW == null && mapTexture == null) && mapChanged){
-//				const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
-//				const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
-//				string url = endpoint + "?center="
-//			                      	  + centerLat.ToString() + "," + centerLong.ToString()
-//			               	      	  + "&zoom=" + mapZoom.ToString()
-//			  	                  	  + "&size=" + "600" + "x" + "400"
-//			       	              	  + "&maptype=roadmap" 
-//									  + "&sensor=true&key=" + API_KEY;
-//				mapWWW = new WWW(url);
-//				UnityEngine.Debug.Log("TrackSelect: URL is: " + url);
-//			}
-//			
-//			// If the website worked.
-//			if (mapWWW != null) {
-//				// We wait for the map to download.
-//				while(!mapWWW.isDone) {
-//					// If there are any errors, tell the user and break out.
-//					if (mapWWW.error != null) {
-//						UnityEngine.Debug.LogWarning(mapWWW.error);
-//						UnityEngine.Debug.LogWarning("TrackSelect: error with map");
-//						break;
-//					} 
-//				}
-//				
-//				// The texture is then set.
-//				mapTexture = mapWWW.texture;
-//				
-//				// The link is then nulled.
-//				mapWWW = null;
-//			}
-//						
-//			// The UITexture is then obtained and set.
-//			UITexture tex = GetComponent<UITexture>();
-//			tex.mainTexture = mapTexture;
-//			mapChanged = false;
-//		}
+	public void GoBack() 
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "BackExit");
+		if(gConnect != null) {
+			fs.parentMachine.FollowConnection(gConnect);
+		} else {
+			UnityEngine.Debug.Log("TrackSelect: error finding back exit");
+		}
 	}
 	
 	public void NextTrack() 
@@ -156,10 +121,26 @@ public class TrackSelect : MonoBehaviour {
 		LoadTrack();
 	}
 	
+//	public void SetTrack() {
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		
+//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "TrackExit");
+//		if(gConnect != null) 
+//		{
+//			DataVault.Set("track", trackList[currentTrack]);
+//			fs.parentMachine.FollowConnection(gConnect);
+//		} else {
+//			UnityEngine.Debug.Log("TrackSelect: error finding track exit");
+//		}
+//	}
+	
 	public void LoadTrack()
 	{
 		GetLimits();
 			
+		DataVault.Set("track_distance", trackList[currentTrack].distance);
+		DataVault.Set("track_time", TimestampMMSS(trackList[currentTrack].time));
+		
 		// Remove the old texture
 		mapTexture = null;
 			
@@ -202,6 +183,14 @@ public class TrackSelect : MonoBehaviour {
 						
 		// The UITexture is then obtained and set.
 		tex.mainTexture = mapTexture;
+		
+		
+	}
+	
+	protected string TimestampMMSS(long minutes) {
+		TimeSpan span = TimeSpan.FromMinutes(minutes);
+
+		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}
 	
 	public void SetTrack() {
