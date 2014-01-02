@@ -352,7 +352,7 @@ public class GraphWindow : EditorWindow, IDraw
         // Reset material or Label() makes subsequent GL commands invisible!
         lineMaterial.SetPass(0);
         bool selected = (m_selection == node) && (m_selectionConnector == null);
-        GraphUtil.DrawPanel(this, graph, lineMaterial, node, selected, m_hoverConnector, m_selectionConnector);
+        GraphUtil.DrawPanel(this, graph, lineMaterial, node, m_selection, m_hoverConnector, m_selectionConnector);
 
         lineMaterial.SetPass(0);
         //node.TryEvaluate();
@@ -369,8 +369,7 @@ public class GraphWindow : EditorWindow, IDraw
     }
 
 	void DrawGraph(int x, int y, int w, int h)
-	{       
-
+	{
 		float zx = ViewPosition.x;
 		float zy = ViewPosition.y;
 		_zoomArea = new Rect(zx, zy+TopHeight, w, h);
@@ -394,7 +393,7 @@ public class GraphWindow : EditorWindow, IDraw
 		GL.Viewport(new Rect(0,0,w,h));
 
 		// Draw Grid
-		Color grid = new Color(0.85f,0.85f,0.85f,1);
+		/*Color grid = new Color(0.85f,0.85f,0.85f,1);
 		lineMaterial.SetPass( 0 );
 		int full = GridSize*(GridBlocks);
 		for (int i=0; i<=GridBlocks; ++i)
@@ -402,7 +401,7 @@ public class GraphWindow : EditorWindow, IDraw
 			GraphUtil.DrawLine(new Vector2(i*GridSize,0), new Vector2(i*GridSize,full),grid,1);
 			GraphUtil.DrawLine(new Vector2(0,i*GridSize), new Vector2(full,i*GridSize),grid,1);
 		}
-
+        */
 		GraphData data = (Graph != null) ? Graph.Data : null;
 		if (data != null)
 		{
@@ -466,7 +465,19 @@ public class GraphWindow : EditorWindow, IDraw
                         angle = Mathf.Clamp(rr, -180, 180);
                         strip = Calculate(p1, p2, 4, 12.0f, angle, length);
                         lineMaterial.SetPass(0);
-                        GraphUtil.DrawLineStrip2(strip, data.Style.LineColor);
+
+                        Color lineColor;
+
+                        if (m_selection == null || c.Parent == m_selection || dest.Parent == m_selection)
+                        {
+                            lineColor = data.Style.HighlightConnectionLineColor;
+                        }
+                        else
+                        {
+                            lineColor = data.Style.UnrelatedLineColor;
+                        }
+
+                        GraphUtil.DrawLineStrip2(strip, lineColor);
                     }
 				}
 			}
@@ -477,7 +488,7 @@ public class GraphWindow : EditorWindow, IDraw
 			Vector2 p1 = m_selectionConnector.GetPosition(data);
 			lineMaterial.SetPass( 0 );
 			Vector2 p2 = MouseToWorld(m_dragPosition);
-			GraphUtil.DrawLine(p1, p2+new Vector2(2,0), Color.black, 2);
+			GraphUtil.DrawLine(p1, p2+new Vector2(2,0), data.Style.HighlightConnectionLineColor, 2);
 		}
 		
 		GL.PopMatrix();
@@ -973,28 +984,68 @@ public class GraphWindow : EditorWindow, IDraw
             for (int i = 0; i < Graph.Data.Connections.Count; i++ )
             {
                 c = Graph.Data.Connections[i];
-                if (/*c.Link == null ||*/ c.Link.Count == 0)
+                bool forDeletion = true;
+                foreach(GConnector target in c.Link)
                 {
-                    Graph.Data.Connections.Remove(c);
-                    Debug.Log("Removed unused Connection : "+c.Name+" from "+c.Parent.GetDisplayName());
-                    i--;
+                    if ( target.Parent != null)
+                    {
+                        //is this node is pointing to dead node?
+                        if (Graph.Data.Nodes.Find(r => r == target.Parent) == null) continue;
+                        
+                        //it wasn't so we can safely not try to delete it
+                        forDeletion = false;
+                        break;
+                    }
+                }
+
+                if (forDeletion == false) continue;
+
+                //if no connection exited this case then there is either 0 or all of them are null
+                Graph.Data.Connections.Remove(c);
+                Debug.Log("Removed unused Connection : " + c.Name + " from " + c.Parent.GetDisplayName());
+                i--;                
+            }
+           
+            FlowState start = Graph.Data.Nodes.Find(r => r is Start) as FlowState;
+            List<GNode> connectedNodes = new List<GNode>();
+            List<GNode> connectedNodeParents = new List<GNode>();
+            ConnectionTraweler(start, connectedNodes);
+            
+            //all connected nodes will add their parents
+            foreach (FlowState fs in connectedNodes)
+            {
+                FlowState walker = fs.parent;
+                while (walker != null)
+                {
+                    if (connectedNodes.Find(r => r == walker) != null) return;
+                    if (connectedNodeParents.Find(r => r == walker) != null) return;
+                    connectedNodeParents.Add(walker);
+                    walker = walker.parent;
                 }
             }
 
-            GNode gNode;
-            for (int i=0; i< Graph.Data.Nodes.Count; i++)
-            {
-                gNode = Graph.Data.Nodes[i];
-                if (!gNode.IsConnected())
-                {
-                    Graph.Data.Nodes.Remove(gNode);
-                    Debug.Log("Removed unused Node:"+gNode.GetDisplayName());
-                    i--;
-                }
-            }
+            connectedNodes.AddRange(connectedNodeParents);
+            Graph.Data.Nodes = connectedNodes;
+
             dirtySave = true;
         }
 	}
+
+    void ConnectionTraweler(FlowState currentPoint, List<GNode> visitedLocations)
+    {
+        if (currentPoint == null) return;
+        if (visitedLocations.Find(r => r == currentPoint) != null) return;
+
+        visitedLocations.Add(currentPoint);
+
+        foreach(GConnector c in currentPoint.Outputs)
+        {
+            foreach (GConnector target in c.Link)
+            {
+                ConnectionTraweler(target.Parent as FlowState, visitedLocations);
+            }
+        }
+    }
 
     void ExitManager()
     {

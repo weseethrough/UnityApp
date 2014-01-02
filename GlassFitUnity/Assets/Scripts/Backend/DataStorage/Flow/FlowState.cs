@@ -185,12 +185,20 @@ public abstract class FlowState : GNode
     /// <returns></returns>
     public void UpdateSize()
     {
+        UpdateSize(true);
+    }
+    
+    public void UpdateSize(bool updateParent)
+    {
         int count = Mathf.Max(Inputs.Count, Outputs.Count);
 
         int height = Mathf.Max(count * LineHeight + TitleHeight, 80);
         Size.y = height;
-        Size.x = 175 + ((Inputs.Count > 0 && Outputs.Count > 0) ? 75 : 0); 
-        
+        Size.x = 175 + ((Inputs.Count > 0 && Outputs.Count > 0) ? 75 : 0);
+
+        Vector2 oldPos = Position;
+        Vector2 oldSize = Size;
+
         foreach (FlowState child in children)
         {
             Position.x = Mathf.Min(child.Position.x - m_minimumChildBorder.x, Position.x);
@@ -199,8 +207,19 @@ public abstract class FlowState : GNode
             Size.y = Mathf.Max(child.Position.y - Position.y + child.Size.y + m_minimumChildBorder.y, Size.y);
         }
 
+        if (oldPos != Position )
+        {
+            Vector2 offset = Position - oldPos;
+
+            foreach (FlowState child in children)
+            {
+                child.ParentOffest -= offset;
+                child.UpdateSize();
+            }
+        }
+
         //cascade updates to the parents, update offset as well
-        if (parent != null)
+        if (updateParent && parent != null)
         {
             parent.UpdateSize();
             ParentOffest = Position - parent.Position;
