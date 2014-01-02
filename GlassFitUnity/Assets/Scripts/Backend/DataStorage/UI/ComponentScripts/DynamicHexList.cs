@@ -13,7 +13,7 @@ public class DynamicHexList : MonoBehaviour
     HexPanel parent = null;
 
     UICamera guiCamera;
-    public static Vector2 hexLayoutOffset = new Vector2(0.4330127f, 0.25f);
+    public static Vector2 hexLayoutOffset = new Vector2(0.25f, 0.4330127f);
     Vector3 distanceVector;
     Vector3 cameraPosition;
     float radius;
@@ -151,7 +151,7 @@ public class DynamicHexList : MonoBehaviour
     }
 
     /// <summary>
-    /// function which converts orienation quaternion into pitch and yaw, suitable for moving cam up/down, left/right on 2D menu
+    /// function which converts orientation quaternion into pitch and yaw, suitable for moving cam up/down, left/right on 2D menu
     /// </summary>
     /// <param name="q">input orientation</param>
     /// <param name="dynamicCamPos">(yaw, pitch)</param>
@@ -321,8 +321,8 @@ public class DynamicHexList : MonoBehaviour
                 if (lockScript == null || !lockScript.locked)
                 {
                     if (selection != null)
-                    {
-                        selection.SendMessage("OnHover", false, SendMessageOptions.DontRequireReceiver);
+                    {                        
+                        //selection.SendMessage("OnHover", false, SendMessageOptions.DontRequireReceiver);
                         TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                         if (tp != null)
                         {
@@ -336,10 +336,37 @@ public class DynamicHexList : MonoBehaviour
                             {
                                 parent.OnHover(fb, false);
                             }
+
+                            HexButtonData hbd = (fb.userData["HexButtonData"] as HexButtonData);
+                            if (hbd.displayPlusMarker == true)
+                            {
+                                UISprite[] sprites = selection.GetComponentsInChildren<UISprite>() as UISprite[];
+                                if (sprites != null)
+                                {
+                                    foreach (UISprite sprite in sprites)
+                                    {
+                                        switch (sprite.gameObject.name)
+                                        {
+                                            case "Plus":
+                                                sprite.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
                         }
+
+                        //make sure that no data artefacts are left over                        
+                        UIButtonAnimationLocker lockSelectionScript = selection.GetComponent<UIButtonAnimationLocker>();
+                        if (lockSelectionScript == null)
+                        {
+                            lockSelectionScript.locked = false;
+                        }
+                        
                     }
                     selection = newSelection;
-                    newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+                    //newSelection.SendMessage("OnHover", true, SendMessageOptions.DontRequireReceiver);
+                    HexMarkerLogic.SetTarget(newSelection.transform.parent.localPosition);                    
 
                     if (parent != null)
                     {
@@ -347,6 +374,24 @@ public class DynamicHexList : MonoBehaviour
                         if (fb != null)
                         {
                             parent.OnHover(fb, true);
+                        }
+
+                        HexButtonData hbd = (fb.userData["HexButtonData"] as HexButtonData);
+                        if (hbd.displayPlusMarker == true)
+                        {
+                            UISprite[] sprites = selection.GetComponentsInChildren<UISprite>() as UISprite[];
+                            if (sprites != null)
+                            {
+                                foreach (UISprite sprite in sprites)
+                                {
+                                    switch (sprite.gameObject.name)
+                                    {
+                                        case "Plus":
+                                            sprite.transform.localScale = new Vector3(3.0f, 3.0f, 1.0f);
+                                            break;
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -508,6 +553,12 @@ public class DynamicHexList : MonoBehaviour
         {
             GameObject.Destroy(transform.GetChild(transform.childCount - 1));
         }
+
+        Animation anim = GetButtonBase().gameObject.GetComponentInChildren<Animation>();
+        if (anim != null)
+        {
+            anim.gameObject.transform.localScale = new Vector3(0.001f, 0.001f, 1);
+        }
     }
 
     public void UpdateButtonList()
@@ -574,6 +625,20 @@ public class DynamicHexList : MonoBehaviour
                 }
             }
 
+            UISprite[] sprites = tile.GetComponentsInChildren<UISprite>() as UISprite[];
+            if (sprites != null)
+            {
+                foreach (UISprite sprite in sprites)
+                {
+                    switch (sprite.gameObject.name)
+                    {
+                        case "Plus":
+                            sprite.gameObject.SetActive(data.displayPlusMarker);
+                            break;
+                    }
+                }
+            }
+
             buttons.Add(tile);
             buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
         }
@@ -600,7 +665,7 @@ public class DynamicHexList : MonoBehaviour
 
         int count = GetButtonData().Count;
         CleanupChildren(count);
-        buttonEnterDelay = 0.07f;// screenEnterTime / count;
+        buttonEnterDelay = 0.07f;
 
         Transform child = GetButtonBase();
         child.gameObject.SetActive(true);
@@ -671,6 +736,20 @@ public class DynamicHexList : MonoBehaviour
                 }
             }
 
+            UISprite[] sprites = tile.GetComponentsInChildren<UISprite>() as UISprite[];
+            if (sprites != null)
+            {
+                foreach (UISprite sprite in sprites)
+                {
+                    switch (sprite.gameObject.name)
+                    {
+                        case "Plus":
+                            sprite.gameObject.SetActive(data.displayPlusMarker);
+                            break;                        
+                    }
+                }
+            }
+
             buttons.Add(tile);
             buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
         }
@@ -689,8 +768,8 @@ public class DynamicHexList : MonoBehaviour
     /// <returns>flat 2d position for hex </returns>
     public static Vector2 GetLocation(int column, int row)
     {
-        int Yoffset = -(Mathf.Abs(column) % 2);
-        return new Vector2(hexLayoutOffset.x * column, -hexLayoutOffset.y * (Yoffset + row * 2));
+        int Xoffset = -(Mathf.Abs(row) % 2);
+        return new Vector2(-hexLayoutOffset.x * (Xoffset + column * 2), hexLayoutOffset.y * row);
     }
 
     /// <summary>
@@ -808,9 +887,9 @@ public class DynamicHexList : MonoBehaviour
 
                 UIButtonAnimationLocker buttonLocker = buttonRoot.GetComponentInChildren<UIButtonAnimationLocker>();
                 if (buttonLocker != null)
-                {
-                    buttonLocker.OnButtonAnimStarted();
+                {                    
                     EventDelegate.Add(anim.onFinished, buttonLocker.OnButtonAnimFinished, true);
+                    buttonLocker.OnButtonAnimStarted();
                 }
             }
         }
