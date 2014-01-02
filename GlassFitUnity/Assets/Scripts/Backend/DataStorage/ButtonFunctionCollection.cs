@@ -73,6 +73,14 @@ public class ButtonFunctionCollection
 		return false;
 	}
 	
+	static public bool SetTutorial(FlowButton fb, Panel panel)
+	{
+		DataVault.Set("type", "Runner");
+		DataVault.Set("finish", 1000);
+		AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
+		return true;
+	}
+	
 	static public bool SetCeleb(FlowButton fb, Panel panel)
 	{
 		switch(fb.name)

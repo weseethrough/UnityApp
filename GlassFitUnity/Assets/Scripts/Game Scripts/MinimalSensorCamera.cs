@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 /// <summary>
 /// Rotates the camera in-game and sets the grid
@@ -12,8 +13,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private Quaternion? initialBearing = null;  // first valid bearing we receive. Updated on ResetGyros.
 	                                            // null iff no valid bearing has been calculated yet
 	private bool started;
-	private float scaleX;
-	private float scaleY;
 	public GameObject grid;
 	private bool gridOn = false;
 	private float gridTimer = 0.0f;
@@ -25,13 +24,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	private bool indoor = false;
 	
-	private GestureHelper.OnTap tapHandler = null;
-	
 	private GestureHelper.TwoFingerTap twoHandler = null;
 	
 	private GestureHelper.ThreeFingerTap threeHandler = null;
-	
-	private GestureHelper.OnSwipeLeft leftHandler = null;
 	
 	// Set the grid and scale values
 	void Start () {
@@ -45,10 +40,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 		} else {
 			noGrid = true;
 		}
-		scaleX = (float)Screen.width / 800.0f;
-		scaleY = (float)Screen.height / 500.0f;
 		
-		indoor = (bool)DataVault.Get("indoor_settings");
+		indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
 		
 		twoHandler = new GestureHelper.TwoFingerTap(() => {
 			ResetGyroGlass();
@@ -60,19 +53,13 @@ public class MinimalSensorCamera : MonoBehaviour {
 		});
 		GestureHelper.onThreeTap += threeHandler;
 
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			FinishGame();
-		});
-		
-		GestureHelper.swipeLeft += leftHandler;
-		
-		bool ARCameraOn = (bool)DataVault.Get("camera_setting");
+		bool ARCameraOn = Convert.ToBoolean(DataVault.Get("camera_setting"));
 		if(!ARCameraOn)
 		{
-			GetComponent<QCARBehaviour>().enabled = false;
-			GetComponent<DefaultInitializationErrorHandler>().enabled = false;
-			GetComponent<WebCamBehaviour>().enabled = false;
-			GetComponent<KeepAliveBehaviour>().enabled = false;
+			GetComponentInChildren<QCARBehaviour>().enabled = false;
+			GetComponentInChildren<DefaultInitializationErrorHandler>().enabled = false;
+			GetComponentInChildren<WebCamBehaviour>().enabled = false;
+			GetComponentInChildren<KeepAliveBehaviour>().enabled = false;
 		}
 	}
 	
@@ -87,7 +74,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 				// reset orientation offset
 				offsetFromStart = Platform.Instance.GetOrientation();
 				UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
-				//offsetFromStart = Quaternion.Euler(offsetFromStart.eulerAngles.x, 0, 0);
+				//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			
 				// reset bearing offset
 				if (Platform.Instance.Bearing() != -999.0f) {
@@ -103,7 +90,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	}
 	
 	void SetRearview() {
-		if((bool)DataVault.Get("rearview_mirror")) {
+		if(Convert.ToBoolean(DataVault.Get("rearview_mirror"))) {
 			rearview = !rearview;
 		}
 	}
@@ -159,8 +146,12 @@ public class MinimalSensorCamera : MonoBehaviour {
 				}	
 			}
 		}
+		
+		
 #endif
 		GUI.matrix = Matrix4x4.identity;
+		
+		
 	}
 	
 	void ResetGyroGlass()
@@ -171,8 +162,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 			} else {
 			
 			// reset orientation offset
-				offsetFromStart = Platform.Instance.GetOrientation();
+			offsetFromStart = Platform.Instance.GetOrientation();
 			
+			UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
 			// reset bearing offset
 			if (Platform.Instance.Bearing() != -999.0f) {
 				initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
@@ -183,46 +175,10 @@ public class MinimalSensorCamera : MonoBehaviour {
 			}
 			
 				Platform.Instance.ResetGyro();
-				gridOn = true;
-				gridTimer = 5.0f;
-				timerActive = true;
+				//gridOn = true;
+				//gridTimer = 5.0f;
+				//timerActive = true;
 			}
-		}
-	}
-	
-	/// <summary>
-	/// Delegate function for Glass - when the user swipes back this is called to end the game
-	/// </summary>
-	void FinishGame()
-	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton");
-		if(gConnect != null) {
-			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-			DataVault.Set("bonus", 0);
-			Platform.Instance.StopTrack();
-			GestureHelper.onTap -= tapHandler;
-			tapHandler = new GestureHelper.OnTap(() => {
-				Continue();
-			});
-			GestureHelper.onTap += tapHandler;
-			fs.parentMachine.FollowConnection(gConnect);
-		} else {
-			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
-		}
-	}
-	
-	/// <summary>
-	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
-	/// </summary>
-	void Continue() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
-		if(gConnect != null) {
-			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-			fs.parentMachine.FollowConnection(gConnect);
-		} else {
-			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
 		}
 	}
 	
@@ -262,7 +218,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 				
 		// Rotate the camera
 		if(!indoor) {
-			transform.rotation = bearingOffset * rearviewOffset * headOffset;
+			transform.rotation = /*bearingOffset */ rearviewOffset * headOffset;
 		} else {
 			transform.rotation = rearviewOffset * headOffset;
 		}
@@ -308,7 +264,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.onTap -= tapHandler;
+		//GestureHelper.swipeLeft -= leftHandler;
+		//GestureHelper.onTap -= tapHandler;
 	}
 }

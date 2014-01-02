@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using System.Threading;
 using System;
 
 /// <summary>
@@ -23,7 +24,7 @@ public class GameBase : MonoBehaviour {
 	public bool indoor = true;
 	private bool hasEnded = false;
 	
-	private bool maybeQuit = false;
+	protected bool maybeQuit = false;
 	
 	// Bonus distance milestones
 	protected int bonusTarget = 1000;
@@ -70,12 +71,22 @@ public class GameBase : MonoBehaviour {
 	private bool pause = false;
 	
 	private GestureHelper.OnTap tapHandler = null;
-	
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
-	
 	private GestureHelper.DownSwipe downHandler = null;
+	private GestureHelper.OnSwipeLeft leftHandler = null;
+
+	protected GameObject aheadBox;
+	private bool shouldShowAheadBox = true;
+	private GameObject timeBox;
+	private GameObject distanceBox;
+	private GameObject paceBox;
+	private GameObject caloriesBox;
+	private GameObject pointsBox;
+	private GameObject virtualTrack;
+	private bool shouldShowInstrumentation = true;	//flag for whether it should be visible
+	private bool InstrumentationIsVisible = true;	//flag for whether it actually is visible
 	
-		/// <summary>
+	/// <summary>
 	/// Start this instance.
 	/// </summary>
 	public virtual void Start () 
@@ -85,16 +96,22 @@ public class GameBase : MonoBehaviour {
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
-		tapHandler = new GestureHelper.OnTap(() => {
-			PauseGame();
-		});
 		
+		
+		tapHandler = new GestureHelper.OnTap(() => {
+			GameHandleTap();
+		});
 		GestureHelper.onTap += tapHandler;
 		
 		downHandler = new GestureHelper.DownSwipe(() => {
 			ConsiderQuit();
 		});
 		GestureHelper.onSwipeDown += downHandler;
+		
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			HandleLeftSwipe();
+		});
+		GestureHelper.swipeLeft += leftHandler;
 		
 		//Get target distance
 #if !UNITY_EDITOR
@@ -105,14 +122,16 @@ public class GameBase : MonoBehaviour {
 		//retrieve or create list of challenges
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
-				
-		indoor = (bool)DataVault.Get("indoor_settings");
+		
+		
+		indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
 		
 		UnityEngine.Debug.Log("GameBase: indoor set to: " + indoor.ToString());
+			
+		//indoor = true;
 		
 		// Set indoor mode
 		Platform.Instance.SetIndoor(indoor);
-		Platform.Instance.StopTrack();
 		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
 		
@@ -120,14 +139,14 @@ public class GameBase : MonoBehaviour {
 		
 		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
 			GyroDidReset();
-			GestureHelper.onTwoTap -= twoTapHandler;
+			//GestureHelper.onTwoTap -= twoTapHandler;
 		});
 		
 		GestureHelper.onTwoTap += twoTapHandler;
 		
 		//handler for OnReset
 		//this seems to get automatically called as soon as the scene loads. Trying an onTap instead.	
-		
+
 //		GestureHelper.OnTap handler = null;
 //		handler = new GestureHelper.OnTap( () => {
 //			Platform.Instance.ResetGyro();
@@ -139,6 +158,85 @@ public class GameBase : MonoBehaviour {
 		
 		UnityEngine.Debug.Log("GameBase: started");
 		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
+	}
+	
+	protected void SetInstrumentationVisible(bool visible) {
+		//todo: store an array by finding by tag?
+		shouldShowInstrumentation = visible;
+		if(distanceBox == null)
+		{
+			UnityEngine.Debug.Log("FirstRun: distancebox");
+			distanceBox = GameObject.Find("DistanceBox");
+		}
+		if(distanceBox != null)
+		{
+			distanceBox.SetActive(visible);
+		}
+		else
+		{
+			//GUI doesn't yet exist. Set flag to hide later
+			InstrumentationIsVisible = false;
+		}
+		
+		if(timeBox == null)
+		{
+			timeBox = GameObject.Find("TimeBox");
+		}
+		if(timeBox != null)
+		{
+			timeBox.SetActive(visible);
+		}
+		
+		if(pointsBox == null)
+		{
+			pointsBox = GameObject.Find("PointsBox");
+		}
+		if(pointsBox != null)
+		{
+			pointsBox.SetActive(visible);		
+		}
+	
+		if(caloriesBox == null)
+		{	
+			caloriesBox = GameObject.Find("CaloriesBox");
+		}
+		if(caloriesBox != null)
+		{
+			caloriesBox.SetActive(visible);
+		}
+		
+		if(paceBox == null)
+		{
+			paceBox = GameObject.Find("PaceBox");
+		}
+		if(paceBox != null)
+		{
+			paceBox.SetActive(visible);
+		}
+	}
+	
+	protected void SetAheadBoxVisible(bool visible)
+	{
+		if(aheadBox == null)
+		{
+			aheadBox = GameObject.Find("AheadBox");
+			//if we still can't find it, it may not have been created yet.
+			shouldShowAheadBox = visible;
+		}
+		if(aheadBox != null)
+		{
+			aheadBox.SetActive(visible);
+		}
+
+	}
+	
+	protected void SetVirtualTrackVisible(bool visible)
+	{
+		if(virtualTrack == null)
+		{
+			virtualTrack = GameObject.Find("VirtualTrack");
+		}
+		virtualTrack.SetActive(visible);
 	}
 	
 	public void ConsiderQuit() {
@@ -172,11 +270,9 @@ public class GameBase : MonoBehaviour {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 		if(gConnect != null) {
-			Platform.Instance.Reset();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
 			fs.parentMachine.FollowConnection(gConnect);
-			Platform.Instance.Reset();
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		}
 	}
@@ -204,27 +300,97 @@ public class GameBase : MonoBehaviour {
 			GestureHelper.onTap -= tapHandler;
 			
 			tapHandler = new GestureHelper.OnTap(() => {
-				PauseGame();
+				GameHandleTap();
 			});
 			
 			GestureHelper.onTap += tapHandler;
+			
+			OnUnpause();
 		}
+	}
+	
+	/// <summary>
+	/// Handles a left swipe gesture. Finishes the run by default. Can be overridden by game modes, esp tutorials.
+	/// </summary>
+	public virtual void HandleLeftSwipe() {
+		//Taking this out for now. We don't need both the exit via swipe down AND this shortcut. The exit should go via the 'Finished' Menu.
+		//FinishGame();	
+	}
+	
+	public virtual GConnector GetFinalConnection() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		return fs.Outputs.Find(r => r.Name == "FinishButton");
+	}
+	
+		/// <summary>
+	/// Delegate function for Glass - when the user swipes back this is called to end the game
+	/// </summary>
+	protected void FinishGame()
+	{
+		GConnector gConnect = GetFinalConnection();
+		if(gConnect != null) {
+			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+			DataVault.Set("bonus", 0);
+			Platform.Instance.StopTrack();
+			GestureHelper.onTap -= tapHandler;
+			if(gConnect.Name == "FinishButton") {
+				tapHandler = new GestureHelper.OnTap(() => {
+					Continue();
+				});
+				GestureHelper.onTap += tapHandler;
+			}
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			fs.parentMachine.FollowConnection(gConnect);
+		} else {
+			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
+		}
+	}
+	
+	/// <summary>
+	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
+	/// </summary>
+	void Continue() {
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+		if(gConnect != null) {
+			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+			fs.parentMachine.FollowConnection(gConnect);
+		} else {
+			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
+		}
+	}
+	
+	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
+	public virtual void GameHandleTap() {
+		UnityEngine.Debug.Log("GameBase: tap detected");
+		PauseGame();
 	}
 	
 	public void PauseGame()
 	{
 		if(!pause)
 		{
-			pause = true;
-			Platform.Instance.StopTrack();
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
-		 	if(gConnect != null)
+			//only pause if we've actually started, or the countdown has started
+			if(started || countdown)
 			{
-				fs.parentMachine.FollowConnection(gConnect);
-			} else
-			{
-				UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
+				pause = true;
+				Platform.Instance.StopTrack();
+				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+				GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
+			 	if(gConnect != null)
+				{
+					fs.parentMachine.FollowConnection(gConnect);
+					//clear references to the various HUD elements we're keeping track of
+					aheadBox = null;
+					paceBox = null;
+					caloriesBox = null;
+					distanceBox = null;
+					timeBox = null;
+					pointsBox = null;
+				} else
+				{
+					UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
+				}
 			}
 		} else {
 			UnityEngine.Debug.Log("GameBase: Pause pressed, turning off");
@@ -252,7 +418,13 @@ public class GameBase : MonoBehaviour {
 				countdown = false;
 				countTime = 3.0f;
 			}
+			OnUnpause();
 		}
+	}
+	
+	protected virtual void OnUnpause() {
+		//any extra steps which might be needed when we unpause. Intended to be overriden in child classes.
+		return;
 	}
 	
 	/// <summary>
@@ -392,6 +564,16 @@ public class GameBase : MonoBehaviour {
 		// See NewBaseMultiplier method in this class for more detail on how this is set
 		if(started && baseMultiplierStartTime > (Time.time - 1.5f)) {
 			GUI.Label(messageRect, baseMultiplierString, labelStyle);
+		}
+		
+		//hide the ahead box if we need to. We should only get here if we wanted to hide it, but it didn't exist yet.
+		if(aheadBox == null && !shouldShowAheadBox)
+		{
+			SetAheadBoxVisible(false);
+		}
+		if(InstrumentationIsVisible && !shouldShowInstrumentation)
+		{
+			SetInstrumentationVisible(false);
 		}
 	}
 	
@@ -545,13 +727,41 @@ public class GameBase : MonoBehaviour {
 	
 	protected string TimestampMMSSdd(long milliseconds) {
 		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
-
-		return string.Format("{0:00}:{1:00}:{2:00}",span.Minutes,span.Seconds,span.Milliseconds/10);	
+		//if we're into hours, show them
+		if(span.Hours > 0)
+		{
+			return string.Format("{0:0}:{1:00}:{2:00}:{3:00}", span.Hours, span.Minutes, span.Seconds, span.Milliseconds/10);
+		}
+		else
+		{				
+			return string.Format("{0:0}:{1:00}:{2:00}",span.Hours*60 + span.Minutes, span.Seconds, span.Milliseconds/10);
+		}
+			
 	}
 	protected string TimestampMMSS(long minutes) {
 		TimeSpan span = TimeSpan.FromMinutes(minutes);
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
+	}
+	
+	/// <summary>
+	/// Show a timestamp in the form MM:SS, without milliseconds
+	/// </summary>
+	/// <returns>
+	/// The MMSS from M.
+	/// </returns>
+	protected string TimestampMMSSFromMS(long milliseconds) {
+		//UnityEngine.Debug.Log("Converting Timestamp in milliseconds" + milliseconds);
+		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
+		//if we're into hours, show them
+		if(span.Hours > 0)
+		{
+			return string.Format("{0:0}:{1:00}:{2:00}", span.Hours, span.Minutes, span.Seconds);
+		}
+		else
+		{
+			return string.Format("{0:0}:{1:00}",span.Hours*60 + span.Minutes, span.Seconds);
+		}
 	}
 	
 	public void NewBaseMultiplier(String message) {
@@ -574,7 +784,7 @@ public class GameBase : MonoBehaviour {
 	/// handler for when the gyro is reset.
 	/// In this case, indicate that we're ready to start, if we previously weren't
 	/// </summary>
-	public void GyroDidReset()
+	public virtual void GyroDidReset()
 	{
 		UnityEngine.Debug.Log("GameBase: Gyro did reset");
 		if(!readyToStart)

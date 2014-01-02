@@ -9,6 +9,24 @@ public class GameSelectPanel : HexPanel
 {
 	GestureHelper.DownSwipe downHandler = null;
 	
+	// Handlers for cheats
+	GestureHelper.OnTap tapHandler = null;
+	GestureHelper.TwoFingerTap twoHandler = null;
+	GestureHelper.ThreeFingerTap threeHandler = null;
+	
+	public enum Gestures {
+		Tap,
+		TwoTap,
+		ThreeTap,
+		None
+	};
+	
+	private Gestures lastGesture = Gestures.None;
+	
+	private float cheatElapsedTime = 1.0f;
+	private float cheatMaxTime = 1.0f;
+	
+	
 	public GameSelectPanel() {}
     public GameSelectPanel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
@@ -16,15 +34,71 @@ public class GameSelectPanel : HexPanel
 	}
 
 	public void QuitApp() {
+		if(!IsPopupDisplayed()) {
+			GestureHelper.onSwipeDown -= downHandler;
+			Application.Quit();
+		}
+	}
+	
+	public bool IsPopupDisplayed() {
 		HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
 		if(info != null) {
 			if(info.IsInOpenStage()) {
 				info.AnimExit();
-				return;
+				return true;
 			}
 		}
-		GestureHelper.onSwipeDown -= downHandler;
-		Application.Quit();
+		return false;
+	}
+	
+	public void CheckCheat(int current) {
+		switch(current)
+		{
+		case 1:
+			if(lastGesture == Gestures.TwoTap) {
+				UnityEngine.Debug.Log("GameSelectPanel: Final tap - points awarded");
+				Platform.Instance.AwardPoints("Dev Cheat", "Dev Cheat", 10000);
+				MessageWidget.AddMessage("Points Cheat", "You got 10,000 points for nothing!", "trophy copy");
+				lastGesture = Gestures.None;
+			} else {
+				lastGesture = Gestures.None;
+				cheatElapsedTime = 1.0f;
+			}
+			break;
+			
+		case 2:
+			if(lastGesture == Gestures.ThreeTap) {
+				lastGesture = Gestures.TwoTap;
+				UnityEngine.Debug.Log("GameSelectPanel: Two tap detected for cheats");
+			} else {
+				lastGesture = Gestures.None;
+				cheatElapsedTime = 1.0f;
+			}
+			break;
+			
+		case 3:
+			if(lastGesture == Gestures.None) {
+				lastGesture = Gestures.ThreeTap;
+				UnityEngine.Debug.Log("GameSelectPanel: Three tap detected for cheats");
+				cheatElapsedTime = 0.0f;
+			} else {
+				lastGesture = Gestures.None;
+				cheatElapsedTime = 1.0f;
+			}
+			break;
+		}
+	}
+	
+	public override void StateUpdate ()
+	{
+		base.StateUpdate ();
+		
+		if(cheatElapsedTime < 1.0f) {
+			cheatElapsedTime += Time.deltaTime;
+			if(cheatElapsedTime > 1.0f) {
+				lastGesture = Gestures.None;
+			}
+		}
 	}
 	
     public override void EnterStart()
@@ -35,6 +109,7 @@ public class GameSelectPanel : HexPanel
 		GConnector unlockExit = Outputs.Find (r => r.Name == "unlockExit");
 		GConnector celebExit = Outputs.Find (r => r.Name == "celebExit");
 		GConnector modeExit = Outputs.Find (r => r.Name == "modeExit");
+		GConnector deleteExit = Outputs.Find (r => r.Name == "deleteExit");
 		
 		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
 		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentGemBalance());
@@ -45,9 +120,25 @@ public class GameSelectPanel : HexPanel
 			QuitApp();
 		});
 		
-		//LoadingTextComponent.SetVisibility(true);
-		
 		GestureHelper.onSwipeDown += downHandler;
+		
+		tapHandler = new GestureHelper.OnTap(() => {
+			CheckCheat(1);
+		});
+		
+		GestureHelper.onTap += tapHandler;
+		
+		twoHandler = new GestureHelper.TwoFingerTap(() => {
+			CheckCheat(2);
+		});
+		
+		GestureHelper.onTwoTap += twoHandler;
+		
+		threeHandler = new GestureHelper.ThreeFingerTap(() => {
+			CheckCheat(3);
+		});
+		
+		GestureHelper.onThreeTap += threeHandler;
 		
 #if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
@@ -55,11 +146,21 @@ public class GameSelectPanel : HexPanel
 		List<Game> games = PlatformDummy.Instance.GetGames();
 #endif
 		UnityEngine.Debug.Log("Games: There are currently " + games.Count + " games");
+		
+		HexButtonData hbd = new HexButtonData();
+		hbd.row = 0;
+		hbd.column = 0;
+		hbd.buttonName = "current_balance";
+		hbd.onButtonCustomString = Platform.Instance.GetCurrentMetabolism().ToString("f0");
+		//hbd.imageName = "";
+		
+		buttonData.Add(hbd);
+		
         //generate some buttons
         for(int i=0; i<games.Count; i++)
         {
             
-            HexButtonData hbd = GetButtonAt(games[i].column, games[i].row);
+            hbd = GetButtonAt(games[i].column, games[i].row);
             //if we do not have button at provided coordinates we will create new button data for it
             if (hbd == null)
             {
@@ -87,12 +188,11 @@ public class GameSelectPanel : HexPanel
             hbd.imageName = games[i].iconName;
 			
 			if(games[i].state == "Locked") {
-				//UnityEngine.Debug.Log("Game: " + games[i].name + " Set to locked");
-            	hbd.locked = true;
+	           	hbd.locked = true;
 			} else {
-				//UnityEngine.Debug.Log("Game: " + games[i].name + " Set to unlocked");
 				hbd.locked = false;
 			}
+			
 			
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
             gc.EventFunction = "SetType";
@@ -147,10 +247,17 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, modeExit.Link[0]);
 				}
 			}
+			else if(games[i].type == "Delete")
+			{
+				if(deleteExit.Link.Count > 0)
+				{
+					gComponent.Data.Connect(gc, deleteExit.Link[0]);
+				}
+			}
 
         }
 		
-		//LoadingTextComponent.SetVisibility(false);
+		LoadingTextComponent.SetVisibility(false);
 		
         base.EnterStart();   
     }
@@ -159,5 +266,8 @@ public class GameSelectPanel : HexPanel
 	{
 		base.Exited ();
 		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onTap -= tapHandler;
+		GestureHelper.onTwoTap -= twoHandler;
+		GestureHelper.onThreeTap -= threeHandler;
 	}
 }

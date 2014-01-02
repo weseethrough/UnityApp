@@ -88,6 +88,7 @@ public class Game
 			AndroidJavaObject updatedJavaGame = javaGame.Call<AndroidJavaObject> ("unlock");
 			// Update the fields of this game to show the new unlocked status
 			this.Initialise (updatedJavaGame);
+			PlayerPrefs.SetInt(this.gameId, 1);
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning ("Game: Error unlocking game: " + gameId);
 			UnityEngine.Debug.LogException (e);

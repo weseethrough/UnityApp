@@ -336,6 +336,17 @@ public class Platform : MonoBehaviour {
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
+	public virtual bool IsIndoor() {
+  		try {
+		   return gps.Call<bool>("isIndoorMode");
+		  } catch (Exception e) {
+		   UnityEngine.Debug.Log("Platform: Error returning isIndoor");
+		   UnityEngine.Debug.Log(e.Message);
+		   return false;
+		  }
+	}
+	
+	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void ResetTargets() {
 		try {
 			helper.Call("resetTargets");
@@ -471,28 +482,19 @@ public class Platform : MonoBehaviour {
 		lastSync = DateTime.Now;
 		try {
 			helper_class.CallStatic("syncToServer", context);
+			UnityEngine.Debug.Log("Platform: sync to server called");
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem syncing to server");
 			UnityEngine.Debug.LogException(e);
 		}
 	}
-	
-	public bool IsIndoor() {
-		try {
-			bool indoor = gps.Call<bool>("isIndoorMode");
-			return indoor;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error returning isIndoor");
-			UnityEngine.Debug.Log(e.Message);
-			return false;
-		}
-	}
+
 	
 	// Reset GPS tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void Reset() {
 		try {
-			gps.Call("reset");
+			gps.Call("startNewTrack");
 			started = false;
 			UnityEngine.Debug.LogWarning("Platform: GPS has been reset");
 		} catch (Exception e) {
@@ -665,6 +667,17 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning(e.Message);
 			UnityEngine.Debug.LogException(e);
 			return null;
+		}
+	}
+	
+	public virtual void ResetGames() 
+	{
+		try {
+			helper.Call("loadDefaultGames");
+			gameList = null;
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error resetting games: ");
+			UnityEngine.Debug.Log(e.Message);
 		}
 	}
 	
@@ -899,7 +912,9 @@ public class Platform : MonoBehaviour {
 		
 		try {
 			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
-			DataVault.Set("points", (int)currentActivityPoints + "RP");
+			//DataVault.Set("points", (int)currentActivityPoints.ToString("n") + "RP");
+			string pointsFormatted = currentActivityPoints.ToString("n0");
+			DataVault.Set ("points", pointsFormatted + "RP");
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting current activity points: " + e.Message);
 			DataVault.Set("points", -1);

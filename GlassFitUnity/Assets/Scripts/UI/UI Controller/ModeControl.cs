@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class ModeControl : MonoBehaviour {
 
@@ -56,7 +57,7 @@ public class ModeControl : MonoBehaviour {
 		
 		UnityEngine.Debug.Log("Mode: Name is: " + currentMode.ToLower());
 		
-		setting = (bool)DataVault.Get(currentMode.ToLower());
+		setting = Convert.ToBoolean(DataVault.Get(currentMode.ToLower()));
 		
 //		if(currentMode == "Rear-view mirror") 
 //		{
