@@ -9,6 +9,10 @@ public class SensoriaGame : MonoBehaviour {
 	
 	private float targSpeed = 2.2f;
 	
+	private bool firstMessage = false;
+	private bool secondMessage = false;
+	private float messageTime = 0.0f;
+	
 	// Use this for initialization
 	void Start () {
 		Platform.Instance.SetIndoor(true);
@@ -21,6 +25,8 @@ public class SensoriaGame : MonoBehaviour {
 		TargetController controller = runnerHolder.GetComponent<TargetController>();
 		controller.SetTracker(tracker);
 		controller.SetLane(1);
+		
+		DataVault.Set("ending_bonus", "");
 		
 		Platform.Instance.StartTrack();
 	}
@@ -49,6 +55,24 @@ public class SensoriaGame : MonoBehaviour {
 			DataVault.Set("ahead_col_box", "19D200EE");
 		}
 		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
+		
+		if(Input.GetKeyDown(KeyCode.Escape)) {
+			Platform.Instance.Reset();
+			Platform.Instance.StartTrack();
+		}
+	 
+		messageTime += Time.deltaTime;
+		
+		if(messageTime > 5.0f && !firstMessage) {
+			MessageWidget.AddMessage("Careful", "You were overpronating!", "!Feet");
+			firstMessage = true;
+		} 
+		
+		if(messageTime > 15.0f && !secondMessage) {
+			MessageWidget.AddMessage("Careful", "Heel Striking!", "!Feet");
+			secondMessage = true;
+		}
+		
 	}
 	
 	protected string SiDistance(double meters) {

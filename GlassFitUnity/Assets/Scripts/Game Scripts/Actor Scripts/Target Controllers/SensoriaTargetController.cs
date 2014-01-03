@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class SensoriaTargetController : TargetController {
-
+	
 	private Animator anim; 
 	private float speed;
 	
@@ -26,14 +26,5 @@ public class SensoriaTargetController : TargetController {
 	void Update () {
 		base.Update();
 		
-		if(Platform.Instance.GetHighestDistBehind() > 10 && speed > 0.0f) {
-			UnityEngine.Debug.Log("SensTarget: distance reached, lowering speed");
-			speed = 0.0f;
-			SetSpeed(speed);
-		} else if(Platform.Instance.GetHighestDistBehind() < 10 && speed < 2.3f) {
-			UnityEngine.Debug.Log("SensTarget: distance reached, increasing speed");
-			speed = 2.3f;
-			SetSpeed(speed);
-		}
 	}
 }
