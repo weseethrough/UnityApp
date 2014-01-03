@@ -19,6 +19,7 @@ public class Platform : MonoBehaviour {
 	private long currentActivityPoints = 0;
 	private long openingPointsBalance = 0;
 	public int currentTrack { get; set; }
+	public float[] sensoriaSockPressure { get; private set;}
 	
 	private List<Track> trackList;
 	private List<Game> gameList;
@@ -32,6 +33,7 @@ public class Platform : MonoBehaviour {
 	private AndroidJavaClass points_helper_class;
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
+	private AndroidJavaObject sensoriaSock;
 	
 	public List<TargetTracker> targetTrackers { get; private set; }
 	
@@ -188,6 +190,13 @@ public class Platform : MonoBehaviour {
 	                    AwardPoints("Free points for devs", "Platform.cs", 10000);
 	                    // Cache the list of games and states from java
 			            GetGames();
+				
+				        // get reference to Sensoria Socks
+				        try {
+							sensoriaSock = new AndroidJavaObject("com.glassfitgames.glassfitplatform.sensors.SensoriaSock", context);
+						} catch (Exception e) {
+							UnityEngine.Debug.LogWarning("Platform: Error attaching to Sensoria Socks: " + e.Message);
+						}
 			                       
 						Poll();
 	                    UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
@@ -954,6 +963,13 @@ public class Platform : MonoBehaviour {
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting opening points balance: " + e.Message);
 		}
+		
+		try {
+			sensoriaSockPressure = sensoriaSock.Call<float[]>("getPressureSensorValues", ((long)(UnityEngine.Time.time*1000)));
+			UnityEngine.Debug.Log("Sensoria pressure = " + sensoriaSockPressure[0]);
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting sensoria sock pressure data: " + e.Message);
+		}
 	}
 	
 	// Return the distance behind target
@@ -1034,6 +1050,8 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error setting base points speed: " + e.Message);
 		}
 	}
+	
+	
 	
 	/// <summary>
 	/// Use this method to award the user points.
