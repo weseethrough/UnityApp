@@ -20,6 +20,7 @@ public class Platform : MonoBehaviour {
 	private long openingPointsBalance = 0;
 	public int currentTrack { get; set; }
 	public float[] sensoriaSockPressure { get; private set;}
+	private float sensoriaTimewarp = 0.0f;
 	
 	private List<Track> trackList;
 	private List<Game> gameList;
@@ -194,6 +195,7 @@ public class Platform : MonoBehaviour {
 				        // get reference to Sensoria Socks
 				        try {
 							sensoriaSock = new AndroidJavaObject("com.glassfitgames.glassfitplatform.sensors.SensoriaSock", context);
+					        sensoriaTimewarp = UnityEngine.Time.time;
 							UnityEngine.Debug.Log("Platform: socks obtained");
 						} catch (Exception e) {
 							UnityEngine.Debug.LogWarning("Platform: Error attaching to Sensoria Socks: " + e.Message);
@@ -976,8 +978,13 @@ public class Platform : MonoBehaviour {
 		}
 		
 		try {
-			sensoriaSockPressure = sensoriaSock.Call<float[]>("getPressureSensorValues", ((long)(UnityEngine.Time.time*1000)));
-			//UnityEngine.Debug.Log("Platform: poll Sensoria pressure = " + sensoriaSockPressure[0]);
+			if (pace > 0) {
+				sensoriaTimewarp += UnityEngine.Time.deltaTime/7.0f*pace;
+				sensoriaSockPressure = sensoriaSock.Call<float[]>("getPressureSensorValues", ((long)(sensoriaTimewarp*1000)));
+				//UnityEngine.Debug.Log("Platform: poll Sensoria pressure = " + sensoriaSockPressure[0]);
+			} else {
+				sensoriaSockPressure = new float[] {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting sensoria sock pressure data: " + e.Message);
 		}
