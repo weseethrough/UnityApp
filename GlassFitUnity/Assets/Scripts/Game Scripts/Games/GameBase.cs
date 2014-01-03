@@ -170,6 +170,8 @@ public class GameBase : MonoBehaviour {
 //		});
 //		GestureHelper.onTap += handler;
 		
+		DataVault.Set("distance_units", "metres");
+		DataVault.Set("time_units", "m:s:ds");
 		
 		UnityEngine.Debug.Log("GameBase: started");
 		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
@@ -180,16 +182,16 @@ public class GameBase : MonoBehaviour {
 		shouldShowInstrumentation = visible;
 		if(distanceBox == null)
 		{
-			UnityEngine.Debug.Log("FirstRun: distancebox");
+			//UnityEngine.Debug.Log("FirstRun: distancebox");
 			distanceBox = GameObject.Find("DistanceBox");
 		}
 		if(distanceBox != null)
 		{
-			UnityEngine.Debug.Log("FirstRun: couldn't find distance box");
 			distanceBox.SetActive(visible);
 		}
 		else
 		{
+			//UnityEngine.Debug.Log("FirstRun: couldn't find distance box");
 			//GUI doesn't yet exist. Set flag to hide later
 			InstrumentationIsVisible = false;
 		}
@@ -641,10 +643,9 @@ public class GameBase : MonoBehaviour {
 		{
 			SetAheadBoxVisible(false);
 		}
-		if(InstrumentationIsVisible && !shouldShowInstrumentation)
-		{
-			SetInstrumentationVisible(false);
-		}
+
+		SetInstrumentationVisible(shouldShowInstrumentation);
+	
 	}
 	
 		protected void UpdateAhead() {

@@ -71,6 +71,8 @@ public class FirstRun : GameBase {
 		DataVault.Set("distance", "");
 		DataVault.Set("time", "");
 		DataVault.Set("ahead_box", "");
+		DataVault.Set("time_units", "");
+		DataVault.Set("distanceunits", "");
 		
 		swipeHandler = new GestureHelper.OnSwipeRight( () => {
 			HandleForward();
