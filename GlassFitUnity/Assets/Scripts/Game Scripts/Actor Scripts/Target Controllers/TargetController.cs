@@ -35,7 +35,9 @@ public class TargetController : MonoBehaviour {
 	
 	public void SetTracker(TargetTracker tracker) {
 		target = tracker;
-		UnityEngine.Debug.Log("Target: linked to tracker: " + target.ToString());
+		if(target != null) {
+			UnityEngine.Debug.Log("Target: linked to tracker: " + target.ToString());
+		}	
 	}
 	
 	public void SetLane(int lane) {
@@ -56,6 +58,7 @@ public class TargetController : MonoBehaviour {
 	
 	public void SetSpeed(float f) {
 		if(target is FauxTargetTracker) {
+			UnityEngine.Debug.Log("TargetController: Setting Target speed");
 			((FauxTargetTracker)target).SetTargetSpeed(f);
 		}
 	}
