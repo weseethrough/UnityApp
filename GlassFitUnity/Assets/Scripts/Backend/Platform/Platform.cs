@@ -165,7 +165,7 @@ public class Platform : MonoBehaviour {
 	            context = activity.Call<AndroidJavaObject>("getApplicationContext");
 	            helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
 	            points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
-	            UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
+	            UnityEngine.Debug.Log("Platform: helper_class created OK");
 	                        
 	            // call the following on the UI thread
 	            activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
@@ -174,7 +174,7 @@ public class Platform : MonoBehaviour {
 	                    try {
 	                            helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
 	                            points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
-	                    UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
+	                    UnityEngine.Debug.Log("Platform: unique helper instance returned OK");
 	                    } catch (Exception e) {
 	                            UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
 	                            UnityEngine.Debug.LogException(e);
@@ -182,7 +182,7 @@ public class Platform : MonoBehaviour {
 	                    // Try to get a Java GPSTracker object
 	                    try {
 	                            gps = helper.Call<AndroidJavaObject>("getGPSTracker");
-	                            UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
+	                            UnityEngine.Debug.Log("Platform: unique GPS tracker obtained");
 	                    } catch (Exception e) {
 	                            UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
 	                            UnityEngine.Debug.LogException(e);
@@ -316,7 +316,7 @@ public class Platform : MonoBehaviour {
 			gps.Call("startTracking");
 			tracking = true;
 			started = true;
-			UnityEngine.Debug.LogWarning("Platform: StartTrack succeeded");
+			UnityEngine.Debug.Log("Platform: StartTrack succeeded");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: StartTrack failed " + e.Message);
 			UnityEngine.Debug.LogException(e);
@@ -334,9 +334,9 @@ public class Platform : MonoBehaviour {
 				gps.Call("setIndoorMode", indoor);
 				if (indoor) {
 				    gps.Call("setIndoorSpeed", 7.0f);
-				    UnityEngine.Debug.LogWarning("Platform: Indoor mode set to true, indoor speed = 2.0m/s");
+				    UnityEngine.Debug.Log("Platform: Indoor mode set to true, indoor speed = 2.0m/s");
 				} else {
-					UnityEngine.Debug.LogWarning("Platform: Indoor mode set to false, will use true GPS speed");
+					UnityEngine.Debug.Log("Platform: Indoor mode set to false, will use true GPS speed");
 				}
 			}));
 		} catch(Exception e) {
@@ -349,7 +349,7 @@ public class Platform : MonoBehaviour {
   		try {
 		   return gps.Call<bool>("isIndoorMode");
 		  } catch (Exception e) {
-		   UnityEngine.Debug.Log("Platform: Error returning isIndoor");
+		   UnityEngine.Debug.LogWarning("Platform: Error returning isIndoor");
 		   UnityEngine.Debug.Log(e.Message);
 		   return false;
 		  }
@@ -361,7 +361,7 @@ public class Platform : MonoBehaviour {
 			helper.Call("resetTargets");
 			targetTrackers.Clear();
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error clearing targets");
+			UnityEngine.Debug.LogWarning("Platform: Error clearing targets");
 		}
 	}
 	
@@ -372,7 +372,7 @@ public class Platform : MonoBehaviour {
 		try {
 			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getFauxTargetTracker", constantSpeed);
 			if (ajo.GetRawObject().ToInt32() == 0) return null;
-			UnityEngine.Debug.LogWarning("TargetTracker: faux target tracker obtained");
+			UnityEngine.Debug.Log("TargetTracker: faux target tracker obtained");
 			t = new FauxTargetTracker(ajo);
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("TargetTracker: Helper.getFauxTargetTracker() failed" + e.Message);
@@ -455,6 +455,7 @@ public class Platform : MonoBehaviour {
 			}
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem stopping tracking");
+			UnityEngine.Debug.LogException(e);
 			return null;
 		}
 	}
@@ -505,7 +506,7 @@ public class Platform : MonoBehaviour {
 		try {
 			gps.Call("startNewTrack");
 			started = false;
-			UnityEngine.Debug.LogWarning("Platform: GPS has been reset");
+			UnityEngine.Debug.Log("Platform: GPS has been reset");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: reset() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
@@ -516,7 +517,7 @@ public class Platform : MonoBehaviour {
 	public virtual byte[] LoadBlob(string id) {
 		try {
 			byte[] blob = helper_class.CallStatic<byte[]>("loadBlob", id);
-			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " loaded");
+			UnityEngine.Debug.Log("Platform: Game blob " + id + " of size: " + blob.Length + " loaded");
 			return blob;
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: LoadBlob() failed: " + e.Message);
@@ -542,7 +543,7 @@ public class Platform : MonoBehaviour {
 		try {
 			helper.Call("resetGyros");
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error resetting gyros: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error resetting gyros: " + e.Message);
 		}
 		//call handlers
 		if (onResetGyro != null)
@@ -571,7 +572,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Database Successfully exported to CSV");
 		} catch (Exception e)
 		{
-			UnityEngine.Debug.Log("Platform: Error exporting database");
+			UnityEngine.Debug.LogWarning("Platform: Error exporting database");
 			UnityEngine.Debug.Log(e.Message);
 		}
 	}
@@ -714,7 +715,7 @@ public class Platform : MonoBehaviour {
 			helper.Call("loadDefaultGames");
 			gameList = null;
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error resetting games: ");
+			UnityEngine.Debug.LogWarning("Platform: Error resetting games: ");
 			UnityEngine.Debug.Log(e.Message);
 		}
 	}
@@ -786,7 +787,7 @@ public class Platform : MonoBehaviour {
 						friendList[i] = new Friend(f.Get<string>("friend"));
 					}
 				}
-				UnityEngine.Debug.LogWarning("Platform: " + friendList.Length + " friends fetched");
+				UnityEngine.Debug.Log("Platform: " + friendList.Length + " friends fetched");
 				return friendList;
 			}
 		} catch (Exception e) {
@@ -807,7 +808,7 @@ public class Platform : MonoBehaviour {
 					notifications[i] = new Notification(p.Get<string>("id"), p.Get<bool>("read"), p.Get<string>("message"));
 					notifications[i].ajo = p; // Store java handle, TODO: Only when not read so as to save handles?
 				}
-				UnityEngine.Debug.LogWarning("Platform: " + notifications.Length + " notifications fetched");
+				UnityEngine.Debug.Log("Platform: " + notifications.Length + " notifications fetched");
 				return notifications;
 			}
 		} catch (Exception e) {
@@ -825,7 +826,7 @@ public class Platform : MonoBehaviour {
 	public virtual void StoreBlob(string id, byte[] blob) {
 		try {
 			helper_class.CallStatic("storeBlob", id, blob);
-			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " of size: " + blob.Length + " stored");
+			UnityEngine.Debug.Log("Platform: Game blob " + id + " of size: " + blob.Length + " stored");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: StoreBlob() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
@@ -876,7 +877,7 @@ public class Platform : MonoBehaviour {
 	public virtual void EraseBlob(string id) {
 		try {
 			helper_class.CallStatic("eraseBlob", id);
-			UnityEngine.Debug.LogWarning("Platform: Game blob " + id + " erased");
+			UnityEngine.Debug.Log("Platform: Game blob " + id + " erased");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: EraseBlob() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);			
@@ -886,7 +887,7 @@ public class Platform : MonoBehaviour {
 	public virtual void ResetBlobs() {
 		try {
 			helper_class.CallStatic("resetBlobs");
-			UnityEngine.Debug.LogWarning("Platform: Game blobs reset");
+			UnityEngine.Debug.Log("Platform: Game blobs reset");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: ResetBlobs() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);			
@@ -935,7 +936,7 @@ public class Platform : MonoBehaviour {
 				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
 			}
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting position: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting position: " + e.Message);
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
 		try {
@@ -945,23 +946,23 @@ public class Platform : MonoBehaviour {
 				bearing = -999.0f;
 			}
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting bearing: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
 		}
 		
 		try {
 			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
 			//DataVault.Set("points", (int)currentActivityPoints.ToString("n") + "RP");
 			string pointsFormatted = currentActivityPoints.ToString("n0");
-			DataVault.Set ("points", pointsFormatted + "RP");
+			DataVault.Set ("points", pointsFormatted/* + "RP"*/);
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting current activity points: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting current activity points: " + e.Message);
 			DataVault.Set("points", -1);
 		}		
 		
 		try {
 			openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting opening points balance: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting opening points balance: " + e.Message);
 		}
 		
 		try {
@@ -1019,7 +1020,7 @@ public class Platform : MonoBehaviour {
 		try {
 			return points_helper.Call<int>("getCurrentGemBalance");
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting current gem balance: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting current gem balance: " + e.Message);
 			return 0;
 		}
 	}
@@ -1038,7 +1039,7 @@ public class Platform : MonoBehaviour {
 		try {
 			return points_helper.Call<float>("getCurrentMetabolism");
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting current metabolism: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting current metabolism: " + e.Message);
 			return 0;
 		}
 	}
@@ -1047,7 +1048,7 @@ public class Platform : MonoBehaviour {
 		try {
 			points_helper.Call("setBaseSpeed", speed);
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error setting base points speed: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error setting base points speed: " + e.Message);
 		}
 	}
 	
@@ -1074,7 +1075,7 @@ public class Platform : MonoBehaviour {
 		}
 		catch (Exception e)
 		{
-			UnityEngine.Debug.Log("Platform: Error awarding " + reason + " of " + points + " points in " + gameId);
+			UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + points + " points in " + gameId);
 		}
 	}
 	
@@ -1099,7 +1100,7 @@ public class Platform : MonoBehaviour {
 		}
 		catch (Exception e)
 		{
-			UnityEngine.Debug.Log("Platform: Error awarding " + reason + " of " + gems + " gems in " + gameId);
+			UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + gems + " gems in " + gameId);
 		}
 	}	
 	

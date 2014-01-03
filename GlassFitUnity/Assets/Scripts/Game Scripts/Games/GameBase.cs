@@ -81,12 +81,19 @@ public class GameBase : MonoBehaviour {
 
 	protected GameObject aheadBox;
 	private bool shouldShowAheadBox = true;
-	private GameObject timeBox;
-	private GameObject distanceBox;
-	private GameObject paceBox;
-	private GameObject caloriesBox;
-	private GameObject pointsBox;
+	private GameObject timeBox = null;
+	private GameObject distanceBox = null;
+	private GameObject paceBox = null;
+	private GameObject caloriesBox = null;
+	private GameObject pointsBox = null;
+	private GameObject timeUnits = null;
+	private GameObject distanceUnits = null;
+	private GameObject paceUnits = null;
+	private GameObject caloriesUnits = null;
+	private GameObject pointsUnits = null;
+	
 	private GameObject virtualTrack;
+	
 	private bool shouldShowInstrumentation = true;	//flag for whether it should be visible
 	private bool InstrumentationIsVisible = true;	//flag for whether it actually is visible
 	
@@ -178,6 +185,7 @@ public class GameBase : MonoBehaviour {
 		}
 		if(distanceBox != null)
 		{
+			UnityEngine.Debug.Log("FirstRun: couldn't find distance box");
 			distanceBox.SetActive(visible);
 		}
 		else
@@ -221,6 +229,46 @@ public class GameBase : MonoBehaviour {
 		{
 			paceBox.SetActive(visible);
 		}
+		//units
+		if(distanceUnits == null) {
+			distanceUnits = GameObject.Find("DistanceUnits_Lalignend");
+		}
+		if(distanceUnits!= null){
+			distanceUnits.SetActive(visible);
+		}
+		if(timeUnits == null) {
+			timeUnits = GameObject.Find("TimeUnits_Laligned");
+		}
+		if(timeUnits != null) {
+			timeUnits.SetActive(visible);
+		}
+		if(pointsUnits == null) {
+			UnityEngine.Debug.Log("FirstRace: points units null");
+			pointsUnits = GameObject.Find("PointsUnits");
+		}
+		if(pointsUnits != null) {
+			UnityEngine.Debug.Log("FirstRace: found points units object. setting inactive");
+			pointsUnits.SetActive(visible);
+		}
+		else
+		{
+			UnityEngine.Debug.Log("FirstRace: didn't find points units object");
+			InstrumentationIsVisible = false;
+		}
+		
+		if(caloriesUnits == null) {
+			caloriesUnits = GameObject.Find("CaloriesUnits");
+		}
+		if(caloriesUnits != null) {
+			caloriesUnits.SetActive(visible);
+		}
+		if(paceUnits == null) {
+			paceUnits = GameObject.Find("PaceUnits");
+		}
+		if(paceUnits != null) {
+			paceUnits.SetActive(visible);
+		}
+		
 	}
 	
 	protected void SetAheadBoxVisible(bool visible)
@@ -627,9 +675,9 @@ public class GameBase : MonoBehaviour {
 		//Update variables for GUI	
 		Platform.Instance.Poll();
 		
-		DataVault.Set("calories", Platform.Instance.Calories().ToString() + "kcal");
-		DataVault.Set("pace", SpeedToKmPace(Platform.Instance.Pace()).ToString("f1") + "min/km");
-		DataVault.Set("distance", SiDistance(Platform.Instance.Distance()));
+		DataVault.Set("calories", Platform.Instance.Calories().ToString()/* + "kcal"*/);
+		DataVault.Set("pace", SpeedToKmPace(Platform.Instance.Pace()).ToString("f1")/* + "min/km"*/);
+		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance()));
 		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);
 		
@@ -670,13 +718,13 @@ public class GameBase : MonoBehaviour {
 		 	if(countTime <= -1.0f && !started)
 			{
 				Platform.Instance.StartTrack();
-				UnityEngine.Debug.LogWarning("Tracking Started");
+				UnityEngine.Debug.Log("Tracking Started");
 				
 				started = true;
 			}
 			else if(countTime > -1.0f)
 			{
-				UnityEngine.Debug.LogWarning("Counting Down");
+				//UnityEngine.Debug.Log("Counting Down");
 				countTime -= Time.deltaTime;
 			}
 		}
@@ -724,6 +772,10 @@ public class GameBase : MonoBehaviour {
 	
 	//TODO move these to a utility class
 	protected string SiDistance(double meters) {
+		return SiDistanceUnitless(meters) + DataVault.Get("distance_units");
+	}
+	
+	protected string SiDistanceUnitless(double meters) {
 		string postfix = "m";
 		string final;
 		float value = (float)meters;
@@ -736,9 +788,11 @@ public class GameBase : MonoBehaviour {
 		{
 			final = value.ToString("f0");
 		}
-		return final+postfix;
+		//set the units string for the HUD
+		DataVault.Set("distance_units", postfix);
+		return final;
 	}
-	
+			
 	protected long SpeedToKmPace(float speed) {
 		if (speed <= 0) {
 			return 0;
@@ -753,10 +807,14 @@ public class GameBase : MonoBehaviour {
 		if(span.Hours > 0)
 		{
 			return string.Format("{0:0}:{1:00}:{2:00}:{3:00}", span.Hours, span.Minutes, span.Seconds, span.Milliseconds/10);
+			//set units string for HUD
+			DataVault.Set("time_units", "h:m:s");
 		}
 		else
 		{				
 			return string.Format("{0:0}:{1:00}:{2:00}",span.Hours*60 + span.Minutes, span.Seconds, span.Milliseconds/10);
+			//set units string for HUD
+			DataVault.Set("time_units", "m:s:ds");
 		}
 			
 	}
