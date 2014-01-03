@@ -11,7 +11,7 @@ public class TargetController : MonoBehaviour {
 	public bool shouldShowOverheadLabel = false;
 	public float overheadLabelHeight = 300.0f;
 	public string overheadLabelString = "TEST";
-	public float overheadLabelScreenOffset = 0.0f;
+	public float overheadLabelScreenOffset = 20.0f;
 	
 	protected float distanceOffset = 0.0f;
 	protected float travelSpeed = 1.0f;
