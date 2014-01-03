@@ -59,6 +59,9 @@ public class SensoriaGame : MonoBehaviour {
 		if(Input.GetKeyDown(KeyCode.Escape)) {
 			Platform.Instance.Reset();
 			Platform.Instance.StartTrack();
+			firstMessage = false;
+			secondMessage = false;
+			messageTime = 0f;
 		}
 	 
 		messageTime += Time.deltaTime;
