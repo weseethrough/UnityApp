@@ -476,8 +476,10 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.Reset();
 			Platform.Instance.ResetTargets();
 					
-			if(!trackSelected) {
+			if(selectedTrack == null) {
 				Platform.Instance.CreateTargetTracker(targSpeed);
+			} else {
+				Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
 			}
 			
 			Platform.Instance.SetIndoor(indoor);			

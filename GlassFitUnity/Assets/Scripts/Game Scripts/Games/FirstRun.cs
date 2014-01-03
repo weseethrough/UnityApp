@@ -129,7 +129,7 @@ public class FirstRun : GameBase {
 		}
 		
 		//check for tap/back input
-//		bool tapped = false;
+		bool tapped = false;
 //		if(Input.touchCount > 0 && Input.GetTouch(0).phase == (TouchPhase.Began)) {
 //			tapped = true;
 //		}
