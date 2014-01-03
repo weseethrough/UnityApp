@@ -253,6 +253,10 @@ public class ButtonFunctionCollection
 		case "5km":
 			DataVault.Set("finish", 5000);
 			break;
+			
+		case "10km":
+			DataVault.Set("finish", 10000);
+			break;
 		}
 		
 		return true;
@@ -303,6 +307,10 @@ public class ButtonFunctionCollection
 			
 		case "5km":
 			DataVault.Set("finish", 5000);
+			break;
+			
+		case "10km":
+			DataVault.Set("finish", 10000);
 			break;
 		}
 		
@@ -369,6 +377,10 @@ public class ButtonFunctionCollection
 			
 		case "5km":
 			DataVault.Set("finish", 5000);
+			break;
+			
+		case "10km":
+			DataVault.Set("finish", 10000);
 			break;
 		}
 		return true;

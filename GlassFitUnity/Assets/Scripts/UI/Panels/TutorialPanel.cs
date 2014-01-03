@@ -84,8 +84,8 @@ public class TutorialPanel : HexPanel
 	public virtual void AddFinalButton()
 	{
 		HexButtonData hbd = new HexButtonData();
-        hbd.row = 0;
-        hbd.column = -2;
+        hbd.row = -2;
+        hbd.column = 0;
         hbd.buttonName = "FinalHex";
 		hbd.displayInfoData = false;
 		hbd.onButtonCustomString = "Highlight the hex and tap to start";
@@ -118,7 +118,7 @@ public class TutorialPanel : HexPanel
         {
             HexButtonData hbd = new HexButtonData();
             hbd.row = 1;
-            hbd.column = 1;
+            hbd.column = 0;
             hbd.buttonName = "TheseHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "These hexes";
@@ -129,7 +129,7 @@ public class TutorialPanel : HexPanel
         {
             HexButtonData hbd = new HexButtonData();
             hbd.row = 1;
-            hbd.column = 0;
+            hbd.column = -1;
             hbd.buttonName = "ChallengeHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "are challenges";
@@ -139,7 +139,7 @@ public class TutorialPanel : HexPanel
         } else if (buttonData.Count == 5)
         {
             HexButtonData hbd = new HexButtonData();
-            hbd.row = 1;
+            hbd.row = 0;
             hbd.column = -1;
             hbd.buttonName = "TryHex";
             hbd.displayInfoData = false;
@@ -150,7 +150,7 @@ public class TutorialPanel : HexPanel
         } else if(buttonData.Count == 6) 
 		{
 			HexButtonData hbd = new HexButtonData();
-            hbd.row = 0;
+            hbd.row = -1;
             hbd.column = -1;
             hbd.buttonName = "TryHex";
 			hbd.imageName = "activity_run";
@@ -225,7 +225,7 @@ public class TutorialPanel : HexPanel
 	        {
 	            HexButtonData hbd = new HexButtonData();
 	            hbd.row = 1;
-	            hbd.column = 1;
+	            hbd.column = 0;
 	            hbd.buttonName = "TheseHex";
 	            hbd.displayInfoData = false;
 	            hbd.onButtonCustomString = "These hexes";
@@ -237,7 +237,7 @@ public class TutorialPanel : HexPanel
 	        {
 	            HexButtonData hbd = new HexButtonData();
 	            hbd.row = 1;
-	            hbd.column = 0;
+	            hbd.column = -1;
 	            hbd.buttonName = "ChallengeHex";
 	            hbd.displayInfoData = false;
 	            hbd.onButtonCustomString = "are challenges";
@@ -248,7 +248,7 @@ public class TutorialPanel : HexPanel
 	        } else if (button.name == "ChallengeHex" && buttonData.Count == 5)
 	        {
 	            HexButtonData hbd = new HexButtonData();
-	            hbd.row = 1;
+	            hbd.row = 0;
 	            hbd.column = -1;
 	            hbd.buttonName = "TryHex";
 	            hbd.displayInfoData = false;
@@ -260,7 +260,7 @@ public class TutorialPanel : HexPanel
 	        } else if(button.name == "TryHex" && buttonData.Count == 6) 
 			{
 				HexButtonData hbd = new HexButtonData();
-	            hbd.row = 0;
+	            hbd.row = -1;
 	            hbd.column = -1;
 	            hbd.buttonName = "TryHex";
 				hbd.imageName = "activity_run";
