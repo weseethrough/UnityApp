@@ -148,14 +148,21 @@ public class GameSelectPanel : HexPanel
 #endif
 		UnityEngine.Debug.Log("Games: There are currently " + games.Count + " games");
 		
-		HexButtonData hbd = new HexButtonData();
+		HexButtonData hbd = GetButtonAt(0, 0);
+		
+		if(hbd == null)
+		{
+			hbd = new HexButtonData();
+			buttonData.Add(hbd);
+		}
+		
 		hbd.row = 0;
 		hbd.column = 0;
 		hbd.buttonName = "current_balance";
 		hbd.onButtonCustomString = Platform.Instance.GetCurrentMetabolism().ToString("f0") + "\n\n" + Platform.Instance.GetOpeningPointsBalance() + "RP";
 		//hbd.imageName = "";
 		
-		buttonData.Add(hbd);
+		//buttonData.Add(hbd);
 		
         //generate some buttons
         for(int i=0; i<games.Count; i++)

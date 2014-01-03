@@ -124,7 +124,7 @@ public class EndTutorialPanel : TutorialPanel {
 	        {
 	            HexButtonData hbd = new HexButtonData();
 	            hbd.row = 1;
-	            hbd.column = 1;
+	            hbd.column = 0;
 	            hbd.buttonName = "UseHex";
 	            hbd.displayInfoData = false;
 	            hbd.onButtonCustomString = "RP is used";
@@ -136,7 +136,7 @@ public class EndTutorialPanel : TutorialPanel {
 	        {
 	            HexButtonData hbd = new HexButtonData();
 	            hbd.row = 1;
-	            hbd.column = 0;
+	            hbd.column = -1;
 	            hbd.buttonName = "ChallengeHex";
 	            hbd.displayInfoData = false;
 	            hbd.onButtonCustomString = "To unlock new challenges.";
@@ -147,7 +147,7 @@ public class EndTutorialPanel : TutorialPanel {
 	        } else if (button.name == "ChallengeHex" && buttonData.Count == 5)
 	        {
 	            HexButtonData hbd = new HexButtonData();
-	            hbd.row = 1;
+	            hbd.row = 0;
 	            hbd.column = -1;
 	            hbd.buttonName = "TryHex";
 	            hbd.displayInfoData = false;
@@ -159,7 +159,7 @@ public class EndTutorialPanel : TutorialPanel {
 	        } else if(button.name == "TryHex" && buttonData.Count == 6) 
 			{
 				HexButtonData hbd = new HexButtonData();
-	            hbd.row = 0;
+	            hbd.row = -1;
 	            hbd.column = -1;
 				hbd.locked = true;
 	            hbd.buttonName = "VersusHex";
@@ -181,8 +181,8 @@ public class EndTutorialPanel : TutorialPanel {
 	public override void AddFinalButton()
 	{
 		HexButtonData hbd = new HexButtonData();
-        hbd.row = 0;
-        hbd.column = -2;
+        hbd.row = -2;
+        hbd.column = 0;
         hbd.buttonName = "FinalHex";
 		hbd.displayInfoData = false;
 		hbd.onButtonCustomString = "Highlight the locked hex and tap to unlock";
@@ -213,7 +213,7 @@ public class EndTutorialPanel : TutorialPanel {
         {
             HexButtonData hbd = new HexButtonData();
             hbd.row = 1;
-            hbd.column = 1;
+            hbd.column = 0;
             hbd.buttonName = "UseHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "RP is used";
@@ -224,7 +224,7 @@ public class EndTutorialPanel : TutorialPanel {
         {
             HexButtonData hbd = new HexButtonData();
             hbd.row = 1;
-            hbd.column = 0;
+            hbd.column = -1;
             hbd.buttonName = "ChallengeHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "To unlock new challenges.";
@@ -234,7 +234,7 @@ public class EndTutorialPanel : TutorialPanel {
         } else if (buttonData.Count == 5)
         {
             HexButtonData hbd = new HexButtonData();
-            hbd.row = 1;
+            hbd.row = 0;
             hbd.column = -1;
             hbd.buttonName = "TryHex";
             hbd.displayInfoData = false;
@@ -245,7 +245,7 @@ public class EndTutorialPanel : TutorialPanel {
         } else if(buttonData.Count == 6) 
 		{
 			HexButtonData hbd = new HexButtonData();
-            hbd.row = 0;
+            hbd.row = -1;
             hbd.column = -1;
 			hbd.locked = true;
             hbd.buttonName = "VersusHex";
