@@ -23,6 +23,8 @@ public class PlatformDummy : Platform
 	private const float factor = 1.2f;
 		
 	private string blobassets = "blob";
+
+    public float[] sensoriaSockPressure = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
 	
 	private static PlatformDummy _instance;
 
@@ -344,6 +346,7 @@ public class PlatformDummy : Platform
 		//if (Time () > 1000) {
 			position = new Position((float)(51.400+Math.Cos(bearing*Math.PI/180)*distance/111229d), (float)(-0.15+Math.Sin(bearing*Math.PI/180)*distance/111229d));
 		//}
+
 	}
 	
 	public override User User() {

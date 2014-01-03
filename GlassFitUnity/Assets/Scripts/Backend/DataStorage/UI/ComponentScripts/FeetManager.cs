@@ -7,9 +7,9 @@ using System.Collections.Generic;
 /// </summary>
 public class FeetManager : MonoBehaviour
 {
-    float[] data = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
+    float[] data = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
 
-    string[] prefixes = { "A", "B", "C" };
+    string[] prefixes = { "B", "A", "C" };
 
     UISprite[] footL = new UISprite[3];
     UISprite[] footR = new UISprite[3];
@@ -25,7 +25,7 @@ public class FeetManager : MonoBehaviour
             
             switch (name)
             {
-                case "Toe5":
+                case "Toe1":
                     if (parent == "FootL")
                     {
                         footL[0] = sprite;
@@ -35,7 +35,8 @@ public class FeetManager : MonoBehaviour
                         footR[0] = sprite;
                     }
                     break;
-                case "Toe1":
+
+                case "Toe5":
                     if (parent == "FootL")
                     {
                         footL[1] = sprite;
@@ -45,6 +46,7 @@ public class FeetManager : MonoBehaviour
                         footR[1] = sprite;
                     }
                     break;
+                
                 case "Heel":
                     if (parent == "FootL")
                     {
@@ -71,6 +73,9 @@ public class FeetManager : MonoBehaviour
 
     void Update()
     {
+        data = Platform.Instance.sensoriaSockPressure;
+        if (data == null) return;
+
         for (int i=0; i<footL.Length; i++)
         {
             SelectByFloat(data[i], footL[i], prefixes[i]);
