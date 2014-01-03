@@ -110,21 +110,21 @@ public class TargetController : MonoBehaviour {
 		//UnityEngine.Debug.Log("FirstRun: actor height: " + actorTop);
 		//UnityEngine.Debug.Log("FirstRun: actor world pos y: " + actor.transform.position);
 		
-			Vector3 screenPos = Camera.main.WorldToScreenPoint(headPos);
+		Vector3 screenPos = Camera.main.WorldToScreenPoint(headPos);
 			
-			//only show actors in front of us.
-			if(screenPos.z < 0) return;
-			
-			//create label
-			GUIStyle paceStyle = getLabelStylePace();
-			float paceHalfWidth = 200;
+		//only show actors in front of us.
+		if(screenPos.z < 0) return;
 		
-			//calculate yPos. Note, camera screen pos calculation comes out with y inverted.
-			float yPos = Screen.height - screenPos.y - overheadLabelScreenOffset;
+		//create label
+		GUIStyle paceStyle = getLabelStylePace();
+		float paceHalfWidth = 200;
 		
-			Rect paceRect = new Rect(screenPos.x - paceHalfWidth, yPos, 2*paceHalfWidth, 1);
-			
-			GUI.Label(paceRect, overheadLabelString, paceStyle);
+		//calculate yPos. Note, camera screen pos calculation comes out with y inverted.
+		float yPos = Screen.height - screenPos.y - overheadLabelScreenOffset;
+		
+		Rect paceRect = new Rect(screenPos.x - paceHalfWidth, yPos, 2*paceHalfWidth, 1);
+		
+		GUI.Label(paceRect, overheadLabelString, paceStyle);
 		
 	}
 	

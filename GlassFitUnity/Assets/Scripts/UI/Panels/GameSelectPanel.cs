@@ -58,6 +58,7 @@ public class GameSelectPanel : HexPanel
 			if(lastGesture == Gestures.TwoTap) {
 				UnityEngine.Debug.Log("GameSelectPanel: Final tap - points awarded");
 				Platform.Instance.AwardPoints("Dev Cheat", "Dev Cheat", 10000);
+				UnityEngine.Debug.Log("GameSelectPanel: points awarded in platform");
 				MessageWidget.AddMessage("Points Cheat", "You got 10,000 points for nothing!", "trophy copy");
 				lastGesture = Gestures.None;
 			} else {
@@ -147,14 +148,21 @@ public class GameSelectPanel : HexPanel
 #endif
 		UnityEngine.Debug.Log("Games: There are currently " + games.Count + " games");
 		
-		HexButtonData hbd = new HexButtonData();
+		HexButtonData hbd = GetButtonAt(0, 0);
+		
+		if(hbd == null)
+		{
+			hbd = new HexButtonData();
+			buttonData.Add(hbd);
+		}
+		
 		hbd.row = 0;
 		hbd.column = 0;
 		hbd.buttonName = "current_balance";
-		hbd.onButtonCustomString = Platform.Instance.GetCurrentMetabolism().ToString("f0");
+		hbd.onButtonCustomString = Platform.Instance.GetCurrentMetabolism().ToString("f0") + "\n\n" + Platform.Instance.GetOpeningPointsBalance() + "RP";
 		//hbd.imageName = "";
 		
-		buttonData.Add(hbd);
+		//buttonData.Add(hbd);
 		
         //generate some buttons
         for(int i=0; i<games.Count; i++)
@@ -184,7 +192,7 @@ public class GameSelectPanel : HexPanel
 			hbd.activityPrice = (int)games[i].priceInPoints;
             hbd.column = games[i].column;
             hbd.row = games[i].row;
-			UnityEngine.Debug.Log("Game: position of " + games[i].name + " is: " + games[i].column + ", " + games[i].row);
+			//UnityEngine.Debug.Log("Game: position of " + games[i].name + " is: " + games[i].column + ", " + games[i].row);
             hbd.imageName = games[i].iconName;
 			
 			if(games[i].state == "Locked") {
@@ -204,7 +212,7 @@ public class GameSelectPanel : HexPanel
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
 				{
-					UnityEngine.Debug.Log("Game: Unlock exit set");
+					//UnityEngine.Debug.Log("Game: Unlock exit set");
 					gComponent.Data.Connect(gc, unlockExit.Link[0]);
 				}
 			}
@@ -217,7 +225,7 @@ public class GameSelectPanel : HexPanel
 			} 
 			else if(games[i].type == "Pursuit") 
 			{
-				UnityEngine.Debug.Log("Game: Pursuit exit set");
+				//UnityEngine.Debug.Log("Game: Pursuit exit set");
 				if(pursuitExit.Link.Count > 0) 
 				{
 					gComponent.Data.Connect(gc, pursuitExit.Link[0]);

@@ -9,20 +9,20 @@ public class DeviceControl : MonoBehaviour {
 	void Start () {
 		if(Platform.Instance.Device() != null)
 		{
-			UnityEngine.Debug.Log("ButtonFunctionCollection: device obtained");
+			UnityEngine.Debug.Log("DeviceControl: device obtained");
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 			if(gConnect != null)
 			{
-				UnityEngine.Debug.Log("ButtonFunctionCollection: connection found, travelling");
+				UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
 				fs.parentMachine.FollowConnection(gConnect);
 			} else
 			{
-				UnityEngine.Debug.Log("ButtonFunctionCollection: connection not found: MenuExit");
+				UnityEngine.Debug.Log("DeviceControl: connection not found: MenuExit");
 			}
 		} else
 		{
-			UnityEngine.Debug.Log("ButtonFunctionCollection: device null");
+			UnityEngine.Debug.Log("DeviceControl: device null");
 		}
 	}
 	
@@ -50,20 +50,20 @@ public class DeviceControl : MonoBehaviour {
 			pollTime -= 5.0f;
 			if(Platform.Instance.Device() != null)
 			{
-				UnityEngine.Debug.Log("ButtonFunctionCollection: device obtained");
+				UnityEngine.Debug.Log("DeviceControl: device obtained");
 				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 				if(gConnect != null)
 				{
-					UnityEngine.Debug.Log("ButtonFunctionCollection: connection found, travelling");
+					UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
 					fs.parentMachine.FollowConnection(gConnect);
 				} else
 				{
-					UnityEngine.Debug.Log("ButtonFunctionCollection: connection not found: MenuExit");
+					UnityEngine.Debug.Log("DeviceControl: connection not found: MenuExit");
 				}
 			} else
 			{
-				UnityEngine.Debug.Log("ButtonFunctionCollection: device null");
+				UnityEngine.Debug.Log("DeviceControl: device null");
 			}
 #endif
         }

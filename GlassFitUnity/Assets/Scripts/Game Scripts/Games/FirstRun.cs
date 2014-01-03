@@ -55,6 +55,8 @@ public class FirstRun : GameBase {
 	
 	public UINavProgressBar progressBar;
 	
+	bool hasResetGyros = false;
+	
 	// Use this for initialization
 	void Start () {
 		
@@ -128,9 +130,9 @@ public class FirstRun : GameBase {
 		
 		//check for tap/back input
 		bool tapped = false;
-		if(Input.touchCount > 0 && Input.GetTouch(0).phase == (TouchPhase.Began)) {
-			tapped = true;
-		}
+//		if(Input.touchCount > 0 && Input.GetTouch(0).phase == (TouchPhase.Began)) {
+//			tapped = true;
+//		}
 		
 #if UNITY_EDITOR
 		if(Input.GetKeyDown(KeyCode.Y))	{ tapped = true; }			
@@ -255,7 +257,16 @@ public class FirstRun : GameBase {
 		{
 			DrawTintBox();
 			GUI.Label(MainMessageRect, "Step 1: Reset Gyros", MainMessageStyle);
-			GUI.Label(NavMessageRect, "Look Directly Forward and Tap with two fingers", NavMessageStyle);
+			string navMessage;
+			if(!hasResetGyros)
+			{
+				navMessage = "Look Directly Forward and Tap with two fingers";
+			}
+			else
+			{
+				navMessage	= "Swipe Right to Continue";
+			}
+			GUI.Label(NavMessageRect, navMessage, NavMessageStyle);
 			
 			//draw reticle
 			Texture tex = Resources.Load("FirstRace_HorizonReticle", typeof(Texture)) as Texture;
@@ -417,14 +428,12 @@ public class FirstRun : GameBase {
 	
 	public override void GameHandleTap ()
 	{
-		UnityEngine.Debug.Log("FirstRun: Tap received");
 		if(started)
 		{
 			base.GameHandleTap();
 		}
 		if(eCurrentScreen == FirstRunScreen.SelectIndoorOutdoor)
 		{
-			UnityEngine.Debug.Log("FirstRun: Toggling indoor");
 			bool indoor = Platform.Instance.IsIndoor();
 			Platform.Instance.SetIndoor(!indoor);
 		}
@@ -435,11 +444,12 @@ public class FirstRun : GameBase {
 	{
 		if (eCurrentScreen == FirstRunScreen.ResetGyrosScreen)
 		{
-			StartCoroutine(ProgressPastResetGyroScreen());
+			//StartCoroutine(ProgressPastResetGyroScreen());	//don't progress automatically. Allow the user to swipe.
 			//reveal virtual track
 			SetVirtualTrackVisible(true);
 			//assume outdoor and try that initially.
 			Platform.Instance.SetIndoor(false);
+			hasResetGyros = true;
 		}
 	}
 	
@@ -487,7 +497,7 @@ public class FirstRun : GameBase {
 			{
 				//back to reset gyros
 				eCurrentScreen = FirstRunScreen.ResetGyrosScreen;
-				progressBar.currentPage--;
+				hasResetGyros = false;
 				break;
 			}
 			case FirstRunScreen.ConfirmIndoorScreen:
@@ -531,7 +541,8 @@ public class FirstRun : GameBase {
 		}
 		case FirstRunScreen.ResetGyrosScreen:
 		{
-			//Do nothing for a tap/swipe on this screenhandleforward()
+			eCurrentScreen = FirstRunScreen.SelectIndoorOutdoor;
+			progressBar.currentPage++;
 			break;
 		}
 		case FirstRunScreen.AwaitGPSScreen:

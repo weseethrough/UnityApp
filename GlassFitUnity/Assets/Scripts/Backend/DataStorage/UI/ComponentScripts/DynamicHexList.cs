@@ -769,7 +769,7 @@ public class DynamicHexList : MonoBehaviour
     public static Vector2 GetLocation(int column, int row)
     {
         int Xoffset = -(Mathf.Abs(row) % 2);
-        return new Vector2(-hexLayoutOffset.x * (Xoffset + column * 2), hexLayoutOffset.y * row);
+        return new Vector2(-hexLayoutOffset.x * (Xoffset + -column * 2), hexLayoutOffset.y * -row);
     }
 
     /// <summary>
