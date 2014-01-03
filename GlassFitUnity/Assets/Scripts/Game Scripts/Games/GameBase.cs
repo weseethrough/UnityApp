@@ -77,6 +77,7 @@ public class GameBase : MonoBehaviour {
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
 	private GestureHelper.DownSwipe downHandler = null;
 	private GestureHelper.OnSwipeLeft leftHandler = null;
+	private GestureHelper.OnSwipeRight rightHandler = null;
 
 	protected GameObject aheadBox;
 	private bool shouldShowAheadBox = true;
@@ -109,10 +110,10 @@ public class GameBase : MonoBehaviour {
 		});
 		GestureHelper.onSwipeDown += downHandler;
 		
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			HandleLeftSwipe();
-		});
-		GestureHelper.swipeLeft += leftHandler;
+//		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+//			HandleLeftSwipe();
+//		});
+//		GestureHelper.swipeLeft += leftHandler;
 		
 		//Get target distance
 #if !UNITY_EDITOR
@@ -263,6 +264,16 @@ public class GameBase : MonoBehaviour {
 				});
 				GestureHelper.onSwipeDown += downHandler;
 				
+				leftHandler = new GestureHelper.OnSwipeLeft(() => {
+					ReturnGame();
+				});
+				GestureHelper.swipeLeft += leftHandler;
+				
+				rightHandler = new GestureHelper.OnSwipeRight(() => {
+					ReturnGame();
+				});
+				GestureHelper.swipeRight += rightHandler;
+				
 				GestureHelper.onTap -= tapHandler;
 				
 				tapHandler = new GestureHelper.OnTap(() => {
@@ -298,6 +309,8 @@ public class GameBase : MonoBehaviour {
 			}
 			fs.parentMachine.FollowConnection(gConnect);
 			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.swipeLeft -= leftHandler;
+			GestureHelper.swipeRight -= rightHandler;
 		
 			downHandler = new GestureHelper.DownSwipe(() => {
 				ConsiderQuit();
