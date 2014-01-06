@@ -23,7 +23,8 @@ public class HexButtonData : ISerializable
     public int      count           = -1;
     public bool     locked          = false;
     public bool     displayInfoData = true;
-    public bool     displayPlusMarker = false; 
+    public bool     displayPlusMarker = false;
+    public bool     allowEarlyHover = false;
         
     /// <summary>
     /// default constructor
@@ -73,6 +74,9 @@ public class HexButtonData : ISerializable
                 case "displayPlusMarker":
                     this.displayPlusMarker = (bool)entry.Value;
                     break;
+                case "allowEarlyHover":
+                    this.allowEarlyHover = (bool)entry.Value;
+                    break;
 
             }
         }
@@ -96,6 +100,7 @@ public class HexButtonData : ISerializable
         info.AddValue("activityPrice", this.activityPrice);
         info.AddValue("displayInfoData", this.displayInfoData);
         info.AddValue("displayPlusMarker", this.displayPlusMarker);
+        info.AddValue("allowEarlyHover", this.allowEarlyHover);
     }
 
 }
