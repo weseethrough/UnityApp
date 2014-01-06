@@ -145,11 +145,17 @@ public class UISensorCamera : MonoBehaviour {
 		
 		if((newOffset.eulerAngles.x > 30 && newOffset.eulerAngles.x < 330) || (newOffset.eulerAngles.y > 40 && newOffset.eulerAngles.y < 320)) 
 		{
+			DataVault.Set("tutorial_hint", "Tap with two fingers to center view");
 			LoadingTextComponent.SetVisibility(true);
 		}
 		else
 		{
-			LoadingTextComponent.SetVisibility(false);
+			string tutHint = (string)DataVault.Get("tutorial_hint");
+			if(tutHint == "Tap with two fingers to center view") {
+				DataVault.Set("tutorial_hint", " ");
+				//LoadingTextComponent.SetVisibility(false);
+			}
+			
 		}
 		
 		transform.rotation = newOffset;
