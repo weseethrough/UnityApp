@@ -76,8 +76,8 @@ public class ButtonFunctionCollection
 	static public bool SetTutorial(FlowButton fb, Panel panel)
 	{
 		DataVault.Set("type", "Runner");
-		DataVault.Set("finish", 1000);
-		AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
+		DataVault.Set("race_type", "tutorial");
+	
 		return true;
 	}
 	
@@ -299,9 +299,7 @@ public class ButtonFunctionCollection
 		{
 		case "1km":
 			DataVault.Set("finish", 1000);
-			if((string)DataVault.Get("race_type") == "pursuit") {
-				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
-			}
+			
 			break;
 			
 		case "2km":
@@ -339,7 +337,12 @@ public class ButtonFunctionCollection
 			}
 			break;
 		}
-		
+		string type = (string)DataVault.Get("race_type");
+		if(type == "pursuit") {
+			AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
+		} else if(type == "tutorial") {
+			AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
+		}
 		return true;
 	}
 	

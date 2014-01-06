@@ -46,6 +46,8 @@ public class TutorialPanel : HexPanel
     {
         InitialButtons();
 		
+		DataVault.Set("tutorial_hint", " ");
+		
 		threeHandler = new GestureHelper.ThreeFingerTap(() => {
 			GConnector gConnect = Outputs.Find(r => r.Name == "MenuExit");
 			if(gConnect != null) 
@@ -77,7 +79,13 @@ public class TutorialPanel : HexPanel
 		
 		if(elapsedTime > 10.0f && buttonData.Count == 7) 
 		{
-			AddFinalButton();
+			//AddFinalButton();
+			string tutHint = (string)DataVault.Get("tutorial_hint");
+			if(tutHint == " ") 
+			{
+				DataVault.Set("tutorial_hint", "Highlight the hex and tap to start");
+				LoadingTextComponent.SetVisibility(true);
+			}
 		}
 	}
 	
