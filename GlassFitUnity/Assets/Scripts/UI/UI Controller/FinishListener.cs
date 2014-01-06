@@ -6,6 +6,16 @@ public class FinishListener : MonoBehaviour {
 	
 	private bool started = false;
 	
+	GestureHelper.OnTap tapHandler = null;
+	
+	void Start() {
+		tapHandler = new GestureHelper.OnTap( () => {
+			ContinueGame();
+			GestureHelper.onTap -= tapHandler;
+		});
+		GestureHelper.onTap += tapHandler;
+	}
+	
 	void Update() {
 		
 	}
