@@ -27,7 +27,7 @@ public class DynamicHexList : MonoBehaviour
     float buttonNextEnterDelay = 0.0f;
     int buttonNextEnterIndex = 0;
 	
-	private float zoomLevel = -1.5f;
+	private float zoomLevel = -1.0f;
 
     int buttonCount = 0;
 
@@ -331,7 +331,11 @@ public class DynamicHexList : MonoBehaviour
             if (!selectionStillActive && newSelection != null)
             {
                 UIButtonAnimationLocker lockScript = newSelection.GetComponent<UIButtonAnimationLocker>();
-                if (lockScript == null || !lockScript.locked)
+                FlowButton newFb = newSelection.GetComponent<FlowButton>();
+                HexButtonData newHbd = (newFb.userData["HexButtonData"] as HexButtonData);
+
+
+                if (newHbd.allowEarlyHover || lockScript == null || !lockScript.locked)
                 {
                     if (selection != null)
                     {                        
@@ -370,11 +374,12 @@ public class DynamicHexList : MonoBehaviour
                         }
 
                         //make sure that no data artifacts are left over                        
-                        UIButtonAnimationLocker lockSelectionScript = selection.GetComponent<UIButtonAnimationLocker>();
+                        /*
+                         * UIButtonAnimationLocker lockSelectionScript = selection.GetComponent<UIButtonAnimationLocker>();
                         if (lockSelectionScript == null)
                         {
                             lockSelectionScript.locked = false;
-                        }
+                        }*/
                         
                     }
                     selection = newSelection;

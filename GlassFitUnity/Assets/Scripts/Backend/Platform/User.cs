@@ -14,6 +14,7 @@ public class User
 		this.id = id;
 		this.username = username;
 		this.name = name;
+		UnityEngine.Debug.Log("User: instance set with ID: " + id.ToString() + ", username: " + username + ", name: " + name);
 	}
 }
 
