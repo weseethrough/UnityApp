@@ -163,7 +163,7 @@ public class DynamicHexList : MonoBehaviour
         float pitch = Mathf.Atan2(2*(q.w*q.x + q.y*q.z), 1-2*(q.x*q.x + q.y*q.y));
         float roll = Mathf.Asin(2*(q.w*q.y - q.z*q.x));
         float yaw = Mathf.Atan2(2*(q.w*q.z + q.x*q.y), 1-2*(q.y*q.y + q.z*q.z));
-        Debug.Log("Trace yaw and pitch: " + -yaw + " / " + -pitch);
+        //Debug.Log("Trace yaw and pitch: " + -yaw + " / " + -pitch);
         dynamicCamPos = new Vector2(-yaw, -pitch);
         dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
 	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;

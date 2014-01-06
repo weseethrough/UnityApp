@@ -87,14 +87,10 @@ public class FirstRun : GameBase {
 		
 		//UnityEngine.Debug.Log("FirstRun: about to set instrumentation invisible");
 		
-		//set any necessary flags in game base to delay start, suppress normal UI etc.
-		SetInstrumentationVisible(false);
-		
-		//UnityEngine.Debug.Log("FirstRun: about to make ahead box invisible");
-		
-		SetAheadBoxVisible(false);
-		
-		//UnityEngine.Debug.Log("FirstRun: about to make virtual track invisible");
+		//set the HUD not to show instrumentation
+		HUDController hudController = Component.FindObjectOfType("HUDController") as HUDController;
+		hudController.setInstrumentationVisible(false);
+		hudController.setAheadBoxVisible(false);
 		
 		//hide virtual track to begin with
 		SetVirtualTrackVisible(false);
