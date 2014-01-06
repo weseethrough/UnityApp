@@ -1,6 +1,6 @@
 ﻿Shader "Custom/VirtualTrack" {
 	Properties {
-		_Repeats ("repeats", Float) = 30.0
+		_Repeats ("repeats", Float) = 1200.0
 		_Phase ( "scroll phase", Float) = 0.0
 		_MainTex ("Base (RGB)", 2D) = "white" {}
 		_FadeDist( "fade start distance", Float) = 2000

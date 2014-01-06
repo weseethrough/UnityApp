@@ -6,7 +6,7 @@ using System.Collections;
 
 public class virtualTrack : MonoBehaviour {
 	
-	private const float TrackLength = 3600;
+	private const float TrackLength = 36000;
 	private const float TrackWidth = 60;
 	
 	// Use this for initialization

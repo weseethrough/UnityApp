@@ -677,7 +677,9 @@ public class GameBase : MonoBehaviour {
 		Platform.Instance.Poll();
 		
 		DataVault.Set("calories", Platform.Instance.Calories().ToString()/* + "kcal"*/);
-		DataVault.Set("pace", SpeedToKmPace(Platform.Instance.Pace()).ToString("f1")/* + "min/km"*/);
+		float pace = SpeedToKmPace(Platform.Instance.Pace());
+		pace = Math.Min(pace, 10.0f);
+		DataVault.Set("pace", pace.ToString("f1")/* + "min/km"*/);
 		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance()));
 		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);
