@@ -33,6 +33,8 @@ public class DynamicHexList : MonoBehaviour
 
     List<GameObject> buttons;
     List<UIImageButton> buttonsImageComponents;
+    List<Vector2> hexPosition2d;
+
     UIImageButton selection;
     private string btEnterAnimation = "HexEnter";
 
@@ -161,7 +163,7 @@ public class DynamicHexList : MonoBehaviour
         float pitch = Mathf.Atan2(2*(q.w*q.x + q.y*q.z), 1-2*(q.x*q.x + q.y*q.y));
         float roll = Mathf.Asin(2*(q.w*q.y - q.z*q.x));
         float yaw = Mathf.Atan2(2*(q.w*q.z + q.x*q.y), 1-2*(q.y*q.y + q.z*q.z));
-		
+        Debug.Log("Trace yaw and pitch: " + -yaw + " / " + -pitch);
         dynamicCamPos = new Vector2(-yaw, -pitch);
         dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
 	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
@@ -302,16 +304,27 @@ public class DynamicHexList : MonoBehaviour
             bool selectionStillActive = false;
             UIImageButton newSelection = null;
 
-            foreach (RaycastHit hit in hits)
+            if (hits.Length > 0)
             {
-                UIImageButton button = hit.collider.GetComponent<UIImageButton>();
-                if (button == null) continue;
-
-                newSelection = button;
-                if (newSelection == selection)
+                foreach (RaycastHit hit in hits)
                 {
-                    selectionStillActive = true;
-                    break;
+                    UIImageButton button = hit.collider.GetComponent<UIImageButton>();
+                    if (button == null) continue;
+
+                    newSelection = button;
+                    if (newSelection == selection)
+                    {
+                        selectionStillActive = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                newSelection = FindNearest();
+                if (newSelection == null || newSelection == selection)
+                {
+                    selectionStillActive = true;                    
                 }
             }
 
@@ -356,7 +369,7 @@ public class DynamicHexList : MonoBehaviour
                             }
                         }
 
-                        //make sure that no data artefacts are left over                        
+                        //make sure that no data artifacts are left over                        
                         UIButtonAnimationLocker lockSelectionScript = selection.GetComponent<UIButtonAnimationLocker>();
                         if (lockSelectionScript == null)
                         {
@@ -524,7 +537,31 @@ public class DynamicHexList : MonoBehaviour
 			//guiCamera.transform.position =  new Vector3(0, 0, -1.5f);
         }
 	}
-	
+
+    public UIImageButton FindNearest()
+    {
+        Vector3 camPos = guiCamera.transform.position;
+        Vector2 flatCameraPosition = new Vector2(camPos.x, camPos.y);
+        int closest = -1;
+        float distance = float.MaxValue; 
+        for(int i=0; i<hexPosition2d.Count; i++)
+        {
+            Vector2 localDist = hexPosition2d[i] - flatCameraPosition;
+            float localDistSQMag = localDist.sqrMagnitude;
+            if (distance > localDistSQMag)
+            {
+                distance = localDistSQMag;
+                closest = i;
+            }
+        }
+
+        return closest > -1 ? buttonsImageComponents[closest] : null;
+    }
+
+	/// <summary>
+	/// Sends message to parent asking it to previous history flow state
+	/// </summary>
+	/// <returns></returns>
 	public void GoBack()
 	{
 		parent.OnBack();
@@ -545,6 +582,7 @@ public class DynamicHexList : MonoBehaviour
 
         buttons = new List<GameObject>();
         buttonsImageComponents = new List<UIImageButton>();
+        hexPosition2d = new List<Vector2>();
         buttonsReady = false;
 
         if (elementsToKeep < 1) elementsToKeep = 1;
@@ -561,6 +599,10 @@ public class DynamicHexList : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// IF button list changed you might need to update visual data collections to match it. This is function which finds differences and adds missing buttons
+    /// </summary>
+    /// <returns></returns>
     public void UpdateButtonList()
     {
         if (buttons.Count == 0)
@@ -639,8 +681,10 @@ public class DynamicHexList : MonoBehaviour
                 }
             }
 
-            buttons.Add(tile);
+            buttons.Add(tile);            
             buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
+            Vector3 tilePos = tile.transform.position;
+            hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));
         }
     }
 
@@ -751,7 +795,9 @@ public class DynamicHexList : MonoBehaviour
             }
 
             buttons.Add(tile);
-            buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
+            buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());            
+            Vector3 tilePos = tile.transform.position;
+            hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));
         }
 
       /*  foreach (GameObject go in buttons)
