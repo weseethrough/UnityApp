@@ -27,7 +27,7 @@ public class DynamicHexList : MonoBehaviour
     float buttonNextEnterDelay = 0.0f;
     int buttonNextEnterIndex = 0;
 	
-	private float zoomLevel = -1.5f;
+	private float zoomLevel = -1.0f;
 
     int buttonCount = 0;
 

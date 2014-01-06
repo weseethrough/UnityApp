@@ -129,34 +129,42 @@ public class ButtonFunctionCollection
 		{
 		case "activity_run":
 			DataVault.Set("type", "Runner");
+			DataVault.Set("race_type", "race");
 			break;
 			
 		case "activity_bike":
 			DataVault.Set("type", "Cyclist");
+			DataVault.Set("race_type", "race");
 			break;
 			
 		case "activity_boulder":
 			DataVault.Set("type", "Boulder");
+			DataVault.Set("race_type", "pursuit");
 			break;
 			
 		case "activity_eagle":
 			DataVault.Set("type", "Eagle");
+			DataVault.Set("race_type", "pursuit");
 			break;
 			
 		case "activity_zombie":
 			DataVault.Set("type", "Zombie");
+			DataVault.Set("race_type", "pursuit");
 			break;
 			
 		case "activity_train":
 			DataVault.Set("type", "Train");
+			DataVault.Set("race_type", "pursuit");
 			break;
 			
 		case "activity_dinosaurs":
 			DataVault.Set("type", "Dinosaur");
+			DataVault.Set("race_type", "pursuit");
 			break;
 			
 		case "activity_fire":
 			DataVault.Set("type", "Fire");
+			DataVault.Set("race_type", "pursuit");
 			break;
 		}
 		
@@ -291,26 +299,44 @@ public class ButtonFunctionCollection
 		{
 		case "1km":
 			DataVault.Set("finish", 1000);
+			if((string)DataVault.Get("race_type") == "pursuit") {
+				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
+			}
 			break;
 			
 		case "2km":
 			DataVault.Set("finish", 2000);
+			if((string)DataVault.Get("race_type") == "pursuit") {
+				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
+			}
 			break;
 			
 		case "3km":
 			DataVault.Set("finish", 3000);
+			if((string)DataVault.Get("race_type") == "pursuit") {
+				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
+			}
 			break;
 			
 		case "4km":
 			DataVault.Set("finish", 4000);
+			if((string)DataVault.Get("race_type") == "pursuit") {
+				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
+			}
 			break;
 			
 		case "5km":
 			DataVault.Set("finish", 5000);
+			if((string)DataVault.Get("race_type") == "pursuit") {
+				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
+			}
 			break;
 			
 		case "10km":
 			DataVault.Set("finish", 10000);
+			if((string)DataVault.Get("race_type") == "pursuit") {
+				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
+			}
 			break;
 		}
 		
@@ -478,7 +504,9 @@ public class ButtonFunctionCollection
 		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 		ps.Back();
 		GameObject h = GameObject.Find("blackPlane");
-		h.renderer.enabled = false;
+		if(h != null) {
+			h.renderer.enabled = false;
+		}
 		return true;
 	}
 
