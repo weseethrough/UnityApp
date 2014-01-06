@@ -155,7 +155,7 @@ public class TutorialPanel : HexPanel
             hbd.buttonName = "TryHex";
 			hbd.imageName = "activity_run";
             hbd.displayInfoData = true;
-			hbd.activityName = "Race James";
+			hbd.activityName = "First Race";
 			hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer and sample some of the other games available to unlock";
 			
 			shouldAdd = false;
@@ -265,7 +265,7 @@ public class TutorialPanel : HexPanel
 	            hbd.buttonName = "TryHex";
 				hbd.imageName = "activity_run";
 	            hbd.displayInfoData = true;
-				hbd.activityName = "Race James";
+				hbd.activityName = "First Race";
 				hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer and sample some of the other games available to unlock";
 				
 	            elapsedTime = 0f;
@@ -289,5 +289,11 @@ public class TutorialPanel : HexPanel
 	        list.UpdateButtonList();
 		}
          
-    }            
+    }       
+	
+	public override void Exited ()
+	{
+		base.Exited ();
+		GestureHelper.onThreeTap -= threeHandler;
+	}
 }

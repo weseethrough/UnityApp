@@ -71,6 +71,8 @@ public class FirstRun : GameBase {
 		DataVault.Set("distance", "");
 		DataVault.Set("time", "");
 		DataVault.Set("ahead_box", "");
+		DataVault.Set("time_units", "");
+		DataVault.Set("distanceunits", "");
 		
 		swipeHandler = new GestureHelper.OnSwipeRight( () => {
 			HandleForward();
@@ -228,182 +230,184 @@ public class FirstRun : GameBase {
 		if(maybeQuit) {
 			base.OnGUI();
 		}
-		
-		float width = Screen.width;
-		float height = Screen.height;
-		float border = 35.0f;
-		
-		//rect for the main 'headline'
-		Rect MainMessageRect = new Rect(border, border, width - 2*border , height - 2*border);
-		//rect for the navigation prompt
-		Rect NavMessageRect = new Rect(border, border, width - 2*border, height - 2*border);
-		Rect HintRect = new Rect(border, border, width*0.5f - border, height - 2*border);
-		
-		GUIStyle MainMessageStyle = getLabelStyleLarge();
-		GUIStyle NavMessageStyle = getLabelStyleNav();
-		GUIStyle HintStyle = getLabelStyleHint();
-		//GUIStyle PaceLabelStyle = getLabelStylePace();
-		
-		switch(eCurrentScreen)
+		else
 		{
-		case FirstRunScreen.WelcomeScreen:
-		{
-			DrawTintBox();
-			GUI.Label(MainMessageRect, "Welcome to the First Run", MainMessageStyle); 
-			GUI.Label(NavMessageRect, "Swipe Right to Continue", NavMessageStyle);
-			break;
-		}
-		case FirstRunScreen.ResetGyrosScreen:
-		{
-			DrawTintBox();
-			GUI.Label(MainMessageRect, "Step 1: Reset Gyros", MainMessageStyle);
-			string navMessage;
-			if(!hasResetGyros)
+			float width = Screen.width;
+			float height = Screen.height;
+			float border = 35.0f;
+			
+			//rect for the main 'headline'
+			Rect MainMessageRect = new Rect(border, border, width - 2*border , height - 2*border);
+			//rect for the navigation prompt
+			Rect NavMessageRect = new Rect(border, border, width - 2*border, height - 2*border);
+			Rect HintRect = new Rect(border, border, width*0.5f - border, height - 2*border);
+			
+			GUIStyle MainMessageStyle = getLabelStyleLarge();
+			GUIStyle NavMessageStyle = getLabelStyleNav();
+			GUIStyle HintStyle = getLabelStyleHint();
+			//GUIStyle PaceLabelStyle = getLabelStylePace();
+			
+			switch(eCurrentScreen)
 			{
-				navMessage = "Look Directly Forward and Tap with two fingers";
+			case FirstRunScreen.WelcomeScreen:
+			{
+				DrawTintBox();
+				GUI.Label(MainMessageRect, "Welcome to the First Run", MainMessageStyle); 
+				GUI.Label(NavMessageRect, "Swipe Right to Continue", NavMessageStyle);
+				break;
 			}
-			else
+			case FirstRunScreen.ResetGyrosScreen:
 			{
-				navMessage	= "Swipe Right to Continue";
-			}
-			GUI.Label(NavMessageRect, navMessage, NavMessageStyle);
-			
-			//draw reticle
-			Texture tex = Resources.Load("FirstRace_HorizonReticle", typeof(Texture)) as Texture;
-			float halfWidth = 130.0f;
-			Rect ReticleRect = new Rect(Screen.width/2 - halfWidth, Screen.height/2 - halfWidth, 2*halfWidth, 2*halfWidth);
-			GUI.DrawTexture(ReticleRect, tex);
-			
-			break;
-		}
-		case FirstRunScreen.AwaitGPSScreen:
-		{
-			DrawTintBox();
-			GUI.Label(MainMessageRect, "Step 2: Awaiting GPS Lock", MainMessageStyle);
-			GUI.Label(NavMessageRect, "Swipe Right to continue in Indoor Mode", NavMessageStyle);
-			
-			//draw gps icon
-			Texture tex = Resources.Load("FirstRace_gpsLogo", typeof(Texture)) as Texture;
-			float halfWidth = 30.0f;
-			Rect GPSRect = new Rect(Screen.width/2 - halfWidth, Screen.height/2 - halfWidth, 2*halfWidth, 2*halfWidth);
-			GUI.DrawTexture(GPSRect, tex);
-			
-			break;
-		}
-		case FirstRunScreen.SelectIndoorOutdoor:
-		{
-			DrawTintBox();
-			bool indoor = Platform.Instance.IsIndoor();
-			string onoffString = indoor ? "ON" : "OFF";
-			string mainMessage = "Indoor Mode is" + onoffString;
-			if(!indoor)
-			{
-				if(Platform.Instance.HasLock())
+				DrawTintBox();
+				GUI.Label(MainMessageRect, "Step 1: Reset Gyros", MainMessageStyle);
+				string navMessage;
+				if(!hasResetGyros)
 				{
-					mainMessage += "\nGPS Lock Acquired";
+					navMessage = "Look Directly Forward and Tap with two fingers";
 				}
 				else
 				{
-					mainMessage += "\nAwaiting GPS Lock";
+					navMessage	= "Swipe Right to Continue";
 				}
+				GUI.Label(NavMessageRect, navMessage, NavMessageStyle);
+				
+				//draw reticle
+				Texture tex = Resources.Load("FirstRace_HorizonReticle", typeof(Texture)) as Texture;
+				float halfWidth = 130.0f;
+				Rect ReticleRect = new Rect(Screen.width/2 - halfWidth, Screen.height/2 - halfWidth, 2*halfWidth, 2*halfWidth);
+				GUI.DrawTexture(ReticleRect, tex);
+				
+				break;
 			}
-			GUI.Label(MainMessageRect, mainMessage, MainMessageStyle);
-			GUI.Label(NavMessageRect, "Tap to toggle Indoor mode\nSwipe Right to proceed", NavMessageStyle);
-			break;
-		}
-		case FirstRunScreen.ConfirmIndoorScreen:
-		{
-			DrawTintBox();
-			GUI.Label(MainMessageRect, "Indoor Mode\nAre you sure?", MainMessageStyle);
-			GUI.Label(NavMessageRect, "Swipe Right to continue\nSwipe Left to cancel", NavMessageStyle);
-			break;
-		}
-		case FirstRunScreen.ReadyToStartScreen:
-		{
-			DrawTintBox();
-			string mainMessage = Platform.Instance.IsIndoor() ? "Indoor Mode Active" : "GPS Lock Acquired";
-			GUI.Label(MainMessageRect, mainMessage, MainMessageStyle);
-			GUI.Label(NavMessageRect, "Swipe Right to Begin", NavMessageStyle);
-			break;
-		}
-		default:
-		{
-			//show the normal UI
-			//Add appropriate hint
-			string hintMessage = GetHintString(eCurrentHint);
-			GUI.Label(HintRect, hintMessage, HintStyle);
-			break;
-		}
-
-		}
-		
-		//show pace labels for closest actors in front and behind us
-		//TODO this needs optimising, don't need to look at every target every frame.
-		
-		if(shouldShowPaceLabels)
-		{
-			
-			TargetController closestAhead = null;
-			TargetController closestBehind = null;
-			float closestAheadDist = 99999;
-			float closestBehindDist = -99999;
-			
-			float closestDistToCentre = 99999;
-			TargetController closestTargetToCentre = null;
-			
-			foreach(GameObject actor in actors)
+			case FirstRunScreen.AwaitGPSScreen:
 			{
-				TargetController controller = actor.GetComponent<TargetController>();
-				//set labels off by default
-				controller.shouldShowOverheadLabel = false;
-				float distance = controller.target.GetDistanceBehindTarget();
+				DrawTintBox();
+				GUI.Label(MainMessageRect, "Step 2: Awaiting GPS Lock", MainMessageStyle);
+				GUI.Label(NavMessageRect, "Swipe Right to continue in Indoor Mode", NavMessageStyle);
 				
-				//UnityEngine.Debug.Log("first run: dist to actor" + distance);
+				//draw gps icon
+				Texture tex = Resources.Load("FirstRace_gpsLogo", typeof(Texture)) as Texture;
+				float halfWidth = 30.0f;
+				Rect GPSRect = new Rect(Screen.width/2 - halfWidth, Screen.height/2 - halfWidth, 2*halfWidth, 2*halfWidth);
+				GUI.DrawTexture(GPSRect, tex);
 				
-//				//test if this is the closest ahead of us
-//				if(distance > 0 && distance < closestAheadDist)
-//				{
-//					//UnityEngine.Debug.Log("closest ahead: " + distance);
-//					closestAhead = controller;
-//					closestAheadDist = distance;
-//				}
-//				//... or the closest behind us
-//				if(distance <=0 && distance > closestBehindDist)
-//				{
-//					//UnityEngine.Debug.Log("closest behind: " + distance);
-//					closestBehind = controller;
-//					closestBehindDist = distance;
-//				}
-				
-				Vector3 screenPos = Camera.main.WorldToScreenPoint(actor.transform.position);
-				Vector2 screenPos2D = new Vector2(screenPos.x, screenPos.y);
-				Vector2 screenCentre = new Vector2(Screen.width/2, Screen.height/2);
-				
-				float dist = (screenPos2D - screenCentre).magnitude;
-				if (screenPos.z > 0)
+				break;
+			}
+			case FirstRunScreen.SelectIndoorOutdoor:
+			{
+				DrawTintBox();
+				bool indoor = Platform.Instance.IsIndoor();
+				string onoffString = indoor ? "ON" : "OFF";
+				string mainMessage = "Indoor Mode is" + onoffString;
+				if(!indoor)
 				{
-					if(dist < closestDistToCentre)
+					if(Platform.Instance.HasLock())
 					{
-						closestDistToCentre = dist;
-						closestTargetToCentre = controller;
+						mainMessage += "\nGPS Lock Acquired";
+					}
+					else
+					{
+						mainMessage += "\nAwaiting GPS Lock";
 					}
 				}
-				
+				GUI.Label(MainMessageRect, mainMessage, MainMessageStyle);
+				GUI.Label(NavMessageRect, "Tap to toggle Indoor mode\nSwipe Right to proceed", NavMessageStyle);
+				break;
+			}
+			case FirstRunScreen.ConfirmIndoorScreen:
+			{
+				DrawTintBox();
+				GUI.Label(MainMessageRect, "Indoor Mode\nAre you sure?", MainMessageStyle);
+				GUI.Label(NavMessageRect, "Swipe Right to continue\nSwipe Left to cancel", NavMessageStyle);
+				break;
+			}
+			case FirstRunScreen.ReadyToStartScreen:
+			{
+				DrawTintBox();
+				string mainMessage = Platform.Instance.IsIndoor() ? "Indoor Mode Active" : "GPS Lock Acquired";
+				GUI.Label(MainMessageRect, mainMessage, MainMessageStyle);
+				GUI.Label(NavMessageRect, "Swipe Right to Begin", NavMessageStyle);
+				break;
+			}
+			default:
+			{
+				//show the normal UI
+				//Add appropriate hint
+				string hintMessage = GetHintString(eCurrentHint);
+				GUI.Label(HintRect, hintMessage, HintStyle);
+				break;
+			}
+	
 			}
 			
-//			if(closestAhead != null)
-//			{
-//				closestAhead.shouldShowOverheadLabel = true;
-//			}
-//			if(closestBehind != null)
-//			{
-//				closestAhead.shouldShowOverheadLabel = true;
-//			}
-			if(closestTargetToCentre != null)
+			//show pace labels for closest actors in front and behind us
+			//TODO this needs optimising, don't need to look at every target every frame.
+			
+			if(shouldShowPaceLabels)
 			{
-				closestTargetToCentre.shouldShowOverheadLabel = true;
+				
+				TargetController closestAhead = null;
+				TargetController closestBehind = null;
+				float closestAheadDist = 99999;
+				float closestBehindDist = -99999;
+				
+				float closestDistToCentre = 99999;
+				TargetController closestTargetToCentre = null;
+				
+				foreach(GameObject actor in actors)
+				{
+					TargetController controller = actor.GetComponent<TargetController>();
+					//set labels off by default
+					controller.shouldShowOverheadLabel = false;
+					float distance = controller.target.GetDistanceBehindTarget();
+					
+					//UnityEngine.Debug.Log("first run: dist to actor" + distance);
+					
+	//				//test if this is the closest ahead of us
+	//				if(distance > 0 && distance < closestAheadDist)
+	//				{
+	//					//UnityEngine.Debug.Log("closest ahead: " + distance);
+	//					closestAhead = controller;
+	//					closestAheadDist = distance;
+	//				}
+	//				//... or the closest behind us
+	//				if(distance <=0 && distance > closestBehindDist)
+	//				{
+	//					//UnityEngine.Debug.Log("closest behind: " + distance);
+	//					closestBehind = controller;
+	//					closestBehindDist = distance;
+	//				}
+					
+					Vector3 screenPos = Camera.main.WorldToScreenPoint(actor.transform.position);
+					Vector2 screenPos2D = new Vector2(screenPos.x, screenPos.y);
+					Vector2 screenCentre = new Vector2(Screen.width/2, Screen.height/2);
+					
+					float dist = (screenPos2D - screenCentre).magnitude;
+					if (screenPos.z > 0)
+					{
+						if(dist < closestDistToCentre)
+						{
+							closestDistToCentre = dist;
+							closestTargetToCentre = controller;
+						}
+					}
+					
+				}
+				
+	//			if(closestAhead != null)
+	//			{
+	//				closestAhead.shouldShowOverheadLabel = true;
+	//			}
+	//			if(closestBehind != null)
+	//			{
+	//				closestAhead.shouldShowOverheadLabel = true;
+	//			}
+				if(closestTargetToCentre != null)
+				{
+					closestTargetToCentre.shouldShowOverheadLabel = true;
+				}
 			}
-		}
+			}
 	}
 	
 	private string GetHintString(FirstRunHint hint)
@@ -680,6 +684,7 @@ public class FirstRun : GameBase {
 		foreach (TargetTracker tracker in trackers) {
 			GameObject actor = Instantiate(runner) as GameObject;
 			TargetController controller = actor.GetComponent<TargetController>();
+			controller.SetLane(1);
 			controller.SetTracker(tracker);
 			controller.SetLane(lane++);
 			//actor.SetActive(true);
@@ -690,7 +695,7 @@ public class FirstRun : GameBase {
 			long totalTime = (long)((float)finish/speed)*1000;
 			//UnityEngine.Debug.Log("FirstRun: Speed = " + speed);
 			//UnityEngine.Debug.Log("FirstRun: totalTime = " + totalTime);
-			string paceString = TimestampMMSSFromMS(totalTime);
+			string paceString = TimestampMMSSFromMS(totalTime) + "min/km";
 			//UnityEngine.Debug.Log("FirstRun: pace = " + paceString);
 			controller.overheadLabelString = paceString;
 		}
