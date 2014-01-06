@@ -194,11 +194,12 @@ public class Platform : MonoBehaviour {
 				        // get reference to Sensoria Socks
 				        try {
 							sensoriaSock = new AndroidJavaObject("com.glassfitgames.glassfitplatform.sensors.SensoriaSock", context);
+							UnityEngine.Debug.Log("Platform: socks obtained");
 						} catch (Exception e) {
 							UnityEngine.Debug.LogWarning("Platform: Error attaching to Sensoria Socks: " + e.Message);
 						}
 			                       
-						Poll();
+						//Poll();
 	                    UnityEngine.Debug.Log("Opening points: " + GetOpeningPointsBalance());
 	                    UnityEngine.Debug.Log("Current game points: " + GetCurrentPoints());
 	                    UnityEngine.Debug.Log("Current gems: " + GetCurrentGemBalance());
@@ -904,28 +905,32 @@ public class Platform : MonoBehaviour {
 	}	
 	
 	public virtual void Poll() {
+		//UnityEngine.Debug.Log("Platform: poll now");
 		
 //		if (!hasLock ()) return;
 		try {
-			time = gps.Call<long>("getElapsedTime");			
+			time = gps.Call<long>("getElapsedTime");
+			//UnityEngine.Debug.Log("Platform: poll time");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: getElapsedTime() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
 		
-//		UnityEngine.Debug.Log("Platform: There are " + targetTrackers.Count + " target trackers");
+		//UnityEngine.Debug.Log("Platform: poll There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
 			targetTrackers[i].PollTargetDistance();
 		}
 		
 		try {
 			distance = gps.Call<double>("getElapsedDistance");
+			//UnityEngine.Debug.Log("Platform: poll distance");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: getElapsedDistance() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
 		try {
 			pace = gps.Call<float>("getCurrentSpeed");
+			//UnityEngine.Debug.Log("Platform: poll speed");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: getCurrentSpeed() failed: " + e.Message);            
 			UnityEngine.Debug.LogException(e);
@@ -933,6 +938,7 @@ public class Platform : MonoBehaviour {
 		try {
 			if (HasLock()) {
 				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
+				//UnityEngine.Debug.Log("Platform: poll position");
 				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
 			}
 		} catch (Exception e) {
@@ -942,6 +948,7 @@ public class Platform : MonoBehaviour {
 		try {
 			if (gps.Call<bool>("hasBearing")) {
 				bearing = gps.Call<float>("getCurrentBearing");
+				//UnityEngine.Debug.Log("Platform: poll bearing");
 			} else {
 				bearing = -999.0f;
 			}
@@ -951,9 +958,11 @@ public class Platform : MonoBehaviour {
 		
 		try {
 			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
-			//DataVault.Set("points", (int)currentActivityPoints.ToString("n") + "RP");
+			//UnityEngine.Debug.Log("Platform: poll current points");
 			string pointsFormatted = currentActivityPoints.ToString("n0");
 			DataVault.Set ("points", pointsFormatted/* + "RP"*/);
+			
+			//UnityEngine.Debug.Log("Platform: poll points vault set");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting current activity points: " + e.Message);
 			DataVault.Set("points", -1);
@@ -961,13 +970,14 @@ public class Platform : MonoBehaviour {
 		
 		try {
 			openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
+			//UnityEngine.Debug.Log("Platform: poll opening points");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting opening points balance: " + e.Message);
 		}
 		
 		try {
 			sensoriaSockPressure = sensoriaSock.Call<float[]>("getPressureSensorValues", ((long)(UnityEngine.Time.time*1000)));
-			UnityEngine.Debug.Log("Sensoria pressure = " + sensoriaSockPressure[0]);
+			//UnityEngine.Debug.Log("Platform: poll Sensoria pressure = " + sensoriaSockPressure[0]);
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting sensoria sock pressure data: " + e.Message);
 		}

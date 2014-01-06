@@ -10,7 +10,8 @@ labels:
 - gyro
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - grid: {fileID: 100014, guid: 44a28e83ba69ed24e8d1fbe83e4172ad, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
