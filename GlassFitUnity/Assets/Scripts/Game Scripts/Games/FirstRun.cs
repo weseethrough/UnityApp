@@ -454,6 +454,20 @@ public class FirstRun : GameBase {
 
 	}
 	
+	public override void QuitGame ()
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
+		if(gConnect != null) {
+			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onTap -= tapHandler;
+			fs.parentMachine.FollowConnection(gConnect);
+			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+		} else {
+			UnityEngine.Debug.Log("FirstRun: Error finding tutorial exit");
+		}
+	}
+	
 	public override void GyroDidReset()
 	{
 		if (eCurrentScreen == FirstRunScreen.ResetGyrosScreen)
