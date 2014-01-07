@@ -269,4 +269,11 @@ public class EndTutorialPanel : TutorialPanel {
         DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
         list.UpdateButtonList();
 	}
+	
+	public override void Exited ()
+	{
+		base.Exited ();
+		
+		DataVault.Set("loading", "This is your race grid. More races coming soon");
+	}
 }
