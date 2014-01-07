@@ -104,6 +104,8 @@ public class GameSelectPanel : HexPanel
 	
     public override void EnterStart()
     {
+		LoadingTextComponent.SetVisibility(true);
+		
         GConnector raceExit = Outputs.Find(r => r.Name == "raceExit");
         GConnector pursuitExit = Outputs.Find(r => r.Name == "pursuitExit");
 		GConnector challengeExit = Outputs.Find (r => r.Name == "challengeExit");
@@ -277,5 +279,6 @@ public class GameSelectPanel : HexPanel
 		GestureHelper.onTap -= tapHandler;
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;
+		DataVault.Set("loading", " ");
 	}
 }

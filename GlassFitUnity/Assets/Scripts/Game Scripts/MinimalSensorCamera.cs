@@ -67,24 +67,18 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 #if !UNITY_EDITOR
 		// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
-		if(!noGrid) {
-			if(timerActive) {
-				gridOn = false;
-			} else {
-				// reset orientation offset
-				offsetFromStart = Platform.Instance.GetOrientation();
-				UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
-				//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+		// reset orientation offset
+		offsetFromStart = Platform.Instance.GetOrientation();
+		UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
+		//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
 			
-				// reset bearing offset
-				if (Platform.Instance.Bearing() != -999.0f) {
-					initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
-					bearingOffset = Quaternion.identity;
-				} else {
-					initialBearing = null;
-					bearingOffset = Quaternion.identity;
-				}
-			}		
+		// reset bearing offset
+		if (Platform.Instance.Bearing() != -999.0f) {
+			initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+			bearingOffset = Quaternion.identity;
+		} else {
+			initialBearing = null;
+			bearingOffset = Quaternion.identity;
 		}
 #endif
 	}
@@ -156,30 +150,21 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	void ResetGyroGlass()
 	{
-		if(!noGrid) {
-			if(timerActive) {
-				gridOn = false;
-			} else {
+				
+		// reset orientation offset
+		offsetFromStart = Platform.Instance.GetOrientation();
 			
-			// reset orientation offset
-			offsetFromStart = Platform.Instance.GetOrientation();
-			
-			UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
-			// reset bearing offset
-			if (Platform.Instance.Bearing() != -999.0f) {
-				initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
-				bearingOffset = Quaternion.identity;
-			} else {
-				initialBearing = null;
-				bearingOffset = Quaternion.identity;
-			}
-			
-				Platform.Instance.ResetGyro();
-				//gridOn = true;
-				//gridTimer = 5.0f;
-				//timerActive = true;
-			}
+		UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
+		// reset bearing offset
+		if (Platform.Instance.Bearing() != -999.0f) {
+			initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+			bearingOffset = Quaternion.identity;
+		} else {
+			initialBearing = null;
+			bearingOffset = Quaternion.identity;
 		}
+			
+		Platform.Instance.ResetGyro();
 	}
 	
 	/// <summary>
