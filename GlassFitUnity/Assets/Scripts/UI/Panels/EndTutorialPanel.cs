@@ -31,48 +31,53 @@ public class EndTutorialPanel : TutorialPanel {
         return "End Tutorial Panel: Uninitialized";
     }
 	
-	public void UnlockHex() {
+	public void UnlockHex() 
+    {
 		HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
-			if(info != null) {
-				if(info.IsInOpenStage()) {
-					info.AnimExit();
-					
-					for(int i=0; i<buttonData.Count; i++) 
-					{
-						if(buttonData[i].buttonName == "VersusHex") 
-						{
-							if(buttonData[i].locked) {
-								buttonData[i].locked = false;
-								
-								GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
-				
-								GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-				
-								GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
-	            
-								if(gameExit.Link.Count > 0) {
-									gComponent.Data.Connect(gc, gameExit.Link[0]);
-								}
-								
-								HexButtonData hbd = new HexButtonData();
-						        hbd.row = -1;
-						        hbd.column = -2;
-						        hbd.buttonName = "FinalHex";
-						        hbd.displayInfoData = false;
-						        hbd.onButtonCustomString = "This is now unlocked! Enter it to go to the main menu";
-								
-						        buttonData.Add(hbd);
-							}
-							
-							DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
-	        				list.UpdateButtonList();
-							
-							GestureHelper.onTap -= tapHandler;
-							break;
-						}
-					}
-				}
-			}
+        if (info != null)
+        {
+            if (info.IsInOpenStage())
+            {
+                info.AnimExit();
+
+                for (int i = 0; i < buttonData.Count; i++)
+                {
+                    if (buttonData[i].buttonName == "VersusHex")
+                    {
+                        if (buttonData[i].locked)
+                        {
+                            buttonData[i].locked = false;
+
+                            GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
+
+                            GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+
+                            GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
+
+                            if (gameExit.Link.Count > 0)
+                            {
+                                gComponent.Data.Connect(gc, gameExit.Link[0]);
+                            }
+
+                            HexButtonData hbd = new HexButtonData();
+                            hbd.row = -1;
+                            hbd.column = -2;
+                            hbd.buttonName = "FinalHex";
+                            hbd.displayInfoData = false;
+                            hbd.onButtonCustomString = "This is now unlocked! Enter it to go to the main menu";
+
+                            buttonData.Add(hbd);
+                        }
+
+                        DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+                        list.UpdateButtonList();
+
+                        GestureHelper.onTap -= tapHandler;
+                        break;
+                    }
+                }
+            }
+        }
 	}
 	
 	public override void EnterStart ()

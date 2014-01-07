@@ -13,6 +13,8 @@ public class FlowStateMachine : MonoBehaviour
     private FlowState targetState;
     private GConnector targetStateConnector;
 
+    private bool grabAnalyticsInitialized = false;
+
     /// <summary>
     /// default unity initialization call, used to stop this structure from destruction when navigation between scenes
     /// </summary>
@@ -129,13 +131,41 @@ public class FlowStateMachine : MonoBehaviour
             connection.Link.Count > 0 &&
             connection.Link[0].Parent != null)
         {
+            if (!grabAnalyticsInitialized)
+            {
+                //use this to enable debug output
+                GrabBridge.ToggleLog(true);
+
+                GrabBridge.Start("pxeqexpldwfcwdp:faef0c81e352b38894b8df87:R7mg9jl2t4UOOWGxHTDh2Ys3KRHH/NOs0QAy9osBUEE=");
+
+                string userid = "tester";
+                GrabBridge.FirstLogin(userid);
+
+                grabAnalyticsInitialized = true;                
+            }
+            
+
+            JSONObject gameDetails = new JSONObject();
+            object type = DataVault.Get("type");
+            object log = DataVault.Get("warning_log");
+            DataVault.Set("warning_log", "");
+
+            gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
+            gameDetails.AddField("Game type", (string)type);
+            gameDetails.AddField("Timestamp", Time.realtimeSinceStartup);
+            gameDetails.AddField("State live", Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp());
+            gameDetails.AddField("Custom Log", (string)log );
+
+            GrabBridge.CustomEvent("Flow state changed", gameDetails);
+
             if (navigationHistory == null)
             {
                 navigationHistory = new List<FlowState>();
             }
+
             navigationHistory.Add(activeFlow[activeFlow.Count-1]);
             targetState = connection.Link[0].Parent as FlowState;
-            targetStateConnector = connection.Link[0];
+            targetStateConnector = connection.Link[0];            
             return true;
         }
         return false;

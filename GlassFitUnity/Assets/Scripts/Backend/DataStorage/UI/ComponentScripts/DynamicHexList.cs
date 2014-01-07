@@ -163,7 +163,7 @@ public class DynamicHexList : MonoBehaviour
         float pitch = Mathf.Atan2(2*(q.w*q.x + q.y*q.z), 1-2*(q.x*q.x + q.y*q.y));
         float roll = Mathf.Asin(2*(q.w*q.y - q.z*q.x));
         float yaw = Mathf.Atan2(2*(q.w*q.z + q.x*q.y), 1-2*(q.y*q.y + q.z*q.z));
-        Debug.Log("Trace yaw and pitch: " + -yaw + " / " + -pitch);
+        
         dynamicCamPos = new Vector2(-yaw, -pitch);
         dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
 	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
@@ -332,10 +332,12 @@ public class DynamicHexList : MonoBehaviour
             {
                 UIButtonAnimationLocker lockScript = newSelection.GetComponent<UIButtonAnimationLocker>();
                 FlowButton newFb = newSelection.GetComponent<FlowButton>();
-                HexButtonData newHbd = (newFb.userData["HexButtonData"] as HexButtonData);
 
+                HexButtonData newHbd = newFb.userData.ContainsKey("HexButtonData") ? newFb.userData["HexButtonData"] as HexButtonData : null ;
 
-                if (newHbd.allowEarlyHover || lockScript == null || !lockScript.locked)
+                if (    ( newHbd != null && newHbd.allowEarlyHover) || 
+                        lockScript == null || 
+                        !lockScript.locked)
                 {
                     if (selection != null)
                     {                        

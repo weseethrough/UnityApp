@@ -26,6 +26,7 @@ public abstract class FlowState : GNode
     private List<FlowState> m_children;
     private Vector2 m_minimumChildBorder = new Vector2(100, 40);
     private Vector2 m_toParentOffest;
+    private float m_enterTimeStamp;
 
     public UnityEngine.Vector2 ParentOffest
     {
@@ -102,15 +103,32 @@ public abstract class FlowState : GNode
 
 
     //collection of virtual functions for different states of the panel flow
-    virtual public void EnterStart() { m_state = State.Entering; Debug.Log("Enter state: " + this.ToString()); }
+    virtual public void EnterStart() 
+    { 
+        m_state = State.Entering; 
+        m_enterTimeStamp = Time.realtimeSinceStartup; 
+        Debug.Log("Enter state: " + this.ToString()); 
+    }
     virtual public bool EnterUpdate() { return true; }
-    virtual public void Entered() { m_state = State.Idle; Debug.Log("Entered state: " + this.ToString()); }
+    virtual public void Entered() 
+    { 
+        m_state = State.Idle; 
+        Debug.Log("Entered state: " + this.ToString()); 
+    }
 
     virtual public void StateUpdate() {  }
 
-    virtual public void ExitStart() { m_state = State.Exiting; Debug.Log("Exit state: " + this.ToString()); }
+    virtual public void ExitStart() 
+    { 
+        m_state = State.Exiting; 
+        Debug.Log("Exit state: " + this.ToString()); 
+    }
     virtual public bool ExitUpdate() { return true; }
-    virtual public void Exited() { m_state = State.Dead; Debug.Log("Exited state: " + this.ToString()); }   
+    virtual public void Exited() 
+    { 
+        m_state = State.Dead; 
+        Debug.Log("Exited state: " + this.ToString()); 
+    }   
 
     /// <summary>
     /// default draw function for draw on graph viewer
@@ -264,5 +282,14 @@ public abstract class FlowState : GNode
             if (child == fs || child.InChildSubtree(fs)) return true;            
         }
         return false;
+    }
+
+    /// <summary>
+    /// Returns timestamp of the moment this state came to live
+    /// </summary>
+    /// <returns></returns>
+    public float GetStartingTimeStamp()
+    {
+        return m_enterTimeStamp;
     }
 }
