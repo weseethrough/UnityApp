@@ -121,6 +121,7 @@ public class UISensorCamera : MonoBehaviour {
 #if !UNITY_EDITOR
 		Platform.Instance.ResetGyro();
 		offsetFromStart = Platform.Instance.GetOrientation();
+		//offsetFromStart = Quaternion.Euler(offsetFromStart.eulerAngles.x, 0, 0);
 		DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
         foreach (DynamicHexList dhl in lists)
         {
@@ -141,7 +142,7 @@ public class UISensorCamera : MonoBehaviour {
 #if !UNITY_EDITOR
 		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
 		
-		//UnityEngine.Debug.Log("UISensorCamera: Euler angles are: " + newOffset.eulerAngles.x + ", " + newOffset.eulerAngles.y + ", " + newOffset.eulerAngles.z);
+		//UnityEngine.Debug.Log("UISensorCamera: Euler angles are: " + Platform.Instance.GetOrientation().eulerAngles.x + ", " + Platform.Instance.GetOrientation().eulerAngles.y + ", " + Platform.Instance.GetOrientation().eulerAngles.z);
 		
 		if((newOffset.eulerAngles.x > 30 && newOffset.eulerAngles.x < 330) || (newOffset.eulerAngles.y > 40 && newOffset.eulerAngles.y < 320)) 
 		{
@@ -153,7 +154,7 @@ public class UISensorCamera : MonoBehaviour {
 			string tutHint = (string)DataVault.Get("tutorial_hint");
 			if(tutHint == "Tap with two fingers to center view") {
 				DataVault.Set("tutorial_hint", " ");
-				LoadingTextComponent.SetVisibility(false);
+				//LoadingTextComponent.SetVisibility(false);
 			}
 			
 		}

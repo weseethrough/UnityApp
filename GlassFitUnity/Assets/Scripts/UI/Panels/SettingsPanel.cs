@@ -37,7 +37,9 @@ public class SettingsPanel : Panel {
 				
 			// Sets indoor mode
 			case "IndoorButton":
-				ss.SetIndoor();
+				//ss.SetIndoor();
+				bool indoor = Platform.Instance.IsIndoor();
+				Platform.Instance.SetIndoor(!indoor);
 				
 				break;
 				

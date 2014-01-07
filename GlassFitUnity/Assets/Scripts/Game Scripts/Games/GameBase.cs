@@ -21,7 +21,12 @@ public class GameBase : MonoBehaviour {
 	// Bools for various states
 	public bool menuOpen = false;
 	protected bool gameParamsChanged = false;			//has something in the settings changed which will mean we should restart
-	public bool indoor = true;
+	
+	//private bool indoor = true;
+	
+
+	//public bool indoor = true;
+
 	private bool hasEnded = false;
 	
 	protected bool maybeQuit = false;
@@ -81,6 +86,10 @@ public class GameBase : MonoBehaviour {
 	
 	private GameObject virtualTrack;
 	
+	private double lastDistance;
+	
+	private float indoorTime;
+	
 	/// <summary>
 	/// Start this instance.
 	/// </summary>
@@ -123,14 +132,14 @@ public class GameBase : MonoBehaviour {
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
 		
-		indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
+		//indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
 		
-		UnityEngine.Debug.Log("GameBase: indoor set to: " + indoor.ToString());
+		UnityEngine.Debug.Log("GameBase: indoor set to: " + Platform.Instance.IsIndoor().ToString());
 			
 		//indoor = true;
 		
 		// Set indoor mode
-		Platform.Instance.SetIndoor(indoor);
+		//Platform.Instance.SetIndoor(indoor);
 		Platform.Instance.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
 		
@@ -161,7 +170,7 @@ public class GameBase : MonoBehaviour {
 		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
 	}
 	
-	protected void SetVirtualTrackVisible(bool visible)
+	public void SetVirtualTrackVisible(bool visible)
 	{
 		if(virtualTrack == null)
 		{
@@ -366,22 +375,22 @@ public class GameBase : MonoBehaviour {
 	/// <summary>
 	/// Toggles whether we are indoors. Name should be changed to 'ToggleIndoor()';
 	/// Not sure where this is called from. AH
-	/// </summary>
-		public void SetIndoor() {
-		if(indoor) {
-			indoor = false;
-			UnityEngine.Debug.Log("Outdoor mode active");
-			DataVault.Set("indoor_text", "Outdoor Active");
-			indoorText = "Outdoor Active";
-		}
-		else {
-			indoor = true;
-			UnityEngine.Debug.Log("Indoor mode active");
-			indoorText = "Indoor Active";
-			DataVault.Set("indoor_text", indoorText);
-		}
-		gameParamsChanged = true;
-	}
+//	/// </summary>
+//		public void SetIndoor() {
+//		if(indoor) {
+//			indoor = false;
+//			UnityEngine.Debug.Log("Outdoor mode active");
+//			DataVault.Set("indoor_text", "Outdoor Active");
+//			indoorText = "Outdoor Active";
+//		}
+//		else {
+//			indoor = true;
+//			UnityEngine.Debug.Log("Indoor mode active");
+//			indoorText = "Indoor Active";
+//			DataVault.Set("indoor_text", indoorText);
+//		}
+//		gameParamsChanged = true;
+//	}
 	
 	/// <summary>
 	/// Called on returning to game when exiting the Settings menu.
@@ -411,7 +420,7 @@ public class GameBase : MonoBehaviour {
 				Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
 			}
 			
-			Platform.Instance.SetIndoor(indoor);			
+			//Platform.Instance.SetIndoor(indoor);			
 			
 			// Start countdown again
 			started = false;
@@ -478,14 +487,14 @@ public class GameBase : MonoBehaviour {
 		if(!readyToStart && !pause && !hasEnded && !pause && !maybeQuit)
 		{
 			//are we waiting for GPS?
-			if(!Platform.Instance.HasLock() && !indoor && !maybeQuit && !pause)
+			if(!Platform.Instance.HasLock() && !Platform.Instance.IsIndoor() && !maybeQuit && !pause)
 			{
 				GUI.Label(messageRect, "Awaiting GPS lock...", labelStyle);
 			}
 			else
 			{
 				//notify if we're indoor
-				if(indoor)
+				if(Platform.Instance.IsIndoor())
 				{
 					GUIStyle indoorTextStyle = new GUIStyle(labelStyle);
 					indoorTextStyle.fontSize -= 10;
@@ -506,7 +515,7 @@ public class GameBase : MonoBehaviour {
 	
 	}
 	
-		protected void UpdateAhead() {
+	protected void UpdateAhead() {
 
 		double targetDistance = Platform.Instance.GetHighestDistBehind() - offset;
 
@@ -519,7 +528,8 @@ public class GameBase : MonoBehaviour {
 			DataVault.Set("ahead_col_box", "19D200EE");
 			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
-		DataVault.Set("ahead_box", SiDistance(Math.Abs(targetDistance)));
+		string siDistance = SiDistance(Math.Abs(targetDistance));
+		DataVault.Set("ahead_box", siDistance);
 	}
 	
 	// Update is called once per frame
@@ -554,13 +564,13 @@ public class GameBase : MonoBehaviour {
 		
 		//detect the touch and reset/start if it's there
 		// Non-Glass devices
-		if(!readyToStart && (Platform.Instance.HasLock() || indoor) )
+		if(!readyToStart && (Platform.Instance.HasLock() || Platform.Instance.IsIndoor()) )
 		{
 			//UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
 			if(Input.touchCount > 0)
 			{
 				UnityEngine.Debug.Log("GameBase: Update: Touch detected");
-					if(Platform.Instance.HasLock() || indoor)
+					if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
 					{
 						UnityEngine.Debug.Log("GameBase: Now ready to start");
 						readyToStart = true;
@@ -630,7 +640,33 @@ public class GameBase : MonoBehaviour {
 			}
 		}
 		
+		if(indoor) {
+			if(Platform.Instance.Distance() == lastDistance) 
+			{
+				indoorTime += Time.deltaTime;
+				if(indoorTime > 5f) {
+					DataVault.Set("indoor_mode", "Jog on the spot to move!");
+				}
+			} else {
+				DataVault.Set("indoor_move", " ");
+				lastDistance = Platform.Instance.Distance();
+				indoorTime = 0f;
+			}
+		}
+		
 	}
+	
+	/// <summary>
+	/// Sets the ready to start flag. Allows external scripts to trigger the start (e.g. reset gyros menu screen)
+	/// </summary>
+	/// <param name='ready'>
+	/// Ready.
+	/// </param>
+	public virtual void SetReadyToStart(bool ready)
+	{
+		readyToStart = true;
+	}
+		
 	
 	//TODO move these to a utility class
 	protected string SiDistance(double meters) {
@@ -644,7 +680,11 @@ public class GameBase : MonoBehaviour {
 		if (value > 1000) {
 			value = value/1000;
 			postfix = "km";
-			final = value.ToString("f3");
+			if(value >= 10) {
+				final = value.ToString("f1");
+			} else {
+				final = value.ToString("f2");
+			}
 		}
 		else
 		{
@@ -731,7 +771,7 @@ public class GameBase : MonoBehaviour {
 		UnityEngine.Debug.Log("GameBase: Gyro did reset");
 		if(!readyToStart)
 		{
-			if(Platform.Instance.HasLock() || indoor)
+			if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
 			{
 				UnityEngine.Debug.Log("GameBase: Now ready to start");
 				readyToStart = true;

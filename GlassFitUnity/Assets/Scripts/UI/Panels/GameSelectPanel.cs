@@ -100,12 +100,14 @@ public class GameSelectPanel : HexPanel
 				lastGesture = Gestures.None;
 			}
 		}
+		
+		if(!LoadingTextComponent.IsVisible()) {
+			LoadingTextComponent.SetVisibility(true);
+		}
 	}
 	
     public override void EnterStart()
-    {
-		LoadingTextComponent.SetVisibility(true);
-		
+    {		
         GConnector raceExit = Outputs.Find(r => r.Name == "raceExit");
         GConnector pursuitExit = Outputs.Find(r => r.Name == "pursuitExit");
 		GConnector challengeExit = Outputs.Find (r => r.Name == "challengeExit");
@@ -267,7 +269,7 @@ public class GameSelectPanel : HexPanel
 
         }
 		
-		LoadingTextComponent.SetVisibility(false);
+		//LoadingTextComponent.SetVisibility(false);
 		
         base.EnterStart();   
     }
