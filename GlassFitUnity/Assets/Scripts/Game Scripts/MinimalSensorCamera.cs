@@ -153,7 +153,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 				
 		// reset orientation offset
 		offsetFromStart = Platform.Instance.GetOrientation();
-			
+		//offsetFromStart = Quaternion.AngleAxis(offsetFromStart.eulerAngles.x, Vector3.up);
 		UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
 		// reset bearing offset
 		if (Platform.Instance.Bearing() != -999.0f) {

@@ -36,7 +36,7 @@ public class DeviceControl : MonoBehaviour {
 		{
 #if UNITY_EDITOR
 
-            pollTime -= 500.0f; //simply shouldn't have to happened again
+            pollTime -= 500.0f; //simply shouldn't have to happen again
             FlowState fs = FlowStateMachine.GetCurrentFlowState();
             GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
             if (gConnect != null)

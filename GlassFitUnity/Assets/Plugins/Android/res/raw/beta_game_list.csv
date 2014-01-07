@@ -1,0 +1,13 @@
+ID,Title,Icon name,Menu to display on,Description,Initial State,Tier,Price in Points,Price in Gems,Type,Column,Row
+activity_monster,Giant Monster Challenge,activity_monster,run,You have woken up this giant monster and he's after you. Clearly not a morning person.,Locked,3,5000,4,N/A,-2,0
+activity_press_up,Press-ups,activity_press_up,all,This mode will teach you the proper technique for press ups and will also count yours.,Locked,3,5000,4,N/A,-2,1
+activity_train,The train game,activity_train,all,There's a damsel in distress on the crossing - hurry before the train gets her!,Locked,1,5000,5,N/A,-2,-1
+activity_bike,Race Yourself,activity_bike,cycle,Cycle against your own avatar for points,Locked,0,0,0,Race,-1,-1
+activity_boulder,Boulder Dash,activity_boulder,run,Relive that classic moment in Indiana Jones - run from the boulder! No treasure this time though.,Locked,1,1000,1,N/A,-1,0
+facebook,Facebook,facebook,share,Post on your facebook wall,Locked,3,5000,3,N/A,-1,1
+activity_race_yourself,Race Yourself,activity_run,run,Race against your own avatar,Unlocked,0,0,0,Race,0,-1
+activity_achievement,Achievements,activity_achievement,run,View your achievements and overall progress,Locked,2,5000,3,N/A,0,1
+activity_bolt_level1,Beat Bolt,activity_bolt_level1,run,100m sprint vs. Usain Bolt. How close can you get?,Locked,2,5000,3,N/A,1,0
+activity_zoom,Zoom,activity_zoom,all,Zoom in to get a better view of your competitors,Locked,3,5000,3,N/A,1,-1
+activity_park,Park Mode,activity_park,run,This mode allows for games over a large spread out area,Locked,3,5000,4,N/A,1,1
+activity_heart,Heart-rate monitor,activity_heart,all,Connect to bluetooth heart-rate monitor. Required for some games.,Locked,3,5000,4,N/A,2,0

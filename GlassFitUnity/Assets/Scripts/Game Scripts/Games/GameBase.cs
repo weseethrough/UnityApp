@@ -21,7 +21,7 @@ public class GameBase : MonoBehaviour {
 	// Bools for various states
 	public bool menuOpen = false;
 	protected bool gameParamsChanged = false;			//has something in the settings changed which will mean we should restart
-	public bool indoor = true;
+	private bool indoor = true;
 	private bool hasEnded = false;
 	
 	protected bool maybeQuit = false;
@@ -80,6 +80,10 @@ public class GameBase : MonoBehaviour {
 	private GestureHelper.OnSwipeRight rightHandler = null;
 	
 	private GameObject virtualTrack;
+	
+	private double lastDistance;
+	
+	private float indoorTime;
 	
 	/// <summary>
 	/// Start this instance.
@@ -506,7 +510,7 @@ public class GameBase : MonoBehaviour {
 	
 	}
 	
-		protected void UpdateAhead() {
+	protected void UpdateAhead() {
 
 		double targetDistance = Platform.Instance.GetHighestDistBehind() - offset;
 
@@ -630,6 +634,20 @@ public class GameBase : MonoBehaviour {
 			}
 		}
 		
+		if(indoor) {
+			if(Platform.Instance.Distance() == lastDistance) 
+			{
+				indoorTime += Time.deltaTime;
+				if(indoorTime > 5f) {
+					DataVault.Set("indoor_mode", "Jog on the spot to move!");
+				}
+			} else {
+				DataVault.Set("indoor_move", " ");
+				lastDistance = Platform.Instance.Distance();
+				indoorTime = 0f;
+			}
+		}
+		
 	}
 	
 	//TODO move these to a utility class
@@ -644,7 +662,11 @@ public class GameBase : MonoBehaviour {
 		if (value > 1000) {
 			value = value/1000;
 			postfix = "km";
-			final = value.ToString("f3");
+			if(value >= 10) {
+				final = value.ToString("f1");
+			} else {
+				final = value.ToString("f2");
+			}
 		}
 		else
 		{

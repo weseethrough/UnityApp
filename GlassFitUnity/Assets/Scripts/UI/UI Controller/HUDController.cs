@@ -74,7 +74,7 @@ public class HUDController : MonoBehaviour {
 	//update element visibilities. Internal function called later on to set visibility.
 	protected void UpdateInstrumentationVisible() {
 		
-		UnityEngine.Debug.Log("HUD: trying to set visibility of instrumentation to :" + shouldShowInstrumentation);
+		//UnityEngine.Debug.Log("HUD: trying to set visibility of instrumentation to :" + shouldShowInstrumentation);
 		
 		findLabelAndSetVisible("TimeBox", ref timeBox, shouldShowInstrumentation);
 		findLabelAndSetVisible("TimeUnits_Laligned", ref timeUnits, shouldShowInstrumentation);

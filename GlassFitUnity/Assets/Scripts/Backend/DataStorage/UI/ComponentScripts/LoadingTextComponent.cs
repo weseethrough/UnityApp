@@ -15,19 +15,30 @@ public class LoadingTextComponent : MonoBehaviour
     void Awake()
     {
         instance = this;
-        SetVisibility(false);
+        SetVisibility(true);
     }
 
     void OnDestroy()
     {
         instance = null;
     }
+	
+	public static bool IsVisible() {
+		if(instance != null) {
+			return instance.gameObject.activeSelf;
+		} else { 
+			UnityEngine.Debug.Log("LoadingText: object null, returning false");
+			return false;
+		}
+	}
 
     public static void SetVisibility(bool visible)
     {
         if (instance != null)
         {
             instance.gameObject.SetActive(visible);
-        }
+        } else {
+			UnityEngine.Debug.Log("LoadingText: object is null!");
+		}
     }
 }
