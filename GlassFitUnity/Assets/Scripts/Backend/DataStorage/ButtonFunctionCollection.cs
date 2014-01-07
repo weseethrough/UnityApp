@@ -423,8 +423,10 @@ public class ButtonFunctionCollection
     /// <returns>never allow further navigation</returns>
 	static public bool SetIndoor(FlowButton fb, Panel panel)
 	{
-		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.SetIndoor();
+//		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
+//		ps.SetIndoor();
+		bool indoor = Platform.Instance.IsIndoor();
+		Platform.Instance.SetIndoor(!indoor);
 		return false;
 	}
 

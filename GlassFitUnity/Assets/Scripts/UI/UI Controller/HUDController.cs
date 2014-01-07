@@ -73,9 +73,8 @@ public class HUDController : MonoBehaviour {
 		
 	//update element visibilities. Internal function called later on to set visibility.
 	protected void UpdateInstrumentationVisible() {
-		
 		//UnityEngine.Debug.Log("HUD: trying to set visibility of instrumentation to :" + shouldShowInstrumentation);
-		
+
 		findLabelAndSetVisible("TimeBox", ref timeBox, shouldShowInstrumentation);
 		findLabelAndSetVisible("TimeUnits_Laligned", ref timeUnits, shouldShowInstrumentation);
 		findLabelAndSetVisible("DistanceBox", ref distanceBox, shouldShowInstrumentation);
@@ -86,11 +85,6 @@ public class HUDController : MonoBehaviour {
 		findLabelAndSetVisible("CalsUnits", ref caloriesUnits, shouldShowInstrumentation);
 		findLabelAndSetVisible("PointsBox", ref pointsBox, shouldShowInstrumentation);
 		findLabelAndSetVisible("PointsUnits", ref pointsUnits, shouldShowInstrumentation);
-		
-		if(pointsUnits == null)
-		{
-			UnityEngine.Debug.Log("HUD: don't have points units object");	
-		}
 	}
 	
 	public void setAheadBoxVisible(bool visible) {

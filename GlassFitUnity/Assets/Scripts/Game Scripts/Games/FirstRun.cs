@@ -37,7 +37,9 @@ public class FirstRun : GameBase {
 	
 	protected FirstRunScreen eCurrentScreen;
 	protected FirstRunHint eCurrentHint = FirstRunHint.NoHint;
- 	protected GestureHelper.OnSwipeRight swipeHandler;
+ 	protected GestureHelper.OnSwipeRight swipeHandler = null;
+	private GestureHelper.OnSwipeLeft leftHandler = null;
+
 	
 	private bool runReadyToStart = false;
 	public GameObject runner;		//a runner object. This will be cloned around for various benchmark paces.
@@ -75,10 +77,16 @@ public class FirstRun : GameBase {
 		DataVault.Set("distanceunits", "");
 		DataVault.Set("points", "");
 		
-		swipeHandler = new GestureHelper.OnSwipeRight( () => {
-			HandleForward();
-		});
-		GestureHelper.swipeRight += swipeHandler;
+		//nowhandled by the card itself.
+//		swipeHandler = new GestureHelper.OnSwipeRight( () => {
+//			HandleForward();
+//		});
+//		GestureHelper.swipeRight += swipeHandler;
+//		
+//		leftHandler = new GestureHelper.OnSwipeLeft( () => {
+//			HandleLeftSwipe();
+//		});
+//		GestureHelper.swipeLeft += leftHandler;
 		
 		//deactivate template objects
 		runner.SetActive(false);
@@ -88,18 +96,18 @@ public class FirstRun : GameBase {
 		
 		//UnityEngine.Debug.Log("FirstRun: about to set instrumentation invisible");
 		
-		//set the HUD not to show instrumentation
-		HUDController hudController = GameObject.FindObjectOfType(typeof(HUDController)) as HUDController;
-		if(hudController != null)
-		{
-			UnityEngine.Debug.Log("FirstRace: Attempting to hide hud instrumentation");
-			hudController.setInstrumentationVisible(false);
-			hudController.setAheadBoxVisible(false);
-		}
-		else
-		{
-			UnityEngine.Debug.LogWarning("Couldn't find HUD manager");
-		}
+//		//set the HUD not to show instrumentation
+//		HUDController hudController = GameObject.FindObjectOfType(typeof(HUDController)) as HUDController;
+//		if(hudController != null)
+//		{
+//			UnityEngine.Debug.Log("FirstRace: Attempting to hide hud instrumentation");
+//			hudController.setInstrumentationVisible(false);
+//			hudController.setAheadBoxVisible(false);
+//		}
+//		else
+//		{
+//			UnityEngine.Debug.LogWarning("Couldn't find HUD manager");
+//		}
 		
 		//hide virtual track to begin with
 		SetVirtualTrackVisible(false);
@@ -125,6 +133,12 @@ public class FirstRun : GameBase {
 		
 		//create actors for each target tracker
 		InstantiateActors();
+	}
+	
+	public override void SetReadyToStart (bool ready)
+	{
+		base.SetReadyToStart(ready);
+		runReadyToStart = ready;
 	}
 	
 	// Update is called once per frame
@@ -168,51 +182,12 @@ public class FirstRun : GameBase {
 		eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
 		progressBar.currentPage ++;
 	}
-
 	
 	public override GConnector GetFinalConnection ()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		return fs.Outputs.Find(r => r.Name == "TutorialExit");
 	}
-
-	
-	protected GUIStyle getLabelStyleLarge()
-	{
-		// set style for our labels
-		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-		labelStyle.alignment = TextAnchor.UpperCenter;
-		labelStyle.fontSize = 55;
-		labelStyle.fontStyle = FontStyle.Normal;
-		//labelStyle.clipping = TextClipping.Overflow;
-		
-		return labelStyle;
-	}
-		
-	protected GUIStyle getLabelStyleNav()
-	{
-		// set style for our labels
-		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-		labelStyle.alignment = TextAnchor.LowerCenter;
-		labelStyle.fontSize = 35;
-		labelStyle.fontStyle = FontStyle.Normal;
-		//labelStyle.clipping = TextClipping.Overflow;
-		
-		return labelStyle;
-	}
-	
-	protected GUIStyle getLabelStyleHint()
-	{
-		// set style for our labels
-		GUIStyle labelStyle = new GUIStyle(GUI.skin.label);
-		labelStyle.alignment = TextAnchor.UpperLeft;
-		labelStyle.fontSize = 35;
-		labelStyle.fontStyle = FontStyle.Normal;
-		//labelStyle.clipping = TextClipping.Overflow;
-
-		return labelStyle;
-	}
-
 	
 	private void DrawTintBox() {
 		//draw tint box
@@ -239,111 +214,6 @@ public class FirstRun : GameBase {
 		{
 			float width = Screen.width;
 			float height = Screen.height;
-			float border = 35.0f;
-			
-			//rect for the main 'headline'
-			Rect MainMessageRect = new Rect(border, border, width - 2*border , height - 2*border);
-			//rect for the navigation prompt
-			Rect NavMessageRect = new Rect(border, border, width - 2*border, height - 2*border);
-			Rect HintRect = new Rect(border, border, width*0.5f - border, height - 2*border);
-			
-			GUIStyle MainMessageStyle = getLabelStyleLarge();
-			GUIStyle NavMessageStyle = getLabelStyleNav();
-			GUIStyle HintStyle = getLabelStyleHint();
-			//GUIStyle PaceLabelStyle = getLabelStylePace();
-			
-			switch(eCurrentScreen)
-			{
-			case FirstRunScreen.WelcomeScreen:
-			{
-				DrawTintBox();
-				GUI.Label(MainMessageRect, "Welcome to the First Run", MainMessageStyle); 
-				GUI.Label(NavMessageRect, "Swipe Right to Continue", NavMessageStyle);
-				break;
-			}
-			case FirstRunScreen.ResetGyrosScreen:
-			{
-				DrawTintBox();
-				GUI.Label(MainMessageRect, "Step 1: Reset Gyros", MainMessageStyle);
-				string navMessage;
-				if(!hasResetGyros)
-				{
-					navMessage = "Look Directly Forward and Tap with two fingers";
-				}
-				else
-				{
-					navMessage	= "Swipe Right to Continue";
-				}
-				GUI.Label(NavMessageRect, navMessage, NavMessageStyle);
-				
-				//draw reticle
-				Texture tex = Resources.Load("FirstRace_HorizonReticle", typeof(Texture)) as Texture;
-				float halfWidth = 130.0f;
-				Rect ReticleRect = new Rect(Screen.width/2 - halfWidth, Screen.height/2 - halfWidth, 2*halfWidth, 2*halfWidth);
-				GUI.DrawTexture(ReticleRect, tex);
-				
-				break;
-			}
-			case FirstRunScreen.AwaitGPSScreen:
-			{
-				DrawTintBox();
-				GUI.Label(MainMessageRect, "Step 2: Awaiting GPS Lock", MainMessageStyle);
-				GUI.Label(NavMessageRect, "Swipe Right to continue in Indoor Mode", NavMessageStyle);
-				
-				//draw gps icon
-				Texture tex = Resources.Load("FirstRace_gpsLogo", typeof(Texture)) as Texture;
-				float halfWidth = 30.0f;
-				Rect GPSRect = new Rect(Screen.width/2 - halfWidth, Screen.height/2 - halfWidth, 2*halfWidth, 2*halfWidth);
-				GUI.DrawTexture(GPSRect, tex);
-				
-				break;
-			}
-			case FirstRunScreen.SelectIndoorOutdoor:
-			{
-				DrawTintBox();
-				bool indoor = Platform.Instance.IsIndoor();
-				string onoffString = indoor ? "ON" : "OFF";
-				string mainMessage = "Indoor Mode is" + onoffString;
-				if(!indoor)
-				{
-					if(Platform.Instance.HasLock())
-					{
-						mainMessage += "\nGPS Lock Acquired";
-					}
-					else
-					{
-						mainMessage += "\nAwaiting GPS Lock";
-					}
-				}
-				GUI.Label(MainMessageRect, mainMessage, MainMessageStyle);
-				GUI.Label(NavMessageRect, "Tap to toggle Indoor mode\nSwipe Right to proceed", NavMessageStyle);
-				break;
-			}
-			case FirstRunScreen.ConfirmIndoorScreen:
-			{
-				DrawTintBox();
-				GUI.Label(MainMessageRect, "Indoor Mode\nAre you sure?", MainMessageStyle);
-				GUI.Label(NavMessageRect, "Swipe Right to continue\nSwipe Left to cancel", NavMessageStyle);
-				break;
-			}
-			case FirstRunScreen.ReadyToStartScreen:
-			{
-				DrawTintBox();
-				string mainMessage = Platform.Instance.IsIndoor() ? "Indoor Mode Active" : "GPS Lock Acquired";
-				GUI.Label(MainMessageRect, mainMessage, MainMessageStyle);
-				GUI.Label(NavMessageRect, "Swipe Right to Begin", NavMessageStyle);
-				break;
-			}
-			default:
-			{
-				//show the normal UI
-				//Add appropriate hint
-				string hintMessage = GetHintString(eCurrentHint);
-				GUI.Label(HintRect, hintMessage, HintStyle);
-				break;
-			}
-	
-			}
 			
 			//show pace labels for closest actors in front and behind us
 			//TODO this needs optimising, don't need to look at every target every frame.
@@ -432,12 +302,12 @@ public class FirstRun : GameBase {
 	{
 		//UnityEngine.Debug.Log("First Run: exiting pause");
 		//re-hide the distance
-		HUDController hudController = GameObject.FindObjectOfType(typeof(HUDController)) as HUDController;
-		if(hudController != null)
-		{
-
-			hudController.setAheadBoxVisible(false);
-		}
+//		HUDController hudController = GameObject.FindObjectOfType(typeof(HUDController)) as HUDController;
+//		if(hudController != null)
+//		{
+//
+//			hudController.setAheadBoxVisible(false);
+//		}
 	}
 	
 	public override void GameHandleTap ()
@@ -500,53 +370,18 @@ public class FirstRun : GameBase {
 		}
 		else
 		{
-			//navigate backwards through the order of cards
-			// N.B. The most important step here is the ability to step back from Indoor Ready to awaiting GPS
-			switch(eCurrentScreen)
+			//look for a 'back' connector on the current flow state
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "Back");
+			
+			if(gConnect != null)
 			{
-			case FirstRunScreen.WelcomeScreen:
-			{
-				//nothing to do
-				break;
-			}
-			case FirstRunScreen.ResetGyrosScreen:
-			{
-				eCurrentScreen = FirstRunScreen.WelcomeScreen;
+				fs.parentMachine.FollowConnection(gConnect);
 				progressBar.currentPage--;
-				break;
 			}
-			case FirstRunScreen.AwaitGPSScreen:
+			else
 			{
-				eCurrentScreen = FirstRunScreen.ResetGyrosScreen;
-				progressBar.currentPage--;
-				break;
-			}
-			case FirstRunScreen.SelectIndoorOutdoor:
-			{
-				//back to reset gyros
-				eCurrentScreen = FirstRunScreen.ResetGyrosScreen;
-				hasResetGyros = false;
-				break;
-			}
-			case FirstRunScreen.ConfirmIndoorScreen:
-			{
-				Platform.Instance.SetIndoor(false);
-				eCurrentScreen = FirstRunScreen.AwaitGPSScreen;
-				progressBar.currentPage--;
-				break;
-			}
-			case FirstRunScreen.ReadyToStartScreen:
-			{
-				Platform.Instance.SetIndoor(false);
-				eCurrentScreen = FirstRunScreen.SelectIndoorOutdoor;
-				progressBar.currentPage--;
-				break;
-			}
-			default:
-			{
-				//do nothing
-				break;
-			}
+				UnityEngine.Debug.LogWarning("FirstRun: Swiped back but nowhere to swipe back to");
 			}
 		}
 	}
@@ -555,84 +390,18 @@ public class FirstRun : GameBase {
 	/// Handle the user performing a tap gesture
 	/// </summary>
 	void HandleForward() {
+		//look for a 'Swipe' connector on the current flow state
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "Swipe");
 		
-		//UnityEngine.Debug.Log("FirstRun: tap detected");
-		
-		switch(eCurrentScreen)
+		if(gConnect != null)
 		{
-		case FirstRunScreen.WelcomeScreen:
-		{
-			//proceed to next screen
-			eCurrentScreen = FirstRunScreen.ResetGyrosScreen;	
+			fs.parentMachine.FollowConnection(gConnect);
 			progressBar.currentPage++;
-			break;
 		}
-		case FirstRunScreen.ResetGyrosScreen:
+		else
 		{
-			eCurrentScreen = FirstRunScreen.SelectIndoorOutdoor;
-			progressBar.currentPage++;
-			break;
-		}
-		case FirstRunScreen.AwaitGPSScreen:
-		// In fact, don't use the confirmation screen. Go straight to the start.
-		//{
-		//	//if we tap here, go to the confirm indoor mode screen
-		//	eCurrentScreen = FirstRunScreen.ConfirmIndoorScreen;
-		//	break;
-		//}
-		case FirstRunScreen.SelectIndoorOutdoor:
-		{
-			if(Platform.Instance.IsIndoor() || Platform.Instance.HasLock())
-			{
-				eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
-				progressBar.currentPage++;
-			}
-			break;
-		}
-		case FirstRunScreen.ConfirmIndoorScreen:
-		{
-			//tap means confirmation. Set indoor mode and proceed.
-			Platform.Instance.SetIndoor(true);
-			eCurrentScreen = FirstRunScreen.ReadyToStartScreen;
-			progressBar.currentPage++;
-			break;
-		}
-		case FirstRunScreen.ReadyToStartScreen:
-		{
-			//flag that the countdown can begin
-			runReadyToStart = true;
-			
-			try{
-			//show instrumentation numbers
-			HUDController hudController = GameObject.FindObjectOfType(typeof(HUDController)) as HUDController;
-			if(hudController != null)
-				{
-					hudController.setInstrumentationVisible(true);
-				}
-			} catch(Exception e) {
-				UnityEngine.Debug.LogWarning("Error turning on instrumentation");
-			}
-			
-			//set no first run screen
-			eCurrentScreen = FirstRunScreen.NoScreen;
-			progressBar.show = false;			
-			
-			//set menu hint
-			eCurrentHint = FirstRunHint.MenuHint;
-			//fire off coroutine to cycle hint, show other actors etc
-			StartCoroutine(ProgressInfoOnceStarted());
-			
-			//flag to gameBase, that the countdown can commence
-			readyToStart = true;
-			
-			break;
-		}
-		case FirstRunScreen.NoScreen:
-		default:
-		{
-			//show nothing
-			break;
-		}
+			UnityEngine.Debug.LogWarning("FirstRun: Swiped forward but no link to follow");
 		}
 	}
 	
@@ -702,6 +471,10 @@ public class FirstRun : GameBase {
 		if(swipeHandler != null)
 		{
 			GestureHelper.swipeRight -= swipeHandler;
+		}
+		if(leftHandler != null)
+		{
+			GestureHelper.swipeLeft -= leftHandler;
 		}
 	}
 	
