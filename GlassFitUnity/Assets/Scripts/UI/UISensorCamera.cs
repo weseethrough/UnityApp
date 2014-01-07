@@ -153,7 +153,7 @@ public class UISensorCamera : MonoBehaviour {
 			string tutHint = (string)DataVault.Get("tutorial_hint");
 			if(tutHint == "Tap with two fingers to center view") {
 				DataVault.Set("tutorial_hint", " ");
-				//LoadingTextComponent.SetVisibility(false);
+				LoadingTextComponent.SetVisibility(false);
 			}
 			
 		}

@@ -21,8 +21,6 @@ public class EndTutorialPanel : TutorialPanel {
     /// <returns>name of the node</returns>
     public override string GetDisplayName()
     {
-        //base.GetDisplayName();
-
         GParameter gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
