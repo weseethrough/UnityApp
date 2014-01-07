@@ -73,9 +73,9 @@ public class GameBase : MonoBehaviour {
 	
 	private bool pause = false;
 	
-	private GestureHelper.OnTap tapHandler = null;
+	protected GestureHelper.OnTap tapHandler = null;
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
-	private GestureHelper.DownSwipe downHandler = null;
+	protected GestureHelper.DownSwipe downHandler = null;
 	private GestureHelper.OnSwipeLeft leftHandler = null;
 	private GestureHelper.OnSwipeRight rightHandler = null;
 
@@ -334,7 +334,7 @@ public class GameBase : MonoBehaviour {
 		}
 	}
 	
-	public void QuitGame() {
+	public virtual void QuitGame() {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 		if(gConnect != null) {
