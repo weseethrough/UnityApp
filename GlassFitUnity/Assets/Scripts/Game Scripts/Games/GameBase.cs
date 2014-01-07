@@ -323,13 +323,6 @@ public class GameBase : MonoBehaviour {
 			 	if(gConnect != null)
 				{
 					fs.parentMachine.FollowConnection(gConnect);
-					//clear references to the various HUD elements we're keeping track of
-					aheadBox = null;
-					paceBox = null;
-					caloriesBox = null;
-					distanceBox = null;
-					timeBox = null;
-					pointsBox = null;
 				} else
 				{
 					UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
