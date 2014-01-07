@@ -73,6 +73,7 @@ public class FirstRun : GameBase {
 		DataVault.Set("ahead_box", "");
 		DataVault.Set("time_units", "");
 		DataVault.Set("distanceunits", "");
+		DataVault.Set("points", "");
 		
 		swipeHandler = new GestureHelper.OnSwipeRight( () => {
 			HandleForward();
@@ -87,14 +88,18 @@ public class FirstRun : GameBase {
 		
 		//UnityEngine.Debug.Log("FirstRun: about to set instrumentation invisible");
 		
-		//set any necessary flags in game base to delay start, suppress normal UI etc.
-		SetInstrumentationVisible(false);
-		
-		//UnityEngine.Debug.Log("FirstRun: about to make ahead box invisible");
-		
-		SetAheadBoxVisible(false);
-		
-		//UnityEngine.Debug.Log("FirstRun: about to make virtual track invisible");
+		//set the HUD not to show instrumentation
+		HUDController hudController = GameObject.FindObjectOfType(typeof(HUDController)) as HUDController;
+		if(hudController != null)
+		{
+			UnityEngine.Debug.Log("FirstRace: Attempting to hide hud instrumentation");
+			hudController.setInstrumentationVisible(false);
+			hudController.setAheadBoxVisible(false);
+		}
+		else
+		{
+			UnityEngine.Debug.LogWarning("Couldn't find HUD manager");
+		}
 		
 		//hide virtual track to begin with
 		SetVirtualTrackVisible(false);
@@ -427,7 +432,12 @@ public class FirstRun : GameBase {
 	{
 		//UnityEngine.Debug.Log("First Run: exiting pause");
 		//re-hide the distance
-		SetAheadBoxVisible(false);
+		HUDController hudController = GameObject.FindObjectOfType(typeof(HUDController)) as HUDController;
+		if(hudController != null)
+		{
+
+			hudController.setAheadBoxVisible(false);
+		}
 	}
 	
 	public override void GameHandleTap ()
@@ -594,7 +604,11 @@ public class FirstRun : GameBase {
 			
 			try{
 			//show instrumentation numbers
-			SetInstrumentationVisible(true);
+			HUDController hudController = GameObject.FindObjectOfType(typeof(HUDController)) as HUDController;
+			if(hudController != null)
+				{
+					hudController.setInstrumentationVisible(true);
+				}
 			} catch(Exception e) {
 				UnityEngine.Debug.LogWarning("Error turning on instrumentation");
 			}
