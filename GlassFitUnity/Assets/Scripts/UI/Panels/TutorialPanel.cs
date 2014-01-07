@@ -13,6 +13,8 @@ public class TutorialPanel : HexPanel
 	
 	private float maxTime = 3.0f;
 	
+	private GameObject highlightText = null;
+	
 	private GestureHelper.ThreeFingerTap threeHandler = null;
     //	PlatformDummy platform = new PlatformDummy();
 
@@ -46,6 +48,9 @@ public class TutorialPanel : HexPanel
     {
         InitialButtons();
 		
+		DataVault.Set("tutorial_hint", " ");
+		DataVault.Set("highlight", " ");
+		
 		threeHandler = new GestureHelper.ThreeFingerTap(() => {
 			GConnector gConnect = Outputs.Find(r => r.Name == "MenuExit");
 			if(gConnect != null) 
@@ -66,7 +71,7 @@ public class TutorialPanel : HexPanel
 	public override void StateUpdate ()
 	{
 		base.StateUpdate ();
-		
+				
 		elapsedTime += Time.deltaTime;
 		
 		if(elapsedTime > maxTime && shouldAdd)
@@ -75,9 +80,26 @@ public class TutorialPanel : HexPanel
 			elapsedTime -= maxTime;
 		}
 		
+//		if(Input.GetKeyDown(KeyCode.Space)) {
+//			if(buttonData.Count == 2) {
+//				HexButtonData hbd = new HexButtonData();
+//	            hbd.row = 0;
+//	            hbd.column = 1;
+//	            hbd.buttonName = "NiceHex";
+//	            hbd.displayInfoData = false;
+//	            hbd.onButtonCustomString = "Nice!";
+//				hbd.displayInfoData = false;
+//				
+//				elapsedTime = 0f;
+//				shouldAdd = true;
+//				
+//	            buttonData.Add(hbd);
+//			}
+//		}
+		
 		if(elapsedTime > 10.0f && buttonData.Count == 7) 
 		{
-			AddFinalButton();
+			DataVault.Set("highlight", "Highlight the hex and tap to start");
 		}
 	}
 	
@@ -295,5 +317,6 @@ public class TutorialPanel : HexPanel
 	{
 		base.Exited ();
 		GestureHelper.onThreeTap -= threeHandler;
+		DataVault.Set("highlight", " ");
 	}
 }

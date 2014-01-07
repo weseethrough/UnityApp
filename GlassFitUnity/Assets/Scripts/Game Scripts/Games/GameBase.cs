@@ -73,29 +73,13 @@ public class GameBase : MonoBehaviour {
 	
 	private bool pause = false;
 	
-	private GestureHelper.OnTap tapHandler = null;
+	protected GestureHelper.OnTap tapHandler = null;
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
-	private GestureHelper.DownSwipe downHandler = null;
+	protected GestureHelper.DownSwipe downHandler = null;
 	private GestureHelper.OnSwipeLeft leftHandler = null;
 	private GestureHelper.OnSwipeRight rightHandler = null;
-
-	protected GameObject aheadBox;
-	private bool shouldShowAheadBox = true;
-	private GameObject timeBox = null;
-	private GameObject distanceBox = null;
-	private GameObject paceBox = null;
-	private GameObject caloriesBox = null;
-	private GameObject pointsBox = null;
-	private GameObject timeUnits = null;
-	private GameObject distanceUnits = null;
-	private GameObject paceUnits = null;
-	private GameObject caloriesUnits = null;
-	private GameObject pointsUnits = null;
 	
 	private GameObject virtualTrack;
-	
-	private bool shouldShowInstrumentation = true;	//flag for whether it should be visible
-	private bool InstrumentationIsVisible = true;	//flag for whether it actually is visible
 	
 	/// <summary>
 	/// Start this instance.
@@ -177,117 +161,6 @@ public class GameBase : MonoBehaviour {
 		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
 	}
 	
-	protected void SetInstrumentationVisible(bool visible) {
-		//todo: store an array by finding by tag?
-		shouldShowInstrumentation = visible;
-		if(distanceBox == null)
-		{
-			//UnityEngine.Debug.Log("FirstRun: distancebox");
-			distanceBox = GameObject.Find("DistanceBox");
-		}
-		if(distanceBox != null)
-		{
-			distanceBox.SetActive(visible);
-		}
-		else
-		{
-			//UnityEngine.Debug.Log("FirstRun: couldn't find distance box");
-			//GUI doesn't yet exist. Set flag to hide later
-			InstrumentationIsVisible = false;
-		}
-		
-		if(timeBox == null)
-		{
-			timeBox = GameObject.Find("TimeBox");
-		}
-		if(timeBox != null)
-		{
-			timeBox.SetActive(visible);
-		}
-		
-		if(pointsBox == null)
-		{
-			pointsBox = GameObject.Find("PointsBox");
-		}
-		if(pointsBox != null)
-		{
-			pointsBox.SetActive(visible);		
-		}
-	
-		if(caloriesBox == null)
-		{	
-			caloriesBox = GameObject.Find("CaloriesBox");
-		}
-		if(caloriesBox != null)
-		{
-			caloriesBox.SetActive(visible);
-		}
-		
-		if(paceBox == null)
-		{
-			paceBox = GameObject.Find("PaceBox");
-		}
-		if(paceBox != null)
-		{
-			paceBox.SetActive(visible);
-		}
-		//units
-		if(distanceUnits == null) {
-			distanceUnits = GameObject.Find("DistanceUnits_Lalignend");
-		}
-		if(distanceUnits!= null){
-			distanceUnits.SetActive(visible);
-		}
-		if(timeUnits == null) {
-			timeUnits = GameObject.Find("TimeUnits_Laligned");
-		}
-		if(timeUnits != null) {
-			timeUnits.SetActive(visible);
-		}
-		if(pointsUnits == null) {
-			UnityEngine.Debug.Log("FirstRace: points units null");
-			pointsUnits = GameObject.Find("PointsUnits");
-		}
-		if(pointsUnits != null) {
-			UnityEngine.Debug.Log("FirstRace: found points units object. setting inactive");
-			pointsUnits.SetActive(visible);
-		}
-		else
-		{
-			UnityEngine.Debug.Log("FirstRace: didn't find points units object");
-			InstrumentationIsVisible = false;
-		}
-		
-		if(caloriesUnits == null) {
-			caloriesUnits = GameObject.Find("CaloriesUnits");
-		}
-		if(caloriesUnits != null) {
-			caloriesUnits.SetActive(visible);
-		}
-		if(paceUnits == null) {
-			paceUnits = GameObject.Find("PaceUnits");
-		}
-		if(paceUnits != null) {
-			paceUnits.SetActive(visible);
-		}
-		
-	}
-	
-	protected void SetAheadBoxVisible(bool visible)
-	{
-		if(aheadBox == null)
-		{
-			aheadBox = GameObject.Find("AheadBox");
-			//if we still can't find it, it may not have been created yet.
-			shouldShowAheadBox = visible;
-		}
-		if(aheadBox != null)
-		{
-			aheadBox.SetActive(visible);
-		}
-
-	}
-	
 	protected void SetVirtualTrackVisible(bool visible)
 	{
 		if(virtualTrack == null)
@@ -334,7 +207,7 @@ public class GameBase : MonoBehaviour {
 		}
 	}
 	
-	public void QuitGame() {
+	public virtual void QuitGame() {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 		if(gConnect != null) {
@@ -450,13 +323,6 @@ public class GameBase : MonoBehaviour {
 			 	if(gConnect != null)
 				{
 					fs.parentMachine.FollowConnection(gConnect);
-					//clear references to the various HUD elements we're keeping track of
-					aheadBox = null;
-					paceBox = null;
-					caloriesBox = null;
-					distanceBox = null;
-					timeBox = null;
-					pointsBox = null;
 				} else
 				{
 					UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
@@ -637,14 +503,6 @@ public class GameBase : MonoBehaviour {
 		if(started && baseMultiplierStartTime > (Time.time - 1.5f)) {
 			GUI.Label(messageRect, baseMultiplierString, labelStyle);
 		}
-		
-		//hide the ahead box if we need to. We should only get here if we wanted to hide it, but it didn't exist yet.
-		if(aheadBox == null && !shouldShowAheadBox)
-		{
-			SetAheadBoxVisible(false);
-		}
-
-		SetInstrumentationVisible(shouldShowInstrumentation);
 	
 	}
 	
@@ -677,7 +535,10 @@ public class GameBase : MonoBehaviour {
 		Platform.Instance.Poll();
 		
 		DataVault.Set("calories", Platform.Instance.Calories().ToString()/* + "kcal"*/);
-		DataVault.Set("pace", SpeedToKmPace(Platform.Instance.Pace()).ToString("f1")/* + "min/km"*/);
+		float pace = SpeedToKmPace(Platform.Instance.Pace());
+		pace = Math.Min(pace, 10.0f);	//avoid huge numbers on HUD
+		string paceString = TimestampMMSS((long)pace);	//pace as mm:ss not mm.m
+		DataVault.Set("pace", paceString/* + "min/km"*/);
 		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance()));
 		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);
@@ -790,7 +651,7 @@ public class GameBase : MonoBehaviour {
 			final = value.ToString("f0");
 		}
 		//set the units string for the HUD
-		DataVault.Set("distance_units", postfix);
+		DataVault.Set("distanceunits", postfix);
 		return final;
 	}
 			

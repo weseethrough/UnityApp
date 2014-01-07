@@ -7,6 +7,8 @@ public class DeviceControl : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+		DataVault.Set("loading", " ");
+		
 		if(Platform.Instance.Device() != null)
 		{
 			UnityEngine.Debug.Log("DeviceControl: device obtained");
