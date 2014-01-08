@@ -144,20 +144,20 @@ public class UISensorCamera : MonoBehaviour {
 		
 		//UnityEngine.Debug.Log("UISensorCamera: Euler angles are: " + Platform.Instance.GetOrientation().eulerAngles.x + ", " + Platform.Instance.GetOrientation().eulerAngles.y + ", " + Platform.Instance.GetOrientation().eulerAngles.z);
 		
-		if((newOffset.eulerAngles.x > 30 && newOffset.eulerAngles.x < 330) || (newOffset.eulerAngles.y > 40 && newOffset.eulerAngles.y < 320)) 
-		{
-			DataVault.Set("tutorial_hint", "Tap with two fingers to center view");
-			LoadingTextComponent.SetVisibility(true);
-		}
-		else
-		{
-			string tutHint = (string)DataVault.Get("tutorial_hint");
-			if(tutHint == "Tap with two fingers to center view") {
-				DataVault.Set("tutorial_hint", " ");
-				//LoadingTextComponent.SetVisibility(false);
-			}
-			
-		}
+//		if((newOffset.eulerAngles.x > 30 && newOffset.eulerAngles.x < 330) || (newOffset.eulerAngles.y > 40 && newOffset.eulerAngles.y < 320)) 
+//		{
+//			DataVault.Set("tutorial_hint", "Tap with two fingers to center view");
+//			LoadingTextComponent.SetVisibility(true);
+//		}
+//		else
+//		{
+//			string tutHint = (string)DataVault.Get("tutorial_hint");
+//			if(tutHint == "Tap with two fingers to center view") {
+//				DataVault.Set("tutorial_hint", " ");
+//				//LoadingTextComponent.SetVisibility(false);
+//			}
+//			
+//		}
 		
 		transform.rotation = newOffset;
 		

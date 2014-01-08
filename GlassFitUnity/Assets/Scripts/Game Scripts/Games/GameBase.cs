@@ -528,7 +528,8 @@ public class GameBase : MonoBehaviour {
 			DataVault.Set("ahead_col_box", "19D200EE");
 			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
-		string siDistance = SiDistance(Math.Abs(targetDistance));
+		string siDistance = SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
+		//UnityEngine.Debug.Log("GameBase: setting target distance to: " + siDistance);
 		DataVault.Set("ahead_box", siDistance);
 	}
 	
@@ -549,7 +550,7 @@ public class GameBase : MonoBehaviour {
 		pace = Math.Min(pace, 10.0f);	//avoid huge numbers on HUD
 		string paceString = TimestampMMSS((long)pace);	//pace as mm:ss not mm.m
 		DataVault.Set("pace", paceString/* + "min/km"*/);
-		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance()));
+		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance(), "distanceunits"));
 		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);
 		
@@ -670,10 +671,10 @@ public class GameBase : MonoBehaviour {
 	
 	//TODO move these to a utility class
 	protected string SiDistance(double meters) {
-		return SiDistanceUnitless(meters) + DataVault.Get("distance_units");
+		return SiDistanceUnitless(meters, "distanceunits") + DataVault.Get("distance_units");
 	}
 	
-	protected string SiDistanceUnitless(double meters) {
+	protected string SiDistanceUnitless(double meters, string units) {
 		string postfix = "m";
 		string final;
 		float value = (float)meters;
@@ -691,7 +692,7 @@ public class GameBase : MonoBehaviour {
 			final = value.ToString("f0");
 		}
 		//set the units string for the HUD
-		DataVault.Set("distanceunits", postfix);
+		DataVault.Set(units, postfix);
 		return final;
 	}
 			

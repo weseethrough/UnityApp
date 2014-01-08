@@ -56,7 +56,7 @@ public class HUDController : MonoBehaviour {
 		{
 			if(visible) 
 			{
-				UnityEngine.Debug.LogWarning("HUD: Trying to make element	visible without a reference to it stored");
+				//UnityEngine.Debug.LogWarning("HUD: Trying to make element	visible without a reference to it stored");
 			}
 		}
 	}
