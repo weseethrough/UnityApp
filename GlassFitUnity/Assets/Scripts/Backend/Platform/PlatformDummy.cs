@@ -77,7 +77,12 @@ public class PlatformDummy : Platform
 	}
 	*/
 	private static bool applicationIsQuitting = false;
-	
+
+    public bool OnGlass()
+    {
+        return false;
+    }
+
 	public void OnDestroy() 
 	{
 		applicationIsQuitting = true;

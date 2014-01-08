@@ -119,9 +119,12 @@ public class TutorialPanel : HexPanel
 		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
         list.UpdateButtonList();
 	}
-	
+    int k = 0;
 	public virtual void AddButton() 
 	{
+        buttonData[0].activityName = (int)(k++) + buttonData[0].activityName.Substring(1);
+        buttonData[0].markedForVisualRefresh = true;
+
 		if (buttonData.Count == 1)
         {
             HexButtonData hbd = new HexButtonData();
@@ -130,7 +133,7 @@ public class TutorialPanel : HexPanel
             hbd.buttonName = "LookHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "Look at this hex to select it";
-			hbd.displayInfoData = false;
+			hbd.displayInfoData = false;            
 			
 			shouldAdd = false;
 			

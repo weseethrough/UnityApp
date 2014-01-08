@@ -131,7 +131,7 @@ public class FlowStateMachine : MonoBehaviour
             connection.Link.Count > 0 &&
             connection.Link[0].Parent != null)
         {
-            /*if (!grabAnalyticsInitialized)
+            if (!grabAnalyticsInitialized)
             {
                 //use this to enable debug output
                 GrabBridge.ToggleLog(true);
@@ -142,7 +142,7 @@ public class FlowStateMachine : MonoBehaviour
                 GrabBridge.FirstLogin(userid);
 
                 grabAnalyticsInitialized = true;                
-            }*/
+            }
             
 
             JSONObject gameDetails = new JSONObject();
@@ -152,8 +152,8 @@ public class FlowStateMachine : MonoBehaviour
 
             gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
             gameDetails.AddField("Game type", (string)type);
-            gameDetails.AddField("Timestamp", Time.realtimeSinceStartup);
-            gameDetails.AddField("State live", Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp());
+            gameDetails.AddField("Timestamp", (int)(Time.realtimeSinceStartup * 1000));
+            gameDetails.AddField("State live", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
             gameDetails.AddField("Custom Log", (string)log );
 
             GrabBridge.CustomEvent("Flow state changed", gameDetails);
