@@ -66,19 +66,34 @@ public class TargetController : MonoBehaviour {
 	// Update is called once per frame
 	public virtual void Update () {
 		
-	
-#if !UNITY_EDITOR
-		if (object.ReferenceEquals(null, target)) return;
-//		UnityEngine.Debug.Log("Target: Distance is " + target.GetTargetDistance().ToString());
-		scaledDistance = (target.GetDistanceBehindTarget() - distanceOffset) * travelSpeed;
-#else
-		scaledDistance = (PlatformDummy.Instance.DistanceBehindTarget() - distanceOffset) * travelSpeed;
-#endif
+		//calculate scaled distance
+		scaledDistance = (GetDistanceBehindTarget() - distanceOffset) * travelSpeed;
+
+		//set position
 		Vector3 movement = new Vector3(xOffset, height, (float)scaledDistance);
 		transform.position = movement;
 	}
 	
-		
+	/// <summary>
+	/// Gets the distance behind target.
+	/// Calls through to the Platform by default, but subclasses can implement their own way to report this
+	/// </summary>
+	/// <returns>
+	/// The distance behind target.
+	/// </returns>
+	protected virtual double GetDistanceBehindTarget()
+	{
+		if(target != null)
+		{
+			return target.GetDistanceBehindTarget();
+		}
+		else
+		{
+			//probably means we're in the editor
+			return Platform.Instance.DistanceBehindTarget();
+		}
+	}
+	
 	protected GUIStyle getLabelStylePace()
 	{
 		// set style for our labels
