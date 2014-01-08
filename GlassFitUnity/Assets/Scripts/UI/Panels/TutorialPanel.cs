@@ -54,6 +54,11 @@ public class TutorialPanel : HexPanel
 		DataVault.Set("rp", Platform.Instance.GetOpeningPointsBalance());
 		DataVault.Set("metabolism", Platform.Instance.GetCurrentMetabolism());
 		
+		if(Platform.Instance.GetTracks(10000, 0) != null) {
+			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {		
+				StraightToMenu();
+			}
+		}	
         twoHandler = new GestureHelper.TwoFingerTap(() => {
 			if(buttonData.Count == 0) {
 				InitialButtons();
@@ -70,15 +75,7 @@ public class TutorialPanel : HexPanel
 		
 		UnityEngine.Debug.Log("TutorialPanel: Setting three finger tap");
 		threeHandler = new GestureHelper.ThreeFingerTap(() => {
-			GConnector gConnect = Outputs.Find(r => r.Name == "MenuExit");
-			if(gConnect != null) 
-			{
-				GestureHelper.onThreeTap -= threeHandler;
-				parentMachine.FollowConnection(gConnect);
-			} else 
-			{
-				UnityEngine.Debug.Log("TutorialPanel: Error finding menu exit");
-			}
+			StraightToMenu();
 		});
 		
 		GestureHelper.onThreeTap += threeHandler;
@@ -93,6 +90,18 @@ public class TutorialPanel : HexPanel
 		UnityEngine.Debug.Log("TutorialPanel: camera found, about to enter base");
         base.EnterStart();
     }
+	
+	public void StraightToMenu() {
+		GConnector gConnect = Outputs.Find(r => r.Name == "MenuExit");
+		if(gConnect != null) 
+		{
+			GestureHelper.onThreeTap -= threeHandler;
+			parentMachine.FollowConnection(gConnect);
+		} else 
+		{
+			UnityEngine.Debug.Log("TutorialPanel: Error finding menu exit");
+		}
+	}
 	
 	public override void StateUpdate ()
 	{
