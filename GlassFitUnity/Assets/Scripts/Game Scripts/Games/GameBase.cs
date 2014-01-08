@@ -640,7 +640,7 @@ public class GameBase : MonoBehaviour {
 			}
 		}
 		
-		if(indoor) {
+		if(Platform.Instance.IsIndoor()) {
 			if(Platform.Instance.Distance() == lastDistance) 
 			{
 				indoorTime += Time.deltaTime;
