@@ -7,7 +7,7 @@ public class DeviceControl : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		DataVault.Set("loading", " ");
+		DataVault.Set("first_menu", " ");
 		
 		if(Platform.Instance.Device() != null)
 		{
@@ -41,12 +41,12 @@ public class DeviceControl : MonoBehaviour {
             GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
             if (gConnect != null)
             {
-                UnityEngine.Debug.Log("Automatic exit");
+                UnityEngine.Debug.Log("DeviceControl: Automatic exit");
                 fs.parentMachine.FollowConnection(gConnect);
             }
             else
             {
-                UnityEngine.Debug.Log("connection not found: MenuExit");
+                UnityEngine.Debug.Log("DeviceControl: Connection not found: MenuExit");
             }
 #else
 			pollTime -= 5.0f;
