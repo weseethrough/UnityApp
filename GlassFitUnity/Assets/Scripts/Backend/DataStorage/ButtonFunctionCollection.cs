@@ -273,7 +273,8 @@ public class ButtonFunctionCollection
 	static public bool CheckTracks(FlowButton fb, Panel panel) 
 	{
 		int finish = (int)DataVault.Get("finish");
-		List<Track> trackList = Platform.Instance.GetTracks((double)finish);
+		int lowerFinish = (int)DataVault.Get("lower_finish");
+		List<Track> trackList = Platform.Instance.GetTracks((double)finish, (double)lowerFinish);
 		if(trackList != null) {
 			if(trackList.Count == 0) {
 				MessageWidget.AddMessage("Sorry!", "You currently have no tracks for this distance", "activity_delete");
@@ -299,11 +300,12 @@ public class ButtonFunctionCollection
 		{
 		case "1km":
 			DataVault.Set("finish", 1000);
-			
+			DataVault.Set("lower_finish", 0);
 			break;
 			
 		case "2km":
 			DataVault.Set("finish", 2000);
+			DataVault.Set("lower_finish", 1000);
 			if((string)DataVault.Get("race_type") == "pursuit") {
 				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
 			}
@@ -311,6 +313,7 @@ public class ButtonFunctionCollection
 			
 		case "3km":
 			DataVault.Set("finish", 3000);
+			DataVault.Set("lower_finish", 2000);
 			if((string)DataVault.Get("race_type") == "pursuit") {
 				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
 			}
@@ -318,6 +321,7 @@ public class ButtonFunctionCollection
 			
 		case "4km":
 			DataVault.Set("finish", 4000);
+			DataVault.Set("lower_finish", 3000);
 			if((string)DataVault.Get("race_type") == "pursuit") {
 				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
 			}
@@ -325,6 +329,7 @@ public class ButtonFunctionCollection
 			
 		case "5km":
 			DataVault.Set("finish", 5000);
+			DataVault.Set("lower_finish", 4000);
 			if((string)DataVault.Get("race_type") == "pursuit") {
 				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
 			}
@@ -332,6 +337,7 @@ public class ButtonFunctionCollection
 			
 		case "10km":
 			DataVault.Set("finish", 10000);
+			DataVault.Set("lower_finish", 5000);
 			if((string)DataVault.Get("race_type") == "pursuit") {
 				AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
 			}

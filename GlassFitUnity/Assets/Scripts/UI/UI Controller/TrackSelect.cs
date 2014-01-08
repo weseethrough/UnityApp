@@ -57,7 +57,8 @@ public class TrackSelect : MonoBehaviour {
 	/// </summary>
 	void Start () {
 		int finish = (int)DataVault.Get("finish");
-		trackList = Platform.Instance.GetTracks((double)finish);
+		int minDistance = (int)DataVault.Get("lower_finish");
+		trackList = Platform.Instance.GetTracks((double)finish, (double)minDistance);
 		tex = GetComponent<UITexture>();
 		
 		LoadTrack();

@@ -637,10 +637,10 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Obtain tracks based on distance
-	public virtual List<Track> GetTracks(double distance) {
+	public virtual List<Track> GetTracks(double distance, double minDistance) {
 		try {
 			UnityEngine.Debug.Log("Platform: getting tracks with distance");
-			using(AndroidJavaObject list = helper.Call<AndroidJavaObject>("getTracks", distance)) {
+			using(AndroidJavaObject list = helper.Call<AndroidJavaObject>("getTracks", distance, minDistance)) {
 				int size = list.Call<int>("size");
 				trackList = new List<Track>(size);
 				try {
