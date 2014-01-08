@@ -131,7 +131,7 @@ public class FlowStateMachine : MonoBehaviour
             connection.Link.Count > 0 &&
             connection.Link[0].Parent != null)
         {
-            if (!grabAnalyticsInitialized)
+            /*if (!grabAnalyticsInitialized)
             {
                 //use this to enable debug output
                 GrabBridge.ToggleLog(true);
@@ -142,7 +142,7 @@ public class FlowStateMachine : MonoBehaviour
                 GrabBridge.FirstLogin(userid);
 
                 grabAnalyticsInitialized = true;                
-            }
+            }*/
             
 
             JSONObject gameDetails = new JSONObject();
