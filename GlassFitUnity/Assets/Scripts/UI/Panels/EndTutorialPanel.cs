@@ -9,6 +9,8 @@ public class EndTutorialPanel : TutorialPanel {
 	
 	private GestureHelper.OnTap tapHandler;
 	
+	private bool unlocked = false;
+	
 	public EndTutorialPanel() { }
     public EndTutorialPanel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
@@ -56,15 +58,9 @@ public class EndTutorialPanel : TutorialPanel {
                             {
                                 gComponent.Data.Connect(gc, gameExit.Link[0]);
                             }
+							
+							unlocked = true;
 
-                            HexButtonData hbd = new HexButtonData();
-                            hbd.row = -1;
-                            hbd.column = -2;
-                            hbd.buttonName = "FinalHex";
-                            hbd.displayInfoData = false;
-                            hbd.onButtonCustomString = "This is now unlocked! Enter it to go to the main menu";
-
-                            buttonData.Add(hbd);
                         }
 
                         DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
@@ -80,7 +76,13 @@ public class EndTutorialPanel : TutorialPanel {
 	
 	public override void EnterStart ()
 	{
-		base.EnterStart ();
+		parentMachine.ForbidBack();
+		
+		InitialButtons();
+		
+		UnityEngine.Debug.Log("EndTutorialPanel: initial buttons set");
+		
+		base.EnterStart();
 		
 		tapHandler = new GestureHelper.OnTap(() => {
 			UnlockHex();
@@ -94,8 +96,13 @@ public class EndTutorialPanel : TutorialPanel {
 	{
 		base.StateUpdate ();
 		
-		if(Input.GetTouch(0).phase == TouchPhase.Began) {
-			UnlockHex();
+//		if(Input.GetTouch(0).phase == TouchPhase.Began) {
+//			UnlockHex();
+//		}
+		
+		if(unlocked) 
+		{
+			DataVault.Set("highlight", "This is now unlocked! Enter it to go to the main menu");
 		}
 	}
 	
@@ -168,6 +175,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.buttonName = "VersusHex";
 				hbd.imageName = "activity_versus";
 	            hbd.displayInfoData = true;
+				hbd.activityPrice = 0;
 				hbd.activityName = "Challenge a Friend";
 				hbd.activityContent = "Unlock the ability to accept challenges from friends";
 				
@@ -181,21 +189,9 @@ public class EndTutorialPanel : TutorialPanel {
 		}
 	}
 	
-	public override void AddFinalButton()
+	public override void AddFinalString()
 	{
-		HexButtonData hbd = new HexButtonData();
-        hbd.row = -2;
-        hbd.column = 0;
-        hbd.buttonName = "FinalHex";
-		hbd.displayInfoData = false;
-		hbd.onButtonCustomString = "Highlight the locked hex and tap to unlock";
-		
-		hbd.displayInfoData = false;
-		
-		buttonData.Add(hbd);
-		
-		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
-        list.UpdateButtonList();
+		DataVault.Set("highlight", "Highlight the hex and tap to unlock");
 	}
 	
 	public override void AddButton ()
@@ -254,21 +250,13 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.buttonName = "VersusHex";
 			hbd.imageName = "activity_versus";
             hbd.displayInfoData = true;
+			hbd.activityPrice = 0;
 			hbd.activityName = "Challenge a Friend";
 			hbd.activityContent = "Unlock the ability to accept challenges from friends";
-			
+				
 			shouldAdd = false;
 			buttonData.Add(hbd);
-			
-//			GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
-//			
-//			GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-//			
-//			GConnector gc = NewOutput(hbd.buttonName, "Flow");
-//            
-//			if(gameExit.Link.Count > 0) {
-//				gComponent.Data.Connect(gc, gameExit.Link[0]);
-//			}
+
 		}
 
         DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
@@ -279,6 +267,6 @@ public class EndTutorialPanel : TutorialPanel {
 	{
 		base.Exited ();
 		
-		DataVault.Set("loading", "This is your race grid. More races coming soon");
+		DataVault.Set("first_menu", "This is your race grid. More tiles coming soon");
 	}
 }

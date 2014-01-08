@@ -240,7 +240,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 				}
 			}
 			
-			grid.SetActive(gridOn);
+			grid.SetActive(false);
+			//forcing the grid off by using false here
 		}
 		
 	}

@@ -16,7 +16,10 @@ public class TutorialPanel : HexPanel
 	private GameObject highlightText = null;
 	
 	private GestureHelper.ThreeFingerTap threeHandler = null;
-    //	PlatformDummy platform = new PlatformDummy();
+    
+	private GestureHelper.TwoFingerTap twoHandler = null;
+	
+	private Camera camera;
 
     public TutorialPanel() { }
     public TutorialPanel(SerializationInfo info, StreamingContext ctxt)
@@ -46,11 +49,26 @@ public class TutorialPanel : HexPanel
     /// <returns></returns>
     public override void EnterStart()
     {
-        InitialButtons();
+		UnityEngine.Debug.Log("TutorialPanel: setting two finger tap");
 		
+		DataVault.Set("rp", Platform.Instance.GetOpeningPointsBalance());
+		DataVault.Set("metabolism", Platform.Instance.GetCurrentMetabolism());
+		
+        twoHandler = new GestureHelper.TwoFingerTap(() => {
+			if(buttonData.Count == 0) {
+				InitialButtons();
+				elapsedTime = 0.0f;
+			}
+			GestureHelper.onTwoTap -= twoHandler;
+		});
+		
+		GestureHelper.onTwoTap += twoHandler;
+		
+		UnityEngine.Debug.Log("TutorialPanel: Setting datavault stuff");
 		DataVault.Set("tutorial_hint", " ");
 		DataVault.Set("highlight", " ");
 		
+		UnityEngine.Debug.Log("TutorialPanel: Setting three finger tap");
 		threeHandler = new GestureHelper.ThreeFingerTap(() => {
 			GConnector gConnect = Outputs.Find(r => r.Name == "MenuExit");
 			if(gConnect != null) 
@@ -65,6 +83,14 @@ public class TutorialPanel : HexPanel
 		
 		GestureHelper.onThreeTap += threeHandler;
 		
+		UnityEngine.Debug.Log("TutorialPanel: about to find camera");
+		GameObject cam = GameObject.Find("Scene Camera");
+		
+		if(cam != null) {
+			camera = cam.camera;
+		}
+		
+		UnityEngine.Debug.Log("TutorialPanel: camera found, about to enter base");
         base.EnterStart();
     }
 	
@@ -80,51 +106,41 @@ public class TutorialPanel : HexPanel
 			elapsedTime -= maxTime;
 		}
 		
-//		if(Input.GetKeyDown(KeyCode.Space)) {
-//			if(buttonData.Count == 2) {
-//				HexButtonData hbd = new HexButtonData();
-//	            hbd.row = 0;
-//	            hbd.column = 1;
-//	            hbd.buttonName = "NiceHex";
-//	            hbd.displayInfoData = false;
-//	            hbd.onButtonCustomString = "Nice!";
-//				hbd.displayInfoData = false;
-//				
-//				elapsedTime = 0f;
-//				shouldAdd = true;
-//				
-//	            buttonData.Add(hbd);
-//			}
-//		}
-		
 		if(elapsedTime > 10.0f && buttonData.Count == 7) 
 		{
-			DataVault.Set("highlight", "Highlight the hex and tap to start");
+			AddFinalString();
 		}
+		
+		if(camera != null) 
+		{
+			if((camera.transform.rotation.eulerAngles.x > 30 && camera.transform.rotation.eulerAngles.x < 330) || (camera.transform.rotation.eulerAngles.y > 40 && camera.transform.rotation.eulerAngles.y < 320)) {
+				DataVault.Set("tutorial_hint", "Tap with two fingers to center view");
+				LoadingTextComponent.SetVisibility(true);
+			}
+			else
+			{
+				string tutHint = (string)DataVault.Get("tutorial_hint");
+				if(tutHint == "Tap with two fingers to center view") {
+					DataVault.Set("tutorial_hint", " ");
+				}
+				
+			}
+		}
+		
+		if(buttonData.Count == 0) 
+		{
+			DataVault.Set("tutorial_hint", "Tap with two fingers to center view");
+		}
+		
 	}
 	
-	public virtual void AddFinalButton()
+	public virtual void AddFinalString()
 	{
-		HexButtonData hbd = new HexButtonData();
-        hbd.row = -2;
-        hbd.column = 0;
-        hbd.buttonName = "FinalHex";
-		hbd.displayInfoData = false;
-		hbd.onButtonCustomString = "Highlight the hex and tap to start";
-		
-		hbd.displayInfoData = false;
-		
-		buttonData.Add(hbd);
-		
-		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
-        list.UpdateButtonList();
+		DataVault.Set("highlight", "Highlight the hex and tap to start");
 	}
-    int k = 0;
+	
 	public virtual void AddButton() 
 	{
-        buttonData[0].activityName = (int)(k++) + buttonData[0].activityName.Substring(1);
-        buttonData[0].markedForVisualRefresh = true;
-
 		if (buttonData.Count == 1)
         {
             HexButtonData hbd = new HexButtonData();
@@ -133,7 +149,7 @@ public class TutorialPanel : HexPanel
             hbd.buttonName = "LookHex";
             hbd.displayInfoData = false;
             hbd.onButtonCustomString = "Look at this hex to select it";
-			hbd.displayInfoData = false;            
+			hbd.displayInfoData = false;
 			
 			shouldAdd = false;
 			
@@ -217,6 +233,9 @@ public class TutorialPanel : HexPanel
 		hbd.displayInfoData = false;
 		
         buttonData.Add(hbd);
+		
+		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+        list.UpdateButtonList();
     }
 
     /// <summary>
@@ -320,6 +339,7 @@ public class TutorialPanel : HexPanel
 	{
 		base.Exited ();
 		GestureHelper.onThreeTap -= threeHandler;
+		GestureHelper.onTwoTap -= twoHandler;
 		DataVault.Set("highlight", " ");
 	}
 }

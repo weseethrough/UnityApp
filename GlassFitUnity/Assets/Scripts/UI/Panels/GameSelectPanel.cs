@@ -163,6 +163,7 @@ public class GameSelectPanel : HexPanel
 		hbd.row = 0;
 		hbd.column = 0;
 		hbd.buttonName = "current_balance";
+		hbd.displayInfoData = false;
 		hbd.onButtonCustomString = Platform.Instance.GetCurrentMetabolism().ToString("f0") + "\n\n" + Platform.Instance.GetOpeningPointsBalance() + "RP";
 		//hbd.imageName = "";
 		
@@ -198,6 +199,11 @@ public class GameSelectPanel : HexPanel
             hbd.row = games[i].row;
 			//UnityEngine.Debug.Log("Game: position of " + games[i].name + " is: " + games[i].column + ", " + games[i].row);
             hbd.imageName = games[i].iconName;
+			
+			if(games[i].type == "N/A")
+			{
+				hbd.displayInfoData = false;
+			}
 			
 			if(games[i].state == "Locked") {
 	           	hbd.locked = true;
@@ -281,6 +287,6 @@ public class GameSelectPanel : HexPanel
 		GestureHelper.onTap -= tapHandler;
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;
-		DataVault.Set("loading", " ");
+		DataVault.Set("first_menu", " ");
 	}
 }
