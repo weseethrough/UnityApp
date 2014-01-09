@@ -47,7 +47,8 @@ public class EndTutorialPanel : TutorialPanel {
                         if (buttonData[i].locked)
                         {
                             buttonData[i].locked = false;
-
+							buttonData[i].markedForVisualRefresh = true;
+							
                             GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
 
                             GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;

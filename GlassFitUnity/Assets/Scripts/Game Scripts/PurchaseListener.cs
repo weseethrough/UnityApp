@@ -34,7 +34,7 @@ public class PurchaseListener : MonoBehaviour {
 	
 	void PurchaseGame() {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "PurchaseButton");
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuButton");
 		
 		if(gConnect != null) {
 			Game current = (Game)DataVault.Get("actual_game");

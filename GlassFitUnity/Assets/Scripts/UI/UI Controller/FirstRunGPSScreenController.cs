@@ -7,6 +7,8 @@ public class FirstRunGPSScreenController : SwipeListener {
 	GestureHelper.OnSwipeLeft leftHandler = null;
 	GestureHelper.OnSwipeRight rightHandler = null;
 	
+	bool canProceed = false;
+	
 	// Use this for initialization
 	public void Start () {
 		
@@ -30,11 +32,36 @@ public class FirstRunGPSScreenController : SwipeListener {
 		//check gps
 		if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
 		{
-			DataVault.Set("FrGPS_navPrompt", "Swipe Forward to proceed");
+			if(!canProceed)
+			{
+				canProceed = true;
+				DataVault.Set("FrGPS_navPrompt", "Swipe Forward to proceed");
+				//grey the icons
+				PageIndicatorController paging = Component.FindObjectOfType(typeof(PageIndicatorController)) as PageIndicatorController;
+				if(paging)
+				{
+					paging.UnGhostAllPages();
+				}
+				else
+				{	UnityEngine.Debug.LogWarning("FirstRunGPS: couldn't find paging controller"); }
+			}
 		}
 		else
 		{
-			DataVault.Set("FrGPS_navPrompt", " ");
+			if(canProceed)
+			{
+				canProceed = false;
+				DataVault.Set("FrGPS_navPrompt", " ");
+				//grey out the icons
+				PageIndicatorController paging = Component.FindObjectOfType(typeof(PageIndicatorController)) as PageIndicatorController;
+				if(paging)
+				{
+					int currentPage = (int)DataVault.Get("currentPageIndex");
+					paging.GhostProgressBeyondPage(currentPage);
+				}
+				else
+				{	UnityEngine.Debug.LogWarning("FirstRunGPS: couldn't find paging controller"); }
+			}
 		}
 	}
 	

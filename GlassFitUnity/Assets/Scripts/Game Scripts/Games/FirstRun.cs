@@ -29,7 +29,7 @@ public class FirstRun : GameBase {
 	const float showLabelMinRange = 0.1f;
 	const float showLabelMaxRange = 500.0f;
 	
-	public UINavProgressBar progressBar;
+	//public UINavProgressBar progressBar;
 	
 	bool hasResetGyros = false;
 	
@@ -38,7 +38,9 @@ public class FirstRun : GameBase {
 		
 		base.Start ();
 		
-		progressBar.numPages = 4;
+		//progressBar.numPages = 4;
+		//5 page: 1.welcome, 2.must do first race, 3.opponent desc, 4.gps, 5.orientation disclaimer
+		DataVault.Set("NumberOfPages", 5);
 		
 		UnityEngine.Debug.Log("FirstRun: Start");
 		

@@ -15,8 +15,12 @@ public class DistancePanel : HexPanel {
 	
 	public override void EnterStart ()
 	{
-		GConnector gameExit = Outputs.Find(r => r.Name ==  "gameExit");
-		
+		GConnector gameExit;
+		if((string)DataVault.Get("race_type") == "tutorial") {
+			gameExit = Outputs.Find(r => r.Name == "TutorialExit");
+		} else {
+			gameExit = Outputs.Find(r => r.Name ==  "gameExit");
+		}
 		GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
 		HexButtonData hbd = GetButtonAt(0, 0);
