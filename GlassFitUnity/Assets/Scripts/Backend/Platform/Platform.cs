@@ -404,7 +404,8 @@ public class Platform : MonoBehaviour {
 		return t;
 	}
 	
-	public bool OnGlass() {
+	public virtual bool OnGlass() 
+    {
 		try {
 			//UnityEngine.Debug.Log("Platform: seeing if glass");
 			return helper_class.CallStatic<bool>("onGlass");
@@ -414,8 +415,9 @@ public class Platform : MonoBehaviour {
 			return false;
 		}
 	}
-	
-	public bool IsPluggedIn() {
+
+    public virtual bool IsPluggedIn()
+    {
 		try {
 			UnityEngine.Debug.Log("Platform: calling IsPluggedIn");
 			return helper.Call<bool>("isPluggedIn");

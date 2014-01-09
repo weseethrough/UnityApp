@@ -13,7 +13,10 @@ public class GrabDriver : MonoBehaviour {
 		GrabBridge.Start(app_secret);
 
 		//optionally, you can send more analytics if you'd like
-		SendOptionalAnalytics();
+		//SendOptionalAnalytics();
+
+        string userid = "lex";
+        GrabBridge.FirstLogin(userid);
 	}
 
 	//optionally, you can send more analytics if you'd like

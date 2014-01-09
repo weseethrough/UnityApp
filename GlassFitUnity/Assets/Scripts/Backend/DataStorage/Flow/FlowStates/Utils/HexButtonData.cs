@@ -25,6 +25,9 @@ public class HexButtonData : ISerializable
     public bool     displayInfoData = true;
     public bool     displayPlusMarker = false;
     public bool     allowEarlyHover = false;
+
+    //non persistent data 
+    public bool     markedForVisualRefresh = true;
         
     /// <summary>
     /// default constructor

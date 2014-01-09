@@ -77,7 +77,12 @@ public class PlatformDummy : Platform
 	}
 	*/
 	private static bool applicationIsQuitting = false;
-	
+
+    public override bool OnGlass()
+    {
+        return false;
+    }
+
 	public void OnDestroy() 
 	{
 		applicationIsQuitting = true;
@@ -86,6 +91,11 @@ public class PlatformDummy : Platform
 	public virtual float GetDistance() {
 		return (float)distance;
 	}
+
+    public virtual bool IsPluggedIn()
+    {
+        return false;
+    }
 
 	//if there is a platform dummy about on the device, kill it.
 #if !UNITY_EDITOR
