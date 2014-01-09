@@ -21,12 +21,12 @@ public class UIBasiclabel : UIComponentSettings
 		UILabel[] labels = GetComponentsInChildren<UILabel>();
 		if (labels.Length < 1 )
 		{
-			Debug.LogError("Label system on buttons expect minimum one label");
+			Debug.LogError("Label system on buttons expect minimum one label. Object: "+gameObject.name);
 			return;
 		}
         if (labels.Length > 1)
         {
-            Debug.LogError("Label system on buttons expect only one label. Found: " + labels.Length);            
+            Debug.LogError("Label system on buttons expect only one label. Found: " + labels.Length + "; Object: " + gameObject.name);            
         }
 
 		labelInstance = labels[0];

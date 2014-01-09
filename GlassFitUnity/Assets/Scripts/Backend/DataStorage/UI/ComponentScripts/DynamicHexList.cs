@@ -608,10 +608,16 @@ public class DynamicHexList : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Unified section building and updating hex visual data in dynamic list based on button data from panel
+    /// </summary>
+    /// <returns></returns>
     private void ButtonDataToVisualProcess()
     {
+        int distanceFromCenter = 0;
         Transform child = GetButtonBase();
-        float Z = child.transform.position.z;
+        float Z = child.transform.position.z;                
+
         for (int i = 0; i < GetButtonData().Count; i++)
         {
             HexButtonData data = GetButtonData()[i];
@@ -632,6 +638,8 @@ public class DynamicHexList : MonoBehaviour
 
                 Vector3 hexPosition = new Vector3(pos.x, pos.y, pos.z);
                 tile.transform.position = hexPosition;
+
+                distanceFromCenter = Distance(data.column, data.row);
             }
             else
             {
@@ -685,6 +693,20 @@ public class DynamicHexList : MonoBehaviour
             if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Foreground"))
             {
                 buttonSprites[i]["Foreground"].gameObject.SetActive(data.locked);
+            }
+
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Background"))
+            {
+                if (distanceFromCenter % 2 == 0)
+                {
+                    //green
+                    buttonSprites[i]["Background"].color = new Color(0.223f, 0.71f, 0.29f);
+                }
+                else
+                {
+                    //gray
+                    buttonSprites[i]["Background"].color = new Color(0.235f, 0.235f, 0.235f);
+                }
             }
 
             data.markedForVisualRefresh = false;
@@ -834,98 +856,6 @@ public class DynamicHexList : MonoBehaviour
     }
 
     /// <summary>
-    /// Finds generic poistion for element using some predefined algorithm
-    /// </summary>
-    /// <param name="index">button index requested</param>
-    /// <returns>flat 2d position for hex </returns>
-    Vector2 GetLocation(int index)
-    {
-        if (hexLayoutOffset == Vector2.zero)
-        {
-            if (transform.childCount == 0) return Vector2.zero;
-
-            Transform child = transform.GetChild(0);
-            BoxCollider c = child.GetComponentInChildren<BoxCollider>();
-            Bounds b;
-            if (c != null)
-            {
-                b = c.bounds;
-            }
-            else
-            {
-                SphereCollider sc = child.GetComponentInChildren<SphereCollider>();
-                b = sc.bounds;
-            }
-            float upOffset = b.extents.y;
-            float sideOffset = Mathf.Sqrt(3 * upOffset * upOffset);
-            hexLayoutOffset = new Vector2(sideOffset, upOffset);
-        }
-
-        //our design expect some hard coded positioning of the hexes
-
-        switch (index)
-        {
-            case 0:
-                return Vector2.zero;
-            case 1:
-                return new Vector2(0, hexLayoutOffset.y * 2);
-            case 2:
-                return new Vector2(hexLayoutOffset.x, hexLayoutOffset.y);
-            case 3:
-                return new Vector2(hexLayoutOffset.x, -hexLayoutOffset.y);
-            case 4:
-                return new Vector2(0, -hexLayoutOffset.y * 2);
-            case 5:
-                return new Vector2(-hexLayoutOffset.x, -hexLayoutOffset.y);
-            case 6:
-                return new Vector2(-hexLayoutOffset.x, hexLayoutOffset.y);
-
-            case 7:
-                return new Vector2(hexLayoutOffset.x, hexLayoutOffset.y * 3);
-            case 8:
-                return new Vector2(hexLayoutOffset.x * 2, hexLayoutOffset.y * 2);
-            case 9:
-                return new Vector2(hexLayoutOffset.x * 2, 0);
-            case 10:
-                return new Vector2(hexLayoutOffset.x * 2, -hexLayoutOffset.y * 2);
-            case 11:
-                return new Vector2(hexLayoutOffset.x, -hexLayoutOffset.y * 3);
-
-            case 12:
-                return new Vector2(-hexLayoutOffset.x, -hexLayoutOffset.y * 3);
-            case 13:
-                return new Vector2(-hexLayoutOffset.x * 2, -hexLayoutOffset.y * 2);
-            case 14:
-                return new Vector2(-hexLayoutOffset.x * 2, 0);
-            case 15:
-                return new Vector2(-hexLayoutOffset.x * 2, hexLayoutOffset.y * 2);
-            case 16:
-                return new Vector2(-hexLayoutOffset.x, hexLayoutOffset.y * 3);
-
-            default:
-                int sequentalID = index - 17;
-                int stage = (int)(sequentalID / 14);
-                int step = sequentalID % 14;
-                if (step < 4)
-                {
-                    return new Vector2(hexLayoutOffset.x * (3 + stage * 2), hexLayoutOffset.y * (3 - 2 * step));
-                }
-                else if (step < 8)
-                {
-                    return new Vector2(-hexLayoutOffset.x * (3 + stage * 2), hexLayoutOffset.y * (3 - 2 * (step - 4)));
-                }
-                else if (step < 11)
-                {
-                    return new Vector2(hexLayoutOffset.x * (4 + stage * 2), hexLayoutOffset.y * (2 - 2 * (step - 8)));
-                }
-                else
-                {
-                    return new Vector2(-hexLayoutOffset.x * (4 + stage * 2), hexLayoutOffset.y * (2 - 2 * (step - 11)));
-                }
-        }
-    }
-
-    /// <summary>
     /// Plays animation to enter button
     /// </summary>
     /// <param name="buttonRoot">Game Object which is root element in button structure.</param>
@@ -1000,5 +930,24 @@ public class DynamicHexList : MonoBehaviour
         }
 
         buttonSprites.Add(singleButtonSprites);
+    }
+
+    private int Distance(int column, int row )
+    {
+        int rowDist = Mathf.Abs(row);
+        int Xoffset = rowDist % 2;
+
+        if (column > -1 && Xoffset == 1)
+        {
+            column += 1;
+        }
+        int columnDist = Mathf.Abs(column);
+
+        //rowdist /2 can be only bigger or rounded up equal to columnDist
+        //if this is not true we will get non diagonal moves
+        int nonDIagonalMoves = columnDist - (int)(rowDist * 0.5f + 0.6f) ;
+
+        return nonDIagonalMoves > 0 ? nonDIagonalMoves + rowDist : rowDist;
+        
     }
 }
