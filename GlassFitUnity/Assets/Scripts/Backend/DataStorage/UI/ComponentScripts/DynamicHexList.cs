@@ -34,6 +34,7 @@ public class DynamicHexList : MonoBehaviour
     List<GameObject> buttons;
     List<UIImageButton> buttonsImageComponents;
     List<Vector2> hexPosition2d;
+    List<Dictionary<string, UISprite>> buttonSprites;
 
     UIImageButton selection;
     private string btEnterAnimation = "HexEnter";
@@ -255,7 +256,7 @@ public class DynamicHexList : MonoBehaviour
 
             PlayButtonEnter(buttons[buttonNextEnterIndex], true);
 
-            UISprite[] sprites = buttons[buttonNextEnterIndex].GetComponentsInChildren<UISprite>() as UISprite[];
+           /* UISprite[] sprites = buttons[buttonNextEnterIndex].GetComponentsInChildren<UISprite>() as UISprite[];
             foreach (UISprite spr in sprites)
             {
                 if (spr.name == "Foreground")
@@ -263,7 +264,7 @@ public class DynamicHexList : MonoBehaviour
                     spr.gameObject.SetActive(GetButtonData()[buttonNextEnterIndex].locked);                    
                     break;
                 }
-            }
+            }*/
 
             buttonNextEnterIndex++;             
             
@@ -590,6 +591,7 @@ public class DynamicHexList : MonoBehaviour
         buttons = new List<GameObject>();
         buttonsImageComponents = new List<UIImageButton>();
         hexPosition2d = new List<Vector2>();
+        buttonSprites = new List<Dictionary<string, UISprite>>();
         buttonsReady = false;
 
         if (elementsToKeep < 1) elementsToKeep = 1;
@@ -606,18 +608,8 @@ public class DynamicHexList : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// IF button list changed you might need to update visual data collections to match it. This is function which finds differences and adds missing buttons
-    /// </summary>
-    /// <returns></returns>
-    public void UpdateButtonList()
+    private void ButtonDataToVisualProcess()
     {
-        if (buttons.Count == 0)
-        {
-            InitializeItems();
-            return;
-        }
-
         Transform child = GetButtonBase();
         float Z = child.transform.position.z;
         for (int i = 0; i < GetButtonData().Count; i++)
@@ -635,11 +627,11 @@ public class DynamicHexList : MonoBehaviour
                 tile = (GameObject)GameObject.Instantiate(child.gameObject);
                 tile.transform.parent = child.parent;
                 tile.transform.rotation = child.rotation;
-                tile.transform.localScale = child.localScale;            
+                tile.transform.localScale = child.localScale;
                 Vector3 pos = GetLocation(data.column, data.row);
 
                 Vector3 hexPosition = new Vector3(pos.x, pos.y, pos.z);
-                tile.transform.position = hexPosition;                
+                tile.transform.position = hexPosition;
             }
             else
             {
@@ -660,7 +652,7 @@ public class DynamicHexList : MonoBehaviour
                 graphics.normalSprite = graphics.pressedSprite;
                 graphics.disabledSprite = graphics.pressedSprite;
 
-                fb.userData["HexButtonData"] = data;                
+                fb.userData["HexButtonData"] = data;
             }
 
             UILabel[] labels = tile.GetComponentsInChildren<UILabel>() as UILabel[];
@@ -680,29 +672,38 @@ public class DynamicHexList : MonoBehaviour
                 }
             }
 
-            UISprite[] sprites = tile.GetComponentsInChildren<UISprite>() as UISprite[];
-            if (sprites != null)
+            if (i >= buttons.Count)
             {
-                foreach (UISprite sprite in sprites)
-                {
-                    switch (sprite.gameObject.name)
-                    {
-                        case "Plus":
-                            sprite.gameObject.SetActive(data.displayPlusMarker);
-                            break;
-                    }
-                }
+                AddTileToLists(tile, data);
+            }
+
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Plus"))
+            {
+                buttonSprites[i]["Plus"].gameObject.SetActive(data.displayPlusMarker);
+            }
+
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Foreground"))
+            {
+                buttonSprites[i]["Foreground"].gameObject.SetActive(data.locked);
             }
 
             data.markedForVisualRefresh = false;
-            if (i >= buttons.Count)
-            {
-                buttons.Add(tile);
-                buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
-                Vector3 tilePos = tile.transform.position;
-                hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));
-            }
         }
+    }
+
+    /// <summary>
+    /// IF button list changed you might need to update visual data collections to match it. This is function which finds differences and adds missing buttons
+    /// </summary>
+    /// <returns></returns>
+    public void UpdateButtonList()
+    {
+        if (buttons.Count == 0)
+        {
+            InitializeItems();
+            return;
+        }
+
+        ButtonDataToVisualProcess();
     }
 
     /// <summary>
@@ -742,8 +743,10 @@ public class DynamicHexList : MonoBehaviour
             fb.owner = parent;
         }
 
-        float Z = child.transform.position.z;
-        for (int i = 0; i < count; i++)
+        ButtonDataToVisualProcess();
+
+      //  float Z = child.transform.position.z;
+       /* for (int i = 0; i < count; i++)
         {
             HexButtonData data = GetButtonData()[i];
             GameObject tile = null;
@@ -795,29 +798,22 @@ public class DynamicHexList : MonoBehaviour
                             break;
                     }                    
                 }
+            }            
+            
+            AddTileToLists(tile, data);
+
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Plus") )
+            {
+                buttonSprites[i]["Plus"].gameObject.SetActive(data.displayPlusMarker);
             }
 
-            UISprite[] sprites = tile.GetComponentsInChildren<UISprite>() as UISprite[];
-            if (sprites != null)
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Foreground"))
             {
-                foreach (UISprite sprite in sprites)
-                {
-                    switch (sprite.gameObject.name)
-                    {
-                        case "Plus":
-                            sprite.gameObject.SetActive(data.displayPlusMarker);
-                            break;                        
-                    }
-                }
+                buttonSprites[i]["Foreground"].gameObject.SetActive(data.locked);
             }
 
             data.markedForVisualRefresh = false;
-
-            buttons.Add(tile);
-            buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());            
-            Vector3 tilePos = tile.transform.position;
-            hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));
-        }
+        }*/
 
       /*  foreach (GameObject go in buttons)
         {
@@ -980,4 +976,29 @@ public class DynamicHexList : MonoBehaviour
 		GestureHelper.onSwipeDown -= downHandler;
     }
 
+
+    /// <summary>
+    /// Function which fills all required lists with tile data
+    /// </summary>
+    /// <param name="tile"></param>
+    /// <returns></returns>
+    public void AddTileToLists(GameObject tile, HexButtonData data)
+    {
+        buttons.Add(tile);
+        buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
+        Vector3 tilePos = tile.transform.position;
+        hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));     
+        
+        UISprite[] sprites = tile.GetComponentsInChildren<UISprite>() as UISprite[];
+        Dictionary<string, UISprite> singleButtonSprites = new Dictionary<string,UISprite>();
+        if (sprites != null)
+        {
+            foreach (UISprite sprite in sprites)
+            {
+                singleButtonSprites[sprite.gameObject.name] = sprite;
+            }
+        }
+
+        buttonSprites.Add(singleButtonSprites);
+    }
 }
