@@ -19,6 +19,7 @@ public class TargetController : MonoBehaviour {
 	protected float xOffset = 0.0f;
 	
 	protected int lane = 1;
+	protected float lanePitch = 3.0f;
 	
 	// Use this for initialization
 	protected void Start () {		
@@ -53,7 +54,7 @@ public class TargetController : MonoBehaviour {
 		distanceOffset = offset;
 		travelSpeed = speed;
 		height = yDist;
-		xOffset = xDist*(lane*3); // TODO: parent.gameObject.width?
+		xOffset = xDist*(lane*lanePitch); // TODO: parent.gameObject.width?
 	}
 	
 	public void SetSpeed(float f) {
@@ -81,7 +82,7 @@ public class TargetController : MonoBehaviour {
 	/// <returns>
 	/// The distance behind target.
 	/// </returns>
-	protected virtual double GetDistanceBehindTarget()
+	public virtual double GetDistanceBehindTarget()
 	{
 		if(target != null)
 		{

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
+using System.Collections;
 
 /// <summary>
 /// This class is used to display the map and control the Track Select screen.
@@ -150,7 +151,46 @@ public class TrackSelect : MonoBehaviour {
 		
 		// We now obtain the map from the Google Static Maps API using the values
 		// obtained above.
-		if ((mapWWW == null && mapTexture == null) && mapChanged){
+//		if (mapWWW == null && mapTexture == null){
+//			const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
+//			const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
+//			string url = endpoint + "?center="
+//		                      	  + centerLat.ToString() + "," + centerLong.ToString()
+//		               	      	  + "&zoom=" + mapZoom.ToString()
+//		  	                  	  + "&size=" + "600" + "x" + "400"
+//		       	              	  + "&maptype=roadmap" 
+//								  + "&sensor=true&key=" + API_KEY;
+//			mapWWW = new WWW(url);
+//			UnityEngine.Debug.Log("TrackSelect: URL is: " + url);
+//		}
+//			
+//			// If the website worked.
+//		if (mapWWW != null) {
+//			// We wait for the map to download.
+//			while(!mapWWW.isDone) {
+//				// If there are any errors, tell the user and break out.
+//				if (mapWWW.error != null) {
+//					UnityEngine.Debug.LogWarning(mapWWW.error);
+//					UnityEngine.Debug.LogWarning("TrackSelect: error with map");
+//					break;
+//				} 
+//			}
+//				
+//			// The texture is then set.
+//			mapTexture = mapWWW.texture;
+//				
+//			// The link is then nulled.
+//			mapWWW = null;
+//		}
+//						
+//		// The UITexture is then obtained and set.
+//		tex.mainTexture = mapTexture;
+		StartCoroutine(GetMap());
+		
+	}
+	
+	IEnumerator GetMap() {
+		if (mapWWW == null && mapTexture == null){
 			const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
 			const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
 			string url = endpoint + "?center="
@@ -166,14 +206,18 @@ public class TrackSelect : MonoBehaviour {
 			// If the website worked.
 		if (mapWWW != null) {
 			// We wait for the map to download.
-			while(!mapWWW.isDone) {
-				// If there are any errors, tell the user and break out.
-				if (mapWWW.error != null) {
-					UnityEngine.Debug.LogWarning(mapWWW.error);
-					UnityEngine.Debug.LogWarning("TrackSelect: error with map");
-					break;
-				} 
-			}
+//			while(!mapWWW.isDone) {
+//				// If there are any errors, tell the user and break out.
+//				if (mapWWW.error != null) {
+//					UnityEngine.Debug.LogWarning(mapWWW.error);
+//					UnityEngine.Debug.LogWarning("TrackSelect: error with map");
+//					break;
+//				} 
+//				
+//				yield return null;
+//			}
+			
+			yield return mapWWW;
 				
 			// The texture is then set.
 			mapTexture = mapWWW.texture;
@@ -181,11 +225,8 @@ public class TrackSelect : MonoBehaviour {
 			// The link is then nulled.
 			mapWWW = null;
 		}
-						
-		// The UITexture is then obtained and set.
+		
 		tex.mainTexture = mapTexture;
-		
-		
 	}
 	
 	protected string TimestampMMSS(long minutes) {

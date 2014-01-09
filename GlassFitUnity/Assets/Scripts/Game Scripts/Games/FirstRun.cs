@@ -46,6 +46,7 @@ public class FirstRun : GameBase {
 		
 		//hide virtual track to begin with
 		SetVirtualTrackVisible(false);
+		SetRunnerVisible(false);
 		
 		//create target trackers for a few different paces
 		float fInterval = (MAX_PACE - MIN_PACE) / NUM_PACES;
@@ -71,10 +72,17 @@ public class FirstRun : GameBase {
 		
 	}
 	
+	protected void SetRunnerVisible(bool visible)
+	{
+		runner.gameObject.SetActive(visible);	
+	}
+
+	
 	public override void SetReadyToStart (bool ready)
 	{
 		base.SetReadyToStart(ready);
 		runReadyToStart = ready;
+		SetRunnerVisible(true);
 	}
 	
 	// Update is called once per frame
@@ -86,6 +94,10 @@ public class FirstRun : GameBase {
 		}
 	}
 	
+	protected override double GetDistBehindForHud ()
+	{
+		return runner.GetDistanceBehindTarget();
+	}
 
 	public override GConnector GetFinalConnection ()
 	{
@@ -103,6 +115,8 @@ public class FirstRun : GameBase {
 			base.OnGUI();
 		}
 	}
+	
+	
 	
 	protected override void OnUnpause ()
 	{

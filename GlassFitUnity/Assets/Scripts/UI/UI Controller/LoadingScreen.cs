@@ -36,13 +36,13 @@ public class LoadingScreen : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		rotation += 360f * Time.deltaTime;
+		rotation -= 360f * Time.deltaTime;
 		
 		transform.rotation = Quaternion.Euler(0, 0, rotation);
 		
 		if(async != null && async.isDone) {
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			if(levelName == "Race Mode" || levelName == "FirstRun")
+			if(levelName == "Race Mode" || levelName == "Pursuit Mode")
 			{
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceExit");
 				if(gConnect != null)
@@ -53,16 +53,16 @@ public class LoadingScreen : MonoBehaviour {
 				{
 					UnityEngine.Debug.Log("LoadingScreen: error finding race exit");	
 				}
-			} else if(levelName == "Pursuit Mode")
+			} else if(levelName == "FirstRun")
 			{
-				GConnector gConnect = fs.Outputs.Find(r => r.Name == "PursuitExit");
+				GConnector gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
 				if(gConnect != null)
 				{
 					fs.parentMachine.FollowConnection(gConnect);
-				} 
+				}
 				else 
 				{
-					UnityEngine.Debug.Log("LoadingScreen: error finding race exit");	
+					UnityEngine.Debug.Log("LoadingScreen: error finding tutorial exit");
 				}
 			}
 		}

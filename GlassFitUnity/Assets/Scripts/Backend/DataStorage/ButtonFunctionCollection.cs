@@ -290,7 +290,7 @@ public class ButtonFunctionCollection
 	
 	static public bool StartPresetSpeed(FlowButton fb, Panel panel) {
 		//DataVault.Set("current_track", null);
-		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
+		//AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 		return true;
 	}
 	
@@ -343,12 +343,12 @@ public class ButtonFunctionCollection
 			}
 			break;
 		}
-		string type = (string)DataVault.Get("race_type");
-		if(type == "pursuit") {
-			AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
-		} else if(type == "tutorial") {
-			AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
-		}
+//		string type = (string)DataVault.Get("race_type");
+//		if(type == "pursuit") {
+//			AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
+//		} else if(type == "tutorial") {
+//			AutoFade.LoadLevel("FirstRun", 0.1f, 1.0f, Color.black);
+//		}
 		return true;
 	}
 	

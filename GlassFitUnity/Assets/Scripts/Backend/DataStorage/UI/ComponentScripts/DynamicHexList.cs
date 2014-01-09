@@ -34,6 +34,7 @@ public class DynamicHexList : MonoBehaviour
     List<GameObject> buttons;
     List<UIImageButton> buttonsImageComponents;
     List<Vector2> hexPosition2d;
+    List<Dictionary<string, UISprite>> buttonSprites;
 
     UIImageButton selection;
     private string btEnterAnimation = "HexEnter";
@@ -255,7 +256,7 @@ public class DynamicHexList : MonoBehaviour
 
             PlayButtonEnter(buttons[buttonNextEnterIndex], true);
 
-            UISprite[] sprites = buttons[buttonNextEnterIndex].GetComponentsInChildren<UISprite>() as UISprite[];
+           /* UISprite[] sprites = buttons[buttonNextEnterIndex].GetComponentsInChildren<UISprite>() as UISprite[];
             foreach (UISprite spr in sprites)
             {
                 if (spr.name == "Foreground")
@@ -263,7 +264,7 @@ public class DynamicHexList : MonoBehaviour
                     spr.gameObject.SetActive(GetButtonData()[buttonNextEnterIndex].locked);                    
                     break;
                 }
-            }
+            }*/
 
             buttonNextEnterIndex++;             
             
@@ -590,6 +591,7 @@ public class DynamicHexList : MonoBehaviour
         buttons = new List<GameObject>();
         buttonsImageComponents = new List<UIImageButton>();
         hexPosition2d = new List<Vector2>();
+        buttonSprites = new List<Dictionary<string, UISprite>>();
         buttonsReady = false;
 
         if (elementsToKeep < 1) elementsToKeep = 1;
@@ -607,19 +609,15 @@ public class DynamicHexList : MonoBehaviour
     }
 
     /// <summary>
-    /// IF button list changed you might need to update visual data collections to match it. This is function which finds differences and adds missing buttons
+    /// Unified section building and updating hex visual data in dynamic list based on button data from panel
     /// </summary>
     /// <returns></returns>
-    public void UpdateButtonList()
+    private void ButtonDataToVisualProcess()
     {
-        if (buttons.Count == 0)
-        {
-            InitializeItems();
-            return;
-        }
-
+        int distanceFromCenter = 0;
         Transform child = GetButtonBase();
-        float Z = child.transform.position.z;
+        float Z = child.transform.position.z;                
+
         for (int i = 0; i < GetButtonData().Count; i++)
         {
             HexButtonData data = GetButtonData()[i];
@@ -635,11 +633,13 @@ public class DynamicHexList : MonoBehaviour
                 tile = (GameObject)GameObject.Instantiate(child.gameObject);
                 tile.transform.parent = child.parent;
                 tile.transform.rotation = child.rotation;
-                tile.transform.localScale = child.localScale;            
+                tile.transform.localScale = child.localScale;
                 Vector3 pos = GetLocation(data.column, data.row);
 
                 Vector3 hexPosition = new Vector3(pos.x, pos.y, pos.z);
-                tile.transform.position = hexPosition;                
+                tile.transform.position = hexPosition;
+
+                distanceFromCenter = Distance(data.column, data.row);
             }
             else
             {
@@ -660,7 +660,7 @@ public class DynamicHexList : MonoBehaviour
                 graphics.normalSprite = graphics.pressedSprite;
                 graphics.disabledSprite = graphics.pressedSprite;
 
-                fb.userData["HexButtonData"] = data;                
+                fb.userData["HexButtonData"] = data;
             }
 
             UILabel[] labels = tile.GetComponentsInChildren<UILabel>() as UILabel[];
@@ -680,29 +680,52 @@ public class DynamicHexList : MonoBehaviour
                 }
             }
 
-            UISprite[] sprites = tile.GetComponentsInChildren<UISprite>() as UISprite[];
-            if (sprites != null)
+            if (i >= buttons.Count)
             {
-                foreach (UISprite sprite in sprites)
+                AddTileToLists(tile, data);
+            }
+
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Plus"))
+            {
+                buttonSprites[i]["Plus"].gameObject.SetActive(data.displayPlusMarker);
+            }
+
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Foreground"))
+            {
+                buttonSprites[i]["Foreground"].gameObject.SetActive(data.locked);
+            }
+
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Background"))
+            {
+                if (distanceFromCenter % 2 == 0)
                 {
-                    switch (sprite.gameObject.name)
-                    {
-                        case "Plus":
-                            sprite.gameObject.SetActive(data.displayPlusMarker);
-                            break;
-                    }
+                    //green
+                    buttonSprites[i]["Background"].color = new Color(0.223f, 0.71f, 0.29f);
+                }
+                else
+                {
+                    //gray
+                    buttonSprites[i]["Background"].color = new Color(0.235f, 0.235f, 0.235f);
                 }
             }
 
             data.markedForVisualRefresh = false;
-            if (i >= buttons.Count)
-            {
-                buttons.Add(tile);
-                buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
-                Vector3 tilePos = tile.transform.position;
-                hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));
-            }
         }
+    }
+
+    /// <summary>
+    /// IF button list changed you might need to update visual data collections to match it. This is function which finds differences and adds missing buttons
+    /// </summary>
+    /// <returns></returns>
+    public void UpdateButtonList()
+    {
+        if (buttons.Count == 0)
+        {
+            InitializeItems();
+            return;
+        }
+
+        ButtonDataToVisualProcess();
     }
 
     /// <summary>
@@ -742,8 +765,10 @@ public class DynamicHexList : MonoBehaviour
             fb.owner = parent;
         }
 
-        float Z = child.transform.position.z;
-        for (int i = 0; i < count; i++)
+        ButtonDataToVisualProcess();
+
+      //  float Z = child.transform.position.z;
+       /* for (int i = 0; i < count; i++)
         {
             HexButtonData data = GetButtonData()[i];
             GameObject tile = null;
@@ -795,29 +820,22 @@ public class DynamicHexList : MonoBehaviour
                             break;
                     }                    
                 }
+            }            
+            
+            AddTileToLists(tile, data);
+
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Plus") )
+            {
+                buttonSprites[i]["Plus"].gameObject.SetActive(data.displayPlusMarker);
             }
 
-            UISprite[] sprites = tile.GetComponentsInChildren<UISprite>() as UISprite[];
-            if (sprites != null)
+            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Foreground"))
             {
-                foreach (UISprite sprite in sprites)
-                {
-                    switch (sprite.gameObject.name)
-                    {
-                        case "Plus":
-                            sprite.gameObject.SetActive(data.displayPlusMarker);
-                            break;                        
-                    }
-                }
+                buttonSprites[i]["Foreground"].gameObject.SetActive(data.locked);
             }
 
             data.markedForVisualRefresh = false;
-
-            buttons.Add(tile);
-            buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());            
-            Vector3 tilePos = tile.transform.position;
-            hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));
-        }
+        }*/
 
       /*  foreach (GameObject go in buttons)
         {
@@ -835,98 +853,6 @@ public class DynamicHexList : MonoBehaviour
     {
         int Xoffset = -(Mathf.Abs(row) % 2);
         return new Vector2(-hexLayoutOffset.x * (Xoffset + -column * 2), hexLayoutOffset.y * -row);
-    }
-
-    /// <summary>
-    /// Finds generic poistion for element using some predefined algorithm
-    /// </summary>
-    /// <param name="index">button index requested</param>
-    /// <returns>flat 2d position for hex </returns>
-    Vector2 GetLocation(int index)
-    {
-        if (hexLayoutOffset == Vector2.zero)
-        {
-            if (transform.childCount == 0) return Vector2.zero;
-
-            Transform child = transform.GetChild(0);
-            BoxCollider c = child.GetComponentInChildren<BoxCollider>();
-            Bounds b;
-            if (c != null)
-            {
-                b = c.bounds;
-            }
-            else
-            {
-                SphereCollider sc = child.GetComponentInChildren<SphereCollider>();
-                b = sc.bounds;
-            }
-            float upOffset = b.extents.y;
-            float sideOffset = Mathf.Sqrt(3 * upOffset * upOffset);
-            hexLayoutOffset = new Vector2(sideOffset, upOffset);
-        }
-
-        //our design expect some hard coded positioning of the hexes
-
-        switch (index)
-        {
-            case 0:
-                return Vector2.zero;
-            case 1:
-                return new Vector2(0, hexLayoutOffset.y * 2);
-            case 2:
-                return new Vector2(hexLayoutOffset.x, hexLayoutOffset.y);
-            case 3:
-                return new Vector2(hexLayoutOffset.x, -hexLayoutOffset.y);
-            case 4:
-                return new Vector2(0, -hexLayoutOffset.y * 2);
-            case 5:
-                return new Vector2(-hexLayoutOffset.x, -hexLayoutOffset.y);
-            case 6:
-                return new Vector2(-hexLayoutOffset.x, hexLayoutOffset.y);
-
-            case 7:
-                return new Vector2(hexLayoutOffset.x, hexLayoutOffset.y * 3);
-            case 8:
-                return new Vector2(hexLayoutOffset.x * 2, hexLayoutOffset.y * 2);
-            case 9:
-                return new Vector2(hexLayoutOffset.x * 2, 0);
-            case 10:
-                return new Vector2(hexLayoutOffset.x * 2, -hexLayoutOffset.y * 2);
-            case 11:
-                return new Vector2(hexLayoutOffset.x, -hexLayoutOffset.y * 3);
-
-            case 12:
-                return new Vector2(-hexLayoutOffset.x, -hexLayoutOffset.y * 3);
-            case 13:
-                return new Vector2(-hexLayoutOffset.x * 2, -hexLayoutOffset.y * 2);
-            case 14:
-                return new Vector2(-hexLayoutOffset.x * 2, 0);
-            case 15:
-                return new Vector2(-hexLayoutOffset.x * 2, hexLayoutOffset.y * 2);
-            case 16:
-                return new Vector2(-hexLayoutOffset.x, hexLayoutOffset.y * 3);
-
-            default:
-                int sequentalID = index - 17;
-                int stage = (int)(sequentalID / 14);
-                int step = sequentalID % 14;
-                if (step < 4)
-                {
-                    return new Vector2(hexLayoutOffset.x * (3 + stage * 2), hexLayoutOffset.y * (3 - 2 * step));
-                }
-                else if (step < 8)
-                {
-                    return new Vector2(-hexLayoutOffset.x * (3 + stage * 2), hexLayoutOffset.y * (3 - 2 * (step - 4)));
-                }
-                else if (step < 11)
-                {
-                    return new Vector2(hexLayoutOffset.x * (4 + stage * 2), hexLayoutOffset.y * (2 - 2 * (step - 8)));
-                }
-                else
-                {
-                    return new Vector2(-hexLayoutOffset.x * (4 + stage * 2), hexLayoutOffset.y * (2 - 2 * (step - 11)));
-                }
-        }
     }
 
     /// <summary>
@@ -980,4 +906,48 @@ public class DynamicHexList : MonoBehaviour
 		GestureHelper.onSwipeDown -= downHandler;
     }
 
+
+    /// <summary>
+    /// Function which fills all required lists with tile data
+    /// </summary>
+    /// <param name="tile"></param>
+    /// <returns></returns>
+    public void AddTileToLists(GameObject tile, HexButtonData data)
+    {
+        buttons.Add(tile);
+        buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
+        Vector3 tilePos = tile.transform.position;
+        hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));     
+        
+        UISprite[] sprites = tile.GetComponentsInChildren<UISprite>() as UISprite[];
+        Dictionary<string, UISprite> singleButtonSprites = new Dictionary<string,UISprite>();
+        if (sprites != null)
+        {
+            foreach (UISprite sprite in sprites)
+            {
+                singleButtonSprites[sprite.gameObject.name] = sprite;
+            }
+        }
+
+        buttonSprites.Add(singleButtonSprites);
+    }
+
+    private int Distance(int column, int row )
+    {
+        int rowDist = Mathf.Abs(row);
+        int Xoffset = rowDist % 2;
+
+        if (column > -1 && Xoffset == 1)
+        {
+            column += 1;
+        }
+        int columnDist = Mathf.Abs(column);
+
+        //rowdist /2 can be only bigger or rounded up equal to columnDist
+        //if this is not true we will get non diagonal moves
+        int nonDIagonalMoves = columnDist - (int)(rowDist * 0.5f + 0.6f) ;
+
+        return nonDIagonalMoves > 0 ? nonDIagonalMoves + rowDist : rowDist;
+        
+    }
 }
