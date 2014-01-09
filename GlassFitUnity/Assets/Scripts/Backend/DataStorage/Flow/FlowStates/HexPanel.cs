@@ -13,7 +13,7 @@ public class HexPanel : Panel
     public const string CAMERA_3D_LAYER = "GUI3D";
     const string defaultExit = "Default Exit";
 
-    public List<HexButtonData> buttonData;        
+    public List<HexButtonData> buttonData;    
     private bool camStartMouseAction;
     private bool camStartTouchAction;
     private bool dirtyButtonData;

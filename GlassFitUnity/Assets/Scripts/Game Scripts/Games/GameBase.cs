@@ -86,7 +86,7 @@ public class GameBase : MonoBehaviour {
 	
 	private GameObject virtualTrack;
 	
-	private double lastDistance;
+	private int lastDistance;
 	
 	private float indoorTime;
 	
@@ -109,6 +109,8 @@ public class GameBase : MonoBehaviour {
 			ConsiderQuit();
 		});
 		GestureHelper.onSwipeDown += downHandler;
+		
+		DataVault.Set("indoor_move", " ");
 		
 //		leftHandler = new GestureHelper.OnSwipeLeft(() => {
 //			HandleLeftSwipe();
@@ -642,17 +644,23 @@ public class GameBase : MonoBehaviour {
 		}
 		
 		if(Platform.Instance.IsIndoor()) {
-			if(Platform.Instance.Distance() == lastDistance) 
+			if((int)Platform.Instance.Distance() == lastDistance) 
 			{
+				//UnityEngine.Debug.Log("GameBase: distance is the same, increasing time");
 				indoorTime += Time.deltaTime;
 				if(indoorTime > 5f) {
-					DataVault.Set("indoor_mode", "Jog on the spot to move!");
+					//UnityEngine.Debug.Log("GameBase: setting text for indoor jogging");
+					DataVault.Set("indoor_move", "Jog on the spot to move!");
 				}
 			} else {
+				//UnityEngine.Debug.Log("GameBase: distance not the same, resetting");
 				DataVault.Set("indoor_move", " ");
-				lastDistance = Platform.Instance.Distance();
+				lastDistance = (int)Platform.Instance.Distance();
 				indoorTime = 0f;
 			}
+		} else {
+			//UnityEngine.Debug.Log("GameBase: outdoor is active");
+			DataVault.Set("indoor_move", " ");
 		}
 		
 	}

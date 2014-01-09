@@ -620,25 +620,32 @@ public class DynamicHexList : MonoBehaviour
 
         Transform child = GetButtonBase();
         float Z = child.transform.position.z;
-        for (int i = buttons.Count; i < GetButtonData().Count; i++)
+        for (int i = 0; i < GetButtonData().Count; i++)
         {
             HexButtonData data = GetButtonData()[i];
+
+            if (data.markedForVisualRefresh == false)
+            {
+                continue;
+            }
+
             GameObject tile = null;
-            if (i+1 >= transform.childCount)
+            if (i >= buttons.Count)
             {
                 tile = (GameObject)GameObject.Instantiate(child.gameObject);
                 tile.transform.parent = child.parent;
                 tile.transform.rotation = child.rotation;
-                tile.transform.localScale = child.localScale;
+                tile.transform.localScale = child.localScale;            
+                Vector3 pos = GetLocation(data.column, data.row);
+
+                Vector3 hexPosition = new Vector3(pos.x, pos.y, pos.z);
+                tile.transform.position = hexPosition;                
             }
             else
             {
                 tile = GetButton(i).gameObject;
             }
-            Vector3 pos = GetLocation(data.column, data.row);
 
-            Vector3 hexPosition = new Vector3(pos.x, pos.y, pos.z);
-            tile.transform.position = hexPosition;
             tile.name = data.buttonName;
 
             FlowButton fb = tile.GetComponentInChildren<FlowButton>();
@@ -648,13 +655,12 @@ public class DynamicHexList : MonoBehaviour
                 fb.name = data.buttonName;
                 UIImageButton graphics = fb.GetComponentInChildren<UIImageButton>();
 
-
                 graphics.pressedSprite = data.imageName;
                 graphics.hoverSprite = graphics.pressedSprite;
                 graphics.normalSprite = graphics.pressedSprite;
                 graphics.disabledSprite = graphics.pressedSprite;
 
-                fb.userData["HexButtonData"] = data;
+                fb.userData["HexButtonData"] = data;                
             }
 
             UILabel[] labels = tile.GetComponentsInChildren<UILabel>() as UILabel[];
@@ -688,10 +694,14 @@ public class DynamicHexList : MonoBehaviour
                 }
             }
 
-            buttons.Add(tile);            
-            buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
-            Vector3 tilePos = tile.transform.position;
-            hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));
+            data.markedForVisualRefresh = false;
+            if (i >= buttons.Count)
+            {
+                buttons.Add(tile);
+                buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());
+                Vector3 tilePos = tile.transform.position;
+                hexPosition2d.Add(new Vector2(tilePos.x, tilePos.y));
+            }
         }
     }
 
@@ -800,6 +810,8 @@ public class DynamicHexList : MonoBehaviour
                     }
                 }
             }
+
+            data.markedForVisualRefresh = false;
 
             buttons.Add(tile);
             buttonsImageComponents.Add(tile.GetComponentInChildren<UIImageButton>());            

@@ -8,7 +8,7 @@ public class virtualTrack : MonoBehaviour {
 	
 	private const float TrackLength = 36000;
 	private const float TrackWidth = 60;
-	private const float scrollFactor = 10.0f;	//world is not 1:1, need this fudge factor
+	private const float scrollFactor = 50.0f;	//world is not 1:1, need this fudge factor
 	
 	// Use this for initialization
 	void Start () {

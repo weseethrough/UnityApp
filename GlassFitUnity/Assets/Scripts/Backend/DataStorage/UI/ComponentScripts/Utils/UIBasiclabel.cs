@@ -19,12 +19,16 @@ public class UIBasiclabel : UIComponentSettings
 	void Awake()
 	{
 		UILabel[] labels = GetComponentsInChildren<UILabel>();
-		if (labels.Length != 1 )
+		if (labels.Length < 1 )
 		{
-			Debug.LogError("Label system on buttons expect only one and minimum one label");
+			Debug.LogError("Label system on buttons expect minimum one label");
 			return;
 		}
-		
+        if (labels.Length > 1)
+        {
+            Debug.LogError("Label system on buttons expect only one label. Found: " + labels.Length);            
+        }
+
 		labelInstance = labels[0];
 		UpdateFromLabel();
 	}

@@ -106,10 +106,10 @@ public class GestureHelper : MonoBehaviour {
 	
 	// Get a fling down message and set the timer
 	void FlingDown(string message) {
-//		if(swipeLeft != null) {
-//			UnityEngine.Debug.Log("GestureHelper: Swipe down setting");
-//			swipeLeft();
-//		}
+		if(onSwipeDown != null) {
+			UnityEngine.Debug.Log("GestureHelper: Swipe down setting");
+			onSwipeDown();
+		}
 		
 		UnityEngine.Debug.Log("GestureHelper: message obtained - Fling down");
 	}
