@@ -203,7 +203,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 				
 		// Rotate the camera
 		if(!indoor) {
-			transform.rotation = /*bearingOffset */ rearviewOffset * headOffset;
+			transform.rotation = bearingOffset * rearviewOffset * headOffset;
 		} else {
 			transform.rotation = rearviewOffset * headOffset;
 		}
@@ -240,8 +240,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 				}
 			}
 			
-			grid.SetActive(false);
-			//forcing the grid off by using false here
+			grid.SetActive(gridOn);
 		}
 		
 	}

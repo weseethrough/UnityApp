@@ -10,7 +10,14 @@ public class DeleteController : MonoBehaviour {
 	void Start () {
 		tapHandler = new GestureHelper.OnTap(() => {
 			Platform.Instance.ResetGames();
-			ReturnGame();
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "gameExit");
+			if(gConnect != null) 
+			{
+				fs.parentMachine.FollowConnection(gConnect);	
+			} else {
+				UnityEngine.Debug.Log("DeleteController: Error finding game exit");
+			}
 		});
 		
 		GestureHelper.onTap += tapHandler;
