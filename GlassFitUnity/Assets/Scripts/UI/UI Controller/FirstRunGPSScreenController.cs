@@ -25,6 +25,12 @@ public class FirstRunGPSScreenController : SwipeListener {
 		bool bIndoor = Platform.Instance.IsIndoor();
 		setStringsForIndoor(bIndoor);
 		
+		//assume no gps to begin with, so ghost progress dot for it
+		PageIndicatorController paging = Component.FindObjectOfType(typeof(PageIndicatorController)) as PageIndicatorController;
+		int currentPage = (int)DataVault.Get("currentPageIndex");
+		paging.GhostProgressBeyondPage(currentPage);
+
+		
 	}
 	
 	// Update is called once per frame
@@ -44,6 +50,8 @@ public class FirstRunGPSScreenController : SwipeListener {
 				}
 				else
 				{	UnityEngine.Debug.LogWarning("FirstRunGPS: couldn't find paging controller"); }
+				//update strings
+				setStringsForIndoor(Platform.Instance.IsIndoor());
 			}
 		}
 		else
@@ -61,8 +69,11 @@ public class FirstRunGPSScreenController : SwipeListener {
 				}
 				else
 				{	UnityEngine.Debug.LogWarning("FirstRunGPS: couldn't find paging controller"); }
+				//update strings
+				setStringsForIndoor(Platform.Instance.IsIndoor());
 			}
 		}
+		
 	}
 	
 	public void HandleTap() {
@@ -94,12 +105,16 @@ public class FirstRunGPSScreenController : SwipeListener {
 		{
 			//outoodr
 			DataVault.Set("FrGPS_title", "GPS Lock Required");
-			DataVault.Set("FrGPS_body", "Tether Glass to a Phone and head outside to get a GPS lock");
 			DataVault.Set("FrGPS_tapPrompt", "Tap to switch to Demo Mode");
 			//don't show swipe to proceed if no gps lock
 			if(!Platform.Instance.HasLock())
 			{
 				DataVault.Set ("FrGPS_navPrompt", "");
+				DataVault.Set("FrGPS_body", "Awaiting GPS\nTether Glass to a Phone and head outside to get a GPS lock");
+			}
+			else
+			{
+				DataVault.Set ("FrGPS_body", "GPS lock successfully acquired");
 			}
 		}
 	}
