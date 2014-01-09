@@ -56,8 +56,6 @@ public class FirstRaceOpponenet : TargetController {
 			PlayerDidCompleteInterval();
 		}
 		
-		
-		
 		//if the player just closed the headstart
 		if(headStartSpeed == 0.0f && playerDistance >= headStartDistance)
 		{
@@ -72,6 +70,22 @@ public class FirstRaceOpponenet : TargetController {
 		
 		//call to base, which sets world position
 		base.Update();
+		
+		Renderer runnerRenderer = gameObject.GetComponentInChildren(typeof(Renderer)) as Renderer;
+		if(!runnerRenderer.enabled)
+		{
+			UnityEngine.Debug.LogWarning("FirstRun: opponent renderer not enabled! enabling.");
+			renderer.enabled = true;
+		}
+		if(!runnerRenderer.isVisible)
+		{
+			UnityEngine.Debug.LogWarning("FirstRun: opponent renderer not visible!");
+		}
+		else
+		{
+			//UnityEngine.Debug.Log("FirstRun: opponent renderer is visible");
+		}
+		
 	}
 	
 	protected float getDesiredSpeed() 
@@ -80,7 +94,7 @@ public class FirstRaceOpponenet : TargetController {
 		//if player hasn't closed headstart, stay put
 		if(playerDistance < headStartDistance)
 		{
-			return 0.0f;
+			return 0.01f;
 		}
 		//else if player has covered at least 100m use speed for previous 100m
 		else if(playerDistance > intervalDistance)
