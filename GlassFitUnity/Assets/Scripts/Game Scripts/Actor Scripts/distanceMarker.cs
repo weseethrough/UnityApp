@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
 /// <summary>
 /// Sets the distance markers
@@ -28,7 +29,14 @@ public class DistanceMarker : MonoBehaviour {
 		// Get initial text mesh component.
 		textMesh = textObject.GetComponent<TextMesh>();
 		textMesh.text = SiDistance(target);
-		goal = (int)DataVault.Get("finish");
+		try {
+			goal = (int)DataVault.Get("finish");
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("DistanceMarker: Couldn't retrieve finish distance. Setting locally to 10km");
+			goal = 10000;
+		}
+			
+			
 	}
 	
 	/// <summary>

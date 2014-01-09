@@ -45,7 +45,7 @@ public class FirstRun : GameBase {
 		UnityEngine.Debug.Log("FirstRun: Start");
 		
 		//hide virtual track to begin with
-		SetVirtualTrackVisible(false);
+		//SetVirtualTrackVisible(false);
 		
 		//create target trackers for a few different paces
 		float fInterval = (MAX_PACE - MIN_PACE) / NUM_PACES;
@@ -86,6 +86,10 @@ public class FirstRun : GameBase {
 		}
 	}
 	
+	protected override double GetDistBehindForHud ()
+	{
+		return runner.GetDistanceBehindTarget();
+	}
 
 	public override GConnector GetFinalConnection ()
 	{
@@ -103,6 +107,8 @@ public class FirstRun : GameBase {
 			base.OnGUI();
 		}
 	}
+	
+	
 	
 	protected override void OnUnpause ()
 	{

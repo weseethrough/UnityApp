@@ -22,8 +22,11 @@ public class FirstRaceOpponenet : TargetController {
 	// Use this for initialization
 	void Start () {
 		anim = GetComponent<Animator>();
-		travelSpeed = 50.0f;	//somewhat arbitrary scale factor for positioning distance
-		SetAttribs(0.0f, travelSpeed, 0.0f, 5.0f);
+		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
+		lane = 1;
+		lanePitch = 1.0f;
+		SetAttribs(0.0f, travelSpeed, transform.position.y, transform.position.x);
+		UnityEngine.Debug.Log("FirstRaceOpponent: started");
 	}
 	
 	public void setHeadStart(float dist) {
@@ -44,7 +47,6 @@ public class FirstRaceOpponenet : TargetController {
 		
 		//update our total distance moved based on current speed and time passed.
 		distanceFromStart += Time.deltaTime * currentMovementSpeed;
-		
 		
 		//update player distance cached value, and check if they've passed a 100m increment
 		playerDistance = Platform.Instance.GetDistance();
@@ -83,12 +85,12 @@ public class FirstRaceOpponenet : TargetController {
 		//else if player has covered at least 100m use speed for previous 100m
 		else if(playerDistance > intervalDistance)
 		{
-			return prevIntervalSpeed;
+			return Mathf.Max(prevIntervalSpeed, 1.25f);
 		}
 		//else use player's speed while closing headstart dist
 		else
 		{
-			return headStartSpeed;
+			return Mathf.Max(headStartSpeed, 1.25f);
 		}
 	}
 	
@@ -120,7 +122,7 @@ public class FirstRaceOpponenet : TargetController {
 	/// <returns>
 	/// The distance behind this target.
 	/// </returns>
-	protected override double GetDistanceBehindTarget ()
+	public override double GetDistanceBehindTarget ()
 	{
 		float relativeDist = distanceFromStart - (float)playerDistance;
 		return relativeDist;

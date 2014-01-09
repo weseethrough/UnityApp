@@ -519,7 +519,7 @@ public class GameBase : MonoBehaviour {
 	
 	protected void UpdateAhead() {
 
-		double targetDistance = Platform.Instance.GetHighestDistBehind() - offset;
+		double targetDistance = GetDistBehindForHud();
 
 		if (targetDistance > 0) {
 			DataVault.Set("ahead_header", "Behind!");
@@ -533,6 +533,10 @@ public class GameBase : MonoBehaviour {
 		string siDistance = SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
 		//UnityEngine.Debug.Log("GameBase: setting target distance to: " + siDistance);
 		DataVault.Set("ahead_box", siDistance);
+	}
+	
+	protected virtual double GetDistBehindForHud() {
+		return Platform.Instance.GetHighestDistBehind() - offset;
 	}
 	
 	// Update is called once per frame
