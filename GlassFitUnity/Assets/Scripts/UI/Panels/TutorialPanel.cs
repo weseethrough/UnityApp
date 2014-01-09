@@ -54,6 +54,8 @@ public class TutorialPanel : HexPanel
 		DataVault.Set("rp", Platform.Instance.GetOpeningPointsBalance());
 		DataVault.Set("metabolism", Platform.Instance.GetCurrentMetabolism());
 		
+		DataVault.Set("race_type", "tutorial");
+		
 		if(Platform.Instance.GetTracks(10000, 0) != null) {
 			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {		
 				StraightToMenu();
