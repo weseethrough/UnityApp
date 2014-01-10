@@ -16,7 +16,7 @@ public class PBRunnerController : TargetController {
 	
 	void OnEnable() {
 		base.OnEnable();
-		base.SetAttribs(0, 135, -254.6f, 50);
+		base.SetAttribs(0, 1, transform.position.y, transform.position.z);
 		
 #if !UNITY_EDITOR
 		anim = GetComponent<Animator>();

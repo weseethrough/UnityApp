@@ -301,7 +301,7 @@ public class ButtonFunctionCollection
 		{
 		case "1km":
 			DataVault.Set("finish", 1000);
-			DataVault.Set("lower_finish", 0);
+			DataVault.Set("lower_finish", 5);
 			break;
 			
 		case "2km":
