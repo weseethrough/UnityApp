@@ -57,10 +57,14 @@ public class TutorialPanel : HexPanel
 		DataVault.Set("race_type", "tutorial");
 		
 		if(Platform.Instance.GetTracks(10000, 0) != null) {
-			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {		
-				StraightToMenu();
+			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {
+				if(!Debug.isDebugBuild)		//if we're in a debug build, never skip the tutorial
+				{
+					StraightToMenu();
+				}
 			}
-		}	
+		}
+		
         twoHandler = new GestureHelper.TwoFingerTap(() => {
 			if(buttonData.Count == 0) {
 				InitialButtons();

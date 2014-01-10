@@ -112,7 +112,13 @@ public class FirstRun : GameBase {
 		}
 	}
 	
-	
+	public override void GameHandleTap ()
+	{
+		if(started)
+		{
+			base.GameHandleTap ();
+		}
+	}
 	
 	protected override void OnUnpause ()
 	{

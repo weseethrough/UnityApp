@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class FirstRaceOpponenet : TargetController {
 	
@@ -11,13 +12,24 @@ public class FirstRaceOpponenet : TargetController {
 	protected float headStartDistance = 0.0f;
 	protected float playerDistance = 0.0f;	//cache this since we need it a lot, and retrieving it has some overhead.
 	
+	protected float desiredLeadDistance = 0.0f;
+	
 	//track player's pace
 	protected float headStartSpeed = 0.0f;
 	protected float prevIntervalSpeed = 0.0f;
 	protected float timeCurrentIntervalStarted = 0.0f;
+	protected float timeRunStarted = 0.0f;			
 	
 	const float intervalDistance = 50.0f;
-	float nextIntervalDistance = 50.0f;
+	protected float nextIntervalDistance = 50.0f;
+	
+	protected float prevLead = 0.0f;
+	protected float lead = 0.0f;
+	
+	protected float speedAdjustmentInterval = 1.0f;
+	protected float leadAdjustmentInterval = 120.0f;
+	
+	protected float totalDistance = 1.0f;
 	
 	// Use this for initialization
 	void Start () {
@@ -25,8 +37,21 @@ public class FirstRaceOpponenet : TargetController {
 		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
 		lane = 1;
 		lanePitch = 1.0f;
-		SetAttribs(0.0f, travelSpeed, transform.position.y, transform.position.x);
+		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 		UnityEngine.Debug.Log("FirstRaceOpponent: started");
+		
+		timeRunStarted = Time.time;
+		
+		try {
+		Track selectedTrack = (Track)DataVault.Get("current_track");
+		if(selectedTrack != null) {
+			totalDistance = (int)selectedTrack.distance;
+		} else {
+			totalDistance = (int)DataVault.Get("finish");
+		}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("First Race: Couldn't obtain goal distance for race");
+		}
 	}
 	
 	public void setHeadStart(float dist) {
@@ -38,6 +63,8 @@ public class FirstRaceOpponenet : TargetController {
 	{
 		//set timestamp for interval start
 		timeCurrentIntervalStarted = Time.time;
+		
+		
 	}
 	
 	// Update is called once per frame
@@ -63,50 +90,125 @@ public class FirstRaceOpponenet : TargetController {
 			float timeInterval = Time.time - timeCurrentIntervalStarted;
 			headStartSpeed = headStartDistance / timeInterval;
 			UnityEngine.Debug.Log("FirstRun: HeadStart closed. Dist:" + headStartDistance + " Time:" + timeInterval + " Speed:" + headStartSpeed);
+			
+			//start the coroutine to set the speed
+			currentMovementSpeed = headStartSpeed;
+			StartCoroutine(UpdateSpeed());
+			StartCoroutine(UpdateDesiredLead());
 		}
-		
-		//set our speed
-		currentMovementSpeed = getDesiredSpeed();
 		
 		//call to base, which sets world position
 		base.Update();
 		
-		Renderer runnerRenderer = gameObject.GetComponentInChildren(typeof(Renderer)) as Renderer;
-		if(!runnerRenderer.enabled)
-		{
-			UnityEngine.Debug.LogWarning("FirstRun: opponent renderer not enabled! enabling.");
-			renderer.enabled = true;
-		}
-		if(!runnerRenderer.isVisible)
-		{
-			UnityEngine.Debug.LogWarning("FirstRun: opponent renderer not visible!");
-		}
-		else
-		{
-			//UnityEngine.Debug.Log("FirstRun: opponent renderer is visible");
-		}
-		
 	}
 	
-	protected float getDesiredSpeed() 
+	protected void setSpeedToReachDesiredLead() 
 	{
 		//update our speed based on player's recent speed
 		//if player hasn't closed headstart, stay put
-		if(playerDistance < headStartDistance)
-		{
-			return 0.01f;
-		}
-		//else if player has covered at least 100m use speed for previous 100m
-		else if(playerDistance > intervalDistance)
-		{
-			return Mathf.Max(prevIntervalSpeed, 1.25f);
-		}
-		//else use player's speed while closing headstart dist
-		else
-		{
-			return Mathf.Max(headStartSpeed, 1.25f);
-		}
+		//negative feedback. If we're ahead of the player, slow down, if we're behind the player, speed up.
+		float speedAdjustmentRate = 0.1f;		//adjust by this many m/s each update
+		
+		//initially try a damped harmonic
+		//acceleration = -A*distance_ahead - B*closing_speed
+		
+		prevLead = lead;
+		lead = distanceFromStart - playerDistance;
+		float closingSpeed = (lead - prevLead)/speedAdjustmentInterval;	
+		float dampingFactor = 1.0f;
+		float distanceError = (lead - desiredLeadDistance);
+		
+		float acceleration = -(speedAdjustmentRate * distanceError) - dampingFactor*closingSpeed;
+		
+		//clamp acceleration to 0.5m/s per interval
+		acceleration = Mathf.Min( acceleration, 0.5f);
+		
+		currentMovementSpeed += acceleration;
+		
+		//don't let it go below walking pace
+		currentMovementSpeed = Mathf.Max(1.25f, currentMovementSpeed);
 	}
+	
+	/// <summary>
+	/// Periodically updates the speed, to guide towards current desired lead amount
+	/// </summary>
+	/// <returns>
+	/// The speed.
+	/// </returns>
+	IEnumerator UpdateSpeed()
+	{
+		float distanceRemaining = totalDistance - playerDistance;
+
+		while(distanceRemaining > 500)
+		{
+			setSpeedToReachDesiredLead();
+			distanceRemaining = totalDistance - playerDistance;
+			
+			yield return new WaitForSeconds(speedAdjustmentInterval);
+		}
+		
+		//for last 500m, run at a little faster than player's average pace up to now.
+		float averageSpeed = playerDistance/ (Time.time - timeRunStarted);
+		currentMovementSpeed = averageSpeed;
+		
+	}
+	
+	/// <summary>
+	/// Updates the desired lead distance.
+	/// Start off behind, then speed up and overtake, then allow player to win
+	/// </summary>
+	/// <returns>
+	/// The desired lead.
+	/// </returns>
+	IEnumerator UpdateDesiredLead()
+	{
+		// start neck and neck with player
+		desiredLeadDistance = -10.0f;
+		yield return new WaitForSeconds(30.0f);
+		
+		//then surge ahead
+		desiredLeadDistance = 4.0f;
+		yield return new WaitForSeconds(30.0f);
+		desiredLeadDistance = 7.0f;
+		yield return new WaitForSeconds(30.0f);
+		
+		float distanceRemaining = totalDistance - playerDistance;
+		
+		//random walk until there's half a km left
+		while(distanceRemaining > 1000)
+		{
+			//random +- 5m increment
+			float delta = UnityEngine.Random.Range(-2.0f, 1.0f);
+			desiredLeadDistance += delta;
+			//clamp to +- 100m
+			desiredLeadDistance = Mathf.Min(20.0f, desiredLeadDistance);
+			desiredLeadDistance = Mathf.Max(-30.0f, desiredLeadDistance);
+			
+			UnityEngine.Debug.Log("FirstRace: Set desired lead to " + desiredLeadDistance);
+			distanceRemaining = totalDistance - playerDistance;
+			
+			yield return new WaitForSeconds(60.0f);
+		}
+		
+		UnityEngine.Debug.Log("FirstRun: last kilometre!");
+		
+		//drift back to within 2m
+		while(Math.Abs(desiredLeadDistance) > 2.0f)
+		{
+			if(desiredLeadDistance > 20.0f)
+			{
+				desiredLeadDistance -= 0.5f;
+			}
+			if(desiredLeadDistance < -20.0f)
+			{
+				desiredLeadDistance += 0.5f;
+			}
+			
+			yield return new WaitForSeconds(20.0f);
+		}
+		
+	}
+		
 	
 	/// <summary>
 	/// Called when we detect the player has completed a 100m segment.
@@ -118,7 +220,7 @@ public class FirstRaceOpponenet : TargetController {
 		prevIntervalSpeed = 100.0f / timeInterval;
 		
 		//add random factor to this - weight towards slower
-		float randomSpeedScale = Random.Range(0.9f, 1.05f);
+		float randomSpeedScale = UnityEngine.Random.Range(0.9f, 1.05f);
 		prevIntervalSpeed *= randomSpeedScale;
 		
 		//store timestamp

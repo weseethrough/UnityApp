@@ -57,7 +57,7 @@ public class DistanceMarker : MonoBehaviour {
 		if(distance > target - 50 && distance < target + 50 && target < goal)
 		{
 			double deltDist = target - distance;
-			deltDist *= 135f;
+			//deltDist *= 135f;
 			transform.position = new Vector3(-582, -109, (float)deltDist);
 		}
 		

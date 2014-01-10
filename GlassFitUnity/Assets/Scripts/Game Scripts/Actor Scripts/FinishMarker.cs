@@ -45,7 +45,7 @@ public class FinishMarker : MonoBehaviour {
 				finalBonus = 0;
 			}
 			double deltDist = target - distance;
-			deltDist *= 135f;
+			//deltDist *= 135f;
 			transform.position = new Vector3(0, -595f, (float)deltDist);
 		} else 
 		{

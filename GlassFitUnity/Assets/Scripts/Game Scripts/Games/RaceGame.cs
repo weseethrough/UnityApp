@@ -100,6 +100,8 @@ public class RaceGame : GameBase {
 		}
 		
 		InstantiateActors();
+		
+		SetVirtualTrackVisible(false);
 
 	}
 	
