@@ -44,6 +44,8 @@ public class DynamicHexList : MonoBehaviour
     Vector2 draggingStartPos = Vector2.zero;
     bool dragging = false;
     int draggingFingerID = -1;
+
+    GameObject buttonBase;
 	
 	private GestureHelper.OnTap tapHandler = null;
 	
@@ -64,6 +66,8 @@ public class DynamicHexList : MonoBehaviour
     {
 
         initialized = false;
+
+        buttonBase = transform.GetChild(0).gameObject;
 
         Camera[] camList = (Camera[])Camera.FindObjectsOfType(typeof(Camera));
         foreach (Camera c in camList)
@@ -211,7 +215,7 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     public Transform GetButtonBase()
     {
-        return transform.GetChild(0);
+        return buttonBase.transform;// transform.GetChild(0);
     }
 
     /// <summary>
@@ -310,8 +314,9 @@ public class DynamicHexList : MonoBehaviour
                 foreach (RaycastHit hit in hits)
                 {
                     UIImageButton button = hit.collider.GetComponent<UIImageButton>();
-                    if (button == null) continue;
+                    if (button == null || GetButtonBase() == button.transform.parent) continue;
 
+                    
                     newSelection = button;
                     if (newSelection == selection)
                     {
@@ -671,7 +676,16 @@ public class DynamicHexList : MonoBehaviour
                             label.text = data.count < 0 ? "" : "" + data.count;
                             break;
                         case "TextContent":
-                            label.text = data.onButtonCustomString;
+                            label.text = data.textNormal;
+                            break;
+                        case "BoldText":
+                            label.text = data.textBold;
+                            break;
+                        case "SmallText":
+                            label.text = data.textSmall;
+                            break;
+                        case "OverlayText":
+                            label.text = data.textOverlay;
                             break;
                     }
                 }
@@ -698,7 +712,6 @@ public class DynamicHexList : MonoBehaviour
                 buttonSprites[i]["Background"].color = new Color(((color >> 24) & 0xFF) / 0xFF,
                                                                  ((color >> 16) & 0xFF) / 0xFF,
                                                                  ((color >> 8 ) & 0xFF) / 0xFF);
-
             }
 
             data.markedForVisualRefresh = false;
@@ -737,7 +750,7 @@ public class DynamicHexList : MonoBehaviour
             return;
         }
 
-        initialized = true;
+        initialized = true;        
 
         int count = GetButtonData().Count;
         CleanupChildren(count);

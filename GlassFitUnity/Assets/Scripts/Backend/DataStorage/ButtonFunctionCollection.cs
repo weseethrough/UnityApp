@@ -790,7 +790,7 @@ public class ButtonFunctionCollection
                 hbd.column = 0;
                 hbd.buttonName = "testButton1";
                 hbd.displayInfoData = false;
-                hbd.onButtonCustomString = "Go to point 1";
+                hbd.textNormal = "Go to point 1";
 
                 hp.buttonData.Add(hbd);
             }

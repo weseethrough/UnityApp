@@ -113,7 +113,7 @@ public class EndTutorialPanel : TutorialPanel {
         hbd.column = 0;
         hbd.buttonName = "PointsHex";
         hbd.displayInfoData = false;
-        hbd.onButtonCustomString = "500RP";
+        hbd.textNormal = "500RP";
 		
         buttonData.Add(hbd);
 		
@@ -122,7 +122,7 @@ public class EndTutorialPanel : TutorialPanel {
         hbd.column = 0;
 		hbd.buttonName = "CongratsHex";
 		hbd.displayInfoData = false;
-		hbd.onButtonCustomString = "Congrats!";
+		hbd.textNormal = "Congrats!";
 		
 		buttonData.Add(hbd);
 	}
@@ -138,7 +138,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.column = 0;
 	            hbd.buttonName = "UseHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "RP is used";
+	            hbd.textNormal = "RP is used";
 				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
@@ -150,7 +150,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.column = -1;
 	            hbd.buttonName = "ChallengeHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "To unlock new challenges.";
+	            hbd.textNormal = "To unlock new challenges.";
 				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
@@ -162,7 +162,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.column = -1;
 	            hbd.buttonName = "TryHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "Try this one ^";
+	            hbd.textNormal = "Try this one ^";
 				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
@@ -204,7 +204,7 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.column = 1;
             hbd.buttonName = "EarnHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "You earned 500RP!";
+            hbd.textNormal = "You earned 500RP!";
 			hbd.displayInfoData = false;
 			
             buttonData.Add(hbd);
@@ -216,7 +216,7 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.column = 0;
             hbd.buttonName = "UseHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "RP is used";
+            hbd.textNormal = "RP is used";
 			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
@@ -227,7 +227,7 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.column = -1;
             hbd.buttonName = "ChallengeHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "To unlock new challenges.";
+            hbd.textNormal = "To unlock new challenges.";
 			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
@@ -238,7 +238,7 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.column = -1;
             hbd.buttonName = "TryHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "Try this one ^";
+            hbd.textNormal = "Try this one ^";
 			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);

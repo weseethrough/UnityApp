@@ -41,7 +41,7 @@ public class RaceTypePanel : HexPanel {
 		hbd.row = 0;
 		hbd.column = 0;
 		hbd.buttonName = "TrackHex";
-		hbd.onButtonCustomString = "Race a previous track";
+		hbd.textNormal = "Race a previous track";
 		hbd.displayInfoData = false;
 		
 		GConnector gc = NewOutput(hbd.buttonName, "Flow");
@@ -75,7 +75,7 @@ public class RaceTypePanel : HexPanel {
 		hbd.row = 0;
 		hbd.column = 1;
 		hbd.buttonName = "PresetHex";
-		hbd.onButtonCustomString = "Create a new track";
+		hbd.textNormal = "Create a new track";
 		hbd.displayInfoData = false;
 		
 		gc = NewOutput(hbd.buttonName, "Flow");

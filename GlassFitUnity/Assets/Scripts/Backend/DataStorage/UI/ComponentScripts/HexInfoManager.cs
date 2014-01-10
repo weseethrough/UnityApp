@@ -148,7 +148,7 @@ public class HexInfoManager : MonoBehaviour
             title.text = data.activityName;
             content.text = data.activityContent;
             icon.spriteName = data.imageName;
-            textualIcon.text = data.onButtonCustomString;
+            textualIcon.text = data.textNormal;
 
             if (data.locked == true)
             {
