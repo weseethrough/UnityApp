@@ -281,11 +281,20 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	protected void FinishGame()
 	{
+		UnityEngine.Debug.Log("GameBase: Ending game");
 		GConnector gConnect = GetFinalConnection();
+		UnityEngine.Debug.Log("GameBase: got final connection");
 		if(gConnect != null) {
+			UnityEngine.Debug.Log("GameBase: final connection found");
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-			DataVault.Set("bonus", 0);
+			UnityEngine.Debug.Log("GameBase: setting points");
+			if(finish > 1000) {
+				DataVault.Set("bonus", finalBonus); 
+			} else {
+				DataVault.Set("bonus", 0);
+			}
 			Platform.Instance.StopTrack();
+			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
 			if(gConnect.Name == "FinishButton") {
 				tapHandler = new GestureHelper.OnTap(() => {
@@ -307,8 +316,10 @@ public class GameBase : MonoBehaviour {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
 		if(gConnect != null) {
-			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+			//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+			
 			fs.parentMachine.FollowConnection(gConnect);
+			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		} else {
 			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
 		}
@@ -622,29 +633,11 @@ public class GameBase : MonoBehaviour {
 		
 		//if we're finished, hide the map, and progress to the finished menu
 		//currently firing when targetDistance is 0...
-		if(Platform.Instance.Distance() / 1000 >= finish && !hasEnded)
+		if(Platform.Instance.Distance() >= finish && !hasEnded)
 		{
 			hasEnded = true;
-			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-			DataVault.Set("bonus", (int)finalBonus);
-			Platform.Instance.StopTrack();
-			
-			//hide the  map
-			GameObject h = GameObject.Find("minimap");
-			if(h != null)
-			{
-				h.renderer.enabled = false;
-			}
-			
-			//go to the 'finish' menu
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
-			if(gConect != null) {
-				//finish = finish * 10;
-				fs.parentMachine.FollowConnection(gConect);
-			} else {
-				UnityEngine.Debug.Log("Game: No connection found!");
-			}
+
+			FinishGame();
 		}
 		
 		if(Platform.Instance.IsIndoor()) {
@@ -652,7 +645,7 @@ public class GameBase : MonoBehaviour {
 			{
 				//UnityEngine.Debug.Log("GameBase: distance is the same, increasing time");
 				indoorTime += Time.deltaTime;
-				if(indoorTime > 5f) {
+				if(indoorTime > 10f) {
 					//UnityEngine.Debug.Log("GameBase: setting text for indoor jogging");
 					DataVault.Set("indoor_move", "Jog on the spot to move!");
 				}

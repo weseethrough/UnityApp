@@ -8,11 +8,12 @@ public class Track {
 	public int deviceId { get; set; }
 	public long time { get; set; }
 	public double distance { get; set; }
+	public string date { get; set; }
 	public virtual List<Position> trackPositions { get; set; }
 	
 	public Track() {}
 	
-	public Track(string name, int device_id, int track_id, List<Position> positions, double dist, long time) 
+	public Track(string name, int device_id, int track_id, List<Position> positions, double dist, long time, string date) 
 	{
 		trackName = name;
 		trackId = track_id;
@@ -20,5 +21,7 @@ public class Track {
 		trackPositions = positions;
 		distance = dist;
 		this.time = time;
+		this.date = date;
+		UnityEngine.Debug.Log("Track: date is " + date);
 	}
 }
