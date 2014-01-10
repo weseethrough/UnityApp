@@ -56,15 +56,11 @@ public class TutorialPanel : HexPanel
 		
 		DataVault.Set("race_type", "tutorial");
 		
-		if(Platform.Instance.GetTracks(10000, 0) != null) {
-			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {
-				if(!Debug.isDebugBuild)		//if we're in a debug build, never skip the tutorial
-				{
-					StraightToMenu();
-				}
-			}
-		}
-		
+//		if(Platform.Instance.GetTracks(10000, 0) != null) {
+//			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {		
+//				StraightToMenu();
+//			}
+//		}	
         twoHandler = new GestureHelper.TwoFingerTap(() => {
 			if(buttonData.Count == 0) {
 				InitialButtons();
@@ -163,7 +159,7 @@ public class TutorialPanel : HexPanel
             hbd.column = 0;
             hbd.buttonName = "LookHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "Look at this hex to select it";
+            hbd.textNormal = "Look at this hex to select it";
             hbd.allowEarlyHover = true;
 			
 			shouldAdd = false;
@@ -177,7 +173,7 @@ public class TutorialPanel : HexPanel
             hbd.column = 0;
             hbd.buttonName = "TheseHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "These hexes";
+            hbd.textNormal = "These hexes";
             hbd.allowEarlyHover = true;
 
             buttonData.Add(hbd);
@@ -188,7 +184,7 @@ public class TutorialPanel : HexPanel
             hbd.column = -1;
             hbd.buttonName = "ChallengeHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "are challenges";
+            hbd.textNormal = "are challenges";
             hbd.allowEarlyHover = true;
 
             buttonData.Add(hbd);
@@ -199,7 +195,7 @@ public class TutorialPanel : HexPanel
             hbd.column = -1;
             hbd.buttonName = "TryHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "Try this one ^";
+            hbd.textNormal = "Try this one ^";
             hbd.allowEarlyHover = true;
 
             buttonData.Add(hbd);
@@ -244,7 +240,7 @@ public class TutorialPanel : HexPanel
         hbd.column = 0;
         hbd.buttonName = "tutorialButton1";
         hbd.displayInfoData = false;
-        hbd.onButtonCustomString = "Welcome";
+        hbd.textNormal = "Welcome";
         hbd.allowEarlyHover = true;
 		
         buttonData.Add(hbd);
@@ -272,7 +268,7 @@ public class TutorialPanel : HexPanel
 	            hbd.column = 1;
 	            hbd.buttonName = "NiceHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "Nice!";
+	            hbd.textNormal = "Nice!";
                 hbd.allowEarlyHover = true;
 				
 				elapsedTime = 0f;
@@ -287,7 +283,7 @@ public class TutorialPanel : HexPanel
 	            hbd.column = 0;
 	            hbd.buttonName = "TheseHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "These hexes";
+	            hbd.textNormal = "These hexes";
                 hbd.allowEarlyHover = true;
 				
 				elapsedTime = 0f;
@@ -299,7 +295,7 @@ public class TutorialPanel : HexPanel
 	            hbd.column = -1;
 	            hbd.buttonName = "ChallengeHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "are challenges";
+	            hbd.textNormal = "are challenges";
                 hbd.allowEarlyHover = true;
 	
 				elapsedTime = 0f;
@@ -311,7 +307,7 @@ public class TutorialPanel : HexPanel
 	            hbd.column = -1;
 	            hbd.buttonName = "TryHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "Try this one ^";
+	            hbd.textNormal = "Try this one ^";
 				hbd.allowEarlyHover = true;
 	
 				elapsedTime = 0f;
