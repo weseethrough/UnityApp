@@ -280,6 +280,7 @@ public class ButtonFunctionCollection
 				MessageWidget.AddMessage("Sorry!", "You currently have no tracks for this distance", "activity_delete");
 				return false;
 			} else {
+				DataVault.Set("track_list", trackList);
 				return true;
 			}
 		} else {
@@ -300,7 +301,7 @@ public class ButtonFunctionCollection
 		{
 		case "1km":
 			DataVault.Set("finish", 1000);
-			DataVault.Set("lower_finish", 0);
+			DataVault.Set("lower_finish", 5);
 			break;
 			
 		case "2km":
@@ -790,7 +791,7 @@ public class ButtonFunctionCollection
                 hbd.column = 0;
                 hbd.buttonName = "testButton1";
                 hbd.displayInfoData = false;
-                hbd.onButtonCustomString = "Go to point 1";
+                hbd.textNormal = "Go to point 1";
 
                 hp.buttonData.Add(hbd);
             }

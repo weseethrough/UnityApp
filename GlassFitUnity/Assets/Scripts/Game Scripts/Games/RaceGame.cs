@@ -200,24 +200,24 @@ public class RaceGame : GameBase {
 ////			GetMap(position, bearingRad, targetCoord);
 ////		}
 
-		if(Platform.Instance.Distance() >= finish && !end)
-		{
-			end = true;
-			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-			DataVault.Set("bonus", (int)finalBonus);
-			Platform.Instance.StopTrack();
-			GameObject h = GameObject.Find("minimap");
-			if(h != null) {
-				h.renderer.enabled = false;
-			}
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
-			if(gConect != null) {
-				fs.parentMachine.FollowConnection(gConect);
-			} else {
-				UnityEngine.Debug.Log("Game: No connection found!");
-			}
-		}
+//		if(Platform.Instance.Distance() >= finish && !end)
+//		{
+//			end = true;
+//			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+//			DataVault.Set("bonus", (int)finalBonus);
+//			Platform.Instance.StopTrack();
+//			GameObject h = GameObject.Find("minimap");
+//			if(h != null) {
+//				h.renderer.enabled = false;
+//			}
+//			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
+//			if(gConect != null) {
+//				fs.parentMachine.FollowConnection(gConect);
+//			} else {
+//				UnityEngine.Debug.Log("Game: No connection found!");
+//			}
+//		}
 
 	
 		base.Update ();

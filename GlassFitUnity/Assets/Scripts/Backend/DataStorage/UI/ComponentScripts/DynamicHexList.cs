@@ -44,6 +44,8 @@ public class DynamicHexList : MonoBehaviour
     Vector2 draggingStartPos = Vector2.zero;
     bool dragging = false;
     int draggingFingerID = -1;
+
+    GameObject buttonBase;
 	
 	private GestureHelper.OnTap tapHandler = null;
 	
@@ -64,6 +66,8 @@ public class DynamicHexList : MonoBehaviour
     {
 
         initialized = false;
+
+        buttonBase = transform.GetChild(0).gameObject;
 
         Camera[] camList = (Camera[])Camera.FindObjectsOfType(typeof(Camera));
         foreach (Camera c in camList)
@@ -211,7 +215,7 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     public Transform GetButtonBase()
     {
-        return transform.GetChild(0);
+        return buttonBase.transform;// transform.GetChild(0);
     }
 
     /// <summary>
@@ -310,8 +314,9 @@ public class DynamicHexList : MonoBehaviour
                 foreach (RaycastHit hit in hits)
                 {
                     UIImageButton button = hit.collider.GetComponent<UIImageButton>();
-                    if (button == null) continue;
+                    if (button == null || GetButtonBase() == button.transform.parent) continue;
 
+                    
                     newSelection = button;
                     if (newSelection == selection)
                     {
@@ -614,7 +619,6 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     private void ButtonDataToVisualProcess()
     {
-        int distanceFromCenter = 0;
         Transform child = GetButtonBase();
         float Z = child.transform.position.z;                
 
@@ -637,9 +641,7 @@ public class DynamicHexList : MonoBehaviour
                 Vector3 pos = GetLocation(data.column, data.row);
 
                 Vector3 hexPosition = new Vector3(pos.x, pos.y, pos.z);
-                tile.transform.position = hexPosition;
-
-                distanceFromCenter = Distance(data.column, data.row);
+                tile.transform.position = hexPosition;                
             }
             else
             {
@@ -674,7 +676,16 @@ public class DynamicHexList : MonoBehaviour
                             label.text = data.count < 0 ? "" : "" + data.count;
                             break;
                         case "TextContent":
-                            label.text = data.onButtonCustomString;
+                            label.text = data.textNormal;
+                            break;
+                        case "BoldText":
+                            label.text = data.textBold;
+                            break;
+                        case "SmallText":
+                            label.text = data.textSmall;
+                            break;
+                        case "OverlayText":
+                            label.text = data.textOverlay;
                             break;
                     }
                 }
@@ -696,17 +707,11 @@ public class DynamicHexList : MonoBehaviour
             }
 
             if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Background"))
-            {
-                if (distanceFromCenter % 2 == 0)
-                {
-                    //green
-                    buttonSprites[i]["Background"].color = new Color(0.223f, 0.71f, 0.29f);
-                }
-                else
-                {
-                    //gray
-                    buttonSprites[i]["Background"].color = new Color(0.235f, 0.235f, 0.235f);
-                }
+            {                
+                int color = data.backgroundTileColor;
+                buttonSprites[i]["Background"].color = new Color(((color >> 24) & 0xFF) / 0xFF,
+                                                                 ((color >> 16) & 0xFF) / 0xFF,
+                                                                 ((color >> 8 ) & 0xFF) / 0xFF);
             }
 
             data.markedForVisualRefresh = false;
@@ -745,7 +750,7 @@ public class DynamicHexList : MonoBehaviour
             return;
         }
 
-        initialized = true;
+        initialized = true;        
 
         int count = GetButtonData().Count;
         CleanupChildren(count);
@@ -932,6 +937,12 @@ public class DynamicHexList : MonoBehaviour
         buttonSprites.Add(singleButtonSprites);
     }
 
+    /// <summary>
+    /// Finds hexagonal distance from center
+    /// </summary>
+    /// <param name="column">column of the target hex</param>
+    /// <param name="row">row of the target hex</param>
+    /// <returns>hexagonal path (distance in hexes) fro 0,0 to target hex</returns>
     private int Distance(int column, int row )
     {
         int rowDist = Mathf.Abs(row);

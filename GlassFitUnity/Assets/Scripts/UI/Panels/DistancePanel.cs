@@ -34,7 +34,7 @@ public class DistancePanel : HexPanel {
 		hbd.column = 0;
 		hbd.row = 0;
 		hbd.buttonName = "ChooseHex";
-		hbd.onButtonCustomString = "Choose distance";
+		hbd.textNormal = "Choose distance";
 		
 		GConnector gc = NewOutput(hbd.buttonName, "Flow");
         gc.EventFunction = "SetFinish";
@@ -54,7 +54,7 @@ public class DistancePanel : HexPanel {
 		hbd.column = 0;
 		hbd.row = -1;
 		hbd.buttonName = "1km";
-		hbd.onButtonCustomString = "1km";
+		hbd.textNormal = "1km";
 		
 		gc = NewOutput(hbd.buttonName, "Flow");
         gc.EventFunction = "SetFinish";
@@ -74,7 +74,7 @@ public class DistancePanel : HexPanel {
 		hbd.column = 1;
 		hbd.row = 0;
 		hbd.buttonName = "2km";
-		hbd.onButtonCustomString = "2km";
+		hbd.textNormal = "2km";
 		
 		gc = NewOutput(hbd.buttonName, "Flow");
         gc.EventFunction = "SetFinish";
@@ -94,7 +94,7 @@ public class DistancePanel : HexPanel {
 		hbd.column = 0;
 		hbd.row = 1;
 		hbd.buttonName = "3km";
-		hbd.onButtonCustomString = "3km";
+		hbd.textNormal = "3km";
 		
 		gc = NewOutput(hbd.buttonName, "Flow");
         gc.EventFunction = "SetFinish";
@@ -114,7 +114,7 @@ public class DistancePanel : HexPanel {
 		hbd.column = -1;
 		hbd.row = 1;
 		hbd.buttonName = "4km";
-		hbd.onButtonCustomString = "4km";
+		hbd.textNormal = "4km";
 		
 		gc = NewOutput(hbd.buttonName, "Flow");
         gc.EventFunction = "SetFinish";
@@ -134,7 +134,7 @@ public class DistancePanel : HexPanel {
 		hbd.column = -1;
 		hbd.row = 0;
 		hbd.buttonName = "5km";
-		hbd.onButtonCustomString = "5km";
+		hbd.textNormal = "5km";
 		
 		gc = NewOutput(hbd.buttonName, "Flow");
         gc.EventFunction = "SetFinish";
@@ -154,7 +154,7 @@ public class DistancePanel : HexPanel {
 		hbd.column = -1;
 		hbd.row = -1;
 		hbd.buttonName = "10km";
-		hbd.onButtonCustomString = "10km";
+		hbd.textNormal = "10km";
 		
 		gc = NewOutput(hbd.buttonName, "Flow");
         gc.EventFunction = "SetFinish";
@@ -174,7 +174,7 @@ public class DistancePanel : HexPanel {
 		hbd.column = -2;
 		hbd.row = 0;
 		hbd.buttonName = "CustomHex";
-		hbd.onButtonCustomString = "Custom";
+		hbd.textNormal = "Custom";
 		hbd.locked = true;
 		
 		base.EnterStart ();

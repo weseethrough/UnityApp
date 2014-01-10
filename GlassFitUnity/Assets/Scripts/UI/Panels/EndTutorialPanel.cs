@@ -51,14 +51,19 @@ public class EndTutorialPanel : TutorialPanel {
 							
                             GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
 
-                            GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-
-                            GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
-
-                            if (gameExit.Link.Count > 0)
-                            {
-                                gComponent.Data.Connect(gc, gameExit.Link[0]);
-                            }
+//                            GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+//
+//                            GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
+//
+//                            if (gameExit.Link.Count > 0)
+//                            {
+//                                gComponent.Data.Connect(gc, gameExit.Link[0]);
+//                            }
+							
+							if(gameExit != null) {
+								parentMachine.FollowConnection(gameExit);
+								//GestureHelper.onTap -= tapHandler;
+							}
 							
 							unlocked = true;
 
@@ -113,7 +118,7 @@ public class EndTutorialPanel : TutorialPanel {
         hbd.column = 0;
         hbd.buttonName = "PointsHex";
         hbd.displayInfoData = false;
-        hbd.onButtonCustomString = "500RP";
+        hbd.textNormal = "500RP";
 		
         buttonData.Add(hbd);
 		
@@ -122,7 +127,7 @@ public class EndTutorialPanel : TutorialPanel {
         hbd.column = 0;
 		hbd.buttonName = "CongratsHex";
 		hbd.displayInfoData = false;
-		hbd.onButtonCustomString = "Congrats!";
+		hbd.textNormal = "Congrats!";
 		
 		buttonData.Add(hbd);
 	}
@@ -131,14 +136,26 @@ public class EndTutorialPanel : TutorialPanel {
 	{
 		if (justStarted == true && button != null)
         {                        
-			if (button.name == "EarnHex" && buttonData.Count == 3)
+			if (button.name == "CongratsHex" && buttonData.Count == 2)
+	        {
+	            HexButtonData hbd = new HexButtonData();
+	            hbd.row = 0;
+	            hbd.column = 1;
+	            hbd.buttonName = "EarnHex";
+	            hbd.displayInfoData = false;
+	            hbd.onButtonCustomString = "You earned 500 Race Points (RP)!";
+				hbd.displayInfoData = false;
+				
+	            buttonData.Add(hbd);
+	
+	        } else if (button.name == "EarnHex" && buttonData.Count == 3)
 	        {
 	            HexButtonData hbd = new HexButtonData();
 	            hbd.row = 1;
 	            hbd.column = 0;
 	            hbd.buttonName = "UseHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "RP is used";
+	            hbd.textNormal = "RP is used";
 				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
@@ -150,7 +167,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.column = -1;
 	            hbd.buttonName = "ChallengeHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "To unlock new challenges.";
+	            hbd.textNormal = "To unlock new challenges.";
 				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
@@ -162,7 +179,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.column = -1;
 	            hbd.buttonName = "TryHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "Try this one ^";
+	            hbd.textNormal = "Try this one ^";
 				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
@@ -174,11 +191,11 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.column = -1;
 				hbd.locked = true;
 	            hbd.buttonName = "VersusHex";
-				hbd.imageName = "activity_versus";
+				hbd.imageName = "activity_run";
 	            hbd.displayInfoData = true;
-				hbd.activityPrice = 0;
-				hbd.activityName = "Challenge a Friend";
-				hbd.activityContent = "Unlock the ability to accept challenges from friends";
+				hbd.activityPrice = 500;
+				hbd.activityName = "Main Menu";
+				hbd.activityContent = "Unlocks the main menu to see all challenges";
 				
 				elapsedTime = 0f;
 				shouldAdd = false;
@@ -204,7 +221,7 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.column = 1;
             hbd.buttonName = "EarnHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "You earned 500RP!";
+            hbd.textNormal = "You earned 500 Race Points (RP)";
 			hbd.displayInfoData = false;
 			
             buttonData.Add(hbd);
@@ -216,7 +233,7 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.column = 0;
             hbd.buttonName = "UseHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "RP is used";
+            hbd.textNormal = "RP is used";
 			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
@@ -227,7 +244,7 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.column = -1;
             hbd.buttonName = "ChallengeHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "To unlock new challenges.";
+            hbd.textNormal = "To unlock new challenges.";
 			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
@@ -238,7 +255,7 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.column = -1;
             hbd.buttonName = "TryHex";
             hbd.displayInfoData = false;
-            hbd.onButtonCustomString = "Try this one ^";
+            hbd.textNormal = "Try this one ^";
 			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
@@ -249,9 +266,9 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.column = -1;
 			hbd.locked = true;
             hbd.buttonName = "VersusHex";
-			hbd.imageName = "activity_versus";
+			hbd.imageName = "activity_run";
             hbd.displayInfoData = true;
-			hbd.activityPrice = 0;
+			hbd.activityPrice = 500;
 			hbd.activityName = "Challenge a Friend";
 			hbd.activityContent = "Unlock the ability to accept challenges from friends";
 				
