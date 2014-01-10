@@ -191,7 +191,6 @@ public class Platform : MonoBehaviour {
                     UnityEngine.Debug.LogException(e);
                 }
                 
-				AwardPoints("Free points for devs", "Platform.cs", 10000);
                 // Cache the list of games and states from java
 	            GetGames();
 				
@@ -612,6 +611,7 @@ public class Platform : MonoBehaviour {
 		int[] ids = rawtrack.Call<int[]>("getIDs"); 
 		double trackDistance = rawtrack.Call<double>("getDistance");
 		long trackTime = rawtrack.Call<long>("getTime");
+		string date = rawtrack.Call<string>("getDate");
 		using(AndroidJavaObject poslist = rawtrack.Call<AndroidJavaObject>("getTrackPositions")) {
 			int numPositions = poslist.Call<int>("size");
 			List<Position> pos = new List<Position>(numPositions);
@@ -620,7 +620,7 @@ public class Platform : MonoBehaviour {
 				Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
 				pos.Add(current);
 			}
-			return new Track(name, ids[0], ids[1], pos, trackDistance, trackTime);
+			return new Track(name, ids[0], ids[1], pos, trackDistance, trackTime, date);
 		}
 	}
 	

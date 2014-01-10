@@ -56,11 +56,11 @@ public class TutorialPanel : HexPanel
 		
 		DataVault.Set("race_type", "tutorial");
 		
-		if(Platform.Instance.GetTracks(10000, 0) != null) {
-			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {		
-				StraightToMenu();
-			}
-		}	
+//		if(Platform.Instance.GetTracks(10000, 0) != null) {
+//			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {		
+//				StraightToMenu();
+//			}
+//		}	
         twoHandler = new GestureHelper.TwoFingerTap(() => {
 			if(buttonData.Count == 0) {
 				InitialButtons();

@@ -59,7 +59,9 @@ public class TrackSelect : MonoBehaviour {
 	void Start () {
 		int finish = (int)DataVault.Get("finish");
 		int minDistance = (int)DataVault.Get("lower_finish");
-		trackList = Platform.Instance.GetTracks((double)finish, (double)minDistance);
+		trackList = (List<Track>)DataVault.Get("track_list");
+		UnityEngine.Debug.Log("TrackSelect: There are " + trackList.Count + " tracks");
+		
 		tex = GetComponent<UITexture>();
 		
 		LoadTrack();
@@ -96,6 +98,9 @@ public class TrackSelect : MonoBehaviour {
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "BackExit");
 		if(gConnect != null) {
 			fs.parentMachine.FollowConnection(gConnect);
+			GestureHelper.onTap -= tapHandler;
+			GestureHelper.swipeLeft -= leftHandler;
+			GestureHelper.swipeRight -= rightHandler;
 		} else {
 			UnityEngine.Debug.Log("TrackSelect: error finding back exit");
 		}
@@ -104,7 +109,7 @@ public class TrackSelect : MonoBehaviour {
 	public void NextTrack() 
 	{
 		currentTrack++;
-		if(currentTrack > trackList.Count)
+		if(currentTrack >= trackList.Count)
 		{
 			currentTrack = 0;
 		}
@@ -140,8 +145,9 @@ public class TrackSelect : MonoBehaviour {
 	{
 		GetLimits();
 			
-		DataVault.Set("track_distance", trackList[currentTrack].distance);
+		DataVault.Set("track_distance", SiDistanceUnitless(trackList[currentTrack].distance));
 		DataVault.Set("track_time", TimestampMMSS(trackList[currentTrack].time));
+		DataVault.Set("track_date", trackList[currentTrack].date);
 		
 		// Remove the old texture
 		mapTexture = null;
@@ -229,8 +235,8 @@ public class TrackSelect : MonoBehaviour {
 		tex.mainTexture = mapTexture;
 	}
 	
-	protected string TimestampMMSS(long minutes) {
-		TimeSpan span = TimeSpan.FromMinutes(minutes);
+	protected string TimestampMMSS(long milli) {
+		TimeSpan span = TimeSpan.FromMilliseconds(milli);
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}
@@ -242,7 +248,10 @@ public class TrackSelect : MonoBehaviour {
 		if(gConnect != null)
 		{
 			fs.parentMachine.FollowConnection(gConnect);
-			AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
+			GestureHelper.onTap -= tapHandler;
+			GestureHelper.swipeLeft -= leftHandler;
+			GestureHelper.swipeRight -= rightHandler;
+			//AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 		} else 
 		{
 			UnityEngine.Debug.Log("TrackSelect: Connection not found");
@@ -433,5 +442,27 @@ public class TrackSelect : MonoBehaviour {
 		
         // We're done.  Restore the GUI matrix and GUI color to whatever they were before.
         GUI.matrix = matrix;
+	}
+	
+	protected string SiDistanceUnitless(double meters) {
+		string postfix = "m";
+		string final;
+		float value = (float)meters;
+		if (value > 1000) {
+			value = value/1000;
+			postfix = "km";
+			if(value >= 10) {
+				final = value.ToString("f1");
+			} else {
+				final = value.ToString("f2");
+			}
+		}
+		else
+		{
+			final = value.ToString("f0");
+		}
+		//set the units string for the HUD
+		
+		return final + postfix;
 	}
 }

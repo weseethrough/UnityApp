@@ -280,6 +280,7 @@ public class ButtonFunctionCollection
 				MessageWidget.AddMessage("Sorry!", "You currently have no tracks for this distance", "activity_delete");
 				return false;
 			} else {
+				DataVault.Set("track_list", trackList);
 				return true;
 			}
 		} else {
