@@ -4,7 +4,7 @@ using System;
 
 public class PageIndicatorController : MonoBehaviour {
 	protected int currentPage = 0;
-	protected int numPages = 1;
+	public int numPages = 1;
 	
 	float xSpacing = 60.0f;
 	float indicatorHeight = 0.0f;
@@ -13,13 +13,14 @@ public class PageIndicatorController : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		//load number of pages from datavault
-		try {
-				numPages = (int)DataVault.Get("NumberOfPages");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("PageIndicator: couldn't retrieve number of pages from datavault");
-			numPages = 5;
-		}
+		//load number of pages from datavault	- now exposed to flow
+//		try {
+//				UnityEngine.Debug.Log("Paging: attempting to retrieve number of pages");
+//				numPages = (int)DataVault.Get("NumberOfPages");
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("PageIndicator: couldn't retrieve number of pages from datavault");
+//			numPages = 6;
+//		}
 	
 		spriteOn = GameObject.Find("PageIndicator_on");
 		if(spriteOn)

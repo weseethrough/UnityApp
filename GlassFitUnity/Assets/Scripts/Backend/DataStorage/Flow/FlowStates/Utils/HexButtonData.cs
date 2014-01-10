@@ -21,10 +21,12 @@ public class HexButtonData : ISerializable
     public int      row             = 0;
     public int      activityPrice   = 12345;
     public int      count           = -1;
+    public int      backgroundTileColor = 0x171717FF; //RGBA, alpha ignored
     public bool     locked          = false;
     public bool     displayInfoData = true;
     public bool     displayPlusMarker = false;
     public bool     allowEarlyHover = false;
+    
 
     //non persistent data 
     public bool     markedForVisualRefresh = true;
@@ -67,7 +69,7 @@ public class HexButtonData : ISerializable
                     break;
                 case "activityPrice":
                     this.activityPrice = (int)entry.Value;
-                    break;
+                    break;                
                 case "locked":
                     this.locked = (bool)entry.Value;
                     break;

@@ -37,11 +37,7 @@ public class FirstRun : GameBase {
 	void Start () {
 		
 		base.Start ();
-		
-		//progressBar.numPages = 4;
-		//5 page: 1.welcome, 2.must do first race, 3.opponent desc, 4.gps, 5.orientation disclaimer
-		DataVault.Set("NumberOfPages", 5);
-		
+				
 		UnityEngine.Debug.Log("FirstRun: Start");
 		
 		//hide virtual track to begin with
