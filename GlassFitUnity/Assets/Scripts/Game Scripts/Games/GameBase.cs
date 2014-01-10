@@ -485,27 +485,27 @@ public class GameBase : MonoBehaviour {
 			}
 		}
 		
-		//feedback to user
-		if(!readyToStart && !pause && !hasEnded && !pause && !maybeQuit)
-		{
-			//are we waiting for GPS?
-			if(!Platform.Instance.HasLock() && !Platform.Instance.IsIndoor() && !maybeQuit && !pause)
-			{
-				GUI.Label(messageRect, "Awaiting GPS lock...", labelStyle);
-			}
-			else
-			{
-				//notify if we're indoor
-				if(Platform.Instance.IsIndoor())
-				{
-					GUIStyle indoorTextStyle = new GUIStyle(labelStyle);
-					indoorTextStyle.fontSize -= 10;
-					GUI.Label(new Rect(messageRect.xMin, 15, messageRect.width, 100), "Indoor mode", indoorTextStyle);
-				}
-				
-				GUI.Label(messageRect, "Centre View to start", labelStyle);
-			}
-		}
+		//feedback to user - now covered by panels
+//		if(!readyToStart && !pause && !hasEnded && !pause && !maybeQuit)
+//		{
+//			//are we waiting for GPS?
+//			if(!Platform.Instance.HasLock() && !Platform.Instance.IsIndoor() && !maybeQuit && !pause)
+//			{
+//				GUI.Label(messageRect, "Awaiting GPS lock...", labelStyle);
+//			}
+//			else
+//			{
+//				//notify if we're indoor
+//				if(Platform.Instance.IsIndoor())
+//				{
+//					GUIStyle indoorTextStyle = new GUIStyle(labelStyle);
+//					indoorTextStyle.fontSize -= 10;
+//					GUI.Label(new Rect(messageRect.xMin, 15, messageRect.width, 100), "Indoor mode", indoorTextStyle);
+//				}
+//				
+//				GUI.Label(messageRect, "Centre View to start", labelStyle);
+//			}
+//		}
 		
 		GUI.matrix = Matrix4x4.identity;
 		
