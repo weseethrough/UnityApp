@@ -24,7 +24,7 @@ public class HexButtonData : ISerializable
     public int      row             = 0;
     public int      activityPrice   = 12345;
     public int      count           = -1;
-    public int      backgroundTileColor = 0x171717FF; //RGBA, alpha ignored
+    public uint     backgroundTileColor = 0x171717FF; //RGBA, alpha ignored
     public bool     locked          = false;
     public bool     displayInfoData = true;
     public bool     displayPlusMarker = false;
