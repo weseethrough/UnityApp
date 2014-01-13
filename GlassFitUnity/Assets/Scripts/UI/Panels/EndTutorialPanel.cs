@@ -143,7 +143,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.column = 1;
 	            hbd.buttonName = "EarnHex";
 	            hbd.displayInfoData = false;
-	            hbd.onButtonCustomString = "You earned 500 Race Points (RP)!";
+                hbd.textNormal = "You earned 500 Race Points (RP)!";
 				hbd.displayInfoData = false;
 				
 	            buttonData.Add(hbd);
