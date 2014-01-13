@@ -254,6 +254,7 @@ public class DynamicHexList : MonoBehaviour
         buttonNextEnterDelay -= Time.deltaTime;
 		if(buttons == null) {
 			UnityEngine.Debug.Log("DynamicHexList: buttons is null");
+            return;
 		}
         if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
         {
@@ -708,10 +709,10 @@ public class DynamicHexList : MonoBehaviour
 
             if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Background"))
             {                
-                int color = data.backgroundTileColor;
-                buttonSprites[i]["Background"].color = new Color(((color >> 24) & 0xFF) / 0xFF,
-                                                                 ((color >> 16) & 0xFF) / 0xFF,
-                                                                 ((color >> 8 ) & 0xFF) / 0xFF);
+                uint color = data.backgroundTileColor;
+                buttonSprites[i]["Background"].color = new Color((float)((color >> 24) & 0xFF) / 256.0f,
+                                                                 (float)((color >> 16) & 0xFF) / 256.0f,
+                                                                 (float)((color >> 8) & 0xFF) / 256.0f);
             }
 
             data.markedForVisualRefresh = false;
