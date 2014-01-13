@@ -288,7 +288,7 @@ public class GameBase : MonoBehaviour {
 			UnityEngine.Debug.Log("GameBase: final connection found");
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
 			UnityEngine.Debug.Log("GameBase: setting points");
-			if(finish > 1000) {
+			if(finish >= 1000) {
 				DataVault.Set("bonus", finalBonus); 
 			} else {
 				DataVault.Set("bonus", 0);

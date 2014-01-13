@@ -249,7 +249,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public void OnSynchronization(string message) {
-		UnityEngine.Debug.Log("Platform: starting to syncronize");
+		UnityEngine.Debug.Log("Platform: synchronize finished");
 		lastSync = DateTime.Now;
 		if (onSync != null) onSync();
 		/// TODO
