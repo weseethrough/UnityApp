@@ -97,7 +97,7 @@ public class TrackSelect : MonoBehaviour {
 		
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "BackExit");
 		if(gConnect != null) {
-			fs.parentMachine.FollowConnection(gConnect);
+			fs.parentMachine.FollowBack();
 			GestureHelper.onTap -= tapHandler;
 			GestureHelper.swipeLeft -= leftHandler;
 			GestureHelper.swipeRight -= rightHandler;
