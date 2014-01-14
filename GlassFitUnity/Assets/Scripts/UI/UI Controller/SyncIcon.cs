@@ -5,18 +5,37 @@ public class SyncIcon : MonoBehaviour {
 	
 	private float rotation = 0f;
 	
+	private Platform.OnAuthenticated authHandler = null;
 	private Platform.OnSync syncHandler = null;
+	private Platform.OnSyncProgress syncProgressHandler = null;
 	
 	// Use this for initialization
 	void Start () {
 		
 		if(Platform.Instance.IsPluggedIn()) {
-			Platform.Instance.SyncToServer();
-			syncHandler = new Platform.OnSync(() => {
-				GoToGame();
+			authHandler = new Platform.OnAuthenticated((authenticated) => {
+				Platform.Instance.onAuthenticated -= authHandler;
+				
+				if (!authenticated) {
+					MessageWidget.AddMessage("ERROR", "Could not authenticate", "settings");
+					GoToGame();
+					return;
+				}
+				
+				syncProgressHandler = new Platform.OnSyncProgress((message) => {
+					MessageWidget.AddMessage("Syncing", message, "settings");
+				});
+				syncHandler = new Platform.OnSync(() => {
+					Platform.Instance.onSyncProgress -= syncProgressHandler;
+					Platform.Instance.onSync -= syncHandler;
+					GoToGame();
+				});
+				Platform.Instance.onSync += syncHandler;
+				
+				Platform.Instance.SyncToServer();
 			});
-			 
-			Platform.Instance.onSync += syncHandler;
+			Platform.Instance.onAuthenticated += authHandler;
+			Platform.Instance.Authorize("any", "login");
 		} else {
 			GoToGame();
 		}
