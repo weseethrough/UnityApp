@@ -55,7 +55,12 @@
       	
       
       	fixed4 frag (v2f i) : COLOR0 { 
-      		return i.col * tex2D( _MainTex, i.uv);
+      		float4 texCol = tex2D( _MainTex, i.uv);
+      		if(texCol.a < 0.8)
+      		{
+      			discard;
+      		}
+      		return i.col * texCol;
 //      		if(i.pos.z > _FadeDist)
 //      		{
 //      			//fade out over 1000m
