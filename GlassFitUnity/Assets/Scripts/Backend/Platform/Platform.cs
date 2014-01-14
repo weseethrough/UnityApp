@@ -13,6 +13,7 @@ public class Platform : MonoBehaviour {
 	private int calories = 0;
 	private float pace = 0;
 	protected Position position = null;
+	private PlayerOrientation playerOrientation = new PlayerOrientation();
 	protected float bearing = -999.0f;
 	private bool started = false;
 	protected bool initialised = false;
@@ -552,16 +553,8 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Get the device's orientation
-	public virtual Quaternion GetOrientation() {
-		try {
-			//UnityEngine.Debug.Log("Platform: getting orientation");
-			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getOrientation");
-            Quaternion q = new Quaternion(ajo.Call<float>("getX"), ajo.Call<float>("getY"), ajo.Call<float>("getZ"),ajo.Call<float>("getW"));
-			return q;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting orientation: " + e.Message);
-			return Quaternion.identity;
-		}
+	public virtual PlayerOrientation GetPlayerOrientation() {
+		return playerOrientation;
 	}
 	
 	// Reset the Gyros and accelerometer
@@ -942,7 +935,16 @@ public class Platform : MonoBehaviour {
 			//UnityEngine.Debug.Log("Platform: about to sync properly");
 			SyncToServer();
 			//UnityEngine.Debug.Log("Platform: sync complete");
-		}				
+		}
+
+		// Update player orientation
+		try {
+			//UnityEngine.Debug.Log("Platform: getting orientation");
+			AndroidJavaObject q = helper.Call<AndroidJavaObject>("getOrientation");
+            playerOrientation.Update(new Quaternion(q.Call<float>("getX"), q.Call<float>("getY"), q.Call<float>("getZ"), q.Call<float>("getW")));
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting orientation: " + e.Message);
+		}
 	}	
 	
 	public virtual void Poll() {
@@ -986,6 +988,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("Platform: Error getting position: " + e.Message);
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
+
 		try {
 			if (gps.Call<bool>("hasBearing")) {
 				bearing = gps.Call<float>("getCurrentBearing");

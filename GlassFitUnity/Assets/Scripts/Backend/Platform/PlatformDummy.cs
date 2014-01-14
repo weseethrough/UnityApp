@@ -239,10 +239,10 @@ public class PlatformDummy : Platform
 		throw new NotImplementedException();
 	}
 	
-	public Quaternion GetOrientation() {
+	public Quaternion GetPlayerOrientation() {
 		//just return the identity quaternion, to look straight forward.
 		//might be useful to optionally have some wiggle on this in the future.
-		return Quaternion.identity;	
+		return new PlayerOrientation().AsQuaternion();
 	}
 	
 	public override void ResetGyro() {

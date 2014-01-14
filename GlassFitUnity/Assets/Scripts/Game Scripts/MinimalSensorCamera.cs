@@ -68,9 +68,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 #if !UNITY_EDITOR
 		// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
 		// reset orientation offset
-		offsetFromStart = Platform.Instance.GetOrientation();
-		UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
-		//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+		Platform.Instance.GetPlayerOrientation().Reset();
 			
 		// reset bearing offset
 		if (Platform.Instance.Bearing() != -999.0f) {
@@ -150,11 +148,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	void ResetGyroGlass()
 	{
-				
-		// reset orientation offset
-		offsetFromStart = Platform.Instance.GetOrientation();
-		//offsetFromStart = Quaternion.AngleAxis(offsetFromStart.eulerAngles.x, Vector3.up);
-		UnityEngine.Debug.Log("MinimalSensorCamera: Angles are: " + offsetFromStart.eulerAngles.x + ", " + offsetFromStart.eulerAngles.y + ", " + offsetFromStart.eulerAngles.z);
+		// reset head orientation
+		Platform.Instance.GetPlayerOrientation().Reset();
+
 		// reset bearing offset
 		if (Platform.Instance.Bearing() != -999.0f) {
 			initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
@@ -177,9 +173,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		if(!started)
 		{
 
-			offsetFromStart = Platform.Instance.GetOrientation();
-			//offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
-			Platform.Instance.ResetGyro();
+			Platform.Instance.GetPlayerOrientation().Reset();
 			started = true;
 
 		}
@@ -196,7 +190,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 //		UnityEngine.Debug.Log("Bearing w-component: " + bearingOffset);
 		
 		// Check for changes in players head orientation
-		Quaternion headOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+		Quaternion headOffset = Platform.Instance.GetPlayerOrientation().AsQuaternion();
 		
 		// Check for rearview
 		Quaternion rearviewOffset = Quaternion.Euler(0, (rearview ? 180 : 0), 0);
