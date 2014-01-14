@@ -1156,7 +1156,26 @@ public class Platform : MonoBehaviour {
 		{
 			UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + gems + " gems in " + gameId);
 		}
-	}	
+	}
+
+	/// <summary>
+	/// Use this method to record events for analytics, e.g. a user action.
+	/// </summary>
+	/// <param name='json'>
+	/// Json-encoded event values such as current game state, what the user action was etc
+	/// </param>
+	public virtual void LogAnalytics(JSONObject json)
+	{
+		try
+		{
+			helper.CallStatic("logEvent", json.ToString());
+			UnityEngine.Debug.Log("Platform: logged analytic event " + json.ToString());
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error logging analytic event. " + e.Message);
+		}
+	}
 	
 	/// <summary>
 	/// Stores the BLOB. Called by 
