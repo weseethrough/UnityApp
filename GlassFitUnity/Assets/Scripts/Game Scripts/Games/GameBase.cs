@@ -147,13 +147,6 @@ public class GameBase : MonoBehaviour {
 		
 		hasEnded = false;
 		
-		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
-			GyroDidReset();
-			//GestureHelper.onTwoTap -= twoTapHandler;
-		});
-		
-		GestureHelper.onTwoTap += twoTapHandler;
-		
 		//handler for OnReset
 		//this seems to get automatically called as soon as the scene loads. Trying an onTap instead.	
 
@@ -178,7 +171,14 @@ public class GameBase : MonoBehaviour {
 		{
 			virtualTrack = GameObject.Find("VirtualTrack");
 		}
-		virtualTrack.SetActive(visible);
+		if(virtualTrack != null)
+		{
+			virtualTrack.SetActive(visible);
+		}
+		else
+		{
+			UnityEngine.Debug.Log("GameBase: Couldn't find virtual track to set visiblity");
+		}
 	}
 	
 	public void ConsiderQuit() {
@@ -327,8 +327,11 @@ public class GameBase : MonoBehaviour {
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
 	public virtual void GameHandleTap() {
-		UnityEngine.Debug.Log("GameBase: tap detected");
-		PauseGame();
+		if(started)
+		{
+			UnityEngine.Debug.Log("GameBase: tap detected");
+			PauseGame();
+		}
 	}
 	
 	public void PauseGame()
@@ -553,12 +556,7 @@ public class GameBase : MonoBehaviour {
 	// Update is called once per frame
 	public virtual void Update () 
 	{
-		if(Input.touchCount > 2) {
-			if(Input.GetTouch(0).phase == TouchPhase.Began) {
-				PauseGame();
-			}
-		}
-		
+	
 		//Update variables for GUI	
 		Platform.Instance.Poll();
 		
@@ -580,26 +578,6 @@ public class GameBase : MonoBehaviour {
 		// TODO: Toggle based on panel type
 		UpdateAhead();
 		
-		//detect the touch and reset/start if it's there
-		// Non-Glass devices
-		if(!readyToStart && (Platform.Instance.HasLock() || Platform.Instance.IsIndoor()) )
-		{
-			//UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
-			if(Input.touchCount > 0)
-			{
-				UnityEngine.Debug.Log("GameBase: Update: Touch detected");
-					if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
-					{
-						UnityEngine.Debug.Log("GameBase: Now ready to start");
-						readyToStart = true;
-					}
-			}
-			//In the editor, just go straight away
-#if UNITY_EDITOR
-			readyToStart = true;
-#endif
-		}
-	
 		//start the contdown once we've got reset the gyro		
 		if(readyToStart)
 		{
@@ -670,7 +648,7 @@ public class GameBase : MonoBehaviour {
 	/// </param>
 	public virtual void SetReadyToStart(bool ready)
 	{
-		readyToStart = true;
+		readyToStart = ready;
 	}
 		
 	
@@ -766,22 +744,5 @@ public class GameBase : MonoBehaviour {
 		// remember the current time so we know how long to display for:
 		this.baseMultiplierStartTime = Time.time;
 		UnityEngine.Debug.Log("New base multiplier received:" + this.baseMultiplier);
-	}
-	
-	/// <summary>
-	/// handler for when the gyro is reset.
-	/// In this case, indicate that we're ready to start, if we previously weren't
-	/// </summary>
-	public virtual void GyroDidReset()
-	{
-		UnityEngine.Debug.Log("GameBase: Gyro did reset");
-		if(!readyToStart)
-		{
-			if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
-			{
-				UnityEngine.Debug.Log("GameBase: Now ready to start");
-				readyToStart = true;
-			}
-		}
 	}
 }

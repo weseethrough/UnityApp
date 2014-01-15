@@ -35,7 +35,7 @@ public class FirstRun : GameBase {
 	
 	// Use this for initialization
 	void Start () {
-		
+
 		base.Start ();
 				
 		UnityEngine.Debug.Log("FirstRun: Start");
@@ -111,14 +111,14 @@ public class FirstRun : GameBase {
 			base.OnGUI();
 		}
 	}
-	
-	public override void GameHandleTap ()
-	{
-		if(started)
-		{
-			base.GameHandleTap ();
-		}
-	}
+//	
+//	public override void GameHandleTap ()
+//	{
+//		if(started)
+//		{
+//			base.GameHandleTap ();
+//		}
+//	}
 	
 	protected override void OnUnpause ()
 	{
