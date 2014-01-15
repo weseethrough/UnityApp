@@ -23,6 +23,10 @@ public class LoadingScreen : MonoBehaviour {
 		case "tutorial":
 			levelName = "FirstRun";
 			break;
+			
+		case "challenge":
+			levelName = "Challenge Mode";
+			break;
 		}
 		
 		StartCoroutine("LoadLevel");
@@ -42,7 +46,7 @@ public class LoadingScreen : MonoBehaviour {
 		
 		if(async != null && async.isDone) {
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			if(levelName == "Race Mode" || levelName == "Pursuit Mode")
+			if(levelName == "Race Mode" || levelName == "Pursuit Mode" || levelName == "Challenge Mode")
 			{
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceExit");
 				if(gConnect != null)

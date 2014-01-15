@@ -24,6 +24,14 @@ public class ChallengeNotification {
 		}
 	}
 	
+	public string GetID() {
+		if(notification != null) {
+			return notification.id;
+		} else {
+			return "";
+		}
+	}
+	
 	public double GetDistance()
 	{
 		if(challenge != null) 
@@ -72,8 +80,14 @@ public class ChallengeNotification {
 	
 	public Track GetTrack()
 	{
-		Track track = challenge.UserTrack(user.id);
-		return Platform.Instance.FetchTrack(track.deviceId, track.trackId);
+		if(challenge != null) {
+			Track track = challenge.UserTrack(user.id);
+			return Platform.Instance.FetchTrack(track.deviceId, track.trackId);
+		} 
+		else 
+		{
+			return null;
+		}
 	}
 	
 }

@@ -813,25 +813,29 @@ public class Platform : MonoBehaviour {
 	}
 		
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Friend[] Friends() {
+	public virtual List<Friend> Friends() {
 		try {
 			UnityEngine.Debug.Log("Platform: getting friends list");
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
+				UnityEngine.Debug.Log("Platform: getting friends list size");
 				int length = list.Call<int>("size");
-				Friend[] friendList = new Friend[length];
+				List<Friend> friendList = new List<Friend>();
 				for (int i=0;i<length;i++) {
 					using (AndroidJavaObject f = list.Call<AndroidJavaObject>("get", i)) {
-						friendList[i] = new Friend(f.Get<string>("friend"));
+						UnityEngine.Debug.Log("Platform: getting a friend");
+						Friend friend = new Friend(f.Get<string>("friend"));
+						friendList.Add(friend);
+						UnityEngine.Debug.Log("Platform: got a friend");
 					}
 				}
-				UnityEngine.Debug.Log("Platform: " + friendList.Length + " friends fetched");
+				UnityEngine.Debug.Log("Platform: " + friendList.Count + " friends fetched");
 				return friendList;
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
-		return new Friend[0];
+		return new List<Friend>();
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]

@@ -636,6 +636,7 @@ public class DynamicHexList : MonoBehaviour
             if (i >= buttons.Count)
             {
                 tile = (GameObject)GameObject.Instantiate(child.gameObject);
+				//tile.GetComponent<MeshRenderer>().isPartOfStaticBatch = true;
                 tile.transform.parent = child.parent;
                 tile.transform.rotation = child.rotation;
                 tile.transform.localScale = child.localScale;
@@ -717,6 +718,8 @@ public class DynamicHexList : MonoBehaviour
 
             data.markedForVisualRefresh = false;
         }
+		StaticBatchingUtility.Combine(buttons.ToArray(), child.gameObject);
+	
     }
 
     /// <summary>

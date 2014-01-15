@@ -95,15 +95,10 @@ public class TrackSelect : MonoBehaviour {
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "BackExit");
-		if(gConnect != null) {
-			fs.parentMachine.FollowBack();
-			GestureHelper.onTap -= tapHandler;
-			GestureHelper.swipeLeft -= leftHandler;
-			GestureHelper.swipeRight -= rightHandler;
-		} else {
-			UnityEngine.Debug.Log("TrackSelect: error finding back exit");
-		}
+		fs.parentMachine.FollowBack();
+		GestureHelper.onTap -= tapHandler;
+		GestureHelper.swipeLeft -= leftHandler;
+		GestureHelper.swipeRight -= rightHandler;
 	}
 	
 	public void NextTrack() 
@@ -251,7 +246,6 @@ public class TrackSelect : MonoBehaviour {
 			GestureHelper.onTap -= tapHandler;
 			GestureHelper.swipeLeft -= leftHandler;
 			GestureHelper.swipeRight -= rightHandler;
-			//AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 		} else 
 		{
 			UnityEngine.Debug.Log("TrackSelect: Connection not found");
