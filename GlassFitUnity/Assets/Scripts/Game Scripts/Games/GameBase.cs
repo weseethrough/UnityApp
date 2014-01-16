@@ -124,6 +124,7 @@ public class GameBase : MonoBehaviour {
 		
 		if(selectedTrack != null) {
 			finish = (int)selectedTrack.distance;
+			UnityEngine.Debug.Log("GameBase: track distance is: " + finish.ToString());
 		} else {
 			finish = (int)DataVault.Get("finish");
 		}
@@ -296,12 +297,11 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.StopTrack();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
-			if(gConnect.Name == "FinishButton") {
-				tapHandler = new GestureHelper.OnTap(() => {
-					Continue();
-				});
-				GestureHelper.onTap += tapHandler;
-			}
+			tapHandler = new GestureHelper.OnTap(() => {
+				Continue();
+			});
+			GestureHelper.onTap += tapHandler;
+			
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowConnection(gConnect);
 		} else {
@@ -553,11 +553,11 @@ public class GameBase : MonoBehaviour {
 	// Update is called once per frame
 	public virtual void Update () 
 	{
-		if(Input.touchCount > 2) {
-			if(Input.GetTouch(0).phase == TouchPhase.Began) {
-				PauseGame();
-			}
-		}
+//		if(Input.touchCount > 2) {
+//			if(Input.GetTouch(0).phase == TouchPhase.Began) {
+//				PauseGame();
+//			}
+//		}
 		
 		//Update variables for GUI	
 		Platform.Instance.Poll();
@@ -582,23 +582,23 @@ public class GameBase : MonoBehaviour {
 		
 		//detect the touch and reset/start if it's there
 		// Non-Glass devices
-		if(!readyToStart && (Platform.Instance.HasLock() || Platform.Instance.IsIndoor()) )
-		{
-			//UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
-			if(Input.touchCount > 0)
-			{
-				UnityEngine.Debug.Log("GameBase: Update: Touch detected");
-					if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
-					{
-						UnityEngine.Debug.Log("GameBase: Now ready to start");
-						readyToStart = true;
-					}
-			}
-			//In the editor, just go straight away
-#if UNITY_EDITOR
-			readyToStart = true;
-#endif
-		}
+//		if(!readyToStart && (Platform.Instance.HasLock() || Platform.Instance.IsIndoor()) )
+//		{
+//			//UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
+//			if(Input.touchCount > 0)
+//			{
+//				UnityEngine.Debug.Log("GameBase: Update: Touch detected");
+//					if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
+//					{
+//						UnityEngine.Debug.Log("GameBase: Now ready to start");
+//						readyToStart = true;
+//					}
+//			}
+//			//In the editor, just go straight away
+//#if UNITY_EDITOR
+//			readyToStart = true;
+//#endif
+		//}
 	
 		//start the contdown once we've got reset the gyro		
 		if(readyToStart)
