@@ -314,10 +314,17 @@ public class Platform : MonoBehaviour {
 	
 	public virtual User GetUser(int userId) {
 		// TODO: Implement me!
-		string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
-		string name = names[userId % names.Length];
-		
-		return new User(userId, name, name + " Who");
+		try {
+			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("fetchUser", userId);
+			if(ajo.GetRawObject().ToInt32() == 0) return null;
+			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: error getting user");
+			string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
+			string name = names[userId % names.Length];
+			
+			return new User(userId, name, name + " Who");
+		}
 	}
 	
 	// Starts tracking
@@ -622,8 +629,8 @@ public class Platform : MonoBehaviour {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching track");
 			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
-					Track track = convertTrack(rawtrack);
-					return track;
+				Track track = convertTrack(rawtrack);
+				return track;
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
@@ -806,25 +813,29 @@ public class Platform : MonoBehaviour {
 	}
 		
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Friend[] Friends() {
+	public virtual List<Friend> Friends() {
 		try {
 			UnityEngine.Debug.Log("Platform: getting friends list");
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
+				UnityEngine.Debug.Log("Platform: getting friends list size");
 				int length = list.Call<int>("size");
-				Friend[] friendList = new Friend[length];
+				List<Friend> friendList = new List<Friend>();
 				for (int i=0;i<length;i++) {
 					using (AndroidJavaObject f = list.Call<AndroidJavaObject>("get", i)) {
-						friendList[i] = new Friend(f.Get<string>("friend"));
+						UnityEngine.Debug.Log("Platform: getting a friend");
+						Friend friend = new Friend(f.Get<string>("friend"));
+						friendList.Add(friend);
+						UnityEngine.Debug.Log("Platform: got a friend");
 					}
 				}
-				UnityEngine.Debug.Log("Platform: " + friendList.Length + " friends fetched");
+				UnityEngine.Debug.Log("Platform: " + friendList.Count + " friends fetched");
 				return friendList;
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
-		return new Friend[0];
+		return new List<Friend>();
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]

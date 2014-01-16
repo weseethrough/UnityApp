@@ -19,6 +19,8 @@ public class TutorialPanel : HexPanel
     
 	private GestureHelper.TwoFingerTap twoHandler = null;
 	
+	private GestureHelper.DownSwipe downHandler = null;
+	
 	private Camera camera;
 
     public TutorialPanel() { }
@@ -40,9 +42,27 @@ public class TutorialPanel : HexPanel
         {
             return "Tutorial Panel: " + gName.Value;
         }
-        return "Tutorial Panel: UnInitialzied";
+        return "Tutorial Panel: UnInitialized";
     }
-
+	
+	public void QuitApp() {
+		if(!IsPopupDisplayed()) {
+			GestureHelper.onSwipeDown -= downHandler;
+			Application.Quit();
+		}
+	}
+	
+	public bool IsPopupDisplayed() {
+		HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+		if(info != null) {
+			if(info.IsInOpenStage()) {
+				info.AnimExit();
+				return true;
+			}
+		}
+		return false;
+	}
+	
     /// <summary>
     /// Primary button preparation for panel entering state
     /// </summary>
@@ -55,6 +75,12 @@ public class TutorialPanel : HexPanel
 		DataVault.Set("metabolism", Platform.Instance.GetCurrentMetabolism());
 		
 		DataVault.Set("race_type", "tutorial");
+		
+		downHandler = new GestureHelper.DownSwipe(() => {
+			QuitApp();
+		});
+		
+		GestureHelper.onSwipeDown += downHandler;
 		
 //		if(Platform.Instance.GetTracks(10000, 0) != null) {
 //			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {		
@@ -351,6 +377,7 @@ public class TutorialPanel : HexPanel
 		base.Exited ();
 		GestureHelper.onThreeTap -= threeHandler;
 		GestureHelper.onTwoTap -= twoHandler;
+		GestureHelper.onSwipeDown -= downHandler;
 		DataVault.Set("highlight", " ");
 	}
 }

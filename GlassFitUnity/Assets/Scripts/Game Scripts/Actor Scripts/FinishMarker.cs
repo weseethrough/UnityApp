@@ -46,7 +46,7 @@ public class FinishMarker : MonoBehaviour {
 			}
 			double deltDist = target - distance;
 			//deltDist *= 135f;
-			transform.position = new Vector3(0, -595f, (float)deltDist);
+			transform.position = new Vector3(0, 0f, (float)deltDist);
 		} else 
 		{
 			DataVault.Set("ending_bonus", "");

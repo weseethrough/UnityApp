@@ -140,7 +140,7 @@ public class FriendDisplay : MonoBehaviour {
 		type = type.ToLower();
 		
 		// Get the list of friends
-		Friend[] temp = Platform.Instance.Friends();
+		List<Friend> temp = Platform.Instance.Friends();
 		
 		// Filter the friends based on whether they have glass and the type of friend 
 		// previously selected
@@ -151,7 +151,7 @@ public class FriendDisplay : MonoBehaviour {
 		
 		// Set the friend list to the filtered list
 		friendList = filtered.ToArray();
-		Debug.Log("Friends: " + temp.Length + " filtered by " + type + " = " + friendList.Length);
+		Debug.Log("Friends: " + temp.Count + " filtered by " + type + " = " + friendList.Length);
 		
 		if (currentFriend < 0) currentFriend += friendList.Length;
 		currentFriend = currentFriend % friendList.Length;		
