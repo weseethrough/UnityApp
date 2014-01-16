@@ -297,12 +297,11 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.StopTrack();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
-			if(gConnect.Name == "FinishButton" || gConnect.Name == "ChallengeExit") {
-				tapHandler = new GestureHelper.OnTap(() => {
-					Continue();
-				});
-				GestureHelper.onTap += tapHandler;
-			}
+			tapHandler = new GestureHelper.OnTap(() => {
+				Continue();
+			});
+			GestureHelper.onTap += tapHandler;
+			
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowConnection(gConnect);
 		} else {
