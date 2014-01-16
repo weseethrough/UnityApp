@@ -84,14 +84,15 @@ public class ButtonFunctionCollection
 	static public bool SetChallenge(FlowButton fb, Panel panel)
 	{
 		List<ChallengeNotification> challenges = (List<ChallengeNotification>)DataVault.Get("challenge_notifications");
-		
 		if(challenges != null)
 		{
 			for(int i=0; i<challenges.Count; i++)
 			{
 				if(fb.name == challenges[i].GetID())
 				{
+					UnityEngine.Debug.Log("ButtonFunc: getting track");
 					Track track = challenges[i].GetTrack();
+					UnityEngine.Debug.Log("ButtonFunc: setting track");
 					DataVault.Set("current_track", track);
 					DataVault.Set("race_type", "challenge");
 					DataVault.Set("challenger", challenges[i].GetName());
@@ -112,18 +113,29 @@ public class ButtonFunctionCollection
 		List<Friend> friendList = (List<Friend>)DataVault.Get("friend_list");
 		
 		if(friendList != null) {
-			for(int i=0; i<friendList.Count; i++)
-			{
-				if(fb.name == friendList[i].guid)
+			int finish = 10000;
+			int lowerFinish = 100;
+				
+			List<Track> trackList = Platform.Instance.GetTracks(finish, lowerFinish);
+			if(trackList != null) {
+				for(int i=0; i<friendList.Count; i++)
 				{
-					DataVault.Set ("chosen_friend", friendList[i]);
-					DataVault.Set("finish", 10000);
-					DataVault.Set("lower_finish", 100);
-					return true;
+					if(fb.name == friendList[i].guid)
+					{
+						DataVault.Set("track_list", trackList);
+						DataVault.Set ("chosen_friend", friendList[i]);
+						DataVault.Set("finish", finish);
+						DataVault.Set("lower_finish", lowerFinish);
+						return true;
+					}
 				}
+				UnityEngine.Debug.Log("ButtonFunc: Friend not found, returning");
+				return false;
+			} else {
+				UnityEngine.Debug.Log("ButtonFunc: track list is null, returning");
+				MessageWidget.AddMessage("Sorry", "You currently have no tracks", "!none");
+				return false;
 			}
-			UnityEngine.Debug.Log("ButtonFunc: Friend not found, returning");
-			return false;
 		} else {
 			UnityEngine.Debug.Log("ButtonFunc: friend list is null");
 			return false;
@@ -739,12 +751,14 @@ public class ButtonFunctionCollection
 		Track track = DataVault.Get("current_track") as Track;
 		if(track == null) {
 			MessageWidget.AddMessage("Error", "Problem with track", "!none");
+			UnityEngine.Debug.Log("ButtonFunc: error getting track");
 			return false;
 		}
 		Friend friend = DataVault.Get("chosen_friend") as Friend;
 		if(friend == null)
 		{
 			MessageWidget.AddMessage("Error", "Friend is null", "!none");
+			UnityEngine.Debug.Log("ButtonFunc: error getting friend");
 			return false;
 		}
 		
@@ -756,19 +770,19 @@ public class ButtonFunctionCollection
 			'target' : {0},
 			'taunt' : 'Try beating my track!',
 			'challenge' : {{
-					'distance': {2},
-					'time': {3},
+					'distance': {1},
+					'time': {2},
 					'location': null,
 					'public': true,
 					'start_time': null,
 					'stop_time': null,
 					'type': 'distance',
 					'attempts' : [
-                        {{  'device_id': {4}, 'track_id': {5} }}
+                        {{  'device_id': {3}, 'track_id': {4} }}
                     ]
 			}}
 		}}", friendUid, track.distance, track.time, track.deviceId, track.trackId).Replace("'", "\""));
-		Debug.Log ("Challenge: " + friendUid + " challenged");
+		Debug.Log ("ButtonFunc: " + friendUid + " challenged");
 		MessageWidget.AddMessage("Challenge", "You challenged " + friendUid, "settings");
 		Platform.Instance.SyncToServer();
 		

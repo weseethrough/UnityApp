@@ -10,6 +10,8 @@ public class DynamicHexList : MonoBehaviour
     const float CAMERA_SENSITIVITY_X = 4.5f;
     const float CAMERA_SENSITIVITY_Y = 5.5f;
 	
+	public Font font;
+	
     HexPanel parent = null;
 
     UICamera guiCamera;
@@ -64,7 +66,12 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     void Start()
     {
-
+		font = Resources.Load("Font/!BebasNeue") as Font;
+		
+		if(font != null) {
+			font.RequestCharactersInTexture("qwertyuiopasdfghklzxcvbnm,./;'[]098754321QWERTYUIOPASDFGHJKLZXCVBNM<>?|:@~{}+_)(*&^%$£!¬`");
+		}
+		
         initialized = false;
 
         buttonBase = transform.GetChild(0).gameObject;
@@ -666,7 +673,11 @@ public class DynamicHexList : MonoBehaviour
 
                 fb.userData["HexButtonData"] = data;
             }
-
+			
+			if(font != null) {
+				font.RequestCharactersInTexture("qwertyuiopasdfghklzxcvbnm,./;'[]098754321QWERTYUIOPASDFGHJKLZXCVBNM<>?|:@~{}+_)(*&^%$£!¬`");
+			}
+			
             UILabel[] labels = tile.GetComponentsInChildren<UILabel>() as UILabel[];
             if (labels != null)
             {
@@ -682,7 +693,7 @@ public class DynamicHexList : MonoBehaviour
                             break;
                         case "BoldText":
                             label.text = data.textBold;
-                            break;
+						    break;
                         case "SmallText":
                             label.text = data.textSmall;
                             break;

@@ -57,8 +57,6 @@ public class TrackSelect : MonoBehaviour {
 	/// Start this instance. Gets the tracklist
 	/// </summary>
 	void Start () {
-		int finish = (int)DataVault.Get("finish");
-		int minDistance = (int)DataVault.Get("lower_finish");
 		trackList = (List<Track>)DataVault.Get("track_list");
 		UnityEngine.Debug.Log("TrackSelect: There are " + trackList.Count + " tracks");
 		
@@ -123,19 +121,6 @@ public class TrackSelect : MonoBehaviour {
 		LoadTrack();
 	}
 	
-//	public void SetTrack() {
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		
-//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "TrackExit");
-//		if(gConnect != null) 
-//		{
-//			DataVault.Set("track", trackList[currentTrack]);
-//			fs.parentMachine.FollowConnection(gConnect);
-//		} else {
-//			UnityEngine.Debug.Log("TrackSelect: error finding track exit");
-//		}
-//	}
-	
 	public void LoadTrack()
 	{
 		GetLimits();
@@ -150,42 +135,6 @@ public class TrackSelect : MonoBehaviour {
 		// The next section calculates the zoom for the static maps. 
 		CalculateMapZoom();
 		
-		// We now obtain the map from the Google Static Maps API using the values
-		// obtained above.
-//		if (mapWWW == null && mapTexture == null){
-//			const string API_KEY = "AIzaSyBj_iHOwteDxJ8Rj_bPsoslxIquy--y9nI";
-//			const string endpoint = "http://maps.googleapis.com/maps/api/staticmap";
-//			string url = endpoint + "?center="
-//		                      	  + centerLat.ToString() + "," + centerLong.ToString()
-//		               	      	  + "&zoom=" + mapZoom.ToString()
-//		  	                  	  + "&size=" + "600" + "x" + "400"
-//		       	              	  + "&maptype=roadmap" 
-//								  + "&sensor=true&key=" + API_KEY;
-//			mapWWW = new WWW(url);
-//			UnityEngine.Debug.Log("TrackSelect: URL is: " + url);
-//		}
-//			
-//			// If the website worked.
-//		if (mapWWW != null) {
-//			// We wait for the map to download.
-//			while(!mapWWW.isDone) {
-//				// If there are any errors, tell the user and break out.
-//				if (mapWWW.error != null) {
-//					UnityEngine.Debug.LogWarning(mapWWW.error);
-//					UnityEngine.Debug.LogWarning("TrackSelect: error with map");
-//					break;
-//				} 
-//			}
-//				
-//			// The texture is then set.
-//			mapTexture = mapWWW.texture;
-//				
-//			// The link is then nulled.
-//			mapWWW = null;
-//		}
-//						
-//		// The UITexture is then obtained and set.
-//		tex.mainTexture = mapTexture;
 		StartCoroutine(GetMap());
 		
 	}
@@ -206,18 +155,7 @@ public class TrackSelect : MonoBehaviour {
 			
 			// If the website worked.
 		if (mapWWW != null) {
-			// We wait for the map to download.
-//			while(!mapWWW.isDone) {
-//				// If there are any errors, tell the user and break out.
-//				if (mapWWW.error != null) {
-//					UnityEngine.Debug.LogWarning(mapWWW.error);
-//					UnityEngine.Debug.LogWarning("TrackSelect: error with map");
-//					break;
-//				} 
-//				
-//				yield return null;
-//			}
-			
+			// We wait for the map to download.			
 			yield return mapWWW;
 				
 			// The texture is then set.
@@ -242,6 +180,7 @@ public class TrackSelect : MonoBehaviour {
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
 		if(gConnect != null)
 		{
+			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
 			fs.parentMachine.FollowConnection(gConnect);
 			GestureHelper.onTap -= tapHandler;
 			GestureHelper.swipeLeft -= leftHandler;

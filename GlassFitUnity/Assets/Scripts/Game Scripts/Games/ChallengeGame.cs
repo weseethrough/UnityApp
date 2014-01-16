@@ -14,6 +14,8 @@ public class ChallengeGame : GameBase {
 		
 		Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
 			
+		DataVault.Set("ending_bonus", " ");
+		
 		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
 		int lane = 1;
 		foreach (TargetTracker tracker in trackers) {
@@ -28,11 +30,12 @@ public class ChallengeGame : GameBase {
 	public override GConnector GetFinalConnection()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		if(Platform.Instance.GetHighestDistBehind() > 0) { 
+		if(Platform.Instance.GetHighestDistBehind() < 0) { 
 			DataVault.Set("challenge_result", "You beat " + (string)DataVault.Get("challenger"));
 		} else {
 			DataVault.Set("challenge_result", (string)DataVault.Get("challenger") + " beat you!");
 		}
+		
 		return fs.Outputs.Find(r => r.Name == "ChallengeExit");
 	}
 	

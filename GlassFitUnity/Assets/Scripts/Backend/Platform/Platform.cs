@@ -313,10 +313,17 @@ public class Platform : MonoBehaviour {
 	
 	public virtual User GetUser(int userId) {
 		// TODO: Implement me!
-		string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
-		string name = names[userId % names.Length];
-		
-		return new User(userId, name, name + " Who");
+		try {
+			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("fetchUser", userId);
+			if(ajo.GetRawObject().ToInt32() == 0) return null;
+			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: error getting user");
+			string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
+			string name = names[userId % names.Length];
+			
+			return new User(userId, name, name + " Who");
+		}
 	}
 	
 	// Starts tracking
@@ -629,8 +636,8 @@ public class Platform : MonoBehaviour {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching track");
 			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
-					Track track = convertTrack(rawtrack);
-					return track;
+				Track track = convertTrack(rawtrack);
+				return track;
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);

@@ -297,7 +297,7 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.StopTrack();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
-			if(gConnect.Name == "FinishButton") {
+			if(gConnect.Name == "FinishButton" || gConnect.Name == "ChallengeExit") {
 				tapHandler = new GestureHelper.OnTap(() => {
 					Continue();
 				});

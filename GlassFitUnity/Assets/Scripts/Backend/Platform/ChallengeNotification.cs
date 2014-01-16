@@ -81,7 +81,9 @@ public class ChallengeNotification {
 	public Track GetTrack()
 	{
 		if(challenge != null) {
+			UnityEngine.Debug.Log("ChallengeNotification: getting first track");
 			Track track = challenge.UserTrack(user.id);
+			UnityEngine.Debug.Log("ChallengeNotification: getting second track");
 			return Platform.Instance.FetchTrack(track.deviceId, track.trackId);
 		} 
 		else 

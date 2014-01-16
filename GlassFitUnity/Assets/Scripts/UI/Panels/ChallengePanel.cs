@@ -15,7 +15,11 @@ public class ChallengePanel : HexPanel {
 		
 	private GraphComponent gComponent;
 	
-	List<ChallengeNotification> challengeNotifications;
+	static List<ChallengeNotification> challengeNotifications;
+	
+	private bool threadComplete = false;
+	
+	private bool notSet = true;
 	
 	// Travel direction for hex creation
 	private bool goingUp = true;
@@ -62,6 +66,9 @@ public class ChallengePanel : HexPanel {
 		challengeNotifications = new List<ChallengeNotification>();
 		
 		GetChallenges();		
+		
+		//AddFriendHexes();
+		
 		Platform.Instance.SyncToServer();
 		base.EnterStart ();
 	}
@@ -122,9 +129,9 @@ public class ChallengePanel : HexPanel {
 					finally {
 						DataVault.Remove("loaderthread");
 						
-						AddChallengeHexes();
-						
-						AddFriendHexes();
+						//AddChallengeHexes();
+						threadComplete = true;
+						//AddFriendHexes();
 #if !UNITY_EDITOR
 						AndroidJNI.DetachCurrentThread();
 #endif					
@@ -170,7 +177,7 @@ public class ChallengePanel : HexPanel {
 			hbd.column = (int)currentPosition.x;
 			hbd.row = (int)-currentPosition.y;
 			hbd.buttonName = friendList[0].guid;
-			hbd.textNormal = "A quick brown fox jumped over the lazy dog";
+			hbd.textNormal = friendList[0].name;
 			
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
 		    gc.EventFunction = "SetFriend";
@@ -216,6 +223,17 @@ public class ChallengePanel : HexPanel {
 		}
 	}
 	
+	public override void StateUpdate ()
+	{
+		base.StateUpdate ();
+		
+		if(threadComplete && notSet) {
+			AddChallengeHexes();
+			AddFriendHexes();
+			notSet = false;
+		}
+	}
+	
 	public void AddChallengeHexes() 
 	{
 		UnityEngine.Debug.Log("ChallengePanel: Checking for challenges");
@@ -243,8 +261,8 @@ public class ChallengePanel : HexPanel {
 			hbd.column = (int)currentPosition.x;
 			hbd.row = (int)currentPosition.y;
 			hbd.buttonName = challengeNotifications[0].GetID();
-			hbd.textNormal = "QWERTYUIOPQWERTYUIOP";
-			hbd.textSmall = SiDistanceUnitless(challengeNotifications[0].GetDistance());
+			hbd.textNormal = challengeNotifications[0].GetName();
+			hbd.textSmall = "\n" + SiDistanceUnitless(challengeNotifications[0].GetDistance());
 				
 			UnityEngine.Debug.Log("ChallengePanel: First button obtained, position is " + currentPosition.ToString());
 			
@@ -273,7 +291,7 @@ public class ChallengePanel : HexPanel {
 				hbd.column = (int)currentPosition.x;
 				hbd.row = (int)currentPosition.y;
 				hbd.buttonName = challengeNotifications[i].GetID();
-				hbd.textNormal = "QWERTYUIOPQWERTYUIOP";
+				hbd.textNormal = challengeNotifications[i].GetName();
 				hbd.textSmall = SiDistanceUnitless(challengeNotifications[i].GetDistance());
 					
 				gc = NewOutput(hbd.buttonName, "Flow");
