@@ -30,6 +30,13 @@ public class TrainController_Rescue : TargetController {
 	
 	public void BeginRace() {
 		hasBegunRace = true;
+		//start sounds, there should be a whistle
+		Component[] sources = GetComponents(typeof(AudioSource));
+		foreach(Component source in sources)
+		{
+			AudioSource audiosource = (AudioSource)source;
+			audiosource.Play();
+		}
 	}
 	
 	// Update is called once per frame
