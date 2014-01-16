@@ -722,6 +722,19 @@ public class GraphWindow : EditorWindow, IDraw
             EditorGUILayout.EndHorizontal();
             break;
 
+        case GraphValueType.Integer:
+            int oldIntValue = Convert.ToInt32(parm.Value);
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(width));
+            EditorGUILayout.LabelField(parm.Key, GUILayout.Width(width / 2));
+            int newIntValue = EditorGUILayout.IntField(oldIntValue);
+            if (newIntValue != oldIntValue)
+            {
+                parm.Value = ""+newIntValue;
+                dirtySave = true;
+            }
+            EditorGUILayout.EndHorizontal();
+            break;
+
         case GraphValueType.UIPrefab:
             EditorGUILayout.BeginHorizontal(GUILayout.Width(width));
             EditorGUILayout.LabelField(parm.Key, GUILayout.Width(width / 2));
@@ -900,7 +913,7 @@ public class GraphWindow : EditorWindow, IDraw
             }
             break;
 		default:
-            EditorGUILayout.LabelField(parm.Key);
+            EditorGUILayout.LabelField("unsuported "+parm.Key);
             EditorGUILayout.TextField(parm.Value);
 			break;
 		}

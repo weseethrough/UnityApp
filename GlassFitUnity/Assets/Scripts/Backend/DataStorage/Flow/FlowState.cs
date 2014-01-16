@@ -21,12 +21,12 @@ public abstract class FlowState : GNode
     public FlowStateMachine parentMachine;
 
     // do not let state switch outside of order. It might cause some states get unplugged from order list and result with unpredictable results    
-    private State m_state;   
-    private FlowState m_parent;    
-    private List<FlowState> m_children;
-    private Vector2 m_minimumChildBorder = new Vector2(100, 40);
-    private Vector2 m_toParentOffest;
-    private float m_enterTimeStamp;
+    protected State m_state;
+    protected FlowState m_parent;    
+    protected List<FlowState> m_children;
+    protected Vector2 m_minimumChildBorder = new Vector2(100, 40);
+    protected Vector2 m_toParentOffest;
+    protected float m_enterTimeStamp;
 
     public UnityEngine.Vector2 ParentOffest
     {
