@@ -28,6 +28,20 @@ public class MultiPanelChild : Panel
 	{
     }
 
+
+    /// <summary>
+    /// initializes node and creates name for child exit
+    /// </summary>
+    /// <returns></returns>
+    protected override void Initialize()
+    {        
+        Size = new Vector2(250, 80);                
+        NewParameter("Type", GraphValueType.UIPrefab, "");
+        NewParameter("Name", GraphValueType.String, "Set Panel Title");
+        NewParameter("Settings", GraphValueType.Settings, "");
+        NewParameter("Order", GraphValueType.Integer, "0");
+    }
+
     /// <summary>
     /// serialization function called by serializer
     /// </summary>
@@ -50,9 +64,9 @@ public class MultiPanelChild : Panel
         GParameter gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
-            return "MultiPanel: " + gName.Value;
+            return "MultiPanelChild: " + gName.Value;
         }
-        return "MultiPanel: UnInitialzied";
+        return "MultiPanelChild: UnInitialzied";
     }
     
     /// <summary>
@@ -123,4 +137,18 @@ public class MultiPanelChild : Panel
         base.Exited();
     }
 
+    /// <summary>
+    /// Returns screen order 
+    /// </summary>
+    /// <returns></returns>
+    public int GetOrder()
+    {
+        GParameter gName = Parameters.Find(r => r.Key == "Order");
+        if (gName != null)
+        {
+            return Convert.ToInt32(gName.Value);
+        }
+
+        return 0;
+    }
 }

@@ -71,7 +71,7 @@ public class MultiPanel : Panel
     {
         base.EnterStart();
 
-        currentSelection = 0;
+        currentSelection = -1;
         managedChildren = new List<MultiPanelChild>();
 
         foreach (FlowState fs in m_children)
@@ -80,11 +80,27 @@ public class MultiPanel : Panel
             {                
                 MultiPanelChild child = fs as MultiPanelChild;
                 child.ManagedEnter();
-                managedChildren.Add(child);
+                child.parentMachine = parentMachine;
+                bool inserted = false;
+
+                for (int i = 0; i < managedChildren.Count; i++)
+                {
+                    if (child.GetOrder() < managedChildren[i].GetOrder())
+                    {
+                        managedChildren.Insert(i, child);
+                        inserted = true;
+                        break;
+                    }
+                }
+
+                if (!inserted)
+                {
+                    managedChildren.Add(child);
+                }                                
             }
         }
-
-        OrderScreens();
+        
+        ArangeScreens();
     }
 
     /// <summary>
@@ -105,8 +121,7 @@ public class MultiPanel : Panel
     {
         base.StateUpdate();        
         Vector3 pos = Vector3.zero;
-
-        DataVault.Set("count", "Count: "+Input.touchCount+" with "+0);
+        
         if (Input.touchCount == 1)
         {
             
@@ -117,48 +132,47 @@ public class MultiPanel : Panel
 
             dragTime += Input.touches[0].deltaTime;
             dragOffset += 10.0f * Input.touches[0].deltaPosition.x / Screen.width;            
-            DataVault.Set("count", "Count: " + Input.touchCount + " with " + dragOffset);
+            
 
             pos.x = 0.0018f * (dragOffset * Screen.width) + firstOffset;
             managedChildren[0].physicalWidgetRoot.transform.position = pos;
 
             if (firstTweener!=null)
             {
-                //firstTweener.Reset();
                 firstTweener = null;
             }
         }
 
         if (Input.touchCount != 1 && dragOffset != 0)
         {
-            float animatedPosition = -managedChildren[0].physicalWidgetRoot.transform.position.x * (1.0f / 0.0018f) * 1.0f/Screen.width;
+
+            float acceleratedPosition = dragTime > 0 ? (dragOffset * 0.1f / dragTime) : 0.0f;
+            DataVault.Set("count", "accel " + acceleratedPosition);
+            float animatedPosition = - acceleratedPosition - managedChildren[0].physicalWidgetRoot.transform.position.x / (0.0018f * Screen.width);
             int index = Mathf.Max(0, Mathf.Min(managedChildren.Count-1, (int)(animatedPosition + 0.5f)));
             pos.x = 0.0018f * (-index * Screen.width);
-            firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.4f, pos);
+            firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.3f, pos);
+   
             dragOffset = 0;
             firstOffset = 0.0f;
+            dragTime = 0.0f;
         }
 
-        OrderScreens();        
+        ArangeScreens();        
     }
 
-    public void OrderScreens()
+    public void ArangeScreens()
     {
         firstGliph = managedChildren[0].physicalWidgetRoot.transform.position;
 
         for (int i =0; i< managedChildren.Count; i++)
         {
             Vector3 pos = Vector3.zero;
-            if (i == 0)
-            {
-                //managedChildren[i].physicalWidgetRoot.transform.position = firstGliph;    
-            }
-            else
-            {
+            if (i != 0)
+            {            
                 pos.x = 0.0018f * ((i) * Screen.width) + firstGliph.x;
                 managedChildren[i].physicalWidgetRoot.transform.position = pos;
             }
         }
     }
-
 }
