@@ -35,6 +35,7 @@ public class CameraFlythrough : MonoBehaviour {
 	protected float height = 0.0f;
 	
 	bool showSubtitleCard = false;
+	bool hudReturn = false;
 	
 	// Use this for initialization
 	void Start () {
@@ -159,14 +160,19 @@ public class CameraFlythrough : MonoBehaviour {
 		//wait a few seconds
 		yield return new WaitForSeconds(1.0f);
 		
+		UnityEngine.Debug.Log("CameraFly: Changing to subtitle");
+		
 		//show the subtitle card for a second
-		FollowFlowLinkNamed("Subtitle");		
+		if(!hudReturn) {
+			FollowFlowLinkNamed("Subtitle");		
+		}
 		
 		DataVault.Set("train_subtitle", "\"Help\"\n\"Please Save Me!\"");
 		yield return new WaitForSeconds(2.0f);
 		
 		//back to HUD
 		FollowFlowLinkNamed("Resume");
+		hudReturn = true;
 		
 		//wait another second on the maiden
 		yield return new WaitForSeconds(1.0f);
