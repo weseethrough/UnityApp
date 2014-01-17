@@ -29,7 +29,7 @@ public class CameraFlythrough : MonoBehaviour {
 	protected float endWaitTimer = 0.0f;
 	protected float endWaitDuration = 2.0f;
 	protected float endOffsetDist = 0.0f;
-	protected float heightDeltaMagnitude = 50.0f;
+	protected float heightDeltaMagnitude = 5.0f;
 	
 	protected float xOffset = 0.0f;
 	protected float height = 0.0f;
@@ -144,6 +144,7 @@ public class CameraFlythrough : MonoBehaviour {
 		{
 			Vector3 lookAtPos = damsel.transform.localPosition;
 			//fudge downwards. Seems necessary for some reason;
+			lookAtPos -= new Vector3(0,1,0);
 			transform.LookAt(lookAtPos);
 		}
 		else

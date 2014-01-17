@@ -7,7 +7,7 @@ public class DanselController : MonoBehaviour {
 	protected float xOffset;
 	protected float finish;
 	
-	protected float zOffset = 20.0f;
+	protected float zOffset = 10.0f;
 	// Use this for initialization
 	void Start () {
 			//ascertain finish distance

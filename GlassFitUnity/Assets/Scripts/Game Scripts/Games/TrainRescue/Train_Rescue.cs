@@ -5,6 +5,8 @@ using System;
 
 public class Train_Rescue : GameBase {
 	
+	bool finished = false;
+	
 	protected TrainController_Rescue train;
 	public GameObject trainObject = null;
 	public GameObject damsel = null;
@@ -124,10 +126,11 @@ public class Train_Rescue : GameBase {
 		}
 		
 		//check if the train has reached the end
-		if(train.GetForwardDistance() > finish)
+		if(train.GetForwardDistance() > finish && !finished)
 		{
 			//finish the game
 			FinishGame();
+			finished = true;
 		}
 	}
 	
