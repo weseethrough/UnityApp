@@ -165,7 +165,8 @@ public class GameSelectPanel : HexPanel
 		hbd.buttonName = "current_balance";
 		hbd.displayInfoData = false;
 		hbd.backgroundTileColor = 0x00A30EFF;
-		hbd.textNormal = Platform.Instance.GetCurrentMetabolism().ToString("f0") + "\n\n" + Platform.Instance.GetOpeningPointsBalance() + "RP";
+		hbd.textNormal = Platform.Instance.GetOpeningPointsBalance() + "RP";
+		hbd.textSmall = Platform.Instance.GetCurrentMetabolism().ToString("f0");
 		//hbd.imageName = "";
 		
 		//buttonData.Add(hbd);

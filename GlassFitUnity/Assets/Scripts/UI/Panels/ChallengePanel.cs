@@ -57,6 +57,7 @@ public class ChallengePanel : HexPanel {
 	// Use this for initialization
 	public override void EnterStart ()
 	{
+		DataVault.Set("highlight", " ");
 		challengeExit = Outputs.Find(r => r.Name == "challengeExit");
 		previousExit = Outputs.Find(r => r.Name == "previousExit");
 		sendExit = Outputs.Find(r => r.Name == "sendExit");
@@ -70,6 +71,8 @@ public class ChallengePanel : HexPanel {
 		//AddFriendHexes();
 		
 		Platform.Instance.SyncToServer();
+		
+		DataVault.Set("tutorial_hint", "Syncing with the server");
 		base.EnterStart ();
 	}
 	
@@ -95,6 +98,7 @@ public class ChallengePanel : HexPanel {
 		shandler = new Platform.OnSync(() => {
 			Platform.Instance.onSync -= shandler;				
 			UnityEngine.Debug.Log("ChallengePanel: about to lock datavault");
+			DataVault.Set("tutorial_hint", "Getting challenges and friends");
 			lock(DataVault.data) {
 				if (DataVault.Get("loaderthread") != null) return;
 				UnityEngine.Debug.Log("ChallengePanel: starting thread");
@@ -120,7 +124,10 @@ public class ChallengePanel : HexPanel {
 								Challenge potential = Platform.Instance.FetchChallenge(challengeId);
 								if(potential is DistanceChallenge) {
 									User user = Platform.Instance.GetUser(challengerId);
-									ChallengeNotification challengeNot = new ChallengeNotification(notification, potential, user);
+									//			UnityEngine.Debug.Log("ChallengeNotification: getting first track");
+									Track track = potential.UserTrack(user.id);
+									Track realTrack = Platform.Instance.FetchTrack(track.deviceId, track.trackId);
+									ChallengeNotification challengeNot = new ChallengeNotification(notification, potential, user, realTrack);
 									challengeNotifications.Add(challengeNot);
 								}
 							}
@@ -129,9 +136,7 @@ public class ChallengePanel : HexPanel {
 					finally {
 						DataVault.Remove("loaderthread");
 						
-						//AddChallengeHexes();
 						threadComplete = true;
-						//AddFriendHexes();
 #if !UNITY_EDITOR
 						AndroidJNI.DetachCurrentThread();
 #endif					
@@ -151,8 +156,6 @@ public class ChallengePanel : HexPanel {
 	public void AddFriendHexes()
 	{
 		friendList = Platform.Instance.Friends();
-		
-		
 		
 		if(friendList != null && friendList.Count > 0)
 		{
@@ -306,7 +309,8 @@ public class ChallengePanel : HexPanel {
 				
 			}
 			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
-        		list.UpdateButtonList();
+        	list.UpdateButtonList();
+			DataVault.Set("tutorial_hint", " ");
 		} else {
 			UnityEngine.Debug.Log("ChallengePanel: No challenges, setting widget");
 			MessageWidget.AddMessage("Sorry!", "You currently have no challenges", "activity_delete");
@@ -405,5 +409,11 @@ public class ChallengePanel : HexPanel {
 		//set the units string for the HUD
 		
 		return final + postfix;
+	}
+	
+	public override void Exited ()
+	{
+		base.Exited ();
+		DataVault.Set("tutorial_hint", " ");
 	}
 }

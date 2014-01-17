@@ -10,6 +10,11 @@ public class ChallengeGame : GameBase {
 	void Start () {
 		base.Start();
 		
+		if(finish == 0) 
+		{
+			finish = 500;
+		}
+		
 		Platform.Instance.ResetTargets();
 		
 		Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
