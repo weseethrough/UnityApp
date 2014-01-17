@@ -764,7 +764,7 @@ public class ButtonFunctionCollection
 		
 		string friendUid = friend.uid;
 		if (friend.userId.HasValue) friendUid = friend.userId.Value.ToString();
-		
+
 		Platform.Instance.QueueAction(string.Format(@"{{
 			'action' : 'challenge',
 			'target' : {0},
@@ -783,7 +783,7 @@ public class ButtonFunctionCollection
 			}}
 		}}", friendUid, track.distance, track.time, track.deviceId, track.trackId).Replace("'", "\""));
 		Debug.Log ("ButtonFunc: " + friendUid + " challenged");
-		MessageWidget.AddMessage("Challenge", "You challenged " + friendUid, "settings");
+		MessageWidget.AddMessage("Challenge", "You challenged " + friend.name, "settings");
 		Platform.Instance.SyncToServer();
 		
 		return true;
