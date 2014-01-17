@@ -14,6 +14,7 @@ public class HexPanel : Panel
     const string defaultExit = "Default Exit";
 
     public List<HexButtonData> buttonData;
+    public List<HexButtonData> buttonDataSource;
     private bool camStartMouseAction;
     private bool camStartTouchAction;
     private bool dirtyButtonData;
@@ -26,6 +27,7 @@ public class HexPanel : Panel
         : base()
     {
         buttonData = new List<HexButtonData>();
+        buttonDataSource = new List<HexButtonData>();
     }
 
     /// <summary>
@@ -42,10 +44,20 @@ public class HexPanel : Panel
             switch (entry.Name)
             {
                 case "buttonData":
-                    this.buttonData = entry.Value as List<HexButtonData>; 
+                    this.buttonDataSource = entry.Value as List<HexButtonData>;
+                    this.buttonData = CopyButtonList(this.buttonDataSource);
                     break;                
             }
         }
+    }
+
+    /// <summary>
+    /// Resets button data to serialized state. Use this only before EnterStart, this will not change currently visible buttons
+    /// </summary>
+    /// <returns></returns>
+    public void ResetButtonData()
+    {
+        this.buttonData = CopyButtonList(this.buttonDataSource);
     }
 
     /// <summary>
@@ -331,4 +343,20 @@ public class HexPanel : Panel
             );
     }
 
+
+    /// <summary>
+    /// Util function for copying list of button data. Used to ensure we have source for screen creation
+    /// </summary>
+    /// <param name="source"></param>
+    /// <returns></returns>
+    public List<HexButtonData> CopyButtonList(List<HexButtonData> source)
+    {
+        List<HexButtonData> newList = new List<HexButtonData>();
+        for (int i=0; i<source.Count; i++)
+        {
+            newList.Add(source[i].Copy());
+        }
+
+        return newList;
+    }
 }
