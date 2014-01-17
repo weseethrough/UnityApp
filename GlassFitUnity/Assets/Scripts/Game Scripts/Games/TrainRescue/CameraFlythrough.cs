@@ -39,6 +39,9 @@ public class CameraFlythrough : MonoBehaviour {
 	bool bStartedRoutine = false;
 	bool bStartedEndTurn = false;
 	
+	Quaternion camOrientation = Quaternion.identity;
+	bool shouldUseCamOrientation = true;
+	
 	// Use this for initialization
 	void Start () {
 		//Get the end distance
@@ -115,6 +118,14 @@ public class CameraFlythrough : MonoBehaviour {
 					StartCoroutine(MidFlythroughSequence());
 					bStartedRoutine = true;
 				}
+				else
+				{
+					//set the camera orientation here. Doing it from the coroutine is the wrong timing. Gets stomped by minimalsensorcam.
+					if(shouldUseCamOrientation)
+					{
+						transform.rotation = camOrientation;
+					}
+				}
 				distance = parametricDist * finish;
 				lookAtTarget = null;
 				break;
@@ -131,6 +142,7 @@ public class CameraFlythrough : MonoBehaviour {
 				lookAtTarget = train;
 				float offset = 0.0f;	//we'll be this far back from the train
 				distance = parametricDist * (finish + offset) - offset;
+				
 				break;
 			}
 		case FlythroughState.ViewTrain:
@@ -140,6 +152,14 @@ public class CameraFlythrough : MonoBehaviour {
 			{
 				StartCoroutine( EndFlythroughSequence() );
 				bStartedEndTurn = true;
+			}
+			else
+			{
+				//set the camera orientation here. Doing it from the coroutine is the wrong timing. Gets stomped by minimalsensorcam.
+				if(shouldUseCamOrientation)
+				{
+					transform.rotation = camOrientation;
+				}
 			}
 			break;
 		}
@@ -156,6 +176,8 @@ public class CameraFlythrough : MonoBehaviour {
 			//fudge downwards. Seems necessary for some reason;
 			lookAtPos = lookAtPos + new Vector3(0,0,0);
 			transform.LookAt(lookAtPos);
+			//store this orientation
+			camOrientation = transform.rotation;
 		}
 		else
 		{
@@ -179,12 +201,12 @@ public class CameraFlythrough : MonoBehaviour {
 		yield return new WaitForSeconds(2.0f);
 		
 		//back to HUD
-		FollowFlowLinkNamed("Resume");
+		FollowFlowLinkNamed("ToBlank");
 		hudReturn = true;
 		
 		//reset the gyros here
-		MinimalSensorCamera cam = (MinimalSensorCamera)GameObject.FindObjectOfType(typeof(MinimalSensorCamera));
-		cam.ResetGyro();
+//		MinimalSensorCamera cam = (MinimalSensorCamera)GameObject.FindObjectOfType(typeof(MinimalSensorCamera));
+//		cam.ResetGyro();
 		
 		//wait another second on the maiden
 		yield return new WaitForSeconds(1.0f);
@@ -195,18 +217,20 @@ public class CameraFlythrough : MonoBehaviour {
 		GameObject lookerAtter = new GameObject();
 		lookerAtter.transform.LookAt(train.transform.position);
 		
-		Quaternion source = transform.localRotation;
+		Quaternion source = camOrientation;
 		Quaternion target = lookerAtter.transform.localRotation;
 		
-		float t = 0;
+		float t = 0.0f;
 		
 		while(t < 1.0f)
 		{
 			if (t > 1.0f) { t = 1.0f; }
-			transform.localRotation = Quaternion.Lerp(source, target, t);
+			camOrientation = Quaternion.Lerp(source, target, t);
+			shouldUseCamOrientation = true;
 			t+= 1.0f * updateInterval;
 			yield return new WaitForSeconds(updateInterval);
 		}
+		//shouldUseCamOrientation = false;
 		
 		//move to next state of flythrough
 		state = FlythroughState.Backward;
@@ -215,6 +239,8 @@ public class CameraFlythrough : MonoBehaviour {
 	IEnumerator EndFlythroughSequence()
 	{
 		Quaternion forward = Quaternion.identity;
+		GameObject train = GameObject.Find("Train_Rescue");
+		transform.LookAt(train.transform.localPosition);
 		Quaternion current = transform.localRotation;
 		
 		float t = 0;
@@ -222,10 +248,13 @@ public class CameraFlythrough : MonoBehaviour {
 		while(t<1.0f)
 		{	
 			if(t>1.0f) { t = 1.0f; }
-			transform.localRotation = Quaternion.Lerp(current, forward, t);
+			UnityEngine.Debug.Log("TrainCamera: T = " + t );
+			camOrientation = Quaternion.Lerp(current, forward, t);
+			shouldUseCamOrientation = true;
 			t += 1.0f * interval;
 			yield return new WaitForSeconds(interval);
 		}
+		shouldUseCamOrientation = false;
 		
 		//wait half a second
 		yield return new WaitForSeconds(0.5f);
@@ -241,6 +270,10 @@ public class CameraFlythrough : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("CameraFlythrough: couldn't find game");	
 		}
 		UnityEngine.Debug.Log("Flythrough: completed. starting game");
+		
+		//reset the gyros here
+		MinimalSensorCamera cam = (MinimalSensorCamera)GameObject.FindObjectOfType(typeof(MinimalSensorCamera));
+		cam.ResetGyro();
 		
 //		//flash up another subtitle card warning of the train
 //		yield return new WaitForSeconds(0.5f);
