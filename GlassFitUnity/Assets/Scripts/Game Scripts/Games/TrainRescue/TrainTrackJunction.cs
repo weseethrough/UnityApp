@@ -35,6 +35,11 @@ public class TrainTrackJunction : MonoBehaviour {
 		{
 			trainComponent = train.GetComponent<TrainController_Rescue>();
 		}
+		
+#if UNITY_EDITOR
+	switched = true;
+#endif
+		
 	}
 	
 	public void setTrain(GameObject trainObject)

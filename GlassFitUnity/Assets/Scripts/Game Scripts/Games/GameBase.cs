@@ -84,7 +84,7 @@ public class GameBase : MonoBehaviour {
 	private GestureHelper.OnSwipeLeft leftHandler = null;
 	private GestureHelper.OnSwipeRight rightHandler = null;
 	
-	private GameObject virtualTrack;
+	protected GameObject theVirtualTrack;
 	
 	private int lastDistance;
 	
@@ -167,13 +167,13 @@ public class GameBase : MonoBehaviour {
 	
 	public void SetVirtualTrackVisible(bool visible)
 	{
-		if(virtualTrack == null)
+		if(theVirtualTrack == null)
 		{
-			virtualTrack = GameObject.Find("VirtualTrack");
+			theVirtualTrack = GameObject.Find("VirtualTrack");
 		}
-		if(virtualTrack != null)
+		if(theVirtualTrack != null)
 		{
-			virtualTrack.SetActive(visible);
+			theVirtualTrack.SetActive(visible);
 		}
 		else
 		{
@@ -283,7 +283,6 @@ public class GameBase : MonoBehaviour {
 	{
 		UnityEngine.Debug.Log("GameBase: Ending game");
 		GConnector gConnect = GetFinalConnection();
-		UnityEngine.Debug.Log("GameBase: got final connection");
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
@@ -305,7 +304,7 @@ public class GameBase : MonoBehaviour {
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowConnection(gConnect);
 		} else {
-			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
+			UnityEngine.Debug.Log("GameBase: No connection found - FinishButton");
 		}
 	}
 	

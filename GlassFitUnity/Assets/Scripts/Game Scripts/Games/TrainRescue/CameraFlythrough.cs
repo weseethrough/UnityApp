@@ -14,6 +14,9 @@ public class CameraFlythrough : MonoBehaviour {
 		Forward,
 		WaitingEnd,
 		Backward,
+		ToTrain,
+		ViewTrain,
+		ToStartLine,
 		Finished,
 	}
 	
@@ -63,6 +66,9 @@ public class CameraFlythrough : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		float distance = 0.0f;
+		GameObject lookAtTarget = null;
+		GameObject damsel = GameObject.Find("TracksDamsel");
+
 		//if we're currently flying through, move towards the next part of the curve.
 		switch(state)
 		{
@@ -89,6 +95,7 @@ public class CameraFlythrough : MonoBehaviour {
 				}
 				//set distance
 				distance = 	parametricDist * finish;
+				lookAtTarget = damsel;
 				break;
 			}
 			case FlythroughState.WaitingEnd:
@@ -103,7 +110,7 @@ public class CameraFlythrough : MonoBehaviour {
 				if(parametricDist < 0.0f) 
 				{ 
 					parametricDist = 0.0f; 
-					state = FlythroughState.Finished;
+					state = FlythroughState.ViewTrain;
 					//start the countdown
 					Train_Rescue game = (Train_Rescue)Component.FindObjectOfType(typeof(Train_Rescue));
 					if(game)
@@ -116,7 +123,8 @@ public class CameraFlythrough : MonoBehaviour {
 					}
 					UnityEngine.Debug.Log("Flythrough: completed. starting game");
 				}
-				distance = parametricDist * finish;
+				float offset = 50.0f;	//we'll be this far back from the train
+				distance = parametricDist * (finish + offset) - offset;
 				break;
 			}
 		}
@@ -126,13 +134,17 @@ public class CameraFlythrough : MonoBehaviour {
 		transform.localPosition = new Vector3(xOffset, height + getHeightDelta(), distance);
 		
 		//look at the damsel
-		GameObject damsel = GameObject.Find("TracksDamsel");
-		if(damsel)
+		if(lookAtTarget)
 		{
-			//get the midpoint
-			Renderer damselRenderer = (Renderer)damsel.GetComponentInChildren(typeof(Renderer));
-			Vector3 lookAtPos = damselRenderer.bounds.center;
+			//get the midpoint and look at it
+			Renderer targetRenderer = (Renderer)lookAtTarget.GetComponentInChildren(typeof(Renderer));
+			Vector3 lookAtPos = targetRenderer.bounds.center;
 			transform.LookAt(lookAtPos);
+		}
+		else
+		{
+			//look dead ahead
+			
 		}
 	}
 	
@@ -143,8 +155,10 @@ public class CameraFlythrough : MonoBehaviour {
 		
 		//show the subtitle card for a second
 		showSubtitleCard = true;
+//		DataVault.Set("train_subtitle", "Please Help Me!");
 		yield return new WaitForSeconds(2.0f);
 		showSubtitleCard = false;
+//		DataVault.Set("train_subtitle", " ");
 		
 		//wait another second on the maiden
 		yield return new WaitForSeconds(1.0f);
@@ -169,7 +183,7 @@ public class CameraFlythrough : MonoBehaviour {
 		if(showSubtitleCard)
 		{
 			//if we're at the end, show the subtitle card
-			Texture tex = Resources.Load("tint_green", typeof(Texture)) as Texture;
+			Texture tex = Resources.Load("Train_Rescue/SubtitleCard_Save", typeof(Texture)) as Texture;
 			Rect textureRect = new Rect(0, 0, Screen.width, Screen.height);
 			GUI.DrawTexture(textureRect, tex, ScaleMode.ScaleToFit, true);
 		}

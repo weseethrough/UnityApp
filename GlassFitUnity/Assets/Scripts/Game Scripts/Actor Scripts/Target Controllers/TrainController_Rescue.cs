@@ -12,9 +12,11 @@ public class TrainController_Rescue : TargetController {
 	protected bool isOnDetour = false;
 	protected float detourDistTravelled = 0.0f;
 	
-	public const float DETOUR_DISTANCE = 200.0f;
+	public const float DETOUR_DISTANCE = 300.0f;
 	
 	protected bool hasBegunRace = false;
+	protected float detourAngle = 0.0f;
+	protected float detourTurnRate = 5.0f;	//5 degrees per second.
 	
 	// Use this for initialization
 	void Start () {
@@ -104,21 +106,50 @@ public class TrainController_Rescue : TargetController {
 		else
 		{
 			float detourProgress = detourDistTravelled/DETOUR_DISTANCE;
-			//on detour
-			if(detourProgress < 0.33f)
-			{
-				//60 degrees away from straight forward
-				return new Vector3(0.86602540378f, 0.0f, 0.5f);
+			if(detourProgress < 0.1f)
+			{	
+				//turn towards 60 deg
+				detourAngle = 600.0f * detourProgress;
 			}
-			else if(detourProgress < 0.66f)
+			else if(detourProgress < 0.3f)
 			{
-				return new Vector3(0,0,1);
+				//straight
+				detourAngle = 60.0f;
+			}
+			else if(detourProgress < 0.4f)
+			{	
+				//turn towards 0 deg
+				detourAngle = 600.0f * (0.4f-detourProgress);
+			}
+			else if(detourProgress < 0.6f)
+			{
+				//straight
+				detourAngle = 0.0f;
+			}
+			else if(detourProgress < 0.7f)
+			{
+				//turn towards -60deg
+				detourAngle = -600.0f * (detourProgress - 0.6f);
+			}
+			else if(detourProgress < 0.9f)
+			{
+				//straight
+				detourAngle = -60.0f;
+			}
+			else if(detourProgress < 1.0f)
+			{
+				//turn towards 0 deg
+				detourAngle = -600.0f * (1.0f - detourProgress);
 			}
 			else
 			{
-				//60 degrees towards straight foward
-				return new Vector3(-0.86602540378f, 0.0f, 0.5f);
+				//detour over
+				isOnDetour = false;
 			}
+			
+			//calculate vector
+			detourAngle *= Mathf.Deg2Rad;
+			return new Vector3(Mathf.Sin(detourAngle), 0.0f, Mathf.Cos(detourAngle));
 		}
 	}
 	

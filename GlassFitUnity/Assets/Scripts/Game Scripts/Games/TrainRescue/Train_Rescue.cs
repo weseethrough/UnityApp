@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class Train_Rescue : GameBase {
@@ -8,8 +9,11 @@ public class Train_Rescue : GameBase {
 	public GameObject trainObject = null;
 	public GameObject damsel = null;
 	
-	float junctionSpacing = 200.0f;
+	float junctionSpacing = 300.0f;
 	bool bFailed = false;
+	
+	//list of track pieces we create for the flythrough.
+	protected List<GameObject> extraTrackPieces;
 	
 	// Use this for initialization
 	void Start () {
@@ -17,9 +21,12 @@ public class Train_Rescue : GameBase {
 		
 		train = trainObject.GetComponent<TrainController_Rescue>();
 		
+		//clear the subtitle
+		DataVault.Set("train_subtitle", " ");
+		
 		//set up a series of junctions for the train
 		//beginning at 200m
-		float junctionDist = 200.0f;
+		float junctionDist = 100.0f;
 		
 		selectedTrack = (Track)DataVault.Get("current_track");
 		
@@ -55,6 +62,44 @@ public class Train_Rescue : GameBase {
 			//move distance along
 			junctionDist += junctionSpacing;
 		}
+		
+		
+		//create some additional tracks to put on the flythrough
+		extraTrackPieces = new List<GameObject>();
+		float totalTrackDistCovered = 500.0f;	//half of one track obj
+		float trackPiecePosition = 0.0f;
+		
+		GameObject rightTrack = GameObject.Find("VirtualTrack");
+		if(rightTrack == null)
+		{
+			UnityEngine.Debug.Log("Train: couldn't find right hand track");
+		}
+		
+		GameObject leftTrack = GameObject.Find("VirtualTrainTrack");
+		if(leftTrack == null)
+		{
+			UnityEngine.Debug.Log("Train: couldn't find left hand track");
+		}
+		
+		while(totalTrackDistCovered <= finish + 500.0f)
+		{
+			//create another one, 1km further on
+			trackPiecePosition += 1000.0f;
+			
+			//duplicate existing track
+			GameObject newTrackPiece = GameObject.Instantiate(rightTrack) as GameObject;
+			newTrackPiece.transform.localPosition = newTrackPiece.transform.localPosition + new Vector3(0,0,trackPiecePosition);
+			extraTrackPieces.Add(newTrackPiece);
+			
+			GameObject newTrackPieceLeft = GameObject.Instantiate(leftTrack) as GameObject;
+			newTrackPieceLeft.transform.localPosition = newTrackPieceLeft.transform.localPosition + new Vector3(0,0,trackPiecePosition);
+			extraTrackPieces.Add(newTrackPieceLeft);
+			
+			totalTrackDistCovered += 1000.0f;
+			
+			UnityEngine.Debug.Log("Train: Added another piece of track");
+		}
+		
 	}
 		
 	protected override double GetDistBehindForHud ()
@@ -65,6 +110,11 @@ public class Train_Rescue : GameBase {
 	// Update is called once per frame
 	void Update () {
 		base.Update();
+		
+		if(Platform.Instance.IsIndoor())
+		{
+			DataVault.Set("calories", "INDOOR");
+		}
 		
 		//check if the train has reached the end
 		if(train.GetForwardDistance() > finish)
@@ -79,6 +129,11 @@ public class Train_Rescue : GameBase {
 //		base.SetReadyToStart (ready);
 //		train.BeginRace();
 		//start the flythrough
+		
+
+		
+
+		
 		CameraFlythrough flythrough = (CameraFlythrough)Component.FindObjectOfType(typeof(CameraFlythrough));
 		if(flythrough)
 		{
@@ -97,21 +152,34 @@ public class Train_Rescue : GameBase {
 	
 	public void StartCountdown()
 	{
+		//delete extra track pieces
+		foreach(GameObject piece in extraTrackPieces)
+		{
+			//Destroy(piece);	
+		}
+		
 		base.SetReadyToStart(true);
 		train.BeginRace();
+		//progress flow to the normal HUD
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Begin" );
+		if(gConnect != null)
+		{
+			fs.parentMachine.FollowConnection(gConnect);
+		}
 	}
 	
-	public override GConnector GetFinalConnection ()
-	{
-		if(bFailed)
-		{
-			//return a connector to the failure screen
-			return null;
-		}
-		else
-		{
-			//return a connector to the success screen	
-			return null;
-		}
-	}
+//	public override GConnector GetFinalConnection ()
+//	{
+//		if(bFailed)
+//		{
+//			//return a connector to the failure screen
+//			
+//		}
+//		else
+//		{
+//			//return a connector to the success screen	
+//			return null;
+//		}
+//	}
 }
