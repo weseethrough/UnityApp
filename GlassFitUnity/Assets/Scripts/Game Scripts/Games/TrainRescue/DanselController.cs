@@ -7,19 +7,23 @@ public class DanselController : MonoBehaviour {
 	protected float xOffset;
 	protected float finish;
 	
+	protected float zOffset = 20.0f;
 	// Use this for initialization
 	void Start () {
 			//ascertain finish distance
-			try {
-			Track selectedTrack = (Track)DataVault.Get("current_track");
-			if(selectedTrack != null) {
-				finish = (int)selectedTrack.distance;
-			} else {
-				finish = (int)DataVault.Get("finish");
-			}
-		} catch(Exception e) {
-			finish = 5000;	
-		}
+//			try {
+//			Track selectedTrack = (Track)DataVault.Get("current_track");
+//			if(selectedTrack != null) {
+//				finish = (int)selectedTrack.distance;
+//			} else {
+//				finish = (int)DataVault.Get("finish");
+//			}
+//		} catch(Exception e) {
+//			finish = 300;
+//		}
+		
+		finish = 350;
+		
 		xOffset = transform.localPosition.x;
 		height = transform.localPosition.y;
 	}
@@ -28,6 +32,6 @@ public class DanselController : MonoBehaviour {
 	void Update () {
 		float playerDistance = Platform.Instance.GetDistance();
 		//position us at the finish, relative to player
-		transform.localPosition = new Vector3(xOffset, height, finish-playerDistance);
+		transform.localPosition = new Vector3(xOffset, height, finish+zOffset-playerDistance);
 	}
 }

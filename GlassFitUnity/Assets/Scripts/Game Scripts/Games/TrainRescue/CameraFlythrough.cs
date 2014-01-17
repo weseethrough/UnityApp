@@ -28,8 +28,8 @@ public class CameraFlythrough : MonoBehaviour {
 	protected float parametricFlySpeed = 0.4f;
 	protected float endWaitTimer = 0.0f;
 	protected float endWaitDuration = 2.0f;
-	protected float endOffsetDist = 30.0f;
-	protected float heightDeltaMagnitude = 10.0f;
+	protected float endOffsetDist = 0.0f;
+	protected float heightDeltaMagnitude = 50.0f;
 	
 	protected float xOffset = 0.0f;
 	protected float height = 0.0f;
@@ -67,7 +67,7 @@ public class CameraFlythrough : MonoBehaviour {
 	void Update () {
 		float distance = 0.0f;
 		GameObject lookAtTarget = null;
-		GameObject damsel = GameObject.Find("TracksDamsel");
+		GameObject damsel = GameObject.Find("Tracks_Damsel");
 
 		//if we're currently flying through, move towards the next part of the curve.
 		switch(state)
@@ -102,6 +102,7 @@ public class CameraFlythrough : MonoBehaviour {
 			{
 				StartCoroutine(MidFlythroughSequence());
 				distance = parametricDist * finish;
+				lookAtTarget = damsel;
 				break;
 			}
 			case FlythroughState.Backward:
@@ -127,6 +128,11 @@ public class CameraFlythrough : MonoBehaviour {
 				distance = parametricDist * (finish + offset) - offset;
 				break;
 			}
+		case FlythroughState.ViewTrain:
+		{
+			//turn towards train	
+			break;
+		}
 		}
 		
 		//add lofted height delta
@@ -136,9 +142,8 @@ public class CameraFlythrough : MonoBehaviour {
 		//look at the damsel
 		if(lookAtTarget)
 		{
-			//get the midpoint and look at it
-			Renderer targetRenderer = (Renderer)lookAtTarget.GetComponentInChildren(typeof(Renderer));
-			Vector3 lookAtPos = targetRenderer.bounds.center;
+			Vector3 lookAtPos = damsel.transform.localPosition;
+			//fudge downwards. Seems necessary for some reason;
 			transform.LookAt(lookAtPos);
 		}
 		else
@@ -154,11 +159,13 @@ public class CameraFlythrough : MonoBehaviour {
 		yield return new WaitForSeconds(1.0f);
 		
 		//show the subtitle card for a second
-		showSubtitleCard = true;
-//		DataVault.Set("train_subtitle", "Please Help Me!");
+		FollowFlowLinkNamed("Subtitle");		
+		
+		DataVault.Set("train_subtitle", "\"Help\"\n\"Please Save Me!\"");
 		yield return new WaitForSeconds(2.0f);
-		showSubtitleCard = false;
-//		DataVault.Set("train_subtitle", " ");
+		
+		//back to HUD
+		FollowFlowLinkNamed("Resume");
 		
 		//wait another second on the maiden
 		yield return new WaitForSeconds(1.0f);
@@ -166,6 +173,21 @@ public class CameraFlythrough : MonoBehaviour {
 		//move to next state of flythrough
 		state = FlythroughState.Backward;
 	}
+	
+	protected void FollowFlowLinkNamed(string linkName)
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find( r => r.Name == linkName );
+		if(gConnect != null)
+		{
+			fs.parentMachine.FollowConnection(gConnect);
+		}
+		else
+		{
+			UnityEngine.Debug.LogWarning("Train, CameraFlythrough: Couldn't fine flow exit named " + linkName);
+		}
+	}
+
 	
 	//smoothly add a bit of height as we fly through
 	float getHeightDelta()
@@ -175,18 +197,18 @@ public class CameraFlythrough : MonoBehaviour {
 		return heightDeltaScale * heightDeltaMagnitude;
 	}
 	
-	void OnGUI() {
-		if(state != FlythroughState.Finished)
-		{
-			//render some black bars top and bottom of screen
-		}
-		if(showSubtitleCard)
-		{
-			//if we're at the end, show the subtitle card
-			Texture tex = Resources.Load("Train_Rescue/SubtitleCard_Save", typeof(Texture)) as Texture;
-			Rect textureRect = new Rect(0, 0, Screen.width, Screen.height);
-			GUI.DrawTexture(textureRect, tex, ScaleMode.ScaleToFit, true);
-		}
-			
-	}
+//	void OnGUI() {
+//		if(state != FlythroughState.Finished)
+//		{
+//			//render some black bars top and bottom of screen
+//		}
+//		if(showSubtitleCard)
+//		{
+//			//if we're at the end, show the subtitle card
+//			Texture tex = Resources.Load("Train_Rescue/SubtitleCard_Save", typeof(Texture)) as Texture;
+//			Rect textureRect = new Rect(0, 0, Screen.width, Screen.height);
+//			GUI.DrawTexture(textureRect, tex, ScaleMode.ScaleToFit, true);
+//		}
+//			
+//	}
 }

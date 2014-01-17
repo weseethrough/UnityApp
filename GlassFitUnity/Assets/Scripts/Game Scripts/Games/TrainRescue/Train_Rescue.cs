@@ -9,7 +9,7 @@ public class Train_Rescue : GameBase {
 	public GameObject trainObject = null;
 	public GameObject damsel = null;
 	
-	float junctionSpacing = 300.0f;
+	float junctionSpacing = 250.0f;
 	bool bFailed = false;
 	
 	//list of track pieces we create for the flythrough.
@@ -24,38 +24,45 @@ public class Train_Rescue : GameBase {
 		//clear the subtitle
 		DataVault.Set("train_subtitle", " ");
 		
+		
 		//set up a series of junctions for the train
 		//beginning at 200m
-		float junctionDist = 100.0f;
+		float junctionDist = 75.0f;
 		
 		selectedTrack = (Track)DataVault.Get("current_track");
 		
-		try {
-			if(selectedTrack != null) {
-				finish = (int)selectedTrack.distance;
-			} else {
-				finish = (int)DataVault.Get("finish");
-			}
-		} catch(Exception e) {
-			finish = 5000;	
-		}
+		//set the distance to 300m
+		DataVault.Set("finish", 350);
+		finish = 350;
+		//force indoor
+		Platform.Instance.SetIndoor(true);
+		
+//		try {
+//			if(selectedTrack != null) {
+//				finish = (int)selectedTrack.distance;
+//			} else {
+//				finish = (int)DataVault.Get("finish");
+//			}
+//		} catch(Exception e) {
+//			finish = 5000;	
+//		}
 		
 		UnityEngine.Debug.Log("Train: finish = " + finish);
 		
 		bool bDoneFirstOne = false;
 		
-		while(junctionDist < (finish - 500.0f))
+		while(junctionDist < 500.0f)
 		{
 			//create a junction
 			GameObject junctionObject = (GameObject)Instantiate(Resources.Load("TrainJunction"));
 			TrainTrackJunction junction = junctionObject.GetComponent<TrainTrackJunction>();
 			junction.setTrain(trainObject);
 			
-			if(!bDoneFirstOne)
-			{
-				junction.SwitchOnDetour();
-				bDoneFirstOne = true;
-			}
+//			if(!bDoneFirstOne)
+//			{
+//				junction.SwitchOnDetour();
+//				bDoneFirstOne = true;
+//			}
 			
 			junction.distancePosition = junctionDist;
 			
@@ -169,17 +176,36 @@ public class Train_Rescue : GameBase {
 		}
 	}
 	
-//	public override GConnector GetFinalConnection ()
-//	{
-//		if(bFailed)
-//		{
-//			//return a connector to the failure screen
-//			
-//		}
-//		else
-//		{
-//			//return a connector to the success screen	
-//			return null;
-//		}
-//	}
+	public override GConnector GetFinalConnection ()
+	{
+		if(bFailed)
+		{
+			DataVault.Set("train_subtitle", "\"Aaaaargh!\"");
+		}
+		else
+		{
+			DataVault.Set("train_subtitle", "\"My Hero!\"");
+		}
+
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Subtitle" );
+		
+		//fire off coroutine to progress past this screen in 2 seconds
+		StartCoroutine( ProgressToFinish() );
+		
+		return gConnect;
+	}
+	
+	IEnumerator ProgressToFinish()
+	{
+		//wait for 2s then continue
+		yield return new WaitForSeconds(5.0f);
+		
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Finish");
+		if(gConnect != null)
+		{
+			fs.parentMachine.FollowConnection(gConnect);
+		}
+	}
 }

@@ -344,8 +344,8 @@ public class Platform : MonoBehaviour {
 			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				gps.Call("setIndoorMode", indoor);
 				if (indoor) {
-				    gps.Call("setIndoorSpeed", 7.0f);
-				    UnityEngine.Debug.Log("Platform: Indoor mode set to true, indoor speed = 2.0m/s");
+				    gps.Call("setIndoorSpeed", 4.16f);
+				    UnityEngine.Debug.Log("Platform: Indoor mode set to true, indoor speed = 4 min/km");
 				} else {
 					UnityEngine.Debug.Log("Platform: Indoor mode set to false, will use true GPS speed");
 				}
