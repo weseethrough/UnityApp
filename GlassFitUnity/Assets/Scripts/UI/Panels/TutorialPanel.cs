@@ -184,7 +184,7 @@ public class TutorialPanel : HexPanel
             hbd.row = -1;
             hbd.column = 0;
             hbd.buttonName = "LookHex";
-            hbd.displayInfoData = false;
+            hbd.displayInfoData = true;
             hbd.textNormal = "Look at this hex to select it";
             hbd.allowEarlyHover = true;
 			
@@ -293,7 +293,7 @@ public class TutorialPanel : HexPanel
 	            hbd.row = 0;
 	            hbd.column = 1;
 	            hbd.buttonName = "NiceHex";
-	            hbd.displayInfoData = false;
+	            hbd.displayInfoData = true;
 	            hbd.textNormal = "Nice!";
                 hbd.allowEarlyHover = true;
 				
@@ -308,7 +308,7 @@ public class TutorialPanel : HexPanel
 	            hbd.row = 1;
 	            hbd.column = 0;
 	            hbd.buttonName = "TheseHex";
-	            hbd.displayInfoData = false;
+                hbd.displayInfoData = true;
 	            hbd.textNormal = "These hexes";
                 hbd.allowEarlyHover = true;
 				
