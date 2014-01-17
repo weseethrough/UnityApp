@@ -63,7 +63,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 	}
 	
-	void ResetGyro() 
+	public void ResetGyro() 
 	{
 #if !UNITY_EDITOR
 		// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on

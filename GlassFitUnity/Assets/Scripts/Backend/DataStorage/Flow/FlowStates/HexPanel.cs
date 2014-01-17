@@ -110,7 +110,7 @@ public class HexPanel : Panel
     {
         base.RebuildConnections();
 
-        NewOutput(defaultExit, "Flow");		
+        NewOutput(defaultExit, "Flow");
     }
 
     /// <summary>
@@ -119,6 +119,9 @@ public class HexPanel : Panel
     /// <returns></returns>
     public override void EnterStart()
     {
+		
+	    //UnityEngine.Debug.Log("TutorialPanel: setting two finger tap");
+		
         base.EnterStart();
 
         if (physicalWidgetRoot != null)
@@ -165,7 +168,7 @@ public class HexPanel : Panel
         foreach (HexButtonData data in buttonData)
         {
             data.markedForVisualRefresh = true;
-        }        
+        } 
     }
 
     /// <summary>

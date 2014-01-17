@@ -49,6 +49,7 @@ public class TutorialPanel : HexPanel
     /// <returns></returns>
     public override void EnterStart()
     {
+		//ResetButtonData();
 		UnityEngine.Debug.Log("TutorialPanel: setting two finger tap");
 		
 		DataVault.Set("rp", Platform.Instance.GetOpeningPointsBalance());

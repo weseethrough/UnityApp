@@ -37,6 +37,7 @@ public class CameraFlythrough : MonoBehaviour {
 	bool showSubtitleCard = false;
 	bool hudReturn = false;
 	bool bStartedRoutine = false;
+	bool bStartedEndTurn = false;
 	
 	// Use this for initialization
 	void Start () {
@@ -76,6 +77,7 @@ public class CameraFlythrough : MonoBehaviour {
 		float distance = 0.0f;
 		GameObject lookAtTarget = null;
 		GameObject damsel = GameObject.Find("Damsel_Tracks");
+		GameObject train = GameObject.Find("Train_Rescue");
 
 		//if we're currently flying through, move towards the next part of the curve.
 		switch(state)
@@ -114,7 +116,7 @@ public class CameraFlythrough : MonoBehaviour {
 					bStartedRoutine = true;
 				}
 				distance = parametricDist * finish;
-				lookAtTarget = damsel;
+				lookAtTarget = null;
 				break;
 			}
 			case FlythroughState.Backward:
@@ -124,26 +126,21 @@ public class CameraFlythrough : MonoBehaviour {
 				{ 
 					parametricDist = 0.0f; 
 					state = FlythroughState.ViewTrain;
-					//start the countdown
-					Train_Rescue game = (Train_Rescue)Component.FindObjectOfType(typeof(Train_Rescue));
-					if(game)
-					{
-						game.StartCountdown();	
-					}
-					else
-					{
-						UnityEngine.Debug.LogWarning("CameraFlythrough: couldn't find game");	
-					}
-					UnityEngine.Debug.Log("Flythrough: completed. starting game");
-					lookAtTarget = damsel;
+
 				}
-				float offset = 50.0f;	//we'll be this far back from the train
+				lookAtTarget = train;
+				float offset = 0.0f;	//we'll be this far back from the train
 				distance = parametricDist * (finish + offset) - offset;
 				break;
 			}
 		case FlythroughState.ViewTrain:
 		{
-			//turn towards train	
+			//turn towards forward
+			if(!bStartedEndTurn)
+			{
+				StartCoroutine( EndFlythroughSequence() );
+				bStartedEndTurn = true;
+			}
 			break;
 		}
 		}
@@ -185,8 +182,31 @@ public class CameraFlythrough : MonoBehaviour {
 		FollowFlowLinkNamed("Resume");
 		hudReturn = true;
 		
+		//reset the gyros here
+		MinimalSensorCamera cam = (MinimalSensorCamera)GameObject.FindObjectOfType(typeof(MinimalSensorCamera));
+		cam.ResetGyro();
+		
 		//wait another second on the maiden
 		yield return new WaitForSeconds(1.0f);
+		
+		//turn around
+		float updateInterval = 0.025f;
+		GameObject train = GameObject.Find("Train_Rescue");
+		GameObject lookerAtter = new GameObject();
+		lookerAtter.transform.LookAt(train.transform.position);
+		
+		Quaternion source = transform.localRotation;
+		Quaternion target = lookerAtter.transform.localRotation;
+		
+		float t = 0;
+		
+		while(t < 1.0f)
+		{
+			if (t > 1.0f) { t = 1.0f; }
+			transform.localRotation = Quaternion.Lerp(source, target, t);
+			t+= 1.0f * updateInterval;
+			yield return new WaitForSeconds(updateInterval);
+		}
 		
 		//move to next state of flythrough
 		state = FlythroughState.Backward;
@@ -194,11 +214,39 @@ public class CameraFlythrough : MonoBehaviour {
 	
 	IEnumerator EndFlythroughSequence()
 	{
-		//flash up another subtitle card warning of the train
+		Quaternion forward = Quaternion.identity;
+		Quaternion current = transform.localRotation;
+		
+		float t = 0;
+		float interval = 0.025f;
+		while(t<1.0f)
+		{	
+			if(t>1.0f) { t = 1.0f; }
+			transform.localRotation = Quaternion.Lerp(current, forward, t);
+			t += 1.0f * interval;
+			yield return new WaitForSeconds(interval);
+		}
+		
+		//wait half a second
 		yield return new WaitForSeconds(0.5f);
 		
-		UnityEngine.Debug.Log("CameraFly: Changing to 'oh no!' subtitle");
-		DataVault.Set("train_subtitle", "\"Oh No! A Train!\"");
+		//start the countdown
+		Train_Rescue game = (Train_Rescue)Component.FindObjectOfType(typeof(Train_Rescue));
+		if(game)
+		{
+			game.StartCountdown();	
+		}
+		else
+		{
+			UnityEngine.Debug.LogWarning("CameraFlythrough: couldn't find game");	
+		}
+		UnityEngine.Debug.Log("Flythrough: completed. starting game");
+		
+//		//flash up another subtitle card warning of the train
+//		yield return new WaitForSeconds(0.5f);
+//		
+//		UnityEngine.Debug.Log("CameraFly: Changing to 'oh no!' subtitle");
+//		DataVault.Set("train_subtitle", "\"Oh No! A Train!\"");
 	}
 	
 	protected void FollowFlowLinkNamed(string linkName)

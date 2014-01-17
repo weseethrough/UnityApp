@@ -54,24 +54,24 @@ public class Train_Rescue : GameBase {
 		
 		bool bDoneFirstOne = false;
 		
-		while(junctionDist < 500.0f)
-		{
-			//create a junction
-			GameObject junctionObject = (GameObject)Instantiate(Resources.Load("TrainJunction"));
-			TrainTrackJunction junction = junctionObject.GetComponent<TrainTrackJunction>();
-			junction.setTrain(trainObject);
-			
-//			if(!bDoneFirstOne)
-//			{
-//				junction.SwitchOnDetour();
-//				bDoneFirstOne = true;
-//			}
-			
-			junction.distancePosition = junctionDist;
-			
-			//move distance along
-			junctionDist += junctionSpacing;
-		}
+//		while(junctionDist < 500.0f)
+//		{
+//			//create a junction
+//			GameObject junctionObject = (GameObject)Instantiate(Resources.Load("TrainJunction"));
+//			TrainTrackJunction junction = junctionObject.GetComponent<TrainTrackJunction>();
+//			junction.setTrain(trainObject);
+//			
+////			if(!bDoneFirstOne)
+////			{
+////				junction.SwitchOnDetour();
+////				bDoneFirstOne = true;
+////			}
+//			
+//			junction.distancePosition = junctionDist;
+//			
+//			//move distance along
+//			junctionDist += junctionSpacing;
+//		}
 		
 		
 		//create some additional tracks to put on the flythrough
