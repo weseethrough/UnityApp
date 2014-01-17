@@ -27,7 +27,7 @@ public class GameBase : MonoBehaviour {
 
 	//public bool indoor = true;
 
-	private bool hasEnded = false;
+	protected bool hasEnded = false;
 	
 	protected bool maybeQuit = false;
 	
@@ -127,6 +127,9 @@ public class GameBase : MonoBehaviour {
 		} else {
 			finish = (int)DataVault.Get("finish");
 		}
+		
+		//hack for train demo
+		finish = 350;
 
 #endif	
 		UnityEngine.Debug.Log("BaseGame: finish distance is " + finish);

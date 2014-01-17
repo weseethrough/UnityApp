@@ -36,6 +36,7 @@ public class CameraFlythrough : MonoBehaviour {
 	
 	bool showSubtitleCard = false;
 	bool hudReturn = false;
+	bool bStartedRoutine = false;
 	
 	// Use this for initialization
 	void Start () {
@@ -51,12 +52,18 @@ public class CameraFlythrough : MonoBehaviour {
 			finish = 5000;	
 		}
 		
+		finish = 350;
+		
 		//make it so we stop short of the damsel herself.
 		finish -= endOffsetDist;
 		
 		xOffset = transform.localPosition.x;
 		height = transform.localPosition.y;
 		
+#if UNITY_EDITOR
+		StartFlythrough();
+#endif
+			
 	}
 	
 	public void StartFlythrough()
@@ -68,7 +75,7 @@ public class CameraFlythrough : MonoBehaviour {
 	void Update () {
 		float distance = 0.0f;
 		GameObject lookAtTarget = null;
-		GameObject damsel = GameObject.Find("Tracks_Damsel");
+		GameObject damsel = GameObject.Find("Damsel_Tracks");
 
 		//if we're currently flying through, move towards the next part of the curve.
 		switch(state)
@@ -101,7 +108,11 @@ public class CameraFlythrough : MonoBehaviour {
 			}
 			case FlythroughState.WaitingEnd:
 			{
-				StartCoroutine(MidFlythroughSequence());
+				if(!bStartedRoutine)
+				{
+					StartCoroutine(MidFlythroughSequence());
+					bStartedRoutine = true;
+				}
 				distance = parametricDist * finish;
 				lookAtTarget = damsel;
 				break;
@@ -124,6 +135,7 @@ public class CameraFlythrough : MonoBehaviour {
 						UnityEngine.Debug.LogWarning("CameraFlythrough: couldn't find game");	
 					}
 					UnityEngine.Debug.Log("Flythrough: completed. starting game");
+					lookAtTarget = damsel;
 				}
 				float offset = 50.0f;	//we'll be this far back from the train
 				distance = parametricDist * (finish + offset) - offset;
@@ -141,17 +153,16 @@ public class CameraFlythrough : MonoBehaviour {
 		transform.localPosition = new Vector3(xOffset, height + getHeightDelta(), distance);
 		
 		//look at the damsel
-		if(lookAtTarget)
+		if(lookAtTarget != null)
 		{
-			Vector3 lookAtPos = damsel.transform.localPosition;
+			Vector3 lookAtPos = lookAtTarget.transform.localPosition;
 			//fudge downwards. Seems necessary for some reason;
-			lookAtPos -= new Vector3(0,1,0);
+			lookAtPos = lookAtPos + new Vector3(0,0,0);
 			transform.LookAt(lookAtPos);
 		}
 		else
 		{
-			//look dead ahead
-			
+			//do nothing
 		}
 	}
 	
@@ -167,7 +178,7 @@ public class CameraFlythrough : MonoBehaviour {
 			FollowFlowLinkNamed("Subtitle");		
 		}
 		
-		DataVault.Set("train_subtitle", "\"Help\"\n\"Please Save Me!\"");
+		DataVault.Set("train_subtitle", "\"Help\"\n\n\"Please Save Me!\"");
 		yield return new WaitForSeconds(2.0f);
 		
 		//back to HUD
@@ -179,6 +190,15 @@ public class CameraFlythrough : MonoBehaviour {
 		
 		//move to next state of flythrough
 		state = FlythroughState.Backward;
+	}
+	
+	IEnumerator EndFlythroughSequence()
+	{
+		//flash up another subtitle card warning of the train
+		yield return new WaitForSeconds(0.5f);
+		
+		UnityEngine.Debug.Log("CameraFly: Changing to 'oh no!' subtitle");
+		DataVault.Set("train_subtitle", "\"Oh No! A Train!\"");
 	}
 	
 	protected void FollowFlowLinkNamed(string linkName)

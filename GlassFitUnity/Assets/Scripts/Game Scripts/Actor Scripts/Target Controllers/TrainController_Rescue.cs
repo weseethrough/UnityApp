@@ -4,7 +4,7 @@ using System.Collections;
 public class TrainController_Rescue : TargetController {
 	
 	protected float headStartDistance = 0.0f;
-	protected float currentMovementSpeed = 5.25f;
+	protected float currentMovementSpeed = 5.00f;
 	protected float timeRunStarted;
 	protected float playerDistance = 0.0f;
 	

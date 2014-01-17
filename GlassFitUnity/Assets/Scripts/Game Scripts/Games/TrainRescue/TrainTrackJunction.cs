@@ -20,6 +20,9 @@ public class TrainTrackJunction : MonoBehaviour {
 	
 	protected float leverTriggerRange = 30.0f;
 	
+	AudioSource bell = null;
+	AudioSource leverClunk = null;
+	
 	public GameObject lever = null;
 	
 	float xOffset = 0.0f;
@@ -31,10 +34,11 @@ public class TrainTrackJunction : MonoBehaviour {
 		xOffset = transform.position.x;
 		height = transform.position.y;
 		
-		if(train != null)
-		{
-			trainComponent = train.GetComponent<TrainController_Rescue>();
-		}
+		trainComponent = train.GetComponent<TrainController_Rescue>();
+		var aSources = gameObject.GetComponents<AudioSource>();
+		bell = aSources[0];
+		leverClunk = aSources[1];
+
 		
 #if UNITY_EDITOR
 	switched = true;
@@ -45,6 +49,14 @@ public class TrainTrackJunction : MonoBehaviour {
 	public void setTrain(GameObject trainObject)
 	{
 		trainComponent = trainObject.GetComponent<TrainController_Rescue>();	
+		train = trainObject;
+		if(train != null)
+		{
+			trainComponent = train.GetComponent<TrainController_Rescue>();
+			var aSources = GetComponents<AudioSource>();
+			bell = aSources[0];
+			leverClunk = aSources[1];
+		}
 	}
 	
 	public void SwitchOnDetour()
@@ -57,6 +69,7 @@ public class TrainTrackJunction : MonoBehaviour {
 			Vector3 rotation = lever.transform.localEulerAngles;
 			rotation.z = rotation.z * -1.0f;
 			lever.transform.localEulerAngles = rotation;
+			leverClunk.Play();
 		}
 	}
 	
@@ -69,9 +82,6 @@ public class TrainTrackJunction : MonoBehaviour {
 			if(Platform.Instance.GetDistance() + leverTriggerRange > distancePosition && !trainHasPassed)
 			{
 				SwitchOnDetour();
-				//play sound
-				AudioSource source = (AudioSource)GetComponent(typeof(AudioSource));
-				source.Play();
 			}
 		}
 		
@@ -83,6 +93,10 @@ public class TrainTrackJunction : MonoBehaviour {
 				trainHasPassed = true;
 				if(switched)
 				{
+					if(bell)
+					{
+						bell.Play();
+					}
 					trainComponent.BeginDetour();
 				}
 			}

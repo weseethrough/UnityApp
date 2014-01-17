@@ -17,6 +17,7 @@ public class Train_Rescue : GameBase {
 	//list of track pieces we create for the flythrough.
 	protected List<GameObject> extraTrackPieces;
 	
+	bool bWaitedForSubtitleTimeOut = false;
 	// Use this for initialization
 	void Start () {
 		base.Start();
@@ -106,13 +107,17 @@ public class Train_Rescue : GameBase {
 			
 			totalTrackDistCovered += 1000.0f;
 			
-			UnityEngine.Debug.Log("Train: Added another piece of track");
+			//UnityEngine.Debug.Log("Train: Added another piece of track");
 		}
 		
 	}
 		
 	protected override double GetDistBehindForHud ()
 	{
+		if(train == null)
+		{
+			train = trainObject.GetComponent<TrainController_Rescue>();
+		}
 		return train.GetDistanceBehindTarget();
 	}
 	
@@ -125,13 +130,18 @@ public class Train_Rescue : GameBase {
 			DataVault.Set("calories", "INDOOR");
 		}
 		
-		//check if the train has reached the end
-		if(train.GetForwardDistance() > finish && !finished)
+		if(!finished && !hasEnded)
 		{
-			//finish the game
-			FinishGame();
-			finished = true;
+			//check if the train has reached the end
+			if(train.GetForwardDistance() > finish && !finished)
+			{
+				//finish the game
+				bFailed = true;
+				FinishGame();
+				finished = true;
+			}
 		}
+		
 	}
 	
 	public override void SetReadyToStart (bool ready)
@@ -169,6 +179,10 @@ public class Train_Rescue : GameBase {
 		}
 		
 		base.SetReadyToStart(true);
+		if(train == null)
+		{
+			train = trainObject.GetComponent<TrainController_Rescue>();
+		}
 		train.BeginRace();
 		//progress flow to the normal HUD
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
@@ -201,6 +215,7 @@ public class Train_Rescue : GameBase {
 	
 	IEnumerator ProgressToFinish()
 	{
+		UnityEngine.Debug.Log("TrainGame: Progressing to finish in 5 seconds");
 		//wait for 2s then continue
 		yield return new WaitForSeconds(5.0f);
 		
@@ -210,5 +225,11 @@ public class Train_Rescue : GameBase {
 		{
 			fs.parentMachine.FollowConnection(gConnect);
 		}
+		else
+		{
+			UnityEngine.Debug.LogWarning("Train: Couldn't find Finish connector!");	
+		}
+		
+
 	}
 }
