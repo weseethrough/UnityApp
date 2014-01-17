@@ -26,7 +26,7 @@ public class HexInfoManager : MonoBehaviour
     
     public const string DV_HEX_DATA = "HexInfoDataBlock";
 
-    float maximumDelay = 0.10f;
+    float maximumDelay = 1.00f;
     float currentDelay;
     bool hexInfoRequired;
 
@@ -83,7 +83,7 @@ public class HexInfoManager : MonoBehaviour
             icon = go.GetComponentInChildren<UISprite>();
         }
 
-        go = GameObject.Find("BuyNowBcg");
+        go = GameObject.Find("BuyPrice");
         if (go != null)
         {
             buyNowBcg = go;
@@ -143,31 +143,19 @@ public class HexInfoManager : MonoBehaviour
             if (title == null)
             {
                 FindComponents();
-            }
-            //at this stage we will crash if those components doesn't exist. We want to catch it as soon as possible
-            title.text = data.activityName;
-            content.text = data.activityContent;
-            icon.spriteName = data.imageName;
-            textualIcon.text = data.textNormal;
+            }            
 
-            if (data.locked == true)
-            {
-                buyNowBcg.SetActive(true);
-                buyNowText.SetActive(true); 
-                buyNowPrice.SetActive(true);
+            //title.text = ;
+            //content.text = data.activityContent;
+            //icon.spriteName = data.imageName;
+            //textualIcon.text = data.textNormal;
 
-                UILabel label = buyNowPrice.GetComponentInChildren<UILabel>();
-                if (label != null)
-                {
-                    label.text = data.activityPrice + " RP";
-                }
-            }
-            else
-            {
-                buyNowBcg.SetActive(false);
-                buyNowText.SetActive(false);
-                buyNowPrice.SetActive(false); 
-            }
+            buyNowBcg.SetActive(data.locked);                
+
+            DataVault.Set("hex_info_title", data.activityName);
+            DataVault.Set("hex_info_content", data.activityContent);
+            DataVault.Set("current_activity_cost", data.activityPrice);            
+
 
             ActiveAnimation activeAnim = ActiveAnimation.Play(animation, anmationName, AnimationOrTween.Direction.Forward);
             activeAnim.Reset();
