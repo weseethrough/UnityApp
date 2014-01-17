@@ -297,11 +297,15 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.StopTrack();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
-			tapHandler = new GestureHelper.OnTap(() => {
-				Continue();
-			});
-			GestureHelper.onTap += tapHandler;
 			
+			if(gConnect.Name == "TutorialExit") {
+				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+			} else {
+				tapHandler = new GestureHelper.OnTap(() => {
+					Continue();
+				});
+				GestureHelper.onTap += tapHandler;
+			}
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowConnection(gConnect);
 		} else {
@@ -323,6 +327,7 @@ public class GameBase : MonoBehaviour {
 		} else {
 			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
 		}
+		GestureHelper.onTap -= tapHandler;
 	}
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
