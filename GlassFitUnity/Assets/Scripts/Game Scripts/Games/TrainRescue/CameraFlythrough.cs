@@ -126,6 +126,7 @@ public class CameraFlythrough : MonoBehaviour {
 						transform.rotation = camOrientation;
 					}
 				}
+				transform.rotation = camOrientation;
 				distance = parametricDist * finish;
 				lookAtTarget = null;
 				break;
