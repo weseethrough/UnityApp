@@ -10,6 +10,7 @@ public class Train_Rescue : GameBase {
 	protected TrainController_Rescue train;
 	public GameObject trainObject = null;
 	public GameObject damsel = null;
+	public CameraPath openingFlythroughPath = null;
 	
 	float junctionSpacing = 250.0f;
 	bool bFailed = false;
@@ -154,15 +155,25 @@ public class Train_Rescue : GameBase {
 		
 
 		
-		CameraFlythrough flythrough = (CameraFlythrough)Component.FindObjectOfType(typeof(CameraFlythrough));
-		if(flythrough)
+//		CameraFlythrough flythrough = (CameraFlythrough)Component.FindObjectOfType(typeof(CameraFlythrough));
+//		if(flythrough)
+//		{
+//			flythrough.StartFlythrough();	
+//		}
+//		else
+//		{
+//			UnityEngine.Debug.LogWarning("Train: couldn't find camera flythrough controller");
+//		}
+		
+		if(openingFlythroughPath != null)
 		{
-			flythrough.StartFlythrough();	
+			openingFlythroughPath.StartFollowingPath();	
 		}
 		else
 		{
-			UnityEngine.Debug.LogWarning("Train: couldn't find camera flythrough controller");
+			UnityEngine.Debug.LogError("Train: Don't have camera path set!");	
 		}
+		
 		
 		//start the music
 		GameObject musicPlayer = GameObject.Find("MusicPlayer");

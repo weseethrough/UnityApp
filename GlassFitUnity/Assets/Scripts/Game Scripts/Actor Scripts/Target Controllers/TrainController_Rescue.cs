@@ -46,12 +46,10 @@ public class TrainController_Rescue : TargetController {
 	// Update is called once per frame
 	public override void Update () {
 		
-#if !UNITY_EDITOR
 		if(!hasBegunRace)
 		{
 			return;
 		}
-#endif
 		
 		//move forward along track
 		Vector3 direction = GetCurrentDirection();
