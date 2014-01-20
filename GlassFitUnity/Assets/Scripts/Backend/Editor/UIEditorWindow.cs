@@ -103,6 +103,7 @@ public class UIEditorWindow : EditorWindow
             {
                 DataStore.instance.Initialize();
                 RefreshFromSource();
+                foreceRefresh = true;
             }        
         GUILayout.EndHorizontal();
 	}
