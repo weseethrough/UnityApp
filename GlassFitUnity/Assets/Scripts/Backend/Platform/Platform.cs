@@ -1198,4 +1198,16 @@ public class Platform : MonoBehaviour {
 	/// BLOB.
 	/// </param>
 
+	public virtual void ToggleScreenCapture()
+	{
+		try
+		{
+			helper.Call("screenrecord", activity);
+			UnityEngine.Debug.Log("Platform: toggling screen recording");
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error logging analytic event. " + e.Message);
+		}
+	}
 }
