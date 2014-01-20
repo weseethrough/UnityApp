@@ -15,14 +15,8 @@ public class HexInfoManager : MonoBehaviour
 
     Animation animation;
     string anmationName = "HexInfoEnter";
-
-    UISprite    icon;
-    UILabel     title;
-    UILabel     content;
-    UILabel     textualIcon;
-    GameObject  buyNowBcg;
-    GameObject  buyNowText;
-    GameObject  buyNowPrice;
+    
+    GameObject  buyNowGameObject;    
     
     public const string DV_HEX_DATA = "HexInfoDataBlock";
 
@@ -59,46 +53,10 @@ public class HexInfoManager : MonoBehaviour
     /// <returns></returns>
     void FindComponents()
     {
-        GameObject go = GameObject.Find("HexInfoContent");
+        GameObject go = GameObject.Find("BuyPrice");               
         if (go != null)
         {
-            content = go.GetComponentInChildren<UILabel>();
-        }
-
-        go = GameObject.Find("HexInfoTitle");
-        if (go != null)
-        {
-            title = go.GetComponentInChildren<UILabel>();
-        }
-
-        go = GameObject.Find("HexInfoTextGraphic");
-        if (go != null)
-        {
-            textualIcon = go.GetComponentInChildren<UILabel>();
-        }        
-
-        go = GameObject.Find("HexInfoIcon");
-        if (go != null)
-        {
-            icon = go.GetComponentInChildren<UISprite>();
-        }
-
-        go = GameObject.Find("BuyPrice");
-        if (go != null)
-        {
-            buyNowBcg = go;
-        }
-
-        go = GameObject.Find("HexInfoBuyNow");
-        if (go != null)
-        {
-            buyNowText = go;
-        }
-
-        go = GameObject.Find("HexInfoBuyCost");
-        if (go != null)
-        {
-            buyNowPrice = go;
+            buyNowGameObject = go;
         }
     }
 
@@ -139,8 +97,8 @@ public class HexInfoManager : MonoBehaviour
     {
         HexButtonData data = DataVault.Get(DV_HEX_DATA) as HexButtonData;
         if (data != null)
-        {            
-            if (title == null)
+        {
+            if (buyNowGameObject == null)
             {
                 FindComponents();
             }            
@@ -150,11 +108,24 @@ public class HexInfoManager : MonoBehaviour
             //icon.spriteName = data.imageName;
             //textualIcon.text = data.textNormal;
 
-            buyNowBcg.SetActive(data.locked);                
+            buyNowGameObject.SetActive(data.locked);                
 
             DataVault.Set("hex_info_title", data.activityName);
             DataVault.Set("hex_info_content", data.activityContent);
-            DataVault.Set("current_activity_cost", data.activityPrice);            
+            DataVault.Set("current_activity_cost", data.activityPrice);
+
+            if (data.locked)
+            {
+                string actionName = DataVault.Translate("tap_to_buy", null );
+                DataVault.Set("action_name", actionName);
+                buyNowGameObject.SetActive(true);
+            }
+            else
+            {
+                string actionName = DataVault.Translate("tap_to_run", null );
+                DataVault.Set("action_name", actionName);
+                buyNowGameObject.SetActive(false);
+            }
 
 
             ActiveAnimation activeAnim = ActiveAnimation.Play(animation, anmationName, AnimationOrTween.Direction.Forward);
