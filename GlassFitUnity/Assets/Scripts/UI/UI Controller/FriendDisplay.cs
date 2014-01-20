@@ -69,7 +69,7 @@ public class FriendDisplay : MonoBehaviour {
 		DataVault.Set("screen_name", "Loading Screen Name...");
 		
 		// Create a sync handler that updates the friends list
-		handler = new Platform.OnSync(() => {
+		handler = new Platform.OnSync((message) => {
 			UpdateFriendsList();
 		});
 		Platform.Instance.onSync += handler;	

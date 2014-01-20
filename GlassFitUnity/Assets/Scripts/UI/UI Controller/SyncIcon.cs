@@ -12,7 +12,7 @@ public class SyncIcon : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		
-		if(Platform.Instance.IsPluggedIn()) {
+		if(Platform.Instance.IsPluggedIn() && Platform.Instance.HasWifi()) {
 			authHandler = new Platform.OnAuthenticated((authenticated) => {
 				Platform.Instance.onAuthenticated -= authHandler;
 				
@@ -25,7 +25,7 @@ public class SyncIcon : MonoBehaviour {
 				syncProgressHandler = new Platform.OnSyncProgress((message) => {
 					MessageWidget.AddMessage("Syncing", message, "settings");
 				});
-				syncHandler = new Platform.OnSync(() => {
+				syncHandler = new Platform.OnSync((message) => {
 					Platform.Instance.onSyncProgress -= syncProgressHandler;
 					Platform.Instance.onSync -= syncHandler;
 					GoToGame();
