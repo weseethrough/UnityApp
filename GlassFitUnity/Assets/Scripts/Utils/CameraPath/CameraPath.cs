@@ -10,6 +10,8 @@ public class CameraPath : MonoBehaviour {
 	protected float timer = 0;
 	public GameObject splineHolder = null;
 	
+	protected bool bFinished = false;
+	
 	// Use this for initialization
 	void Start () {
 		//gather the path points from the scene
@@ -39,6 +41,11 @@ public class CameraPath : MonoBehaviour {
 			ApplyTransFormForTime(timer);
 		}
 		
+	}
+	
+	public bool IsFinished()
+	{
+		return bFinished;
 	}
 	
 	protected void ApplyTransFormForTime(float t)
@@ -112,5 +119,6 @@ public class CameraPath : MonoBehaviour {
 	{
 		bRunning = false;	
 		MinimalSensorCamera.ResumeSensorRotation();
+		bFinished = true;
 	}
 }

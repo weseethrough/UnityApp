@@ -143,6 +143,15 @@ public class Train_Rescue : GameBase {
 			}
 		}
 		
+		//check if the flythrough is complete
+		if(!readyToStart)
+		{
+			if(openingFlythroughPath.IsFinished())
+			{
+				StartCountdown();
+			}
+		}
+		
 	}
 	
 	public override void SetReadyToStart (bool ready)
