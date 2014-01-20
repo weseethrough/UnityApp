@@ -64,7 +64,13 @@ public class ChallengePanel : HexPanel {
 		
 		gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
+		buttonData = new List<HexButtonData>();
+		
 		challengeNotifications = new List<ChallengeNotification>();
+		
+		notSet = true;
+		
+		threadComplete = false;
 		
 		GetChallenges();		
 		
@@ -112,7 +118,10 @@ public class ChallengePanel : HexPanel {
 						UnityEngine.Debug.Log("ChallengePanel: notifications obtained");
 						foreach (Notification notification in notifications) {
 							UnityEngine.Debug.Log("ChallengePanel: notification has been found");
-							if (notification.read) continue;
+							if (notification.read) {
+								UnityEngine.Debug.Log("ChallengePanel: notification set to read");
+								continue;
+							}
 							UnityEngine.Debug.Log("ChallengePanel: notification not read");
 							if (string.Equals(notification.node["type"], "challenge")) {
 								int challengerId = notification.node["from"].AsInt;
@@ -125,8 +134,13 @@ public class ChallengePanel : HexPanel {
 								if(potential is DistanceChallenge) {
 									User user = Platform.Instance.GetUser(challengerId);
 									//			UnityEngine.Debug.Log("ChallengeNotification: getting first track");
+									UnityEngine.Debug.Log("ChallengePanel: getting track");
 									Track track = potential.UserTrack(user.id);
+									UnityEngine.Debug.Log("ChallengePanel: fetching track using previous");
+									if(track == null) continue;									
 									Track realTrack = Platform.Instance.FetchTrack(track.deviceId, track.trackId);
+									
+									UnityEngine.Debug.Log("ChallengePanel: creating challenge notification");
 									ChallengeNotification challengeNot = new ChallengeNotification(notification, potential, user, realTrack);
 									challengeNotifications.Add(challengeNot);
 								}
@@ -134,10 +148,13 @@ public class ChallengePanel : HexPanel {
 						}
 					}		
 					finally {
+						UnityEngine.Debug.Log("ChallengePanel: removing loaderthread");
 						DataVault.Remove("loaderthread");
 						
+						UnityEngine.Debug.Log("ChallengePanel: thread complete true");
 						threadComplete = true;
 #if !UNITY_EDITOR
+						UnityEngine.Debug.Log("ChallengePanel: detaching thread");
 						AndroidJNI.DetachCurrentThread();
 #endif					
 						UnityEngine.Debug.Log("ChallengePanel: Adding hexes");
@@ -265,7 +282,7 @@ public class ChallengePanel : HexPanel {
 			hbd.row = (int)currentPosition.y;
 			hbd.buttonName = challengeNotifications[0].GetID();
 			hbd.textNormal = challengeNotifications[0].GetName();
-			hbd.textSmall = "\n" + SiDistanceUnitless(challengeNotifications[0].GetDistance());
+			hbd.textSmall = SiDistanceUnitless(challengeNotifications[0].GetTrack().distance);
 				
 			UnityEngine.Debug.Log("ChallengePanel: First button obtained, position is " + currentPosition.ToString());
 			
@@ -295,7 +312,7 @@ public class ChallengePanel : HexPanel {
 				hbd.row = (int)currentPosition.y;
 				hbd.buttonName = challengeNotifications[i].GetID();
 				hbd.textNormal = challengeNotifications[i].GetName();
-				hbd.textSmall = SiDistanceUnitless(challengeNotifications[i].GetDistance());
+				hbd.textSmall = SiDistanceUnitless(challengeNotifications[i].GetTrack().distance);
 					
 				gc = NewOutput(hbd.buttonName, "Flow");
 			    gc.EventFunction = "SetChallenge";
@@ -310,11 +327,12 @@ public class ChallengePanel : HexPanel {
 			}
 			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
         	list.UpdateButtonList();
-			DataVault.Set("tutorial_hint", " ");
+			UnityEngine.Debug.Log("ChallengePanel: removing tutorial hint");
 		} else {
 			UnityEngine.Debug.Log("ChallengePanel: No challenges, setting widget");
 			MessageWidget.AddMessage("Sorry!", "You currently have no challenges", "activity_delete");
 		}
+		DataVault.Set("tutorial_hint", " ");
 	}
 	
 	public void CalculatePosition() {
@@ -399,7 +417,7 @@ public class ChallengePanel : HexPanel {
 			if(value >= 10) {
 				final = value.ToString("f1");
 			} else {
-				final = value.ToString("f0");
+				final = value.ToString("f2");
 			}
 		}
 		else

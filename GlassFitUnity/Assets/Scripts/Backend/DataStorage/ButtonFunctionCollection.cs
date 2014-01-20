@@ -96,6 +96,7 @@ public class ButtonFunctionCollection
 					DataVault.Set("current_track", track);
 					DataVault.Set("race_type", "challenge");
 					DataVault.Set("challenger", challenges[i].GetName());
+					DataVault.Set("current_challenge_notification", challenges[i]);
 					return true;
 				}
 			}
