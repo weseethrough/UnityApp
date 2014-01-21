@@ -26,7 +26,6 @@ public class GUICamera : MonoBehaviour {
         radius = distanceVector.magnitude;
 
 #if !UNITY_EDITOR
-        Platform.Instance.ResetGyro();
         cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out cameraMoveOffset);
 #endif         
 		
