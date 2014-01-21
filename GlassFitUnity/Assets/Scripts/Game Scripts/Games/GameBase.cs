@@ -500,11 +500,13 @@ public class GameBase : MonoBehaviour {
 			// Display countdown on screen
 			if(countTime > 0.0f)
 			{
-				GUI.Label(messageRect, cur.ToString(), labelStyle); 
+				//not for train game
+				//GUI.Label(messageRect, cur.ToString(), labelStyle); 
 			}
 			else if(countTime > -1.0f && countTime < 0.0f)
 			{
-				GUI.Label(messageRect, "GO!", labelStyle); 
+				//not for train game
+				//GUI.Label(messageRect, "GO!", labelStyle); 
 			}
 		}
 		
@@ -587,24 +589,21 @@ public class GameBase : MonoBehaviour {
 		// TODO: Toggle based on panel type
 		UpdateAhead();
 		
-		//start the contdown once we've got reset the gyro		
-		if(readyToStart)
-		{
-			// Initiate the countdown
-			countdown = true;
-		 	if(countTime <= -1.0f && !started)
-			{
-				Platform.Instance.StartTrack();
-				UnityEngine.Debug.Log("Tracking Started");
-				
-				started = true;
-			}
-			else if(countTime > -1.0f)
-			{
-				//UnityEngine.Debug.Log("Counting Down");
-				countTime -= Time.deltaTime;
-			}
-		}
+//		//start the contdown once we've got reset the gyro		
+//		if(readyToStart)
+//		{
+//			// Initiate the countdown
+//			countdown = true;
+//		 	if(countTime <= -1.0f && !started)
+//			{
+//				StartRace();
+//			}
+//			else if(countTime > -1.0f)
+//			{
+//				//UnityEngine.Debug.Log("Counting Down");
+//				countTime -= Time.deltaTime;
+//			}
+//		}
 		
 		// Awards the player points for running certain milestones
 		if(Platform.Instance.Distance() >= bonusTarget)
@@ -631,7 +630,10 @@ public class GameBase : MonoBehaviour {
 			if((int)Platform.Instance.Distance() == lastDistance) 
 			{
 				//UnityEngine.Debug.Log("GameBase: distance is the same, increasing time");
-				indoorTime += Time.deltaTime;
+				if(started)
+				{
+					indoorTime += Time.deltaTime;
+				}
 				if(indoorTime > 10f) {
 					//UnityEngine.Debug.Log("GameBase: setting text for indoor jogging");
 					DataVault.Set("indoor_move", "Jog on the spot to move!");
@@ -647,6 +649,17 @@ public class GameBase : MonoBehaviour {
 			DataVault.Set("indoor_move", " ");
 		}
 		
+	}
+	
+	/// <summary>
+	/// Starts the race.
+	/// To be called when the countdown completes
+	/// </summary>
+	protected void StartRace()
+	{
+		Platform.Instance.StartTrack();
+		UnityEngine.Debug.Log("Tracking Started");
+		started = true;
 	}
 	
 	/// <summary>

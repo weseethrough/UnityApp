@@ -42,6 +42,7 @@ public class FinishMarker : MonoBehaviour {
 		// If the finish line is in range, display it.
 		if(distance > target - 100) 
 		{
+			//not for train demo
 			//DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
 			if(finalBonus > 0) {
 				finalBonus -= 50f * Time.deltaTime;

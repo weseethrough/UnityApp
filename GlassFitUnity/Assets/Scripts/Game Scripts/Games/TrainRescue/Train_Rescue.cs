@@ -25,8 +25,9 @@ public class Train_Rescue : GameBase {
 		
 		train = trainObject.GetComponent<TrainController_Rescue>();
 		
-		//clear the subtitle
+		//clear strings
 		DataVault.Set("train_subtitle", " ");
+		DataVault.Set("game_message", " ");
 		
 		//set flag so that trophy is shown if we win
 		DataVault.Set("showFinishTrophy", true);
@@ -199,7 +200,7 @@ public class Train_Rescue : GameBase {
 		//delete extra track pieces
 		foreach(GameObject piece in extraTrackPieces)
 		{
-			//Destroy(piece);	
+			Destroy(piece);	
 		}
 		
 		base.SetReadyToStart(true);
@@ -209,11 +210,60 @@ public class Train_Rescue : GameBase {
 		}
 		train.BeginRace();
 		//progress flow to the normal HUD
+		//FollowConnectorNamed("Begin");
+		StartCoroutine(DoCountDown());
+	}
+	
+	IEnumerator DoCountDown()
+	{
+		UnityEngine.Debug.Log("Train:Starting Countdown Coroutine");
+		for(int i=3; i>=0; i--)
+		{
+			//go to subtitle card
+			UnityEngine.Debug.Log("Train: Following 'subtitle' connector");
+			FollowConnectorNamed("Subtitle");
+			//set value for subtitle. 0 = GO
+			string displayString = (i==0) ? "GO !" : i.ToString();
+			DataVault.Set("train_subtitle", displayString);
+			
+			//wait half a second
+			yield return new WaitForSeconds(1.0f);
+			
+			//return to cam
+			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
+			FollowConnectorNamed("ToBlank");
+			
+			//wait a second more, except after GO!
+			if(i!=0)
+			{
+				yield return new WaitForSeconds(1.5f);
+			}
+			
+		}
+		
+		yield return new WaitForSecsonds(0.1f);
+		
+		UnityEngine.Debug.Log("Train: Following 'begin' connector");
+		FollowConnectorNamed("Begin");
+		
+		//play the train's bell sound effect
+		train.soundBell();	
+		
+		//start the game
+		StartRace();
+	}
+	
+	public void FollowConnectorNamed(string name)
+	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Begin" );
+		GConnector gConnect = fs.Outputs.Find( r => r.Name == name );
 		if(gConnect != null)
 		{
 			fs.parentMachine.FollowConnection(gConnect);
+		}	
+		else
+		{
+			UnityEngine.Debug.LogWarning("TrainGame: couldn't find flow connector");	
 		}
 	}
 	

@@ -25,7 +25,15 @@ public class PathPoint_ShowHelpSubtitle : PathPoint {
 		Time.timeScale = 0.0f;
 		
 		//set subtitle string
-		DataVault.Set("train_subtitle", "\"Help\"\n\n\"Please Save Me!\"");
+		if(subString != null)
+		{
+			DataVault.Set("train_subtitle", subString);
+		}
+		else
+		{
+			DataVault.Set("train_subtitle", "ERROR: String not set");
+			UnityEngine.Debug.LogError("CameraPath: String not specified for subtitle");
+		}
 		
 		//progress flow to subtitle message
 		FollowFlowLinkNamed("Subtitle");

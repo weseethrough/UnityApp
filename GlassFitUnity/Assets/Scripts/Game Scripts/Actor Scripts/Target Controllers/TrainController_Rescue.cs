@@ -20,6 +20,10 @@ public class TrainController_Rescue : TargetController {
 	
 	protected bool bSoundedHorn = false;
 	
+	protected AudioSource hornSound;
+	protected AudioSource wheelSound;
+	protected AudioSource bellSound;
+	
 	// Use this for initialization
 	void Start () {
 		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
@@ -30,17 +34,18 @@ public class TrainController_Rescue : TargetController {
 		timeRunStarted = Time.time;
 		xOffset = transform.localPosition.x;
 		absolutePos = transform.localPosition;
+		
+		Component[] sources = GetComponents(typeof(AudioSource));
+		wheelSound = (AudioSource)sources[0];
+		hornSound = (AudioSource)sources[1];
+		bellSound = (AudioSource)sources[2];
 	}
 	
 	public void BeginRace() {
 		hasBegunRace = true;
-		//start sounds, there should be a whistle
-		Component[] sources = GetComponents(typeof(AudioSource));
-		foreach(Component source in sources)
-		{
-			AudioSource audiosource = (AudioSource)source;
-			audiosource.Play();
-		}
+		//sound the bell
+		hornSound.Play();
+		
 		//enable the on-look-at audio
 		OnLookAtSound lookAtSound = GetComponent<OnLookAtSound>();
 		lookAtSound.enabled = true;
@@ -81,6 +86,14 @@ public class TrainController_Rescue : TargetController {
 		playerDistance = Platform.Instance.GetDistance();
 		Vector3 playerPos = new Vector3(0,0,playerDistance);
 		transform.localPosition = absolutePos - playerPos;
+	}
+	
+	public void soundBell()
+	{
+		if(bellSound != null)
+		{
+			bellSound.Play();
+		}
 	}
 	
 	public void BeginDetour()
