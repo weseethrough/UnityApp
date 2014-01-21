@@ -241,7 +241,7 @@ public class Train_Rescue : GameBase {
 			
 		}
 		
-		yield return new WaitForSecsonds(0.1f);
+		yield return new WaitForSeconds(0.1f);
 		
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
 		FollowConnectorNamed("Begin");
