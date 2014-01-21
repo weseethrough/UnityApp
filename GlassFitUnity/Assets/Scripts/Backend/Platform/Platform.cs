@@ -1178,6 +1178,26 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("Platform: Error logging analytic event. " + e.Message);
 		}
 	}
+	}
+
+
+	// Poll java for touch input
+	[MethodImpl(MethodImplOptions.Synchronized)]
+	public virtual Vector2 GetTouchInput()
+	{
+		try
+		{
+			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
+				float? x = activity.Call<Float> ("getTouchX()");
+				float? y = activity.Call<Float> ("getTouchY()");
+				return new Vector2(x,y);
+			}));
+		}
+		catch(Exception e)
+		{
+			UnityEngine.Debug.Log("Platform: Error getting touch input " + e.Message);
+		}
+	}
 	
 	/// <summary>
 	/// Stores the BLOB. Called by 
