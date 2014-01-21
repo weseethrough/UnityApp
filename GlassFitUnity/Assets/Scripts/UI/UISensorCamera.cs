@@ -165,6 +165,6 @@ public class UISensorCamera : MonoBehaviour {
 	
 	void OnDestroy() {
 		GestureHelper.onTwoTap -= twoTapHandler;
-		GestureHelper.swipeLeft -= backHandler;
+		GestureHelper.onSwipeLeft -= backHandler;
 	}
 }

@@ -12,12 +12,12 @@ public class SwipeListener : MonoBehaviour {
 		leftHandler = new GestureHelper.OnSwipeLeft( () => {
 			handleLeft();
 		});
-		GestureHelper.swipeLeft += leftHandler;
+		GestureHelper.onSwipeLeft += leftHandler;
 		
 		rightHandler = new GestureHelper.OnSwipeRight( () => {
 			handleRight();
 		});
-		GestureHelper.swipeRight += rightHandler;
+		GestureHelper.onSwipeRight += rightHandler;
 	}
 	
 	// Update is called once per frame
@@ -86,7 +86,7 @@ public class SwipeListener : MonoBehaviour {
 	
 	public virtual void OnDestroy()
 	{
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
+		GestureHelper.onSwipeLeft -= leftHandler;
+		GestureHelper.onSwipeRight -= rightHandler;
 	}
 }

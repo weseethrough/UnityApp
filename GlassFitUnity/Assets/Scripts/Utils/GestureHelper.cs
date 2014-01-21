@@ -36,18 +36,21 @@ public class GestureHelper : MonoBehaviour {
 	public delegate void OnTap();
 	public static OnTap onTap = null;
 	
-	public delegate void OnSwipeLeft();
-	public static OnSwipeLeft swipeLeft = null;
-	
 	public delegate void TwoFingerTap();
 	public static TwoFingerTap onTwoTap = null;
 	
-	public delegate void OnSwipeRight();
-	public static OnSwipeRight swipeRight = null;
-	
 	public delegate void ThreeFingerTap();
 	public static ThreeFingerTap onThreeTap = null;
+
+	public delegate void OnSwipeLeft();
+	public static OnSwipeLeft onSwipeLeft = null;
+
+	public delegate void OnSwipeRight();
+	public static OnSwipeRight onSwipeRight = null;
 	
+	public delegate void UpSwipe();
+	public static UpSwipe onSwipeUp = null;
+
 	public delegate void DownSwipe();
 	public static DownSwipe onSwipeDown = null;
 	
@@ -59,12 +62,13 @@ public class GestureHelper : MonoBehaviour {
 	/// Message from Java side.
 	/// </param>
 	void IsTap(string message) {
-		UnityEngine.Debug.Log("GestureHelper: Tap received - processing");
+		UnityEngine.Debug.Log("GestureHelper: Tap meassage received...");
 		if(onTap != null) {
-			UnityEngine.Debug.Log("GestureHelper: Adding to the delegate");
+			UnityEngine.Debug.Log("GestureHelper: ... calling tap delegates");
 			onTap();
-		}		
-		UnityEngine.Debug.Log("GestureHelper: message obtained - Tap");
+		} else {
+			UnityEngine.Debug.Log("GestureHelper: ... but no tap delegates are registered. Dropping message.");
+		}
 	}
 	
 	/// <summary>
@@ -74,69 +78,83 @@ public class GestureHelper : MonoBehaviour {
 	/// Message from Java side.
 	/// </param>
 	void TwoTap(string message) {
-		UnityEngine.Debug.Log("GestureHelper: Two Tap message received - processing");
+		UnityEngine.Debug.Log("GestureHelper: Two Tap message received...");
 		if(onTwoTap != null) {
-			UnityEngine.Debug.Log("GestureHelper: Adding to two tap delegate");
+			UnityEngine.Debug.Log("GestureHelper: ... calling tap delegates");
 			onTwoTap();
+		} else {
+			UnityEngine.Debug.Log("GestureHelper: ... but no two-tap delegates are registered. Dropping message.");
 		}
 	}
 	
 	// Get a fling left message and set the timer
 	void FlingLeft(string message) {
-		if(swipeLeft != null) {
-			UnityEngine.Debug.Log("GestureHelper: Swipe left setting");
-			swipeLeft();
+		UnityEngine.Debug.Log("GestureHelper: Swipe left message received...");
+		if(onSwipeLeft != null) {
+			UnityEngine.Debug.Log("GestureHelper: ... calling swipe left delegates");
+			onSwipeLeft();
+		} else {
+			UnityEngine.Debug.Log("GestureHelper: ... but no swipe-left delegates are registered. Dropping message.");
 		}
-		UnityEngine.Debug.Log("GestureHelper: message obtained - Fling Left");
 	}
 	
 	// Get a fling right message and set the timer
 	void FlingRight(string message) {
-		if(swipeRight != null) {
-			UnityEngine.Debug.Log("GestureHelper: Swipe right setting");
-			swipeRight();
+		UnityEngine.Debug.Log("GestureHelper: Swipe right message received...");
+		if(onSwipeRight != null) {
+			UnityEngine.Debug.Log("GestureHelper: ... calling swipe right delegates");
+			onSwipeRight();
+		} else {
+			UnityEngine.Debug.Log("GestureHelper: ... but no swipe right delegates are registered. Dropping message.");
 		}
-		UnityEngine.Debug.Log("GestureHelper: message obtained - Fling Right");
+
 	}
 	
 	// Get a fling up message and set the timer
 	void FlingUp(string message) {
-		
+		UnityEngine.Debug.Log("GestureHelper: Swipe up message received...");
+		if(onSwipeUp != null) {
+			UnityEngine.Debug.Log("GestureHelper: ... calling swipe up delegates");
+			onSwipeUp();
+		} else {
+			UnityEngine.Debug.Log("GestureHelper: ... but no swipe up delegates are registered. Dropping message.");
+		}
 	}
 	
 	// Get a fling down message and set the timer
 	void FlingDown(string message) {
+		UnityEngine.Debug.Log("GestureHelper: Swipe down message received...");
 		if(onSwipeDown != null) {
-			UnityEngine.Debug.Log("GestureHelper: Swipe down setting");
+			UnityEngine.Debug.Log("GestureHelper: ... calling swipe down delegates");
 			onSwipeDown();
+		} else {
+			UnityEngine.Debug.Log("GestureHelper: ... but no swipe down delegates are registered. Dropping message.");
 		}
-		
-		UnityEngine.Debug.Log("GestureHelper: message obtained - Fling down");
 	}
 	
 	void ThreeTap(string message) {
+		UnityEngine.Debug.Log("GestureHelper: Three tap message received...");
 		if(onThreeTap != null) {
-			UnityEngine.Debug.Log("GestureHelper: Three tap setting");
+			UnityEngine.Debug.Log("GestureHelper: ... calling three-tap delegates");
 			onThreeTap();
+		} else {
+			UnityEngine.Debug.Log("GestureHelper: ... but no three-tap delegates are registered. Dropping message.");
 		}
-		UnityEngine.Debug.Log("GestureHelper: message obtained - three tap");
 	}
+
 	
-	void TwoSwipeLeft(string message) {
-		//Application.Quit();
-	}
-	
-	void Update() 
+	void Update()
 	{
-		// Update the rotation and set it
-		if(Input.GetKeyDown(KeyCode.Escape)) 
+		// If the back key is pressed, call any swipe-down delegates
+		// (on glass, swipe down means back)
+		if(Input.GetKeyDown(KeyCode.Escape))
 		{
 			if(onSwipeDown != null) {
 				onSwipeDown();
 			}
 		}
-		
-		//check for gestures on non-glass Android devices
+
+		//check for gestures on non-glass devices where unity can pick up the input
 		if(!Platform.Instance.OnGlass())
 		{
 			int tapCount = 0;
@@ -150,7 +168,7 @@ public class GestureHelper : MonoBehaviour {
 					TouchInfo ti = new TouchInfo(touch);
 					touches.Add(touch.fingerId, ti);
 				}
-				
+
 				//track touches moving
 				if(touch.phase == TouchPhase.Moved)
 				{
@@ -159,28 +177,28 @@ public class GestureHelper : MonoBehaviour {
 						TouchInfo ti = touches[touch.fingerId];
 						ti.distanceTravelled += touch.deltaPosition;
 						ti.time += touch.deltaTime;
-						
+
 						// if they move far enough, count as a swipe
 						if(ti.distanceTravelled.x <= -SWIPE_MIN_DIST)
 						{
 							//	swiped left
-							UnityEngine.Debug.Log("Gesture Helper:Android Swipe Left");
+							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe left");
 							touches.Remove(touch.fingerId);
-							FlingLeft("from Unity");
+							onSwipeLeft();
 						}
 						else if (ti.distanceTravelled.x >= SWIPE_MIN_DIST)
 						{
 							//	swiped right
-							UnityEngine.Debug.Log("Gesture Helper:Android Swipe Right");
+							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe right");
 							touches.Remove(touch.fingerId);
-							FlingRight("from Unity");
+							onSwipeRight();
 						}
 						else if(ti.distanceTravelled.y <= - SWIPE_MIN_DIST)
 						{
 							//swiped down
 							touches.Remove(touch.fingerId);
-							UnityEngine.Debug.Log("Gesture Helper:Android Swipe Down");
-							FlingDown("from Unity");
+							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe down");
+							onSwipeDown();
 						}
 					}
 				}
@@ -195,7 +213,6 @@ public class GestureHelper : MonoBehaviour {
 						// trigger tap if appropriate
 						if (ti.distanceTravelled.magnitude <= TAP_MAX_DIST)
 						{
-							UnityEngine.Debug.Log("Gesture Helper: Android tap detected");
 							tapCount ++;
 						}
 						
@@ -219,22 +236,22 @@ public class GestureHelper : MonoBehaviour {
 			case 1:
 			{
 				//single tap
-				UnityEngine.Debug.Log("Gesture Helper:Android 1-tap");
-				IsTap("from Unity");
+				UnityEngine.Debug.Log("Gesture Helper: Touchscreen 1-tap");
+				onTap();
 				break;
 			}
 			case 2:
 			{
 				//double tap
-				UnityEngine.Debug.Log("Gesture Helper:Android 2-tap");
-				TwoTap("from Unity");
+				UnityEngine.Debug.Log("Gesture Helper: Touchscreen 2-tap");
+				onTwoTap();
 				break;
 			}
 			case 3:
 			{
 				//triple tap
-				UnityEngine.Debug.Log("Gesture Helper:Android 3-tap");
-				ThreeTap("from Unity");
+				UnityEngine.Debug.Log("Gesture Helper: Touchscreen 3-tap");
+				onThreeTap();
 				break;
 			}
 			default:
