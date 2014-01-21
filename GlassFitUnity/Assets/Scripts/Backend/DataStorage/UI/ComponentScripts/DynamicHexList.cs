@@ -7,27 +7,18 @@ using System.Collections.Generic;
 /// </summary>
 public class DynamicHexList : MonoBehaviour
 {
-    const float CAMERA_SENSITIVITY_X = 4.5f;
-    const float CAMERA_SENSITIVITY_Y = 5.5f;
-	
     HexPanel parent = null;
 
     UICamera guiCamera;
     public static Vector2 hexLayoutOffset = new Vector2(0.25f, 0.4330127f);
     Vector3 distanceVector;
-    Vector3 cameraPosition;
-    float radius;
-
-    //default height and rotation is used as a default offset when reseting sensors
-    Quaternion cameraDefaultRotation;
-    Vector2 cameraMoveOffset;
-
+	
+	float radius;
+	
     //float screenEnterTime = 8.0f;
     float buttonEnterDelay = 0.0f;
     float buttonNextEnterDelay = 0.0f;
     int buttonNextEnterIndex = 0;
-	
-	private float zoomLevel = -1.0f;
 
     int buttonCount = 0;
 
@@ -48,10 +39,6 @@ public class DynamicHexList : MonoBehaviour
     GameObject buttonBase;
 	
 	private GestureHelper.OnTap tapHandler = null;
-	
-	private GestureHelper.OnSwipeLeft leftHandler = null;
-	
-	private GestureHelper.OnSwipeRight rightHandler = null;
 	
     bool initialized = false;
 	
@@ -80,24 +67,6 @@ public class DynamicHexList : MonoBehaviour
                 break;
             }
         }
-
-        if (guiCamera != null)
-        {
-            cameraPosition = guiCamera.transform.position;
-            distanceVector = transform.position - cameraPosition;
-            distanceVector.y = 0;
-            cameraDefaultRotation = guiCamera.transform.rotation;
-
-            radius = distanceVector.magnitude;
-
-#if !UNITY_EDITOR
-            Platform.Instance.ResetGyro();
-            cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out cameraMoveOffset);
-
-            //Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * cameraDefaultRotation;
-            //guiCamera.transform.rotation = newOffset;
-#endif         
-        }
 		
 		tapHandler = new GestureHelper.OnTap(() => {
 			EnterGame();
@@ -110,26 +79,6 @@ public class DynamicHexList : MonoBehaviour
 		});
 		
 		GestureHelper.onSwipeDown += downHandler;
-
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			if(!IsPopupDisplayed()) {
-				if(zoomLevel > -1.5f) {
-					zoomLevel -= 0.5f;
-				}
-			}
-		});
-		
-		GestureHelper.swipeLeft += leftHandler;
-		
-		rightHandler = new GestureHelper.OnSwipeRight(() => {
-			if(!IsPopupDisplayed()) {
-				if(zoomLevel < -0.5f) {
-					zoomLevel += 0.5f;
-				}
-			}
-		});
-		
-		GestureHelper.swipeRight += rightHandler;
 		
         InitializeItems();
     }
@@ -144,40 +93,6 @@ public class DynamicHexList : MonoBehaviour
 		}
 		return false;
 	}	
-	
-    /// <summary>
-    /// Resets gyro offset against the screen, visually it setts screen to the "zero" position
-    /// </summary>
-    /// <returns></returns>
-    public void ResetGyro()
-    {
-#if !UNITY_EDITOR 
-        Platform.Instance.ResetGyro();
-        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out cameraMoveOffset);
-#endif
-    }
-
-    /// <summary>
-    /// function which converts orientation quaternion into pitch and yaw, suitable for moving cam up/down, left/right on 2D menu
-    /// </summary>
-    /// <param name="q">input orientation</param>
-    /// <param name="dynamicCamPos">(yaw, pitch)</param>
-    /// <return>the input quaternion</return>
-    private Quaternion ConvertOrientation(Quaternion q, out Vector2 dynamicCamPos)
-    {
-        float pitch = Mathf.Atan2(2*(q.w*q.x + q.y*q.z), 1-2*(q.x*q.x + q.y*q.y));
-        float roll = Mathf.Asin(2*(q.w*q.y - q.z*q.x));
-        float yaw = Mathf.Atan2(2*(q.w*q.z + q.x*q.y), 1-2*(q.y*q.y + q.z*q.z));
-        
-        dynamicCamPos = new Vector2(-yaw, -pitch);
-        dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
-	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
-		
-        //UnityEngine.Debug.Log("MenuPosition:" + yaw + ", " + pitch + ", " + roll);
-        //dynamicCamPos *= 0.02f;
-        //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
-        return q;
-	}
 
     /// <summary>    
     /// function which converts from 
@@ -286,23 +201,7 @@ public class DynamicHexList : MonoBehaviour
         //if button enter delay is below 0 at this stage then screen has finished loading
         if (parent.state == FlowState.State.Idle && guiCamera != null)
         {
-            /*Quaternion rot = SensorHelper.rotation;
-            if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
-            {
-                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
-#if !UNITY_EDITOR
-                float pitchHeight;
-				Vector2 newCameraOffset; 
-				ConvertOrientation(Platform.Instance.GetOrientation(), out newCameraOffset);
-				Vector3 camPos = guiCamera.transform.position;
-				newCameraOffset -= cameraMoveOffset;
-                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
-#endif
-            /*}
-            else
-            {
-                Debug.LogError("Sensor data invalid");
-            }*/
+
             Vector3 forward = guiCamera.transform.forward;
 
             RaycastHit[] hits = Physics.RaycastAll(guiCamera.transform.position, forward, 5.0f);// ,LayerMask.NameToLayer(HexPanel.CAMERA_3D_LAYER));
@@ -352,7 +251,7 @@ public class DynamicHexList : MonoBehaviour
                         TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                         if (tp != null)
                         {
-                            TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
+                            TweenPosition.Begin(tp.gameObject, 0.3f, guiCamera.transform.position);
                         }
 
                         if (parent != null)
@@ -496,7 +395,7 @@ public class DynamicHexList : MonoBehaviour
                     {
                         tp = guiCamera.gameObject.AddComponent<TweenPosition>();
                     }					
-                    Vector3 cameraCoreAxis = cameraPosition;
+                    Vector3 cameraCoreAxis = guiCamera.transform.position;
                     cameraCoreAxis.y = selection.transform.position.y;
                     Vector3 direction = selection.transform.position - cameraCoreAxis;
 										
@@ -529,7 +428,7 @@ public class DynamicHexList : MonoBehaviour
                     TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                     if (tp != null)
                     {
-                        Vector3 pos = cameraPosition;
+                        Vector3 pos = guiCamera.transform.position;
 
                         TweenPosition.Begin(tp.gameObject, 0.3f, pos);
                     }
@@ -904,7 +803,6 @@ public class DynamicHexList : MonoBehaviour
             if (tp != null)
             {
                 GameObject.Destroy(tp);
-                guiCamera.transform.position = cameraPosition;
             }
         }
 		
