@@ -92,7 +92,7 @@ public class ChallengePanel : HexPanel {
 		}
 		
 		Platform.OnSync shandler = null;
-		shandler = new Platform.OnSync(() => {
+		shandler = new Platform.OnSync((message) => {
 			Platform.Instance.onSync -= shandler;				
 			UnityEngine.Debug.Log("ChallengePanel: about to lock datavault");
 			lock(DataVault.data) {

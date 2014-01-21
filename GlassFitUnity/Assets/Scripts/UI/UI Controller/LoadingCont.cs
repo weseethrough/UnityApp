@@ -37,7 +37,7 @@ public class LoadingCont : MonoBehaviour {
 		GConnector race = fs.Outputs.Find(r => r.Name == "completeExit");
 		GConnector back = fs.Outputs.Find(r => r.Name == "failedExit");
 		Platform.OnSync shandler = null;
-		shandler = new Platform.OnSync(() => {
+		shandler = new Platform.OnSync((message) => {
 			Platform.Instance.onSync -= shandler;
 			
 			lock(DataVault.data) {

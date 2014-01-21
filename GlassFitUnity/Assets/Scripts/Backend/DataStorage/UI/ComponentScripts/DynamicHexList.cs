@@ -7,8 +7,11 @@ using System.Collections.Generic;
 /// </summary>
 public class DynamicHexList : MonoBehaviour
 {
-    const float CAMERA_SENSITIVITY_X = 4.5f;
-    const float CAMERA_SENSITIVITY_Y = 5.5f;
+    const string GRAPHIC_BACKGROUND = "Background";
+    const string GRAPHIC_FOREGROUND = "Foreground";
+    const string GRAPHIC_PLUS       = "Plus";
+    const string GRAPHIC_PADLOCK    = "Padlock";
+    
 	
 	public Font font;
 	
@@ -17,19 +20,13 @@ public class DynamicHexList : MonoBehaviour
     UICamera guiCamera;
     public static Vector2 hexLayoutOffset = new Vector2(0.25f, 0.4330127f);
     Vector3 distanceVector;
-    Vector3 cameraPosition;
-    float radius;
-
-    //default height and rotation is used as a default offset when reseting sensors
-    Quaternion cameraDefaultRotation;
-    Vector2 cameraMoveOffset;
-
+	
+	float radius;
+	
     //float screenEnterTime = 8.0f;
     float buttonEnterDelay = 0.0f;
     float buttonNextEnterDelay = 0.0f;
     int buttonNextEnterIndex = 0;
-	
-	private float zoomLevel = -1.0f;
 
     int buttonCount = 0;
 
@@ -50,10 +47,6 @@ public class DynamicHexList : MonoBehaviour
     GameObject buttonBase;
 	
 	private GestureHelper.OnTap tapHandler = null;
-	
-	private GestureHelper.OnSwipeLeft leftHandler = null;
-	
-	private GestureHelper.OnSwipeRight rightHandler = null;
 	
     bool initialized = false;
 	
@@ -87,24 +80,6 @@ public class DynamicHexList : MonoBehaviour
                 break;
             }
         }
-
-        if (guiCamera != null)
-        {
-            cameraPosition = guiCamera.transform.position;
-            distanceVector = transform.position - cameraPosition;
-            distanceVector.y = 0;
-            cameraDefaultRotation = guiCamera.transform.rotation;
-
-            radius = distanceVector.magnitude;
-
-#if !UNITY_EDITOR
-            Platform.Instance.ResetGyro();
-            cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out cameraMoveOffset);
-
-            //Quaternion newOffset = Quaternion.Inverse(cameraDefaultRotation) * cameraDefaultRotation;
-            //guiCamera.transform.rotation = newOffset;
-#endif         
-        }
 		
 		tapHandler = new GestureHelper.OnTap(() => {
 			EnterGame();
@@ -117,26 +92,6 @@ public class DynamicHexList : MonoBehaviour
 		});
 		
 		GestureHelper.onSwipeDown += downHandler;
-
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			if(!IsPopupDisplayed()) {
-				if(zoomLevel > -1.5f) {
-					zoomLevel -= 0.5f;
-				}
-			}
-		});
-		
-		GestureHelper.swipeLeft += leftHandler;
-		
-		rightHandler = new GestureHelper.OnSwipeRight(() => {
-			if(!IsPopupDisplayed()) {
-				if(zoomLevel < -0.5f) {
-					zoomLevel += 0.5f;
-				}
-			}
-		});
-		
-		GestureHelper.swipeRight += rightHandler;
 		
         InitializeItems();
     }
@@ -151,39 +106,8 @@ public class DynamicHexList : MonoBehaviour
 		}
 		return false;
 	}	
-	
-    /// <summary>
-    /// Resets gyro offset against the screen, visually it setts screen to the "zero" position
-    /// </summary>
-    /// <returns></returns>
-    public void ResetGyro()
-    {
-#if !UNITY_EDITOR 
-        Platform.Instance.ResetGyro();
-        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out cameraMoveOffset);
-#endif
-    }
 
-    /// <summary>
-    /// function which converts orientation quaternion into pitch and yaw, suitable for moving cam up/down, left/right on 2D menu
-    /// </summary>
-    /// <param name="q">input orientation</param>
-    /// <param name="dynamicCamPos">(yaw, pitch)</param>
-    /// <return>the input quaternion</return>
-    private Quaternion ConvertOrientation(PlayerOrientation p, out Vector2 dynamicCamPos)
-    {
-        
-        dynamicCamPos = new Vector2(p.AsCumulativeYaw(), -p.AsPitch());
-        dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
-	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
-		
-        //UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", x-offset:" + dynamicCamPos.x);
-		Vector3 e = p.AsQuaternion().eulerAngles;
-		UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", Pitch:" + -p.AsPitch() + ", Roll:" + -p.AsRoll() + ", x:" + e.x + ", y:" + e.y + ", z:" + e.z);
-        //dynamicCamPos *= 0.02f;
-        //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
-        return p.AsQuaternion();
-	}
+
 
     /// <summary>    
     /// function which converts from 
@@ -292,23 +216,7 @@ public class DynamicHexList : MonoBehaviour
         //if button enter delay is below 0 at this stage then screen has finished loading
         if (parent.state == FlowState.State.Idle && guiCamera != null)
         {
-            /*Quaternion rot = SensorHelper.rotation;
-            if (!float.IsNaN(rot.x) && !float.IsNaN(rot.y) && !float.IsNaN(rot.z) && !float.IsNaN(rot.w))
-            {
-                Quaternion newOffset = Quaternion.Inverse(cameraStartingRotation) * rot;*/
-#if !UNITY_EDITOR
-                float pitchHeight;
-				Vector2 newCameraOffset;
-				ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out newCameraOffset);
-				Vector3 camPos = guiCamera.transform.position;
-				newCameraOffset -= cameraMoveOffset;
-                guiCamera.transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
-#endif
-            /*}
-            else
-            {
-                Debug.LogError("Sensor data invalid");
-            }*/
+
             Vector3 forward = guiCamera.transform.forward;
 
             RaycastHit[] hits = Physics.RaycastAll(guiCamera.transform.position, forward, 5.0f);// ,LayerMask.NameToLayer(HexPanel.CAMERA_3D_LAYER));
@@ -358,36 +266,26 @@ public class DynamicHexList : MonoBehaviour
                         TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                         if (tp != null)
                         {
-                            TweenPosition.Begin(tp.gameObject, 0.3f, cameraPosition);
+                            TweenPosition.Begin(tp.gameObject, 0.3f, guiCamera.transform.position);
                         }
-
+                        
+                        FlowButton fb = selection.GetComponent<FlowButton>();
                         if (parent != null)
-                        {
-                            FlowButton fb = selection.GetComponent<FlowButton>();
+                        {                            
                             if (fb != null)
                             {
                                 parent.OnHover(fb, false);
                             }
-
-                            HexButtonData hbd = (fb.userData["HexButtonData"] as HexButtonData);
-                            if (hbd.displayPlusMarker == true)
-                            {
-                                UISprite[] sprites = selection.GetComponentsInChildren<UISprite>() as UISprite[];
-                                if (sprites != null)
-                                {
-                                    foreach (UISprite sprite in sprites)
-                                    {
-                                        switch (sprite.gameObject.name)
-                                        {
-                                            case "Plus":
-                                                sprite.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                                                break;
-                                        }
-                                    }
-                                }
-                            }
                         }
 
+                        if (lockScript != null && !lockScript.locked)
+                        {
+                            if (fb != null)
+                            {
+                                HexButtonData hbd = fb.userData.ContainsKey("HexButtonData") ? fb.userData["HexButtonData"] as HexButtonData : null;
+                                HoverButtonAnim(buttonsImageComponents.IndexOf(selection), hbd, false);
+                            }
+                        }
                         //make sure that no data artifacts are left over                        
                         /*
                          * UIButtonAnimationLocker lockSelectionScript = selection.GetComponent<UIButtonAnimationLocker>();
@@ -408,31 +306,23 @@ public class DynamicHexList : MonoBehaviour
                         {
                             parent.OnHover(fb, true);
                         }
+                        
+                    }
 
-                        HexButtonData hbd = (fb.userData["HexButtonData"] as HexButtonData);
-                        if (hbd.displayPlusMarker == true)
+                    if (newHbd.locked)
+                    {
+                        UIButtonAnimationLocker newLockScript = newSelection.GetComponent<UIButtonAnimationLocker>();
+                        if (newLockScript != null && !newLockScript.locked)
                         {
-                            UISprite[] sprites = selection.GetComponentsInChildren<UISprite>() as UISprite[];
-                            if (sprites != null)
-                            {
-                                foreach (UISprite sprite in sprites)
-                                {
-                                    switch (sprite.gameObject.name)
-                                    {
-                                        case "Plus":
-                                            sprite.transform.localScale = new Vector3(3.0f, 3.0f, 1.0f);
-                                            break;
-                                    }
-                                }
-                            }
+                            HoverButtonAnim(buttonsImageComponents.IndexOf(newSelection), newHbd, true);                            
                         }
                     }
 
-                     HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
-                     if (info != null)
-                     {
-                         info.AnimExit();
-                     }
+                    HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+                    if (info != null)
+                    {
+                        info.AnimExit();
+                    }
                     //selection changed we want to stop dragging, user need to start drag from the start
                     dragging = false;
                 }
@@ -502,7 +392,7 @@ public class DynamicHexList : MonoBehaviour
                     {
                         tp = guiCamera.gameObject.AddComponent<TweenPosition>();
                     }					
-                    Vector3 cameraCoreAxis = cameraPosition;
+                    Vector3 cameraCoreAxis = guiCamera.transform.position;
                     cameraCoreAxis.y = selection.transform.position.y;
                     Vector3 direction = selection.transform.position - cameraCoreAxis;
 										
@@ -535,7 +425,7 @@ public class DynamicHexList : MonoBehaviour
                     TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
                     if (tp != null)
                     {
-                        Vector3 pos = cameraPosition;
+                        Vector3 pos = guiCamera.transform.position;
 
                         TweenPosition.Begin(tp.gameObject, 0.3f, pos);
                     }
@@ -708,24 +598,31 @@ public class DynamicHexList : MonoBehaviour
                 AddTileToLists(tile, data);
             }
 
-            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Plus"))
+            if (buttonSprites.Count > i )
             {
-                buttonSprites[i]["Plus"].gameObject.SetActive(data.displayPlusMarker);
-            }
+                if (buttonSprites[i].ContainsKey(GRAPHIC_PLUS))
+                {
+                    buttonSprites[i][GRAPHIC_PLUS].gameObject.SetActive(false);
+                }
 
-            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Foreground"))
-            {
-                buttonSprites[i]["Foreground"].gameObject.SetActive(data.locked);
+                if (buttonSprites[i].ContainsKey(GRAPHIC_FOREGROUND))
+                {
+                    buttonSprites[i][GRAPHIC_FOREGROUND].gameObject.SetActive(data.locked);
+                }
+                if (buttonSprites[i].ContainsKey(GRAPHIC_PADLOCK))
+                {
+                    uint color = data.backgroundTileColor;
+                    buttonSprites[i][GRAPHIC_PADLOCK].gameObject.SetActive(data.locked);
+                }
+                if (buttonSprites[i].ContainsKey(GRAPHIC_BACKGROUND))
+                {                
+                    uint color = data.backgroundTileColor;
+                    buttonSprites[i][GRAPHIC_BACKGROUND].color = new Color((float)((color >> 24) & 0xFF) / 256.0f,
+                                                                     (float)((color >> 16) & 0xFF) / 256.0f,
+                                                                     (float)((color >> 8) & 0xFF) / 256.0f);
+                }
+                
             }
-
-            if (buttonSprites.Count > i && buttonSprites[i].ContainsKey("Background"))
-            {                
-                uint color = data.backgroundTileColor;
-                buttonSprites[i]["Background"].color = new Color((float)((color >> 24) & 0xFF) / 256.0f,
-                                                                 (float)((color >> 16) & 0xFF) / 256.0f,
-                                                                 (float)((color >> 8) & 0xFF) / 256.0f);
-            }
-
             data.markedForVisualRefresh = false;
         }
 		StaticBatchingUtility.Combine(buttons.ToArray(), child.gameObject);
@@ -917,7 +814,6 @@ public class DynamicHexList : MonoBehaviour
             if (tp != null)
             {
                 GameObject.Destroy(tp);
-                guiCamera.transform.position = cameraPosition;
             }
         }
 		
@@ -973,6 +869,72 @@ public class DynamicHexList : MonoBehaviour
         int nonDIagonalMoves = columnDist - (int)(rowDist * 0.5f + 0.6f) ;
 
         return nonDIagonalMoves > 0 ? nonDIagonalMoves + rowDist : rowDist;
+        
+    }
+
+    private void HoverButtonAnim(int index, HexButtonData hbd, bool hoverEnter)
+    {
+        if ( hbd.locked == false) return;
+
+
+
+        UIButtonAnimationLocker lockScript = buttons[index].GetComponent<UIButtonAnimationLocker>();
+        //Transform padlock = button.transform.Find("Padlock");
+        //Transform plus = button.transform.Find("Plus");
+        UISprite sprite;
+        TweenAlpha ta;
+        
+        if (hoverEnter == true)
+        {
+            if (buttonSprites[index].ContainsKey(GRAPHIC_PADLOCK))
+            {
+                sprite = buttonSprites[index][GRAPHIC_PADLOCK];
+                sprite.gameObject.SetActive(true);
+                ta = TweenAlpha.Begin(sprite.gameObject, 0.15f, 0.0f);
+            }
+
+            if (buttonSprites[index].ContainsKey(GRAPHIC_PLUS))
+            {
+                sprite = buttonSprites[index][GRAPHIC_PLUS];
+                sprite.gameObject.SetActive(true);
+                sprite.alpha = 1.0f;
+                ta = TweenAlpha.Begin(sprite.gameObject, 0.25f, 0.0f);
+                ta.delay = 2.0f;
+            }
+
+            if (buttonSprites[index].ContainsKey(GRAPHIC_FOREGROUND))
+            {
+                sprite = buttonSprites[index][GRAPHIC_FOREGROUND];
+                sprite.gameObject.SetActive(true);
+                sprite.alpha = 0.6f;
+                ta = TweenAlpha.Begin(sprite.gameObject, 0.25f, 0.0f);
+                ta.delay = 2.0f;
+            }
+        }
+        else
+        {
+            if (buttonSprites[index].ContainsKey(GRAPHIC_PADLOCK))
+            {
+                sprite = buttonSprites[index][GRAPHIC_PADLOCK];                
+                ta = TweenAlpha.Begin(sprite.gameObject, 0.15f, 1.0f);
+            }
+
+            if (buttonSprites[index].ContainsKey(GRAPHIC_PLUS))
+            {
+                sprite = buttonSprites[index][GRAPHIC_PLUS];                
+                ta = TweenAlpha.Begin(sprite.gameObject, 0.25f, 0.0f);
+                ta.delay = 0.0f;
+            }
+
+            if (buttonSprites[index].ContainsKey(GRAPHIC_FOREGROUND))
+            {
+                sprite = buttonSprites[index][GRAPHIC_FOREGROUND];                                
+                ta = TweenAlpha.Begin(sprite.gameObject, 0.25f, 0.6f);
+                ta.delay = 0.0f;
+            }
+        }
+
+
         
     }
 }

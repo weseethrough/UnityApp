@@ -48,7 +48,7 @@ public class Platform : MonoBehaviour {
 	// Events
 	public delegate void OnAuthenticated(bool success);
 	public OnAuthenticated onAuthenticated = null;
-	public delegate void OnSync();
+	public delegate void OnSync(string message);
 	public OnSync onSync = null;
 	public delegate void OnSyncProgress(string message);
 	public OnSyncProgress onSyncProgress = null;
@@ -250,18 +250,9 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public void OnSynchronization(string message) {
-		UnityEngine.Debug.Log("Platform: synchronize finished");
+		UnityEngine.Debug.Log("Platform: synchronize finished with " + message);
 		lastSync = DateTime.Now;
-		if (onSync != null) onSync();
-		/// TODO
-		Notification[] notes = Notifications();
-		int unread = 0;
-		foreach (Notification note in notes) if(!note.read) unread++;
-//		if (unread > 0) {
-//			notesLabel = notes[notes.Length-1].ToString() + "\n" + notes.Length + " unread notifications";
-//		} else {
-//			notesLabel = "No unread notifications";
-//		}
+		if (onSync != null) onSync(message);
 	}
 
 	public void OnSynchronizationProgress(string message) {
@@ -1198,4 +1189,16 @@ public class Platform : MonoBehaviour {
 	/// BLOB.
 	/// </param>
 
+	public virtual void ToggleScreenCapture()
+	{
+		try
+		{
+			helper.Call("screenrecord", activity);
+			UnityEngine.Debug.Log("Platform: toggling screen recording");
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error logging analytic event. " + e.Message);
+		}
+	}
 }
