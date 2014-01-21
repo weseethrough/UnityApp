@@ -243,7 +243,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;
-		//GestureHelper.swipeLeft -= leftHandler;
+		//GestureHelper.onSwipeLeft -= leftHandler;
 		//GestureHelper.onTap -= tapHandler;
 	}
 }

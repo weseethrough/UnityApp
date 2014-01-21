@@ -42,7 +42,7 @@ public class GUICamera : MonoBehaviour {
 			}
 		});
 		
-		GestureHelper.swipeLeft += leftHandler;
+		GestureHelper.onSwipeLeft += leftHandler;
 		
 		rightHandler = new GestureHelper.OnSwipeRight(() => {
 			if(!IsPopupDisplayed()) {
@@ -52,7 +52,7 @@ public class GUICamera : MonoBehaviour {
 			}
 		});
 		
-		GestureHelper.swipeRight += rightHandler;
+		GestureHelper.onSwipeRight += rightHandler;
         
 	}
 	
@@ -76,14 +76,14 @@ public class GUICamera : MonoBehaviour {
 	
 	void OnDisable() 
 	{
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
+		GestureHelper.onSwipeLeft -= leftHandler;
+		GestureHelper.onSwipeRight -= rightHandler;
 	}
 	
 	void OnDestroy()
 	{
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
+		GestureHelper.onSwipeLeft -= leftHandler;
+		GestureHelper.onSwipeRight -= rightHandler;
 	}
 	
 	/// <summary>
@@ -100,8 +100,8 @@ public class GUICamera : MonoBehaviour {
 	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
 		
         //UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", x-offset:" + dynamicCamPos.x);
-		Vector3 e = p.AsQuaternion().eulerAngles;
-		UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", Pitch:" + -p.AsPitch() + ", Roll:" + -p.AsRoll() + ", x:" + e.x + ", y:" + e.y + ", z:" + e.z);
+		//Vector3 e = p.AsQuaternion().eulerAngles;
+		//UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", Pitch:" + -p.AsPitch() + ", Roll:" + -p.AsRoll() + ", x:" + e.x + ", y:" + e.y + ", z:" + e.z);
         //dynamicCamPos *= 0.02f;
         //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
         return p.AsQuaternion();

@@ -115,7 +115,7 @@ public class GameBase : MonoBehaviour {
 //		leftHandler = new GestureHelper.OnSwipeLeft(() => {
 //			HandleLeftSwipe();
 //		});
-//		GestureHelper.swipeLeft += leftHandler;
+//		GestureHelper.onSwipeLeft += leftHandler;
 		
 		//Get target distance
 #if !UNITY_EDITOR
