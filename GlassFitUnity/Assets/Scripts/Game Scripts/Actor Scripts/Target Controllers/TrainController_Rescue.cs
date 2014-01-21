@@ -41,6 +41,9 @@ public class TrainController_Rescue : TargetController {
 			AudioSource audiosource = (AudioSource)source;
 			audiosource.Play();
 		}
+		//enable the on-look-at audio
+		OnLookAtSound lookAtSound = GetComponent<OnLookAtSound>();
+		lookAtSound.enabled = true;
 	}
 	
 	// Update is called once per frame
