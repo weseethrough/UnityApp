@@ -947,6 +947,14 @@ public class Platform : MonoBehaviour {
 		} catch (Exception e) {
 			UnityEngine.Debug.Log("Platform: Error getting orientation: " + e.Message);
 		}
+
+		// Test - print log messages for touch input
+		//UnityEngine.Debug.Log("Platform: getting touch input");
+		//if (GetTouchInput() != null)
+		//{
+		//	UnityEngine.Debug.Log("Touch input: x:" + ((Vector2)GetTouchInput())[0] + ", y:" + ((Vector2)GetTouchInput())[1]);
+		//}
+
 	}	
 	
 	public virtual void Poll() {
@@ -1178,24 +1186,29 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("Platform: Error logging analytic event. " + e.Message);
 		}
 	}
-	}
 
 
 	// Poll java for touch input
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Vector2 GetTouchInput()
+	public virtual Vector2? GetTouchInput()
 	{
 		try
 		{
-			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
-				float? x = activity.Call<Float> ("getTouchX()");
-				float? y = activity.Call<Float> ("getTouchY()");
+			UnityEngine.Debug.Log("Platform: Checking touch input..");
+			int touchCount = activity.Call<int> ("getTouchCount");
+			if (touchCount > -1)
+			{
+				float x = activity.Call<float> ("getTouchX");
+				float y = activity.Call<float> ("getTouchY");
 				return new Vector2(x,y);
-			}));
+			} else {
+				return null;
+			}
 		}
 		catch(Exception e)
 		{
-			UnityEngine.Debug.Log("Platform: Error getting touch input " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error getting touch input " + e.Message);
+			return null;
 		}
 	}
 	
