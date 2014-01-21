@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 using System.Collections.Generic;
@@ -51,14 +51,14 @@ public class EndTutorialPanel : TutorialPanel {
 							
                             GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
 
-//                            GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-//
-//                            GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
-//
-//                            if (gameExit.Link.Count > 0)
-//                            {
-//                                gComponent.Data.Connect(gc, gameExit.Link[0]);
-//                            }
+                            GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+
+                            GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
+
+                            if (gameExit.Link.Count > 0)
+                            {
+                                gComponent.Data.Connect(gc, gameExit.Link[0]);
+                            }
 							
 							if(gameExit != null) {
 								parentMachine.FollowConnection(gameExit);
@@ -143,8 +143,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.column = 1;
 	            hbd.buttonName = "EarnHex";
 	            hbd.displayInfoData = false;
-                hbd.textNormal = "You earned 500 Race Points (RP)!";
-				hbd.displayInfoData = false;
+	            hbd.textNormal = "You earned 500 Race Points (RP)!";
 				
 	            buttonData.Add(hbd);
 	
@@ -156,7 +155,6 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.buttonName = "UseHex";
 	            hbd.displayInfoData = false;
 	            hbd.textNormal = "RP is used";
-				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
@@ -168,7 +166,6 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.buttonName = "ChallengeHex";
 	            hbd.displayInfoData = false;
 	            hbd.textNormal = "To unlock new challenges.";
-				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
@@ -180,7 +177,6 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.buttonName = "TryHex";
 	            hbd.displayInfoData = false;
 	            hbd.textNormal = "Try this one ^";
-				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
@@ -222,7 +218,6 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.buttonName = "EarnHex";
             hbd.displayInfoData = false;
             hbd.textNormal = "You earned 500 Race Points (RP)";
-			hbd.displayInfoData = false;
 			
             buttonData.Add(hbd);
 
@@ -234,7 +229,6 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.buttonName = "UseHex";
             hbd.displayInfoData = false;
             hbd.textNormal = "RP is used";
-			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
         } else if (buttonData.Count == 4)
@@ -245,7 +239,6 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.buttonName = "ChallengeHex";
             hbd.displayInfoData = false;
             hbd.textNormal = "To unlock new challenges.";
-			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
         } else if (buttonData.Count == 5)
@@ -256,7 +249,6 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.buttonName = "TryHex";
             hbd.displayInfoData = false;
             hbd.textNormal = "Try this one ^";
-			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
         } else if(buttonData.Count == 6) 
