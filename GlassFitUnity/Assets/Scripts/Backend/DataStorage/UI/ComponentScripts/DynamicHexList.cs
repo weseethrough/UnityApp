@@ -19,9 +19,6 @@ public class DynamicHexList : MonoBehaviour
 
     UICamera guiCamera;
     public static Vector2 hexLayoutOffset = new Vector2(0.25f, 0.4330127f);
-    Vector3 distanceVector;
-	
-	float radius;
 	
     //float screenEnterTime = 8.0f;
     float buttonEnterDelay = 0.0f;
@@ -685,7 +682,7 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     public void InitializeItems()
     {
-        if (parent == null || radius == 0.0f)
+        if (parent == null)
         {
             Debug.LogError("Data have not been set properly before this call!");
         }
