@@ -62,9 +62,10 @@ public class UISensorCamera : MonoBehaviour {
 			Platform.Instance.GetPlayerOrientation().Reset();
 #endif
 			// Reset the rotation in the hex list.
-			DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
-            foreach (DynamicHexList dhl in lists)
+			GUICamera[] lists = GameObject.FindObjectsOfType(typeof(GUICamera)) as GUICamera[];
+            foreach (GUICamera dhl in lists)
             {
+				UnityEngine.Debug.Log("Camera: found gui camera, resetting gyro");
                 dhl.ResetGyro();
             }
 			started = true;
@@ -119,11 +120,12 @@ public class UISensorCamera : MonoBehaviour {
 #if !UNITY_EDITOR
 		Platform.Instance.GetPlayerOrientation().Reset();
 
-		DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
-        foreach (DynamicHexList dhl in lists)
-        {
-            dhl.ResetGyro();
-        }
+		GUICamera[] lists = GameObject.FindObjectsOfType(typeof(GUICamera)) as GUICamera[];
+            foreach (GUICamera dhl in lists)
+            {
+				UnityEngine.Debug.Log("Camera: found gui camera, resetting gyro");
+                dhl.ResetGyro();
+            }
 #endif
 	}
 	
