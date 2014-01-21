@@ -51,7 +51,10 @@ public class DynamicHexList : MonoBehaviour
     bool initialized = false;
 	
 	private GestureHelper.DownSwipe downHandler = null;
-
+	
+	private GestureHelper.OnSwipeLeft leftHandler = null;
+	
+	private GestureHelper.OnSwipeRight rightHandler = null;
 
     /// <summary>
     /// List initialization process
@@ -93,6 +96,28 @@ public class DynamicHexList : MonoBehaviour
 		
 		GestureHelper.onSwipeDown += downHandler;
 		
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			if(!IsPopupDisplayed()) {
+				GUICamera cameraScript = guiCamera.GetComponent<GUICamera>();
+				if(cameraScript.zoomLevel > -1.5f) {
+					cameraScript.zoomLevel -= 0.5f;
+				}
+			}
+		});
+		
+		GestureHelper.swipeLeft += leftHandler;
+		
+		rightHandler = new GestureHelper.OnSwipeRight(() => {
+			if(!IsPopupDisplayed()) {
+				GUICamera cameraScript = guiCamera.GetComponent<GUICamera>();
+				if(cameraScript.zoomLevel < -0.5f) {
+					cameraScript.zoomLevel += 0.5f;
+				}
+			}
+		});
+		
+		GestureHelper.swipeRight += rightHandler;
+		
         InitializeItems();
     }
 	
@@ -107,7 +132,17 @@ public class DynamicHexList : MonoBehaviour
 		return false;
 	}	
 
-
+	void OnDisable() 
+	{
+		GestureHelper.swipeLeft -= leftHandler;
+		GestureHelper.swipeRight -= rightHandler;
+	}
+	
+	void OnDestroy()
+	{
+		GestureHelper.swipeLeft -= leftHandler;
+		GestureHelper.swipeRight -= rightHandler;
+	}
 
     /// <summary>    
     /// function which converts from 

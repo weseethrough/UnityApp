@@ -14,11 +14,7 @@ public class GUICamera : MonoBehaviour {
 	const float CAMERA_SENSITIVITY_X = 4.5f;
     const float CAMERA_SENSITIVITY_Y = 5.5f;
 	
-	private GestureHelper.OnSwipeLeft leftHandler = null;
-	
-	private GestureHelper.OnSwipeRight rightHandler = null;
-	
-	private float zoomLevel = -1.0f;
+	public float zoomLevel = -1.0f;
 	
 	// Use this for initialization
 	void Start () {
@@ -34,25 +30,6 @@ public class GUICamera : MonoBehaviour {
         cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out cameraMoveOffset);
 #endif         
 		
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			if(!IsPopupDisplayed()) {
-				if(zoomLevel > -1.5f) {
-					zoomLevel -= 0.5f;
-				}
-			}
-		});
-		
-		GestureHelper.swipeLeft += leftHandler;
-		
-		rightHandler = new GestureHelper.OnSwipeRight(() => {
-			if(!IsPopupDisplayed()) {
-				if(zoomLevel < -0.5f) {
-					zoomLevel += 0.5f;
-				}
-			}
-		});
-		
-		GestureHelper.swipeRight += rightHandler;
         
 	}
 	
@@ -66,25 +43,6 @@ public class GUICamera : MonoBehaviour {
 		}
 		return false;
 	}	
-	
-	public void ResetGyro()
-    {
-#if !UNITY_EDITOR 
-        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out cameraMoveOffset);
-#endif
-    }
-	
-	void OnDisable() 
-	{
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
-	}
-	
-	void OnDestroy()
-	{
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
-	}
 	
 	/// <summary>
     /// function which converts orientation quaternion into pitch and yaw, suitable for moving cam up/down, left/right on 2D menu
