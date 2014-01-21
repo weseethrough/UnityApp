@@ -28,6 +28,8 @@ public class Train_Rescue : GameBase {
 		//clear the subtitle
 		DataVault.Set("train_subtitle", " ");
 		
+		//set flag so that trophy is shown if we win
+		DataVault.Set("showFinishTrophy", true);
 		
 		//set up a series of junctions for the train
 		//beginning at 200m
@@ -138,6 +140,8 @@ public class Train_Rescue : GameBase {
 			{
 				//finish the game
 				bFailed = true;
+				//set flag so that trophy isn't show
+				DataVault.Set("showFinishTrophy", false);
 				FinishGame();
 				finished = true;
 			}
