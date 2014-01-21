@@ -344,6 +344,7 @@ public class GameBase : MonoBehaviour {
 			if(started || countdown)
 			{
 				pause = true;
+				Time.timeScale = 0.0f;
 				Platform.Instance.StopTrack();
 				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
@@ -358,6 +359,7 @@ public class GameBase : MonoBehaviour {
 		} else {
 			UnityEngine.Debug.Log("GameBase: Pause pressed, turning off");
 			pause = false;
+			Time.timeScale = 1.0f;
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			UnityEngine.Debug.Log("GameBase: flowstate obtained");
 			GConnector gConnect = fs.Outputs.Find(r => r.Name == "ReturnExit");
