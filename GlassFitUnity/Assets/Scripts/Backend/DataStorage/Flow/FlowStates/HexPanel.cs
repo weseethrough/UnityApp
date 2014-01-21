@@ -227,17 +227,7 @@ public class HexPanel : Panel
             return;
         }
 
-        HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
-        if (info != null)
-        {
-            if (!info.IsInOpenStage())
-            {
-                HexButtonData data = button.userData["HexButtonData"] as HexButtonData;
-                DataVault.Set(HexInfoManager.DV_HEX_DATA, data);
-                info.PrepareForNewData();
-                return;
-            }
-        }
+        
 
         if (Outputs.Count > 0 && parentMachine != null)
         {
@@ -271,7 +261,20 @@ public class HexPanel : Panel
     /// <returns></returns>
     public virtual void OnHover(FlowButton button, bool justStarted)
     {
-
+        if (justStarted)
+        {
+            HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
+            if (info != null)
+            {
+               // if (!info.IsInOpenStage())
+               // {
+                    HexButtonData data = button.userData["HexButtonData"] as HexButtonData;
+                    DataVault.Set(HexInfoManager.DV_HEX_DATA, data);
+                    info.PrepareForNewData();
+                    return;
+              //  }
+            }
+        }
     }
 
     /// <summary>

@@ -27,7 +27,7 @@ public class LoadingTextComponent : MonoBehaviour
 		if(instance != null) {
 			return instance.gameObject.activeSelf;
 		} else { 
-			UnityEngine.Debug.Log("LoadingText: object null, returning false");
+			//UnityEngine.Debug.Log("LoadingText: object null, returning false");
 			return false;
 		}
 	}
@@ -38,7 +38,7 @@ public class LoadingTextComponent : MonoBehaviour
         {
             instance.gameObject.SetActive(visible);
         } else {
-			UnityEngine.Debug.Log("LoadingText: object is null!");
+			//UnityEngine.Debug.Log("LoadingText: object is null!");
 		}
     }
 }

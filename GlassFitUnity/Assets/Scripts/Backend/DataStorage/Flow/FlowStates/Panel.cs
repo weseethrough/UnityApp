@@ -68,7 +68,7 @@ public class Panel : FlowState
     }
 
     /// <summary>
-    /// initialzies node and creates name for it. Makes as well default iput/output connection sockets
+    /// initializes node and creates name for it. Makes as well default iput/output connection sockets
     /// </summary>
     /// <returns></returns>
     protected override void Initialize()

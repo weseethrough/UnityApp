@@ -305,7 +305,7 @@ public class DataVault : MonoBehaviour
     }
 
     /// <summary>
-    /// tries to translate component string variable with one of the stored internally in datavault
+    /// tries to translate component string variable with one of the stored internally in data vault
     /// </summary>
     /// <param name="source">string to get translated</param>
     /// <param name="registerForUpdates">if provided, object would get informed when changes to variables are made those which were used for translations</param>
@@ -316,7 +316,7 @@ public class DataVault : MonoBehaviour
     }
 
     /// <summary>
-    /// tries to translate component string variable with one of the stored internally in datavault
+    /// tries to translate component string variable with one of the stored internally in data vault
     /// </summary>
     /// <param name="source">string to get translated</param>
     /// <param name="startingPoint">offset search would start from</param>
@@ -368,7 +368,7 @@ public class DataVault : MonoBehaviour
     }
 
     /// <summary>
-    /// registers component for evets under identifier named event
+    /// registers component for events under identifier named event
     /// </summary>
     /// <param name="listner">object which would get informed when variable changes</param>
     /// <param name="identifier">iidentofier which would be used for registration, any change to variable with this name would make listner informed</param>
@@ -401,7 +401,7 @@ public class DataVault : MonoBehaviour
     }
 
     /// <summary>
-    /// removes from registration listner lsit
+    /// removes from registration listner list
     /// </summary>
     /// <param name="listner">listrner previously listening for events</param>
     /// <returns></returns>

@@ -239,10 +239,10 @@ public class PlatformDummy : Platform
 		throw new NotImplementedException();
 	}
 	
-	public Quaternion GetOrientation() {
+	public Quaternion GetPlayerOrientation() {
 		//just return the identity quaternion, to look straight forward.
 		//might be useful to optionally have some wiggle on this in the future.
-		return Quaternion.identity;	
+		return new PlayerOrientation().AsQuaternion();
 	}
 	
 	public override void ResetGyro() {
@@ -295,7 +295,7 @@ public class PlatformDummy : Platform
 		return;
 	}
 	
-	public override Friend[] Friends() {
+	public override List<Friend> Friends() {
 		var friend = @"{
 	        ""_id"": ""gplus107650962788507404146"",
 	        ""has_glass"": false,
@@ -305,7 +305,7 @@ public class PlatformDummy : Platform
 	        ""uid"": ""107650962788507404146"",
 	        ""user_id"": null
 	      }";
-		Friend[] friends = new Friend[1];
+		List<Friend> friends = new List<Friend>(1);
 		friends[0] = new Friend(friend);
 		return friends;
 	}

@@ -83,7 +83,7 @@ public class TrainingCamera : MonoBehaviour {
 				if(timerActive) {
 					gridOn = false;
 				} else {
-					offsetFromStart = Platform.Instance.GetOrientation();
+					offsetFromStart = Platform.Instance.GetPlayerOrientation().AsQuaternion();
 					Platform.Instance.ResetGyro();
 					gridOn = true;
 				}
@@ -110,7 +110,7 @@ public class TrainingCamera : MonoBehaviour {
 	
 	void Update () {
 		// Set the new rotation of the camera
-		newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+		newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetPlayerOrientation().AsQuaternion();
 		
 		subtitleTime += Time.deltaTime;
 		

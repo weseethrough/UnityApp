@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -21,10 +22,12 @@ public class GameSelectPanel : HexPanel
 		None
 	};
 	
-	private Gestures lastGesture = Gestures.None;
+	private List<Gestures> lastGestures = new List<Gestures>();
+	private List<Gestures> pointsCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.TwoTap, Gestures.Tap};
+	private List<Gestures> screenCaptureCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.Tap, Gestures.TwoTap};
 	
-	private float cheatElapsedTime = 1.0f;
 	private float cheatMaxTime = 1.0f;
+	private DateTime cheatDt = DateTime.Now;
 	
 	
 	public GameSelectPanel() {}
@@ -51,56 +54,32 @@ public class GameSelectPanel : HexPanel
 		return false;
 	}
 	
-	public void CheckCheat(int current) {
-		switch(current)
-		{
-		case 1:
-			if(lastGesture == Gestures.TwoTap) {
+	public void CheckCheat(Gestures current) {
+		if ((DateTime.Now - cheatDt).TotalMilliseconds/1000.0f >= cheatMaxTime) lastGestures.Clear();
+		
+		lastGestures.Add(current);
+		UnityEngine.Debug.Log ("GameSelectPanel: gestures: " + string.Join(", ", lastGestures.Select(i => i.ToString()).ToArray()));
+		if (lastGestures.SequenceEqual(pointsCheat)) {
 				UnityEngine.Debug.Log("GameSelectPanel: Final tap - points awarded");
 				Platform.Instance.AwardPoints("Dev Cheat", "Dev Cheat", 10000);
 				UnityEngine.Debug.Log("GameSelectPanel: points awarded in platform");
 				MessageWidget.AddMessage("Points Cheat", "You got 10,000 points for nothing!", "trophy copy");
-				lastGesture = Gestures.None;
-			} else {
-				lastGesture = Gestures.None;
-				cheatElapsedTime = 1.0f;
-			}
-			break;
-			
-		case 2:
-			if(lastGesture == Gestures.ThreeTap) {
-				lastGesture = Gestures.TwoTap;
-				UnityEngine.Debug.Log("GameSelectPanel: Two tap detected for cheats");
-			} else {
-				lastGesture = Gestures.None;
-				cheatElapsedTime = 1.0f;
-			}
-			break;
-			
-		case 3:
-			if(lastGesture == Gestures.None) {
-				lastGesture = Gestures.ThreeTap;
-				UnityEngine.Debug.Log("GameSelectPanel: Three tap detected for cheats");
-				cheatElapsedTime = 0.0f;
-			} else {
-				lastGesture = Gestures.None;
-				cheatElapsedTime = 1.0f;
-			}
-			break;
+				lastGestures.Clear();
 		}
+		if (lastGestures.SequenceEqual(screenCaptureCheat)) {
+				UnityEngine.Debug.Log("GameSelectPanel: Final tap - screen capture toggled");
+				Platform.Instance.ToggleScreenCapture();
+				// TODO: Toggle audio recording
+				MessageWidget.AddMessage("Debug", "Toggling screen capture", "settings");
+				lastGestures.Clear();
+		}
+		cheatDt = DateTime.Now;
 	}
 	
 	public override void StateUpdate ()
 	{
 		base.StateUpdate ();
-		
-		if(cheatElapsedTime < 1.0f) {
-			cheatElapsedTime += Time.deltaTime;
-			if(cheatElapsedTime > 1.0f) {
-				lastGesture = Gestures.None;
-			}
-		}
-		
+				
 		if(!LoadingTextComponent.IsVisible()) {
 			LoadingTextComponent.SetVisibility(true);
 		}
@@ -128,19 +107,19 @@ public class GameSelectPanel : HexPanel
 		GestureHelper.onSwipeDown += downHandler;
 		
 		tapHandler = new GestureHelper.OnTap(() => {
-			CheckCheat(1);
+			CheckCheat(Gestures.Tap);
 		});
 		
 		GestureHelper.onTap += tapHandler;
 		
 		twoHandler = new GestureHelper.TwoFingerTap(() => {
-			CheckCheat(2);
+			CheckCheat(Gestures.TwoTap);
 		});
 		
 		GestureHelper.onTwoTap += twoHandler;
 		
 		threeHandler = new GestureHelper.ThreeFingerTap(() => {
-			CheckCheat(3);
+			CheckCheat(Gestures.ThreeTap);
 		});
 		
 		GestureHelper.onThreeTap += threeHandler;

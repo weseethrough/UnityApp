@@ -15,10 +15,14 @@ public class FinishMarker : MonoBehaviour {
 	// Bonus points for final sprint
 	private float finalBonus = 1000;
 	
+	protected float height = 0.0f;
 	/// <summary>
 	/// Sets the initial position and target
 	/// </summary>
 	void Start () {
+		
+		height = transform.position.y;
+		
 		// Get the player's target.
 #if UNITY_EDITOR
 		target = 5000;
@@ -26,7 +30,7 @@ public class FinishMarker : MonoBehaviour {
 		target = (int)DataVault.Get("finish");
 #endif	
 		// Set the initial position out of view.
-		transform.position = new Vector3(0f, -595f, 500000f);
+		transform.position = new Vector3(0f, height, 500000f);
 	}
 	
 	/// <summary>
@@ -38,7 +42,7 @@ public class FinishMarker : MonoBehaviour {
 		// If the finish line is in range, display it.
 		if(distance > target - 100) 
 		{
-			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
+			//DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
 			if(finalBonus > 0) {
 				finalBonus -= 50f * Time.deltaTime;
 			} else {
@@ -46,7 +50,8 @@ public class FinishMarker : MonoBehaviour {
 			}
 			double deltDist = target - distance;
 			//deltDist *= 135f;
-			transform.position = new Vector3(0, -595f, (float)deltDist);
+			transform.position = new Vector3(0, height, (float)deltDist);
+
 		} else 
 		{
 			DataVault.Set("ending_bonus", "");

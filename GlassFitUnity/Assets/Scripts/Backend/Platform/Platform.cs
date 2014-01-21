@@ -13,6 +13,7 @@ public class Platform : MonoBehaviour {
 	private int calories = 0;
 	private float pace = 0;
 	protected Position position = null;
+	private PlayerOrientation playerOrientation = new PlayerOrientation();
 	protected float bearing = -999.0f;
 	private bool started = false;
 	protected bool initialised = false;
@@ -47,7 +48,7 @@ public class Platform : MonoBehaviour {
 	// Events
 	public delegate void OnAuthenticated(bool success);
 	public OnAuthenticated onAuthenticated = null;
-	public delegate void OnSync();
+	public delegate void OnSync(string message);
 	public OnSync onSync = null;
 	public delegate void OnSyncProgress(string message);
 	public OnSyncProgress onSyncProgress = null;
@@ -249,18 +250,9 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public void OnSynchronization(string message) {
-		UnityEngine.Debug.Log("Platform: synchronize finished");
+		UnityEngine.Debug.Log("Platform: synchronize finished with " + message);
 		lastSync = DateTime.Now;
-		if (onSync != null) onSync();
-		/// TODO
-		Notification[] notes = Notifications();
-		int unread = 0;
-		foreach (Notification note in notes) if(!note.read) unread++;
-//		if (unread > 0) {
-//			notesLabel = notes[notes.Length-1].ToString() + "\n" + notes.Length + " unread notifications";
-//		} else {
-//			notesLabel = "No unread notifications";
-//		}
+		if (onSync != null) onSync(message);
 	}
 
 	public void OnSynchronizationProgress(string message) {
@@ -313,10 +305,17 @@ public class Platform : MonoBehaviour {
 	
 	public virtual User GetUser(int userId) {
 		// TODO: Implement me!
-		string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
-		string name = names[userId % names.Length];
-		
-		return new User(userId, name, name + " Who");
+		try {
+			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("fetchUser", userId);
+			if(ajo.GetRawObject().ToInt32() == 0) return null;
+			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: error getting user");
+			string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
+			string name = names[userId % names.Length];
+			
+			return new User(userId, name, name + " Who");
+		}
 	}
 	
 	// Starts tracking
@@ -552,16 +551,8 @@ public class Platform : MonoBehaviour {
 	}
 	
 	// Get the device's orientation
-	public virtual Quaternion GetOrientation() {
-		try {
-			//UnityEngine.Debug.Log("Platform: getting orientation");
-			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getOrientation");
-            Quaternion q = new Quaternion(ajo.Call<float>("getX"), ajo.Call<float>("getY"), ajo.Call<float>("getZ"),ajo.Call<float>("getW"));
-			return q;
-		} catch (Exception e) {
-			UnityEngine.Debug.Log("Platform: Error getting orientation: " + e.Message);
-			return Quaternion.identity;
-		}
+	public virtual PlayerOrientation GetPlayerOrientation() {
+		return playerOrientation;
 	}
 	
 	// Reset the Gyros and accelerometer
@@ -629,8 +620,8 @@ public class Platform : MonoBehaviour {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching track");
 			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
-					Track track = convertTrack(rawtrack);
-					return track;
+				Track track = convertTrack(rawtrack);
+				return track;
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
@@ -813,25 +804,29 @@ public class Platform : MonoBehaviour {
 	}
 		
 	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Friend[] Friends() {
+	public virtual List<Friend> Friends() {
 		try {
 			UnityEngine.Debug.Log("Platform: getting friends list");
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
+				UnityEngine.Debug.Log("Platform: getting friends list size");
 				int length = list.Call<int>("size");
-				Friend[] friendList = new Friend[length];
+				List<Friend> friendList = new List<Friend>();
 				for (int i=0;i<length;i++) {
 					using (AndroidJavaObject f = list.Call<AndroidJavaObject>("get", i)) {
-						friendList[i] = new Friend(f.Get<string>("friend"));
+						UnityEngine.Debug.Log("Platform: getting a friend");
+						Friend friend = new Friend(f.Get<string>("friend"));
+						friendList.Add(friend);
+						UnityEngine.Debug.Log("Platform: got a friend");
 					}
 				}
-				UnityEngine.Debug.Log("Platform: " + friendList.Length + " friends fetched");
+				UnityEngine.Debug.Log("Platform: " + friendList.Count + " friends fetched");
 				return friendList;
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
-		return new Friend[0];
+		return new List<Friend>();
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
@@ -942,7 +937,16 @@ public class Platform : MonoBehaviour {
 			//UnityEngine.Debug.Log("Platform: about to sync properly");
 			SyncToServer();
 			//UnityEngine.Debug.Log("Platform: sync complete");
-		}				
+		}
+
+		// Update player orientation
+		try {
+			//UnityEngine.Debug.Log("Platform: getting orientation");
+			AndroidJavaObject q = helper.Call<AndroidJavaObject>("getOrientation");
+            playerOrientation.Update(new Quaternion(q.Call<float>("getX"), q.Call<float>("getY"), q.Call<float>("getZ"), q.Call<float>("getW")));
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error getting orientation: " + e.Message);
+		}
 	}	
 	
 	public virtual void Poll() {
@@ -986,6 +990,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("Platform: Error getting position: " + e.Message);
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
+
 		try {
 			if (gps.Call<bool>("hasBearing")) {
 				bearing = gps.Call<float>("getCurrentBearing");
@@ -1153,7 +1158,26 @@ public class Platform : MonoBehaviour {
 		{
 			UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + gems + " gems in " + gameId);
 		}
-	}	
+	}
+
+	/// <summary>
+	/// Use this method to record events for analytics, e.g. a user action.
+	/// </summary>
+	/// <param name='json'>
+	/// Json-encoded event values such as current game state, what the user action was etc
+	/// </param>
+	public virtual void LogAnalytics(JSONObject json)
+	{
+		try
+		{
+			helper.CallStatic("logEvent", json.ToString());
+			UnityEngine.Debug.Log("Platform: logged analytic event " + json.ToString());
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error logging analytic event. " + e.Message);
+		}
+	}
 	
 	/// <summary>
 	/// Stores the BLOB. Called by 
@@ -1165,4 +1189,16 @@ public class Platform : MonoBehaviour {
 	/// BLOB.
 	/// </param>
 
+	public virtual void ToggleScreenCapture()
+	{
+		try
+		{
+			helper.Call("screenrecord", activity);
+			UnityEngine.Debug.Log("Platform: toggling screen recording");
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error logging analytic event. " + e.Message);
+		}
+	}
 }

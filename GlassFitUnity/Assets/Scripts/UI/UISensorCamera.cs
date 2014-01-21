@@ -59,9 +59,7 @@ public class UISensorCamera : MonoBehaviour {
 		if(!started)
 		{
 #if !UNITY_EDITOR
-			Platform.Instance.ResetGyro();
-			offsetFromStart = Platform.Instance.GetOrientation();
-			offsetFromStart = Quaternion.Euler(0, offsetFromStart.eulerAngles.y, 0);
+			Platform.Instance.GetPlayerOrientation().Reset();
 #endif
 			// Reset the rotation in the hex list.
 			GUICamera[] lists = GameObject.FindObjectsOfType(typeof(GUICamera)) as GUICamera[];
@@ -78,7 +76,7 @@ public class UISensorCamera : MonoBehaviour {
 //		{ 
 //#if !UNITY_EDITOR
 //			Platform.Instance.ResetGyro();
-//			offsetFromStart = Platform.Instance.GetOrientation();
+//			offsetFromStart = Platform.Instance.GetPlayerOrientation();
 //#endif
 //			// Reset the gyros in the hex lists
 //            DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
@@ -120,9 +118,8 @@ public class UISensorCamera : MonoBehaviour {
 	void ResetGyro()
 	{
 #if !UNITY_EDITOR
-		Platform.Instance.ResetGyro();
-		offsetFromStart = Platform.Instance.GetOrientation();
-		//offsetFromStart = Quaternion.Euler(offsetFromStart.eulerAngles.x, 0, 0);
+		Platform.Instance.GetPlayerOrientation().Reset();
+
 		GUICamera[] lists = GameObject.FindObjectsOfType(typeof(GUICamera)) as GUICamera[];
             foreach (GUICamera dhl in lists)
             {
@@ -142,9 +139,9 @@ public class UISensorCamera : MonoBehaviour {
 		}
 		
 #if !UNITY_EDITOR
-		Quaternion newOffset = Quaternion.Inverse(offsetFromStart) * Platform.Instance.GetOrientation();
+		Quaternion newOffset = Platform.Instance.GetPlayerOrientation().AsQuaternion();
 		
-		//UnityEngine.Debug.Log("UISensorCamera: Euler angles are: " + Platform.Instance.GetOrientation().eulerAngles.x + ", " + Platform.Instance.GetOrientation().eulerAngles.y + ", " + Platform.Instance.GetOrientation().eulerAngles.z);
+		//UnityEngine.Debug.Log("UISensorCamera: Euler angles are: " + newOffset.eulerAngles.x + ", " + newOffset.eulerAngles.y + ", " + newOffset.eulerAngles.z);
 		
 //		if((newOffset.eulerAngles.x > 30 && newOffset.eulerAngles.x < 330) || (newOffset.eulerAngles.y > 40 && newOffset.eulerAngles.y < 320)) 
 //		{

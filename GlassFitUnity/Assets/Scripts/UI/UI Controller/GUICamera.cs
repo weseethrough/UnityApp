@@ -31,7 +31,7 @@ public class GUICamera : MonoBehaviour {
 
 #if !UNITY_EDITOR
         Platform.Instance.ResetGyro();
-        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out cameraMoveOffset);
+        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out cameraMoveOffset);
 #endif         
 		
 		leftHandler = new GestureHelper.OnSwipeLeft(() => {
@@ -70,7 +70,7 @@ public class GUICamera : MonoBehaviour {
 	public void ResetGyro()
     {
 #if !UNITY_EDITOR 
-        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetOrientation(), out cameraMoveOffset);
+        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out cameraMoveOffset);
 #endif
     }
 	
@@ -92,29 +92,29 @@ public class GUICamera : MonoBehaviour {
     /// <param name="q">input orientation</param>
     /// <param name="dynamicCamPos">(yaw, pitch)</param>
     /// <return>the input quaternion</return>
-    private Quaternion ConvertOrientation(Quaternion q, out Vector2 dynamicCamPos)
+    private Quaternion ConvertOrientation(PlayerOrientation p, out Vector2 dynamicCamPos)
     {
-        float pitch = Mathf.Atan2(2*(q.w*q.x + q.y*q.z), 1-2*(q.x*q.x + q.y*q.y));
-        float roll = Mathf.Asin(2*(q.w*q.y - q.z*q.x));
-        float yaw = Mathf.Atan2(2*(q.w*q.z + q.x*q.y), 1-2*(q.y*q.y + q.z*q.z));
         
-        dynamicCamPos = new Vector2(-yaw, -pitch);
+        dynamicCamPos = new Vector2(p.AsCumulativeYaw(), -p.AsPitch());
         dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
 	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
 		
-        //UnityEngine.Debug.Log("MenuPosition:" + yaw + ", " + pitch + ", " + roll);
+        //UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", x-offset:" + dynamicCamPos.x);
+		Vector3 e = p.AsQuaternion().eulerAngles;
+		UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", Pitch:" + -p.AsPitch() + ", Roll:" + -p.AsRoll() + ", x:" + e.x + ", y:" + e.y + ", z:" + e.z);
         //dynamicCamPos *= 0.02f;
         //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
-        return q;
+        return p.AsQuaternion();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		float pitchHeight;
 		Vector2 newCameraOffset; 
-		ConvertOrientation(Platform.Instance.GetOrientation(), out newCameraOffset);
+		ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out newCameraOffset);
 		Vector3 camPos = transform.position;
 		newCameraOffset -= cameraMoveOffset;
         transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
 	}
+}
 }

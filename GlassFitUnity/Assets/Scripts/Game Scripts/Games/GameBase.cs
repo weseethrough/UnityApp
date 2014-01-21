@@ -124,6 +124,7 @@ public class GameBase : MonoBehaviour {
 		
 		if(selectedTrack != null) {
 			finish = (int)selectedTrack.distance;
+			UnityEngine.Debug.Log("GameBase: track distance is: " + finish.ToString());
 		} else {
 			finish = (int)DataVault.Get("finish");
 		}
@@ -298,7 +299,10 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.StopTrack();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
-			if(gConnect.Name == "FinishButton") {
+			
+			if(gConnect.Name == "TutorialExit") {
+				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+			} else {
 				tapHandler = new GestureHelper.OnTap(() => {
 					Continue();
 				});
@@ -325,6 +329,7 @@ public class GameBase : MonoBehaviour {
 		} else {
 			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
 		}
+		GestureHelper.onTap -= tapHandler;
 	}
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)

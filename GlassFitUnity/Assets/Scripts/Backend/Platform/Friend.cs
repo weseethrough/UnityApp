@@ -9,6 +9,7 @@ public class Friend
 	public bool hasGlass { get; protected set; }
 	public string provider { get; protected set; }
 	public Nullable<int> userId { get; protected set; }
+	public string guid { get; protected set; }
 		
 	public Friend (string json) 
 	{
@@ -20,6 +21,7 @@ public class Friend
 		hasGlass = node["has_glass"].AsBool;
 		if (String.Equals(node["user_id"], "null")) userId = null;
 		else userId = node["user_id"].AsInt;
+		guid = node["_id"];
 		// Possibly provider-specific fields
 	}
 }
