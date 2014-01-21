@@ -10,6 +10,8 @@ public class CameraPath : MonoBehaviour {
 	protected float timer = 0;
 	public GameObject splineHolder = null;
 	
+	protected bool bFinished = false;
+	
 	// Use this for initialization
 	void Start () {
 		//gather the path points from the scene
@@ -41,13 +43,25 @@ public class CameraPath : MonoBehaviour {
 		
 	}
 	
+	public bool IsFinished()
+	{
+		return bFinished;
+	}
+	
 	protected void ApplyTransFormForTime(float t)
 	{
+		PathPoint thisPoint = points[lastPointIndex];
+		
 		//Check if we've moved to the next node yet
 		if(t > points[lastPointIndex+1].time)
 		{
 			//move onto the next one
 			lastPointIndex++;
+			thisPoint = points[lastPointIndex];
+			
+			//trigger the OnArrived event
+			thisPoint.OnArrival();
+			
 			//finish if this is the last point
 			if(lastPointIndex +1 >= points.Count)
 			{
@@ -56,8 +70,7 @@ public class CameraPath : MonoBehaviour {
 			}
 		}
 			
-		//get the two points we're between
-		PathPoint thisPoint = points[lastPointIndex];
+		//get the next point on the path
 		PathPoint nextPoint = points[lastPointIndex +1];
 		
 		//progress towards next point
@@ -112,5 +125,6 @@ public class CameraPath : MonoBehaviour {
 	{
 		bRunning = false;	
 		MinimalSensorCamera.ResumeSensorRotation();
+		bFinished = true;
 	}
 }
