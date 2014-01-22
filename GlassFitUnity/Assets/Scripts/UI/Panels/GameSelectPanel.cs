@@ -146,13 +146,10 @@ public class GameSelectPanel : HexPanel
 		hbd.buttonName = "current_balance";
 		hbd.displayInfoData = false;
 		hbd.backgroundTileColor = 0x00A30EFF;
-		int currentPoints = (int)Platform.Instance.GetOpeningPointsBalance();
+		long currentPoints = Platform.Instance.GetOpeningPointsBalance();
 		hbd.textBold = string.Format("{0:#,###0}", currentPoints) + "RP";
 		hbd.textSmall = Platform.Instance.GetCurrentMetabolism().ToString("f0");
-		//hbd.imageName = "";
-		
-		//buttonData.Add(hbd);
-		
+				
         //generate some buttons
         for(int i=0; i<games.Count; i++)
         {
