@@ -27,7 +27,7 @@ public class GameBase : MonoBehaviour {
 
 	//public bool indoor = true;
 
-	private bool hasEnded = false;
+	protected bool hasEnded = false;
 	
 	protected bool maybeQuit = false;
 	
@@ -84,7 +84,7 @@ public class GameBase : MonoBehaviour {
 	private GestureHelper.OnSwipeLeft leftHandler = null;
 	private GestureHelper.OnSwipeRight rightHandler = null;
 	
-	private GameObject virtualTrack;
+	protected GameObject theVirtualTrack;
 	
 	private int lastDistance;
 	
@@ -148,13 +148,6 @@ public class GameBase : MonoBehaviour {
 		
 		hasEnded = false;
 		
-		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
-			GyroDidReset();
-			//GestureHelper.onTwoTap -= twoTapHandler;
-		});
-		
-		GestureHelper.onTwoTap += twoTapHandler;
-		
 		//handler for OnReset
 		//this seems to get automatically called as soon as the scene loads. Trying an onTap instead.	
 
@@ -175,11 +168,18 @@ public class GameBase : MonoBehaviour {
 	
 	public void SetVirtualTrackVisible(bool visible)
 	{
-		if(virtualTrack == null)
+		if(theVirtualTrack == null)
 		{
-			virtualTrack = GameObject.Find("VirtualTrack");
+			theVirtualTrack = GameObject.Find("VirtualTrack");
 		}
-		virtualTrack.SetActive(visible);
+		if(theVirtualTrack != null)
+		{
+			theVirtualTrack.SetActive(visible);
+		}
+		else
+		{
+			UnityEngine.Debug.Log("GameBase: Couldn't find virtual track to set visiblity");
+		}
 	}
 	
 	public void ConsiderQuit() {
@@ -284,7 +284,6 @@ public class GameBase : MonoBehaviour {
 	{
 		UnityEngine.Debug.Log("GameBase: Ending game");
 		GConnector gConnect = GetFinalConnection();
-		UnityEngine.Debug.Log("GameBase: got final connection");
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
@@ -309,7 +308,7 @@ public class GameBase : MonoBehaviour {
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowConnection(gConnect);
 		} else {
-			UnityEngine.Debug.Log("Camera: No connection found - FinishButton");
+			UnityEngine.Debug.Log("GameBase: No connection found - FinishButton");
 		}
 	}
 	
@@ -332,8 +331,11 @@ public class GameBase : MonoBehaviour {
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
 	public virtual void GameHandleTap() {
-		UnityEngine.Debug.Log("GameBase: tap detected");
-		PauseGame();
+		if(started)
+		{
+			UnityEngine.Debug.Log("GameBase: tap detected");
+			PauseGame();
+		}
 	}
 	
 	public void PauseGame()
@@ -344,6 +346,7 @@ public class GameBase : MonoBehaviour {
 			if(started || countdown)
 			{
 				pause = true;
+				Time.timeScale = 0.0f;
 				Platform.Instance.StopTrack();
 				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
@@ -358,6 +361,7 @@ public class GameBase : MonoBehaviour {
 		} else {
 			UnityEngine.Debug.Log("GameBase: Pause pressed, turning off");
 			pause = false;
+			Time.timeScale = 1.0f;
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			UnityEngine.Debug.Log("GameBase: flowstate obtained");
 			GConnector gConnect = fs.Outputs.Find(r => r.Name == "ReturnExit");
@@ -493,11 +497,13 @@ public class GameBase : MonoBehaviour {
 			// Display countdown on screen
 			if(countTime > 0.0f)
 			{
-				GUI.Label(messageRect, cur.ToString(), labelStyle); 
+				//not for train game
+				//GUI.Label(messageRect, cur.ToString(), labelStyle); 
 			}
 			else if(countTime > -1.0f && countTime < 0.0f)
 			{
-				GUI.Label(messageRect, "GO!", labelStyle); 
+				//not for train game
+				//GUI.Label(messageRect, "GO!", labelStyle); 
 			}
 		}
 		
@@ -558,12 +564,7 @@ public class GameBase : MonoBehaviour {
 	// Update is called once per frame
 	public virtual void Update () 
 	{
-//		if(Input.touchCount > 2) {
-//			if(Input.GetTouch(0).phase == TouchPhase.Began) {
-//				PauseGame();
-//			}
-//		}
-		
+	
 		//Update variables for GUI	
 		Platform.Instance.Poll();
 		
@@ -585,44 +586,21 @@ public class GameBase : MonoBehaviour {
 		// TODO: Toggle based on panel type
 		UpdateAhead();
 		
-		//detect the touch and reset/start if it's there
-		// Non-Glass devices
-//		if(!readyToStart && (Platform.Instance.HasLock() || Platform.Instance.IsIndoor()) )
+//		//start the contdown once we've got reset the gyro		
+//		if(readyToStart)
 //		{
-//			//UnityEngine.Debug.Log("GameBase: Update: Not ready to start");
-//			if(Input.touchCount > 0)
+//			// Initiate the countdown
+//			countdown = true;
+//		 	if(countTime <= -1.0f && !started)
 //			{
-//				UnityEngine.Debug.Log("GameBase: Update: Touch detected");
-//					if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
-//					{
-//						UnityEngine.Debug.Log("GameBase: Now ready to start");
-//						readyToStart = true;
-//					}
+//				StartRace();
 //			}
-//			//In the editor, just go straight away
-//#if UNITY_EDITOR
-//			readyToStart = true;
-//#endif
-		//}
-	
-		//start the contdown once we've got reset the gyro		
-		if(readyToStart)
-		{
-			// Initiate the countdown
-			countdown = true;
-		 	if(countTime <= -1.0f && !started)
-			{
-				Platform.Instance.StartTrack();
-				UnityEngine.Debug.Log("Tracking Started");
-				
-				started = true;
-			}
-			else if(countTime > -1.0f)
-			{
-				//UnityEngine.Debug.Log("Counting Down");
-				countTime -= Time.deltaTime;
-			}
-		}
+//			else if(countTime > -1.0f)
+//			{
+//				//UnityEngine.Debug.Log("Counting Down");
+//				countTime -= Time.deltaTime;
+//			}
+//		}
 		
 		// Awards the player points for running certain milestones
 		if(Platform.Instance.Distance() >= bonusTarget)
@@ -649,7 +627,10 @@ public class GameBase : MonoBehaviour {
 			if((int)Platform.Instance.Distance() == lastDistance) 
 			{
 				//UnityEngine.Debug.Log("GameBase: distance is the same, increasing time");
-				indoorTime += Time.deltaTime;
+				if(started)
+				{
+					indoorTime += Time.deltaTime;
+				}
 				if(indoorTime > 10f) {
 					//UnityEngine.Debug.Log("GameBase: setting text for indoor jogging");
 					DataVault.Set("indoor_move", "Jog on the spot to move!");
@@ -668,6 +649,17 @@ public class GameBase : MonoBehaviour {
 	}
 	
 	/// <summary>
+	/// Starts the race.
+	/// To be called when the countdown completes
+	/// </summary>
+	protected void StartRace()
+	{
+		Platform.Instance.StartTrack();
+		UnityEngine.Debug.Log("Tracking Started");
+		started = true;
+	}
+	
+	/// <summary>
 	/// Sets the ready to start flag. Allows external scripts to trigger the start (e.g. reset gyros menu screen)
 	/// </summary>
 	/// <param name='ready'>
@@ -675,7 +667,7 @@ public class GameBase : MonoBehaviour {
 	/// </param>
 	public virtual void SetReadyToStart(bool ready)
 	{
-		readyToStart = true;
+		readyToStart = ready;
 	}
 		
 	
@@ -784,22 +776,5 @@ public class GameBase : MonoBehaviour {
 		// remember the current time so we know how long to display for:
 		this.baseMultiplierStartTime = Time.time;
 		UnityEngine.Debug.Log("New base multiplier received:" + this.baseMultiplier);
-	}
-	
-	/// <summary>
-	/// handler for when the gyro is reset.
-	/// In this case, indicate that we're ready to start, if we previously weren't
-	/// </summary>
-	public virtual void GyroDidReset()
-	{
-		UnityEngine.Debug.Log("GameBase: Gyro did reset");
-		if(!readyToStart)
-		{
-			if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
-			{
-				UnityEngine.Debug.Log("GameBase: Now ready to start");
-				readyToStart = true;
-			}
-		}
 	}
 }

@@ -1,7 +1,7 @@
 ID,Title,Icon name,Menu to display on,Description,Initial State,Tier,Price in Points,Price in Gems,Type,Column,Row
 activity_monster,Giant Monster Challenge,activity_monster,run,You have woken up this giant monster and he's after you. Clearly not a morning person.,Locked,3,5000,4,N/A,-2,0
 activity_press_up,Press-ups,activity_press_up,all,This mode will teach you the proper technique for press ups and will also count yours.,Locked,3,5000,4,N/A,-2,1
-activity_train,The train game,activity_train,all,There's a damsel in distress on the crossing - hurry before the train gets her!,Locked,1,5000,5,N/A,-2,-1
+activity_train,The train game,activity_train,all,There's a damsel in distress on the crossing - hurry before the train gets her!,Unlocked,0,0,5,TrainRescue,-2,-1
 activity_bike,Race Yourself,activity_bike,cycle,Cycle against your own avatar for points,Locked,0,0,0,Race,-1,-1
 activity_boulder,Boulder Dash,activity_boulder,run,Relive that classic moment in Indiana Jones - run from the boulder! No treasure this time though.,Locked,1,1000,1,N/A,-1,0
 activity_versus,Challenges,activity_versus,all,Race against your friend's track or send them one of your challenges!,Unlocked,1,5000,3,Challenge,-1,1
