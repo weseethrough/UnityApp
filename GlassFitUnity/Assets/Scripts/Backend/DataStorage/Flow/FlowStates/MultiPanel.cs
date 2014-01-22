@@ -18,6 +18,8 @@ public class MultiPanel : Panel
     private Vector3 firstGliph = Vector3.zero;
     private TweenPosition firstTweener;
     private float firstOffset = 0.0f;
+    private Vector2 firstTouchPosition;
+
 
     /// <summary>
     /// default constructor
@@ -117,24 +119,31 @@ public class MultiPanel : Panel
         }
     }
 
+    /// <summary>
+    /// regular flow state update responsible for swipe /input processing
+    /// </summary>
+    /// <returns></returns>
     public override void StateUpdate()
     {
         base.StateUpdate();        
         Vector3 pos = Vector3.zero;
-        
-        if (Input.touchCount == 1)
+
+        Vector2? touch = Platform.Instance.GetTouchInput();
+
+        //dragging
+        if (touch.HasValue)
         {
             
-            if (dragOffset == 0.0f)
+            if (dragTime == 0.0f)
             {
                 firstOffset = managedChildren[0].physicalWidgetRoot.transform.position.x;
+                firstTouchPosition = touch.Value;
             }
 
-            dragTime += Input.touches[0].deltaTime;
-            dragOffset += 10.0f * Input.touches[0].deltaPosition.x / Screen.width;            
-            
+            dragTime += Time.deltaTime;
+            dragOffset = firstTouchPosition.x - touch.Value.x; 
 
-            pos.x = 0.0018f * (dragOffset * Screen.width) + firstOffset;
+            pos.x = (-dragOffset * Screen.width) + firstOffset;
             managedChildren[0].physicalWidgetRoot.transform.position = pos;
 
             if (firstTweener!=null)
@@ -142,18 +151,18 @@ public class MultiPanel : Panel
                 firstTweener = null;
             }
         }
-
-        if (Input.touchCount != 1 && dragOffset != 0)
+        //finished dragging
+        else if (dragOffset != 0)
         {
-
-            float acceleratedPosition = dragTime > 0 ? (dragOffset * 0.1f / dragTime) : 0.0f;
-            DataVault.Set("count", "accel " + acceleratedPosition);
-            float animatedPosition = - acceleratedPosition - managedChildren[0].physicalWidgetRoot.transform.position.x / (0.0018f * Screen.width);
+            float acceleratedPosition = dragTime > 0 ? (dragOffset / dragTime) : 0.0f;            
+            float animatedPosition = acceleratedPosition - managedChildren[0].physicalWidgetRoot.transform.position.x / Screen.width;
             int index = Mathf.Max(0, Mathf.Min(managedChildren.Count-1, (int)(animatedPosition + 0.5f)));
-            pos.x = 0.0018f * (-index * Screen.width);
+            Debug.Log("Animated position: " + animatedPosition);
+            pos.x = (-index * Screen.width);
             firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.3f, pos);
+            firstTweener.delay = 0.0f;
    
-            dragOffset = 0;
+            dragOffset = 0.0f;
             firstOffset = 0.0f;
             dragTime = 0.0f;
         }
@@ -161,6 +170,10 @@ public class MultiPanel : Panel
         ArangeScreens();        
     }
 
+    /// <summary>
+    /// Position panels for later scrolling, arranges them in a row
+    /// </summary>
+    /// <returns></returns>
     public void ArangeScreens()
     {
         firstGliph = managedChildren[0].physicalWidgetRoot.transform.position;
@@ -170,7 +183,7 @@ public class MultiPanel : Panel
             Vector3 pos = Vector3.zero;
             if (i != 0)
             {            
-                pos.x = 0.0018f * ((i) * Screen.width) + firstGliph.x;
+                pos.x = ((i) * Screen.width) + firstGliph.x;
                 managedChildren[i].physicalWidgetRoot.transform.position = pos;
             }
         }
