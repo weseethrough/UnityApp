@@ -74,13 +74,13 @@ public class TrackSelect : MonoBehaviour {
 			PreviousTrack();
 		});
 		
-		GestureHelper.swipeLeft += leftHandler;
+		GestureHelper.onSwipeLeft += leftHandler;
 		
 		rightHandler = new GestureHelper.OnSwipeRight(() => {
 			NextTrack();
 		});
 		
-		GestureHelper.swipeRight += rightHandler;
+		GestureHelper.onSwipeRight += rightHandler;
 		
 		downHandler = new GestureHelper.DownSwipe(() => {
 			GoBack();
@@ -95,8 +95,8 @@ public class TrackSelect : MonoBehaviour {
 		
 		fs.parentMachine.FollowBack();
 		GestureHelper.onTap -= tapHandler;
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
+		GestureHelper.onSwipeLeft -= leftHandler;
+		GestureHelper.onSwipeRight -= rightHandler;
 	}
 	
 	public void NextTrack() 
@@ -183,8 +183,8 @@ public class TrackSelect : MonoBehaviour {
 			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
 			fs.parentMachine.FollowConnection(gConnect);
 			GestureHelper.onTap -= tapHandler;
-			GestureHelper.swipeLeft -= leftHandler;
-			GestureHelper.swipeRight -= rightHandler;
+			GestureHelper.onSwipeLeft -= leftHandler;
+			GestureHelper.onSwipeRight -= rightHandler;
 		} else 
 		{
 			UnityEngine.Debug.Log("TrackSelect: Connection not found");

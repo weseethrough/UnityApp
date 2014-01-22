@@ -19,9 +19,6 @@ public class DynamicHexList : MonoBehaviour
 
     UICamera guiCamera;
     public static Vector2 hexLayoutOffset = new Vector2(0.25f, 0.4330127f);
-    Vector3 distanceVector;
-	
-	float radius;
 	
     //float screenEnterTime = 8.0f;
     float buttonEnterDelay = 0.0f;
@@ -51,7 +48,10 @@ public class DynamicHexList : MonoBehaviour
     bool initialized = false;
 	
 	private GestureHelper.DownSwipe downHandler = null;
-
+	
+	private GestureHelper.OnSwipeLeft leftHandler = null;
+	
+	private GestureHelper.OnSwipeRight rightHandler = null;
 
     /// <summary>
     /// List initialization process
@@ -93,6 +93,28 @@ public class DynamicHexList : MonoBehaviour
 		
 		GestureHelper.onSwipeDown += downHandler;
 		
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			if(!IsPopupDisplayed()) {
+				GUICamera cameraScript = guiCamera.GetComponent<GUICamera>();
+				if(cameraScript.zoomLevel > -1.5f) {
+					cameraScript.zoomLevel -= 0.5f;
+				}
+			}
+		});
+		
+		GestureHelper.onSwipeLeft += leftHandler;
+		
+		rightHandler = new GestureHelper.OnSwipeRight(() => {
+			if(!IsPopupDisplayed()) {
+				GUICamera cameraScript = guiCamera.GetComponent<GUICamera>();
+				if(cameraScript.zoomLevel < -0.5f) {
+					cameraScript.zoomLevel += 0.5f;
+				}
+			}
+		});
+		
+		GestureHelper.onSwipeRight += rightHandler;
+		
         InitializeItems();
     }
 	
@@ -107,7 +129,17 @@ public class DynamicHexList : MonoBehaviour
 		return false;
 	}	
 
-
+	void OnDisable() 
+	{
+		GestureHelper.onSwipeLeft -= leftHandler;
+		GestureHelper.onSwipeRight -= rightHandler;
+	}
+	
+	void OnDestroy()
+	{
+		GestureHelper.onSwipeLeft -= leftHandler;
+		GestureHelper.onSwipeRight -= rightHandler;
+	}
 
     /// <summary>    
     /// function which converts from 
@@ -650,7 +682,7 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     public void InitializeItems()
     {
-        if (parent == null || radius == 0.0f)
+        if (parent == null)
         {
             Debug.LogError("Data have not been set properly before this call!");
         }

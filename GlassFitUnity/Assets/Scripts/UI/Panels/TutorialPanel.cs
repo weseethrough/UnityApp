@@ -22,7 +22,11 @@ public class TutorialPanel : HexPanel
 	private GestureHelper.DownSwipe downHandler = null;
 	
 	private Camera camera;
-
+	
+	private UITexture firstSpeech;
+	private UITexture secondSpeech;
+	private UITexture thirdSpeech;
+	
     public TutorialPanel() { }
     public TutorialPanel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
@@ -69,10 +73,10 @@ public class TutorialPanel : HexPanel
     /// <returns></returns>
     public override void EnterStart()
     {
-		UnityEngine.Debug.Log("TutorialPanel: setting two finger tap");
+		//UnityEngine.Debug.Log("TutorialPanel: setting two finger tap");
 		
-		DataVault.Set("rp", Platform.Instance.GetOpeningPointsBalance());
-		DataVault.Set("metabolism", Platform.Instance.GetCurrentMetabolism());
+		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
+		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentMetabolism());
 		
 		DataVault.Set("race_type", "tutorial");
 		
@@ -97,26 +101,54 @@ public class TutorialPanel : HexPanel
 		
 		GestureHelper.onTwoTap += twoHandler;
 		
-		UnityEngine.Debug.Log("TutorialPanel: Setting datavault stuff");
+		//UnityEngine.Debug.Log("TutorialPanel: Setting datavault stuff");
 		DataVault.Set("tutorial_hint", " ");
 		DataVault.Set("highlight", " ");
 		
-		UnityEngine.Debug.Log("TutorialPanel: Setting three finger tap");
+		//UnityEngine.Debug.Log("TutorialPanel: Setting three finger tap");
 		threeHandler = new GestureHelper.ThreeFingerTap(() => {
 			StraightToMenu();
 		});
 		
 		GestureHelper.onThreeTap += threeHandler;
 		
-		UnityEngine.Debug.Log("TutorialPanel: about to find camera");
+		//UnityEngine.Debug.Log("TutorialPanel: about to find camera");
 		GameObject cam = GameObject.Find("Scene Camera");
 		
 		if(cam != null) {
 			camera = cam.camera;
 		}
 		
-		UnityEngine.Debug.Log("TutorialPanel: camera found, about to enter base");
-        base.EnterStart();
+		GameObject speechBubble = GameObject.Find("FirstSpeech");
+		if(speechBubble != null) {
+			firstSpeech = speechBubble.GetComponent<UITexture>();
+		} else {
+			firstSpeech = new UITexture();
+		}
+		
+		firstSpeech.alpha = 0;
+		
+		speechBubble = GameObject.Find("SecondSpeech");
+		if(speechBubble != null) {
+			secondSpeech = speechBubble.GetComponent<UITexture>();
+		} else {
+			UnityEngine.Debug.Log("TutorialPanel: Error finding second speech");
+			secondSpeech = new UITexture();
+		}
+		
+		secondSpeech.alpha = 0;
+		
+		speechBubble = GameObject.Find("ThirdSpeech");
+		if(speechBubble != null) {
+			thirdSpeech = speechBubble.GetComponent<UITexture>();
+		} else {
+			UnityEngine.Debug.Log("TutorialPanel: Error finding third speech");
+			thirdSpeech = new UITexture();
+		}
+		
+		thirdSpeech.alpha = 0;
+		
+		base.EnterStart();
     }
 	
 	public void StraightToMenu() {
@@ -131,6 +163,30 @@ public class TutorialPanel : HexPanel
 		}
 	}
 	
+	public void UpdateSpeechBubble() {
+		if(elapsedTime > 4.0f)
+		{
+			if(buttonData.Count == 2) 
+			{
+				firstSpeech.alpha += 1.0f * Time.deltaTime;
+			} 
+			else if(buttonData.Count == 3)
+			{
+				secondSpeech.alpha += 1.0f * Time.deltaTime;
+			}
+			else if(buttonData.Count == 6)
+			{
+				thirdSpeech.alpha += 1.0f * Time.deltaTime;
+			}
+		} 
+		else
+		{
+			firstSpeech.alpha = 0.0f;
+			secondSpeech.alpha = 0.0f;
+			thirdSpeech.alpha = 0.0f;
+		}
+	}
+	
 	public override void StateUpdate ()
 	{
 		base.StateUpdate ();
@@ -139,14 +195,16 @@ public class TutorialPanel : HexPanel
 		
 		if(elapsedTime > maxTime && shouldAdd)
 		{
-			AddButton();
 			elapsedTime -= maxTime;
+			AddButton();
 		}
 		
 		if(elapsedTime > 10.0f && buttonData.Count == 7) 
 		{
 			AddFinalString();
 		}
+		
+		UpdateSpeechBubble();
 		
 		if(camera != null) 
 		{
@@ -189,6 +247,8 @@ public class TutorialPanel : HexPanel
             hbd.allowEarlyHover = true;
 			
 			shouldAdd = false;
+			
+			maxTime = 10.0f;
 			
             buttonData.Add(hbd);
 
@@ -315,7 +375,7 @@ public class TutorialPanel : HexPanel
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
-	        } else if(button.name == "TryHex" && buttonData.Count == 5) 
+	        } else if(button.name == "ChallengeHex" && buttonData.Count == 5) 
 			{
 				HexButtonData hbd = new HexButtonData();
 	            hbd.row = 1;

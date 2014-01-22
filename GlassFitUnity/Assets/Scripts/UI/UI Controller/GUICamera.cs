@@ -3,57 +3,16 @@ using System.Collections;
 
 public class GUICamera : MonoBehaviour {
 	
-	Vector3 distanceVector;
     Vector3 cameraPosition;
-    float radius;
-	
-	//default height and rotation is used as a default offset when reseting sensors
-    Quaternion cameraDefaultRotation;
-    Vector2 cameraMoveOffset;
-	
+		
 	const float CAMERA_SENSITIVITY_X = 4.5f;
     const float CAMERA_SENSITIVITY_Y = 5.5f;
 	
-	private GestureHelper.OnSwipeLeft leftHandler = null;
-	
-	private GestureHelper.OnSwipeRight rightHandler = null;
-	
-	private float zoomLevel = -1.0f;
+	public float zoomLevel = -1.0f;
 	
 	// Use this for initialization
 	void Start () {
         cameraPosition = transform.position;
-        distanceVector = transform.position - cameraPosition;
-        distanceVector.y = 0;
-        cameraDefaultRotation = transform.rotation;
-
-        radius = distanceVector.magnitude;
-
-#if !UNITY_EDITOR
-        Platform.Instance.ResetGyro();
-        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out cameraMoveOffset);
-#endif         
-		
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			if(!IsPopupDisplayed()) {
-				if(zoomLevel > -1.5f) {
-					zoomLevel -= 0.5f;
-				}
-			}
-		});
-		
-		GestureHelper.swipeLeft += leftHandler;
-		
-		rightHandler = new GestureHelper.OnSwipeRight(() => {
-			if(!IsPopupDisplayed()) {
-				if(zoomLevel < -0.5f) {
-					zoomLevel += 0.5f;
-				}
-			}
-		});
-		
-		GestureHelper.swipeRight += rightHandler;
-        
 	}
 	
 	public bool IsPopupDisplayed() {
@@ -66,25 +25,6 @@ public class GUICamera : MonoBehaviour {
 		}
 		return false;
 	}	
-	
-	public void ResetGyro()
-    {
-#if !UNITY_EDITOR 
-        cameraDefaultRotation = ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out cameraMoveOffset);
-#endif
-    }
-	
-	void OnDisable() 
-	{
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
-	}
-	
-	void OnDestroy()
-	{
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
-	}
 	
 	/// <summary>
     /// function which converts orientation quaternion into pitch and yaw, suitable for moving cam up/down, left/right on 2D menu
@@ -100,8 +40,8 @@ public class GUICamera : MonoBehaviour {
 	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
 		
         //UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", x-offset:" + dynamicCamPos.x);
-		Vector3 e = p.AsQuaternion().eulerAngles;
-		UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", Pitch:" + -p.AsPitch() + ", Roll:" + -p.AsRoll() + ", x:" + e.x + ", y:" + e.y + ", z:" + e.z);
+		//Vector3 e = p.AsQuaternion().eulerAngles;
+		//UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", Pitch:" + -p.AsPitch() + ", Roll:" + -p.AsRoll() + ", x:" + e.x + ", y:" + e.y + ", z:" + e.z);
         //dynamicCamPos *= 0.02f;
         //return Quaternion.EulerRotation(q.eulerAngles.x, 0, q.eulerAngles.z);
         return p.AsQuaternion();
@@ -109,11 +49,10 @@ public class GUICamera : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		float pitchHeight;
 		Vector2 newCameraOffset; 
 		ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out newCameraOffset);
-		Vector3 camPos = transform.position;
-		newCameraOffset -= cameraMoveOffset;
+		Vector2 camPos = new Vector2(cameraPosition.x, cameraPosition.y);
+		newCameraOffset -= camPos;
         transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
 	}
 }

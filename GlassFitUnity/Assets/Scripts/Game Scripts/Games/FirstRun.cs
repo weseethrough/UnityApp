@@ -143,11 +143,11 @@ public class FirstRun : GameBase {
 		//deregister handlers
 		if(swipeHandler != null)
 		{
-			GestureHelper.swipeRight -= swipeHandler;
+			GestureHelper.onSwipeRight -= swipeHandler;
 		}
 		if(leftHandler != null)
 		{
-			GestureHelper.swipeLeft -= leftHandler;
+			GestureHelper.onSwipeLeft -= leftHandler;
 		}
 	}
 	

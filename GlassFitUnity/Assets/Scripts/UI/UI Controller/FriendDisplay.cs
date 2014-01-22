@@ -82,12 +82,12 @@ public class FriendDisplay : MonoBehaviour {
 		leftHandler = new GestureHelper.OnSwipeLeft(() => {
 			PreviousFriend();
 		});
-		GestureHelper.swipeLeft += leftHandler;
+		GestureHelper.onSwipeLeft += leftHandler;
 		
 		rightHandler = new GestureHelper.OnSwipeRight(() => {
 			NextFriend();
 		});
-		GestureHelper.swipeRight += rightHandler;
+		GestureHelper.onSwipeRight += rightHandler;
 		
 		UpdateFriendsList();
 		

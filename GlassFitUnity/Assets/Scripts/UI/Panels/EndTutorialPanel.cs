@@ -1,15 +1,19 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 [Serializable]
-public class EndTutorialPanel : TutorialPanel {
+public class EndTutorialPanel : HexPanel {
 	
 	private GestureHelper.OnTap tapHandler;
 	
 	private bool unlocked = false;
+	
+	protected float elapsedTime = 0.0f;
+	
+	protected bool shouldAdd = true;
 	
 	public EndTutorialPanel() { }
     public EndTutorialPanel(SerializationInfo info, StreamingContext ctxt)
@@ -51,18 +55,17 @@ public class EndTutorialPanel : TutorialPanel {
 							
                             GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
 
-//                            GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-//
-//                            GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
-//
-//                            if (gameExit.Link.Count > 0)
-//                            {
-//                                gComponent.Data.Connect(gc, gameExit.Link[0]);
-//                            }
+                            GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+
+                            GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
+
+                            if (gameExit.Link.Count > 0)
+                            {
+                                gComponent.Data.Connect(gc, gameExit.Link[0]);
+                            }
 							
 							if(gameExit != null) {
 								parentMachine.FollowConnection(gameExit);
-								//GestureHelper.onTap -= tapHandler;
 							}
 							
 							unlocked = true;
@@ -102,17 +105,13 @@ public class EndTutorialPanel : TutorialPanel {
 	{
 		base.StateUpdate ();
 		
-//		if(Input.GetTouch(0).phase == TouchPhase.Began) {
-//			UnlockHex();
-//		}
-		
 		if(unlocked) 
 		{
 			DataVault.Set("highlight", "This is now unlocked! Enter it to go to the main menu");
 		}
 	}
 	
-	public override void InitialButtons() {
+	public void InitialButtons() {
 		HexButtonData hbd = new HexButtonData();
         hbd.row = 0;
         hbd.column = 0;
@@ -143,8 +142,7 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.column = 1;
 	            hbd.buttonName = "EarnHex";
 	            hbd.displayInfoData = false;
-                hbd.textNormal = "You earned 500 Race Points (RP)!";
-				hbd.displayInfoData = false;
+	            hbd.textNormal = "You earned 500 Race Points (RP)!";
 				
 	            buttonData.Add(hbd);
 	
@@ -156,7 +154,6 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.buttonName = "UseHex";
 	            hbd.displayInfoData = false;
 	            hbd.textNormal = "RP is used";
-				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
@@ -168,7 +165,6 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.buttonName = "ChallengeHex";
 	            hbd.displayInfoData = false;
 	            hbd.textNormal = "To unlock new challenges.";
-				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
@@ -180,7 +176,6 @@ public class EndTutorialPanel : TutorialPanel {
 	            hbd.buttonName = "TryHex";
 	            hbd.displayInfoData = false;
 	            hbd.textNormal = "Try this one ^";
-				hbd.displayInfoData = false;
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
@@ -205,14 +200,16 @@ public class EndTutorialPanel : TutorialPanel {
 			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
 	        list.UpdateButtonList();
 		}
+		
+		base.OnHover(button, justStarted);
 	}
 	
-	public override void AddFinalString()
+	public void AddFinalString()
 	{
 		DataVault.Set("highlight", "Highlight the hex and tap to unlock");
 	}
 	
-	public override void AddButton ()
+	public void AddButton ()
 	{
 		if (buttonData.Count == 2)
         {
@@ -222,7 +219,6 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.buttonName = "EarnHex";
             hbd.displayInfoData = false;
             hbd.textNormal = "You earned 500 Race Points (RP)";
-			hbd.displayInfoData = false;
 			
             buttonData.Add(hbd);
 
@@ -234,7 +230,6 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.buttonName = "UseHex";
             hbd.displayInfoData = false;
             hbd.textNormal = "RP is used";
-			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
         } else if (buttonData.Count == 4)
@@ -245,7 +240,6 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.buttonName = "ChallengeHex";
             hbd.displayInfoData = false;
             hbd.textNormal = "To unlock new challenges.";
-			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
         } else if (buttonData.Count == 5)
@@ -256,7 +250,6 @@ public class EndTutorialPanel : TutorialPanel {
             hbd.buttonName = "TryHex";
             hbd.displayInfoData = false;
             hbd.textNormal = "Try this one ^";
-			hbd.displayInfoData = false;
 
             buttonData.Add(hbd);
         } else if(buttonData.Count == 6) 
@@ -269,8 +262,8 @@ public class EndTutorialPanel : TutorialPanel {
 			hbd.imageName = "activity_run";
             hbd.displayInfoData = true;
 			hbd.activityPrice = 500;
-			hbd.activityName = "Challenge a Friend";
-			hbd.activityContent = "Unlock the ability to accept challenges from friends";
+			hbd.activityName = "Main Menu";
+			hbd.activityContent = "Unlocks the main menu to see all challenges";
 				
 			shouldAdd = false;
 			buttonData.Add(hbd);
