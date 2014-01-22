@@ -55,9 +55,6 @@ public class DistancePanel : HexPanel {
 		
 		if((string)DataVault.Get("race_type") == "trainRescue")
 		{
-			
-			UnityEngine.Debug.Log("DistancePanel: We are doing the train rescue game");
-				
 			//For the train game, just do 350m
 			hbd = GetButtonAt(0, -1);
 			
@@ -86,6 +83,34 @@ public class DistancePanel : HexPanel {
 				hbd = new HexButtonData();
 				buttonData.Add(hbd);
 			}
+			
+			//clear the others
+			hbd = GetButtonAt(0,1);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			
+			hbd = GetButtonAt(-1,1);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			hbd = GetButtonAt(-1,0);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			hbd = GetButtonAt(-1,-1);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			hbd = GetButtonAt(-2,0);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}			
 		}
 		
 		else

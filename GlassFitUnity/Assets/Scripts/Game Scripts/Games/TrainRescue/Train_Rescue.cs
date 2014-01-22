@@ -215,6 +215,12 @@ public class Train_Rescue : GameBase {
 		StartCoroutine(DoCountDown());
 	}
 	
+	//train game does its own version of the countdown
+	protected override bool shouldDoGameBaseCountdown ()
+	{
+		return false;
+	}
+	
 	IEnumerator DoCountDown()
 	{
 		UnityEngine.Debug.Log("Train:Starting Countdown Coroutine");

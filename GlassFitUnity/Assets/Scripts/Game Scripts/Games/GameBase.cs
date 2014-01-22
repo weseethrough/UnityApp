@@ -90,6 +90,13 @@ public class GameBase : MonoBehaviour {
 	
 	private float indoorTime;
 	
+	//subclasses can override this if they are doing their own custom countdown (e.g. train game)
+	protected virtual bool shouldDoGameBaseCountdown()
+	{
+		return true;
+	}
+	
+	
 	/// <summary>
 	/// Start this instance.
 	/// </summary>
@@ -497,13 +504,11 @@ public class GameBase : MonoBehaviour {
 			// Display countdown on screen
 			if(countTime > 0.0f)
 			{
-				//not for train game
-				//GUI.Label(messageRect, cur.ToString(), labelStyle); 
+				GUI.Label(messageRect, cur.ToString(), labelStyle); 
 			}
 			else if(countTime > -1.0f && countTime < 0.0f)
 			{
-				//not for train game
-				//GUI.Label(messageRect, "GO!", labelStyle); 
+				GUI.Label(messageRect, "GO!", labelStyle); 
 			}
 		}
 		
@@ -586,21 +591,21 @@ public class GameBase : MonoBehaviour {
 		// TODO: Toggle based on panel type
 		UpdateAhead();
 		
-//		//start the contdown once we've got reset the gyro		
-//		if(readyToStart)
-//		{
-//			// Initiate the countdown
-//			countdown = true;
-//		 	if(countTime <= -1.0f && !started)
-//			{
-//				StartRace();
-//			}
-//			else if(countTime > -1.0f)
-//			{
-//				//UnityEngine.Debug.Log("Counting Down");
-//				countTime -= Time.deltaTime;
-//			}
-//		}
+		//start the contdown once we've got reset the gyro		
+		if(readyToStart && shouldDoGameBaseCountdown())
+		{
+			// Initiate the countdown
+			countdown = true;
+		 	if(countTime <= -1.0f && !started)
+			{
+				StartRace();
+			}
+			else if(countTime > -1.0f)
+			{
+				//UnityEngine.Debug.Log("Counting Down");
+				countTime -= Time.deltaTime;
+			}
+		}
 		
 		// Awards the player points for running certain milestones
 		if(Platform.Instance.Distance() >= bonusTarget)
@@ -668,8 +673,11 @@ public class GameBase : MonoBehaviour {
 	public virtual void SetReadyToStart(bool ready)
 	{
 		readyToStart = ready;
-	}
 		
+		//start countdown
+	}
+	
+	
 	
 	//TODO move these to a utility class
 	protected string SiDistance(double meters) {
