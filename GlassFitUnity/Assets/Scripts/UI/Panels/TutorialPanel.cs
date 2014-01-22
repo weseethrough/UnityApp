@@ -75,8 +75,8 @@ public class TutorialPanel : HexPanel
     {
 		//UnityEngine.Debug.Log("TutorialPanel: setting two finger tap");
 		
-		DataVault.Set("rp", Platform.Instance.GetOpeningPointsBalance());
-		DataVault.Set("metabolism", Platform.Instance.GetCurrentMetabolism());
+		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
+		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentMetabolism());
 		
 		DataVault.Set("race_type", "tutorial");
 		
@@ -375,7 +375,7 @@ public class TutorialPanel : HexPanel
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
-	        } else if(button.name == "TryHex" && buttonData.Count == 5) 
+	        } else if(button.name == "ChallengeHex" && buttonData.Count == 5) 
 			{
 				HexButtonData hbd = new HexButtonData();
 	            hbd.row = 1;
