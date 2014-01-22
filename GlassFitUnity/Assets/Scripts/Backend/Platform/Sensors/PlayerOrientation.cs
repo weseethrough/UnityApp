@@ -52,6 +52,7 @@ public class PlayerOrientation
 	public void Reset()
 	{
 		this.initialRotationOffset = this.realWorldToPlayerRotation;
+		Update (this.initialRotationOffset);
 		cumulativeYaw = 0f;
 
 	}

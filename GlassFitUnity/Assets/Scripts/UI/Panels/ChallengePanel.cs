@@ -5,7 +5,6 @@ using System.Threading;
 using System;
 using System.Collections.Generic;
 
-
 [Serializable]
 public class ChallengePanel : HexPanel {
 	
