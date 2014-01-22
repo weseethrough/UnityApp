@@ -96,7 +96,7 @@ public class GameSelectPanel : HexPanel
 		GConnector deleteExit = Outputs.Find (r => r.Name == "deleteExit");
 		
 		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
-		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentGemBalance());
+		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentMetabolism());
 		
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
@@ -192,6 +192,7 @@ public class GameSelectPanel : HexPanel
 				hbd.textOverlay = "Coming Soon";
 			} else {
 				hbd.locked = false;
+				hbd.textOverlay = string.Empty;
 			}
 			
 			
@@ -200,7 +201,7 @@ public class GameSelectPanel : HexPanel
 			
 			gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
 			
-			if(games[i].state == "Locked")
+			if(games[i].state == "Locked" && games[i].type != "N/A")
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
