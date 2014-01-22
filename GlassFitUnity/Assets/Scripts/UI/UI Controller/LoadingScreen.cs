@@ -55,7 +55,19 @@ public class LoadingScreen : MonoBehaviour {
 				}
 				else 
 				{
-					UnityEngine.Debug.Log("LoadingScreen: error finding tutorial exit");
+					UnityEngine.Debug.LogWarning("LoadingScreen: error finding tutorial exit");
+				}
+			}
+			else if(levelName == "TrainRescue")
+			{
+				GConnector gConnect = fs.Outputs.Find(r => r.Name == "TrainExit");
+				if(gConnect != null)
+				{
+					fs.parentMachine.FollowConnection(gConnect);	
+				}
+				else
+				{
+					UnityEngine.Debug.LogWarning("LoadingScreen: error finding train exit");
 				}
 			}
 			else
@@ -67,7 +79,7 @@ public class LoadingScreen : MonoBehaviour {
 				} 
 				else 
 				{
-					UnityEngine.Debug.Log("LoadingScreen: error finding race exit");	
+					UnityEngine.Debug.LogWarning("LoadingScreen: error finding race exit");	
 				}
 			}
 
