@@ -283,7 +283,7 @@ public class TutorialPanel : HexPanel
 			hbd.imageName = "activity_run";
             hbd.displayInfoData = true;
 			hbd.activityName = "First Race";
-			hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer and sample some of the other games available to unlock";
+			hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer.";
 			
 			shouldAdd = false;
 			buttonData.Add(hbd);
@@ -384,7 +384,7 @@ public class TutorialPanel : HexPanel
 				hbd.imageName = "activity_run";
 	            hbd.displayInfoData = true;
 				hbd.activityName = "First Race";
-				hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer and sample some of the other games available to unlock";
+				hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer.";
 				
 	            elapsedTime = 0f;
 				shouldAdd = false;
