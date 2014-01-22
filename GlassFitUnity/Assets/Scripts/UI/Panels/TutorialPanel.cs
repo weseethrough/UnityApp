@@ -181,11 +181,11 @@ public class TutorialPanel : HexPanel
 		if (buttonData.Count == 1)
         {
             HexButtonData hbd = new HexButtonData();
-            hbd.row = -1;
-            hbd.column = 0;
+            hbd.row = 0;
+            hbd.column = -1;
             hbd.buttonName = "LookHex";
             hbd.displayInfoData = false;
-            hbd.textNormal = "Look at this hex to select it";
+            hbd.textNormal = "Look at this tile to select it";
             hbd.allowEarlyHover = true;
 			
 			shouldAdd = false;
@@ -195,41 +195,30 @@ public class TutorialPanel : HexPanel
         } else if (buttonData.Count == 3)
         {
             HexButtonData hbd = new HexButtonData();
-            hbd.row = 1;
+            hbd.row = -1;
             hbd.column = 0;
             hbd.buttonName = "TheseHex";
             hbd.displayInfoData = false;
-            hbd.textNormal = "These hexes";
+            hbd.textNormal = "Tiles represent games";
             hbd.allowEarlyHover = true;
 
             buttonData.Add(hbd);
         } else if (buttonData.Count == 4)
         {
             HexButtonData hbd = new HexButtonData();
-            hbd.row = 1;
-            hbd.column = -1;
+            hbd.row = 0;
+            hbd.column = 1;
             hbd.buttonName = "ChallengeHex";
             hbd.displayInfoData = false;
-            hbd.textNormal = "are challenges";
+            hbd.textNormal = "Try launching the one below";
             hbd.allowEarlyHover = true;
 
             buttonData.Add(hbd);
-        } else if (buttonData.Count == 5)
-        {
-            HexButtonData hbd = new HexButtonData();
-            hbd.row = 0;
-            hbd.column = -1;
-            hbd.buttonName = "TryHex";
-            hbd.displayInfoData = false;
-            hbd.textNormal = "Try this one ^";
-            hbd.allowEarlyHover = true;
-
-            buttonData.Add(hbd);
-        } else if(buttonData.Count == 6) 
+        } else if(buttonData.Count == 5) 
 		{
 			HexButtonData hbd = new HexButtonData();
-            hbd.row = -1;
-            hbd.column = -1;
+            hbd.row = 1;
+            hbd.column = 0;
             hbd.buttonName = "TryHex";
 			hbd.imageName = "activity_run";
             hbd.displayInfoData = true;
@@ -266,9 +255,9 @@ public class TutorialPanel : HexPanel
         hbd.column = 0;
         hbd.buttonName = "tutorialButton1";
         hbd.displayInfoData = false;
-        hbd.textNormal = "Welcome";
+        hbd.textBold = "Welcome";
         hbd.allowEarlyHover = true;
-		
+		hbd.backgroundTileColor = 0x00A30EFF;
         buttonData.Add(hbd);
 		
 		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
@@ -290,11 +279,11 @@ public class TutorialPanel : HexPanel
 			if(button.name == "LookHex" && buttonData.Count == 2)
 			{
 				HexButtonData hbd = new HexButtonData();
-	            hbd.row = 0;
-	            hbd.column = 1;
+	            hbd.row = -1;
+	            hbd.column = -1;
 	            hbd.buttonName = "NiceHex";
 	            hbd.displayInfoData = false;
-	            hbd.textNormal = "Nice!";
+	            hbd.textNormal = "Now select this tile";
                 hbd.allowEarlyHover = true;
 				
 				elapsedTime = 0f;
@@ -305,11 +294,11 @@ public class TutorialPanel : HexPanel
 			else if (button.name == "NiceHex" && buttonData.Count == 3)
 	        {
 	            HexButtonData hbd = new HexButtonData();
-	            hbd.row = 1;
+	            hbd.row = -1;
 	            hbd.column = 0;
 	            hbd.buttonName = "TheseHex";
 	            hbd.displayInfoData = false;
-	            hbd.textNormal = "These hexes";
+	            hbd.textNormal = "Tiles represent games";
                 hbd.allowEarlyHover = true;
 				
 				elapsedTime = 0f;
@@ -317,32 +306,20 @@ public class TutorialPanel : HexPanel
 	        } else if (button.name == "TheseHex" && buttonData.Count == 4)
 	        {
 	            HexButtonData hbd = new HexButtonData();
-	            hbd.row = 1;
-	            hbd.column = -1;
+	            hbd.row = 0;
+	            hbd.column = 1;
 	            hbd.buttonName = "ChallengeHex";
 	            hbd.displayInfoData = false;
-	            hbd.textNormal = "are challenges";
+	            hbd.textNormal = "Try launching the one below";
                 hbd.allowEarlyHover = true;
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
-	        } else if (button.name == "ChallengeHex" && buttonData.Count == 5)
-	        {
-	            HexButtonData hbd = new HexButtonData();
-	            hbd.row = 0;
-	            hbd.column = -1;
-	            hbd.buttonName = "TryHex";
-	            hbd.displayInfoData = false;
-	            hbd.textNormal = "Try this one ^";
-				hbd.allowEarlyHover = true;
-	
-				elapsedTime = 0f;
-	            buttonData.Add(hbd);
-	        } else if(button.name == "TryHex" && buttonData.Count == 6) 
+	        } else if(button.name == "TryHex" && buttonData.Count == 5) 
 			{
 				HexButtonData hbd = new HexButtonData();
-	            hbd.row = -1;
-	            hbd.column = -1;
+	            hbd.row = 1;
+	            hbd.column = 0;
 	            hbd.buttonName = "TryHex";
 				hbd.imageName = "activity_run";
 	            hbd.displayInfoData = true;
