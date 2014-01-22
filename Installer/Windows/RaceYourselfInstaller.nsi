@@ -114,8 +114,8 @@
     goto install
     reinstall:
     DetailPrint "  Removing old drivers.."
-    nsExec::Exec 'wmic /output=stdout path win32_systemdriver where name="Android USB Driver" call delete'
-    nsExec::Exec 'wmic /output=stdout path win32_systemdriver where name="WinUsb" call delete'
+    nsExec::Exec 'wmic path win32_systemdriver where name="Android USB Driver" call delete'
+    nsExec::Exec 'wmic path win32_systemdriver where name="WinUsb" call delete'
 
     install:
     # If win8 and (right) driver not installed, reboot if test signing not enabled
