@@ -62,7 +62,6 @@ public class EndTutorialPanel : TutorialPanel {
 							
 							if(gameExit != null) {
 								parentMachine.FollowConnection(gameExit);
-								//GestureHelper.onTap -= tapHandler;
 							}
 							
 							unlocked = true;
@@ -101,10 +100,6 @@ public class EndTutorialPanel : TutorialPanel {
 	public override void StateUpdate ()
 	{
 		base.StateUpdate ();
-		
-//		if(Input.GetTouch(0).phase == TouchPhase.Began) {
-//			UnlockHex();
-//		}
 		
 		if(unlocked) 
 		{
@@ -261,8 +256,8 @@ public class EndTutorialPanel : TutorialPanel {
 			hbd.imageName = "activity_run";
             hbd.displayInfoData = true;
 			hbd.activityPrice = 500;
-			hbd.activityName = "Challenge a Friend";
-			hbd.activityContent = "Unlock the ability to accept challenges from friends";
+			hbd.activityName = "Main Menu";
+			hbd.activityContent = "Unlocks the main menu to see all challenges";
 				
 			shouldAdd = false;
 			buttonData.Add(hbd);
