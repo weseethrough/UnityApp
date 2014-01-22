@@ -573,7 +573,7 @@ public class GameBase : MonoBehaviour {
 		string paceString = TimestampMMSS((long)pace);	//pace as mm:ss not mm.m
 		DataVault.Set("pace", paceString/* + "min/km"*/);
 		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance(), "distanceunits"));
-		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
+		DataVault.Set("time", TimestampMMSSfromMillis( Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);
 		
 		DataVault.Set("rawdistance", Platform.Instance.Distance());
@@ -735,6 +735,19 @@ public class GameBase : MonoBehaviour {
 		TimeSpan span = TimeSpan.FromMinutes(minutes);
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
+	}
+	
+	protected string TimestampMMSSfromMillis(long milliseconds) {
+		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
+		
+		if(span.Hours > 0)
+		{
+			DataVault.Set("time_units", "m:s");
+			return string.Format("{0:0}:{1:00}", span.Minutes, span.Seconds);
+		} else {
+			DataVault.Set("time_units", "h:m:s");
+			return string.Format("{0:0}:{1:00}:{2:00}", span.Hours, span.Minutes, span.Seconds);
+		}
 	}
 	
 	/// <summary>
