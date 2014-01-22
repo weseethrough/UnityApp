@@ -94,6 +94,8 @@ public class GameSelectPanel : HexPanel
 		GConnector celebExit = Outputs.Find (r => r.Name == "celebExit");
 		GConnector modeExit = Outputs.Find (r => r.Name == "modeExit");
 		GConnector deleteExit = Outputs.Find (r => r.Name == "deleteExit");
+		GConnector trainExit = Outputs.Find (r => r.Name == "trainExit");
+			
 		
 		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
 		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentGemBalance());
@@ -251,6 +253,13 @@ public class GameSelectPanel : HexPanel
 				if(deleteExit.Link.Count > 0)
 				{
 					gComponent.Data.Connect(gc, deleteExit.Link[0]);
+				}
+			}
+			else if(games[i].type == "TrainRescue")
+			{
+				if(trainExit.Link.Count > 0)
+				{
+					gComponent.Data.Connect(gc, trainExit.Link[0]);
 				}
 			}
 

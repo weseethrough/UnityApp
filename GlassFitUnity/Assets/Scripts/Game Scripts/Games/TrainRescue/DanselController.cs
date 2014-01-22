@@ -11,19 +11,17 @@ public class DanselController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 			//ascertain finish distance
-//			try {
-//			Track selectedTrack = (Track)DataVault.Get("current_track");
-//			if(selectedTrack != null) {
-//				finish = (int)selectedTrack.distance;
-//			} else {
-//				finish = (int)DataVault.Get("finish");
-//			}
-//		} catch(Exception e) {
-//			finish = 300;
-//		}
-		
-		finish = 350;
-		
+			try {
+			Track selectedTrack = (Track)DataVault.Get("current_track");
+			if(selectedTrack != null) {
+				finish = (int)selectedTrack.distance;
+			} else {
+				finish = (int)DataVault.Get("finish");
+			}
+		} catch(Exception e) {
+			finish = 350;
+		}
+						
 		xOffset = transform.localPosition.x;
 		height = transform.localPosition.y;
 	}

@@ -53,10 +53,8 @@ public class CameraFlythrough : MonoBehaviour {
 				finish = (int)DataVault.Get("finish");
 			}
 		} catch(Exception e) {
-			finish = 5000;	
+			finish = 350;	
 		}
-		
-		finish = 350;
 		
 		//make it so we stop short of the damsel herself.
 		finish -= endOffsetDist;

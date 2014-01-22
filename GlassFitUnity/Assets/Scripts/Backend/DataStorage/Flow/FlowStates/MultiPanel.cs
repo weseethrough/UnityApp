@@ -99,6 +99,9 @@ public class MultiPanel : Panel
                 }                                
             }
         }
+		
+		//set the datavault value so that the paging indicator knows the number of pages.
+		DataVault.Set("numberOfPages", managedChildren.Count);		
         
         ArangeScreens();
     }
@@ -150,6 +153,10 @@ public class MultiPanel : Panel
             DataVault.Set("count", "accel " + acceleratedPosition);
             float animatedPosition = - acceleratedPosition - managedChildren[0].physicalWidgetRoot.transform.position.x / (0.0018f * Screen.width);
             int index = Mathf.Max(0, Mathf.Min(managedChildren.Count-1, (int)(animatedPosition + 0.5f)));
+			
+			//Set current page in the data vault, for paging indicator
+			DataVault.Set("currentPageIndex", index);
+			
             pos.x = 0.0018f * (-index * Screen.width);
             firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.3f, pos);
    

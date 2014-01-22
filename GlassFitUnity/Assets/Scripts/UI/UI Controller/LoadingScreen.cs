@@ -21,13 +21,14 @@ public class LoadingScreen : MonoBehaviour {
 			break;
 			
 		case "tutorial":
+			levelName = "FirstRun";
+			break;
+			
+		case "trainRescue":
 			levelName = "TrainRescue";
 			break;
 		}
-		
-		//just force train rescue to load anyway
-		levelName = "TrainRescue";
-		
+	
 		StartCoroutine("LoadLevel");
 	}
 	

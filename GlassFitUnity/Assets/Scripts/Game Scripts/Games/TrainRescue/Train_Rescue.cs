@@ -41,6 +41,7 @@ public class Train_Rescue : GameBase {
 		//set the distance to 300m
 		DataVault.Set("finish", 350);
 		finish = 350;
+		
 		//force indoor
 		Platform.Instance.SetIndoor(true);
 		
