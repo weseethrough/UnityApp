@@ -6,13 +6,15 @@ public class ChallengeNotification {
 	private Notification notification;
 	private Challenge challenge;
 	private User user;
+	private Track track;
 	
 	public ChallengeNotification() {}
-	public ChallengeNotification(Notification notification, Challenge challenge, User user)
+	public ChallengeNotification(Notification notification, Challenge challenge, User user, Track track)
 	{
 		this.notification = notification;
 		this.challenge = challenge;
 		this.user = user;
+		this.track = track;
 	}
 	
 	public string GetName() 
@@ -80,11 +82,8 @@ public class ChallengeNotification {
 	
 	public Track GetTrack()
 	{
-		if(challenge != null) {
-			UnityEngine.Debug.Log("ChallengeNotification: getting first track");
-			Track track = challenge.UserTrack(user.id);
-			UnityEngine.Debug.Log("ChallengeNotification: getting second track");
-			return Platform.Instance.FetchTrack(track.deviceId, track.trackId);
+		if(track != null) {
+			return track;
 		} 
 		else 
 		{
