@@ -7,6 +7,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="sensor_service_name">Sensor Service</string>
     <string name="title_orientation_helper">Orientation Demo</string>
-    <string name="glass_voice_trigger">Race Beta</string>
+    <string name="glass_voice_trigger">Race Yourself</string>
 
 </resources>
