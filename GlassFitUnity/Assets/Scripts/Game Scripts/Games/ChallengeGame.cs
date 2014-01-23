@@ -10,6 +10,11 @@ public class ChallengeGame : GameBase {
 	void Start () {
 		base.Start();
 		
+		if(finish == 0) 
+		{
+			finish = 500;
+		}
+		
 		Platform.Instance.ResetTargets();
 		
 		Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
@@ -30,12 +35,13 @@ public class ChallengeGame : GameBase {
 	public override GConnector GetFinalConnection()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		if(Platform.Instance.GetHighestDistBehind() < 0) { 
+		ChallengeNotification current = (ChallengeNotification)DataVault.Get("current_challenge_notification");
+		if(Platform.Instance.Time() < current.GetTime()) { 
 			DataVault.Set("challenge_result", "You beat " + (string)DataVault.Get("challenger"));
 		} else {
 			DataVault.Set("challenge_result", (string)DataVault.Get("challenger") + " beat you!");
 		}
-		
+		current.SetRead();
 		return fs.Outputs.Find(r => r.Name == "ChallengeExit");
 	}
 	

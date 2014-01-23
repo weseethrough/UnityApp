@@ -122,7 +122,7 @@ public class HexInfoManager : MonoBehaviour
             }
             else
             {
-                string actionName = DataVault.Translate("Tap to run", null );
+                string actionName = DataVault.Translate("Tap to launch", null );
                 DataVault.Set("action_name", actionName);
                 buyNowGameObject.SetActive(false);
             }
