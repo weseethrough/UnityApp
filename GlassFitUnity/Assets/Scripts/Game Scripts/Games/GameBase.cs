@@ -52,7 +52,7 @@ public class GameBase : MonoBehaviour {
 		
 	// Start tracking and 3-2-1 countdown variables
 	protected bool started = false;
-	protected bool countdown = false;
+	protected bool countdown = true;
 	protected float countTime = 3.0f;
 	protected bool readyToStart = false;	//becomes true when the user resets the gyro. Countdown can start when this is true.
 	
@@ -106,6 +106,8 @@ public class GameBase : MonoBehaviour {
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
+		
+		DataVault.Set("countdown_subtitle", " ");
 		
 		tapHandler = new GestureHelper.OnTap(() => {
 			GameHandleTap();
@@ -496,41 +498,19 @@ public class GameBase : MonoBehaviour {
 		
 		Rect messageRect = new Rect(250, 150, 300, 200);
 		
-		if(countdown && !pause)
-		{
-			// Get the current time rounded up
-			int cur = Mathf.CeilToInt(countTime);
-			
-			// Display countdown on screen
-			if(countTime > 0.0f)
-			{
-				GUI.Label(messageRect, cur.ToString(), labelStyle); 
-			}
-			else if(countTime > -1.0f && countTime < 0.0f)
-			{
-				GUI.Label(messageRect, "GO!", labelStyle); 
-			}
-		}
-		
-		//feedback to user - now covered by panels
-//		if(!readyToStart && !pause && !hasEnded && !pause && !maybeQuit)
+//		if(countdown && !pause)
 //		{
-//			//are we waiting for GPS?
-//			if(!Platform.Instance.HasLock() && !Platform.Instance.IsIndoor() && !maybeQuit && !pause)
+//			// Get the current time rounded up
+//			int cur = Mathf.CeilToInt(countTime);
+//			
+//			// Display countdown on screen
+//			if(countTime > 0.0f)
 //			{
-//				GUI.Label(messageRect, "Awaiting GPS lock...", labelStyle);
+//				GUI.Label(messageRect, cur.ToString(), labelStyle); 
 //			}
-//			else
+//			else if(countTime > -1.0f && countTime < 0.0f)
 //			{
-//				//notify if we're indoor
-//				if(Platform.Instance.IsIndoor())
-//				{
-//					GUIStyle indoorTextStyle = new GUIStyle(labelStyle);
-//					indoorTextStyle.fontSize -= 10;
-//					GUI.Label(new Rect(messageRect.xMin, 15, messageRect.width, 100), "Indoor mode", indoorTextStyle);
-//				}
-//				
-//				GUI.Label(messageRect, "Centre View to start", labelStyle);
+//				GUI.Label(messageRect, "GO!", labelStyle); 
 //			}
 //		}
 		
@@ -566,6 +546,23 @@ public class GameBase : MonoBehaviour {
 		return Platform.Instance.GetHighestDistBehind() - offset;
 	}
 	
+	IEnumerator DoCountDown()
+	{
+		UnityEngine.Debug.Log("GameBase: Starting Countdown Coroutine");
+		for(int i=3; i>=0; i--)
+		{
+			//set value for subtitle. 0 = GO
+			string displayString = (i==0) ? "GO !" : i.ToString();
+			DataVault.Set("countdown_subtitle", displayString);
+			
+			//wait half a second
+			yield return new WaitForSeconds(1.0f);
+		}
+		//start the game
+		DataVault.Set("countdown_subtitle", " ");
+		StartRace();
+	}
+	
 	// Update is called once per frame
 	public virtual void Update () 
 	{
@@ -592,19 +589,21 @@ public class GameBase : MonoBehaviour {
 		UpdateAhead();
 		
 		//start the contdown once we've got reset the gyro		
-		if(readyToStart && shouldDoGameBaseCountdown())
+		if(readyToStart && shouldDoGameBaseCountdown() && countdown)
 		{
 			// Initiate the countdown
-			countdown = true;
-		 	if(countTime <= -1.0f && !started)
-			{
-				StartRace();
-			}
-			else if(countTime > -1.0f)
-			{
-				//UnityEngine.Debug.Log("Counting Down");
-				countTime -= Time.deltaTime;
-			}
+//			countdown = true;
+//		 	if(countTime <= -1.0f && !started)
+//			{
+//				StartRace();
+//			}
+//			else if(countTime > -1.0f)
+//			{
+//				//UnityEngine.Debug.Log("Counting Down");
+//				countTime -= Time.deltaTime;
+//			}
+			countdown = false;
+			StartCoroutine("DoCountDown");
 		}
 		
 		// Awards the player points for running certain milestones
