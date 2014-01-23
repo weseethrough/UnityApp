@@ -24,7 +24,6 @@ public class TutorialPanel : HexPanel
 	private Camera camera;
 	
 	private UITexture firstSpeech;
-	private UITexture secondSpeech;
 	private UITexture thirdSpeech;
 	
     public TutorialPanel() { }
@@ -129,16 +128,6 @@ public class TutorialPanel : HexPanel
 		
 		firstSpeech.alpha = 0;
 		
-		speechBubble = GameObject.Find("SecondSpeech");
-		if(speechBubble != null) {
-			secondSpeech = speechBubble.GetComponent<UITexture>();
-		} else {
-			UnityEngine.Debug.Log("TutorialPanel: Error finding second speech");
-			secondSpeech = new UITexture();
-		}
-		
-		secondSpeech.alpha = 0;
-		
 		speechBubble = GameObject.Find("ThirdSpeech");
 		if(speechBubble != null) {
 			thirdSpeech = speechBubble.GetComponent<UITexture>();
@@ -171,10 +160,6 @@ public class TutorialPanel : HexPanel
 			{
 				firstSpeech.alpha += 1.0f * Time.deltaTime;
 			} 
-			else if(buttonData.Count == 3)
-			{
-				secondSpeech.alpha += 1.0f * Time.deltaTime;
-			}
 			else if(buttonData.Count == 6)
 			{
 				thirdSpeech.alpha += 1.0f * Time.deltaTime;
@@ -183,7 +168,6 @@ public class TutorialPanel : HexPanel
 		else
 		{
 			firstSpeech.alpha = 0.0f;
-			secondSpeech.alpha = 0.0f;
 			thirdSpeech.alpha = 0.0f;
 		}
 	}
@@ -284,7 +268,7 @@ public class TutorialPanel : HexPanel
 			hbd.imageName = "activity_run";
             hbd.displayInfoData = true;
 			hbd.activityName = "First Race";
-			hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer.";
+			hbd.activityContent = "Learn how to use Race Yourself";
 			
 			shouldAdd = false;
 			buttonData.Add(hbd);
@@ -385,7 +369,7 @@ public class TutorialPanel : HexPanel
 				hbd.imageName = "activity_run";
 	            hbd.displayInfoData = true;
 				hbd.activityName = "First Race";
-				hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer.";
+				hbd.activityContent = "Learn how to use Race Yourself";
 				
 	            elapsedTime = 0f;
 				shouldAdd = false;

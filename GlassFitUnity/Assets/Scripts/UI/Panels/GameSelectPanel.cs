@@ -178,17 +178,16 @@ public class GameSelectPanel : HexPanel
 			hbd.activityPrice = (int)games[i].priceInPoints;
             hbd.column = games[i].column;
             hbd.row = games[i].row;
-			//UnityEngine.Debug.Log("Game: position of " + games[i].name + " is: " + games[i].column + ", " + games[i].row);
             hbd.imageName = games[i].iconName;
 			
 			if(games[i].type == "N/A")
 			{
 				hbd.displayInfoData = false;
+				hbd.textOverlay = "Coming Soon";
 			}
 			
 			if(games[i].state == "Locked") {
 	           	hbd.locked = true;
-				hbd.textOverlay = "Coming Soon";
 			} else {
 				hbd.locked = false;
 				hbd.textOverlay = string.Empty;
@@ -205,7 +204,6 @@ public class GameSelectPanel : HexPanel
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
 				{
-					//UnityEngine.Debug.Log("Game: Unlock exit set");
 					gComponent.Data.Connect(gc, unlockExit.Link[0]);
 				}
 			}
@@ -218,7 +216,6 @@ public class GameSelectPanel : HexPanel
 			} 
 			else if(games[i].type == "Pursuit") 
 			{
-				//UnityEngine.Debug.Log("Game: Pursuit exit set");
 				if(pursuitExit.Link.Count > 0) 
 				{
 					gComponent.Data.Connect(gc, pursuitExit.Link[0]);
@@ -264,9 +261,7 @@ public class GameSelectPanel : HexPanel
 			}
 
         }
-		
-		//LoadingTextComponent.SetVisibility(false);
-		
+				
         base.EnterStart();   
     }
 	
