@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// Sets the distance markers
 /// </summary>
-public class DistanceMarker : MonoBehaviour {
+public class distanceMarker : MonoBehaviour {
 	
 	private int target = 500;
 	
@@ -21,6 +21,10 @@ public class DistanceMarker : MonoBehaviour {
 	// Variable for current distance travelled.
 	private double distance;
 	
+	// Height of the distance markers
+	protected float xOffset;
+	protected float height;
+	
 	/// <summary>
 	/// Obtains the text mesh
 	/// </summary>
@@ -32,11 +36,13 @@ public class DistanceMarker : MonoBehaviour {
 		try {
 			goal = (int)DataVault.Get("finish");
 		} catch (Exception e) {
-			UnityEngine.Debug.Log("DistanceMarker: Couldn't retrieve finish distance. Setting locally to 10km");
+			UnityEngine.Debug.LogWarning("DistanceMarker: Couldn't retrieve finish distance. Setting locally to 10km");
 			goal = 10000;
 		}
-			
-			
+		
+		//get the height from the template object
+		xOffset = transform.position.x;
+		height = transform.position.y;
 	}
 	
 	/// <summary>
@@ -58,7 +64,7 @@ public class DistanceMarker : MonoBehaviour {
 		{
 			double deltDist = target - distance;
 			//deltDist *= 135f;
-			transform.position = new Vector3(-582, -109, (float)deltDist);
+			transform.position = new Vector3(xOffset, height, (float)deltDist);
 		}
 		
 		// If current distance is higher than target set the new text and position.

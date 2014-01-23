@@ -54,67 +54,67 @@ public class DistancePanel : HexPanel {
 
 		//distance options
 		
-//		if((string)DataVault.Get("race_type") == "trainRescue")
-//		{
-//			//For the train game, just do 350m
-//			hbd = GetButtonAt(0, -1);
-//			
-//			if(hbd == null)
-//			{
-//				hbd = new HexButtonData();
-//				buttonData.Add(hbd);
-//			}
-//			
-//			hbd.column = 0;
-//			hbd.row = -1;
-//			hbd.buttonName = "350m";
-//			hbd.textNormal = "350m";
-//			
-//			gc = NewOutput(hbd.buttonName, "Flow");
-//	        gc.EventFunction = "SetFinish";
-//			
-//			if(gameExit.Link.Count > 0) {
-//				gComponent.Data.Connect(gc, gameExit.Link[0]);
-//			}
-//			
-//			hbd = GetButtonAt(1, 0);
-//			
-//			if(hbd == null)
-//			{
-//				hbd = new HexButtonData();
-//				buttonData.Add(hbd);
-//			}
-//			
-//			//clear the others
-//			hbd = GetButtonAt(0,1);
-//			if(hbd == null) { 
-//				hbd = new HexButtonData();
-//				buttonData.Add(hbd);
-//			}
-//			
-//			hbd = GetButtonAt(-1,1);
-//			if(hbd == null) { 
-//				hbd = new HexButtonData();
-//				buttonData.Add(hbd);
-//			}
-//			hbd = GetButtonAt(-1,0);
-//			if(hbd == null) { 
-//				hbd = new HexButtonData();
-//				buttonData.Add(hbd);
-//			}
-//			hbd = GetButtonAt(-1,-1);
-//			if(hbd == null) { 
-//				hbd = new HexButtonData();
-//				buttonData.Add(hbd);
-//			}
-//			hbd = GetButtonAt(-2,0);
-//			if(hbd == null) { 
-//				hbd = new HexButtonData();
-//				buttonData.Add(hbd);
-//			}			
-//		}
-//		
-//		else
+		if((string)DataVault.Get("race_type") == "trainRescue")
+		{
+			//For the train game, just do 350m
+			hbd = GetButtonAt(0, -1);
+			
+			if(hbd == null)
+			{
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			
+			hbd.column = 0;
+			hbd.row = -1;
+			hbd.buttonName = "350m";
+			hbd.textNormal = "350m";
+			
+			gc = NewOutput(hbd.buttonName, "Flow");
+	        gc.EventFunction = "SetFinish";
+			
+			if(gameExit.Link.Count > 0) {
+				gComponent.Data.Connect(gc, gameExit.Link[0]);
+			}
+			
+			hbd = GetButtonAt(1, 0);
+			
+			if(hbd == null)
+			{
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			
+			//clear the others
+			hbd = GetButtonAt(0,1);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			
+			hbd = GetButtonAt(-1,1);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			hbd = GetButtonAt(-1,0);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			hbd = GetButtonAt(-1,-1);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}
+			hbd = GetButtonAt(-2,0);
+			if(hbd == null) { 
+				hbd = new HexButtonData();
+				buttonData.Add(hbd);
+			}			
+		}
+		
+		else
 		{
 			//regular distnace options
 			hbd = GetButtonAt(0, -1);
