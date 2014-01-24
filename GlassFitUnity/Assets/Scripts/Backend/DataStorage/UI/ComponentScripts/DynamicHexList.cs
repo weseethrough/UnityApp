@@ -102,7 +102,7 @@ public class DynamicHexList : MonoBehaviour
 			}
 		});
 		
-		GestureHelper.swipeLeft += leftHandler;
+		GestureHelper.onSwipeLeft += leftHandler;
 		
 		rightHandler = new GestureHelper.OnSwipeRight(() => {
 			if(!IsPopupDisplayed()) {
@@ -112,8 +112,8 @@ public class DynamicHexList : MonoBehaviour
 				}
 			}
 		});
-		
-		GestureHelper.swipeRight += rightHandler;
+
+        GestureHelper.onSwipeRight += rightHandler;
 		
         InitializeItems();
     }
@@ -131,14 +131,14 @@ public class DynamicHexList : MonoBehaviour
 
 	void OnDisable() 
 	{
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
+		GestureHelper.onSwipeLeft -= leftHandler;
+		GestureHelper.onSwipeRight -= rightHandler;
 	}
 	
 	void OnDestroy()
 	{
-		GestureHelper.swipeLeft -= leftHandler;
-		GestureHelper.swipeRight -= rightHandler;
+        GestureHelper.onSwipeLeft -= leftHandler;
+        GestureHelper.onSwipeRight -= rightHandler;
 	}
 
     /// <summary>    

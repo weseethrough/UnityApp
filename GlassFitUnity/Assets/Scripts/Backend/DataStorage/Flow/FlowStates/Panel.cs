@@ -164,7 +164,7 @@ public class Panel : FlowState
             return null;
         }
 
-        StorageDictionary screens = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
+        StorageDictionary screens = Panel.GetPanelDictionary();
         return screens != null ? screens.Get(selectedName) as SerializedNode : null;
     }
 
@@ -176,18 +176,13 @@ public class Panel : FlowState
     {
         base.EnterStart();
 
-        UIManager script = (UIManager)GameObject.FindObjectOfType(typeof(UIManager));
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
-        StorageDictionary screensDictionary = s != null ? (StorageDictionary)s.dictionary.Get(UIManager.UIPannels) : null;
+        UIManager script = (UIManager)GameObject.FindObjectOfType(typeof(UIManager));        
+        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
 
         if (script == null)
         {
             Debug.LogError("Scene requires to have UIManager in its root");
-        }
-        else if (s == null)
-        {
-            Debug.LogError("Scene requires to have storage 'core' which cant be found");
-        }
+        }       
         else if (screensDictionary == null)
         {
             Debug.LogError("Scene requires to have screensDictionary which cant be found");
@@ -352,5 +347,37 @@ public class Panel : FlowState
     public virtual string GetWidgetRootName()
     {
         return "Widgets Container";
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public static StorageDictionary GetPanelDictionary()
+    {
+        return GetPanelDictionary(true);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="tryOldOne"></param>
+    /// <returns></returns>
+    public static StorageDictionary GetPanelDictionary(bool tryOldOne)
+    {
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
+        StorageDictionary screensDictionary = null;
+        if (tryOldOne)
+        {
+            screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
+        }
+
+
+        if (screensDictionary == null)
+        {
+            screensDictionary = s.dictionary;
+        }
+
+        return screensDictionary;
     }
 }

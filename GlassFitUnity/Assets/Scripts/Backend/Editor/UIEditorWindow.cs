@@ -58,14 +58,7 @@ public class UIEditorWindow : EditorWindow
         GUILayout.BeginHorizontal();
 			if (GUILayout.Button("Delete screen"))
             {
-                Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
-                StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
-
-                if (screensDictionary == null)
-                {
-                    screensDictionary = new StorageDictionary();
-                    s.dictionary.Add(UIManager.UIPannels, screensDictionary);
-                }
+                StorageDictionary screensDictionary = Panel.GetPanelDictionary();
 
                 if (index < screensDictionary.Length())
                 {
@@ -96,7 +89,7 @@ public class UIEditorWindow : EditorWindow
             if (GUILayout.Button("Save"))
             {
                 SaveScreen(false);
-                DataStore.SaveStorage(DataStore.BlobNames.ui_panels);
+                DataStore.SaveStorage(DataStore.BlobNames.ui_panels, true);
                 RefreshFromSource();
             }
             if (GUILayout.Button("Load"))
@@ -114,9 +107,8 @@ public class UIEditorWindow : EditorWindow
 	/// <returns></returns>
 	void BuildScreenList()
 	{
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
 
-        StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
+        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
 
         int count = screensDictionary == null ? 0 : screensDictionary.Length();
         screens = new string[count + 1];
@@ -160,8 +152,8 @@ public class UIEditorWindow : EditorWindow
     void LoadSavedScreenStructure(int index)
     {
         UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
-        StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
+        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
+
         if (script == null || screensDictionary == null)
         {
             Debug.LogError("Scene requires to have UIManager in its root");                
@@ -207,8 +199,7 @@ public class UIEditorWindow : EditorWindow
     /// <returns></returns>
     void RefreshFromSource()
     {
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
-        StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
+        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
 
         BuildScreenList();
         int id = screensDictionary != null ? screensDictionary.GetIndex(screenName) : -1;
@@ -230,14 +221,8 @@ public class UIEditorWindow : EditorWindow
     /// <returns></returns>
     void SaveScreen(bool deleteOld)
     {
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
-        StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
-
-        if (screensDictionary == null)
-        {
-            screensDictionary = new StorageDictionary();
-            s.dictionary.Add(UIManager.UIPannels, screensDictionary);
-        }
+        //Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
+        StorageDictionary screensDictionary = Panel.GetPanelDictionary(false);
 
         if (screenName.Length == 0)
         {
@@ -267,4 +252,5 @@ public class UIEditorWindow : EditorWindow
             index = screens.Length - 1;
         }
     }
+    
 }

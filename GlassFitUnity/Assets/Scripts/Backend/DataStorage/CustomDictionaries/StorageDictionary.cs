@@ -198,13 +198,7 @@ public class StorageDictionary : ISerializable
         {
             return data[index];
         }
-        else
-        {
-            Debug.Log("-B------------------START-------------------B-");
-            Debug.Log("StorageDictionary does not contain " + name);
-            Debug.Log("item count: " + data.Count);
-            Debug.Log("-B-------------------END--------------------B-");
-        }
+       
         return null;
 	}
 
