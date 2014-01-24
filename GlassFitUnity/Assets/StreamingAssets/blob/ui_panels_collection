@@ -38,3 +38,6 @@ LoadLevel
 InitialScreen
 ChallengeComplete
 SpeechBubbles
+TrainSubtitle
+TrainGame_Intro
+BlankPage

@@ -24,7 +24,6 @@ public class TutorialPanel : HexPanel
 	private Camera camera;
 	
 	private UITexture firstSpeech;
-	private UITexture thirdSpeech;
 	
     public TutorialPanel() { }
     public TutorialPanel(SerializationInfo info, StreamingContext ctxt)
@@ -128,16 +127,6 @@ public class TutorialPanel : HexPanel
 		
 		firstSpeech.alpha = 0;
 		
-		speechBubble = GameObject.Find("ThirdSpeech");
-		if(speechBubble != null) {
-			thirdSpeech = speechBubble.GetComponent<UITexture>();
-		} else {
-			UnityEngine.Debug.Log("TutorialPanel: Error finding third speech");
-			thirdSpeech = new UITexture();
-		}
-		
-		thirdSpeech.alpha = 0;
-		
 		base.EnterStart();
     }
 	
@@ -159,16 +148,11 @@ public class TutorialPanel : HexPanel
 			if(buttonData.Count == 2) 
 			{
 				firstSpeech.alpha += 1.0f * Time.deltaTime;
-			} 
-			else if(buttonData.Count == 6)
-			{
-				thirdSpeech.alpha += 1.0f * Time.deltaTime;
 			}
 		} 
 		else
 		{
 			firstSpeech.alpha = 0.0f;
-			thirdSpeech.alpha = 0.0f;
 		}
 	}
 	
