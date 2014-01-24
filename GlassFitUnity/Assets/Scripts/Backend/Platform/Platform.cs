@@ -1199,7 +1199,7 @@ public class Platform : MonoBehaviour {
 		{
 			//UnityEngine.Debug.Log("Platform: Checking touch input..");
 			int touchCount = activity.Call<int> ("getTouchCount");
-			if (touchCount > -1)
+			if (touchCount > 0)
 			{
 				float x = activity.Call<float> ("getTouchX");
 				float y = activity.Call<float> ("getTouchY");
