@@ -84,7 +84,7 @@ public class TrainingCamera : MonoBehaviour {
 					gridOn = false;
 				} else {
 					offsetFromStart = Platform.Instance.GetPlayerOrientation().AsQuaternion();
-					Platform.Instance.ResetGyro();
+					// reset gyro?
 					gridOn = true;
 				}
 				gridTimer = 5.0f;

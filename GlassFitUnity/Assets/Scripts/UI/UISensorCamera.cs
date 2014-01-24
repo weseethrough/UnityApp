@@ -26,7 +26,7 @@ public class UISensorCamera : MonoBehaviour {
     	scale.z = 1;
 		
 		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
-			ResetGyroGlass();
+			Platform.Instance.GetPlayerOrientation().Reset();
 		});
 		GestureHelper.onTwoTap += twoTapHandler;
 		
@@ -63,22 +63,7 @@ public class UISensorCamera : MonoBehaviour {
 #endif
 			started = true;
 		}
-		
-		// Resets the gyro after a button press
-//		if(GUI.Button (new Rect(0, 450, 70, 50), "Set Gyro"))
-//		{ 
-//#if !UNITY_EDITOR
-//			Platform.Instance.ResetGyro();
-//			offsetFromStart = Platform.Instance.GetPlayerOrientation();
-//#endif
-//			// Reset the gyros in the hex lists
-//            DynamicHexList[] lists = GameObject.FindObjectsOfType(typeof(DynamicHexList)) as DynamicHexList[];
-//            foreach (DynamicHexList dhl in lists)
-//            {
-//                dhl.ResetGyro();
-//            }
-//
-//		}
+
 		
 		//draw a reticle if we're in the hex menu
 		if(FindObjectOfType(typeof(DynamicHexList)))
@@ -103,27 +88,10 @@ public class UISensorCamera : MonoBehaviour {
 		GUI.DrawTexture(textureRect, tex, ScaleMode.ScaleToFit, true);
 	}
 	
-	void ResetGyroGlass()
-	{
-		ResetGyro();
-	}
-	
-	void ResetGyro()
-	{
-#if !UNITY_EDITOR
-		Platform.Instance.GetPlayerOrientation().Reset();
-
-#endif
-	}
-	
 	/// <summary>
 	/// Update this instance. Sets the rotation of the camera from Platform
 	/// </summary>
 	void Update () {
-		
-		if(Input.touchCount == 2) {
-			ResetGyro();
-		}
 		
 #if !UNITY_EDITOR
 		Quaternion newOffset = Platform.Instance.GetPlayerOrientation().AsQuaternion();

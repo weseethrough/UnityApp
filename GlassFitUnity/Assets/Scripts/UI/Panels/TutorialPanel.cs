@@ -74,6 +74,8 @@ public class TutorialPanel : HexPanel
 		//ResetButtonData();
 		//UnityEngine.Debug.Log("TutorialPanel: setting two finger tap");
 		
+		UnityEngine.Debug.Log("TutorialPanel: screen width is " + Screen.width + ", height is " + Screen.height);
+		
 		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
 		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentMetabolism());
 		

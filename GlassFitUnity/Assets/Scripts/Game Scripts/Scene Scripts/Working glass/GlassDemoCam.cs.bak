@@ -42,7 +42,7 @@ public class GlassDemoCam : MonoBehaviour {
 					gridOn = false;
 				} else {
 					offsetFromStart = Platform.Instance.GetOrientation();
-					Platform.Instance.ResetGyro();
+					//Platform.Instance.ResetGyro();
 					gridOn = true;
 				}
 				gridTimer = 5.0f;

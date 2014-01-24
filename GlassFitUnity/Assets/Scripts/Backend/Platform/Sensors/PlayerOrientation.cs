@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerOrientation
 {
-	private Quaternion realWorldToPlayerRotation = Quaternion.identity;
+	private Quaternion realWorldToPlayerRotation = Quaternion.identity;  // player's rotation from real-world co-ordinate system (north, east, up)
 	private Quaternion initialRotationOffset = Quaternion.identity;  // player's rotation when reset() was last called
 	private Quaternion playerOrientation = Quaternion.identity;  // player's rotation from when reset() was last called
 
@@ -14,6 +14,8 @@ public class PlayerOrientation
 
 	// Accessor methods
 	public Quaternion AsQuaternion() { return playerOrientation; }
+
+	public Quaternion AsRealWorldQuaternion() { return realWorldToPlayerRotation; }
 
 	public float AsYaw() { return yaw; }
 
@@ -49,14 +51,21 @@ public class PlayerOrientation
 
 	// reset the player orientation to current deveice orientation
 	// future calls to the accessor methods will report offset from this position
+	// currently locked to the horizontal plane
 	public void Reset()
 	{
-		this.initialRotationOffset = this.realWorldToPlayerRotation;
+		Vector3 realWorldYPR = OrientationUtils.QuaternionToYPR(realWorldToPlayerRotation); // returns yaw and pitch the wrong way round
+		Vector3 YPRoffset = new Vector3(realWorldYPR.z, -90.0f*Mathf.Deg2Rad, 0.0f);
+		this.initialRotationOffset = OrientationUtils.YPRToQuaternion(YPRoffset); // feed above in reverese order to compensate
+
 		Update (this.initialRotationOffset);
 		cumulativeYaw = 0f;
+
+		UnityEngine.Debug.Log("PlayerOrientation reset");
 
 	}
 
 
 
 }
+
