@@ -56,6 +56,7 @@ public class RaceGame : GameBase {
 		{
 		case "Runner":
 			currentActorType = ActorType.Runner;
+			targSpeed = 3.0f;
 			break;
 			
 		case "Cyclist":
@@ -239,6 +240,7 @@ public class RaceGame : GameBase {
 		switch(currentActorType) {
 		case ActorType.Runner:
 			template = runnerHolder;
+			targSpeed = 3.0f;
 			break;
 		case ActorType.Cyclist:
 			template = cyclistHolder;

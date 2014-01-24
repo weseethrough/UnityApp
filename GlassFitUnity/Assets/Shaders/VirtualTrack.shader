@@ -37,7 +37,7 @@
 			o.uv = v.texcoord;
 			o.col = float4(1.0,1.0,1.0,1.0);
 			//apply the scroll factor - uv comes in as [0,1]
-			o.uv.y = o.uv.y * _Repeats + _Phase;
+			o.uv.y = -o.uv.y * _Repeats + _Phase;
 		
 //			if(o.pos.z > _FadeDist)
 //			{

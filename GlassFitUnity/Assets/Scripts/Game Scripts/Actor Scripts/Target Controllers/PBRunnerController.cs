@@ -11,7 +11,8 @@ public class PBRunnerController : TargetController {
 	
 	// Use this for initialization
 	void Start () {
-		base.Start();		
+		base.Start();	
+		SetAttribs( 0, 3.0f, 0, 1.5f);
 	}
 	
 	void OnEnable() {
