@@ -205,7 +205,7 @@ public class CameraFlythrough : MonoBehaviour {
 		
 		//reset the gyros here
 //		MinimalSensorCamera cam = (MinimalSensorCamera)GameObject.FindObjectOfType(typeof(MinimalSensorCamera));
-//		cam.ResetGyro();
+//		Platform.Instance.GetPlayerOrientation().Reset();
 		
 		//wait another second on the maiden
 		yield return new WaitForSeconds(1.0f);
@@ -272,7 +272,7 @@ public class CameraFlythrough : MonoBehaviour {
 		
 		//reset the gyros here
 		MinimalSensorCamera cam = (MinimalSensorCamera)GameObject.FindObjectOfType(typeof(MinimalSensorCamera));
-		cam.ResetGyro();
+		Platform.Instance.GetPlayerOrientation().Reset();
 		
 //		//flash up another subtitle card warning of the train
 //		yield return new WaitForSeconds(0.5f);

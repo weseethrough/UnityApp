@@ -31,7 +31,7 @@ public class FirstRun : GameBase {
 	
 	//public UINavProgressBar progressBar;
 	
-	bool hasResetGyros = false;
+	bool hasResetGyros = false;  // possibly not needed? remove?
 	
 	// Use this for initialization
 	void Start () {
