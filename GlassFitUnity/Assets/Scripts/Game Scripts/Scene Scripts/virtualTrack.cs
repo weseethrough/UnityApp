@@ -7,7 +7,7 @@ using System.Collections;
 public class virtualTrack : MonoBehaviour {
 	
 	private const float TrackLength = 1000;
-	private const float TrackWidth = 2;
+	public float TrackWidth = 4.0f;
 	public float scrollFactor = 1.0f;	//world is not 1:1, need this fudge factor
 	
 	// Use this for initialization
@@ -24,7 +24,7 @@ public class virtualTrack : MonoBehaviour {
 		//calculate the UV phase
 		
 		float Repeats = renderer.material.mainTextureScale.y;
-		float Phase = -((float)Platform.Instance.Distance() * scrollFactor) % (TrackLength/Repeats);
+		float Phase = ((float)Platform.Instance.Distance() * scrollFactor) % (TrackLength/Repeats);
 				
 		//apply to the material to pass to the shader
 		renderer.material.SetFloat("_Phase", Phase);

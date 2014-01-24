@@ -37,7 +37,7 @@
 			o.uv = v.texcoord;
 			o.col = float4(1.0,1.0,1.0,1.0);
 			//apply the scroll factor - uv comes in as [0,1]
-			o.uv.y = o.uv.y * _Repeats + _Phase;
+			o.uv.y = -o.uv.y * _Repeats + _Phase;
 		
 //			if(o.pos.z > _FadeDist)
 //			{
@@ -56,7 +56,7 @@
       
       	fixed4 frag (v2f i) : COLOR0 { 
       		float4 texCol = tex2D( _MainTex, i.uv);
-      		if(texCol.a < 0.8)
+      		if(texCol.a < 0.05)
       		{
       			discard;
       		}
