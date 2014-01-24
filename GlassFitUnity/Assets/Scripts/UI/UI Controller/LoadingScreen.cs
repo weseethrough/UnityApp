@@ -66,6 +66,12 @@ public class LoadingScreen : MonoBehaviour {
 		//transform.rotation = Quaternion.Euler(0, 0, rotation);
 		
 		if(async != null) {
+			float progress = async.progress * 100f;
+			if(slider != null) {
+				slider.Set(progress / 100f, false);
+			}
+			UnityEngine.Debug.Log("LoadingScreen: Loading - " + progress.ToString("f0") + "%");
+			
 			if(async.isDone) {
 			    FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			    //doing the test against the race type rather than level name allows us to use the same level for different race types
@@ -112,11 +118,7 @@ public class LoadingScreen : MonoBehaviour {
 			} 
             else 
 			{
-				float progress = async.progress * 100f;
-				if(slider != null) {
-					slider.Set(progress/100f, false);
-				}
-				UnityEngine.Debug.Log("LoadingScreen: Loading - " + progress.ToString("f0") + "%");
+				
 			}
 		}
 		

@@ -18,6 +18,8 @@ public class MultiPanel : Panel
     private TweenPosition firstTweener;
     private float firstOffset = 0.0f;
     private Vector2 firstTouchPosition;
+	
+	private static int SCREEN_WIDTH = 1440;
 
     //pointer to child which is the last one considered when navigating right. 
     private MultiPanelChild maxChildProgress;
@@ -151,7 +153,7 @@ public class MultiPanel : Panel
             dragTime += Time.deltaTime;
             dragOffset = firstTouchPosition.x - touch.Value.x; 
 
-            pos.x = (-dragOffset * Screen.width) + firstOffset;
+            pos.x = (-dragOffset * SCREEN_WIDTH) + firstOffset;
             managedChildren[0].physicalWidgetRoot.transform.position = pos;
 
             if (firstTweener!=null)
@@ -163,7 +165,7 @@ public class MultiPanel : Panel
         else if (dragOffset != 0)
         {
             float acceleratedPosition = dragTime > 0 ? (dragOffset / dragTime) : 0.0f;            
-            float animatedPosition = acceleratedPosition - managedChildren[0].physicalWidgetRoot.transform.position.x / Screen.width;
+            float animatedPosition = acceleratedPosition - managedChildren[0].physicalWidgetRoot.transform.position.x / SCREEN_WIDTH;
 
             int maxIndex = maxChildProgress != null ? managedChildren.IndexOf(maxChildProgress) : managedChildren.Count-1;
             if (maxIndex < 0) 
@@ -173,7 +175,7 @@ public class MultiPanel : Panel
 
             int index = Mathf.Max(0, Mathf.Min(maxIndex, (int)(animatedPosition + 0.5f)));
             Debug.Log("Animated position: " + animatedPosition);
-            pos.x = (-index * Screen.width);
+            pos.x = (-index * SCREEN_WIDTH);
 			
 	    //Set current page in the data vault, for paging indicator
 	    DataVault.Set("currentPageIndex", index);
@@ -208,8 +210,8 @@ public class MultiPanel : Panel
         {
             Vector3 pos = Vector3.zero;
             if (i != 0)
-            {            
-                pos.x = ((i) * Screen.width) + firstGliph.x;
+            {
+                pos.x = ((i) * SCREEN_WIDTH) + firstGliph.x;                
                 managedChildren[i].physicalWidgetRoot.transform.position = pos;
             }
         }

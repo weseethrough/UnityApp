@@ -486,12 +486,12 @@ public class GameBase : MonoBehaviour {
 		GUI.depth = 5;
 		
 		GUIStyle labelStyle = getLabelStyle();
-		
-		if(pause)
-		{
-			labelStyle.fontSize = 60;
-			GUI.Label(new Rect(250, 150, 300, 200), "PAUSED", labelStyle);
-		}
+//		
+//		if(pause)
+//		{
+//			labelStyle.fontSize = 60;
+//			GUI.Label(new Rect(250, 150, 300, 200), "PAUSED", labelStyle);
+//		}
 		
 		labelStyle.fontSize = 40;
 		

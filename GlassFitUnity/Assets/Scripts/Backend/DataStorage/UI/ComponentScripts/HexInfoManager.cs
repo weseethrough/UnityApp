@@ -16,7 +16,8 @@ public class HexInfoManager : MonoBehaviour
     Animation animation;
     string anmationName = "HexInfoEnter";
     
-    GameObject  buyNowGameObject;    
+    GameObject buyNowGameObject;
+    GameObject contentBackground;    
     
     public const string DV_HEX_DATA = "HexInfoDataBlock";
 
@@ -57,6 +58,12 @@ public class HexInfoManager : MonoBehaviour
         if (go != null)
         {
             buyNowGameObject = go;
+        }
+
+        go = GameObject.Find("DescriptionBcg");
+        if (go != null)
+        {
+            contentBackground = go;
         }
     }
 
@@ -119,12 +126,20 @@ public class HexInfoManager : MonoBehaviour
                 string actionName = DataVault.Translate("Tap to buy", null );
                 DataVault.Set("action_name", actionName);
                 buyNowGameObject.SetActive(true);
+
+                Vector3 pos = contentBackground.transform.localPosition;
+                pos.x = 0;
+                contentBackground.transform.localPosition = pos;
             }
             else
             {
                 string actionName = DataVault.Translate("Tap to launch", null );
                 DataVault.Set("action_name", actionName);
                 buyNowGameObject.SetActive(false);
+
+                Vector3 pos = contentBackground.transform.localPosition;
+                pos.x = -165;
+                contentBackground.transform.localPosition = pos;
             }
 
 
