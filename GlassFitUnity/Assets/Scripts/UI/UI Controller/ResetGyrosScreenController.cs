@@ -8,6 +8,8 @@ public class ResetGyrosScreenController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		//create and register two-tap handler
+		// allows user to progress once they've done a two-tap
+		// doesn't actually reset the gyros - the handler for this is started in Platform.Initialise()
 		resetHandler = new GestureHelper.TwoFingerTap( () => {
 			OnGyrosReset();
 		});

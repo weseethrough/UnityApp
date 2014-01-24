@@ -7,10 +7,12 @@ using System;
 /// </summary>
 public class MinimalSensorCamera : MonoBehaviour {
 	
+	public const Boolean DEBUG_ORIENTATION = false;
+
 	public Quaternion offsetFromStart;
 	private Quaternion bearingOffset = Quaternion.identity; // rotation between initialBearing and player's current bearing.
 	                                                        // applied to camera in each update() call.
-	private Quaternion? initialBearing = null;  // first valid bearing we receive. Updated on ResetGyros.
+	private Quaternion? initialBearing = null;  // first valid bearing we receive. Updated on 2-tap (along with gyros)
 	                                            // null iff no valid bearing has been calculated yet
 	private bool started;
 	public GameObject grid;
@@ -43,10 +45,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 			noGrid = true;
 		}
 		
-		indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
-		
 		twoHandler = new GestureHelper.TwoFingerTap(() => {
-			ResetGyroGlass();
+			ResetBearing();
 		});
 		GestureHelper.onTwoTap += twoHandler;
 		
@@ -63,24 +63,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 			GetComponentInChildren<WebCamBehaviour>().enabled = false;
 			GetComponentInChildren<KeepAliveBehaviour>().enabled = false;
 		}
-	}
-	
-	public void ResetGyro() 
-	{
-#if !UNITY_EDITOR
-		// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
-		// reset orientation offset
-		Platform.Instance.GetPlayerOrientation().Reset();
-			
-		// reset bearing offset
-		if (Platform.Instance.Bearing() != -999.0f) {
-			initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
-			bearingOffset = Quaternion.identity;
-		} else {
-			initialBearing = null;
-			bearingOffset = Quaternion.identity;
-		}
-#endif
 	}
 	
 	void SetRearview() {
@@ -102,9 +84,27 @@ public class MinimalSensorCamera : MonoBehaviour {
 		labelStyle.alignment = TextAnchor.UpperCenter;
 		labelStyle.fontSize = 40;
 		labelStyle.fontStyle = FontStyle.Bold;
-		
-		//GUI.Label(new Rect(300, 150, 200, 200), Platform.Instance.Bearing().ToString(), labelStyle); 
-		
+
+		if (DEBUG_ORIENTATION)
+		{
+			// print orientation (x,y,z)
+			Quaternion realWorldOffset = Platform.Instance.GetPlayerOrientation().AsRealWorldQuaternion();
+//			GUI.Label(new Rect(200, 050, 400, 50), "Euler x: " + ((int)realWorldOffset.eulerAngles.x).ToString(), labelStyle);
+//			GUI.Label(new Rect(200, 100, 400, 50), "Euler y: " + ((int)realWorldOffset.eulerAngles.y).ToString(), labelStyle);
+//			GUI.Label(new Rect(200, 150, 400, 50), "Euler z: " + ((int)realWorldOffset.eulerAngles.z).ToString(), labelStyle);
+
+			// print orientation (yaw, pitch roll)
+			Vector3 YPR = OrientationUtils.QuaternionToYPR(realWorldOffset);
+//			GUI.Label(new Rect(200, 250, 400, 50), "Euler yaw: "   + ((int)Mathf.Rad2Deg*YPR.x).ToString(), labelStyle);
+//			GUI.Label(new Rect(200, 300, 400, 50), "Euler pitch: " + ((int)Mathf.Rad2Deg*YPR.y).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 350, 400, 50), "Euler roll: "  + ((int)Mathf.Rad2Deg*YPR.z).ToString(), labelStyle);
+
+			// print bearing debug data
+		    GUI.Label(new Rect(200, 150, 400, 50), "Bearing: " + ((int)Platform.Instance.Bearing()).ToString(), labelStyle);
+//		    GUI.Label(new Rect(200, 200, 400, 50), "Camera offset: " + ((int)bearingOffset.eulerAngles.y).ToString(), labelStyle);
+		    GUI.Label(new Rect(200, 200, 400, 50), "Indoor mode: " + indoor.ToString(), labelStyle);
+		}
+
 #if !UNITY_EDITOR
 		if(!noGrid) {
 			if(!started) {
@@ -119,8 +119,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 					if(timerActive) {
 						gridOn = false;
 					} else {
-						ResetGyro();
-						Platform.Instance.ResetGyro();
 						gridOn = true;
 					}
 					gridTimer = 5.0f;
@@ -147,13 +145,15 @@ public class MinimalSensorCamera : MonoBehaviour {
 		
 		
 	}
-	
-	void ResetGyroGlass()
-	{
-		// reset head orientation
-		Platform.Instance.GetPlayerOrientation().Reset();
 
-		// reset bearing offset
+	// if the user does a 2-top to reset the gyros, we need to
+	// reset the bearing as well (to straight ahead)
+	void ResetBearing()
+	{
+		// check to see if indoor has been changed, e.g. at the beginning
+		// of the game but after start() runs
+		indoor = Platform.Instance.IsIndoor();
+
 		if (Platform.Instance.Bearing() != -999.0f) {
 			initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
 			bearingOffset = Quaternion.identity;
@@ -161,8 +161,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 			initialBearing = null;
 			bearingOffset = Quaternion.identity;
 		}
-			
-		Platform.Instance.ResetGyro();
 	}
 	
 	/// <summary>
