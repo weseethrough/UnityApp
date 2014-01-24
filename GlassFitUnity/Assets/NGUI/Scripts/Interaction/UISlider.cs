@@ -277,7 +277,7 @@ public class UISlider : UIWidgetContainer
 	/// Update the visible slider.
 	/// </summary>
 
-	void Set (float input, bool force)
+	public void Set (float input, bool force)
 	{
 		if (!mInitDone) Init();
 		
