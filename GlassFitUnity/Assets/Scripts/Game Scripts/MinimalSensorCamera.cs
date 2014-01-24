@@ -105,6 +105,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		    GUI.Label(new Rect(200, 200, 400, 50), "Indoor mode: " + indoor.ToString(), labelStyle);
 		}
 
+
 #if !UNITY_EDITOR
 		if(!noGrid) {
 			if(!started) {
