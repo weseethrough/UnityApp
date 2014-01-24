@@ -8,14 +8,26 @@ public class LoadingScreen : MonoBehaviour {
 	AsyncOperation async;
 	
 	private string levelName;
+	protected string raceType;
 	
 	// Use this for initialization
 	void Start () {
-		switch((string)DataVault.Get("race_type")) {
+		raceType = (string)DataVault.Get("race_type");
+		switch(raceType) {
 		case "race":
-			levelName = "Race Mode";
+		{
+			//if we have a track, load Race Mode, otherwise, load FirstRun. N.B. the menu flow will be different, so it isn't exactly the same FirstRun experience
+			Track track = (Track)DataVault.Get("current_track");
+			if(track != null)
+			{
+				levelName = "Race Mode";
+			}
+			else
+			{
+				levelName = "FirstRun";	
+			}
 			break;
-			
+		}	
 		case "pursuit":
 			levelName = "Pursuit Mode";
 			break;
@@ -46,7 +58,9 @@ public class LoadingScreen : MonoBehaviour {
 		
 		if(async != null && async.isDone) {
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			if(levelName == "FirstRun")
+			//doing the test against the race type rather than level name allows us to use the same level for different race types
+			//	e.g. FirstRun for tutorial, or using a new track			-AH
+			if(raceType == "tutorial")
 			{
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
 				if(gConnect != null)
@@ -58,7 +72,7 @@ public class LoadingScreen : MonoBehaviour {
 					UnityEngine.Debug.LogWarning("LoadingScreen: error finding tutorial exit");
 				}
 			}
-			else if(levelName == "TrainRescue")
+			else if(raceType == "trainRescue")
 			{
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "TrainExit");
 				if(gConnect != null)
