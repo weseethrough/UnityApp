@@ -28,6 +28,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 	
 	private GestureHelper.ThreeFingerTap threeHandler = null;
 	
+	static bool sensorRotationPaused = false;
+	
 	// Set the grid and scale values
 	void Start () {
 		// Calculate and set scale
@@ -63,7 +65,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 	}
 	
-	void ResetGyro() 
+	public void ResetGyro() 
 	{
 #if !UNITY_EDITOR
 		// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
@@ -168,7 +170,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	/// </summary>
 	void Update () {
 
-#if !UNITY_EDITOR		
+#if !UNITY_EDITOR	
 		// Set the offset if it hasn't been set already, doesn't work in Start() function
 		if(!started)
 		{
@@ -195,11 +197,14 @@ public class MinimalSensorCamera : MonoBehaviour {
 		// Check for rearview
 		Quaternion rearviewOffset = Quaternion.Euler(0, (rearview ? 180 : 0), 0);
 				
-		// Rotate the camera
-		if(!indoor) {
-			transform.rotation = bearingOffset * rearviewOffset * headOffset;
-		} else {
-			transform.rotation = rearviewOffset * headOffset;
+		if(!sensorRotationPaused)
+		{
+			// Rotate the camera
+			if(!indoor) {
+				transform.rotation = bearingOffset * rearviewOffset * headOffset;
+			} else {
+				transform.rotation = rearviewOffset * headOffset;
+			}
 		}
 #else
 		if(Input.GetKeyDown(KeyCode.B)) {
@@ -237,6 +242,21 @@ public class MinimalSensorCamera : MonoBehaviour {
 			grid.SetActive(gridOn);
 		}
 		
+	}
+	
+	/// <summary>
+	/// Pauses the sensor rotation.
+	/// To be called when 
+	/// </summary>
+	static public void PauseSensorRotation()
+	{
+		sensorRotationPaused = true;
+	}
+	
+	static public void ResumeSensorRotation()
+	{
+		sensorRotationPaused = false;
+		//maybe reset gyros here on coming out of this?
 	}
 	
 	void OnDestroy() 

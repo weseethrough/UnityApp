@@ -5,11 +5,15 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 [Serializable]
-public class EndTutorialPanel : TutorialPanel {
+public class EndTutorialPanel : HexPanel {
 	
 	private GestureHelper.OnTap tapHandler;
 	
 	private bool unlocked = false;
+	
+	protected float elapsedTime = 0.0f;
+	
+	protected bool shouldAdd = true;
 	
 	public EndTutorialPanel() { }
     public EndTutorialPanel(SerializationInfo info, StreamingContext ctxt)
@@ -107,7 +111,7 @@ public class EndTutorialPanel : TutorialPanel {
 		}
 	}
 	
-	public override void InitialButtons() {
+	public void InitialButtons() {
 		HexButtonData hbd = new HexButtonData();
         hbd.row = 0;
         hbd.column = 0;
@@ -196,14 +200,16 @@ public class EndTutorialPanel : TutorialPanel {
 			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
 	        list.UpdateButtonList();
 		}
+		
+		base.OnHover(button, justStarted);
 	}
 	
-	public override void AddFinalString()
+	public void AddFinalString()
 	{
 		DataVault.Set("highlight", "Highlight the hex and tap to unlock");
 	}
 	
-	public override void AddButton ()
+	public void AddButton ()
 	{
 		if (buttonData.Count == 2)
         {

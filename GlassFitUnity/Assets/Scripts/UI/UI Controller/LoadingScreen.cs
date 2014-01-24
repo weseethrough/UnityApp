@@ -24,11 +24,11 @@ public class LoadingScreen : MonoBehaviour {
 			levelName = "FirstRun";
 			break;
 			
-		case "challenge":
-			levelName = "Challenge Mode";
+		case "trainRescue":
+			levelName = "TrainRescue";
 			break;
 		}
-		
+	
 		StartCoroutine("LoadLevel");
 	}
 	
@@ -46,18 +46,7 @@ public class LoadingScreen : MonoBehaviour {
 		
 		if(async != null && async.isDone) {
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			if(levelName == "Race Mode" || levelName == "Pursuit Mode" || levelName == "Challenge Mode")
-			{
-				GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceExit");
-				if(gConnect != null)
-				{
-					fs.parentMachine.FollowConnection(gConnect);
-				} 
-				else 
-				{
-					UnityEngine.Debug.Log("LoadingScreen: error finding race exit");	
-				}
-			} else if(levelName == "FirstRun")
+			if(levelName == "FirstRun")
 			{
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
 				if(gConnect != null)
@@ -66,9 +55,34 @@ public class LoadingScreen : MonoBehaviour {
 				}
 				else 
 				{
-					UnityEngine.Debug.Log("LoadingScreen: error finding tutorial exit");
+					UnityEngine.Debug.LogWarning("LoadingScreen: error finding tutorial exit");
 				}
 			}
+			else if(levelName == "TrainRescue")
+			{
+				GConnector gConnect = fs.Outputs.Find(r => r.Name == "TrainExit");
+				if(gConnect != null)
+				{
+					fs.parentMachine.FollowConnection(gConnect);	
+				}
+				else
+				{
+					UnityEngine.Debug.LogWarning("LoadingScreen: error finding train exit");
+				}
+			}
+			else
+			{
+				GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceExit");
+				if(gConnect != null)
+				{
+					fs.parentMachine.FollowConnection(gConnect);
+				} 
+				else 
+				{
+					UnityEngine.Debug.LogWarning("LoadingScreen: error finding race exit");	
+				}
+			}
+
 		}
 		
 	}

@@ -94,9 +94,11 @@ public class GameSelectPanel : HexPanel
 		GConnector celebExit = Outputs.Find (r => r.Name == "celebExit");
 		GConnector modeExit = Outputs.Find (r => r.Name == "modeExit");
 		GConnector deleteExit = Outputs.Find (r => r.Name == "deleteExit");
+		GConnector trainExit = Outputs.Find (r => r.Name == "trainExit");
+			
 		
 		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
-		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentGemBalance());
+		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentMetabolism());
 		
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
@@ -144,11 +146,10 @@ public class GameSelectPanel : HexPanel
 		hbd.buttonName = "current_balance";
 		hbd.displayInfoData = false;
 		hbd.backgroundTileColor = 0x00A30EFF;
-		hbd.textNormal = Platform.Instance.GetCurrentMetabolism().ToString("f0") + "\n\n" + Platform.Instance.GetOpeningPointsBalance() + "RP";
-		//hbd.imageName = "";
-		
-		//buttonData.Add(hbd);
-		
+		long currentPoints = Platform.Instance.GetOpeningPointsBalance();
+		hbd.textBold = string.Format("{0:#,###0}", currentPoints) + "RP";
+		hbd.textSmall = Platform.Instance.GetCurrentMetabolism().ToString("f0");
+				
         //generate some buttons
         for(int i=0; i<games.Count; i++)
         {
@@ -177,19 +178,19 @@ public class GameSelectPanel : HexPanel
 			hbd.activityPrice = (int)games[i].priceInPoints;
             hbd.column = games[i].column;
             hbd.row = games[i].row;
-			//UnityEngine.Debug.Log("Game: position of " + games[i].name + " is: " + games[i].column + ", " + games[i].row);
             hbd.imageName = games[i].iconName;
 			
 			if(games[i].type == "N/A")
 			{
 				hbd.displayInfoData = false;
+				hbd.textOverlay = "Coming Soon";
 			}
 			
 			if(games[i].state == "Locked") {
 	           	hbd.locked = true;
-				hbd.textOverlay = "Coming Soon";
 			} else {
 				hbd.locked = false;
+				hbd.textOverlay = string.Empty;
 			}
 			
 			
@@ -198,12 +199,11 @@ public class GameSelectPanel : HexPanel
 			
 			gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
 			
-			if(games[i].state == "Locked")
+			if(games[i].state == "Locked" && games[i].type != "N/A")
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
 				{
-					//UnityEngine.Debug.Log("Game: Unlock exit set");
 					gComponent.Data.Connect(gc, unlockExit.Link[0]);
 				}
 			}
@@ -216,7 +216,6 @@ public class GameSelectPanel : HexPanel
 			} 
 			else if(games[i].type == "Pursuit") 
 			{
-				//UnityEngine.Debug.Log("Game: Pursuit exit set");
 				if(pursuitExit.Link.Count > 0) 
 				{
 					gComponent.Data.Connect(gc, pursuitExit.Link[0]);
@@ -253,11 +252,16 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, deleteExit.Link[0]);
 				}
 			}
+			else if(games[i].type == "TrainRescue")
+			{
+				if(trainExit.Link.Count > 0)
+				{
+					gComponent.Data.Connect(gc, trainExit.Link[0]);
+				}
+			}
 
         }
-		
-		//LoadingTextComponent.SetVisibility(false);
-		
+				
         base.EnterStart();   
     }
 	

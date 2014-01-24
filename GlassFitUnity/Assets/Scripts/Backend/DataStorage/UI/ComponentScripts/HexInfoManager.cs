@@ -116,13 +116,13 @@ public class HexInfoManager : MonoBehaviour
 
             if (data.locked)
             {
-                string actionName = DataVault.Translate("tap_to_buy", null );
+                string actionName = DataVault.Translate("Tap to buy", null );
                 DataVault.Set("action_name", actionName);
                 buyNowGameObject.SetActive(true);
             }
             else
             {
-                string actionName = DataVault.Translate("tap_to_run", null );
+                string actionName = DataVault.Translate("Tap to launch", null );
                 DataVault.Set("action_name", actionName);
                 buyNowGameObject.SetActive(false);
             }

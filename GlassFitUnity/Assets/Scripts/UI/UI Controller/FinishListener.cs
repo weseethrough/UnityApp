@@ -27,6 +27,7 @@ public class FinishListener : MonoBehaviour {
 		if(gConnect != null)
 		{
 			fs.parentMachine.FollowConnection(gConnect);
+			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 			started = false;
 		}
 		else

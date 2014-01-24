@@ -343,7 +343,7 @@ public class Platform : MonoBehaviour {
 			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				gps.Call("setIndoorMode", indoor);
 				if (indoor) {
-				    gps.Call("setIndoorSpeed", 4.16f);
+				    gps.Call("setIndoorSpeed", 5.0f);
 				    UnityEngine.Debug.Log("Platform: Indoor mode set to true, indoor speed = 4 min/km");
 				} else {
 					UnityEngine.Debug.Log("Platform: Indoor mode set to false, will use true GPS speed");
@@ -948,11 +948,11 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error getting orientation: " + e.Message);
 		}
 
-		// Test - print log messages for touch input
-		if (GetTouchInput() != null)
-		{
-			UnityEngine.Debug.Log("Touch input: x:" + ((Vector2)GetTouchInput())[0] + ", y:" + ((Vector2)GetTouchInput())[1]);
-		}
+//		// Test - print log messages for touch input
+//		if (GetTouchInput() != null)
+//		{
+//			UnityEngine.Debug.Log("Touch input: x:" + ((Vector2)GetTouchInput())[0] + ", y:" + ((Vector2)GetTouchInput())[1]);
+//		}
 
 	}	
 	
@@ -1194,7 +1194,7 @@ public class Platform : MonoBehaviour {
 		if (OnGlass ()) {
 		try
 		{
-			UnityEngine.Debug.Log("Platform: Checking touch input..");
+			//UnityEngine.Debug.Log("Platform: Checking touch input..");
 			int touchCount = activity.Call<int> ("getTouchCount");
 			if (touchCount > -1)
 			{

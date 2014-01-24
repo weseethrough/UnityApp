@@ -14,14 +14,15 @@ public class PageIndicatorController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		//load number of pages from datavault	- now exposed to flow
-//		try {
-//				UnityEngine.Debug.Log("Paging: attempting to retrieve number of pages");
-//				numPages = (int)DataVault.Get("NumberOfPages");
-//		} catch (Exception e) {
-//			UnityEngine.Debug.LogWarning("PageIndicator: couldn't retrieve number of pages from datavault");
-//			numPages = 6;
-//		}
-	
+		// Actually, now the MultiPanelChild will tell us how many children there are, via the dataVault.
+		try {
+				UnityEngine.Debug.Log("Paging: attempting to retrieve number of pages");
+				numPages = (int)DataVault.Get("numberOfPages");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("PageIndicator: couldn't retrieve number of pages from datavault");
+			numPages = 6;
+		}
+		
 		spriteOn = GameObject.Find("PageIndicator_on");
 		if(spriteOn)
 		{

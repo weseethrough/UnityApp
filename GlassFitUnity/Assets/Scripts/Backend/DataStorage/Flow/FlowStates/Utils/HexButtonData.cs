@@ -128,4 +128,33 @@ public class HexButtonData : ISerializable
         info.AddValue("allowEarlyHover", this.allowEarlyHover);
     }
 
+
+    /// <summary>
+    /// Makes a copy of this button data
+    /// </summary>
+    /// <returns></returns>
+    public HexButtonData Copy()
+    {
+        HexButtonData hbd = new HexButtonData ();
+        hbd.imageName           = imageName;
+        hbd.buttonName          = buttonName;
+        hbd.activityName        = activityName;
+        hbd.activityContent     = activityContent;
+        hbd.textNormal          = textNormal;
+        hbd.textBold            = textBold;
+        hbd.textSmall           = textSmall;
+        hbd.textOverlay         = textOverlay;
+        hbd.column              = column;
+        hbd.row                 = row;
+        hbd.activityPrice       = activityPrice;
+        hbd.count               = count;
+        hbd.backgroundTileColor = backgroundTileColor;
+        hbd.locked              = locked;
+        hbd.displayInfoData     = displayInfoData;
+        hbd.displayPlusMarker   = displayPlusMarker;
+        hbd.allowEarlyHover     = allowEarlyHover;
+        hbd.markedForVisualRefresh = markedForVisualRefresh;
+
+        return hbd;
+    }
 }

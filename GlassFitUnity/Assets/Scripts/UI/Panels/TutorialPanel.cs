@@ -24,7 +24,6 @@ public class TutorialPanel : HexPanel
 	private Camera camera;
 	
 	private UITexture firstSpeech;
-	private UITexture secondSpeech;
 	private UITexture thirdSpeech;
 	
     public TutorialPanel() { }
@@ -73,10 +72,11 @@ public class TutorialPanel : HexPanel
     /// <returns></returns>
     public override void EnterStart()
     {
+		//ResetButtonData();
 		//UnityEngine.Debug.Log("TutorialPanel: setting two finger tap");
 		
-		DataVault.Set("rp", Platform.Instance.GetOpeningPointsBalance());
-		DataVault.Set("metabolism", Platform.Instance.GetCurrentMetabolism());
+		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
+		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentMetabolism());
 		
 		DataVault.Set("race_type", "tutorial");
 		
@@ -128,16 +128,6 @@ public class TutorialPanel : HexPanel
 		
 		firstSpeech.alpha = 0;
 		
-		speechBubble = GameObject.Find("SecondSpeech");
-		if(speechBubble != null) {
-			secondSpeech = speechBubble.GetComponent<UITexture>();
-		} else {
-			UnityEngine.Debug.Log("TutorialPanel: Error finding second speech");
-			secondSpeech = new UITexture();
-		}
-		
-		secondSpeech.alpha = 0;
-		
 		speechBubble = GameObject.Find("ThirdSpeech");
 		if(speechBubble != null) {
 			thirdSpeech = speechBubble.GetComponent<UITexture>();
@@ -170,10 +160,6 @@ public class TutorialPanel : HexPanel
 			{
 				firstSpeech.alpha += 1.0f * Time.deltaTime;
 			} 
-			else if(buttonData.Count == 3)
-			{
-				secondSpeech.alpha += 1.0f * Time.deltaTime;
-			}
 			else if(buttonData.Count == 6)
 			{
 				thirdSpeech.alpha += 1.0f * Time.deltaTime;
@@ -182,7 +168,6 @@ public class TutorialPanel : HexPanel
 		else
 		{
 			firstSpeech.alpha = 0.0f;
-			secondSpeech.alpha = 0.0f;
 			thirdSpeech.alpha = 0.0f;
 		}
 	}
@@ -283,7 +268,7 @@ public class TutorialPanel : HexPanel
 			hbd.imageName = "activity_run";
             hbd.displayInfoData = true;
 			hbd.activityName = "First Race";
-			hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer and sample some of the other games available to unlock";
+			hbd.activityContent = "Learn how to use Race Yourself";
 			
 			shouldAdd = false;
 			buttonData.Add(hbd);
@@ -375,7 +360,7 @@ public class TutorialPanel : HexPanel
 	
 				elapsedTime = 0f;
 	            buttonData.Add(hbd);
-	        } else if(button.name == "TryHex" && buttonData.Count == 5) 
+	        } else if(button.name == "ChallengeHex" && buttonData.Count == 5) 
 			{
 				HexButtonData hbd = new HexButtonData();
 	            hbd.row = 1;
@@ -384,7 +369,7 @@ public class TutorialPanel : HexPanel
 				hbd.imageName = "activity_run";
 	            hbd.displayInfoData = true;
 				hbd.activityName = "First Race";
-				hbd.activityContent = "Tutorial for the game. Race against James, the virtual trainer and sample some of the other games available to unlock";
+				hbd.activityContent = "Learn how to use Race Yourself";
 				
 	            elapsedTime = 0f;
 				shouldAdd = false;

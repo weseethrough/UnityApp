@@ -56,3 +56,4 @@ public class GUICamera : MonoBehaviour {
         transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
 	}
 }
+

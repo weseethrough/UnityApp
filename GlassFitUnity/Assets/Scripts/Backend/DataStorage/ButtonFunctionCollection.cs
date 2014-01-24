@@ -96,6 +96,7 @@ public class ButtonFunctionCollection
 					DataVault.Set("current_track", track);
 					DataVault.Set("race_type", "challenge");
 					DataVault.Set("challenger", challenges[i].GetName());
+					DataVault.Set("current_challenge_notification", challenges[i]);
 					return true;
 				}
 			}
@@ -215,7 +216,7 @@ public class ButtonFunctionCollection
 			
 		case "activity_train":
 			DataVault.Set("type", "Train");
-			DataVault.Set("race_type", "pursuit");
+			DataVault.Set("race_type", "trainRescue");
 			break;
 			
 		case "activity_dinosaurs":
@@ -358,6 +359,12 @@ public class ButtonFunctionCollection
 	
 	static public bool SetFinish(FlowButton fb, Panel panel)
 	{
+		if((string)DataVault.Get("race_type") == "trainRescue") {
+			DataVault.Set("finish", 350);
+			DataVault.Set("lower_finish", 300);
+			AutoFade.LoadLevel("TrainRescue", 0f, 1.0f, Color.black);
+		}
+		
 		switch(fb.name) 
 		{
 		case "1km":
@@ -764,7 +771,7 @@ public class ButtonFunctionCollection
 		
 		string friendUid = friend.uid;
 		if (friend.userId.HasValue) friendUid = friend.userId.Value.ToString();
-		
+
 		Platform.Instance.QueueAction(string.Format(@"{{
 			'action' : 'challenge',
 			'target' : {0},
@@ -783,7 +790,7 @@ public class ButtonFunctionCollection
 			}}
 		}}", friendUid, track.distance, track.time, track.deviceId, track.trackId).Replace("'", "\""));
 		Debug.Log ("ButtonFunc: " + friendUid + " challenged");
-		MessageWidget.AddMessage("Challenge", "You challenged " + friendUid, "settings");
+		MessageWidget.AddMessage("Challenge", "You challenged " + friend.name, "settings");
 		Platform.Instance.SyncToServer();
 		
 		return true;
