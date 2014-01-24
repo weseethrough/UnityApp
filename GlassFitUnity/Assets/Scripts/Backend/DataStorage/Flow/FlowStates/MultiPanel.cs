@@ -210,8 +210,8 @@ public class MultiPanel : Panel
         {
             Vector3 pos = Vector3.zero;
             if (i != 0)
-            {            
-                pos.x = ((i) * SCREEN_WIDTH ) + firstGliph.x;
+            {
+                pos.x = ((i) * SCREEN_WIDTH) + firstGliph.x;                
                 managedChildren[i].physicalWidgetRoot.transform.position = pos;
             }
         }
