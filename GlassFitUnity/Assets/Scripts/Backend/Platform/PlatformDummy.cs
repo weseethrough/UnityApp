@@ -245,12 +245,6 @@ public class PlatformDummy : Platform
 		return new PlayerOrientation().AsQuaternion();
 	}
 	
-	public override void ResetGyro() {
-		// just call handlers
-		if(onResetGyro != null) onResetGyro();
-		return;
-	}
-	
 	public override Challenge FetchChallenge(string id) {
 		//don't need any challenges in the dummy
 		return null;	

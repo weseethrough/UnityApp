@@ -55,9 +55,6 @@ public class Platform : MonoBehaviour {
 	public delegate void OnRegistered(string message);
 	public OnRegistered onDeviceRegistered = null;
 	
-	public delegate void OnResetGyro();
-	public OnResetGyro onResetGyro = null;
-	
 	// The current user and device
 	private User user = null;
 	private Device device = null;
@@ -228,6 +225,11 @@ public class Platform : MonoBehaviour {
             UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
             UnityEngine.Debug.LogException(e);
 	    }
+
+		// start listening for 2-tap gestures to reset gyros
+		GestureHelper.onTwoTap += new GestureHelper.TwoFingerTap(() => {
+			Platform.Instance.GetPlayerOrientation().Reset();
+		});
 	}
 	
 	/// Message receivers
@@ -556,23 +558,6 @@ public class Platform : MonoBehaviour {
 	// Get the device's orientation
 	public virtual PlayerOrientation GetPlayerOrientation() {
 		return playerOrientation;
-	}
-	
-	// Reset the Gyros and accelerometer
-	public virtual void ResetGyro() {
-		try {
-			UnityEngine.Debug.Log("Platform: resetting gyros");
-			helper.Call("resetGyros");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error resetting gyros: " + e.Message);
-		}
-		//call handlers
-		if (onResetGyro != null)
-		{
-			UnityEngine.Debug.Log("Platform: calling reset gyros delegate");
-			onResetGyro();
-		}
-		UnityEngine.Debug.Log("Platform: reset gyros");
 	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]

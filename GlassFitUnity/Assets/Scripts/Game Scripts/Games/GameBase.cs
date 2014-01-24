@@ -162,7 +162,6 @@ public class GameBase : MonoBehaviour {
 
 //		GestureHelper.OnTap handler = null;
 //		handler = new GestureHelper.OnTap( () => {
-//			Platform.Instance.ResetGyro();
 //			GyroDidReset();	
 //			GestureHelper.onTap -= handler;
 //		});
