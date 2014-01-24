@@ -139,6 +139,8 @@ public class GameBase : MonoBehaviour {
 		}
 
 #endif	
+		DataVault.Set("finish_km", SiDistanceUnitless(finish, null) );
+		
 		UnityEngine.Debug.Log("BaseGame: finish distance is " + finish);
 		//retrieve or create list of challenges
 		challenges = DataVault.Get("challenges") as List<Challenge>;

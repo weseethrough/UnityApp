@@ -97,24 +97,32 @@ public class FirstRunGPSScreenController : SwipeListener {
 		if(indoor)
 		{
 			DataVault.Set("FrGPS_title", "Demo Mode");
-			DataVault.Set("FrGPS_body", "Demo Mode works indoors without GPS\nRun on the spot to move forwards");
-			DataVault.Set("FrGPS_tapPrompt", "Tap to switch to Normal Mode");
-			DataVault.Set ("FrGPS_navPrompt", "Swipe Forward to proceed");
+			DataVault.Set("FrGPS_tapPrompt", "Tap to switch to Normal Mode\nor\nSwipe to continue");
+			DataVault.Set("FrGPS_tether", "Demo Mode works indoors\nRun on the spot to move forwards");
+			//set display condition
+			DataVault.Set("FrGPS_ShowIcons", false);
 		}
 		else
 		{
-			//outoodr
+			//outdoor
 			DataVault.Set("FrGPS_title", "GPS Lock Required");
-			DataVault.Set("FrGPS_tapPrompt", "Tap to switch to Demo Mode");
+			//set display condition to show icons
+			DataVault.Set("FrGPS_ShowIcons", true);
+			
 			//don't show swipe to proceed if no gps lock
 			if(!Platform.Instance.HasLock())
-			{
-				DataVault.Set ("FrGPS_navPrompt", "");
-				DataVault.Set("FrGPS_body", "Awaiting GPS\nTether Glass to a Phone and head outside to get a GPS lock");
+			{	
+				//please tether
+				DataVault.Set("FrGPS_tether", "Tether phone to proceed");
+				DataVault.Set("FrGPS_tapPrompt", "Tap to switch to Demo Mode\n");
+				DataVault.Set("FrGPS_haveGPS", false);
 			}
 			else
 			{
-				DataVault.Set ("FrGPS_body", "GPS lock successfully acquired");
+				//ready to go!
+				DataVault.Set("FrGPS_tether", " ");
+				DataVault.Set("FrGPS_tapPrompt", "GPS lock obtained\nReady to go!");
+				DataVault.Set("FrGPS_haveGPS", true);
 			}
 		}
 	}
