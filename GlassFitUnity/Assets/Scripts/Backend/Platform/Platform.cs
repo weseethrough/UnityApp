@@ -219,6 +219,9 @@ public class Platform : MonoBehaviour {
 				
 				UnityEngine.Debug.Log("Platform: initialise complete");
 				//ExportCSV();
+
+				// Log screen dimensions - for debug only, can be commented out
+				UnityEngine.Debug.Log("Platform: screen dimensions are " + GetScreenDimensions().x.ToString() + "x" + GetScreenDimensions().y.ToString());
 	    	}));
 	                        
 	    } catch (Exception e) {
@@ -1244,7 +1247,24 @@ public class Platform : MonoBehaviour {
 		}
 		catch (Exception e)
 		{
-			UnityEngine.Debug.LogWarning("Platform: Error logging analytic event. " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: Error toggling screen recording. " + e.Message);
 		}
 	}
+
+	public Vector2i GetScreenDimensions()
+	{
+		try
+		{
+			AndroidJavaObject displayMetrics = context.Call<AndroidJavaObject>("getResources").Call<AndroidJavaObject>("getDisplayMetrics");
+			int height = displayMetrics.Get<int>("heightPixels");
+			int width = displayMetrics.Get<int>("widthPixels");
+			return new Vector2i(width, height);
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error getting screen dimensions. " + e.Message);
+			return new Vector2i(0,0);
+		}
+	}
+
 }
