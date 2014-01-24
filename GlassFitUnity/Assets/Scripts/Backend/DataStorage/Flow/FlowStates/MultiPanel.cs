@@ -19,6 +19,8 @@ public class MultiPanel : Panel
     private float firstOffset = 0.0f;
     private Vector2 firstTouchPosition;
 
+    private static int SCREEN_WIDTH = 1440;
+
     //pointer to child which is the last one considered when navigating right. 
     private MultiPanelChild maxChildProgress;
 
@@ -173,7 +175,7 @@ public class MultiPanel : Panel
 
             int index = Mathf.Max(0, Mathf.Min(maxIndex, (int)(animatedPosition + 0.5f)));
             Debug.Log("Animated position: " + animatedPosition);
-            pos.x = (-index * Screen.width);
+            pos.x = (-index * SCREEN_WIDTH);
 			
 	    //Set current page in the data vault, for paging indicator
 	    DataVault.Set("currentPageIndex", index);
@@ -208,8 +210,8 @@ public class MultiPanel : Panel
         {
             Vector3 pos = Vector3.zero;
             if (i != 0)
-            {            
-                pos.x = ((i) * Screen.width) + firstGliph.x;
+            {
+                pos.x = ((i) * SCREEN_WIDTH) + firstGliph.x;                
                 managedChildren[i].physicalWidgetRoot.transform.position = pos;
             }
         }
