@@ -13,12 +13,16 @@ public class MultiPanel : Panel
 {
     private List<MultiPanelChild> managedChildren;
     private float dragTime;
-    private float dragOffset;
-    private int currentSelection;
+    private float dragOffset;    
     private Vector3 firstGliph = Vector3.zero;
     private TweenPosition firstTweener;
     private float firstOffset = 0.0f;
     private Vector2 firstTouchPosition;
+
+    //pointer to child which is the last one considered when navigating right. 
+    private MultiPanelChild maxChildProgress;
+
+    private MultiPanelChild focusedChildPanel;
 
 
     /// <summary>
@@ -72,8 +76,7 @@ public class MultiPanel : Panel
     public override void EnterStart()
     {
         base.EnterStart();
-
-        currentSelection = -1;
+        
         managedChildren = new List<MultiPanelChild>();
 
         foreach (FlowState fs in m_children)
@@ -106,6 +109,8 @@ public class MultiPanel : Panel
 		DataVault.Set("numberOfPages", managedChildren.Count);		
         
         ArangeScreens();
+
+        focusedChildPanel = managedChildren[0];
     }
 
     /// <summary>
@@ -159,7 +164,14 @@ public class MultiPanel : Panel
         {
             float acceleratedPosition = dragTime > 0 ? (dragOffset / dragTime) : 0.0f;            
             float animatedPosition = acceleratedPosition - managedChildren[0].physicalWidgetRoot.transform.position.x / Screen.width;
-            int index = Mathf.Max(0, Mathf.Min(managedChildren.Count-1, (int)(animatedPosition + 0.5f)));
+
+            int maxIndex = maxChildProgress != null ? managedChildren.IndexOf(maxChildProgress) : managedChildren.Count-1;
+            if (maxIndex < 0) 
+            {
+                maxIndex = managedChildren.Count - 1;
+            }
+
+            int index = Mathf.Max(0, Mathf.Min(maxIndex, (int)(animatedPosition + 0.5f)));
             Debug.Log("Animated position: " + animatedPosition);
             pos.x = (-index * Screen.width);
 			
@@ -172,9 +184,16 @@ public class MultiPanel : Panel
             dragOffset = 0.0f;
             firstOffset = 0.0f;
             dragTime = 0.0f;
+
+            focusedChildPanel = managedChildren[index];
         }
 
-        ArangeScreens();        
+        ArangeScreens();   
+     
+        if (focusedChildPanel != null)
+        {
+            focusedChildPanel.StateUpdate();
+        }
     }
 
     /// <summary>
@@ -194,5 +213,24 @@ public class MultiPanel : Panel
                 managedChildren[i].physicalWidgetRoot.transform.position = pos;
             }
         }
+    }
+
+    /// <summary>
+    /// Method setting max right child allowed for navigation.
+    /// </summary>
+    /// <param name="child">child which is last allowed during right navigation. Null allows to navigate to avaliable last item</param>
+    /// <returns></returns>
+    public void SetLastAvaliableChild(MultiPanelChild child)
+    {
+        maxChildProgress = child;
+    }
+   
+    /// <summary>
+    /// Returns child which is focused (or panel is navigating to)
+    /// </summary>
+    /// <returns></returns>
+    public MultiPanelChild GetFocusedChild()
+    {       
+        return focusedChildPanel;
     }
 }

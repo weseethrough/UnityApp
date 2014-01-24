@@ -112,8 +112,8 @@ public class DynamicHexList : MonoBehaviour
 				}
 			}
 		});
-		
-		GestureHelper.onSwipeRight += rightHandler;
+
+        GestureHelper.onSwipeRight += rightHandler;
 		
         InitializeItems();
     }
@@ -137,8 +137,8 @@ public class DynamicHexList : MonoBehaviour
 	
 	void OnDestroy()
 	{
-		GestureHelper.onSwipeLeft -= leftHandler;
-		GestureHelper.onSwipeRight -= rightHandler;
+        GestureHelper.onSwipeLeft -= leftHandler;
+        GestureHelper.onSwipeRight -= rightHandler;
 	}
 
     /// <summary>    

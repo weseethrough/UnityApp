@@ -1264,7 +1264,8 @@ public class GraphWindow : EditorWindow, IDraw
             return null;
         }
 
-        StorageDictionary screensDictionary = (StorageDictionary)s.dictionary.Get(UIManager.UIPannels);
+        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
+
         int count                           = screensDictionary == null ? 0 : screensDictionary.Length();
         string[]  screens                   = count > 0 ? new string[count] : null;
 

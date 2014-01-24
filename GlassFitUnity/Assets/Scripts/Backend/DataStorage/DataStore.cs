@@ -95,7 +95,10 @@ public class DataStore : MonoBehaviour
             BlobNames bName = (BlobNames)i;
             string name = bName.ToString();
 #if UNITY_EDITOR
-            storageBank[name] = InitializeBlob(PlatformDummy.Instance.LoadBlob(name));
+            if (!LoadStorageFromCollection(bName))
+            {
+                storageBank[name.ToString()] = InitializeBlob(PlatformDummy.Instance.LoadBlob(name));
+            }            
 #else
 			storageBank[name] = InitializeBlob(Platform.Instance.LoadBlob(name));
 #endif
@@ -175,8 +178,10 @@ public class DataStore : MonoBehaviour
 #if UNITY_EDITOR
         if (instance != null && PlatformDummy.Instance != null)
         {
-			//UnityEngine.Debug.Log("DataStore: Name is " + name);
-            instance.storageBank[name.ToString()] = instance.InitializeBlob(PlatformDummy.Instance.LoadBlob(name.ToString()));
+            if (!LoadStorageFromCollection(name))
+            {             
+                instance.storageBank[name.ToString()] = instance.InitializeBlob(PlatformDummy.Instance.LoadBlob(name.ToString()));
+            }
         }
 #else
 		if (instance != null)
@@ -187,11 +192,96 @@ public class DataStore : MonoBehaviour
     }
 
     /// <summary>
+    /// Procedure to load collection of panels shattered into separated files for merging purposes
+    /// </summary>
+    /// <param name="name">name of the blob parenting collection</param>
+    /// <returns>true if collection is found not empty</returns>
+    static public bool LoadStorageFromCollection(BlobNames name)
+    {
+#if UNITY_EDITOR
+        if (instance != null && PlatformDummy.Instance != null)
+        {
+            string blobName = name.ToString();
+
+            byte[] collectionData = PlatformDummy.Instance.LoadBlob(blobName + "_collection");
+            if (collectionData == null || collectionData.Length < 2)
+            {
+                return false;
+            }
+
+            BinaryFormatter bformatter = new BinaryFormatter();
+            Storage storage = new Storage();
+            MemoryStream collectionStream = new MemoryStream(collectionData);
+            StreamReader reader = new StreamReader(collectionStream);
+            collectionStream.Position = 0;
+
+            string instanceName;
+
+            while (true)
+            {
+                try
+                {
+                    instanceName = reader.ReadLine();
+
+                    if (instanceName == null) break;
+
+                    byte[] instanceData = PlatformDummy.Instance.LoadBlob("z_"+instanceName);
+
+                    if (instanceData.Length == 0) break;
+                 		        
+			        MemoryStream ms = new MemoryStream(instanceData);	
+			        ms.Position = 0;
+                    if (ms.Length != 0)
+                    {                        
+                        
+                        System.Object o = bformatter.Deserialize(ms);
+                        if (o is ISerializable)
+                        {
+                            storage.dictionary.Add(instanceName, (ISerializable)o);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }	        
+                    else
+                    {
+                        break;
+                    }
+		        }
+                catch (Exception e)
+		        {
+                    break;
+		        }
+            }
+
+            if (storage.dictionary.Length() > 0)
+            {
+                instance.storageBank[blobName] = storage;
+                return true;
+            }
+        }
+#endif
+        return false;
+    }
+
+    /// <summary>
+    /// saves storage to external data block for later use
+    /// </summary>
+    /// <param name="name">name of the blob to be saved</param>    
+    /// <returns></returns>
+    static public void SaveStorage(BlobNames name)
+    {
+        SaveStorage(name, false);
+    }
+
+    /// <summary>
     /// saves storage to external data block for later use
     /// </summary>
     /// <param name="name">name of the blob to be saved</param>
+    /// <param name="saveInCollection">indicates if we will make a collection of data to save along with the main file
     /// <returns></returns>
-    static public void SaveStorage(BlobNames name)
+    static public void SaveStorage(BlobNames name, bool saveInCollection)
     {
 #if UNITY_EDITOR
         if (instance != null && PlatformDummy.Instance != null)
@@ -201,6 +291,11 @@ public class DataStore : MonoBehaviour
             bformatter.Serialize(ms, GetStorage(name));
 
             PlatformDummy.Instance.StoreBlob(name.ToString(), ms.GetBuffer());
+            
+            if (saveInCollection)
+            {
+                SaveStorageAsCollection(name);
+            }
 		}
 #else
 		if (instance != null)
@@ -214,5 +309,58 @@ public class DataStore : MonoBehaviour
      	}
 #endif
         
+    }
+
+    /// <summary>
+    /// Saves data in collection of files allowing to make merge
+    /// </summary>
+    /// <param name="name">name of the blob to be saved</param>
+    /// <returns></returns>
+    static public void SaveStorageAsCollection(BlobNames name)
+    {
+#if UNITY_EDITOR
+        if (instance != null && PlatformDummy.Instance != null)
+        {            
+
+            string blobName = name.ToString();
+
+            BinaryFormatter bformatter = new BinaryFormatter();
+            Storage storage = GetStorage(name);
+
+            if (storage.dictionary.Length() < 1) return;
+
+            MemoryStream blobRecord = new MemoryStream();
+            StreamWriter writter = new StreamWriter(blobRecord);
+
+            StorageDictionary dictionary = storage.dictionary.Get(UIManager.UIPannels) as StorageDictionary;
+
+            if (dictionary == null)
+            {
+                dictionary = storage.dictionary;
+            }
+
+            for (int i = 0; i < dictionary.Length(); i++)
+            {
+                string dataName;
+                ISerializable data;
+                dictionary.Get(i, out dataName, out data);
+
+                if (dataName == UIManager.UIPannels)
+                {
+                    continue;
+                }
+
+                MemoryStream ms = new MemoryStream();
+                bformatter.Serialize(ms, data);
+                PlatformDummy.Instance.StoreBlob("z_" + dataName, ms.GetBuffer());
+
+                writter.WriteLine(dataName);                
+            }
+            writter.Flush();
+            //write collection record
+            PlatformDummy.Instance.StoreBlob(blobName + "_collection", blobRecord.GetBuffer());
+        }
+#endif
+
     }
 }
