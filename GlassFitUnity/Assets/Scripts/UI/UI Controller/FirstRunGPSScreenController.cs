@@ -84,14 +84,14 @@ public class FirstRunGPSScreenController : SwipeListener {
 		setStringsForIndoor(!bIndoor);
 	}
 	
-//	protected override void handleRight ()
-//	{
-//		bool canProceed = Platform.Instance.IsIndoor() || Platform.Instance.HasLock();
-//		if(canProceed)
-//		{
-//			base.handleRight ();
-//		}
-//	}
+	protected override void handleRight ()
+	{
+		bool canProceed = Platform.Instance.IsIndoor() || Platform.Instance.HasLock();
+		if(canProceed)
+		{
+			base.handleRight ();
+		}
+	}
 
 	void setStringsForIndoor(bool indoor) {
 		if(indoor)
