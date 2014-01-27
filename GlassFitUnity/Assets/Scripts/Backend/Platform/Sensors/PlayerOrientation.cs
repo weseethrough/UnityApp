@@ -140,7 +140,7 @@ public class PlayerOrientation
 		}
 		else
 		{
-			UnityEngine.Debug.Log("AutoReset: Pitch: " + -pitch + ", Roll: " + roll + ", Yaw: " + cumulativeYaw);
+			//UnityEngine.Debug.Log("AutoReset: Pitch: " + -pitch + ", Roll: " + roll + ", Yaw: " + cumulativeYaw);
 			// back inside thresholds
 			// reset timer and yaw
 			autoResetTimer = 0;
