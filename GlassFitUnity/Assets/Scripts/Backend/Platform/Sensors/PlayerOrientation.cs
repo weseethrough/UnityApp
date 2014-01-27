@@ -4,9 +4,9 @@ using UnityEngine;
 public class PlayerOrientation
 {
 	private const Boolean AUTO_RESET_ENABLED = true;
-	private const float AUTO_RESET_THRESHOLD = 0.322f; // radians from straight ahead to the side to trigger auto-reset
-	private const float AUTO_RESET_HUD_THRESHOLD = 0.233f; // radians to side when looking up at HUD height
-	private const float AUTO_RESET_HUD_PITCH = 0.238f; // radians up to HUD from horizontal
+	private const float AUTO_RESET_THRESHOLD = 0.322f; //  0.233 radians from straight ahead to the side to trigger auto-reset
+	private const float AUTO_RESET_HUD_THRESHOLD = 0.350f; // radians to side when looking up at HUD height
+	private const float AUTO_RESET_HUD_PITCH = 0.20f; // radians up to HUD from horizontal
 	private const float AUTO_RESET_TIME_DELAY = 1.5f;  // seconds before auto-reset
 	private const float AUTO_RESET_LERP_RATE = 1.0F/0.4f;  // 1/seconds animation duration
 
@@ -116,8 +116,8 @@ public class PlayerOrientation
 				autoResetYaw = null;
 			}
 		}
-		else if (-pitch < AUTO_RESET_HUD_PITCH && Mathf.Abs(cumulativeYaw) > AUTO_RESET_THRESHOLD
-			|| -pitch >= AUTO_RESET_HUD_PITCH && Mathf.Abs(cumulativeYaw) > AUTO_RESET_HUD_THRESHOLD)
+		else if (Mathf.Abs(pitch) < AUTO_RESET_HUD_PITCH && Mathf.Abs(cumulativeYaw) > AUTO_RESET_THRESHOLD
+			|| Mathf.Abs(pitch) >= AUTO_RESET_HUD_PITCH && Mathf.Abs(cumulativeYaw) > AUTO_RESET_HUD_THRESHOLD)
 		{
 			// we've passed the auto-reset threshold:
 			// increment timer and calculate average yaw since we passed the threshold
