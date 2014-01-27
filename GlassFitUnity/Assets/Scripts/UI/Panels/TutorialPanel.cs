@@ -73,7 +73,8 @@ public class TutorialPanel : HexPanel
     {
 		//ResetButtonData();
 		//UnityEngine.Debug.Log("TutorialPanel: setting two finger tap");
-		
+		base.EnterStart();
+
 		UnityEngine.Debug.Log("TutorialPanel: screen width is " + Screen.width + ", height is " + Screen.height);
 		
 		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
@@ -92,16 +93,21 @@ public class TutorialPanel : HexPanel
 //				StraightToMenu();
 //			}
 //		}	
-        twoHandler = new GestureHelper.TwoFingerTap(() => {
-			if(buttonData.Count == 0) {
-				InitialButtons();
-				elapsedTime = 0.0f;
-			}
-			GestureHelper.onTwoTap -= twoHandler;
-		});
-		
-		GestureHelper.onTwoTap += twoHandler;
-		
+//        twoHandler = new GestureHelper.TwoFingerTap(() => {
+//			if(buttonData.Count == 0) {
+//				InitialButtons();
+//				elapsedTime = 0.0f;
+//			}
+//			GestureHelper.onTwoTap -= twoHandler;
+//		});
+//
+//		GestureHelper.onTwoTap += twoHandler;
+//
+		Platform.Instance.GetPlayerOrientation().Reset();
+		InitialButtons();
+		elapsedTime = 0.0f;
+
+
 		//UnityEngine.Debug.Log("TutorialPanel: Setting datavault stuff");
 		DataVault.Set("tutorial_hint", " ");
 		DataVault.Set("highlight", " ");
@@ -129,7 +135,6 @@ public class TutorialPanel : HexPanel
 		
 		firstSpeech.alpha = 0;
 		
-		base.EnterStart();
     }
 	
 	public void StraightToMenu() {
