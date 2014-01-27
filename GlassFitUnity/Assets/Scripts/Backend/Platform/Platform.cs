@@ -1195,7 +1195,7 @@ public class Platform : MonoBehaviour {
 			int touchCount = activity.Call<int> ("getTouchCount");
 			if (touchCount > 0)
 			{
-				float x = activity.Call<float> ("getTouchX");
+				float x = 1 - activity.Call<float> ("getTouchX");  // glass swipe forward === tablet swipe left
 				float y = activity.Call<float> ("getTouchY");
 				return new Vector2(x,y);
 			} else {
