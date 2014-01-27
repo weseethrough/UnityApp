@@ -87,6 +87,11 @@ public class MinimalSensorCamera : MonoBehaviour {
 
 		if (DEBUG_ORIENTATION)
 		{
+			// print bearing debug data
+		    GUI.Label(new Rect(200, 050, 400, 50), "Bearing: " + ((int)Platform.Instance.Bearing()).ToString(), labelStyle);
+		    GUI.Label(new Rect(200, 100, 400, 50), "Camera offset: " + ((int)bearingOffset.eulerAngles.y).ToString(), labelStyle);
+		    GUI.Label(new Rect(200, 150, 400, 50), "Indoor mode: " + indoor.ToString(), labelStyle);
+
 			// print orientation (x,y,z)
 			Quaternion realWorldOffset = Platform.Instance.GetPlayerOrientation().AsRealWorldQuaternion();
 //			GUI.Label(new Rect(200, 050, 400, 50), "Euler x: " + ((int)realWorldOffset.eulerAngles.x).ToString(), labelStyle);
@@ -95,14 +100,10 @@ public class MinimalSensorCamera : MonoBehaviour {
 
 			// print orientation (yaw, pitch roll)
 			Vector3 YPR = OrientationUtils.QuaternionToYPR(realWorldOffset);
-//			GUI.Label(new Rect(200, 250, 400, 50), "Euler yaw: "   + ((int)Mathf.Rad2Deg*YPR.x).ToString(), labelStyle);
-//			GUI.Label(new Rect(200, 300, 400, 50), "Euler pitch: " + ((int)Mathf.Rad2Deg*YPR.y).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 250, 400, 50), "Euler yaw: "   + ((int)Mathf.Rad2Deg*YPR.x).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 300, 400, 50), "Euler pitch: " + ((int)Mathf.Rad2Deg*YPR.y).ToString(), labelStyle);
 			GUI.Label(new Rect(200, 350, 400, 50), "Euler roll: "  + ((int)Mathf.Rad2Deg*YPR.z).ToString(), labelStyle);
 
-			// print bearing debug data
-		    GUI.Label(new Rect(200, 150, 400, 50), "Bearing: " + ((int)Platform.Instance.Bearing()).ToString(), labelStyle);
-//		    GUI.Label(new Rect(200, 200, 400, 50), "Camera offset: " + ((int)bearingOffset.eulerAngles.y).ToString(), labelStyle);
-		    GUI.Label(new Rect(200, 200, 400, 50), "Indoor mode: " + indoor.ToString(), labelStyle);
 		}
 
 #if !UNITY_EDITOR
