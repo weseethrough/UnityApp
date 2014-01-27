@@ -211,7 +211,7 @@ public class Platform : MonoBehaviour {
 					Authorize("any", "login");
 					UnityEngine.Debug.Log("Platform: authorize complete");
 				}
-				
+								
 	            initialised = true;
 				
 				UnityEngine.Debug.Log("Platform: initialise complete");
@@ -271,6 +271,14 @@ public class Platform : MonoBehaviour {
 	public void OnActionIntent(string message) {
 		UnityEngine.Debug.Log("Platform: action " + message); 
 		MessageWidget.AddMessage("Internal", "App opened with intent " + message, "settings");
+	}
+	
+	public void OnBluetoothConnect(string message) {
+		MessageWidget.AddMessage("Bluetooth", message, "settings");
+	}
+	
+	public void OnBluetoothMessage(string message) {
+		MessageWidget.AddMessage("Bluetooth", message, "settings");
 	}
 	
 	public virtual AndroidJavaObject GetHelper() {
@@ -1167,6 +1175,7 @@ public class Platform : MonoBehaviour {
 		{
 			helper.CallStatic("logEvent", json.ToString());
 			UnityEngine.Debug.Log("Platform: logged analytic event " + json.ToString());
+			activity.Call("broadcast", json.ToString());
 		}
 		catch (Exception e)
 		{
@@ -1233,6 +1242,32 @@ public class Platform : MonoBehaviour {
 		catch (Exception e)
 		{
 			UnityEngine.Debug.LogWarning("Platform: Error toggling screen recording. " + e.Message);
+		}
+	}
+
+	public virtual void BluetoothServer()
+	{
+		try
+		{
+			activity.Call("startBluetoothServer");
+			UnityEngine.Debug.Log("Platform: starting Bluetooth server");
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error starting Bluetooth server. " + e.Message);
+		}
+	}
+
+	public virtual void BluetoothClient()
+	{
+		try
+		{
+			activity.Call("startBluetoothClient");
+			UnityEngine.Debug.Log("Platform: starting Bluetooth client");
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error starting Bluetooth client. " + e.Message);
 		}
 	}
 
