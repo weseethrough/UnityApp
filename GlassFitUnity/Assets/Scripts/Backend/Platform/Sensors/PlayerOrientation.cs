@@ -5,7 +5,7 @@ public class PlayerOrientation
 {
 	private const Boolean AUTO_RESET_ENABLED = true;
 	private const float AUTO_RESET_THRESHOLD = 0.322f; //  0.233 radians from straight ahead to the side to trigger auto-reset
-	private const float AUTO_RESET_HUD_THRESHOLD = 0.350f; // radians to side when looking up at HUD height
+	private const float AUTO_RESET_HUD_THRESHOLD = 0.420f; // radians to side when looking up at HUD height
 	private const float AUTO_RESET_HUD_PITCH = 0.20f; // radians up to HUD from horizontal
 	private const float AUTO_RESET_TIME_DELAY = 1.5f;  // seconds before auto-reset
 	private const float AUTO_RESET_LERP_RATE = 1.0F/0.4f;  // 1/seconds animation duration
