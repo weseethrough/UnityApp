@@ -538,6 +538,7 @@ public class GameBase : MonoBehaviour {
 			DataVault.Set("ahead_col_box", "19D2008B");
 			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
+		UnityEngine.Debug.Log("GameBase: distance behind is " + GetDistBehindForHud().ToString());
 		string siDistance = SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
 		//UnityEngine.Debug.Log("GameBase: setting target distance to: " + siDistance);
 		DataVault.Set("ahead_box", siDistance);

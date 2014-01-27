@@ -190,6 +190,7 @@ public class ButtonFunctionCollection
 		switch(fb.name) 
 		{
 		case "activity_run":
+			UnityEngine.Debug.Log("ButtonFunc: type is set to race");
 			DataVault.Set("type", "Runner");
 			DataVault.Set("race_type", "race");
 			break;

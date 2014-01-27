@@ -6,7 +6,11 @@ using System.Runtime.Serialization;
 
 [Serializable]
 public class DistancePanel : HexPanel {
-
+	
+	GConnector gameExit;
+	GConnector tutorialExit;
+	string raceType;
+	
 	public DistancePanel() { }
     public DistancePanel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
@@ -17,20 +21,16 @@ public class DistancePanel : HexPanel {
 	{
 		ResetButtonData();
 		
+		//buttonData = new List<HexButtonData>();
+		
 		//some game types shouldn't allow picking of previous tracks.
-		GConnector gameExit;
-		string raceType = (string)DataVault.Get("race_type");
-		if(raceType == "tutorial" || raceType == "trainRescue") {
-			gameExit = Outputs.Find(r => r.Name == "TutorialExit");
-		} else {
-			gameExit = Outputs.Find(r => r.Name ==  "gameExit");
-		}
+		raceType = (string)DataVault.Get("race_type");
 		
-
+		tutorialExit = Outputs.Find(r => r.Name == "TutorialExit");
+		gameExit = Outputs.Find(r => r.Name ==  "gameExit");
+		
 		GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-		
-
-		
+				
 		//Add hex buttons
 		HexButtonData hbd = GetButtonAt(0, 0);
 		
@@ -47,14 +47,8 @@ public class DistancePanel : HexPanel {
 		
 		GConnector gc = NewOutput(hbd.buttonName, "Flow");
         gc.EventFunction = "SetFinish";
-		
-		if(gameExit.Link.Count > 0) {
-			gComponent.Data.Connect(gc, gameExit.Link[0]);
-		}
 
-		//distance options
-		
-		if((string)DataVault.Get("race_type") == "trainRescue")
+		if(raceType == "trainRescue")
 		{
 			//For the train game, just do 350m
 			hbd = GetButtonAt(0, -1);
@@ -64,6 +58,16 @@ public class DistancePanel : HexPanel {
 				hbd = new HexButtonData();
 				buttonData.Add(hbd);
 			}
+			else
+            {
+                //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
+                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                if (oldConnection != null)
+                {
+                    gComponent.Data.Disconnect(oldConnection);
+                    Outputs.Remove(oldConnection);
+                }
+            }
 			
 			hbd.column = 0;
 			hbd.row = -1;
@@ -71,10 +75,10 @@ public class DistancePanel : HexPanel {
 			hbd.textNormal = "350m";
 			
 			gc = NewOutput(hbd.buttonName, "Flow");
-	        gc.EventFunction = "SetFinish";
+	        gc.EventFunction = "SetFinish";			
 			
 			if(gameExit.Link.Count > 0) {
-				gComponent.Data.Connect(gc, gameExit.Link[0]);
+				gComponent.Data.Connect(gc, tutorialExit.Link[0]);
 			}
 			
 			hbd = GetButtonAt(1, 0);
@@ -124,6 +128,16 @@ public class DistancePanel : HexPanel {
 				hbd = new HexButtonData();
 				buttonData.Add(hbd);
 			}
+			else
+            {
+                //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
+                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                if (oldConnection != null)
+                {
+                    gComponent.Data.Disconnect(oldConnection);
+                    Outputs.Remove(oldConnection);
+                }
+            }
 			
 			hbd.column = 0;
 			hbd.row = -1;
@@ -133,9 +147,7 @@ public class DistancePanel : HexPanel {
 			gc = NewOutput(hbd.buttonName, "Flow");
 	        gc.EventFunction = "SetFinish";
 			
-			if(gameExit.Link.Count > 0) {
-				gComponent.Data.Connect(gc, gameExit.Link[0]);
-			}
+			SetGConnector(gc, gComponent);
 			
 			hbd = GetButtonAt(1, 0);
 			
@@ -144,6 +156,16 @@ public class DistancePanel : HexPanel {
 				hbd = new HexButtonData();
 				buttonData.Add(hbd);
 			}
+			else
+            {
+                //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
+                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                if (oldConnection != null)
+                {
+                    gComponent.Data.Disconnect(oldConnection);
+                    Outputs.Remove(oldConnection);
+                }
+            }
 			
 			hbd.column = 1;
 			hbd.row = 0;
@@ -153,9 +175,7 @@ public class DistancePanel : HexPanel {
 			gc = NewOutput(hbd.buttonName, "Flow");
 	        gc.EventFunction = "SetFinish";
 			
-			if(gameExit.Link.Count > 0) {
-				gComponent.Data.Connect(gc, gameExit.Link[0]);
-			}
+			SetGConnector(gc, gComponent);
 			
 			hbd = GetButtonAt(0, 1);
 			
@@ -164,6 +184,16 @@ public class DistancePanel : HexPanel {
 				hbd = new HexButtonData();
 				buttonData.Add(hbd);
 			}
+			else
+            {
+                //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
+                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                if (oldConnection != null)
+                {
+                    gComponent.Data.Disconnect(oldConnection);
+                    Outputs.Remove(oldConnection);
+                }
+            }
 			
 			hbd.column = 0;
 			hbd.row = 1;
@@ -173,9 +203,7 @@ public class DistancePanel : HexPanel {
 			gc = NewOutput(hbd.buttonName, "Flow");
 	        gc.EventFunction = "SetFinish";
 			
-			if(gameExit.Link.Count > 0) {
-				gComponent.Data.Connect(gc, gameExit.Link[0]);
-			}
+			SetGConnector(gc, gComponent);
 			
 			hbd = GetButtonAt(-1, 1);
 			
@@ -184,6 +212,16 @@ public class DistancePanel : HexPanel {
 				hbd = new HexButtonData();
 				buttonData.Add(hbd);
 			}
+			else
+            {
+                //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
+                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                if (oldConnection != null)
+                {
+                    gComponent.Data.Disconnect(oldConnection);
+                    Outputs.Remove(oldConnection);
+                }
+            }
 			
 			hbd.column = -1;
 			hbd.row = 1;
@@ -193,9 +231,7 @@ public class DistancePanel : HexPanel {
 			gc = NewOutput(hbd.buttonName, "Flow");
 	        gc.EventFunction = "SetFinish";
 			
-			if(gameExit.Link.Count > 0) {
-				gComponent.Data.Connect(gc, gameExit.Link[0]);
-			}
+			SetGConnector(gc, gComponent);
 			
 			hbd = GetButtonAt(-1, 0);
 			
@@ -204,6 +240,16 @@ public class DistancePanel : HexPanel {
 				hbd = new HexButtonData();
 				buttonData.Add(hbd);
 			}
+			else
+            {
+                //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
+                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                if (oldConnection != null)
+                {
+                    gComponent.Data.Disconnect(oldConnection);
+                    Outputs.Remove(oldConnection);
+                }
+            }
 			
 			hbd.column = -1;
 			hbd.row = 0;
@@ -213,9 +259,7 @@ public class DistancePanel : HexPanel {
 			gc = NewOutput(hbd.buttonName, "Flow");
 	        gc.EventFunction = "SetFinish";
 			
-			if(gameExit.Link.Count > 0) {
-				gComponent.Data.Connect(gc, gameExit.Link[0]);
-			}
+			SetGConnector(gc, gComponent);
 			
 			hbd = GetButtonAt(-1, -1);
 			
@@ -224,6 +268,16 @@ public class DistancePanel : HexPanel {
 				hbd = new HexButtonData();
 				buttonData.Add(hbd);
 			}
+			else
+            {
+                //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
+                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                if (oldConnection != null)
+                {
+                    gComponent.Data.Disconnect(oldConnection);
+                    Outputs.Remove(oldConnection);
+                }
+            }
 			
 			hbd.column = -1;
 			hbd.row = -1;
@@ -233,9 +287,7 @@ public class DistancePanel : HexPanel {
 			gc = NewOutput(hbd.buttonName, "Flow");
 	        gc.EventFunction = "SetFinish";
 			
-			if(gameExit.Link.Count > 0) {
-				gComponent.Data.Connect(gc, gameExit.Link[0]);
-			}
+			SetGConnector(gc, gComponent);
 			
 			hbd = GetButtonAt(-2, 0);
 			
@@ -254,5 +306,17 @@ public class DistancePanel : HexPanel {
 		
 		
 		base.EnterStart ();
+	}
+	
+	public void SetGConnector(GConnector gc, GraphComponent gComponent) {
+		if(raceType == "tutorial" || raceType == "trainRescue") {
+			if(tutorialExit.Link.Count > 0) {
+				gComponent.Data.Connect(gc, tutorialExit.Link[0]);
+			}
+		} else {
+			if(gameExit.Link.Count > 0) {
+				gComponent.Data.Connect(gc, gameExit.Link[0]);
+			}
+		}
 	}
 }
