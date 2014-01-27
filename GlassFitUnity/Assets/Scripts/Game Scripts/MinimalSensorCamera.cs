@@ -200,7 +200,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		{
 			// Rotate the camera
 			if(!indoor) {
-				transform.rotation = bearingOffset * rearviewOffset * headOffset;
+				transform.rotation = /*bearingOffset */ rearviewOffset * headOffset;
 			} else {
 				transform.rotation = rearviewOffset * headOffset;
 			}
