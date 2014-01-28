@@ -604,7 +604,6 @@ public class Platform : MonoBehaviour {
 		try {
 			gps.Call("startNewTrack");
 			started = false;
-			Poll();
 			UnityEngine.Debug.Log("Platform: GPS has been reset");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: reset() failed: " + e.Message);

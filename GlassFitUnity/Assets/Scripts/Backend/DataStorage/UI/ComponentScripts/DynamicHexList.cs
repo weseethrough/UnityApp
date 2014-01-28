@@ -679,7 +679,7 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     public void UpdateButtonList()
     {
-        if (buttons.Count == 0)
+        if (buttons == null || buttons.Count == 0)
         {
             InitializeItems();
             return;
@@ -694,6 +694,9 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     public void InitializeItems()
     {
+        //too early for initialization
+        if (buttonBase == null) return;
+
         if (parent == null)
         {
             Debug.LogError("Data have not been set properly before this call!");

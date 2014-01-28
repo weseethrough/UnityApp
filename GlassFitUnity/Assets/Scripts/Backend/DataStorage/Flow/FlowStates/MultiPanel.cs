@@ -71,6 +71,18 @@ public class MultiPanel : Panel
         return "MultiPanel: UnInitialzied";
     }
 
+
+    /// <summary>
+    /// Initializes default variables including setting which blocks swiping more than single panel
+    /// </summary>
+    /// <returns></returns>
+    protected override void Initialize()
+    {
+        base.Initialize();
+
+        NewParameter("AllowSingleDragOnly", GraphValueType.Boolean, "true");
+    }
+
     /// <summary>
     /// Enter function which allows to enter all managed children so they are ready for swiping
     /// </summary>
@@ -171,6 +183,18 @@ public class MultiPanel : Panel
             if (maxIndex < 0) 
             {
                 maxIndex = managedChildren.Count - 1;
+            }
+
+            GParameter allowSingleDragOnly = Parameters.Find(r => r.Key == "AllowSingleDragOnly");
+
+            if (allowSingleDragOnly == null || allowSingleDragOnly.Value == "true")
+            {
+                int oldIndex = managedChildren.IndexOf(focusedChildPanel);
+                if (oldIndex != -1)
+                {
+                    //ensure value is not bigger than old +1 and not smaller than old -1
+                    animatedPosition = Mathf.Max(oldIndex - 1, Mathf.Min(animatedPosition, oldIndex + 1));
+                }
             }
 
             int index = Mathf.Max(0, Mathf.Min(maxIndex, (int)(animatedPosition + 0.5f)));
