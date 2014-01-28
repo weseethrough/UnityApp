@@ -147,7 +147,7 @@ public class GameBase : MonoBehaviour {
 
 #endif	
 		UnityEngine.Debug.Log("GameBase: setting finish km");
-		DataVault.Set("finish_km", SiDistanceUnitless(finish, null) );
+		DataVault.Set("finish_km", SiDistanceUnitless(finish, string.Empty) );
 		
 		UnityEngine.Debug.Log("GameBase: finish distance is " + finish);
 		UnityEngine.Debug.Log("GameBase: getting list of challenges");

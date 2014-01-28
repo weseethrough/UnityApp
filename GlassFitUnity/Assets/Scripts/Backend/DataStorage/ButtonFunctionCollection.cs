@@ -363,7 +363,7 @@ public class ButtonFunctionCollection
 		if((string)DataVault.Get("race_type") == "trainRescue") {
 			DataVault.Set("finish", 350);
 			DataVault.Set("lower_finish", 300);
-			AutoFade.LoadLevel("TrainRescue", 0f, 1.0f, Color.black);
+			//AutoFade.LoadLevel("TrainRescue", 0f, 1.0f, Color.black);
 		}
 		
 		switch(fb.name) 
