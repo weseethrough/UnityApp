@@ -228,7 +228,19 @@ public class Platform : MonoBehaviour {
 
 		// start listening for 2-tap gestures to reset gyros
 		GestureHelper.onTwoTap += new GestureHelper.TwoFingerTap(() => {
-			Platform.Instance.GetPlayerOrientation().Reset();
+            if (OnGlass())
+            {
+                Platform.Instance.GetPlayerOrientation().Reset();
+            }
+            else
+            {
+                GUICamera[] scripts = GameObject.FindObjectsOfType(typeof(GUICamera)) as GUICamera[];
+                foreach(GUICamera cameraScript in scripts)
+                {
+                    cameraScript.ResetCamera();
+                }
+
+            }
 		});
 	}
 	

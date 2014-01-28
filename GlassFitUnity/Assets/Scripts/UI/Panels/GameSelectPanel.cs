@@ -105,8 +105,11 @@ public class GameSelectPanel : HexPanel
 		downHandler = new GestureHelper.DownSwipe(() => {
 			QuitApp();
 		});
-		
-		GestureHelper.onSwipeDown += downHandler;
+
+        if (Platform.Instance.OnGlass())
+        {
+            GestureHelper.onSwipeDown += downHandler;
+        }
 		
 		tapHandler = new GestureHelper.OnTap(() => {
 			CheckCheat(Gestures.Tap);
