@@ -59,7 +59,7 @@ public class GraphData : ISerializable
 			if (a.Parent != null && b.Parent != null)
 			{
 				// Consistent order for connections
-				if (a.Parent.Id > b.Parent.Id)
+				if (a.IsInput)
 				{
 					GConnector swap = a;
 					a = b;
@@ -90,9 +90,10 @@ public class GraphData : ISerializable
 					GConnector src,dst;
 					src = a.IsInput ? b : a;
 					dst = a.IsInput ? a : b;
+
                     if (!src.Link.Contains(dst)) src.Link.Add(dst);
-                    if (!dst.Link.Contains(src)) dst.Link.Add(src);                    
-					Connections.Add(src);
+                    if (!dst.Link.Contains(src)) dst.Link.Add(src);
+                    if (Connections.Contains(src)) Connections.Add(src);
 				
 					return true;
 				}				
@@ -170,6 +171,10 @@ public class GraphData : ISerializable
             }
 
             source.Link.Clear();
+            if (Connections.Contains(source))
+            {
+                Connections.Remove(source);
+            }
             return true;
         }
         return false;
