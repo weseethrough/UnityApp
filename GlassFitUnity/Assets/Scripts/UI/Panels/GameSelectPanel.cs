@@ -25,6 +25,9 @@ public class GameSelectPanel : HexPanel
 	private List<Gestures> lastGestures = new List<Gestures>();
 	private List<Gestures> pointsCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.TwoTap, Gestures.Tap};
 	private List<Gestures> screenCaptureCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.Tap, Gestures.TwoTap};
+
+	private List<Gestures> btServerCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.ThreeTap, Gestures.Tap};
+	private List<Gestures> btClientCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.ThreeTap, Gestures.TwoTap};
 	
 	private float cheatMaxTime = 1.0f;
 	private DateTime cheatDt = DateTime.Now;
@@ -71,6 +74,16 @@ public class GameSelectPanel : HexPanel
 				Platform.Instance.ToggleScreenCapture();
 				// TODO: Toggle audio recording
 				MessageWidget.AddMessage("Debug", "Toggling screen capture", "settings");
+				lastGestures.Clear();
+		}
+		if (lastGestures.SequenceEqual(btServerCheat)) {
+				Platform.Instance.BluetoothServer();
+				MessageWidget.AddMessage("Debug", "Enabling Bluetooth server", "settings");
+				lastGestures.Clear();
+		}
+		if (lastGestures.SequenceEqual(btClientCheat)) {
+				Platform.Instance.BluetoothClient();
+				MessageWidget.AddMessage("Debug", "Enabling Bluetooth client", "settings");
 				lastGestures.Clear();
 		}
 		cheatDt = DateTime.Now;

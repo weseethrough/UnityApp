@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Threading;
 using System;
 using System.Runtime.CompilerServices;
+using SimpleJSON;
 
 public class Platform : MonoBehaviour {
 	private double targetElapsedDistance = 0;
@@ -212,6 +213,12 @@ public class Platform : MonoBehaviour {
 					UnityEngine.Debug.Log("Platform: authorize complete");
 				}
 				
+				if (OnGlass()) {
+					BluetoothServer();
+				} else {
+					BluetoothClient();
+				}
+								
 	            initialised = true;
 				
 				UnityEngine.Debug.Log("Platform: initialise complete");
@@ -283,6 +290,56 @@ public class Platform : MonoBehaviour {
 	public void OnActionIntent(string message) {
 		UnityEngine.Debug.Log("Platform: action " + message); 
 		MessageWidget.AddMessage("Internal", "App opened with intent " + message, "settings");
+	}
+	
+	public void OnBluetoothConnect(string message) {
+		MessageWidget.AddMessage("Bluetooth", message, "settings");
+	}
+	
+	public void OnBluetoothMessage(string message) {
+		MessageWidget.AddMessage("Bluetooth", message, "settings"); // DEBUG
+		UnityEngine.Debug.Log("Platform: OnBluetoothMessage " + message.Length + "B"); 
+		JSONNode json = JSON.Parse(message);
+		OnBluetoothJson(json);
+	}
+	
+	private void OnBluetoothJson(JSONNode json) {
+		UnityEngine.Debug.Log("Platform: OnBluetoothJson"); 
+		switch(json["action"]) {
+		case "LoadLevelFade":
+			if (OnGlass()) {
+				DataVaultFromJson(json["data"]);
+				if (json["levelName"] != null) AutoFade.LoadLevel(json["levelName"], 0f, 1.0f, Color.black); 			
+				if (json["levelIndex"] != null) AutoFade.LoadLevel(json["levelIndex"].AsInt, 0f, 1.0f, Color.black); 			
+			}
+			break;
+		case "LoadLevelAsync":
+			if (OnGlass()) {
+				DataVaultFromJson(json["data"]);
+				// TODO: Start Loading Screen
+			}
+			break;
+		default:
+			UnityEngine.Debug.Log("Platform: unknown Bluetooth message: " + json);
+			break;
+		}
+		
+		// TODO: Start train
+		// TODO: Start race
+		// TODO: Start challenge
+		// TODO: Toggle outdoor/indoor
+	}
+	
+	private void DataVaultFromJson(JSONNode json) {
+		JSONNode track = json["current_track"];
+		// TODO: fetch track and store in datavault
+		DataVault.Set("race_type", json["race_type"]);
+		DataVault.Set("type", json["type"]);
+		DataVault.Set("finish", json["finish"].AsInt);
+		DataVault.Set("lower_finish", json["lower_finish"].AsInt);
+		DataVault.Set("challenger", json["challenger"]);
+		JSONNode challengeNotification = json["current_challenge_notification"];
+		// TODO: fetch challenge notification and store in datavault
 	}
 	
 	public virtual AndroidJavaObject GetHelper() {
@@ -1198,7 +1255,7 @@ public class Platform : MonoBehaviour {
 			int touchCount = activity.Call<int> ("getTouchCount");
 			if (touchCount > 0)
 			{
-				float x = activity.Call<float> ("getTouchX");
+				float x = 1 - activity.Call<float> ("getTouchX");  // glass swipe forward === tablet swipe left
 				float y = activity.Call<float> ("getTouchY");
 				return new Vector2(x,y);
 			} else {
@@ -1245,6 +1302,44 @@ public class Platform : MonoBehaviour {
 		catch (Exception e)
 		{
 			UnityEngine.Debug.LogWarning("Platform: Error toggling screen recording. " + e.Message);
+		}
+	}
+
+	public virtual void BluetoothServer()
+	{
+		try
+		{
+			activity.Call("startBluetoothServer");
+			UnityEngine.Debug.Log("Platform: starting Bluetooth server");
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error starting Bluetooth server. " + e.Message);
+		}
+	}
+
+	public virtual void BluetoothClient()
+	{
+		try
+		{
+			activity.Call("startBluetoothClient");
+			UnityEngine.Debug.Log("Platform: starting Bluetooth client");
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error starting Bluetooth client. " + e.Message);
+		}
+	}
+	
+	public virtual void BluetoothBroadcast(JSONObject json) {
+		try
+		{
+			activity.Call("broadcast", json.ToString());
+			UnityEngine.Debug.Log("Platform: broadcasted Bluetooth message: " + json.ToString());
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error broadcasting Bluetooth message. " + e.Message);
 		}
 	}
 

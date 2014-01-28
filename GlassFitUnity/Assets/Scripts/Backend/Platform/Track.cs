@@ -24,4 +24,13 @@ public class Track {
 		this.date = date;
 		UnityEngine.Debug.Log("Track: date is " + date);
 	}
+	
+	public virtual JSONObject AsJson {
+		get {
+			JSONObject json = new JSONObject();
+			json.AddField("device_id", deviceId);
+			json.AddField("track_id", trackId);
+			return json;
+		}
+	}
 }

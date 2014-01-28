@@ -56,7 +56,7 @@
       
       	fixed4 frag (v2f i) : COLOR0 { 
       		float4 texCol = tex2D( _MainTex, i.uv);
-      		if(texCol.a < 0.05)
+      		if(texCol.a < 0.1)
       		{
       			discard;
       		}
