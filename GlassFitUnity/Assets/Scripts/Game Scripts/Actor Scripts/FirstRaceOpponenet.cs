@@ -38,19 +38,20 @@ public class FirstRaceOpponenet : TargetController {
 		lane = 1;
 		lanePitch = 1.0f;
 		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
-		UnityEngine.Debug.Log("FirstRaceOpponent: started");
+		currentMovementSpeed = 0.0f;
+		UnityEngine.Debug.Log("FirstRace: started");
 		
 		timeRunStarted = Time.time;
 		
 		try {
-		Track selectedTrack = (Track)DataVault.Get("current_track");
-		if(selectedTrack != null) {
-			totalDistance = (int)selectedTrack.distance;
-		} else {
-			totalDistance = (int)DataVault.Get("finish");
-		}
+			Track selectedTrack = (Track)DataVault.Get("current_track");
+			if(selectedTrack != null) {
+				totalDistance = (int)selectedTrack.distance;
+			} else {
+				totalDistance = (int)DataVault.Get("finish");
+			}
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("First Race: Couldn't obtain goal distance for race");
+			UnityEngine.Debug.LogWarning("FirstRace: Couldn't obtain goal distance for race");
 		}
 	}
 	
@@ -74,11 +75,13 @@ public class FirstRaceOpponenet : TargetController {
 		
 		//update our total distance moved based on current speed and time passed.
 		distanceFromStart += Time.deltaTime * currentMovementSpeed;
+		//UnityEngine.Debug.Log("FirstRace: speed is now " + currentMovementSpeed.ToString());
+		
 		
 		//update player distance cached value, and check if they've passed a 100m increment
 		playerDistance = Platform.Instance.GetDistance();
 
-		if(playerDistance >nextIntervalDistance)
+		if(playerDistance > nextIntervalDistance)
 		{
 			PlayerDidCompleteInterval();
 		}
@@ -89,9 +92,10 @@ public class FirstRaceOpponenet : TargetController {
 			//log the headstart speed
 			float timeInterval = Time.time - timeCurrentIntervalStarted;
 			headStartSpeed = headStartDistance / timeInterval;
-			UnityEngine.Debug.Log("FirstRun: HeadStart closed. Dist:" + headStartDistance + " Time:" + timeInterval + " Speed:" + headStartSpeed);
+			UnityEngine.Debug.Log("FirstRace: HeadStart closed. Dist:" + headStartDistance + " Time:" + timeInterval + " Speed:" + headStartSpeed);
 			
 			//start the coroutine to set the speed
+			UnityEngine.Debug.Log("FirstRace: Update is the culprit, player distance is " + playerDistance.ToString() + " and headstart distance is " + headStartDistance.ToString());
 			currentMovementSpeed = headStartSpeed;
 			StartCoroutine(UpdateSpeed());
 			StartCoroutine(UpdateDesiredLead());
@@ -126,6 +130,7 @@ public class FirstRaceOpponenet : TargetController {
 		currentMovementSpeed += acceleration;
 		
 		//don't let it go below walking pace
+		UnityEngine.Debug.Log("FirstRace: setSpeedToReachDesiredLead is the culprit");
 		currentMovementSpeed = Mathf.Max(1.25f, currentMovementSpeed);
 	}
 	
@@ -149,6 +154,7 @@ public class FirstRaceOpponenet : TargetController {
 		
 		//for last 500m, run at a little faster than player's average pace up to now.
 		float averageSpeed = playerDistance/ (Time.time - timeRunStarted);
+		UnityEngine.Debug.Log("FirstRace: UpdateSpeed is the culprit");
 		currentMovementSpeed = averageSpeed;
 		
 	}

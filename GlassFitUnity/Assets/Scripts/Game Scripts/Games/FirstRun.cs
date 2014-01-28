@@ -58,8 +58,6 @@ public class FirstRun : GameBase {
 //			TargetTracker tracker = Platform.Instance.CreateTargetTracker(speed);
 //		}
 		
-		GameObject actor;
-		
 		runner.setHeadStart(20.0f);
 		
 		//create actors for each target tracker
@@ -98,7 +96,11 @@ public class FirstRun : GameBase {
 	public override GConnector GetFinalConnection ()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		return fs.Outputs.Find(r => r.Name == "TutorialExit");
+		if((string)DataVault.Get("race_type") == "race") {
+			return fs.Outputs.Find(r => r.Name == "FinishButton");
+		} else {
+			return fs.Outputs.Find(r => r.Name == "TutorialExit");
+		}
 	}
 		
 	void OnGUI() {
@@ -128,14 +130,20 @@ public class FirstRun : GameBase {
 	public override void QuitGame ()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
+		GConnector gConnect; 
+		if((string)DataVault.Get("race_type") == "race") {
+			gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+		} else {
+			gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
+		}
+		
 		if(gConnect != null) {
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		} else {
-			UnityEngine.Debug.Log("FirstRun: Error finding tutorial exit");
+			UnityEngine.Debug.Log("FirstRun: Error finding quit exit");
 		}
 	}
 	
