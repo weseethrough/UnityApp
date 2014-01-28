@@ -69,7 +69,9 @@ public class TargetController : MonoBehaviour {
 		
 		//calculate scaled distance
 		scaledDistance = (GetDistanceBehindTarget() - distanceOffset) * travelSpeed;
-
+		
+		//UnityEngine.Debug.Log("TargetController: distance behind is: " + scaledDistance.ToString());
+		
 		//set position
 		Vector3 movement = new Vector3(xOffset, height, (float)scaledDistance);
 		transform.position = movement;

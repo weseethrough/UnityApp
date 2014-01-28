@@ -102,23 +102,28 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	public virtual void Start () 
 	{
+		UnityEngine.Debug.Log("GameBase: setting scale");
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
 		scale = new Vector3(x, y, 1);
 		
+		UnityEngine.Debug.Log("GameBase: setting countdown subtitle");
 		DataVault.Set("countdown_subtitle", " ");
 		
+		UnityEngine.Debug.Log("GameBase: setting tap handler");
 		tapHandler = new GestureHelper.OnTap(() => {
 			GameHandleTap();
 		});
 		GestureHelper.onTap += tapHandler;
 		
+		UnityEngine.Debug.Log("GameBase: setting down swipe handler");
 		downHandler = new GestureHelper.DownSwipe(() => {
 			ConsiderQuit();
 		});
 		GestureHelper.onSwipeDown += downHandler;
 		
+		UnityEngine.Debug.Log("GameBase: setting indoor move text");
 		DataVault.Set("indoor_move", " ");
 		
 //		leftHandler = new GestureHelper.OnSwipeLeft(() => {
@@ -129,8 +134,10 @@ public class GameBase : MonoBehaviour {
 		//Get target distance
 #if !UNITY_EDITOR
 		
+		UnityEngine.Debug.Log("GameBase: getting track");
 		selectedTrack = (Track)DataVault.Get("current_track");
 		
+		UnityEngine.Debug.Log("GameBase: checking if track is null");
 		if(selectedTrack != null) {
 			finish = (int)selectedTrack.distance;
 			UnityEngine.Debug.Log("GameBase: track distance is: " + finish.ToString());
@@ -139,16 +146,18 @@ public class GameBase : MonoBehaviour {
 		}
 
 #endif	
-		DataVault.Set("finish_km", SiDistanceUnitless(finish, null) );
+		UnityEngine.Debug.Log("GameBase: setting finish km");
+		DataVault.Set("finish_km", SiDistanceUnitless(finish, string.Empty) );
 		
-		UnityEngine.Debug.Log("BaseGame: finish distance is " + finish);
+		UnityEngine.Debug.Log("GameBase: finish distance is " + finish);
+		UnityEngine.Debug.Log("GameBase: getting list of challenges");
 		//retrieve or create list of challenges
 		challenges = DataVault.Get("challenges") as List<Challenge>;
 		if (challenges == null) challenges = new List<Challenge>(0);
 		
 		//indoor = Convert.ToBoolean(DataVault.Get("indoor_settings"));
 		
-		UnityEngine.Debug.Log("GameBase: indoor set to: " + Platform.Instance.IsIndoor().ToString());
+		UnityEngine.Debug.Log("GameBase: resetting platform");
 			
 		//indoor = true;
 		
@@ -538,6 +547,7 @@ public class GameBase : MonoBehaviour {
 			DataVault.Set("ahead_col_box", "19D2008B");
 			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
+		//UnityEngine.Debug.Log("GameBase: distance behind is " + GetDistBehindForHud().ToString());
 		string siDistance = SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
 		//UnityEngine.Debug.Log("GameBase: setting target distance to: " + siDistance);
 		DataVault.Set("ahead_box", siDistance);

@@ -34,16 +34,12 @@ public class Train_Rescue : GameBase {
 		
 		//set up a series of junctions for the train
 		//beginning at 200m
+		
 		float junctionDist = 75.0f;
 		
 		selectedTrack = (Track)DataVault.Get("current_track");
 		
-		//set the distance to 300m
-		DataVault.Set("finish", 350);
-		finish = 350;
-		
-		//force indoor
-		Platform.Instance.SetIndoor(true);
+		//Platform.Instance.SetIndoor(true);
 		
 //		try {
 //			if(selectedTrack != null) {

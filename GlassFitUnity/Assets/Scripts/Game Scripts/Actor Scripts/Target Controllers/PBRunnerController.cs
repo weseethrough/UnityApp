@@ -40,7 +40,8 @@ public class PBRunnerController : TargetController {
 #endif
 	}
 	
-	void Update () {				
+	void Update () {	
+		UnityEngine.Debug.Log("PBRunnerController: This is a PB Runner");
 		base.Update();
 #if !UNITY_EDITOR
 		float newSpeed = target.PollCurrentSpeed();

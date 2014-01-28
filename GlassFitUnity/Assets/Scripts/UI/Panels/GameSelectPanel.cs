@@ -225,6 +225,7 @@ public class GameSelectPanel : HexPanel
 			}
 			else if(games[i].type == "Race") 
 			{
+				gc.EventFunction = "SetType";
 				if(raceExit.Link.Count > 0) 
 				{
 					gComponent.Data.Connect(gc, raceExit.Link[0]);
