@@ -145,6 +145,29 @@ public class AutoFade : MonoBehaviour {
 	public static void LoadLevel(string aLevelName,float aFadeOutTime, float aFadeInTime, Color aColor)
     {
         if (Fading) return;
+
+		if (!Platform.Instance.OnGlass()) {
+            JSONObject json = new JSONObject();
+			json.AddField("action", "LoadLevelFade");
+			json.AddField("levelName", aLevelName);
+			
+			JSONObject data = new JSONObject();
+			Track track = (Track)DataVault.Get("current_track");
+			if (track != null) data.AddField("current_track", track.AsJson);
+			else data.AddField("current_track", (JSONObject)null);
+			data.AddField("race_type", DataVault.Get("race_type") as string);
+			data.AddField("type", DataVault.Get("type") as string);
+			if (DataVault.Get("finish") != null) data.AddField("finish", (int)DataVault.Get("finish"));
+			if (DataVault.Get("lower_finish") != null) data.AddField("lower_finish", (int)DataVault.Get("lower_finish"));
+			if (DataVault.Get("challenger") != null) data.AddField("challenger", DataVault.Get("challenger") as string);
+			if (DataVault.Get("current_challenge_notification") != null) data.AddField("current_challenge_notification", (DataVault.Get("current_challenge_notification") as ChallengeNotification).AsJson);
+			
+			json.AddField("data", data);
+			Platform.Instance.BluetoothBroadcast(json);
+			// TODO: Show "in game" message and return
+		}		
+		
+		
         Instance.mLevelName = aLevelName;
         Instance.StartFade(aFadeOutTime, aFadeInTime, aColor);
     }
@@ -167,6 +190,28 @@ public class AutoFade : MonoBehaviour {
 	public static void LoadLevel(int aLevelIndex,float aFadeOutTime, float aFadeInTime, Color aColor)
     {
         if (Fading) return;
+		
+		if (!Platform.Instance.OnGlass()) {
+            JSONObject json = new JSONObject();
+			json.AddField("action", "LoadLevelFade");
+			json.AddField("levelIndex", aLevelIndex);
+			
+			JSONObject data = new JSONObject();
+			Track track = (Track)DataVault.Get("current_track");
+			if (track != null) data.AddField("current_track", track.AsJson);
+			else data.AddField("current_track", (JSONObject)null);
+			data.AddField("race_type", DataVault.Get("race_type") as string);
+			data.AddField("type", DataVault.Get("type") as string);
+			if (DataVault.Get("finish") != null) data.AddField("finish", (int)DataVault.Get("finish"));
+			if (DataVault.Get("lower_finish") != null) data.AddField("lower_finish", (int)DataVault.Get("lower_finish"));
+			if (DataVault.Get("challenger") != null) data.AddField("challenger", DataVault.Get("challenger") as string);
+			if (DataVault.Get("current_challenge_notification") != null) data.AddField("current_challenge_notification", (DataVault.Get("current_challenge_notification") as ChallengeNotification).AsJson);
+			
+			json.AddField("data", data);
+			Platform.Instance.BluetoothBroadcast(json);
+			// TODO: Show "in game" message and return
+		}		
+		
         Instance.mLevelName = "";
         Instance.mLevelIndex = aLevelIndex;
         Instance.StartFade(aFadeOutTime, aFadeInTime, aColor);
