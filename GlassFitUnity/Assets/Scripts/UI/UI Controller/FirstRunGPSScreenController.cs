@@ -17,10 +17,10 @@ public class FirstRunGPSScreenController : SwipeListener {
 		UnityEngine.Debug.Log("Starting FirstRun GPS screen controller");
 		
 		//register tap handler
-		taphandler = new GestureHelper.OnTap( () => {
-			HandleTap();
-		});
-		GestureHelper.onTap += taphandler;
+//		taphandler = new GestureHelper.OnTap( () => {
+//			HandleTap();
+//		});
+		//GestureHelper.onTap += taphandler;
 	
 		bool bIndoor = Platform.Instance.IsIndoor();
 		setStringsForIndoor(bIndoor);
@@ -131,6 +131,6 @@ public class FirstRunGPSScreenController : SwipeListener {
 	{
 		base.OnDestroy();
 		//unregister tap handler
-		GestureHelper.onTap -= taphandler;
+		//GestureHelper.onTap -= taphandler;
 	}
 }

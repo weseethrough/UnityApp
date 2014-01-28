@@ -19,6 +19,8 @@ public class MultiPanel : Panel
     private float firstOffset = 0.0f;
     private Vector2 firstTouchPosition;
 	
+	private GestureHelper.OnTap tapHandler = null;
+	
 	private static int SCREEN_WIDTH = 1440;
 
     //pointer to child which is the last one considered when navigating right. 
@@ -70,6 +72,12 @@ public class MultiPanel : Panel
         }
         return "MultiPanel: UnInitialzied";
     }
+	
+	public void HandleTap() {
+		//toggle indoor mode
+		bool bIndoor = Platform.Instance.IsIndoor();
+		Platform.Instance.SetIndoor(!bIndoor);
+	}
 
     /// <summary>
     /// Enter function which allows to enter all managed children so they are ready for swiping
@@ -80,7 +88,11 @@ public class MultiPanel : Panel
         base.EnterStart();
         
         managedChildren = new List<MultiPanelChild>();
-
+		
+		tapHandler = new GestureHelper.OnTap( () => {
+			HandleTap();
+		});
+		
         foreach (FlowState fs in m_children)
         {
             if ( fs is MultiPanelChild )
@@ -175,19 +187,40 @@ public class MultiPanel : Panel
 
             int index = Mathf.Max(0, Mathf.Min(maxIndex, (int)(animatedPosition + 0.5f)));
             Debug.Log("Animated position: " + animatedPosition);
-            pos.x = (-index * SCREEN_WIDTH);
+            //pos.x = (-index * SCREEN_WIDTH);
 			
-	    //Set current page in the data vault, for paging indicator
-	    DataVault.Set("currentPageIndex", index);
-			
-            firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.3f, pos);
-            firstTweener.delay = 0.0f;
+	    	//Set current page in the data vault, for paging indicator
+	    	
    
             dragOffset = 0.0f;
             firstOffset = 0.0f;
             dragTime = 0.0f;
-
-            focusedChildPanel = managedChildren[index];
+			
+			if(focusedChildPanel.GetDisplayName() == "MultiPanelChild: GPS") {				
+				UnityEngine.Debug.Log("MultiPanel: turning taphandler off");
+				GestureHelper.onTap -= tapHandler;
+				if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor()) {
+					UnityEngine.Debug.Log("MultiPanel: it is ok to progress");
+				} 
+				else
+				{
+					if(focusedChildPanel.GetOrder() < managedChildren[index].GetOrder())
+					{
+						index = focusedChildPanel.GetOrder();
+					}
+				}
+			} 
+			
+			pos.x = (-index * SCREEN_WIDTH);
+			focusedChildPanel = managedChildren[index];
+			DataVault.Set("currentPageIndex", index);
+            firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.3f, pos);
+            firstTweener.delay = 0.0f;
+			
+			if(focusedChildPanel.GetDisplayName() == "MultiPanelChild: GPS") {
+				UnityEngine.Debug.Log("MultiPanel: turning taphandler on");
+				GestureHelper.onTap += tapHandler;
+			}
         }
 
         ArangeScreens();   

@@ -155,12 +155,16 @@ public class TutorialPanel : HexPanel
 		{
 			if(buttonData.Count == 2) 
 			{
-				firstSpeech.alpha += 1.0f * Time.deltaTime;
+				if(firstSpeech != null) {
+					firstSpeech.alpha += 1.0f * Time.deltaTime;
+				}
 			}
 		} 
 		else
 		{
-			firstSpeech.alpha = 0.0f;
+			if(firstSpeech != null) {
+				firstSpeech.alpha = 0.0f;
+			}
 		}
 	}
 	
