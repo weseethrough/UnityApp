@@ -46,6 +46,31 @@ public class FlowStateMachine : MonoBehaviour
         }
     }
 	
+    /// <summary>
+    /// static function which allows to restart the state machine through any of the Start node's outputs
+    /// </summary>
+    /// <param name="output">name of output you want this flow to follow</param>
+    /// <returns>returns true if follow connection is possible (connection is valid)</returns>
+	static public bool Restart(string output)
+	{
+        FlowStateMachine fsm = GameObject.FindObjectOfType(typeof(FlowStateMachine)) as FlowStateMachine;
+        if (fsm == null) return false;
+		
+        GraphComponent gc = fsm.GetComponent<GraphComponent>();
+        if (gc != null)
+        {                        
+            foreach(GNode node in gc.Data.Nodes)
+            {
+                if (node is Start)
+                {
+					GConnector gConnect = node.Outputs.Find(r => r.Name == output);
+					if (gConnect != null) return fsm.FollowConnection(gConnect);
+                }
+            }
+        }
+		return false;
+	}
+	
 	/// <summary>
 	/// static function allowing to take current flow state if one exists. Might be useful for some arbitrary calls in static locations which needs to know what panel is currently on or force navigation in/out
 	/// </summary>
