@@ -80,41 +80,50 @@ public class DynamicHexList : MonoBehaviour
                 break;
             }
         }
-		
-		tapHandler = new GestureHelper.OnTap(() => {
-			EnterGame();
-		});
-		
-		GestureHelper.onTap += tapHandler;
-		
-		downHandler = new GestureHelper.DownSwipe(() => {
-			GoBack();
-		});
-		
-		GestureHelper.onSwipeDown += downHandler;
-		
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			if(!IsPopupDisplayed()) {
-				GUICamera cameraScript = guiCamera.GetComponent<GUICamera>();
-				if(cameraScript.zoomLevel > -1.5f) {
-					cameraScript.zoomLevel -= 0.5f;
-				}
-			}
-		});
-		
-		GestureHelper.onSwipeLeft += leftHandler;
-		
-		rightHandler = new GestureHelper.OnSwipeRight(() => {
-			if(!IsPopupDisplayed()) {
-				GUICamera cameraScript = guiCamera.GetComponent<GUICamera>();
-				if(cameraScript.zoomLevel < -0.5f) {
-					cameraScript.zoomLevel += 0.5f;
-				}
-			}
-		});
+        if (Platform.Instance.OnGlass())
+        {
+            tapHandler = new GestureHelper.OnTap(() =>
+            {
+                EnterGame();
+            });
 
-        GestureHelper.onSwipeRight += rightHandler;
-		
+            GestureHelper.onTap += tapHandler;
+
+            downHandler = new GestureHelper.DownSwipe(() =>
+            {
+                GoBack();
+            });
+
+            GestureHelper.onSwipeDown += downHandler;
+
+            leftHandler = new GestureHelper.OnSwipeLeft(() =>
+            {
+                if (!IsPopupDisplayed())
+                {
+                    GUICamera cameraScript = guiCamera.GetComponent<GUICamera>();
+                    if (cameraScript.zoomLevel > -1.5f)
+                    {
+                        cameraScript.zoomLevel -= 0.5f;
+                    }
+                }
+            });
+
+            GestureHelper.onSwipeLeft += leftHandler;
+
+            rightHandler = new GestureHelper.OnSwipeRight(() =>
+            {
+                if (!IsPopupDisplayed())
+                {
+                    GUICamera cameraScript = guiCamera.GetComponent<GUICamera>();
+                    if (cameraScript.zoomLevel < -0.5f)
+                    {
+                        cameraScript.zoomLevel += 0.5f;
+                    }
+                }
+            });
+
+            GestureHelper.onSwipeRight += rightHandler;
+        }
         InitializeItems();
     }
 	
@@ -280,7 +289,7 @@ public class DynamicHexList : MonoBehaviour
                     selectionStillActive = true;                    
                 }
             }
-
+            
             if (!selectionStillActive && newSelection != null)
             {
                 UIButtonAnimationLocker lockScript = newSelection.GetComponent<UIButtonAnimationLocker>();
@@ -359,91 +368,94 @@ public class DynamicHexList : MonoBehaviour
                     dragging = false;
                 }
             }
-            
-            bool buttonClick = Input.GetMouseButton(0);
+           
+            if (Platform.Instance.OnGlass())
+            {
+                bool buttonClick = Input.GetMouseButton(0);
 
-            if (selection != null && (Input.touchCount == 1 || buttonClick))
-            {				
-                Touch touch = new Touch();
-                bool found = false;
+                if (selection != null && (Input.touchCount == 1 || buttonClick))
+                {				
+                    Touch touch = new Touch();
+                    bool found = false;
 
-                if (!buttonClick)
-                {					
-                    touch = Input.touches[0];
-                    if (dragging == false)
-                    {						
-                        dragging = true;
-                        draggingFingerID = touch.fingerId;
-                        draggingStartPos = touch.position;
-                        found = true;
-                    }
-                    else
-                    {
-                        foreach (Touch t in Input.touches)
+                    if (!buttonClick)
+                    {					
+                        touch = Input.touches[0];
+                        if (dragging == false)
+                        {						
+                            dragging = true;
+                            draggingFingerID = touch.fingerId;
+                            draggingStartPos = touch.position;
+                            found = true;
+                        }
+                        else
                         {
-                            if (t.fingerId == draggingFingerID)
-                            {								
-                                found = true;
-                                touch = t;
-                                break;
+                            foreach (Touch t in Input.touches)
+                            {
+                                if (t.fingerId == draggingFingerID)
+                                {								
+                                    found = true;
+                                    touch = t;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
-                else
-                {					
-                    if (dragging == false)
-                    {						
-                        draggingStartPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-                        dragging = true;
-                    }
-
-                    found = true;
-                }
-
-                if (found)
-                {					
-                    Vector2 offset;
-                    if (!buttonClick)
-                    {						
-                        offset = touch.position - draggingStartPos;
-                    }
                     else
-                    {						
-                        Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
-                        offset = mousePos - draggingStartPos;
-                    }
-										
-                    float height = Screen.currentResolution.height;
-                    float scale = -offset.y / height;
-
-                    scale = Mathf.Clamp(scale, -1, 1);
-										
-                    TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
-                    if (tp == null)
-                    {
-                        tp = guiCamera.gameObject.AddComponent<TweenPosition>();
-                    }					
-                    Vector3 cameraCoreAxis = guiCamera.transform.position;
-                    cameraCoreAxis.y = selection.transform.position.y;
-                    Vector3 direction = selection.transform.position - cameraCoreAxis;
-										
-                    Vector3 pos = cameraCoreAxis + (direction * scale);
-
-                    TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
-
-                    if (parent != null && scale > 0.6f)
-                    {						
-                        FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
-                        if (fb != null)
-                        {
-                            parent.OnClick(fb);
+                    {					
+                        if (dragging == false)
+                        {						
+                            draggingStartPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                            dragging = true;
                         }
-                    }
-                    else if (parent != null && scale < -0.6f)
-                    {
-                        parent.OnBack();
 
+                        found = true;
+                    }
+
+                    if (found)
+                    {					
+                        Vector2 offset;
+                        if (!buttonClick)
+                        {						
+                            offset = touch.position - draggingStartPos;
+                        }
+                        else
+                        {						
+                            Vector2 mousePos = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+                            offset = mousePos - draggingStartPos;
+                        }
+										
+                        float height = Screen.currentResolution.height;
+                        float scale = -offset.y / height;
+
+                        scale = Mathf.Clamp(scale, -1, 1);
+										
+                        TweenPosition tp = guiCamera.GetComponent<TweenPosition>();
+                        if (tp == null)
+                        {
+                            tp = guiCamera.gameObject.AddComponent<TweenPosition>();
+                        }					
+                        Vector3 cameraCoreAxis = guiCamera.transform.position;
+                        cameraCoreAxis.y = selection.transform.position.y;
+                        Vector3 direction = selection.transform.position - cameraCoreAxis;
+										
+                        Vector3 pos = cameraCoreAxis + (direction * scale);
+
+                        TweenPosition.Begin(guiCamera.gameObject, 0.6f, pos);
+
+                        if (parent != null && scale > 0.6f)
+                        {						
+                            FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
+                            if (fb != null)
+                            {
+                                parent.OnClick(fb);
+                            }
+                        }
+                        else if (parent != null && scale < -0.6f)
+                        {
+                            parent.OnBack();
+
+                        }
                     }
                 }
             }
@@ -462,9 +474,9 @@ public class DynamicHexList : MonoBehaviour
                         TweenPosition.Begin(tp.gameObject, 0.3f, pos);
                     }
                 }
-            }
+            }            
         }
-    }
+    }   
 	
 	/// <summary>
 	/// Enters the currently selected game.

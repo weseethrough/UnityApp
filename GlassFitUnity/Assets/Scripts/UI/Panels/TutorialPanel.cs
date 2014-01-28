@@ -85,9 +85,10 @@ public class TutorialPanel : HexPanel
 		downHandler = new GestureHelper.DownSwipe(() => {
 			QuitApp();
 		});
-		
-		GestureHelper.onSwipeDown += downHandler;
-		
+        if (Platform.Instance.OnGlass())
+        {
+            GestureHelper.onSwipeDown += downHandler;
+        }
 //		if(Platform.Instance.GetTracks(10000, 0) != null) {
 //			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {		
 //				StraightToMenu();
@@ -166,6 +167,14 @@ public class TutorialPanel : HexPanel
 	public override void StateUpdate ()
 	{
 		base.StateUpdate ();
+
+#if UNITY_EDITOR
+        if (buttonData.Count == 0 && Input.GetMouseButtonDown(0))
+        {
+            InitialButtons();
+            elapsedTime = 0.0f;
+        }
+#endif
 				
 		elapsedTime += Time.deltaTime;
 		

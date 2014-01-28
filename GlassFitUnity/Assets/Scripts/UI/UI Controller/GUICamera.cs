@@ -4,15 +4,18 @@ using System.Collections;
 public class GUICamera : MonoBehaviour {
 	
     Vector3 cameraPosition;
+    Vector3 startPosition;
+    Vector2 draggingStartPos;
 		
 	const float CAMERA_SENSITIVITY_X = 4.5f;
     const float CAMERA_SENSITIVITY_Y = 5.5f;
 	
-	public float zoomLevel = -1.0f;
-	
+	public float zoomLevel = -1.0f;        
+
 	// Use this for initialization
 	void Start () {
         cameraPosition = transform.position;
+        startPosition = cameraPosition;
 	}
 	
 	public bool IsPopupDisplayed() {
@@ -48,12 +51,68 @@ public class GUICamera : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		Vector2 newCameraOffset; 
-		ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out newCameraOffset);
-		Vector2 camPos = new Vector2(cameraPosition.x, cameraPosition.y);
-		newCameraOffset -= camPos;
-        transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
+	/// <summary>
+	/// Standard unity function. Moves camera to new location based on different input systems on different platforms
+	/// </summary>
+	/// <returns></returns>
+	void Update () 
+    {
+        if (!Platform.Instance.OnGlass())
+        {
+            NonSensorNavigation();
+        }
+        else
+        {
+            Vector2 newCameraOffset;
+            ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out newCameraOffset);
+            Vector2 camPos = new Vector2(cameraPosition.x, cameraPosition.y);
+            newCameraOffset -= camPos;
+            transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
+        }
 	}
+
+    /// <summary>
+    /// 3d hex navigation for touch and mouse devices
+    /// </summary>
+    /// <returns></returns>
+    public void NonSensorNavigation()
+    {
+        Vector2 offset = Vector2.zero;
+
+        if (Input.touchCount == 1)
+        {
+            offset = Input.touches[0].deltaPosition;
+
+            //makes height distance move to be distance of 3, and proportionally width (eg distance of 5-6)
+            offset *= -20.0f / (float)Screen.height;
+        }
+        else if (Input.GetMouseButtonDown(0))
+        {
+            draggingStartPos = Input.mousePosition;
+        }
+        else if (Input.GetMouseButton(0))
+        {
+            Vector2 newPos = Input.mousePosition;
+            offset = newPos - draggingStartPos;
+            draggingStartPos = newPos;
+
+            //makes height distance move to be distance of 3, and proportionally width (eg distance of 5-6)
+            offset *= 3.0f / (float)Screen.height;
+        }        
+       
+        if (offset.sqrMagnitude != 0)
+        {
+            Vector3 pos = transform.position;
+            pos.x += offset.x;
+            pos.y += offset.y;
+            transform.position = pos;
+        }
+
+    }
+
+    public void ResetCamera()
+    {
+        transform.position = startPosition;
+    }
 }
 
