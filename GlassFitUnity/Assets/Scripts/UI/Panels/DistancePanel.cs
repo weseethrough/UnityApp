@@ -19,8 +19,8 @@ public class DistancePanel : HexPanel {
 	
 	public override void EnterStart ()
 	{
-		ResetButtonData();
-		
+		//ResetButtonData();
+		base.EnterStart ();
 		//buttonData = new List<HexButtonData>();
 		
 		//some game types shouldn't allow picking of previous tracks.
@@ -83,38 +83,31 @@ public class DistancePanel : HexPanel {
 			
 			hbd = GetButtonAt(1, 0);
 			
-			if(hbd == null)
-			{
-				hbd = new HexButtonData();
-				buttonData.Add(hbd);
+			if(hbd != null) { 
+				buttonData.Remove(hbd);
 			}
 			
 			//clear the others
 			hbd = GetButtonAt(0,1);
-			if(hbd == null) { 
-				hbd = new HexButtonData();
-				buttonData.Add(hbd);
+			if(hbd != null) { 
+				buttonData.Remove(hbd);
 			}
 			
 			hbd = GetButtonAt(-1,1);
-			if(hbd == null) { 
-				hbd = new HexButtonData();
-				buttonData.Add(hbd);
+			if(hbd != null) { 
+				buttonData.Remove(hbd);
 			}
 			hbd = GetButtonAt(-1,0);
-			if(hbd == null) { 
-				hbd = new HexButtonData();
-				buttonData.Add(hbd);
+			if(hbd != null) { 
+				buttonData.Remove(hbd);
 			}
 			hbd = GetButtonAt(-1,-1);
-			if(hbd == null) { 
-				hbd = new HexButtonData();
-				buttonData.Add(hbd);
+			if(hbd != null) { 
+				buttonData.Remove(hbd);
 			}
 			hbd = GetButtonAt(-2,0);
-			if(hbd == null) { 
-				hbd = new HexButtonData();
-				buttonData.Add(hbd);
+			if(hbd != null) { 
+				buttonData.Remove(hbd);
 			}			
 		}
 		
@@ -131,9 +124,10 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                GConnector oldConnection =  Outputs.Find(r => r.Name == "1km");
                 if (oldConnection != null)
                 {
+					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
                     gComponent.Data.Disconnect(oldConnection);
                     Outputs.Remove(oldConnection);
                 }
@@ -159,9 +153,10 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                GConnector oldConnection =  Outputs.Find(r => r.Name == "2km");
                 if (oldConnection != null)
                 {
+					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
                     gComponent.Data.Disconnect(oldConnection);
                     Outputs.Remove(oldConnection);
                 }
@@ -187,9 +182,10 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                GConnector oldConnection =  Outputs.Find(r => r.Name == "3km");
                 if (oldConnection != null)
                 {
+					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
                     gComponent.Data.Disconnect(oldConnection);
                     Outputs.Remove(oldConnection);
                 }
@@ -215,9 +211,10 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                GConnector oldConnection =  Outputs.Find(r => r.Name == "4km");
                 if (oldConnection != null)
                 {
+					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
                     gComponent.Data.Disconnect(oldConnection);
                     Outputs.Remove(oldConnection);
                 }
@@ -243,9 +240,10 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                GConnector oldConnection =  Outputs.Find(r => r.Name == "5km");
                 if (oldConnection != null)
                 {
+					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
                     gComponent.Data.Disconnect(oldConnection);
                     Outputs.Remove(oldConnection);
                 }
@@ -271,9 +269,10 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                GConnector oldConnection =  Outputs.Find(r => r.Name == "10km");
                 if (oldConnection != null)
                 {
+					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
                     gComponent.Data.Disconnect(oldConnection);
                     Outputs.Remove(oldConnection);
                 }
@@ -303,18 +302,17 @@ public class DistancePanel : HexPanel {
 		hbd.buttonName = "CustomHex";
 		hbd.textNormal = "Custom";
 		hbd.locked = true;
-		
-		
-		base.EnterStart ();
 	}
 	
 	public void SetGConnector(GConnector gc, GraphComponent gComponent) {
 		if(raceType == "tutorial" || raceType == "trainRescue") {
 			if(tutorialExit.Link.Count > 0) {
+				UnityEngine.Debug.Log("DistancePanel: Tutorial exit set");
 				gComponent.Data.Connect(gc, tutorialExit.Link[0]);
 			}
 		} else {
 			if(gameExit.Link.Count > 0) {
+				UnityEngine.Debug.Log("DistancePanel: Game exit set");
 				gComponent.Data.Connect(gc, gameExit.Link[0]);
 			}
 		}

@@ -21,11 +21,14 @@ public class Train_Rescue : GameBase {
 	bool bWaitedForSubtitleTimeOut = false;
 	// Use this for initialization
 	void Start () {
+		UnityEngine.Debug.Log("Train: Calling base start");
 		base.Start();
 		
+		UnityEngine.Debug.Log("Train: Getting train controller");
 		train = trainObject.GetComponent<TrainController_Rescue>();
 		
 		//clear strings
+		UnityEngine.Debug.Log("Train: Setting datavault things");
 		DataVault.Set("train_subtitle", " ");
 		DataVault.Set("game_message", " ");
 		
@@ -34,15 +37,19 @@ public class Train_Rescue : GameBase {
 		
 		//set up a series of junctions for the train
 		//beginning at 200m
+		
 		float junctionDist = 75.0f;
 		
+		UnityEngine.Debug.Log("Train: Getting track");
 		selectedTrack = (Track)DataVault.Get("current_track");
 		
+		UnityEngine.Debug.Log("Train: Setting finish");
 		//set the distance to 300m
 		DataVault.Set("finish", 350);
 		finish = 350;
 		
 		//force indoor
+		UnityEngine.Debug.Log("Train: Setting indoor");
 		Platform.Instance.SetIndoor(true);
 		
 //		try {
@@ -80,6 +87,7 @@ public class Train_Rescue : GameBase {
 		
 		
 		//create some additional tracks to put on the flythrough
+		UnityEngine.Debug.Log("Train: Creating new list of track pieces");
 		extraTrackPieces = new List<GameObject>();
 		float totalTrackDistCovered = 500.0f;	//half of one track obj
 		float trackPiecePosition = 0.0f;
