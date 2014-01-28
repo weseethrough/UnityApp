@@ -13,14 +13,14 @@ public class DeviceControl : MonoBehaviour {
 		{
 			UnityEngine.Debug.Log("DeviceControl: device obtained");
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+			GConnector gConnect = fs.Outputs[0];
 			if(gConnect != null)
 			{
 				UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
 				fs.parentMachine.FollowConnection(gConnect);
 			} else
 			{
-				UnityEngine.Debug.Log("DeviceControl: connection not found: MenuExit");
+				UnityEngine.Debug.Log("DeviceControl: connection not found");
 			}
 		} else
 		{

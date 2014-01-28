@@ -237,21 +237,21 @@ public class GestureHelper : MonoBehaviour {
 			{
 				//single tap
 				UnityEngine.Debug.Log("Gesture Helper: Touchscreen 1-tap");
-				onTap();
+				if (onTap != null) onTap();
 				break;
 			}
 			case 2:
 			{
 				//double tap
 				UnityEngine.Debug.Log("Gesture Helper: Touchscreen 2-tap");
-				onTwoTap();
+				if (onTwoTap != null) onTwoTap();
 				break;
 			}
 			case 3:
 			{
 				//triple tap
 				UnityEngine.Debug.Log("Gesture Helper: Touchscreen 3-tap");
-				onThreeTap();
+				if (onThreeTap != null) onThreeTap();
 				break;
 			}
 			default:

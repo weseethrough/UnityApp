@@ -42,6 +42,10 @@ public class LoadingScreen : MonoBehaviour {
 		case "trainRescue":
 			levelName = "TrainRescue";
 			break;
+			
+		default:
+			UnityEngine.Debug.Log("LoadingScreen: ERROR: Unknown race_type: " + raceType);
+			break;
 		}
 		
 		if (!Platform.Instance.OnGlass()) {

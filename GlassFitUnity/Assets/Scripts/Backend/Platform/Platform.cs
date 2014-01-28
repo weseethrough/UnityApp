@@ -308,15 +308,15 @@ public class Platform : MonoBehaviour {
 		switch(json["action"]) {
 		case "LoadLevelFade":
 			if (OnGlass()) {
-				DataVaultFromJson(json["data"]);
-				if (json["levelName"] != null) AutoFade.LoadLevel(json["levelName"], 0f, 1.0f, Color.black); 			
-				if (json["levelIndex"] != null) AutoFade.LoadLevel(json["levelIndex"].AsInt, 0f, 1.0f, Color.black); 			
+//				DataVaultFromJson(json["data"]);
+//				if (json["levelName"] != null) AutoFade.LoadLevel(json["levelName"], 0f, 1.0f, Color.black); 			
+//				if (json["levelIndex"] != null) AutoFade.LoadLevel(json["levelIndex"].AsInt, 0f, 1.0f, Color.black); 			
 			}
 			break;
 		case "LoadLevelAsync":
 			if (OnGlass()) {
 				DataVaultFromJson(json["data"]);
-				// TODO: Start Loading Screen
+				FlowStateMachine.Restart("Restart Point");
 			}
 			break;
 		default:
@@ -333,11 +333,11 @@ public class Platform : MonoBehaviour {
 	private void DataVaultFromJson(JSONNode json) {
 		JSONNode track = json["current_track"];
 		// TODO: fetch track and store in datavault
-		DataVault.Set("race_type", json["race_type"]);
-		DataVault.Set("type", json["type"]);
-		DataVault.Set("finish", json["finish"].AsInt);
-		DataVault.Set("lower_finish", json["lower_finish"].AsInt);
-		DataVault.Set("challenger", json["challenger"]);
+		if (json["race_type"] != null) DataVault.Set("race_type", json["race_type"] as string);
+		if (json["type"] != null) DataVault.Set("type", json["type"] as string);
+		if (json["finish"] != null) DataVault.Set("finish", json["finish"].AsInt);
+		if (json["lower_finish"] != null) DataVault.Set("lower_finish", json["lower_finish"].AsInt);
+		if (json["challenger"] != null) DataVault.Set("challenger", json["challenger"] as string);
 		JSONNode challengeNotification = json["current_challenge_notification"];
 		// TODO: fetch challenge notification and store in datavault
 	}
