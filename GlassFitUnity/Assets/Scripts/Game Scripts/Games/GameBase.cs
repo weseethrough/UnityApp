@@ -583,8 +583,7 @@ public class GameBase : MonoBehaviour {
 		
 		DataVault.Set("calories", Platform.Instance.Calories().ToString()/* + "kcal"*/);
 		float pace = SpeedToKmPace(Platform.Instance.Pace());
-		pace = Math.Min(pace, 10.0f);	//avoid huge numbers on HUD
-		string paceString = TimestampMMSS((long)pace);	//pace as mm:ss not mm.m
+		string paceString = (pace > 20.0f || pace == 0.0f) ? "--.--" : TimestampMMSSnearestTenSecs(pace); // show dashes if slower than slow walk, otherwise round to nearest 10s
 		DataVault.Set("pace", paceString/* + "min/km"*/);
 		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance(), "distanceunits"));
 		DataVault.Set("time", TimestampMMSSfromMillis( Platform.Instance.Time()));
@@ -716,12 +715,12 @@ public class GameBase : MonoBehaviour {
 		return final;
 	}
 			
-	protected long SpeedToKmPace(float speed) {
+	protected float SpeedToKmPace(float speed) {
 		if (speed <= 0) {
 			return 0;
 		}
 		// m/s -> mins/Km
-		return Convert.ToInt64( ((1/speed)/60) * 1000);
+		return ((1/speed)/60) * 1000;
 	}
 	
 	protected string TimestampMMSSdd(long milliseconds) {
@@ -745,6 +744,13 @@ public class GameBase : MonoBehaviour {
 		TimeSpan span = TimeSpan.FromMinutes(minutes);
 
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
+	}
+
+	protected string TimestampMMSSnearestTenSecs(float mins) {
+		TimeSpan span = TimeSpan.FromMinutes(mins);
+		int minutes = span.Minutes;
+		int seconds = (int)Math.Ceiling(span.Seconds / 10.0f) * 10; // ceil to nearest 10
+		return string.Format("{0:00}:{1:00}", minutes, seconds);
 	}
 	
 	protected string TimestampMMSSfromMillis(long milliseconds) {
