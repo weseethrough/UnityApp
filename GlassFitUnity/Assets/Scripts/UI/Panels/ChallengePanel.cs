@@ -57,6 +57,8 @@ public class ChallengePanel : HexPanel {
 	public override void EnterStart ()
 	{
 		DataVault.Set("highlight", " ");
+		DataVault.Set("incoming", " ");
+		DataVault.Set("to_challenge", "  ");
 		challengeExit = Outputs.Find(r => r.Name == "challengeExit");
 		previousExit = Outputs.Find(r => r.Name == "previousExit");
 		sendExit = Outputs.Find(r => r.Name == "sendExit");
@@ -331,6 +333,8 @@ public class ChallengePanel : HexPanel {
 			MessageWidget.AddMessage("Sorry!", "You currently have no challenges", "activity_delete");
 		}
 		DataVault.Set("tutorial_hint", " ");
+		DataVault.Set("incoming", "Above are your incoming challenges");
+		DataVault.Set("to_challenge", "Below are the friends you can challenge");
 	}
 	
 	public void CalculatePosition() {

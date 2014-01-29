@@ -243,14 +243,14 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, pursuitExit.Link[0]);
 				}
 			} 
-//			else if(games[i].type == "Challenge") 
-//			{
-//				gc.EventFunction = "AuthenticateUser";
-//				if(challengeExit.Link.Count > 0) 
-//				{
-//					gComponent.Data.Connect(gc, challengeExit.Link[0]);
-//				}
-//			}
+			else if(games[i].type == "Challenge") 
+			{
+				gc.EventFunction = "AuthenticateUser";
+				if(challengeExit.Link.Count > 0) 
+				{
+					gComponent.Data.Connect(gc, challengeExit.Link[0]);
+				}
+			}
 			else if(games[i].type == "Celeb")
 			{
 				gc.EventFunction = "SetCeleb";

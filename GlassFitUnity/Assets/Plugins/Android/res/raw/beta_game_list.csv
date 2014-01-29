@@ -4,7 +4,7 @@ activity_press_up,Press-ups,activity_press_up,all,Learn the proper technique for
 activity_train,The train game,activity_train,all,There's a damsel in distress on the tracks - save her!,Unlocked,0,10000,5,TrainRescue,-2,-1
 activity_bike,Race Yourself,activity_bike,cycle,Cycle against your own avatar for points,Locked,0,500,0,N/A,-1,-1
 activity_boulder,Boulder Dash,activity_boulder,run,Run away from the boulder!,Locked,1,1000,1,N/A,-1,0
-activity_versus,Challenges,activity_versus,all,Race against your friends!,Locked,1,5000,3,N/A,-1,1
+activity_versus,Challenges,activity_versus,all,Race against your friends!,Unlocked,1,5000,3,Challenge,-1,1
 activity_race_yourself,Race Yourself,activity_run,run,Race against your own avatar,Unlocked,0,0,0,Race,0,-1
 activity_achievement,Achievements,activity_achievement,run,View your achievements and progress,Locked,2,5000,3,N/A,0,1
 activity_bolt_level1,Beat Bolt,activity_bolt_level1,run,Try to beat Bolt's 100m time,Locked,2,5000,3,N/A,1,0
