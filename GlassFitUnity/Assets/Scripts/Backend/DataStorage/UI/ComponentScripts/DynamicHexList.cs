@@ -230,21 +230,14 @@ public class DynamicHexList : MonoBehaviour
 		}
         if (buttonNextEnterDelay <= 0 && buttons.Count > buttonNextEnterIndex)
         {
+            int ring = (int)(buttonNextEnterIndex / 8);
 
-            PlayButtonEnter(buttons[buttonNextEnterIndex], true);
-
-           /* UISprite[] sprites = buttons[buttonNextEnterIndex].GetComponentsInChildren<UISprite>() as UISprite[];
-            foreach (UISprite spr in sprites)
+            for (int i = 0; i <= ring; i++)
             {
-                if (spr.name == "Foreground")
-                {
-                    spr.gameObject.SetActive(GetButtonData()[buttonNextEnterIndex].locked);                    
-                    break;
-                }
-            }*/
+                PlayButtonEnter(buttons[buttonNextEnterIndex], true);
+                buttonNextEnterIndex++;
+            }
 
-            buttonNextEnterIndex++;             
-            
             buttonNextEnterDelay = buttonEnterDelay;
         }
 
@@ -839,7 +832,7 @@ public class DynamicHexList : MonoBehaviour
             ActiveAnimation anim = ActiveAnimation.Play(target, btEnterAnimation, dir);
 
             if (anim != null)
-            {
+            {                
                 anim.Reset();
 
                 UIButtonAnimationLocker buttonLocker = buttonRoot.GetComponentInChildren<UIButtonAnimationLocker>();
