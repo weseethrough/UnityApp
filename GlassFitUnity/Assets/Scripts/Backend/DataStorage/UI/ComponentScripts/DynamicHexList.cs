@@ -31,6 +31,7 @@ public class DynamicHexList : MonoBehaviour
     List<UIImageButton> buttonsImageComponents;
     List<Vector2> hexPosition2d;
     List<Dictionary<string, UISprite>> buttonSprites;
+    List<UILabel> overlays;
 
     UIImageButton selection;
     private string btEnterAnimation = "HexEnter";
@@ -538,6 +539,7 @@ public class DynamicHexList : MonoBehaviour
         buttonsImageComponents = new List<UIImageButton>();
         hexPosition2d = new List<Vector2>();
         buttonSprites = new List<Dictionary<string, UISprite>>();
+        overlays = new List<UILabel>();
         buttonsReady = false;
 
         if (elementsToKeep < 1) elementsToKeep = 1;
@@ -632,6 +634,7 @@ public class DynamicHexList : MonoBehaviour
                             break;
                         case "OverlayText":
                             label.text = data.textOverlay;
+                            overlays.Add(label);
                             break;
                     }
                 }
@@ -957,6 +960,12 @@ public class DynamicHexList : MonoBehaviour
                 ta = TweenAlpha.Begin(sprite.gameObject, 0.25f, 0.0f);
                 ta.delay = 2.0f;
             }
+
+            if ( overlays.Count > index )
+            {                                
+                ta = TweenAlpha.Begin(overlays[index].gameObject, 0.25f, 0.0f);
+                ta.delay = 2.0f;
+            }
         }
         else
         {
@@ -979,9 +988,12 @@ public class DynamicHexList : MonoBehaviour
                 ta = TweenAlpha.Begin(sprite.gameObject, 0.25f, 0.6f);
                 ta.delay = 0.0f;
             }
-        }
 
-
-        
+            if (overlays.Count > index)
+            {
+                ta = TweenAlpha.Begin(overlays[index].gameObject, 0.25f, 1.0f);
+                ta.delay = 0.0f;
+            }
+        }        
     }
 }
