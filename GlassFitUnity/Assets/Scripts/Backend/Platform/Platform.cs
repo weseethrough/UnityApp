@@ -297,7 +297,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public void OnBluetoothMessage(string message) {
-		MessageWidget.AddMessage("Bluetooth", message, "settings"); // DEBUG
+//		MessageWidget.AddMessage("Bluetooth", message, "settings"); // DEBUG
 		UnityEngine.Debug.Log("Platform: OnBluetoothMessage " + message.Length + "B"); 
 		JSONNode json = JSON.Parse(message);
 		OnBluetoothJson(json);
