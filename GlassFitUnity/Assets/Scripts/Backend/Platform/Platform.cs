@@ -603,6 +603,7 @@ public class Platform : MonoBehaviour {
 	public virtual void Reset() {
 		try {
 			gps.Call("startNewTrack");
+			points_helper.Call("reset");
 			started = false;
 			Poll();
 			UnityEngine.Debug.Log("Platform: GPS has been reset");
