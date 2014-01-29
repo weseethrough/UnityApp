@@ -332,14 +332,28 @@ public class Platform : MonoBehaviour {
 	
 	private void DataVaultFromJson(JSONNode json) {
 		JSONNode track = json["current_track"];
-		// TODO: fetch track and store in datavault
+		if (track != null) {
+			Track t = FetchTrack(track["device_id"].AsInt, track["track_id"].AsInt);
+			if (t != null) DataVault.Set("current_track", t);
+			else track = null;
+		} 
+		if (track == null) DataVault.Remove("current_track");
 		if (json["race_type"] != null) DataVault.Set("race_type", json["race_type"] as string);
+		else DataVault.Remove("race_type");
 		if (json["type"] != null) DataVault.Set("type", json["type"] as string);
+		else DataVault.Remove("type");
 		if (json["finish"] != null) DataVault.Set("finish", json["finish"].AsInt);
+		else DataVault.Remove("finish");
 		if (json["lower_finish"] != null) DataVault.Set("lower_finish", json["lower_finish"].AsInt);
+		else DataVault.Remove("lower_finish");
 		if (json["challenger"] != null) DataVault.Set("challenger", json["challenger"] as string);
+		else DataVault.Remove("challenger");
 		JSONNode challengeNotification = json["current_challenge_notification"];
-		// TODO: fetch challenge notification and store in datavault
+		if (challengeNotification != null) {
+			// TODO: fetch challenge notification and store in datavault
+		} 
+		if (challengeNotification == null) DataVault.Remove("current_challenge_notification");
+		ResetTargets();
 	}
 	
 	public virtual AndroidJavaObject GetHelper() {
