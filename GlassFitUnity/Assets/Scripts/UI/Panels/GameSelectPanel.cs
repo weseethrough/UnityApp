@@ -198,11 +198,14 @@ public class GameSelectPanel : HexPanel
             hbd.row = games[i].row;
             hbd.imageName = games[i].iconName;
 			
+			
 			if(games[i].type == "N/A")
 			{
 				hbd.displayInfoData = false;
 				hbd.textOverlay = "Coming Soon";
 			}
+			
+			hbd.displayInfoData = true;
 			
 			if(games[i].state == "Locked") {
 	           	hbd.locked = true;

@@ -123,13 +123,19 @@ public class HexInfoManager : MonoBehaviour
 
             if (data.locked)
             {
-                string actionName = DataVault.Translate("Tap to buy", null );
+				string actionName;
+				if(data.textOverlay == "Coming Soon") {
+					actionName = DataVault.Translate("Coming Soon", null);
+				} else {
+                	actionName = DataVault.Translate("Tap to buy", null );
+				}
                 DataVault.Set("action_name", actionName);
                 buyNowGameObject.SetActive(true);
 
                 Vector3 pos = contentBackground.transform.localPosition;
                 pos.x = 0;
                 contentBackground.transform.localPosition = pos;
+					
             }
             else
             {

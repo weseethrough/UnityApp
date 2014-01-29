@@ -309,6 +309,7 @@ public class GameBase : MonoBehaviour {
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
+			countdown = false;
 			DataVault.Set("total", (Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance()).ToString("n0"));
 			DataVault.Set("distance_with_units", SiDistance(Platform.Instance.GetDistance()));
 			UnityEngine.Debug.Log("GameBase: setting points");

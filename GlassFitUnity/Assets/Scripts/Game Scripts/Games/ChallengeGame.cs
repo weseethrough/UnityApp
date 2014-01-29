@@ -29,7 +29,8 @@ public class ChallengeGame : GameBase {
 			controller.SetLane(lane++);
 		}
 		
-		SetVirtualTrackVisible(false);
+		SetVirtualTrackVisible(true);
+		SetReadyToStart(true);
 	}
 	
 	public override GConnector GetFinalConnection()
