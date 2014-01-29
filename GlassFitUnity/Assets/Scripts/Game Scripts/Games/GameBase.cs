@@ -35,7 +35,7 @@ public class GameBase : MonoBehaviour {
 	protected int bonusTarget = 1000;
 	
 	// Final sprint bonus points.		TODO is this a feature of ALL games or just some?
-	protected float finalBonus = 1000;
+	protected float finalBonus = 0;
 	
 	protected double offset = 0;
 	
@@ -310,7 +310,7 @@ public class GameBase : MonoBehaviour {
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
 			countdown = false;
-			DataVault.Set("total", (Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance()).ToString("n0"));
+			DataVault.Set("total", (Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance() + finalBonus).ToString("n0"));
 			DataVault.Set("distance_with_units", SiDistance(Platform.Instance.GetDistance()));
 			UnityEngine.Debug.Log("GameBase: setting points");
 			if(finish >= 1000) {
