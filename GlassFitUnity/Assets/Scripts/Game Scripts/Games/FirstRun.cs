@@ -130,12 +130,12 @@ public class FirstRun : GameBase {
 	public override void QuitGame ()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect; 
-		if((string)DataVault.Get("race_type") == "race") {
-			gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-		} else {
-			gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
-		}
+		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton"); 
+//		if((string)DataVault.Get("race_type") == "race") {
+//			gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+//		} else {
+//			gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
+//		}
 		
 		if(gConnect != null) {
 			GestureHelper.onSwipeDown -= downHandler;

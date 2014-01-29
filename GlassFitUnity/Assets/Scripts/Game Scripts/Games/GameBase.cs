@@ -119,7 +119,7 @@ public class GameBase : MonoBehaviour {
 		
 		UnityEngine.Debug.Log("GameBase: setting down swipe handler");
 		downHandler = new GestureHelper.DownSwipe(() => {
-			FinishGame();
+			ConsiderQuit();
 		});
 		GestureHelper.onSwipeDown += downHandler;
 		
@@ -231,7 +231,9 @@ public class GameBase : MonoBehaviour {
 				GestureHelper.onTap -= tapHandler;
 				
 				tapHandler = new GestureHelper.OnTap(() => {
-					QuitGame();
+					hasEnded = true;
+					FinishGame();
+					GestureHelper.onTap -= tapHandler;
 				});
 				GestureHelper.onTap += tapHandler;
 			}		
@@ -267,7 +269,7 @@ public class GameBase : MonoBehaviour {
 			GestureHelper.onSwipeRight -= rightHandler;
 		
 			downHandler = new GestureHelper.DownSwipe(() => {
-				FinishGame();
+				ConsiderQuit();
 			});
 			GestureHelper.onSwipeDown += downHandler;
 			
