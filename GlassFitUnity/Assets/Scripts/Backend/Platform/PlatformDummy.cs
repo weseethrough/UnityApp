@@ -87,12 +87,13 @@ public class PlatformDummy : Platform
 	{
 		applicationIsQuitting = true;
 	}
-	
-	public virtual float GetDistance() {
-		return (float)distance;
-	}
 
-    public virtual bool IsPluggedIn()
+    public override float GetDistance()
+    {
+        return (float)distance;
+    }
+
+    public override bool IsPluggedIn()
     {
         return false;
     }
