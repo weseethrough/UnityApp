@@ -679,7 +679,7 @@ public class DynamicHexList : MonoBehaviour
     /// <returns></returns>
     public void UpdateButtonList()
     {
-        if (buttons.Count == 0)
+        if (buttons != null && buttons.Count == 0)
         {
             InitializeItems();
             return;

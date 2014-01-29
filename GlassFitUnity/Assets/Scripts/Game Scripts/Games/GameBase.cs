@@ -306,6 +306,7 @@ public class GameBase : MonoBehaviour {
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
 			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+			DataVault.Set("distance_with_units", SiDistance(Platform.Instance.GetDistance()));
 			UnityEngine.Debug.Log("GameBase: setting points");
 			if(finish >= 1000) {
 				DataVault.Set("bonus", finalBonus); 
@@ -343,7 +344,7 @@ public class GameBase : MonoBehaviour {
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		} else {
-			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
+			UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
 		}
 		GestureHelper.onTap -= tapHandler;
 	}
@@ -691,7 +692,7 @@ public class GameBase : MonoBehaviour {
 	
 	//TODO move these to a utility class
 	protected string SiDistance(double meters) {
-		return SiDistanceUnitless(meters, "distanceunits") + DataVault.Get("distance_units");
+		return SiDistanceUnitless(meters, "distanceunits") + DataVault.Get("distanceunits");
 	}
 	
 	protected string SiDistanceUnitless(double meters, string units) {

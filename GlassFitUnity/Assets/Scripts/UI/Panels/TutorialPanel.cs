@@ -89,21 +89,7 @@ public class TutorialPanel : HexPanel
         {
             GestureHelper.onSwipeDown += downHandler;
         }
-//		if(Platform.Instance.GetTracks(10000, 0) != null) {
-//			if(Platform.Instance.GetTracks(10000, 0).Count > 0) {		
-//				StraightToMenu();
-//			}
-//		}	
-//        twoHandler = new GestureHelper.TwoFingerTap(() => {
-//			if(buttonData.Count == 0) {
-//				InitialButtons();
-//				elapsedTime = 0.0f;
-//			}
-//			GestureHelper.onTwoTap -= twoHandler;
-//		});
-//
-//		GestureHelper.onTwoTap += twoHandler;
-//
+
 		Platform.Instance.GetPlayerOrientation().Reset();
 		InitialButtons();
 		elapsedTime = 0.0f;
@@ -309,9 +295,11 @@ public class TutorialPanel : HexPanel
 		hbd.backgroundTileColor = 0x00A30EFF;
         buttonData.Add(hbd);
 		
-		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
-        list.UpdateButtonList();
-    }
+//		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+//		if(list != null) {
+//       		list.UpdateButtonList();
+//    	}
+	}
 
     /// <summary>
     /// On hover activity opening further buttons. Example shows opening two buttons first and then one after another based on rollover action
