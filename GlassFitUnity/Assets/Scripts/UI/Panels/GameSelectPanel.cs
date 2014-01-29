@@ -220,7 +220,7 @@ public class GameSelectPanel : HexPanel
 			
 			gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
 			
-			if(games[i].state == "Locked" && games[i].type != "N/A")
+			/*if(games[i].state == "Locked" && games[i].type != "N/A")
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
@@ -228,7 +228,7 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, unlockExit.Link[0]);
 				}
 			}
-			else if(games[i].type == "Race") 
+			else */if(games[i].type == "Race") 
 			{
 				gc.EventFunction = "SetType";
 				if(raceExit.Link.Count > 0) 
@@ -243,14 +243,14 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, pursuitExit.Link[0]);
 				}
 			} 
-			else if(games[i].type == "Challenge") 
-			{
-				gc.EventFunction = "AuthenticateUser";
-				if(challengeExit.Link.Count > 0) 
-				{
-					gComponent.Data.Connect(gc, challengeExit.Link[0]);
-				}
-			}
+//			else if(games[i].type == "Challenge") 
+//			{
+//				gc.EventFunction = "AuthenticateUser";
+//				if(challengeExit.Link.Count > 0) 
+//				{
+//					gComponent.Data.Connect(gc, challengeExit.Link[0]);
+//				}
+//			}
 			else if(games[i].type == "Celeb")
 			{
 				gc.EventFunction = "SetCeleb";
@@ -274,13 +274,13 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, deleteExit.Link[0]);
 				}
 			}
-			else if(games[i].type == "TrainRescue")
-			{
-				if(trainExit.Link.Count > 0)
-				{
-					gComponent.Data.Connect(gc, trainExit.Link[0]);
-				}
-			}
+//			else if(games[i].type == "TrainRescue")
+//			{
+//				if(trainExit.Link.Count > 0)
+//				{
+//					gComponent.Data.Connect(gc, trainExit.Link[0]);
+//				}
+//			}
 
         }
 				
