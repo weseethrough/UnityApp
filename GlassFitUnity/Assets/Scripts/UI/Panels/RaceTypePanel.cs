@@ -53,7 +53,7 @@ public class RaceTypePanel : HexPanel {
 //		}
 		
 		
-		HexButtonData hbd = GetButtonAt(1, 0);
+		HexButtonData hbd = GetButtonAt(0, 0);
         //if we do not have button at provided coordinates we will create new button data for it
         if (hbd == null)
         {
@@ -73,7 +73,7 @@ public class RaceTypePanel : HexPanel {
 		
 		//hbd = new HexButtonData();
 		hbd.row = 0;
-		hbd.column = 1;
+		hbd.column = 0;
 		hbd.buttonName = "PresetHex";
 		hbd.textNormal = "Create a new track";
 		hbd.displayInfoData = false;
