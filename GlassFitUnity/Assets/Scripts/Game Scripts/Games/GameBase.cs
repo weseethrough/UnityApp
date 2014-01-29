@@ -545,11 +545,11 @@ public class GameBase : MonoBehaviour {
 		double targetDistance = GetDistBehindForHud();
 
 		if (targetDistance > 0) {
-			DataVault.Set("ahead_header", "Behind!");
+			DataVault.Set("distance_position", "Behind!");
 			//DataVault.Set("ahead_col_header", "D20000FF");
 			DataVault.Set("ahead_col_box", "D230008B");
 		} else {
-			DataVault.Set("ahead_header", "Ahead!"); 
+			DataVault.Set("distance_position", "Ahead!"); 
 			DataVault.Set("ahead_col_box", "19D2008B");
 			//DataVault.Set("ahead_col_header", "19D200FF");
 		}

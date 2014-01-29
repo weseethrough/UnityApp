@@ -65,18 +65,21 @@ public class TrackSelect : MonoBehaviour {
 		LoadTrack();
 		
 		tapHandler = new GestureHelper.OnTap(() => {
+			UnityEngine.Debug.Log("TrackSelect: setting track");
 			SetTrack();
 		});
 		
 		GestureHelper.onTap += tapHandler;
 		
 		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			UnityEngine.Debug.Log("TrackSelect: getting previous track");
 			PreviousTrack();
 		});
 		
 		GestureHelper.onSwipeLeft += leftHandler;
 		
 		rightHandler = new GestureHelper.OnSwipeRight(() => {
+			UnityEngine.Debug.Log("TrackSelect: getting next track");
 			NextTrack();
 		});
 		
