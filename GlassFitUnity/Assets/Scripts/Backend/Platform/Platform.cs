@@ -992,11 +992,11 @@ public class Platform : MonoBehaviour {
 		if (device == null) device = Device();
 		if (user == null) user = User();
 		//UnityEngine.Debug.Log("Platform: about to sync");
-		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval && IsPluggedIn()) {
-			//UnityEngine.Debug.Log("Platform: about to sync properly");
-			SyncToServer();
-			//UnityEngine.Debug.Log("Platform: sync complete");
-		}
+//		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval && IsPluggedIn()) {
+//			//UnityEngine.Debug.Log("Platform: about to sync properly");
+//			SyncToServer();
+//			//UnityEngine.Debug.Log("Platform: sync complete");
+//		}
 
 		// Update player orientation
 		try {

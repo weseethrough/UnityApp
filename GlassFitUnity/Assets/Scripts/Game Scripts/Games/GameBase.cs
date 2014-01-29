@@ -181,6 +181,8 @@ public class GameBase : MonoBehaviour {
 		DataVault.Set("distance_units", "metres");
 		DataVault.Set("time_units", "m:s:ds");
 		
+		Platform.Instance.SetIndoor(true);
+		
 		UnityEngine.Debug.Log("GameBase: started");
 		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
 	}
@@ -307,11 +309,11 @@ public class GameBase : MonoBehaviour {
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
-			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+			DataVault.Set("total", (Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance()).ToString("n0"));
 			DataVault.Set("distance_with_units", SiDistance(Platform.Instance.GetDistance()));
 			UnityEngine.Debug.Log("GameBase: setting points");
 			if(finish >= 1000) {
-				DataVault.Set("bonus", finalBonus); 
+				DataVault.Set("bonus", finalBonus.ToString("n0")); 
 			} else {
 				DataVault.Set("bonus", 0);
 			}

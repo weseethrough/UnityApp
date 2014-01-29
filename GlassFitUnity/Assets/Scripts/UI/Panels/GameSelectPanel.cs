@@ -100,6 +100,8 @@ public class GameSelectPanel : HexPanel
 	
     public override void EnterStart()
     {		
+		DataVault.Set("first_menu", " ");
+		
         GConnector raceExit = Outputs.Find(r => r.Name == "raceExit");
         GConnector pursuitExit = Outputs.Find(r => r.Name == "pursuitExit");
 		GConnector challengeExit = Outputs.Find (r => r.Name == "challengeExit");

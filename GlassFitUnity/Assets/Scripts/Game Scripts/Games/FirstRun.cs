@@ -63,7 +63,7 @@ public class FirstRun : GameBase {
 		//create actors for each target tracker
 		//InstantiateActors();
 		
-		
+		SetReadyToStart(true);
 	}
 	
 	protected void SetRunnerVisible(bool visible)
@@ -77,6 +77,7 @@ public class FirstRun : GameBase {
 		base.SetReadyToStart(ready);
 		runReadyToStart = ready;
 		SetRunnerVisible(true);
+		SetVirtualTrackVisible(true);
 	}
 	
 	// Update is called once per frame
