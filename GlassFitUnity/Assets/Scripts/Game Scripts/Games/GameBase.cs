@@ -321,6 +321,8 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.StopTrack();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
+			GestureHelper.onSwipeLeft -= leftHandler;
+			GestureHelper.onSwipeRight -= rightHandler;
 			
 			if(gConnect.Name == "TutorialExit") {
 				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
