@@ -371,7 +371,7 @@ public class Platform : MonoBehaviour {
 			if (ajo.GetRawObject().ToInt32() == 0) return null;
 			return new Device(ajo.Get<int>("id"), ajo.Get<string>("manufacturer"), ajo.Get<string>("model"), ajo.Get<int>("glassfit_version"));
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: failed to fetch user " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: failed to fetch device " + e.Message);
 			UnityEngine.Debug.LogException(e);
 			return null;
 		}
@@ -534,6 +534,14 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 			return false;
 		}
+	}
+	
+	public bool IsGlassRemote() {
+		foreach(string peer in BluetoothPeers()) {
+			UnityEngine.Debug.LogWarning("Platform: BT peer: " + peer);
+			if (peer.Contains("Glass")) return true;
+		}
+		return false;
 	}
 	
 	// Check if has GPS lock
@@ -1356,6 +1364,18 @@ public class Platform : MonoBehaviour {
 		catch (Exception e)
 		{
 			UnityEngine.Debug.LogWarning("Platform: Error broadcasting Bluetooth message. " + e.Message);
+		}
+	}
+
+	public virtual string[] BluetoothPeers() {
+		try
+		{
+			return activity.Call<string[]>("getBluetoothPeers");
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error getting Bluetooth peers. " + e.Message);
+			return new string[0];
 		}
 	}
 

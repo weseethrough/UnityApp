@@ -51,7 +51,7 @@ public class LoadingScreen : MonoBehaviour {
 			break;
 		}
 		
-		if (!Platform.Instance.OnGlass()) {
+		if (Platform.Instance.IsGlassRemote()) {
             JSONObject json = new JSONObject();
 			json.AddField("action", "LoadLevelAsync");
 			
@@ -67,7 +67,14 @@ public class LoadingScreen : MonoBehaviour {
 			
 			json.AddField("data", data);
 			Platform.Instance.BluetoothBroadcast(json);
-			// TODO: Show "in game" message and return
+			MessageWidget.AddMessage("Bluetooth", "Started game on Glass", "settings");
+			// Return to menu
+		    FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		    GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+			if (gConnect != null) {
+				fs.parentMachine.FollowConnection(gConnect);
+				return;
+			}
 		}
 		
 		slider = GetComponentInChildren<UISlider>();
