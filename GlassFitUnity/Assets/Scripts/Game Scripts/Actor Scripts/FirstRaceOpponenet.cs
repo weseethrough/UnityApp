@@ -108,6 +108,13 @@ public class FirstRaceOpponenet : TargetController {
 		float deltaSpeed = currentMovementSpeed - playerSpeed;
 		float convergenceTime = deltaLead / deltaSpeed;
 
+		if (currentMovementSpeed == 0.0f && currentLead > 10.0f)
+		{
+			// don't set off till the player is within 10m
+			// makes it easy for the player to catch up and feel the movement
+			return;
+		}
+
 		// accelerate / decelerate smoothly
 		// aim to converge in 5s time
 		float acceleration = 0.6f * Mathf.Sign (deltaLead) * Time.deltaTime; // metres per second squared
@@ -119,13 +126,13 @@ public class FirstRaceOpponenet : TargetController {
 		else
 		{
 			// moving the right way, speed proportional to deltaLead up to a max cap (slightly slower than the player can run)
-			if (currentMovementSpeed < Mathf.Min(deltaLead, 3.2f))
+			if (currentMovementSpeed < Mathf.Min(deltaLead, 3.0f))
 			{
 				currentMovementSpeed += acceleration;
 			}
 			else
 			{
-				currentMovementSpeed = Mathf.Min(deltaLead, 3.2f);
+				currentMovementSpeed = Mathf.Min(deltaLead, 3.0f);
 			}
 		}
 
