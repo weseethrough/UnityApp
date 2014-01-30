@@ -184,21 +184,21 @@ public class GestureHelper : MonoBehaviour {
 							//	swiped left
 							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe left");
 							touches.Remove(touch.fingerId);
-							onSwipeLeft();
+							if (onSwipeLeft != null) onSwipeLeft();
 						}
 						else if (ti.distanceTravelled.x >= SWIPE_MIN_DIST)
 						{
 							//	swiped right
 							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe right");
 							touches.Remove(touch.fingerId);
-							onSwipeRight();
+							if (onSwipeRight != null) onSwipeRight();
 						}
 						else if(ti.distanceTravelled.y <= - SWIPE_MIN_DIST)
 						{
 							//swiped down
 							touches.Remove(touch.fingerId);
 							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe down");
-							onSwipeDown();
+							if (onSwipeDown != null) onSwipeDown();
 						}
 					}
 				}
