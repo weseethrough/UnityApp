@@ -100,6 +100,8 @@ public class GameSelectPanel : HexPanel
 	
     public override void EnterStart()
     {		
+		DataVault.Set("first_menu", " ");
+		
         GConnector raceExit = Outputs.Find(r => r.Name == "raceExit");
         GConnector pursuitExit = Outputs.Find(r => r.Name == "pursuitExit");
 		GConnector challengeExit = Outputs.Find (r => r.Name == "challengeExit");
@@ -196,11 +198,14 @@ public class GameSelectPanel : HexPanel
             hbd.row = games[i].row;
             hbd.imageName = games[i].iconName;
 			
+			
 			if(games[i].type == "N/A")
 			{
 				hbd.displayInfoData = false;
 				hbd.textOverlay = "Coming Soon";
 			}
+			
+			hbd.displayInfoData = true;
 			
 			if(games[i].state == "Locked") {
 	           	hbd.locked = true;
@@ -215,7 +220,7 @@ public class GameSelectPanel : HexPanel
 			
 			gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
 			
-			if(games[i].state == "Locked" && games[i].type != "N/A")
+			/*if(games[i].state == "Locked" && games[i].type != "N/A")
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
@@ -223,7 +228,7 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, unlockExit.Link[0]);
 				}
 			}
-			else if(games[i].type == "Race") 
+			else */if(games[i].type == "Race") 
 			{
 				gc.EventFunction = "SetType";
 				if(raceExit.Link.Count > 0) 
@@ -238,14 +243,14 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, pursuitExit.Link[0]);
 				}
 			} 
-			else if(games[i].type == "Challenge") 
-			{
-				gc.EventFunction = "AuthenticateUser";
-				if(challengeExit.Link.Count > 0) 
-				{
-					gComponent.Data.Connect(gc, challengeExit.Link[0]);
-				}
-			}
+//			else if(games[i].type == "Challenge") 
+//			{
+//				gc.EventFunction = "AuthenticateUser";
+//				if(challengeExit.Link.Count > 0) 
+//				{
+//					gComponent.Data.Connect(gc, challengeExit.Link[0]);
+//				}
+//			}
 			else if(games[i].type == "Celeb")
 			{
 				gc.EventFunction = "SetCeleb";

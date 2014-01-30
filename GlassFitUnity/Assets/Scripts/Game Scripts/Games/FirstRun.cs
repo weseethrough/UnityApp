@@ -63,7 +63,7 @@ public class FirstRun : GameBase {
 		//create actors for each target tracker
 		//InstantiateActors();
 		
-		
+		SetReadyToStart(true);
 	}
 	
 	protected void SetRunnerVisible(bool visible)
@@ -77,6 +77,7 @@ public class FirstRun : GameBase {
 		base.SetReadyToStart(ready);
 		runReadyToStart = ready;
 		SetRunnerVisible(true);
+		SetVirtualTrackVisible(true);
 	}
 	
 	// Update is called once per frame
@@ -93,15 +94,15 @@ public class FirstRun : GameBase {
 		return runner.GetDistanceBehindTarget();
 	}
 
-	public override GConnector GetFinalConnection ()
-	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		if((string)DataVault.Get("race_type") == "race") {
-			return fs.Outputs.Find(r => r.Name == "FinishButton");
-		} else {
-			return fs.Outputs.Find(r => r.Name == "TutorialExit");
-		}
-	}
+//	public override GConnector GetFinalConnection ()
+//	{
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		if((string)DataVault.Get("race_type") == "race") {
+//			return fs.Outputs.Find(r => r.Name == "FinishButton");
+//		} else {
+//			return fs.Outputs.Find(r => r.Name == "TutorialExit");
+//		}
+//	}
 		
 	void OnGUI() {
 		if(runReadyToStart) {

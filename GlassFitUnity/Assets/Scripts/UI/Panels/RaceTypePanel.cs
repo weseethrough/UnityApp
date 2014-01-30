@@ -20,40 +20,40 @@ public class RaceTypePanel : HexPanel {
 		
 		GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
-		HexButtonData hbd = GetButtonAt(0, 0);
-        //if we do not have button at provided coordinates we will create new button data for it
-        if (hbd == null)
-        {
-            hbd = new HexButtonData();
-			buttonData.Add(hbd);
-        }
-        else
-        {
-            //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-            GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
-            if (oldConnection != null)
-            {
-                gComponent.Data.Disconnect(oldConnection);
-                Outputs.Remove(oldConnection);
-            }
-        }
+//		HexButtonData hbd = GetButtonAt(0, 0);
+//        //if we do not have button at provided coordinates we will create new button data for it
+//        if (hbd == null)
+//        {
+//            hbd = new HexButtonData();
+//			buttonData.Add(hbd);
+//        }
+//        else
+//        {
+//            //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
+//            GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+//            if (oldConnection != null)
+//            {
+//                gComponent.Data.Disconnect(oldConnection);
+//                Outputs.Remove(oldConnection);
+//            }
+//        }
+//		
+//		hbd.row = 0;
+//		hbd.column = 0;
+//		hbd.buttonName = "TrackHex";
+//		hbd.textNormal = "Race a previous track";
+//		hbd.displayInfoData = false;
+//		
+//		GConnector gc = NewOutput(hbd.buttonName, "Flow");
+//		
+//		if(trackExit.Link.Count > 0) 
+//		{
+//			gc.EventFunction = "CheckTracks";
+//			gComponent.Data.Connect(gc, trackExit.Link[0]);
+//		}
 		
-		hbd.row = 0;
-		hbd.column = 0;
-		hbd.buttonName = "TrackHex";
-		hbd.textNormal = "Race a previous track";
-		hbd.displayInfoData = false;
 		
-		GConnector gc = NewOutput(hbd.buttonName, "Flow");
-		
-		if(trackExit.Link.Count > 0) 
-		{
-			gc.EventFunction = "CheckTracks";
-			gComponent.Data.Connect(gc, trackExit.Link[0]);
-		}
-		
-		
-		hbd = GetButtonAt(1, 0);
+		HexButtonData hbd = GetButtonAt(1, 0);
         //if we do not have button at provided coordinates we will create new button data for it
         if (hbd == null)
         {
@@ -78,7 +78,7 @@ public class RaceTypePanel : HexPanel {
 		hbd.textNormal = "Create a new track";
 		hbd.displayInfoData = false;
 		
-		gc = NewOutput(hbd.buttonName, "Flow");
+		GConnector gc = NewOutput(hbd.buttonName, "Flow");
 		
 		if(presetExit.Link.Count > 0) 
 		{
