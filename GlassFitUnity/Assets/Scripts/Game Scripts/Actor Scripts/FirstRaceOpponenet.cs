@@ -258,8 +258,10 @@ public class FirstRaceOpponenet : TargetController {
 			anim.speed = speed / 2.2f;
 		} else if(speed > 4.0f) {
 			anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2);
-		} else {
+		} else if(speed > 0) {
 			anim.speed = speed / 1.25f;
+		} else {
+			anim.speed = 1f;
 		}
 	}
 	
