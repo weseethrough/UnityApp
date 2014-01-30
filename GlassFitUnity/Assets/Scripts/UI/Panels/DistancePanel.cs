@@ -297,6 +297,12 @@ public class DistancePanel : HexPanel {
 			}
 		}
 			
+		if(hbd == null)
+		{
+			hbd = new HexButtonData();
+			buttonData.Add(hbd);
+		}
+		
 		hbd.column = -2;
 		hbd.row = 0;
 		hbd.buttonName = "CustomHex";
