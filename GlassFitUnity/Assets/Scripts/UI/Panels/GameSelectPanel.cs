@@ -274,13 +274,13 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, deleteExit.Link[0]);
 				}
 			}
-//			else if(games[i].type == "TrainRescue")
-//			{
-//				if(trainExit.Link.Count > 0)
-//				{
-//					gComponent.Data.Connect(gc, trainExit.Link[0]);
-//				}
-//			}
+			else if(games[i].type == "TrainRescue")
+			{
+				if(trainExit.Link.Count > 0)
+				{
+					gComponent.Data.Connect(gc, trainExit.Link[0]);
+				}
+			}
 
         }
 				

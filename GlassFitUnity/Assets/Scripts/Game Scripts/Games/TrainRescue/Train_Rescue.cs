@@ -272,7 +272,7 @@ public class Train_Rescue : GameBase {
 	
 	public override GConnector GetFinalConnection ()
 	{
-		if(bFailed)
+		if(bFailed || Platform.Instance.GetDistance() < finish)
 		{
 			DataVault.Set("train_subtitle", "\"Aaaaargh!\"");
 		}
