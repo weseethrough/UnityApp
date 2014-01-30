@@ -73,8 +73,6 @@ public class ChallengePanel : HexPanel {
 		
 		GetChallenges();		
 		
-		//AddFriendHexes();
-		
 		Platform.Instance.SyncToServer();
 		
 		DataVault.Set("tutorial_hint", "Syncing with the server");
