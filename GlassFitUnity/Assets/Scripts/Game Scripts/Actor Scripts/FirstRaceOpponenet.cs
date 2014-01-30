@@ -95,7 +95,7 @@ public class FirstRaceOpponenet : TargetController {
 			UnityEngine.Debug.Log("FirstRace: HeadStart closed. Dist:" + headStartDistance + " Time:" + timeInterval + " Speed:" + headStartSpeed);
 			
 			//start the coroutine to set the speed
-			UnityEngine.Debug.Log("FirstRace: Update is the culprit, player distance is " + playerDistance.ToString() + " and headstart distance is " + headStartDistance.ToString());
+			//UnityEngine.Debug.Log("FirstRace: Update is the culprit, player distance is " + playerDistance.ToString() + " and headstart distance is " + headStartDistance.ToString());
 			currentMovementSpeed = headStartSpeed;
 			StartCoroutine(UpdateSpeed());
 			StartCoroutine(UpdateDesiredLead());
@@ -130,7 +130,7 @@ public class FirstRaceOpponenet : TargetController {
 		currentMovementSpeed += acceleration;
 		
 		//don't let it go below walking pace
-		UnityEngine.Debug.Log("FirstRace: setSpeedToReachDesiredLead is the culprit");
+		//UnityEngine.Debug.Log("FirstRace: setSpeedToReachDesiredLead is the culprit");
 		currentMovementSpeed = Mathf.Max(1.25f, currentMovementSpeed);
 	}
 	
@@ -154,7 +154,7 @@ public class FirstRaceOpponenet : TargetController {
 		
 		//for last 500m, run at a little faster than player's average pace up to now.
 		float averageSpeed = playerDistance/ (Time.time - timeRunStarted);
-		UnityEngine.Debug.Log("FirstRace: UpdateSpeed is the culprit");
+		//UnityEngine.Debug.Log("FirstRace: UpdateSpeed is the culprit");
 		currentMovementSpeed = averageSpeed;
 		
 	}
@@ -259,7 +259,7 @@ public class FirstRaceOpponenet : TargetController {
 		} else if(speed > 4.0f) {
 			anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2);
 		} else {
-			anim.speed = speed / 1.0f;
+			anim.speed = speed / 1.25f;
 		}
 	}
 	

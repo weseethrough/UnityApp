@@ -65,18 +65,21 @@ public class TrackSelect : MonoBehaviour {
 		LoadTrack();
 		
 		tapHandler = new GestureHelper.OnTap(() => {
+			UnityEngine.Debug.Log("TrackSelect: setting track");
 			SetTrack();
 		});
 		
 		GestureHelper.onTap += tapHandler;
 		
 		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			UnityEngine.Debug.Log("TrackSelect: getting previous track");
 			PreviousTrack();
 		});
 		
 		GestureHelper.onSwipeLeft += leftHandler;
 		
 		rightHandler = new GestureHelper.OnSwipeRight(() => {
+			UnityEngine.Debug.Log("TrackSelect: getting next track");
 			NextTrack();
 		});
 		
@@ -97,6 +100,7 @@ public class TrackSelect : MonoBehaviour {
 		GestureHelper.onTap -= tapHandler;
 		GestureHelper.onSwipeLeft -= leftHandler;
 		GestureHelper.onSwipeRight -= rightHandler;
+		GestureHelper.onSwipeDown -= downHandler;
 	}
 	
 	public void NextTrack() 
@@ -180,11 +184,12 @@ public class TrackSelect : MonoBehaviour {
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
 		if(gConnect != null)
 		{
-			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-			fs.parentMachine.FollowConnection(gConnect);
 			GestureHelper.onTap -= tapHandler;
 			GestureHelper.onSwipeLeft -= leftHandler;
 			GestureHelper.onSwipeRight -= rightHandler;
+			GestureHelper.onSwipeDown -= downHandler;
+			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+			fs.parentMachine.FollowConnection(gConnect);
 		} else 
 		{
 			UnityEngine.Debug.Log("TrackSelect: Connection not found");

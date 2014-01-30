@@ -73,8 +73,6 @@ public class ChallengePanel : HexPanel {
 		
 		GetChallenges();		
 		
-		//AddFriendHexes();
-		
 		Platform.Instance.SyncToServer();
 		
 		DataVault.Set("tutorial_hint", "Syncing with the server");
@@ -94,6 +92,7 @@ public class ChallengePanel : HexPanel {
 			Platform.Instance.onAuthenticated += handler;	
 				
 			UnityEngine.Debug.Log("ChallengePanel: Need to authenticate");
+			DataVault.Set("tutorial_hint", "Authenticating device");
 			
 			Platform.Instance.Authorize("any", "login");
 			return;

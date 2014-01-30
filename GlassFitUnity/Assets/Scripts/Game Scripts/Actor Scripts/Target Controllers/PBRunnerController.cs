@@ -17,7 +17,7 @@ public class PBRunnerController : TargetController {
 	
 	void OnEnable() {
 		base.OnEnable();
-		base.SetAttribs(0, 1, transform.position.y, transform.position.z);
+		base.SetAttribs(0, 1, transform.position.y, transform.position.x);
 		
 #if !UNITY_EDITOR
 		anim = GetComponent<Animator>();
@@ -41,7 +41,7 @@ public class PBRunnerController : TargetController {
 	}
 	
 	void Update () {	
-		UnityEngine.Debug.Log("PBRunnerController: This is a PB Runner");
+		//UnityEngine.Debug.Log("PBRunnerController: This is a PB Runner");
 		base.Update();
 #if !UNITY_EDITOR
 		float newSpeed = target.PollCurrentSpeed();

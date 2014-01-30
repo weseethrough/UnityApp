@@ -355,6 +355,7 @@ public class ButtonFunctionCollection
 	static public bool StartPresetSpeed(FlowButton fb, Panel panel) {
 		//DataVault.Set("current_track", null);
 		//AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
+		
 		return true;
 	}
 	
@@ -365,7 +366,7 @@ public class ButtonFunctionCollection
 			DataVault.Set("lower_finish", 300);
 			//AutoFade.LoadLevel("TrainRescue", 0f, 1.0f, Color.black);
 		}
-		
+		DataVault.Remove("current_track");
 		switch(fb.name) 
 		{
 		case "1km":

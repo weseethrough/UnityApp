@@ -231,7 +231,10 @@ public class GameBase : MonoBehaviour {
 				GestureHelper.onTap -= tapHandler;
 				
 				tapHandler = new GestureHelper.OnTap(() => {
-					QuitGame();
+					hasEnded = true;
+					finalBonus = 0;
+					FinishGame();
+					GestureHelper.onTap -= tapHandler;
 				});
 				GestureHelper.onTap += tapHandler;
 			}		
@@ -305,16 +308,20 @@ public class GameBase : MonoBehaviour {
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
-			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+			countdown = false;
+			DataVault.Set("total", (Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance() + finalBonus).ToString("n0"));
+			DataVault.Set("distance_with_units", SiDistance(Platform.Instance.GetDistance()));
 			UnityEngine.Debug.Log("GameBase: setting points");
 			if(finish >= 1000) {
-				DataVault.Set("bonus", finalBonus); 
+				DataVault.Set("bonus", finalBonus.ToString("n0")); 
 			} else {
 				DataVault.Set("bonus", 0);
 			}
 			Platform.Instance.StopTrack();
 			GestureHelper.onSwipeDown -= downHandler;
 			GestureHelper.onTap -= tapHandler;
+			GestureHelper.onSwipeLeft -= leftHandler;
+			GestureHelper.onSwipeRight -= rightHandler;
 			
 			if(gConnect.Name == "TutorialExit") {
 				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
@@ -343,7 +350,7 @@ public class GameBase : MonoBehaviour {
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		} else {
-			UnityEngine.Debug.Log("Camera: No connection found - ContinueButton");
+			UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
 		}
 		GestureHelper.onTap -= tapHandler;
 	}
@@ -539,11 +546,11 @@ public class GameBase : MonoBehaviour {
 		double targetDistance = GetDistBehindForHud();
 
 		if (targetDistance > 0) {
-			DataVault.Set("ahead_header", "Behind!");
+			DataVault.Set("distance_position", "Behind!");
 			//DataVault.Set("ahead_col_header", "D20000FF");
 			DataVault.Set("ahead_col_box", "D230008B");
 		} else {
-			DataVault.Set("ahead_header", "Ahead!"); 
+			DataVault.Set("distance_position", "Ahead!"); 
 			DataVault.Set("ahead_col_box", "19D2008B");
 			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
@@ -690,7 +697,7 @@ public class GameBase : MonoBehaviour {
 	
 	//TODO move these to a utility class
 	protected string SiDistance(double meters) {
-		return SiDistanceUnitless(meters, "distanceunits") + DataVault.Get("distance_units");
+		return SiDistanceUnitless(meters, "distanceunits") + DataVault.Get("distanceunits");
 	}
 	
 	protected string SiDistanceUnitless(double meters, string units) {
