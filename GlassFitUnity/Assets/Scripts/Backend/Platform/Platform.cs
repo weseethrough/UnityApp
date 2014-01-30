@@ -1375,4 +1375,9 @@ public class Platform : MonoBehaviour {
 		}
 	}
 
+	void OnApplicationFocus(bool paused) {
+		if (initialised && paused && OnGlass()) {
+			Application.Quit();
+		}
+	}
 }
