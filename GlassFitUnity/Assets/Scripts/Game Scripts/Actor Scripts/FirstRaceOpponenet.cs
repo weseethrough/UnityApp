@@ -96,7 +96,6 @@ public class FirstRaceOpponenet : TargetController {
 	
 	/// <summary>
 	/// Updates the speed to guide towards current desired lead amount
-	/// Basically just smoothes out any changes in desired distance
 	/// </summary>
 	/// <returns>
 	/// The speed.
@@ -111,7 +110,7 @@ public class FirstRaceOpponenet : TargetController {
 
 		// accelerate / decelerate smoothly
 		// aim to converge in 5s time
-		float acceleration = 1.0f * Mathf.Sign (deltaLead) * Time.deltaTime;; // metres per second squared
+		float acceleration = 0.6f * Mathf.Sign (deltaLead) * Time.deltaTime; // metres per second squared
 		if (convergenceTime < 0)
 		{
 			// moving the wrong way
@@ -119,7 +118,7 @@ public class FirstRaceOpponenet : TargetController {
 		}
 		else
 		{
-			// moving the right way, speed inversely porportional to desiredLeadDistance
+			// moving the right way, speed proportional to deltaLead up to a max cap (slightly slower than the player can run)
 			if (currentMovementSpeed < Mathf.Min(deltaLead, 3.2f))
 			{
 				currentMovementSpeed += acceleration;
@@ -131,20 +130,20 @@ public class FirstRaceOpponenet : TargetController {
 		}
 
 		currentMovementSpeed = Mathf.Clamp(currentMovementSpeed, 0.0f, playerSpeed + 2.5f);
-		UnityEngine.Debug.Log("FirstRace: Set opponent speed to " + currentMovementSpeed);
+		//UnityEngine.Debug.Log("FirstRace: Set opponent speed to " + currentMovementSpeed);
 		
 	}
 	
 	/// <summary>
 	/// Updates the desired lead distance.
-	/// Start off behind, then speed up and overtake, then allow player to win
+	/// For now, the opponent will always aim to end up 20m in front of the player
 	/// </summary>
 	/// <returns>
 	/// The desired lead.
 	/// </returns>
 	void UpdateDesiredLead()
 	{
-		// opponent startes 10m ahead, then updates desired lead based on player speed
+		// opponent startes 20m ahead, then updates desired lead based on player speed
 		desiredLeadDistance = 20.0f;
 //		if (playerDistance < 7.0f) {
 //			// start, let player catch up
@@ -166,7 +165,7 @@ public class FirstRaceOpponenet : TargetController {
 //		}
 //		desiredLeadDistance = Mathf.Clamp(desiredLeadDistance, -20.0f, 20.0f);
 		
-		UnityEngine.Debug.Log("FirstRace: Set desired lead to " + desiredLeadDistance);
+		//UnityEngine.Debug.Log("FirstRace: Set desired lead to " + desiredLeadDistance);
 		
 	}
 		
