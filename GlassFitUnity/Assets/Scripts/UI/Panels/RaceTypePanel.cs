@@ -73,7 +73,7 @@ public class RaceTypePanel : HexPanel {
 		
 		//hbd = new HexButtonData();
 		hbd.row = 0;
-		hbd.column = 0;
+		hbd.column = 1;
 		hbd.buttonName = "PresetHex";
 		hbd.textNormal = "Create a new track";
 		hbd.displayInfoData = false;
@@ -82,6 +82,7 @@ public class RaceTypePanel : HexPanel {
 		
 		if(presetExit.Link.Count > 0) 
 		{
+			UnityEngine.Debug.Log("RaceTypePanel: preset exit found");
 			gc.EventFunction = "StartPresetSpeed";
 			gComponent.Data.Connect(gc, presetExit.Link[0]);
 		}

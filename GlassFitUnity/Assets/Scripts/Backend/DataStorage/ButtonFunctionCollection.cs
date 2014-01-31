@@ -118,7 +118,7 @@ public class ButtonFunctionCollection
 			int lowerFinish = 100;
 				
 			List<Track> trackList = Platform.Instance.GetTracks(finish, lowerFinish);
-			if(trackList != null) {
+			if(trackList != null && trackList.Count > 0) {
 				for(int i=0; i<friendList.Count; i++)
 				{
 					if(fb.name == friendList[i].guid)
