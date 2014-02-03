@@ -137,7 +137,17 @@ public class HexInfoManager : MonoBehaviour
                 contentBackground.transform.localPosition = pos;
 					
             }
-            else
+            else if(data.textSmall != string.Empty) 
+			{
+				string actionName = DataVault.Translate("Tap to toggle", null);
+				DataVault.Set("action_name", actionName);
+				buyNowGameObject.SetActive(false);
+
+                Vector3 pos = contentBackground.transform.localPosition;
+                pos.x = -165;
+                contentBackground.transform.localPosition = pos;
+			} 
+			else
             {
                 string actionName = DataVault.Translate("Tap to launch", null );
                 DataVault.Set("action_name", actionName);

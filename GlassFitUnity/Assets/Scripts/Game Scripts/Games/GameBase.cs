@@ -601,7 +601,7 @@ public class GameBase : MonoBehaviour {
 		string paceString = (pace > 20.0f || pace == 0.0f) ? "--:--" : TimestampMMSSnearestTenSecs(pace); // show dashes if slower than slow walk, otherwise round to nearest 10s
 		DataVault.Set("pace", paceString/* + "min/km"*/);
 		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance(), "distance_units"));
-		//DataVault.Set("time", TimestampMMSSfromMillis( ));
+		DataVault.Set("time", TimestampMMSSfromMillis(Platform.Instance.Time()));
 		DataVault.Set("indoor_text", indoorText);
 		
 		DataVault.Set("rawdistance", Platform.Instance.Distance());

@@ -214,7 +214,7 @@ public class FirstRaceOpponenet : TargetController {
 	void SetAnimSpeed(float speed)
 	{
 		//pick appropriate anim speed based on our movement speed.
-		UnityEngine.Debug.Log("FirstRace: speed is " + speed.ToString("f2"));
+		//UnityEngine.Debug.Log("FirstRace: speed is " + speed.ToString("f2"));
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f && speed < 4.0f) {
 			anim.speed = speed / 2.2f;
