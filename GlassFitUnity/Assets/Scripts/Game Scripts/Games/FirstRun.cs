@@ -63,7 +63,7 @@ public class FirstRun : GameBase {
 		//create actors for each target tracker
 		//InstantiateActors();
 		
-		SetReadyToStart(true);
+		//SetReadyToStart(true);
 	}
 	
 	protected void SetRunnerVisible(bool visible)

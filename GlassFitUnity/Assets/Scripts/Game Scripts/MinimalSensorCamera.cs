@@ -24,6 +24,13 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private bool noGrid = false;
 	private Vector3 scale;
 	
+	private float startZoom = -1f;
+	private float previousZoom = -1f;
+	
+	private float startPitch = -1f;
+	private float previousPitch = -1f;
+	private bool pitchActive = false;
+	
 	private bool indoor = false;
 	
 	private GestureHelper.TwoFingerTap twoHandler = null;
@@ -31,6 +38,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private GestureHelper.ThreeFingerTap threeHandler = null;
 	
 	static bool sensorRotationPaused = false;
+	
+	private bool fovActive = false;
 	
 	// Set the grid and scale values
 	void Start () {
@@ -63,6 +72,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 			GetComponentInChildren<WebCamBehaviour>().enabled = false;
 			GetComponentInChildren<KeepAliveBehaviour>().enabled = false;
 		}
+		
+		fovActive = Convert.ToBoolean(DataVault.Get("activity_fov"));
+		pitchActive = Convert.ToBoolean(DataVault.Get("activity_pitch"));
 	}
 	
 	void SetRearview() {
@@ -225,6 +237,60 @@ public class MinimalSensorCamera : MonoBehaviour {
 			}
 		}
 #endif
+		
+		if(fovActive) {
+			if(Platform.Instance.GetTouchCount() == 1)
+			{
+				Vector2? xChange = Platform.Instance.GetTouchInput();
+				if(xChange.HasValue)
+				{
+					if(startZoom != -1f) {
+						float addedValue = xChange.Value.x - previousZoom;
+						float newFOV = Camera.main.fieldOfView;
+						newFOV += addedValue * 60f;
+						UnityEngine.Debug.Log("MinimalSensorCamera: current FOV is " + newFOV.ToString("f2"));
+						Camera.main.fieldOfView = Mathf.Clamp(newFOV, 10f, 60f);
+					} 
+					else {
+						startZoom = xChange.Value.x;
+					}
+					previousZoom = xChange.Value.x;
+				}
+			}
+			else 
+			{
+				startZoom = -1f;
+				previousZoom = -1f;
+			}
+		}
+		
+		if(pitchActive) {
+			if(Platform.Instance.GetTouchCount() == 2)
+			{
+				Vector2? xChange = Platform.Instance.GetTouchInput();
+				if(xChange.HasValue)
+				{
+					if(startPitch != -1f)
+					{
+						float addedValue = xChange.Value.x - previousPitch;
+						float newPitch = Platform.Instance.GetPlayerOrientation().GetPitchOffset();
+						newPitch += addedValue * 40f;
+						UnityEngine.Debug.Log("MinimalSensorCamera: pitch is set to " + Mathf.Clamp(newPitch, -20f, 20f).ToString("f2"));
+						Platform.Instance.GetPlayerOrientation().SetPitchOffset(Mathf.Clamp(newPitch, -20f, 20f));
+					}
+					else
+					{
+						startPitch = xChange.Value.x;
+					}
+					previousPitch = xChange.Value.x;
+				}
+			}
+			else
+			{
+				startPitch = -1f;
+				previousPitch = -1f;
+			}
+		} 
 		
 		// If the timer and grid are on, countdown the timer and switch it off if the timer runs out
 		if(!noGrid) {

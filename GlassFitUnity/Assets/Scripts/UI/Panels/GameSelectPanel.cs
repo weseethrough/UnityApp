@@ -190,7 +190,7 @@ public class GameSelectPanel : HexPanel
                 }
             }
             
-            hbd.buttonName = games[i].iconName;
+            hbd.buttonName = games[i].gameId;
 			hbd.activityName = games[i].name;
 			hbd.activityContent = games[i].description;
 			hbd.activityPrice = (int)games[i].priceInPoints;
@@ -214,6 +214,27 @@ public class GameSelectPanel : HexPanel
 				hbd.textOverlay = string.Empty;
 			}
 			
+			if(games[i].type == "Mode")
+			{
+				bool mode = Convert.ToBoolean(DataVault.Get(games[i].gameId));
+				hbd.textNormal = games[i].name;
+				if(mode)
+				{
+					hbd.textSmall = "On";
+					if(games[i].name == "GPS Mode") {
+						Platform.Instance.SetIndoor(true);
+					}
+					UnityEngine.Debug.Log("GameSelectPanel: indoor set to true");
+				}
+				else
+				{
+					hbd.textSmall = "Off";
+					if(games[i].name == "GPS Mode") {
+						Platform.Instance.SetIndoor(false);
+					}
+					UnityEngine.Debug.Log("GameSelectPanel: indoor set to false");
+				}
+			}
 			
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
             gc.EventFunction = "SetType";
@@ -259,14 +280,14 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, celebExit.Link[0]);
 				}
 			}
-			else if(games[i].type == "Mode")
-			{
-				gc.EventFunction = "SetModeDesc";
-				if(modeExit.Link.Count > 0)
-				{
-					gComponent.Data.Connect(gc, modeExit.Link[0]);
-				}
-			}
+//			else if(games[i].type == "Mode")
+//			{
+//				gc.EventFunction = "SetModeDesc";
+//				if(modeExit.Link.Count > 0)
+//				{
+//					gComponent.Data.Connect(gc, modeExit.Link[0]);
+//				}
+//			}
 			else if(games[i].type == "Delete")
 			{
 				if(deleteExit.Link.Count > 0)
@@ -280,6 +301,10 @@ public class GameSelectPanel : HexPanel
 				{
 					gComponent.Data.Connect(gc, trainExit.Link[0]);
 				}
+			}
+			else if(games[i].type == "Mode")
+			{
+				gc.EventFunction = "SetMode";
 			}
 
         }

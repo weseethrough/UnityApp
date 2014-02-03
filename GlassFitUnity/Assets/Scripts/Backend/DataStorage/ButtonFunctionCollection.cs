@@ -359,6 +359,49 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
+	static public bool SetMode(FlowButton fb, Panel panel)
+	{
+		if(panel is HexPanel)
+		{
+			HexPanel hex = panel as HexPanel;
+			for(int i=0; i<hex.buttonData.Count; i++)
+			{
+				if(hex.buttonData[i].buttonName == fb.name)
+				{
+					bool mode = Convert.ToBoolean(DataVault.Get(fb.name));
+					UnityEngine.Debug.Log("ButtonFunc: mode value before is " + mode.ToString());
+					if(mode)
+					{
+						hex.buttonData[i].textSmall = "Off";
+						if(fb.name == "activity_indoor") {
+							UnityEngine.Debug.Log("ButtonFunc: indoor set to false");
+							Platform.Instance.SetIndoor(false);
+						}
+						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to false");
+						DataVault.Set(fb.name, false);
+					}
+					else
+					{
+						hex.buttonData[i].textSmall = "On";
+						if(fb.name == "activity_indoor") {
+							UnityEngine.Debug.Log("ButtonFunc: indoor set to true");
+							Platform.Instance.SetIndoor(true);
+						}
+						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to true");
+						DataVault.Set(fb.name, true);
+					}
+					hex.buttonData[i].markedForVisualRefresh = true;
+					DataVault.SaveToBlob();
+					DynamicHexList list = (DynamicHexList)hex.physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+        			list.UpdateButtonList();
+					UnityEngine.Debug.Log("ButtonFunc: updated hex list for indoor");
+					break;
+				}
+			}
+		}
+		return true;
+	}
+	
 	static public bool SetFinish(FlowButton fb, Panel panel)
 	{
 		if((string)DataVault.Get("race_type") == "trainRescue") {
@@ -431,28 +474,28 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
-	static public bool SetMode(FlowButton fb, Panel panel) 
-	{
-		string currentMode = (string)DataVault.Get("game_name");
-		
-		currentMode = currentMode.Replace(" ", "_");
-		
-		UnityEngine.Debug.Log("BFC: Name is: " + currentMode.ToLower());
-		
-		bool setting = (bool)DataVault.Get(currentMode.ToLower());
-		
-		if(setting) {
-			DataVault.Set("active_mode", "Tap to turn on");
-			setting = false;
-			DataVault.Set(currentMode.ToLower(), setting);
-		} else {
-			DataVault.Set("active_mode", "Tap to turn off");
-			setting = true;
-			DataVault.Set(currentMode.ToLower(), setting);
-		}
-		
-		return true;
-	}
+//	static public bool SetMode(FlowButton fb, Panel panel) 
+//	{
+//		string currentMode = (string)DataVault.Get("game_name");
+//		
+//		currentMode = currentMode.Replace(" ", "_");
+//		
+//		UnityEngine.Debug.Log("BFC: Name is: " + currentMode.ToLower());
+//		
+//		bool setting = (bool)DataVault.Get(currentMode.ToLower());
+//		
+//		if(setting) {
+//			DataVault.Set("active_mode", "Tap to turn on");
+//			setting = false;
+//			DataVault.Set(currentMode.ToLower(), setting);
+//		} else {
+//			DataVault.Set("active_mode", "Tap to turn off");
+//			setting = true;
+//			DataVault.Set(currentMode.ToLower(), setting);
+//		}
+//		
+//		return true;
+//	}
 	
     /// <summary>
     /// loads next game level and initializes game with some custom settings based on button pressed
@@ -498,14 +541,14 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>never allow further navigation</returns>
-	static public bool SetIndoor(FlowButton fb, Panel panel)
-	{
-//		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-//		ps.SetIndoor();
-		bool indoor = Platform.Instance.IsIndoor();
-		Platform.Instance.SetIndoor(!indoor);
-		return false;
-	}
+//	static public bool SetIndoor(FlowButton fb, Panel panel)
+//	{
+////		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
+////		ps.SetIndoor();
+//		bool indoor = Platform.Instance.IsIndoor();
+//		Platform.Instance.SetIndoor(!indoor);
+//		return false;
+//	}
 
     /// <summary>
     /// sets pursuit game mode to eagle mode

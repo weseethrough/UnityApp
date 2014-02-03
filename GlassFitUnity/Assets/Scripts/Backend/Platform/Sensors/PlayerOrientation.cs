@@ -12,6 +12,7 @@ public class PlayerOrientation
 
 	private Quaternion realWorldToPlayerRotation = Quaternion.identity;  // player's rotation from real-world co-ordinate system (north, east, up)
 	private Quaternion initialRotationOffset = Quaternion.identity;  // player's rotation when reset() was last called
+	private float pitchOffset = 0.0f; // degrees above/below pitch angle of glass unit to put game contents. e.g. -10 means everything will be rendered 10 degrees lower than normal.
 	private Quaternion playerOrientation = Quaternion.identity;  // player's rotation from when reset() was last called
 
 	private float yaw = 0f;
@@ -52,7 +53,7 @@ public class PlayerOrientation
 	public void Reset()
 	{
 		Vector3 realWorldYPR = OrientationUtils.QuaternionToYPR(realWorldToPlayerRotation); // returns yaw and pitch the wrong way round
-		Vector3 YPRoffset = new Vector3(realWorldYPR.z, -90.0f*Mathf.Deg2Rad, 0.0f);
+		Vector3 YPRoffset = new Vector3(realWorldYPR.z, (-90.0f-this.pitchOffset)*Mathf.Deg2Rad, 0.0f);
 		this.initialRotationOffset = OrientationUtils.YPRToQuaternion(YPRoffset); // feed above in reverese order to compensate
 
 		updatePlayerOrientation();  // we've changed the initial offset, so need to update this too
@@ -61,6 +62,24 @@ public class PlayerOrientation
 		UnityEngine.Debug.Log("PlayerOrientation reset");
 
 	}
+
+	// reset the player orientation to current device orientation
+	// future calls to the accessor methods will report offset from this position
+	// currently locked to the horizontal plane
+	public void SetPitchOffset(float pitchDegrees)
+	{
+		this.pitchOffset = pitchDegrees;
+
+		Vector3 currentYPR = OrientationUtils.QuaternionToYPR(initialRotationOffset);  // returns yaw and pitch the wrong way round
+		Vector3 newYPR = new Vector3(currentYPR.z, (-90.0f-this.pitchOffset)*Mathf.Deg2Rad, 0.0f); // same yaw, new pitch, zero roll
+		this.initialRotationOffset = OrientationUtils.YPRToQuaternion(newYPR);
+
+		updatePlayerOrientation();  // we've changed the initial offset, so need to update this too
+
+		UnityEngine.Debug.Log("PlayerOrientation pitch offset updated");
+
+	}
+
 
 	// update all relative values based on initial offset and realWorldToPlayerRotation
 	private void updatePlayerOrientation()
@@ -101,7 +120,7 @@ public class PlayerOrientation
 				// keep updating new yaw
 				float realWorldYaw = OrientationUtils.QuaternionToYPR(realWorldToPlayerRotation)[2];
 				autoResetYaw = autoResetYaw.HasValue ? 0.3f*autoResetYaw.Value + 0.7f*realWorldYaw : realWorldYaw;
-				Vector3 newOffset = new Vector3(autoResetYaw.Value, -90.0f*Mathf.Deg2Rad, 0.0f);
+				Vector3 newOffset = new Vector3(autoResetYaw.Value, (-90.0f-this.pitchOffset)*Mathf.Deg2Rad, 0.0f);
 				autoResetTo = OrientationUtils.YPRToQuaternion(newOffset);
 
 				// lerp the world round to new bearing
@@ -147,6 +166,11 @@ public class PlayerOrientation
 			autoResetYaw = null;
 			resetting = false;
 		}
+	}
+	
+	public float GetPitchOffset()
+	{
+		return pitchOffset;
 	}
 
 
