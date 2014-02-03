@@ -220,7 +220,7 @@ public class GameSelectPanel : HexPanel
 				hbd.textNormal = games[i].name;
 				if(mode)
 				{
-					hbd.textSmall = "Off";
+					hbd.textSmall = "On";
 					if(games[i].name == "GPS Mode") {
 						Platform.Instance.SetIndoor(true);
 					}
@@ -228,7 +228,7 @@ public class GameSelectPanel : HexPanel
 				}
 				else
 				{
-					hbd.textSmall = "On";
+					hbd.textSmall = "Off";
 					if(games[i].name == "GPS Mode") {
 						Platform.Instance.SetIndoor(false);
 					}
@@ -302,9 +302,9 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, trainExit.Link[0]);
 				}
 			}
-			else if(games[i].type == "Indoor")
+			else if(games[i].type == "Mode")
 			{
-				gc.EventFunction = "SetIndoor";
+				gc.EventFunction = "SetMode";
 			}
 
         }

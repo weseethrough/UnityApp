@@ -12,7 +12,7 @@ public class PlayerOrientation
 
 	private Quaternion realWorldToPlayerRotation = Quaternion.identity;  // player's rotation from real-world co-ordinate system (north, east, up)
 	private Quaternion initialRotationOffset = Quaternion.identity;  // player's rotation when reset() was last called
-	private float pitchOffset = 10.0f; // degrees above/below pitch angle of glass unit to put game contents. e.g. -10 means everything will be rendered 10 degrees lower than normal.
+	private float pitchOffset = 0.0f; // degrees above/below pitch angle of glass unit to put game contents. e.g. -10 means everything will be rendered 10 degrees lower than normal.
 	private Quaternion playerOrientation = Quaternion.identity;  // player's rotation from when reset() was last called
 
 	private float yaw = 0f;
@@ -166,6 +166,11 @@ public class PlayerOrientation
 			autoResetYaw = null;
 			resetting = false;
 		}
+	}
+	
+	public float GetPitchOffset()
+	{
+		return pitchOffset;
 	}
 
 

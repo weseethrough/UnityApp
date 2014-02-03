@@ -359,7 +359,7 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
-	static public bool SetIndoor(FlowButton fb, Panel panel)
+	static public bool SetMode(FlowButton fb, Panel panel)
 	{
 		if(panel is HexPanel)
 		{
@@ -369,11 +369,12 @@ public class ButtonFunctionCollection
 				if(hex.buttonData[i].buttonName == fb.name)
 				{
 					bool mode = Convert.ToBoolean(DataVault.Get(fb.name));
-					UnityEngine.Debug.Log("ButtonFunc: mode value is " + mode.ToString());
+					UnityEngine.Debug.Log("ButtonFunc: mode value before is " + mode.ToString());
 					if(mode)
 					{
-						hex.buttonData[i].textSmall = "On";
+						hex.buttonData[i].textSmall = "Off";
 						if(fb.name == "activity_indoor") {
+							UnityEngine.Debug.Log("ButtonFunc: indoor set to false");
 							Platform.Instance.SetIndoor(false);
 						}
 						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to false");
@@ -381,8 +382,9 @@ public class ButtonFunctionCollection
 					}
 					else
 					{
-						hex.buttonData[i].textSmall = "Off";
+						hex.buttonData[i].textSmall = "On";
 						if(fb.name == "activity_indoor") {
+							UnityEngine.Debug.Log("ButtonFunc: indoor set to true");
 							Platform.Instance.SetIndoor(true);
 						}
 						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to true");
@@ -472,28 +474,28 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
-	static public bool SetMode(FlowButton fb, Panel panel) 
-	{
-		string currentMode = (string)DataVault.Get("game_name");
-		
-		currentMode = currentMode.Replace(" ", "_");
-		
-		UnityEngine.Debug.Log("BFC: Name is: " + currentMode.ToLower());
-		
-		bool setting = (bool)DataVault.Get(currentMode.ToLower());
-		
-		if(setting) {
-			DataVault.Set("active_mode", "Tap to turn on");
-			setting = false;
-			DataVault.Set(currentMode.ToLower(), setting);
-		} else {
-			DataVault.Set("active_mode", "Tap to turn off");
-			setting = true;
-			DataVault.Set(currentMode.ToLower(), setting);
-		}
-		
-		return true;
-	}
+//	static public bool SetMode(FlowButton fb, Panel panel) 
+//	{
+//		string currentMode = (string)DataVault.Get("game_name");
+//		
+//		currentMode = currentMode.Replace(" ", "_");
+//		
+//		UnityEngine.Debug.Log("BFC: Name is: " + currentMode.ToLower());
+//		
+//		bool setting = (bool)DataVault.Get(currentMode.ToLower());
+//		
+//		if(setting) {
+//			DataVault.Set("active_mode", "Tap to turn on");
+//			setting = false;
+//			DataVault.Set(currentMode.ToLower(), setting);
+//		} else {
+//			DataVault.Set("active_mode", "Tap to turn off");
+//			setting = true;
+//			DataVault.Set(currentMode.ToLower(), setting);
+//		}
+//		
+//		return true;
+//	}
 	
     /// <summary>
     /// loads next game level and initializes game with some custom settings based on button pressed
