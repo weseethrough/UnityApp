@@ -178,11 +178,19 @@ public class GameBase : MonoBehaviour {
 //		});
 //		GestureHelper.onTap += handler;
 		
-		DataVault.Set("distance_units", "metres");
-		DataVault.Set("time_units", "m:s:ds");
+		DataVault.Set("distance_units", "M");
+		//DataVault.Set("time_units", "m:s:ds");
+
+        DataVault.Set("minutes_unit_short", "MIN");
+        DataVault.Set("seconds_unit_short", "SEC");
+        DataVault.Set("pace_unit_short", "MIN/KM");
+        DataVault.Set("calories_unit_short", "KCAL");
+        
 		
 		UnityEngine.Debug.Log("GameBase: started");
 		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
+
+        DataVault.Set("sweat_points_unit", "SWEAT POINTS");
 	}
 	
 	public void SetVirtualTrackVisible(bool visible)
@@ -546,12 +554,12 @@ public class GameBase : MonoBehaviour {
 		double targetDistance = GetDistBehindForHud();
 
 		if (targetDistance > 0) {
-			DataVault.Set("distance_position", "Behind!");
+			DataVault.Set("distance_position", "BEHIND");
 			//DataVault.Set("ahead_col_header", "D20000FF");
-			DataVault.Set("ahead_col_box", "D230008B");
+            DataVault.Set("ahead_col_box", "E5312FFF");
 		} else {
-			DataVault.Set("distance_position", "Ahead!"); 
-			DataVault.Set("ahead_col_box", "19D2008B");
+			DataVault.Set("distance_position", "AHEAD");
+            DataVault.Set("ahead_col_box", "009540FF");
 			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
 		//UnityEngine.Debug.Log("GameBase: distance behind is " + GetDistBehindForHud().ToString());
@@ -590,14 +598,27 @@ public class GameBase : MonoBehaviour {
 		
 		DataVault.Set("calories", Platform.Instance.Calories().ToString()/* + "kcal"*/);
 		float pace = SpeedToKmPace(Platform.Instance.Pace());
-		string paceString = (pace > 20.0f || pace == 0.0f) ? "--.--" : TimestampMMSSnearestTenSecs(pace); // show dashes if slower than slow walk, otherwise round to nearest 10s
+		string paceString = (pace > 20.0f || pace == 0.0f) ? "--:--" : TimestampMMSSnearestTenSecs(pace); // show dashes if slower than slow walk, otherwise round to nearest 10s
 		DataVault.Set("pace", paceString/* + "min/km"*/);
-		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance(), "distanceunits"));
-		DataVault.Set("time", TimestampMMSSfromMillis( Platform.Instance.Time()));
+		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance(), "distance_units"));
+		//DataVault.Set("time", TimestampMMSSfromMillis( ));
 		DataVault.Set("indoor_text", indoorText);
 		
 		DataVault.Set("rawdistance", Platform.Instance.Distance());
 		DataVault.Set("rawtime", Platform.Instance.Time());
+        DataVault.Set("sweat_points", string.Format("{0:N0}", Platform.Instance.GetCurrentPoints()));
+
+
+        TimeSpan span = TimeSpan.FromMilliseconds(Platform.Instance.Time());
+						
+			/*return string.Format("{0:0}:{1:00}", span.Minutes, span.Seconds);
+		} else {
+			DataVault.Set("time_units", "h:m:s");
+			return string.Format("{0:0}:{1:00}:{2:00}", span.Hours, span.Minutes, span.Seconds);
+		}*/
+
+        DataVault.Set("time_minutes_only", (int)(span.Minutes + span.Hours * 60));
+        DataVault.Set("time_seconds_only", string.Format("{0:00}" ,span.Seconds));
 		
 		//This is currently in the derived game class.
 		//UpdateLeaderboard();
@@ -697,7 +718,7 @@ public class GameBase : MonoBehaviour {
 	
 	//TODO move these to a utility class
 	protected string SiDistance(double meters) {
-		return SiDistanceUnitless(meters, "distanceunits") + DataVault.Get("distanceunits");
+		return SiDistanceUnitless(meters, "distanceunits") + DataVault.Get("distance_units");
 	}
 	
 	protected string SiDistanceUnitless(double meters, string units) {

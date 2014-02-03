@@ -748,9 +748,7 @@ public class GraphWindow : EditorWindow, IDraw
 
             if (parm.Value != newTypeValue && m_selection != null)
             {
-                parm.Value = newTypeValue;
-                Graph.Data.Disconnect(m_selection, GraphData.ConnectorDirection.Out);
-                m_selection.RebuildConnections();
+                parm.Value = newTypeValue;                
                 dirtySave = true;
             }
             EditorGUILayout.EndHorizontal();
@@ -1066,6 +1064,12 @@ public class GraphWindow : EditorWindow, IDraw
         m_showExitManager = EditorGUILayout.Foldout(m_showExitManager, "Exit Manager");
         if (m_showExitManager && m_selection != null)
         {
+            if (GUILayout.Button("Reset exits to panel default"))
+            {
+                Graph.Data.Disconnect(m_selection, GraphData.ConnectorDirection.Out);
+                m_selection.RebuildConnections();
+                dirtySave = true;
+            }
 
             m_exitManagerScroll = EditorGUILayout.BeginScrollView(m_exitManagerScroll);
             

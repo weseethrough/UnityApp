@@ -1,25 +1,28 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 /// <summary>
 /// component introducing string system for color representation. Used for database based color update
 /// </summary>
 [ExecuteInEditMode]
-public class UIColour : UIComponentSettings {
+public class UIColouredNeighbourWidget : UIComponentSettings
+{
+	private UIWidget widgetInstance;
 
     public string colorInt = "AABBAABB";
-    public string databaseIDName = "";        
-    
+    public string databaseIDName = "";
+
     public float r
     {
-        get 
-        { 
-            string sColor = colorInt.Substring(0,2);
+        get
+        {
+            string sColor = colorInt.Substring(0, 2);
             int color = Convert.ToInt32(sColor, 16);
-            return (float)(color) / (float)(0xFF); 
+            return (float)(color) / (float)(0xFF);
         }
-        set 
+        set
         {
             value = Mathf.Clamp(value, 0.0f, 1.0f);
             int color = Mathf.RoundToInt(value * 0xFF);
@@ -79,24 +82,48 @@ public class UIColour : UIComponentSettings {
         }
     }
 
-    //public Color sprite;
-	private UISprite spriteInstance;    
-	
+    /// <summary>
+    /// Do nothing on awake
+    /// </summary>
+    /// <returns></returns>
+    void Awake(){}
+
 	/// <summary>
-	/// default unity initialization function. Pulls data from color from sprite among children of the gameobject linked to the component
+	/// initializes component finding widget to control and setting colors...
 	/// </summary>
 	/// <returns></returns>
-	void Awake()
+	void Start()
 	{
-		UISprite[] sprites = GetComponentsInChildren<UISprite>();
-		
-		if (sprites.Length != 1 )
+        widgetInstance = GetComponent<UIWidget>();
+
+        if (widgetInstance == null)
+        {
+            Debug.LogError("Color system on widget expect widget to be dropped to this component inspector slot");
+            return;
+        }
+        UpdateFromWidget();
+        Register();
+    }     
+   
+	/// <summary>
+	/// sets color to linked sprite
+	/// </summary>
+	/// <param name="c">color which should be set to the component</param>
+	/// <returns></returns>
+	protected void SetColour(Color c)
+	{        
+        if (widgetInstance == null)
+        {
+            Debug.LogError("Instance not awakened");
+            return;
+        }
+        Vector4 col1 = widgetInstance.color;
+		Vector4 col2 = c;
+        if (widgetInstance != null && (col1 != col2))
 		{
-			Debug.LogError("Color system on buttons expect only one and minimum one sprite");
-			return;
+            widgetInstance.color = c;
+            widgetInstance.MarkAsChanged();
 		}
-		spriteInstance = sprites[0];
-		UpdateFromSprite();
 	}
 
     /// <summary>
@@ -108,45 +135,15 @@ public class UIColour : UIComponentSettings {
         return new Color(r, g, b, a);
     }
 
-    /// <summary>
-    /// builds vector from r, g, b, a components
-    /// </summary>
-    /// <returns>current color structure as a Vector4 </returns>
-    public Vector4 GetVector()
-    {
-        return new Vector4(r, g, b, a);
-    }
-
-	/// <summary>
-	/// sets color to linked sprite
-	/// </summary>
-	/// <param name="c">color which should be set to the component</param>
-	/// <returns></returns>
-    protected virtual void SetColour(Color c)
-	{
-        if (spriteInstance == null)
-        {
-            Debug.LogError("Instance not awakened");
-            return;
-        }
-		Vector4 col1 = spriteInstance.color;
-		Vector4 col2 = c;
-		if (spriteInstance != null && (col1 != col2))
-		{
-			spriteInstance.color = c;	
-			spriteInstance.MarkAsChanged();
-		}
-	}
-
 	/// <summary>
 	/// reads build in color values from sprite to UIColor component
 	/// </summary>
 	/// <returns></returns>
-	void UpdateFromSprite()
+    void UpdateFromWidget()
 	{
-        if (spriteInstance != null)
+        if (widgetInstance != null)
 		{
-			Color color = spriteInstance.color;
+            Color color = widgetInstance.color;
             r = color.r;
             g = color.g;
             b = color.b;
@@ -160,7 +157,8 @@ public class UIColour : UIComponentSettings {
     /// <returns></returns>
     override public void Apply()
     {
-        base.Apply();
+        //we don't want color functionality which makes us skip base.apply
+        //base.Apply();
         UpdateFromDatabase();
         SetColour(GetColor());
     }
@@ -171,7 +169,8 @@ public class UIColour : UIComponentSettings {
     /// <returns></returns>
     public override void Register()
     {
-        base.Register();
+        //we don't want color functionality which makes us skip base.Register
+        //base.Register();
         if (databaseIDName != null && databaseIDName != "")
         {
             DataVault.RegisterListner(this, databaseIDName);
@@ -198,5 +197,5 @@ public class UIColour : UIComponentSettings {
                 }
             }
         }
-    }    
+    }       
 }
