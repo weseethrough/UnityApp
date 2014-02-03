@@ -359,6 +359,47 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
+	static public bool SetIndoor(FlowButton fb, Panel panel)
+	{
+		if(panel is HexPanel)
+		{
+			HexPanel hex = panel as HexPanel;
+			for(int i=0; i<hex.buttonData.Count; i++)
+			{
+				if(hex.buttonData[i].buttonName == fb.name)
+				{
+					bool mode = Convert.ToBoolean(DataVault.Get(fb.name));
+					UnityEngine.Debug.Log("ButtonFunc: mode value is " + mode.ToString());
+					if(mode)
+					{
+						hex.buttonData[i].textSmall = "On";
+						if(fb.name == "activity_indoor") {
+							Platform.Instance.SetIndoor(false);
+						}
+						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to false");
+						DataVault.Set(fb.name, false);
+					}
+					else
+					{
+						hex.buttonData[i].textSmall = "Off";
+						if(fb.name == "activity_indoor") {
+							Platform.Instance.SetIndoor(true);
+						}
+						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to true");
+						DataVault.Set(fb.name, true);
+					}
+					hex.buttonData[i].markedForVisualRefresh = true;
+					DataVault.SaveToBlob();
+					DynamicHexList list = (DynamicHexList)hex.physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+        			list.UpdateButtonList();
+					UnityEngine.Debug.Log("ButtonFunc: updated hex list for indoor");
+					break;
+				}
+			}
+		}
+		return true;
+	}
+	
 	static public bool SetFinish(FlowButton fb, Panel panel)
 	{
 		if((string)DataVault.Get("race_type") == "trainRescue") {
@@ -498,14 +539,14 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>never allow further navigation</returns>
-	static public bool SetIndoor(FlowButton fb, Panel panel)
-	{
-//		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-//		ps.SetIndoor();
-		bool indoor = Platform.Instance.IsIndoor();
-		Platform.Instance.SetIndoor(!indoor);
-		return false;
-	}
+//	static public bool SetIndoor(FlowButton fb, Panel panel)
+//	{
+////		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
+////		ps.SetIndoor();
+//		bool indoor = Platform.Instance.IsIndoor();
+//		Platform.Instance.SetIndoor(!indoor);
+//		return false;
+//	}
 
     /// <summary>
     /// sets pursuit game mode to eagle mode

@@ -30,7 +30,7 @@ public class ChallengeGame : GameBase {
 		}
 		
 		SetVirtualTrackVisible(true);
-		SetReadyToStart(true);
+		//SetReadyToStart(true);
 	}
 	
 	public override GConnector GetFinalConnection()

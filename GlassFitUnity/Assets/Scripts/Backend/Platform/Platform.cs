@@ -1269,6 +1269,29 @@ public class Platform : MonoBehaviour {
 
 
 	// Poll java for touch input
+	// Returns the int number of fingers touching the pad
+	[MethodImpl(MethodImplOptions.Synchronized)]
+	public virtual int GetTouchCount()
+	{
+		if (OnGlass ()) {
+			try
+			{
+				return activity.Call<int> ("getTouchCount");
+	
+			}
+			catch(Exception e)
+			{
+				UnityEngine.Debug.LogWarning("Platform: Error getting touch count " + e.Message);
+				return 0;
+			}
+		} else {
+			//use unity's built-in input for now
+			return Input.touchCount;
+		}
+	}
+
+	// Poll java for touch input
+	// Returns (x,y) as floats between 0 and 1
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual Vector2? GetTouchInput()
 	{

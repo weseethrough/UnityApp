@@ -283,7 +283,8 @@ public class ChallengePanel : HexPanel {
 			hbd.buttonName = challengeNotifications[0].GetID();
 			hbd.textNormal = challengeNotifications[0].GetName();
 			hbd.textSmall = SiDistanceUnitless(challengeNotifications[0].GetTrack().distance);
-				
+			hbd.backgroundTileColor = 0x00A30EFF;	
+			
 			UnityEngine.Debug.Log("ChallengePanel: First button obtained, position is " + currentPosition.ToString());
 			
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
@@ -333,8 +334,8 @@ public class ChallengePanel : HexPanel {
 			MessageWidget.AddMessage("Sorry!", "You currently have no challenges", "activity_delete");
 		}
 		DataVault.Set("tutorial_hint", " ");
-		DataVault.Set("incoming", "Above are your incoming challenges");
-		DataVault.Set("to_challenge", "Below are the friends you can challenge");
+		DataVault.Set("incoming", "Incoming challenges");
+		DataVault.Set("to_challenge", "Challenge a friend");
 	}
 	
 	public void CalculatePosition() {
@@ -428,7 +429,7 @@ public class ChallengePanel : HexPanel {
 		}
 		//set the units string for the HUD
 		
-		return final + postfix;
+		return "\n" + final + postfix;
 	}
 	
 	public override void Exited ()
