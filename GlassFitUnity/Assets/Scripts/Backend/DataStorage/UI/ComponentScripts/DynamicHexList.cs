@@ -566,7 +566,7 @@ public class DynamicHexList : MonoBehaviour
             {
                 continue;
             }
-
+			
             GameObject tile = null;
             if (i >= buttons.Count)
             {
@@ -594,7 +594,7 @@ public class DynamicHexList : MonoBehaviour
                 fb.name = data.buttonName;
                 UIImageButton graphics = fb.GetComponentInChildren<UIImageButton>();
 
-                graphics.pressedSprite = data.imageName;
+				graphics.pressedSprite = data.imageName;
                 graphics.hoverSprite = graphics.pressedSprite;
                 graphics.normalSprite = graphics.pressedSprite;
                 graphics.disabledSprite = graphics.pressedSprite;
