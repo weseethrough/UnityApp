@@ -78,7 +78,7 @@ public class RaceTypePanel : HexPanel {
 		hbd.textNormal = "Create a new track";
 		hbd.displayInfoData = false;
 		
-		GConnector gc = NewOutput(hbd.buttonName, "Flow");
+		gc = NewOutput(hbd.buttonName, "Flow");
 		
 		if(presetExit.Link.Count > 0) 
 		{
