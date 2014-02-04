@@ -44,7 +44,7 @@ public class ThirdPersonCamera : MonoBehaviour {
 	void GoThird() {
 		if(!third) {
 			height = 0.3f;
-			zoom = -8f;
+			zoom = -5f;
 			third = true;
 			if(runner != null)
 			{

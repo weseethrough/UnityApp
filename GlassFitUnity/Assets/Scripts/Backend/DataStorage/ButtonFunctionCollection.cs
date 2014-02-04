@@ -374,8 +374,8 @@ public class ButtonFunctionCollection
 					{
 						hex.buttonData[i].textSmall = "Off";
 						if(fb.name == "activity_indoor") {
-							UnityEngine.Debug.Log("ButtonFunc: indoor set to false");
-							Platform.Instance.SetIndoor(false);
+							UnityEngine.Debug.Log("ButtonFunc: GPS is off (indoor)");
+							Platform.Instance.SetIndoor(true);
 						}
 						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to false");
 						DataVault.Set(fb.name, false);
@@ -384,8 +384,8 @@ public class ButtonFunctionCollection
 					{
 						hex.buttonData[i].textSmall = "On";
 						if(fb.name == "activity_indoor") {
-							UnityEngine.Debug.Log("ButtonFunc: indoor set to true");
-							Platform.Instance.SetIndoor(true);
+							UnityEngine.Debug.Log("ButtonFunc: GPS is on (not indoor)");
+							Platform.Instance.SetIndoor(false);
 						}
 						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to true");
 						DataVault.Set(fb.name, true);
