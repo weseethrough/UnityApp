@@ -71,7 +71,8 @@ public class SerializableSettings : ISerializable
             Component c = go.GetComponent(sc.name);
             if (c == null)
             {
-                c = go.AddComponent(sc.name);
+                break;
+                //c = go.AddComponent(sc.name);
             }
 
             FieldInfo[] fields = c.GetType().GetFields(bindingFlags);
