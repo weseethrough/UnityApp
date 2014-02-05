@@ -57,7 +57,7 @@ public class ThirdPersonController : MonoBehaviour {
 		if(animator != null)
 		{
 			float speed = Platform.Instance.Pace();
-			UnityEngine.Debug.Log("ThirdPersonController: speed is currently " + speed.ToString("f2"));
+			//UnityEngine.Debug.Log("ThirdPersonController: speed is currently " + speed.ToString("f2"));
 			animator.SetFloat("Speed", speed);
 			if(speed > 2.2f && speed < 4.0f) {
 				animator.speed = speed / 2.2f;
