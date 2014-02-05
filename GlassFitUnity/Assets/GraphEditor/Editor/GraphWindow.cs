@@ -23,6 +23,28 @@ public class GraphWindow : EditorWindow, IDraw
             m_dirtySave = value; 
         }
     }
+
+    bool m_dragMain;
+    bool m_drawInfo;
+    bool m_dragConnector;
+    bool m_selectionChanges;
+    bool m_showExitManager;
+
+    float m_zoomScale = 1.0f;
+
+    string m_newExitName;
+    Vector2 m_exitManagerScroll;
+
+    Vector2 m_dragStart;
+    Vector2 m_nodeStart; // Node.Postion at beginning of drag
+    Vector2 m_viewStart; // ViewPostion at beginning of drag
+    GNode m_selection;
+
+    Vector2 m_scrolableMenuPosition;
+
+    GConnector m_hoverConnector;
+    GConnector m_selectionConnector;
+    Vector2 m_dragPosition;
 	
 	[MenuItem("Window/Image Graph Editor")]
 	public static void Init ()
@@ -32,6 +54,9 @@ public class GraphWindow : EditorWindow, IDraw
 		window.wantsMouseMove = true;
 		UnityEngine.Object.DontDestroyOnLoad( window );
 		window.Show();
+        window.m_selection = null;
+        window.m_selectionConnector = null;
+
 	}
 	
 	void OnSelectionChange () { Repaint(); }
@@ -58,27 +83,7 @@ public class GraphWindow : EditorWindow, IDraw
 		}
 	}
 	
-	bool m_dragMain;
-    bool m_drawInfo;
-    bool m_dragConnector;
-    bool m_selectionChanges;
-    bool m_showExitManager;
-
-    float m_zoomScale = 1.0f;
-
-    string m_newExitName;
-    Vector2 m_exitManagerScroll;
-
-	Vector2 m_dragStart;
-	Vector2 m_nodeStart; // Node.Postion at beginning of drag
-	Vector2 m_viewStart; // ViewPostion at beginning of drag
-	GNode m_selection;
-
-    Vector2 m_scrolableMenuPosition;
-
-	GConnector m_hoverConnector;
-	GConnector m_selectionConnector;
-	Vector2 m_dragPosition;
+	
 		
 	GNode PickNode(Vector2 pos)
 	{
@@ -1354,7 +1359,7 @@ public class GraphWindow : EditorWindow, IDraw
     public void SaveGraph()
     {
 
-
+/*
         GraphComponent gc = Graph;            
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
@@ -1366,9 +1371,9 @@ public class GraphWindow : EditorWindow, IDraw
             }
             else
             {
-                flowDictionary.Set(gc.m_graph, "MainFlow");
+                flowDictionary.Set("MainFlow", gc.m_graph);
             }
-        }    
+        }    */
 
         DataStore.SaveStorage(DataStore.BlobNames.flow);
     }

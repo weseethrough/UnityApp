@@ -36,7 +36,15 @@ public class Panel : FlowState
         : base(info, ctxt)
 	{
         this.panelNodeData = (FlowPanelComponent)info.GetValue("panelNodeData", typeof(FlowPanelComponent));
-        this.panelNodeData.RefreshData();
+        if (this.panelNodeData != null)
+        {
+            this.panelNodeData.RefreshData();
+        }
+        else
+        {
+            int a = 0;
+        }
+        
     }
 
     /// <summary>
