@@ -9,6 +9,5 @@ activity_race_yourself,Race Yourself,activity_run,run,Race against your own avat
 activity_achievement,Achievements,activity_achievement,run,View your achievements and progress,Locked,2,5000,3,N/A,0,1
 activity_bolt_level1,Beat Bolt,activity_bolt_level1,run,Try to beat Bolt's 100m time,Locked,2,5000,3,N/A,1,0
 activity_zoom,Zoom,activity_zoom,all,Zoom in to get a better view of your competitors,Locked,3,5000,3,N/A,1,-1
-activity_indoor,GPS Mode,!none,run,Toggle indoor mode,Unlocked,1,0,0,Mode,1,1
+activity_park,Tag,activity_park,run,Play tag virtually with your friends,Locked,3,5000,5,N/A,1,1
 activity_heart,Heart-rate monitor,activity_heart,all,Connect to a heart-rate monitor,Locked,3,5000,4,N/A,2,0
-activity_fov,FOV test,!none,all,Change the FOV in game,Unlocked,1,0,0,Mode,0,2
