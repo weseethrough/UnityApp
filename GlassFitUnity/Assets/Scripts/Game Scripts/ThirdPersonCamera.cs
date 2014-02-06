@@ -69,10 +69,12 @@ public class ThirdPersonCamera : MonoBehaviour {
 		if(pitch > 0.0f)
 		{
 			UnityEngine.Debug.Log("ThirdPersonCamera: pitch is " + pitch.ToString("f2"));
+			height = Mathf.Clamp(0.3f - (3.0f * pitch), -3.0f, 0.3f);
 			zoom = Mathf.Clamp(-5.0f + (-5.0f * (pitch * 2)), -10.0f, -5.0f);
 		}
 		else
 		{
+			height = 0.3f;
 			zoom = -5.0f;
 		}
 	}
@@ -113,7 +115,6 @@ public class ThirdPersonCamera : MonoBehaviour {
 		if(!third) {
 			startMove = new Vector3(0,0,0);
 			SetZoomFromPitch();
-			height = 0.3f;
 			endMove = new Vector3(0, height, zoom);
 			StartCoroutine(MoveTo(startMove, endMove, 0.5f));
 			third = true;
