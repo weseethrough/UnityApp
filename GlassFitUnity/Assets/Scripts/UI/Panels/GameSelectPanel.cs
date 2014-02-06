@@ -222,7 +222,7 @@ public class GameSelectPanel : HexPanel
 				{
 					hbd.textSmall = "On";
 					if(games[i].name == "GPS Mode") {
-						Platform.Instance.SetIndoor(true);
+						Platform.Instance.SetIndoor(false);
 					}
 					UnityEngine.Debug.Log("GameSelectPanel: indoor set to true");
 				}
@@ -230,7 +230,7 @@ public class GameSelectPanel : HexPanel
 				{
 					hbd.textSmall = "Off";
 					if(games[i].name == "GPS Mode") {
-						Platform.Instance.SetIndoor(false);
+						Platform.Instance.SetIndoor(true);
 					}
 					UnityEngine.Debug.Log("GameSelectPanel: indoor set to false");
 				}

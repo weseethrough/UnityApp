@@ -829,4 +829,9 @@ public class GameBase : MonoBehaviour {
 		this.baseMultiplierStartTime = Time.time;
 		UnityEngine.Debug.Log("New base multiplier received:" + this.baseMultiplier);
 	}
+	
+	public bool IsReady()
+	{
+		return readyToStart;
+	}
 }

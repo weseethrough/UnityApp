@@ -13,19 +13,47 @@ public class ThirdPersonCamera : MonoBehaviour {
 	private bool third = false;
 	
 	public GameObject runner;
+	private GameBase game;
+	
+	private bool isChanging = false;
+	private bool moving = false;
+	
+	private Vector3 startMove;
+	private Vector3 endMove;
 	
 	void Start() {
 		
 		if(!Convert.ToBoolean(DataVault.Get("activity_fov"))){
 			leftHandler = new GestureHelper.OnSwipeLeft(() => {
-				GoThird();
+				if(game != null) {
+					if(game.IsReady() && !isChanging) 
+					{
+						GoThird();
+					}
+				}
+				else
+				{
+					UnityEngine.Debug.Log("ThirdPersonCamera: game is null");
+				}
 			});
 			
 			GestureHelper.onSwipeLeft += leftHandler;
 			
 			rightHandler = new GestureHelper.OnSwipeRight(() => {
-				GoFirst();
+				if(game != null) {
+					if(game.IsReady() && !isChanging) 
+					{
+						GoFirst();
+					}
+				}
+				else
+				{
+					UnityEngine.Debug.Log("ThirdPersonCamera: game is null");
+				}
+				
 			});
+			
+			game = GameObject.FindObjectOfType(typeof(GameBase)) as GameBase;
 			
 			GestureHelper.onSwipeRight += rightHandler;
 		}
@@ -35,16 +63,59 @@ public class ThirdPersonCamera : MonoBehaviour {
 		}
 	}
 	
+	void SetZoomFromPitch()
+	{
+		float pitch = Platform.Instance.GetPlayerOrientation().AsPitch();
+		if(pitch > 0.0f)
+		{
+			UnityEngine.Debug.Log("ThirdPersonCamera: pitch is " + pitch.ToString("f2"));
+			zoom = Mathf.Clamp(-5.0f + (-5.0f * (pitch * 2)), -10.0f, -5.0f);
+		}
+		else
+		{
+			zoom = -5.0f;
+		}
+	}
+	
+	IEnumerator MoveTo(Vector3 start, Vector3 end, float time)
+	{
+		isChanging = true;
+		float t = 0.0f;
+		while (t < 1.0f)
+		{
+			t += Time.deltaTime / time;
+			transform.localPosition = Vector3.Lerp(start, end, t);
+			yield return 0;
+		}
+		isChanging = false;
+		if(!third)
+		{
+			if(runner != null)
+			{
+				runner.SetActive(false);
+			}
+		}
+	}
+	
 	// Update is called once per frame
 	void Update () {
 		
-		transform.localPosition = new Vector3(0, height, zoom);
+		if(third) {
+			SetZoomFromPitch();
+		}
+		
+		if(!isChanging) {
+			transform.localPosition = new Vector3(0, height, zoom);
+		}
 	}
 	
 	void GoThird() {
 		if(!third) {
+			startMove = new Vector3(0,0,0);
+			SetZoomFromPitch();
 			height = 0.3f;
-			zoom = -8f;
+			endMove = new Vector3(0, height, zoom);
+			StartCoroutine(MoveTo(startMove, endMove, 0.5f));
 			third = true;
 			if(runner != null)
 			{
@@ -56,14 +127,14 @@ public class ThirdPersonCamera : MonoBehaviour {
 	void GoFirst() {
 		if(third)
 		{
+			startMove = new Vector3(0, height, zoom);
+			endMove = new Vector3(0,0,0);
+			StartCoroutine(MoveTo(startMove, endMove, 0.5f));
+			
 			height = 0.0f;
 			zoom = 0.0f;
 			third = false;
 			
-			if(runner != null)
-			{
-				runner.SetActive(false);
-			}
 		}
 	}
 	

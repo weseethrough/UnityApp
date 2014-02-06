@@ -102,7 +102,7 @@ public class RaceGame : GameBase {
 		
 		InstantiateActors();
 		
-		Platform.Instance.SetIndoor(true);
+		//Platform.Instance.SetIndoor(true);
 		SetReadyToStart(true);
 		SetVirtualTrackVisible(true);
 
