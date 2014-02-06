@@ -213,7 +213,7 @@ public class Platform : MonoBehaviour {
 					UnityEngine.Debug.Log("Platform: authorize complete");
 				}
 				
-				if (OnGlass()) {
+				if (IsRemoteDisplay()) {
 					BluetoothServer();
 				} else {
 					BluetoothClient();
@@ -307,14 +307,14 @@ public class Platform : MonoBehaviour {
 		UnityEngine.Debug.Log("Platform: OnBluetoothJson"); 
 		switch(json["action"]) {
 		case "LoadLevelFade":
-			if (OnGlass()) {
+			if (IsRemoteDisplay()) {
 //				DataVaultFromJson(json["data"]);
 //				if (json["levelName"] != null) AutoFade.LoadLevel(json["levelName"], 0f, 1.0f, Color.black); 			
 //				if (json["levelIndex"] != null) AutoFade.LoadLevel(json["levelIndex"].AsInt, 0f, 1.0f, Color.black); 			
 			}
 			break;
 		case "LoadLevelAsync":
-			if (OnGlass()) {
+			if (IsRemoteDisplay()) {
 				DataVaultFromJson(json["data"]);
 				FlowStateMachine.Restart("Restart Point");
 			}
@@ -502,6 +502,18 @@ public class Platform : MonoBehaviour {
 		}
 	}
 
+	public virtual bool IsRemoteDisplay() 
+    {
+		try {
+			//UnityEngine.Debug.Log("Platform: seeing if glass");
+			return helper_class.CallStatic<bool>("isRemoteDisplay");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: isRemoteDisplay() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+			return false;
+		}
+	}
+
     public virtual bool IsPluggedIn()
     {
 		try {
@@ -536,10 +548,10 @@ public class Platform : MonoBehaviour {
 		}
 	}
 	
-	public bool IsGlassRemote() {
+	public bool IsDisplayRemote() {
 		foreach(string peer in BluetoothPeers()) {
 			UnityEngine.Debug.LogWarning("Platform: BT peer: " + peer);
-			if (peer.Contains("Glass")) return true;
+			if (peer.Contains("Glass") || peer.Contains("Display")) return true;
 		}
 		return false;
 	}

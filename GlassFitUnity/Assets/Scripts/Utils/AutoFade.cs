@@ -146,7 +146,7 @@ public class AutoFade : MonoBehaviour {
     {
         if (Fading) return;
 
-		if (Platform.Instance.IsGlassRemote()) {
+		if (Platform.Instance.IsDisplayRemote()) {
             JSONObject json = new JSONObject();
 			json.AddField("action", "LoadLevelFade");
 			json.AddField("levelName", aLevelName);
@@ -198,7 +198,7 @@ public class AutoFade : MonoBehaviour {
     {
         if (Fading) return;
 		
-		if (Platform.Instance.IsGlassRemote()) {
+		if (Platform.Instance.IsDisplayRemote()) {
             JSONObject json = new JSONObject();
 			json.AddField("action", "LoadLevelFade");
 			json.AddField("levelIndex", aLevelIndex);

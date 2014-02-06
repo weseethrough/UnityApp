@@ -51,7 +51,7 @@ public class LoadingScreen : MonoBehaviour {
 			break;
 		}
 		
-		if (Platform.Instance.IsGlassRemote()) {
+		if (Platform.Instance.IsDisplayRemote()) {
             JSONObject json = new JSONObject();
 			json.AddField("action", "LoadLevelAsync");
 			
