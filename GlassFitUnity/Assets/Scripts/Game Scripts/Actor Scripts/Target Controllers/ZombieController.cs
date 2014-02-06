@@ -7,24 +7,41 @@ using System;
 /// <summary>
 /// Controls the position of the zombies
 /// </summary> 
-public class ZombieController : TargetController {
+public class ZombieController : MonoBehaviour {
+	
+	int health = 3;
+	
+	private Animator animator;
+	
+	private GestureHelper.DownSwipe downHandler = null;
+	
+	Vector3 direction;
+	
+	bool dead = false;
+	
+	float speed = 2.4f;
 	
 	/// <summary>
 	/// Start this instance. Sets the attributes
 	/// </summary>
 	void Start () {
-		// Initialise base and set the starting attributes.
-		base.Start();
-		SetAttribs(50, 135, -150f, 13.88668f);
-	}
-	
-	/// <summary>
-	/// Raises the enable event. Sets the attributes
-	/// </summary>
-	void OnEnable() {
-		// Enable the base and set the attributes
-		base.OnEnable();
-		SetAttribs(50, 135, -150f, 13.88668f);
+		
+		animator = GetComponent<Animator>();
+		
+		downHandler = new GestureHelper.DownSwipe(() => {
+			Application.Quit();
+		});
+		
+		GestureHelper.onSwipeDown += downHandler;
+		
+		float yRotation = UnityEngine.Random.Range(0f, 360f);
+		
+		transform.rotation = Quaternion.Euler(0, yRotation, 0);
+		
+		transform.position = transform.rotation * new Vector3(0, 0, -30);
+		
+		direction = Vector3.zero - transform.position;
+		direction.Normalize();
 	}
 	
 	/// <summary>
@@ -32,6 +49,47 @@ public class ZombieController : TargetController {
 	/// </summary>
 	void Update () {
 		// Update the base.
-		base.Update();
+		transform.position += (direction * speed) * Time.deltaTime;
+	}
+	
+	public void SetDead() {
+		
+		if(animator != null && !dead)
+		{
+			animator.SetBool("Dead", true);
+			StartCoroutine(RemoveDead());
+			dead = true;
+		}
+	
+	}
+	
+	IEnumerator RemoveDead()
+	{
+		yield return new WaitForSeconds(3.0f);
+		
+		Destroy(transform.gameObject);
+	}
+	
+	public void LoseHealth() {
+		health -= 1;
+		if(health == 0)
+		{
+			SetDead();
+		}
+	}
+	
+	public bool IsDead()
+	{
+		return dead;
+	}
+	
+	void OnDestroy()
+	{
+		GestureHelper.onSwipeDown -= downHandler;
+	}
+	
+	public void SetSpeed(float s)
+	{
+		speed = s;
 	}
 }
