@@ -78,14 +78,17 @@ public class GUICamera : MonoBehaviour {
     public void NonSensorNavigation()
     {
         Vector2 offset = Vector2.zero;
-
-        if (Input.touchCount == 1)
+		
+        if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Moved)
         {
-            offset = Input.touches[0].deltaPosition;
-
+            offset = Input.GetTouch(0).deltaPosition;
+		
             //makes height distance move to be distance of 3, and proportionally width (eg distance of 5-6)
             offset *= -20.0f / (float)Screen.height;
         }
+		else if (Input.multiTouchEnabled) {
+			// Don't continue to emulated mouse buttons
+		}
         else if (Input.GetMouseButtonDown(0))
         {
             draggingStartPos = Input.mousePosition;
