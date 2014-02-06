@@ -23,6 +23,28 @@ public class GraphWindow : EditorWindow, IDraw
             m_dirtySave = value; 
         }
     }
+
+    bool m_dragMain;
+    bool m_drawInfo;
+    bool m_dragConnector;
+    bool m_selectionChanges;
+    bool m_showExitManager;
+
+    float m_zoomScale = 1.0f;
+
+    string m_newExitName;
+    Vector2 m_exitManagerScroll;
+
+    Vector2 m_dragStart;
+    Vector2 m_nodeStart; // Node.Postion at beginning of drag
+    Vector2 m_viewStart; // ViewPostion at beginning of drag
+    GNode m_selection;
+
+    Vector2 m_scrolableMenuPosition;
+
+    GConnector m_hoverConnector;
+    GConnector m_selectionConnector;
+    Vector2 m_dragPosition;
 	
 	[MenuItem("Window/Image Graph Editor")]
 	public static void Init ()
@@ -32,6 +54,9 @@ public class GraphWindow : EditorWindow, IDraw
 		window.wantsMouseMove = true;
 		UnityEngine.Object.DontDestroyOnLoad( window );
 		window.Show();
+        window.m_selection = null;
+        window.m_selectionConnector = null;
+
 	}
 	
 	void OnSelectionChange () { Repaint(); }
@@ -58,25 +83,7 @@ public class GraphWindow : EditorWindow, IDraw
 		}
 	}
 	
-	bool m_dragMain;
-    bool m_drawInfo;
-    bool m_dragConnector;
-    bool m_selectionChanges;
-    bool m_showExitManager;
-
-    string m_newExitName;
-    Vector2 m_exitManagerScroll;
-
-	Vector2 m_dragStart;
-	Vector2 m_nodeStart; // Node.Postion at beginning of drag
-	Vector2 m_viewStart; // ViewPostion at beginning of drag
-	GNode m_selection;
-
-    Vector2 m_scrolableMenuPosition;
-
-	GConnector m_hoverConnector;
-	GConnector m_selectionConnector;
-	Vector2 m_dragPosition;
+	
 		
 	GNode PickNode(Vector2 pos)
 	{
@@ -225,15 +232,15 @@ public class GraphWindow : EditorWindow, IDraw
 	{
 		m_dragPosition = Event.current.mousePosition;
 		//Debug.Log("MouseDrag "+Event.current.button);
-		if (Event.current.button == 0) // && Event.current.modifiers == EventModifiers.Alt) || Event.current.button == 2)
+        if (Event.current.button == 0 || Event.current.button == 2) // && Event.current.modifiers == EventModifiers.Alt) || Event.current.button == 2)
 		{
 			if (m_selection != null)
 			{
                 if (!m_dragConnector || m_selectionConnector == null)
 				{
 					// Drag selected node(s)
-					Vector2 delta = Event.current.mousePosition - m_dragStart;
-					m_selection.Position = m_nodeStart + delta;
+                    Vector2 delta = Event.current.mousePosition- m_dragStart;
+                    m_selection.Position = m_nodeStart + delta * 1.0f / m_zoomScale;
                     if (m_selection is FlowState)
                     {                        
                         (m_selection as FlowState).UpdatePosition(false);
@@ -247,7 +254,7 @@ public class GraphWindow : EditorWindow, IDraw
 			else // drag world
 			{
 				Vector2 delta = Event.current.mousePosition - m_dragStart;
-				ViewPosition = m_viewStart - delta;
+                ViewPosition = m_viewStart - delta * 1.0f / m_zoomScale;
 			}
 			Repaint();
 			return;
@@ -258,7 +265,8 @@ public class GraphWindow : EditorWindow, IDraw
 	{
 		if (IsMainPoint(Event.current.mousePosition))
 		{
-			Vector2 pos = MouseToWorld(Event.current.mousePosition);
+            Vector2 mouse = Event.current.mousePosition * 1.0f / m_zoomScale;
+            Vector2 pos = MouseToWorld(mouse);
 			GNode node = PickNode(pos);
 			if (node != null)
 			{
@@ -282,12 +290,17 @@ public class GraphWindow : EditorWindow, IDraw
 	{
 		switch (Event.current.type)
 		{
-		/*case EventType.ScrollWheel:
-			// Todo: smooth zoom does not draw text correctly?
-			_zoom = (Event.current.delta.y < 0) ? Mathf.Max( 0.3f, _zoom-0.1f) : _zoom;
-			_zoom = (Event.current.delta.y > 0) ? Mathf.Min( 1.0f, _zoom+0.1f) : _zoom;
+		case EventType.ScrollWheel:
+            if (Event.current.delta.y > 0)
+            {
+                m_zoomScale =  Mathf.Max(0.2f, m_zoomScale - 0.1f);
+            }
+            else if (Event.current.delta.y < 0)
+            {
+                m_zoomScale = Mathf.Min(1.0f, m_zoomScale + 0.1f);
+            }            
 			Event.current.Use();
-			break;*/
+			break;
 		case EventType.MouseMove:
 			MainMouseMove();
 			break;
@@ -297,25 +310,40 @@ public class GraphWindow : EditorWindow, IDraw
 				MainDrag();
 				MainMouseMove();
 			}
-			break;
+			break;        
+
 		case EventType.MouseDown:
 			{
-				if (IsMainPoint(Event.current.mousePosition))
-				{
-					Vector2 pos = MouseToWorld(Event.current.mousePosition);
-					MainMouseDown(pos);
-				}
-				else
-				{
-					m_dragMain = false;
-				}
+                
+                if (IsMainPoint(Event.current.mousePosition))
+                {
+                    if (Event.current.button == 2)
+                    {
+                        m_dragMain = true;
+                        m_dragStart = Event.current.mousePosition;
+                        m_viewStart = ViewPosition;
+                        SelectNode(null);
+                    }
+                    else
+                    {
+                        Vector2 mouse = Event.current.mousePosition * 1.0f / m_zoomScale;
+                        Vector2 pos = MouseToWorld(mouse);
+                        MainMouseDown(pos);
+                    }
+                }
+                else
+                {
+                    m_dragMain = false;
+                }
+                
 			}			
 			break;
 		case EventType.MouseUp:
 			{
 				if (IsMainPoint(Event.current.mousePosition))
 				{
-					Vector2 pos = MouseToWorld(Event.current.mousePosition);
+                    Vector2 mouse = Event.current.mousePosition * 1.0f / m_zoomScale;
+                    Vector2 pos = MouseToWorld(mouse);
 					MainMouseUp(pos);
 				}
 				m_dragMain = false;
@@ -326,7 +354,7 @@ public class GraphWindow : EditorWindow, IDraw
 	
 	public void GuiLabel(Rect r, string text, GUIStyle style)
 	{
-		if (_zoom == 1.0f) // text is not scaling
+        if (m_zoomScale == 1.0f) // text is not scaling
 		{
 			GL.PushMatrix();
 			GL.LoadPixelMatrix(0,Screen.width-SideWidth,Screen.height-TopHeight,0);
@@ -380,14 +408,14 @@ public class GraphWindow : EditorWindow, IDraw
 
 		// Within the zoom area all coordinates are relative to the top left corner of the zoom area
         // with the width and height being scaled versions of the original/unzoomed area's width and height.
-        EditorZoomArea.Begin(_zoom, _zoomArea);
+        EditorZoomArea.Begin(m_zoomScale, _zoomArea);
 		
 		GL.PushMatrix();
 		
 		float vleft = ViewPosition.x;
-		float vright = vleft+w/_zoom;
+        float vright = vleft + w / m_zoomScale;
 		float vtop = ViewPosition.y;
-		float vbottom = vtop+h/_zoom;
+        float vbottom = vtop + h / m_zoomScale;
 		GL.LoadPixelMatrix(vleft,vright,vbottom,vtop);
 		
 		GL.Viewport(new Rect(0,0,w,h));
@@ -487,7 +515,7 @@ public class GraphWindow : EditorWindow, IDraw
 		{
 			Vector2 p1 = m_selectionConnector.GetPosition(data);
 			lineMaterial.SetPass( 0 );
-			Vector2 p2 = MouseToWorld(m_dragPosition);
+            Vector2 p2 = MouseToWorld(m_dragPosition * 1.0f / m_zoomScale);
 			GraphUtil.DrawLine(p1, p2+new Vector2(2,0), data.Style.HighlightConnectionLineColor, 2);
 		}
 		
@@ -612,7 +640,7 @@ public class GraphWindow : EditorWindow, IDraw
     private const float kZoomMax = 10.0f;
  
     private Rect _zoomArea = new Rect(0.0f, TopHeight, 600.0f, 400.0f);
-    private float _zoom = 1.0f;
+    //private float _zoom = 1.0f;
     //private Vector2 _zoomCoordsOrigin = Vector2.zero;
  	
 	// Size of right-side column
@@ -944,9 +972,10 @@ public class GraphWindow : EditorWindow, IDraw
             {
                 connector.EventFunction = "";
             }
-            else
+            else if (connector.EventFunction != names[index])
             {
-                connector.EventFunction = names[index];                
+                connector.EventFunction = names[index];
+                dirtySave = true;
             }
 
         EditorGUILayout.EndHorizontal();
@@ -1081,6 +1110,11 @@ public class GraphWindow : EditorWindow, IDraw
                 EditorGUILayout.LabelField(output.Name);
                 if (GUILayout.Button("X", GUILayout.MaxWidth(30)))
                 {
+                    
+
+                    GConnector conector = m_selection.Outputs[i];
+                    Graph.Data.Disconnect(conector);
+
                     m_selection.Outputs.RemoveAt(i);                    
                     if (m_selection is Panel)
                     {
@@ -1326,7 +1360,7 @@ public class GraphWindow : EditorWindow, IDraw
     public void SaveGraph()
     {
 
-
+/*
         GraphComponent gc = Graph;            
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
@@ -1338,9 +1372,9 @@ public class GraphWindow : EditorWindow, IDraw
             }
             else
             {
-                flowDictionary.Set(gc.m_graph, "MainFlow");
+                flowDictionary.Set("MainFlow", gc.m_graph);
             }
-        }    
+        }    */
 
         DataStore.SaveStorage(DataStore.BlobNames.flow);
     }

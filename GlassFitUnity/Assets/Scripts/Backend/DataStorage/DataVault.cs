@@ -89,10 +89,10 @@ public class DataVault : MonoBehaviour
             }
         }
 
-        s.dictionary.Set(intStorage, Types.Integer.ToString());
-        s.dictionary.Set(doubleStorage, Types.Double .ToString());
-        s.dictionary.Set(boolStorage, Types.Boolean .ToString());
-        s.dictionary.Set(stringStorage, Types.String .ToString());
+        s.dictionary.Set(Types.Integer.ToString(), intStorage    );
+        s.dictionary.Set(Types.Double .ToString(), doubleStorage );
+        s.dictionary.Set(Types.Boolean.ToString(), boolStorage   );
+        s.dictionary.Set(Types.String .ToString(), stringStorage );
 
         DataStore.SaveStorage(DataStore.BlobNames.persistent);
     }

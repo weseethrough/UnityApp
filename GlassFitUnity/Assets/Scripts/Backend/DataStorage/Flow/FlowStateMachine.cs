@@ -32,6 +32,8 @@ public class FlowStateMachine : MonoBehaviour
     {                     
         activeFlow = new List<FlowState>();
         targetState = null;
+
+        
         GraphComponent gc = GetComponent<GraphComponent>();
         if (gc != null)
         {                        
@@ -198,6 +200,71 @@ public class FlowStateMachine : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// Function which finds start node and navigates to it using generic GoToState function
+    /// </summary>
+    /// <returns></returns>
+    public void GoToStart()
+    {        
+        GraphComponent gc = GetComponent<GraphComponent>();
+        if (gc != null)
+        {
+            foreach (GNode node in gc.Data.Nodes)
+            {
+                if (node is Start)
+                {                    
+                    GoToState(node as Start);
+                    break;
+                }
+            }
+        }        
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="state">state instance which we want navigate to</param>
+    /// <returns>returns always true</returns>
+    public bool GoToState(FlowState state)
+    {
+        
+        if (!grabAnalyticsInitialized)
+        {
+            //use this to enable debug output
+            GrabBridge.ToggleLog(true);
+
+            GrabBridge.Start("pxeqexpldwfcwdp:faef0c81e352b38894b8df87:R7mg9jl2t4UOOWGxHTDh2Ys3KRHH/NOs0QAy9osBUEE=");
+
+            string userid = "tester";
+            GrabBridge.FirstLogin(userid);
+
+            grabAnalyticsInitialized = true;
+        }
+
+
+        JSONObject gameDetails = new JSONObject();
+        object type = DataVault.Get("type");
+        object log = DataVault.Get("warning_log");
+        DataVault.Set("warning_log", "");
+
+        gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
+        gameDetails.AddField("Game type", (string)type);
+        gameDetails.AddField("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
+        gameDetails.AddField("State live", (int)((Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000));
+        gameDetails.AddField("Custom Log", (string)log);
+
+        GrabBridge.CustomEvent("Flow state changed", gameDetails);
+
+        // Our own internal logging for analytics
+        gameDetails.AddField("Event type", "Flow state changed");
+        Platform.Instance.LogAnalytics(gameDetails);
+
+        ForbidBack();        
+        targetState = state;
+        targetStateConnector = null;
+        return true;        
     }
 
     /// <summary>

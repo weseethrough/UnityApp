@@ -64,11 +64,23 @@ public class Start : FlowState
 
     /// <summary>
     /// function called as soon as state enters to navigate to next state along default connection out
+    /// If GraphComponent is notified about flow switch Start will go idle and never recover. It is GraphComponent
+    /// responsibility to do whatever is needed to continue and call new start in another flow
     /// </summary>
     /// <returns></returns>
     public override void Entered()
     {
         base.Entered();
+        GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+        if (gc != null)
+        {
+            if (gc.GoToFlowStage2())
+            {
+                //flow is switching so we will not interfere with it and skip any build in progress
+                return;
+            }
+        }
+
         if (Outputs.Count > 0 && parentMachine != null)
         {
             parentMachine.FollowConnection(Outputs[0]);

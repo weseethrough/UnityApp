@@ -82,10 +82,10 @@ public class StorageDictionary : ISerializable
 	/// <summary>
 	/// changes or creates new key in dictionary
 	/// </summary>
-	/// <param name="obj">ISerialziation pointer to be included in dictionary</param>
-	/// <param name="name">object identification name</param>
+    /// <param name="name">object identification name</param>
+	/// <param name="obj">ISerialziation pointer to be included in dictionary</param>	
 	/// <returns>true if successfully add or changed</returns>
-	public bool Set(ISerializable obj, string name)
+	public bool Set(string name, ISerializable obj)
 	{
 		if (this.data.Count != this.name.Count)
 		{
@@ -129,6 +129,25 @@ public class StorageDictionary : ISerializable
 		
 		return false;		
 	}
+
+    public bool RemoveAt(int index)
+    {
+        if (this.data.Count != this.name.Count)
+        {
+            Debug.LogError("StorageDictionary out of sync!");
+            return false;
+        }
+
+        if (index >= 0 && this.data.Count > index)
+        {
+            this.name.RemoveAt(index);
+            this.data.RemoveAt(index);
+
+            return true;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// changes name identifier of the element in the dictionary

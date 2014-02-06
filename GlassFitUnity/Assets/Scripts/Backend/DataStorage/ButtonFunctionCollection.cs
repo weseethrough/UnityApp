@@ -954,4 +954,30 @@ public class ButtonFunctionCollection
         }
         return false;
     }
+
+    /// <summary>
+    /// Example flow navigation method 1
+    /// </summary>
+    /// <param name="button"></param>
+    /// <param name="panel"></param>
+    /// <returns></returns>
+    static public bool GoToFlow1(FlowButton button, Panel panel)
+    {
+        GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+        gc.GoToFlow("Flow1");
+        return false;
+    }
+
+    /// <summary>
+    /// Example flow navigation method 2
+    /// </summary>
+    /// <param name="button"></param>
+    /// <param name="panel"></param>
+    /// <returns></returns>
+    static public bool GoToFlow2(FlowButton button, Panel panel)
+    {
+        GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+        gc.GoToFlow("Flow2");
+        return false;
+    }
 }

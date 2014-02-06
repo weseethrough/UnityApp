@@ -237,7 +237,7 @@ public class UIEditorWindow : EditorWindow
             ISerializable structure = GetCurrentScreenStructure();
             if (structure != null)
             {
-                screensDictionary.Set(structure, screenName);
+                screensDictionary.Set(screenName, structure);
             }
         }
         BuildScreenList();
