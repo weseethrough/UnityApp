@@ -5,44 +5,74 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 [Serializable]
-public class MainPanel : Panel {
+public class GuardPanel : Panel {
+	
+	private GestureHelper.OnTap tapHandler = null;
+	private GestureHelper.DownSwipe quitHandler = null;
+	
+	public GuardPanel() {}
+	public GuardPanel(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt) {
+	}
+	
+	public override void EnterStart()
+    {		
+		object go = DataVault.Get("guarded_"+GetDisplayName());
+		if (go == null) go = false;
+		bool guard = (bool)go;
+		
+        if (Outputs.Count > 0 && parentMachine != null)
+        {
+            if (guard != null && guard == true) {
+				parentMachine.FollowConnection(Outputs[0]);
+				base.EnterStart();
+				return;
+			}
+        }
+        else
+        {
+            Debug.LogError("Dead end GuardPanel");
+        }
 
-	public MainPanel() {}
-	public MainPanel(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt) {
+		tapHandler = new GestureHelper.OnTap(() => {
+			GestureHelper.onTap -= tapHandler;		
+			GestureHelper.onSwipeDown -= quitHandler;
+			DataVault.Set("guarded_"+GetDisplayName(), true);
+			DataVault.SetPersistency("guarded_"+GetDisplayName(), true);
+			DataVault.SaveToBlob();
+			
+	        if (Outputs.Count > 0 && parentMachine != null)
+	        {
+				parentMachine.FollowConnection(Outputs[0]);
+				return;
+	        }
+	        else
+	        {
+	            Debug.LogError("Dead end GuardPanel tap");
+	        }
+		});		
+		GestureHelper.onTap += tapHandler;		
+		
+		quitHandler = new GestureHelper.DownSwipe(() => {
+			Application.Quit();
+		});
+		GestureHelper.onSwipeDown += quitHandler;
+		
+		base.EnterStart();
 	}
 	
-	protected override void Initialize()
+    /// <summary>
+    /// Gets display name of the node, helps with node identification in editor
+    /// </summary>
+    /// <returns>name of the node</returns>
+    public override string GetDisplayName()
     {
-        base.Initialize();
-	}
-	
-	public override void OnClick (FlowButton button)
-	{
-		UnityEngine.Debug.Log("Panel: Button is pressed");
-		base.OnClick (button);
-		
-		switch(button.name) {
-			
-		// If the settings button is pressed, it applies a black background to the screen and disables the minimap
-		case "SettingsButton":
-			UnityEngine.Debug.Log("Panel: finding game object");
-			
-			GameObject h = GameObject.Find("blackPlane");
-			UnityEngine.Debug.Log("Panel: Object found");
-			h.renderer.enabled = true;
-			
-			h = GameObject.Find("minimap");
-			h.renderer.enabled = false;
-			
-			UnityEngine.Debug.Log("Panel: Renderer Enabled");
-			break;
-		}
-	}
-	
-	public override void OnPress(FlowButton button, bool isDown) 
-	{
-		base.OnPress(button, isDown);
-		
-		
-	}
+        base.GetDisplayName();
+        
+        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        if (gName != null)
+        {
+            return "GuardPanel: " + gName.Value;
+        }
+        return "GuardPanel: UnInitialized";
+    }
 }
