@@ -235,7 +235,7 @@ public class Platform : MonoBehaviour {
 
 		// start listening for 2-tap gestures to reset gyros
 		GestureHelper.onTwoTap += new GestureHelper.TwoFingerTap(() => {
-            if (OnGlass())
+            if (IsRemoteDisplay())
             {
                 Platform.Instance.GetPlayerOrientation().Reset();
             }
