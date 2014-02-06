@@ -57,7 +57,7 @@ public class GUICamera : MonoBehaviour {
 	/// <returns></returns>
 	void Update () 
     {
-        if (!Platform.Instance.OnGlass())
+        if (!Platform.Instance.IsRemoteDisplay())
         {
             NonSensorNavigation();
         }
