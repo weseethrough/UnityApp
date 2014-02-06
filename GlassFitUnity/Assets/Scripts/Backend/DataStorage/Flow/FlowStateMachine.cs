@@ -202,6 +202,10 @@ public class FlowStateMachine : MonoBehaviour
         return false;
     }
 
+    /// <summary>
+    /// Function which finds start node and navigates to it using generic GoToState function
+    /// </summary>
+    /// <returns></returns>
     public void GoToStart()
     {        
         GraphComponent gc = GetComponent<GraphComponent>();
@@ -210,8 +214,7 @@ public class FlowStateMachine : MonoBehaviour
             foreach (GNode node in gc.Data.Nodes)
             {
                 if (node is Start)
-                {
-                    //state found, now we need to record will to go to another state as soon as start is reached
+                {                    
                     GoToState(node as Start);
                     break;
                 }
@@ -219,6 +222,11 @@ public class FlowStateMachine : MonoBehaviour
         }        
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="state">state instance which we want navigate to</param>
+    /// <returns>returns always true</returns>
     public bool GoToState(FlowState state)
     {
         

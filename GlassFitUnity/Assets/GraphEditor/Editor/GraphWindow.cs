@@ -972,9 +972,10 @@ public class GraphWindow : EditorWindow, IDraw
             {
                 connector.EventFunction = "";
             }
-            else
+            else if (connector.EventFunction != names[index])
             {
-                connector.EventFunction = names[index];                
+                connector.EventFunction = names[index];
+                dirtySave = true;
             }
 
         EditorGUILayout.EndHorizontal();
