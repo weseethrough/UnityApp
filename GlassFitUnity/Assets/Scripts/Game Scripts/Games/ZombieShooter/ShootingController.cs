@@ -9,6 +9,8 @@ public class ShootingController : MonoBehaviour {
 	
 	float reloadTime = 0.0f;
 	
+	ShootingProgress shootingIcon;
+	
 	// Use this for initialization
 	void Start () {
 		tapHandler = new GestureHelper.OnTap(() => {
@@ -29,6 +31,20 @@ public class ShootingController : MonoBehaviour {
 		else
 		{
 			UnityEngine.Debug.Log("Shooter: ZombieGUI object not found!");
+		}
+		
+		obj = GameObject.Find("LifeBar");
+		if(obj != null)
+		{
+			shootingIcon = obj.GetComponent<ShootingProgress>();
+			if(shootingIcon == null)
+			{
+				UnityEngine.Debug.Log("Shooter: icon not found!");
+			}
+		}
+		else
+		{
+			UnityEngine.Debug.Log("Shooter: icon object not found!");
 		}
 	}
 	
@@ -87,32 +103,65 @@ public class ShootingController : MonoBehaviour {
 		{
 			if(hit.collider.tag == "Head" || hit.collider.tag == "Body")
 			{
-				UnityEngine.Debug.Log("Shooter: Boom - headshot!");
-				reloadTime += Time.deltaTime;
-				if(reloadTime > 1.0f)
-				{
-					GameObject zombiePart = hit.transform.gameObject;
-					ZombieController zombie = zombiePart.transform.root.GetComponent<ZombieController>();
-					if(zombie != null) {
-						if(!zombie.IsDead()) {
+				UnityEngine.Debug.Log("Shooter: looking at one of the ugly SOB's!");
+				
+				GameObject zombiePart = hit.transform.gameObject;
+				ZombieController zombie = zombiePart.transform.root.GetComponent<ZombieController>();
+				
+				if(!zombie.IsDead()) {
+					UnityEngine.Debug.Log("Shooter: he alive, kill it quick!");
+					if(reloadTime == 0.0f)
+					{
+						if(shootingIcon != null)
+						{
+							UnityEngine.Debug.Log("Shooter: starting turning");
+							shootingIcon.StartTurning();
+						}
+						else
+						{
+							UnityEngine.Debug.Log("Shooter: our shooting icon is null");
+						}
+					}
+					reloadTime += Time.deltaTime;
+					if(reloadTime > 1.0f)
+					{
+						if(zombie != null) {
 							zombie.SetDead();
 							reloadTime = 0.0f;
+							if(shootingIcon != null)
+							{
+								shootingIcon.StopTurning();
+							}
+						} 
+						else
+						{
+							UnityEngine.Debug.Log("Shooter: zombie not found!");
 						}
-					} 
-					else
-					{
-						UnityEngine.Debug.Log("Shooter: zombie not found!");
 					}
+				}
+				else
+				{
+					UnityEngine.Debug.Log("Shooter: zed's dead baby, zed's dead");
 				}
 			}
 			else
 			{
 				reloadTime = 0.0f;
+				if(shootingIcon != null)
+				{
+					//UnityEngine.Debug.Log("Shooter: stopping turning");
+					shootingIcon.StopTurning();
+				}
 			}
 		}
 		else
 		{
 			reloadTime = 0.0f;
+			if(shootingIcon != null)
+			{
+				//UnityEngine.Debug.Log("Shooter: stopping turning");
+				shootingIcon.StopTurning();
+			}
 		}
 	}
 	

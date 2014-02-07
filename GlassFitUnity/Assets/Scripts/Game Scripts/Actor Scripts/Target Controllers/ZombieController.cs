@@ -26,7 +26,7 @@ public class ZombieController : MonoBehaviour {
 		
 		animator = GetComponent<Animator>();
 		
-		float yRotation = UnityEngine.Random.Range(0f, 360f);
+		float yRotation = UnityEngine.Random.Range(120f, 240f);
 		
 		transform.rotation = Quaternion.Euler(0, yRotation, 0);
 		

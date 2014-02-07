@@ -41,7 +41,6 @@ public class ZombieShootGame : GameBase {
 		GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
         gc.GoToFlow("Zombie Flow");
 		
-		
 	}
 	
 	// Update is called once per frame
