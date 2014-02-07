@@ -35,6 +35,9 @@ public class ResetGyrosScreenController : MonoBehaviour {
 	}
 	
 	IEnumerator FollowLink() {
+		//immediately hide the text
+		DataVault.Set("showResetGyroPrompt", false);
+		
 		//shuffle the progress bar along midway through the delay
 		yield return new WaitForSeconds(0.8f);
 				
