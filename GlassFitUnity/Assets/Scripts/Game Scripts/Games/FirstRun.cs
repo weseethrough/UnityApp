@@ -104,16 +104,16 @@ public class FirstRun : GameBase {
 //		}
 //	}
 		
-	void OnGUI() {
-		if(runReadyToStart) {
-			base.OnGUI();
-		}
-		
-		//if the user has swiped down to quit, and is seeing the quit confirmation box, dont' show anything here.
-		if(maybeQuit) {
-			base.OnGUI();
-		}
-	}
+//	void OnGUI() {
+//		if(runReadyToStart) {
+//			base.OnGUI();
+//		}
+//		
+//		//if the user has swiped down to quit, and is seeing the quit confirmation box, dont' show anything here.
+//		if(maybeQuit) {
+//			base.OnGUI();
+//		}
+//	}
 //	
 //	public override void GameHandleTap ()
 //	{

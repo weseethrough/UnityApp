@@ -13,8 +13,6 @@ public class ZombieController : MonoBehaviour {
 	
 	private Animator animator;
 	
-	private GestureHelper.DownSwipe downHandler = null;
-	
 	Vector3 direction;
 	
 	bool dead = false;
@@ -27,12 +25,6 @@ public class ZombieController : MonoBehaviour {
 	void Start () {
 		
 		animator = GetComponent<Animator>();
-		
-		downHandler = new GestureHelper.DownSwipe(() => {
-			Application.Quit();
-		});
-		
-		GestureHelper.onSwipeDown += downHandler;
 		
 		float yRotation = UnityEngine.Random.Range(0f, 360f);
 		
@@ -48,15 +40,39 @@ public class ZombieController : MonoBehaviour {
 	/// Update this instance.
 	/// </summary>
 	void Update () {
-		// Update the base.
-		transform.position += (direction * speed) * Time.deltaTime;
+		// Calculate the position based on the player's position.
+		if(!dead) {
+			transform.position += ((direction * speed) * Time.deltaTime) - ((new Vector3(0, 0, 1) * Platform.Instance.Pace()) * Time.deltaTime);
+			direction = Vector3.zero - transform.position;
+			direction.Normalize();
+			transform.rotation = Quaternion.LookRotation(direction);
+		}
 	}
-	
+		
 	public void SetDead() {
 		
 		if(animator != null && !dead)
 		{
 			animator.SetBool("Dead", true);
+			
+			GameObject obj = GameObject.Find("ZombieGUI");
+			if(obj != null)
+			{
+				ZombieShootGame game = obj.GetComponent<ZombieShootGame>();
+				if(game != null)
+				{
+					game.ReduceNumberOfZombies();
+				}
+				else
+				{
+					UnityEngine.Debug.Log("Shooter: game not found!");
+				}
+			}
+			else
+			{
+				UnityEngine.Debug.Log("Shooter: ZombieGUI object not found!");
+			}
+			
 			StartCoroutine(RemoveDead());
 			dead = true;
 		}
@@ -81,11 +97,6 @@ public class ZombieController : MonoBehaviour {
 	public bool IsDead()
 	{
 		return dead;
-	}
-	
-	void OnDestroy()
-	{
-		GestureHelper.onSwipeDown -= downHandler;
 	}
 	
 	public void SetSpeed(float s)

@@ -19,6 +19,14 @@ public class ShootingController : MonoBehaviour {
 		if(obj != null)
 		{
 			game = obj.GetComponent<ZombieShootGame>();
+			if(game == null)
+			{
+				UnityEngine.Debug.Log("Shooter: game not found!");
+			}
+		}
+		else
+		{
+			UnityEngine.Debug.Log("Shooter: ZombieGUI object not found!");
 		}
 	}
 	
@@ -37,14 +45,14 @@ public class ShootingController : MonoBehaviour {
 					
 					if(!zombie.IsDead()) {
 						zombie.SetDead();
-						if(game != null)
-						{
-							game.ReduceNumberOfZombies();
-						}
-						else
-						{
-							UnityEngine.Debug.Log("Shooter: game is null!");
-						}
+//						if(game != null)
+//						{
+//							game.ReduceNumberOfZombies();
+//						}
+//						else
+//						{
+//							UnityEngine.Debug.Log("Shooter: game is null!");
+//						}
 					}
 				} 
 				else
@@ -59,6 +67,17 @@ public class ShootingController : MonoBehaviour {
 				ZombieController zombie = zombiePart.transform.root.GetComponent<ZombieController>();
 				if(zombie != null) {
 					zombie.LoseHealth();
+					if(zombie.IsDead())
+					{
+//						if(game != null)
+//						{
+//							game.ReduceNumberOfZombies();
+//						}
+//						else
+//						{
+//							UnityEngine.Debug.Log("Shooter: game is null!");
+//						}
+					}
 				} 
 				else
 				{

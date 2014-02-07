@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerOrientation
 {
-	private const Boolean AUTO_RESET_ENABLED = true;
+	private const Boolean AUTO_RESET_ENABLED = false;
 	private const float AUTO_RESET_THRESHOLD = 0.270f; //  0.233 radians from straight ahead to the side to trigger auto-reset
 	private const float AUTO_RESET_HUD_THRESHOLD = 10.0f; // radians to side when looking up at HUD height. Anything over Mathf.PI will disable reset.
 	private const float AUTO_RESET_HUD_PITCH = 0.20f; // radians up to HUD from horizontal

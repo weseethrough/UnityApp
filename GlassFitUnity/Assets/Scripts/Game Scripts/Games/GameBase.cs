@@ -506,48 +506,48 @@ public class GameBase : MonoBehaviour {
 		return labelStyle;
 	}
 	
-	public virtual void OnGUI() {
-		// Set matrix, depth and various skin sizes
-		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
-		GUI.depth = 5;
-		
-		GUIStyle labelStyle = getLabelStyle();
+//	public virtual void OnGUI() {
+//		// Set matrix, depth and various skin sizes
+//		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
+//		GUI.depth = 5;
 //		
-//		if(pause)
-//		{
-//			labelStyle.fontSize = 60;
-//			GUI.Label(new Rect(250, 150, 300, 200), "PAUSED", labelStyle);
+//		GUIStyle labelStyle = getLabelStyle();
+////		
+////		if(pause)
+////		{
+////			labelStyle.fontSize = 60;
+////			GUI.Label(new Rect(250, 150, 300, 200), "PAUSED", labelStyle);
+////		}
+//		
+//		labelStyle.fontSize = 40;
+//		
+//		Rect messageRect = new Rect(250, 150, 300, 200);
+//		
+////		if(countdown && !pause)
+////		{
+////			// Get the current time rounded up
+////			int cur = Mathf.CeilToInt(countTime);
+////			
+////			// Display countdown on screen
+////			if(countTime > 0.0f)
+////			{
+////				GUI.Label(messageRect, cur.ToString(), labelStyle); 
+////			}
+////			else if(countTime > -1.0f && countTime < 0.0f)
+////			{
+////				GUI.Label(messageRect, "GO!", labelStyle); 
+////			}
+////		}
+//		
+//		GUI.matrix = Matrix4x4.identity;
+//		
+//		// Display a message if the multiplier has changed in the last second and a half
+//		// See NewBaseMultiplier method in this class for more detail on how this is set
+//		if(started && baseMultiplierStartTime > (Time.time - 1.5f)) {
+//			GUI.Label(messageRect, baseMultiplierString, labelStyle);
 //		}
-		
-		labelStyle.fontSize = 40;
-		
-		Rect messageRect = new Rect(250, 150, 300, 200);
-		
-//		if(countdown && !pause)
-//		{
-//			// Get the current time rounded up
-//			int cur = Mathf.CeilToInt(countTime);
-//			
-//			// Display countdown on screen
-//			if(countTime > 0.0f)
-//			{
-//				GUI.Label(messageRect, cur.ToString(), labelStyle); 
-//			}
-//			else if(countTime > -1.0f && countTime < 0.0f)
-//			{
-//				GUI.Label(messageRect, "GO!", labelStyle); 
-//			}
-//		}
-		
-		GUI.matrix = Matrix4x4.identity;
-		
-		// Display a message if the multiplier has changed in the last second and a half
-		// See NewBaseMultiplier method in this class for more detail on how this is set
-		if(started && baseMultiplierStartTime > (Time.time - 1.5f)) {
-			GUI.Label(messageRect, baseMultiplierString, labelStyle);
-		}
-	
-	}
+//	
+//	}
 	
 	protected void UpdateAhead() {
 
