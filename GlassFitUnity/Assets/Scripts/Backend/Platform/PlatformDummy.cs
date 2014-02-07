@@ -82,7 +82,11 @@ public class PlatformDummy : Platform
     {
         return false;
     }
-
+	public override bool IsRemoteDisplay()
+	{
+		return false;
+	}
+	
 	public void OnDestroy() 
 	{
 		applicationIsQuitting = true;
@@ -433,6 +437,11 @@ public class PlatformDummy : Platform
 	{
 		//do nothing
 		return;
+	}
+
+	
+	public override void Update ()
+	{		
 	}
 	
 }

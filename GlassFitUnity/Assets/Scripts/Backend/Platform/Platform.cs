@@ -284,7 +284,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public void OnRegistration(string message) {
-		onDeviceRegistered(message);
+		if (onDeviceRegistered != null) onDeviceRegistered(message);
 	}	
 	
 	public void OnActionIntent(string message) {
