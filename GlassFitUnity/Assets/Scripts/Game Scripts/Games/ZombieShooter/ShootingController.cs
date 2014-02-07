@@ -7,6 +7,8 @@ public class ShootingController : MonoBehaviour {
 	
 	ZombieShootGame game;
 	
+	float reloadTime = 0.0f;
+	
 	// Use this for initialization
 	void Start () {
 		tapHandler = new GestureHelper.OnTap(() => {
@@ -42,17 +44,8 @@ public class ShootingController : MonoBehaviour {
 				GameObject zombiePart = hit.transform.gameObject;
 				ZombieController zombie = zombiePart.transform.root.GetComponent<ZombieController>();
 				if(zombie != null) {
-					
 					if(!zombie.IsDead()) {
 						zombie.SetDead();
-//						if(game != null)
-//						{
-//							game.ReduceNumberOfZombies();
-//						}
-//						else
-//						{
-//							UnityEngine.Debug.Log("Shooter: game is null!");
-//						}
 					}
 				} 
 				else
@@ -66,17 +59,8 @@ public class ShootingController : MonoBehaviour {
 				GameObject zombiePart = hit.transform.gameObject;
 				ZombieController zombie = zombiePart.transform.root.GetComponent<ZombieController>();
 				if(zombie != null) {
-					zombie.LoseHealth();
-					if(zombie.IsDead())
-					{
-//						if(game != null)
-//						{
-//							game.ReduceNumberOfZombies();
-//						}
-//						else
-//						{
-//							UnityEngine.Debug.Log("Shooter: game is null!");
-//						}
+					if(!zombie.IsDead()) {
+						zombie.LoseHealth();
 					}
 				} 
 				else
@@ -84,7 +68,57 @@ public class ShootingController : MonoBehaviour {
 					UnityEngine.Debug.Log("Shooter: zombie not found!");
 				}
 			}
+			else
+			{
+				reloadTime = 0.0f;
+			}
 		}
+		else
+		{
+			reloadTime = 0.0f;
+		}
+	}
+	
+	void CheckLoadingCollisions() 
+	{
+		RaycastHit hit;
+		
+		if(Physics.Raycast(transform.position, transform.forward, out hit))
+		{
+			if(hit.collider.tag == "Head" || hit.collider.tag == "Body")
+			{
+				UnityEngine.Debug.Log("Shooter: Boom - headshot!");
+				reloadTime += Time.deltaTime;
+				if(reloadTime > 1.0f)
+				{
+					GameObject zombiePart = hit.transform.gameObject;
+					ZombieController zombie = zombiePart.transform.root.GetComponent<ZombieController>();
+					if(zombie != null) {
+						if(!zombie.IsDead()) {
+							zombie.SetDead();
+							reloadTime = 0.0f;
+						}
+					} 
+					else
+					{
+						UnityEngine.Debug.Log("Shooter: zombie not found!");
+					}
+				}
+			}
+			else
+			{
+				reloadTime = 0.0f;
+			}
+		}
+		else
+		{
+			reloadTime = 0.0f;
+		}
+	}
+	
+	void Update()
+	{
+		CheckLoadingCollisions();
 	}
 	
 	void OnDestroy() {
