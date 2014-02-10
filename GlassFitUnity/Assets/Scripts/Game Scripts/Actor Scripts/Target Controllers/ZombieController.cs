@@ -19,12 +19,16 @@ public class ZombieController : MonoBehaviour {
 	
 	float speed = 2.4f;
 	
+	AudioSource deathSound;
+	
 	/// <summary>
 	/// Start this instance. Sets the attributes
 	/// </summary>
 	void Start () {
 		
 		animator = GetComponent<Animator>();
+		
+		deathSound = GetComponent<AudioSource>();
 		
 		float yRotation = UnityEngine.Random.Range(120f, 240f);
 		
@@ -42,7 +46,17 @@ public class ZombieController : MonoBehaviour {
 	void Update () {
 		// Calculate the position based on the player's position.
 		if(!dead) {
-			transform.position += ((direction * speed) * Time.deltaTime) - ((new Vector3(0, 0, 1) * Platform.Instance.Pace()) * Time.deltaTime);
+			float pace = Platform.Instance.Pace();
+			if(pace > 0.8f) {
+				transform.position += ((direction * speed) * Time.deltaTime) - ((new Vector3(0, 0, 1) * pace) * Time.deltaTime);
+			}
+			else
+			{
+				if(transform.position.magnitude > 5.0f)
+				{
+					transform.position += ((direction * speed) * Time.deltaTime) - ((new Vector3(0, 0, 1) * pace) * Time.deltaTime);
+				}
+			}
 			direction = Vector3.zero - transform.position;
 			direction.Normalize();
 			transform.rotation = Quaternion.LookRotation(direction);
@@ -73,8 +87,14 @@ public class ZombieController : MonoBehaviour {
 				UnityEngine.Debug.Log("Shooter: ZombieGUI object not found!");
 			}
 			
+			if(deathSound != null)
+			{
+				deathSound.Play();
+			}
+			
 			StartCoroutine(RemoveDead());
 			dead = true;
+			speed = 0.0f;
 		}
 	
 	}

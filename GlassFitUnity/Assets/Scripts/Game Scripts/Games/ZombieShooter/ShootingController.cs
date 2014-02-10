@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class ShootingController : MonoBehaviour {
@@ -9,7 +9,9 @@ public class ShootingController : MonoBehaviour {
 	
 	float reloadTime = 0.0f;
 	
-	ShootingProgress shootingIcon;
+	ShrinkingReticle shootingIcon;
+	
+	AudioSource gunshot;
 	
 	// Use this for initialization
 	void Start () {
@@ -36,7 +38,7 @@ public class ShootingController : MonoBehaviour {
 		obj = GameObject.Find("LifeBar");
 		if(obj != null)
 		{
-			shootingIcon = obj.GetComponent<ShootingProgress>();
+			shootingIcon = obj.GetComponent<ShrinkingReticle>();
 			if(shootingIcon == null)
 			{
 				UnityEngine.Debug.Log("Shooter: icon not found!");
@@ -46,6 +48,8 @@ public class ShootingController : MonoBehaviour {
 		{
 			UnityEngine.Debug.Log("Shooter: icon object not found!");
 		}
+		
+		gunshot = GetComponent<AudioSource>();
 	}
 	
 	void CheckCollisions() 
@@ -62,6 +66,10 @@ public class ShootingController : MonoBehaviour {
 				if(zombie != null) {
 					if(!zombie.IsDead()) {
 						zombie.SetDead();
+						if(gunshot != null)
+						{
+							gunshot.Play();
+						}
 					}
 				} 
 				else
@@ -72,11 +80,16 @@ public class ShootingController : MonoBehaviour {
 			else if(hit.collider.tag == "Body")
 			{
 				UnityEngine.Debug.Log("Shooter: Shot to the body");
+				
 				GameObject zombiePart = hit.transform.gameObject;
 				ZombieController zombie = zombiePart.transform.root.GetComponent<ZombieController>();
 				if(zombie != null) {
 					if(!zombie.IsDead()) {
 						zombie.LoseHealth();
+						if(gunshot != null)
+						{
+							gunshot.Play();
+						}
 					}
 				} 
 				else
@@ -131,6 +144,10 @@ public class ShootingController : MonoBehaviour {
 							if(shootingIcon != null)
 							{
 								shootingIcon.StopTurning();
+							}
+							if(gunshot != null)
+							{
+								gunshot.Play();
 							}
 						} 
 						else

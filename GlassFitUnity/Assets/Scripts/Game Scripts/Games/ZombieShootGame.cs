@@ -15,7 +15,10 @@ public class ZombieShootGame : GameBase {
 	
 	private float levelUpTime = 30.0f;
 	
-	private float speed = 2.4f;
+	private float speed = 1.5f;
+	
+	private int currentLevel = 1;
+	private int maxLevel = 10;
 	
 	//private GestureHelper.DownSwipe downHandler = null;
 	
@@ -50,20 +53,21 @@ public class ZombieShootGame : GameBase {
 		currentTime += Time.deltaTime;
 		totalTime += Time.deltaTime;
 		
-		if(totalTime > levelUpTime)
+		if(totalTime > levelUpTime && currentLevel < maxLevel)
 		{
-			levelUpTime += 30.0f;
-			speed += 0.5f;
-			if(spawnTime > 2.0f)
+			levelUpTime += 45.0f;
+			speed += 0.1f;
+			if(spawnTime > 3.0f)
 			{
-				spawnTime -= 1.0f;
+				spawnTime -= 0.5f;
 			}
+			currentLevel++;
 		}
 		
 		if(currentTime > spawnTime)
 		{
 			currentTime -= spawnTime;
-			if(numberOfZombies < 20)
+			if(numberOfZombies < 6)
 			{
 				UnityEngine.Debug.Log("Zombie: adding a zombie");
 				AddZombie();
