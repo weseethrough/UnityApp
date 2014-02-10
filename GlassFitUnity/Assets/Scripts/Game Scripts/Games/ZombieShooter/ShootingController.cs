@@ -8,10 +8,15 @@ public class ShootingController : MonoBehaviour {
 	ZombieShootGame game;
 	
 	float reloadTime = 0.0f;
+	float fireTime = 0.75f;
 	
 	ShrinkingReticle shootingIcon;
 	
+	GameObject reticle;
+	
 	AudioSource gunshot;
+	
+	UITexture reticleTexture;
 	
 	// Use this for initialization
 	void Start () {
@@ -50,6 +55,20 @@ public class ShootingController : MonoBehaviour {
 		}
 		
 		gunshot = GetComponent<AudioSource>();
+		
+		reticle = GameObject.Find("Crosshair");
+		if(reticle != null)
+		{
+			reticleTexture = reticle.GetComponent<UITexture>();
+			if(reticleTexture == null)
+			{
+				UnityEngine.Debug.Log("Shooter: Can't find UI texture");
+			}
+		}
+		else
+		{
+			UnityEngine.Debug.Log("Shooter: Can't find the crosshair!");
+		}
 	}
 	
 	void CheckCollisions() 
@@ -58,6 +77,11 @@ public class ShootingController : MonoBehaviour {
 		
 		if(Physics.Raycast(transform.position, transform.forward, out hit))
 		{
+			if(gunshot != null)
+			{
+				gunshot.Play();
+			}
+			
 			if(hit.collider.tag == "Head")
 			{
 				UnityEngine.Debug.Log("Shooter: Boom - headshot!");
@@ -66,10 +90,6 @@ public class ShootingController : MonoBehaviour {
 				if(zombie != null) {
 					if(!zombie.IsDead()) {
 						zombie.SetDead();
-						if(gunshot != null)
-						{
-							gunshot.Play();
-						}
 					}
 				} 
 				else
@@ -86,10 +106,6 @@ public class ShootingController : MonoBehaviour {
 				if(zombie != null) {
 					if(!zombie.IsDead()) {
 						zombie.LoseHealth();
-						if(gunshot != null)
-						{
-							gunshot.Play();
-						}
 					}
 				} 
 				else
@@ -117,12 +133,13 @@ public class ShootingController : MonoBehaviour {
 			if(hit.collider.tag == "Head" || hit.collider.tag == "Body")
 			{
 				UnityEngine.Debug.Log("Shooter: looking at one of the ugly SOB's!");
-				
+								
 				GameObject zombiePart = hit.transform.gameObject;
 				ZombieController zombie = zombiePart.transform.root.GetComponent<ZombieController>();
 				
 				if(!zombie.IsDead()) {
 					UnityEngine.Debug.Log("Shooter: he alive, kill it quick!");
+					ChangeReticleColour(Color.red);
 					if(reloadTime == 0.0f)
 					{
 						if(shootingIcon != null)
@@ -136,7 +153,7 @@ public class ShootingController : MonoBehaviour {
 						}
 					}
 					reloadTime += Time.deltaTime;
-					if(reloadTime > 1.0f)
+					if(reloadTime > fireTime)
 					{
 						if(zombie != null) {
 							zombie.SetDead();
@@ -149,6 +166,8 @@ public class ShootingController : MonoBehaviour {
 							{
 								gunshot.Play();
 							}
+							Destroy(hit.collider);
+							StartCoroutine(PopReticle());
 						} 
 						else
 						{
@@ -166,7 +185,7 @@ public class ShootingController : MonoBehaviour {
 				reloadTime = 0.0f;
 				if(shootingIcon != null)
 				{
-					//UnityEngine.Debug.Log("Shooter: stopping turning");
+					ChangeReticleColour(Color.white);
 					shootingIcon.StopTurning();
 				}
 			}
@@ -176,7 +195,7 @@ public class ShootingController : MonoBehaviour {
 			reloadTime = 0.0f;
 			if(shootingIcon != null)
 			{
-				//UnityEngine.Debug.Log("Shooter: stopping turning");
+				ChangeReticleColour(Color.white);
 				shootingIcon.StopTurning();
 			}
 		}
@@ -189,5 +208,37 @@ public class ShootingController : MonoBehaviour {
 	
 	void OnDestroy() {
 		GestureHelper.onTap -= tapHandler;
+	}
+	
+	void ChangeReticleColour(Color color)
+	{
+		if(reticleTexture != null)
+		{
+			reticleTexture.color = color;
+		}
+		else
+		{
+			UnityEngine.Debug.Log("Shooter: reticle is null, finding again");
+			reticle = GameObject.Find("Crosshair");
+			if(reticle != null)
+			{
+				reticleTexture = reticle.GetComponent<UITexture>();
+				if(reticleTexture == null)
+				{
+					UnityEngine.Debug.Log("Shooter: Can't find UI texture");
+				}
+			}
+			else
+			{
+				UnityEngine.Debug.Log("Shooter: Can't find the crosshair!");
+			}
+		}
+	}
+	
+	IEnumerator PopReticle()
+	{
+		reticle.transform.localScale = new Vector3(1.15f, 1.15f, 1.15f);
+		yield return null;
+		reticle.transform.localScale = Vector3.one;
 	}
 }

@@ -20,7 +20,7 @@ public class ZombieShootGame : GameBase {
 	private int currentLevel = 1;
 	private int maxLevel = 10;
 	
-	//private GestureHelper.DownSwipe downHandler = null;
+	private int zombiesKilled = 0;
 	
 	// Use this for initialization
 	void Start () {
@@ -55,11 +55,11 @@ public class ZombieShootGame : GameBase {
 		
 		if(totalTime > levelUpTime && currentLevel < maxLevel)
 		{
-			levelUpTime += 45.0f;
-			speed += 0.1f;
-			if(spawnTime > 3.0f)
+			levelUpTime += 30.0f;
+			speed += 0.5f;
+			if(spawnTime > 2.0f)
 			{
-				spawnTime -= 0.5f;
+				spawnTime -= 1.0f;
 			}
 			currentLevel++;
 		}
@@ -88,7 +88,7 @@ public class ZombieShootGame : GameBase {
 			}
 			numberOfZombies++;
 			UnityEngine.Debug.Log("Zombie: new zombie added, total is now " + numberOfZombies.ToString());
-			DataVault.Set("current_zombies", "Number of zombies: " + numberOfZombies);
+			DataVault.Set("current_zombies", "Number of zombies killed: " + zombiesKilled);
 		}
 		else
 		{
@@ -105,7 +105,8 @@ public class ZombieShootGame : GameBase {
 	public void ReduceNumberOfZombies()
 	{
 		numberOfZombies--;
-		DataVault.Set("current_zombies", "Number of zombies: " + numberOfZombies);
-		UnityEngine.Debug.Log("Zombie: zombie removed, total is now " + numberOfZombies.ToString());
+		zombiesKilled++;
+		DataVault.Set("current_zombies", "Number of zombies killed: " + zombiesKilled);
+		UnityEngine.Debug.Log("Zombie: zombie removed, total killed is now " + zombiesKilled.ToString());
 	}
 }

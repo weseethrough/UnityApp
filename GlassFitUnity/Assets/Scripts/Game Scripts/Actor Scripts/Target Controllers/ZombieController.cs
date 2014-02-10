@@ -21,6 +21,8 @@ public class ZombieController : MonoBehaviour {
 	
 	AudioSource deathSound;
 	
+	GameObject marker;
+	
 	/// <summary>
 	/// Start this instance. Sets the attributes
 	/// </summary>
@@ -38,6 +40,8 @@ public class ZombieController : MonoBehaviour {
 		
 		direction = Vector3.zero - transform.position;
 		direction.Normalize();
+		
+		marker = transform.Find("Pointer").gameObject;
 	}
 	
 	/// <summary>
@@ -46,20 +50,39 @@ public class ZombieController : MonoBehaviour {
 	void Update () {
 		// Calculate the position based on the player's position.
 		if(!dead) {
-			float pace = Platform.Instance.Pace();
-			if(pace > 0.8f) {
+			float distanceFromTarget = transform.position.magnitude;
+			if(distanceFromTarget > 2.0f)
+			{
+				float pace = Platform.Instance.Pace();
 				transform.position += ((direction * speed) * Time.deltaTime) - ((new Vector3(0, 0, 1) * pace) * Time.deltaTime);
+				
+				direction = Vector3.zero - transform.position;
+				direction.Normalize();
+				transform.rotation = Quaternion.LookRotation(direction);
+			}
+			
+			if(distanceFromTarget > 10.0f)
+			{
+				if(marker != null)
+				{
+					marker.renderer.enabled = true;
+				}
+				else
+				{
+					UnityEngine.Debug.Log("Zombie: pointer is null!");
+				}
 			}
 			else
 			{
-				if(transform.position.magnitude > 5.0f)
+				if(marker != null)
 				{
-					transform.position += ((direction * speed) * Time.deltaTime) - ((new Vector3(0, 0, 1) * pace) * Time.deltaTime);
+					marker.renderer.enabled = false;
+				}
+				else
+				{
+					UnityEngine.Debug.Log("Zombie: pointer is null!");
 				}
 			}
-			direction = Vector3.zero - transform.position;
-			direction.Normalize();
-			transform.rotation = Quaternion.LookRotation(direction);
 		}
 	}
 		
@@ -90,6 +113,11 @@ public class ZombieController : MonoBehaviour {
 			if(deathSound != null)
 			{
 				deathSound.Play();
+			}
+			
+			if(marker != null)
+			{
+				marker.renderer.enabled = false;
 			}
 			
 			StartCoroutine(RemoveDead());
