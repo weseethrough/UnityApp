@@ -39,7 +39,8 @@ public class DataStore : MonoBehaviour
         activity,
         flow,
         persistent,        
-        maxItem
+        maxItem,
+        saves
     }
 
     //private properties

@@ -376,4 +376,22 @@ public class FlowStateMachine : MonoBehaviour
         return true;
     }
 
+
+    public void StoreCurrentGameState()
+    {
+        uint id;
+
+        if (targetState == null)
+        {
+            FlowState fs = GetCurrentFlowState();
+            id = fs.Id;
+        }
+        else
+        {
+            id = targetState.Id;
+        }
+
+        PlayerPrefs.SetString("savedState", "");
+        
+    }
 }
