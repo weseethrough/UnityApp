@@ -21,6 +21,8 @@ public class ZombieController : MonoBehaviour {
 	
 	AudioSource deathSound;
 	
+	AudioSource growl;
+	
 	GameObject marker;
 	
 	/// <summary>
@@ -30,8 +32,29 @@ public class ZombieController : MonoBehaviour {
 		
 		animator = GetComponent<Animator>();
 		
-		deathSound = GetComponent<AudioSource>();
+		AudioSource[] sounds = GetComponents<AudioSource>();
 		
+		if(sounds != null) {
+			int sound = UnityEngine.Random.Range(0, 3);
+			
+			if(sound < sounds.Length) {
+				growl = sounds[sound];
+				growl.Play();
+			}
+			else
+			{
+				UnityEngine.Debug.Log("Zombie: not enough sounds for growl!");
+			}
+			
+			sound = UnityEngine.Random.Range(3, 6);
+			if(sound < sounds.Length) {
+				deathSound = sounds[sound];
+			}
+			else
+			{
+				UnityEngine.Debug.Log("Zombie: not enough sounds for death");
+			}
+		}
 		float yRotation = UnityEngine.Random.Range(120f, 240f);
 		
 		transform.rotation = Quaternion.Euler(0, yRotation, 0);
