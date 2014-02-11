@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 
 [Serializable]
 public class GuardPanel : Panel {
+	public string guardKey = null;
 	
 	private GestureHelper.OnTap tapHandler = null;
 	private GestureHelper.DownSwipe quitHandler = null;
@@ -16,7 +17,12 @@ public class GuardPanel : Panel {
 	
 	public override void EnterStart()
     {		
-		object go = DataVault.Get("guarded_"+GetDisplayName());
+		if (guardKey == null) {
+        	GParameter gName = Parameters.Find(r => r.Key == "Name");
+			if (gName != null) guardKey = "guarded_"+gName.Value.ToLower().Replace(" ", "_");
+			else guardKey = "guarded_default";
+		}
+		object go = DataVault.Get(guardKey);
 		if (go == null) go = false;
 		bool guard = (bool)go;
 		
@@ -36,9 +42,10 @@ public class GuardPanel : Panel {
 		tapHandler = new GestureHelper.OnTap(() => {
 			GestureHelper.onTap -= tapHandler;		
 			GestureHelper.onSwipeDown -= quitHandler;
-			DataVault.Set("guarded_"+GetDisplayName(), true);
-			DataVault.SetPersistency("guarded_"+GetDisplayName(), true);
+			DataVault.Set(guardKey, true);
+			DataVault.SetPersistency(guardKey, true);
 			DataVault.SaveToBlob();
+			UnityEngine.Debug.Log("GuardPanel: " + guardKey + " state save");
 			
 	        if (Outputs.Count > 0 && parentMachine != null)
 	        {
@@ -53,13 +60,24 @@ public class GuardPanel : Panel {
 		GestureHelper.onTap += tapHandler;		
 		
 		quitHandler = new GestureHelper.DownSwipe(() => {
-			Application.Quit();
+			if (Platform.Instance.OnGlass()) {
+				Application.Quit();
+			}
 		});
 		GestureHelper.onSwipeDown += quitHandler;
 		
 		base.EnterStart();
 	}
 	
+	public override void StateUpdate ()
+	{
+		base.StateUpdate ();
+		
+		if(Input.GetKeyDown(KeyCode.Escape)) {
+			Application.Quit();
+		}
+	}
+		
     /// <summary>
     /// Gets display name of the node, helps with node identification in editor
     /// </summary>

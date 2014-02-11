@@ -153,6 +153,12 @@ public class GestureHelper : MonoBehaviour {
 				onSwipeDown();
 			}
 		}
+#if UNITY_EDITOR		
+		if(Input.GetKeyDown(KeyCode.Return)) 
+		{
+			if (onTap != null) onTap();
+		}
+#endif
 
 		//check for gestures on non-glass devices where unity can pick up the input
 		if(!Platform.Instance.OnGlass())
