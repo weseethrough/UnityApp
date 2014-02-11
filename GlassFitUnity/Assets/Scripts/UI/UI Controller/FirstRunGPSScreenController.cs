@@ -1,26 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class FirstRunGPSScreenController : SwipeListener {
-	
-	GestureHelper.OnTap taphandler = null;
-	GestureHelper.OnSwipeLeft leftHandler = null;
-	GestureHelper.OnSwipeRight rightHandler = null;
+public class FirstRunGPSScreenController : MPChildGestureHandler {
 	
 	bool canProceed = false;
 	
 	// Use this for initialization
-	public void Start () {
-		
+	
+	public override void Start() {
 		base.Start();
-
+	
 		UnityEngine.Debug.Log("Starting FirstRun GPS screen controller");
-		
-		//register tap handler
-//		taphandler = new GestureHelper.OnTap( () => {
-//			HandleTap();
-//		});
-		//GestureHelper.onTap += taphandler;
 	
 		bool bIndoor = Platform.Instance.IsIndoor();
 		setStringsForIndoor(bIndoor);
@@ -29,8 +19,6 @@ public class FirstRunGPSScreenController : SwipeListener {
 		PageIndicatorController paging = Component.FindObjectOfType(typeof(PageIndicatorController)) as PageIndicatorController;
 		int currentPage = (int)DataVault.Get("currentPageIndex");
 		paging.GhostProgressBeyondPage(currentPage);
-
-		
 	}
 	
 	// Update is called once per frame
@@ -76,21 +64,12 @@ public class FirstRunGPSScreenController : SwipeListener {
 		
 	}
 	
-	public void HandleTap() {
+	protected override void HandleTap() {
 		//toggle indoor mode
 		bool bIndoor = Platform.Instance.IsIndoor();
 		Platform.Instance.SetIndoor(!bIndoor);
 		//update strings as appropriate
 		setStringsForIndoor(!bIndoor);
-	}
-	
-	protected override void handleRight ()
-	{
-		bool canProceed = Platform.Instance.IsIndoor() || Platform.Instance.HasLock();
-		if(canProceed)
-		{
-			base.handleRight ();
-		}
 	}
 
 	void setStringsForIndoor(bool indoor) {
@@ -126,11 +105,5 @@ public class FirstRunGPSScreenController : SwipeListener {
 			}
 		}
 	}
-	
-	void OnDestroy()
-	{
-		base.OnDestroy();
-		//unregister tap handler
-		//GestureHelper.onTap -= taphandler;
-	}
+
 }

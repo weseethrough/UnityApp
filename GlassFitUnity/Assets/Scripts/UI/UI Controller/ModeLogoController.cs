@@ -34,7 +34,7 @@ public class ModeLogoController : UIComponentSettings {
 		
 		//set title and description
 		DataVault.Set("game_type_title", currentGame.name);
-		DataVault.Set("game_type_description", currentGame.description);
+		DataVault.Set("game_type_subtitle", currentGame.description);
 		
 	}
 
