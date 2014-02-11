@@ -7,8 +7,8 @@ public class GUICamera : MonoBehaviour {
     Vector3 startPosition;
     Vector2 draggingStartPos;
 		
-	const float CAMERA_SENSITIVITY_X = 4.5f;
-    const float CAMERA_SENSITIVITY_Y = 5.5f;
+	const float CAMERA_SENSITIVITY_X = 2.5f;
+    const float CAMERA_SENSITIVITY_Y = 3f;
 	
 	public float zoomLevel = -1.0f;        
 
