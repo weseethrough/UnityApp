@@ -983,8 +983,11 @@ public class ButtonFunctionCollection
 	
 	static public bool SetChosenActivitySpriteName(FlowButton button, Panel panel)
 	{
+		UnityEngine.Debug.Log("Game Intro: setting game id to: " + button.name);
+		
 		//assuming button name is always the same as the sprite name...
-		DataVault.Set("game_type_spritename", button.name);
+		DataVault.Set("current_game_id", button.name);
+		
 		//follow link as normal
 		return true;
 	}

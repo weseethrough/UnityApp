@@ -14,6 +14,9 @@ public class ResetGyrosScreenController : MonoBehaviour {
 			OnGyrosReset();
 		});
 		GestureHelper.onTwoTap += resetHandler;
+		
+		//ensure the prompt is shown to begin with
+		DataVault.Set("showResetGyroPrompt", true);
 	}
 	
 	// Update is called once per frame

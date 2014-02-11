@@ -78,7 +78,7 @@ public class PageIndicatorController : MonoBehaviour {
 		{
 			GameObject indicator = GameObject.Find("PageIndicator_off" + i);
 			UISprite sprite = indicator.GetComponent("UISprite") as UISprite;
-			sprite.color = new Color(0.9f, 0.9f, 0.9f);
+			sprite.color = new Color(1.0f, 1.0f, 1.0f);
 		}
 	}
 	
@@ -88,7 +88,7 @@ public class PageIndicatorController : MonoBehaviour {
 		{
 			GameObject indicator = GameObject.Find("PageIndicator_off" + i);
 			UISprite sprite = indicator.GetComponent("UISprite") as UISprite;
-			sprite.color = UnityEngine.Color.black;
+			sprite.color = new Color(0.5f, 0.5f, 0.5f);
 		}
 	}
 	
