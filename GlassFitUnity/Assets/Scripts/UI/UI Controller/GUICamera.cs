@@ -8,8 +8,8 @@ public class GUICamera : MonoBehaviour {
     Vector2 draggingStartPos;
     Quaternion startingRotation;
 		
-	const float CAMERA_SENSITIVITY_X = 3.0f;
-    const float CAMERA_SENSITIVITY_Y = 2.0f;
+	const float CAMERA_SENSITIVITY_X = 2.5f;
+    const float CAMERA_SENSITIVITY_Y = 2.5f;
 	
 	public float zoomLevel = -1.0f;        
 
@@ -73,7 +73,13 @@ public class GUICamera : MonoBehaviour {
             //provide camera rotation to gui camera. This will elt us roll ui view
             PlayerOrientation p = Platform.Instance.GetPlayerOrientation();
             Quaternion rot = ConvertOrientation(p, out newCameraOffset);
-
+			
+			//zero out pitch and yaw, we only want roll
+			Vector3 eulerAngles = rot.eulerAngles;
+			eulerAngles.x = 0.0f;
+			eulerAngles.y = 0.0f;
+			rot = Quaternion.Euler(eulerAngles);
+			
             Vector2 camPos = new Vector2(cameraPosition.x, cameraPosition.y);
             newCameraOffset -= camPos;
             transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
