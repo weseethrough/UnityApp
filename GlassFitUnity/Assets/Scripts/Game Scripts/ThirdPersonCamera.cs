@@ -72,7 +72,7 @@ public class ThirdPersonCamera : MonoBehaviour {
 		{
 			lookingUp = false;
 			UnityEngine.Debug.Log("ThirdPersonCamera: pitch is " + pitch.ToString("f2"));
-			height = Mathf.Clamp(0.3f - (3.0f * pitch), -3.0f, 0.3f);
+			height = Mathf.Clamp(0.3f - (3.0f * pitch), -4.0f, 0.3f);
 			zoom = Mathf.Clamp(-5.0f + (-5.0f * (pitch * 2)), -10.0f, -5.0f);
 		}
 		else
