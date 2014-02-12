@@ -90,12 +90,13 @@ public class GameBase : MonoBehaviour {
 	
 	private float indoorTime;
 	
+	public bool showFps = false;
+	
 	//subclasses can override this if they are doing their own custom countdown (e.g. train game)
 	protected virtual bool shouldDoGameBaseCountdown()
 	{
 		return true;
 	}
-	
 	
 	/// <summary>
 	/// Start this instance.
@@ -191,6 +192,25 @@ public class GameBase : MonoBehaviour {
 		UnityEngine.Debug.Log("GameBase: ready = " + readyToStart);
 
         DataVault.Set("sweat_points_unit", "SWEAT POINTS");
+		
+		UpdateFPS fps = GetComponent<UpdateFPS>();
+		
+		if(fps != null)
+		{
+			if(showFps)
+			{
+				fps.enabled = true;
+			} 
+			else
+			{
+				fps.enabled = false;
+				DataVault.Set("fps", "");
+			}
+		}
+		else
+		{
+			DataVault.Set("fps", "");
+		}
 	}
 	
 	public void SetVirtualTrackVisible(bool visible)
