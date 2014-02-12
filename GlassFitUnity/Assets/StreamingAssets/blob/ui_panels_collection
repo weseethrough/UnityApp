@@ -1,12 +1,6 @@
-screen1
-screen2
-screen3
 HexMenu
 HUD
-Settings
 Track Select
-Friend List
-Friends
 Complete
 PursuitSettings
 Dead
@@ -50,3 +44,5 @@ EULA
 Warning
 TapToBegin
 Game_Intro
+PauseFirst
+PauseSecond
