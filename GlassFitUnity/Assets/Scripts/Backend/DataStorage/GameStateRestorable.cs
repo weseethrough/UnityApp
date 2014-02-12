@@ -100,7 +100,7 @@ public class GameStateRestorable : ISerializable
             System.Object obj = de.storedValue;
 
             System.Type type = obj.GetType();
-            if (type.IsPrimitive || type.Equals(typeof(string)))
+            if (type.IsPrimitive || type.Equals(typeof(string)) || obj is GameRestorableObject)
             {
                 variables.Add(pair.Key, pair.Value);
             }

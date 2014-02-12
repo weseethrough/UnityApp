@@ -5,15 +5,17 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 /// <summary>
-/// Point which tries to restore latest save
+/// exit state which is simply blank end. It doesn't have any navigation out connections.
 /// </summary>
 [Serializable]
-public class SaveRestorationPoint : FlowState 
+public class SaveRestorableArea : FlowState 
 {
+    static public bool allowGameStateAutoSave = false;
+
 	/// <summary>
 	/// default constructor
 	/// </summary>	
-	public SaveRestorationPoint() : base() {}
+	public SaveRestorableArea() : base() {}
 
     /// <summary>
     /// deserialziation constructor
@@ -21,7 +23,7 @@ public class SaveRestorationPoint : FlowState
     /// <param name="info">seirilization info conataining class data</param>
     /// <param name="ctxt">serialization context </param>
     /// <returns></returns>
-    public SaveRestorationPoint(SerializationInfo info, StreamingContext ctxt)
+    public SaveRestorableArea(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
 	{
     }
@@ -45,7 +47,7 @@ public class SaveRestorationPoint : FlowState
     {
         base.GetDisplayName();
 
-        return "Save Restoration Point";
+        return "Save Restorable Area";
     }
 
     /// <summary>
@@ -57,9 +59,8 @@ public class SaveRestorationPoint : FlowState
         base.Initialize();
 
         Size = new Vector2(175, 80);        
-        NewInput("In", "Flow");
-        NewOutput("Out", "Flow");
-        NewParameter("Name", GraphValueType.String, "Save Restoration Point");
+        
+        NewParameter("Name", GraphValueType.String, "Save Restorable Area");
     }
 
     /// <summary>
@@ -69,23 +70,8 @@ public class SaveRestorationPoint : FlowState
     public override void Entered()
     {
         base.Entered();
-        DataStore.LoadStorage(DataStore.BlobNames.saves);
-
-        Storage storage = DataStore.GetStorage(DataStore.BlobNames.saves);
+        allowGameStateAutoSave = true;
         
-        GameStateRestorable gsRestorable = storage != null ? storage.dictionary.Get("Save1") as GameStateRestorable : null;
-        if (gsRestorable != null && gsRestorable.GoToRestoredState())
-        {
-            
-        }
-        else if (Outputs.Count > 0 && parentMachine != null)
-        {
-            parentMachine.FollowConnection(Outputs[0]);
-        }
-        else
-        {
-            Debug.LogError("Dead end start");
-        }
     }
 
     /// <summary>
@@ -96,5 +82,6 @@ public class SaveRestorationPoint : FlowState
     {
         Storage storage = DataStore.GetStorage(DataStore.BlobNames.saves);
         storage.dictionary.Remove("Save1");
+        allowGameStateAutoSave = false;
     }
 }
