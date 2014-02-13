@@ -290,4 +290,16 @@ public class MultiPanel : Panel
     {       
         return focusedChildPanel;
     }
+	
+	/// <summary>
+	/// Gets the multi panel children.
+	/// Needed for scripts to search which index their panel is in order to block progress correctly.
+	/// </summary>
+	/// <returns>
+	/// The multi panel children.
+	/// </returns>
+	public List<MultiPanelChild> GetMultiPanelChildren()
+	{
+		return managedChildren;
+	}
 }
