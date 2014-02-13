@@ -6,8 +6,11 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
+[System.Serializable]
 public class DataEntry
 {        
+    //warning some objects might not be serializable!
+    //If you use this class for serialization process ensure it does check on stored value
     public System.Object   storedValue;    
     public bool            persistent;
 
@@ -72,19 +75,19 @@ public class DataVault : MonoBehaviour
             {
                 if (de.storedValue.GetType() == typeof(int))
                 {
-                    intStorage.Set(Convert.ToInt32(de.storedValue), pair.Key);
+                    intStorage.Set(pair.Key, Convert.ToInt32(de.storedValue));
                 }
                 else if (de.storedValue.GetType() == typeof(bool))
                 {
-                    boolStorage.Set(Convert.ToBoolean(de.storedValue), pair.Key);
+                    boolStorage.Set(pair.Key, Convert.ToBoolean(de.storedValue));
                 }
                 else if (de.storedValue.GetType() == typeof(double) || de.storedValue.GetType() == typeof(float))
                 {
-                    doubleStorage.Set(Convert.ToDouble(de.storedValue), pair.Key);
+                    doubleStorage.Set(pair.Key, Convert.ToDouble(de.storedValue));
                 }
                 else if (de.storedValue.GetType() == typeof(string))
                 {
-                    stringStorage.Set(Convert.ToString(de.storedValue), pair.Key);
+                    stringStorage.Set(pair.Key, Convert.ToString(de.storedValue));
                 }
             }
         }

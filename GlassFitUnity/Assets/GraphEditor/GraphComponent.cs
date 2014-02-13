@@ -11,7 +11,7 @@ public class GraphComponent : MonoBehaviour
     private int selectedFlow = 0;
     private bool initialize = false;
 
-    private string nextStartNavigateTo = "";
+    private string nextStartNavigateTo = "";    
 
     void Start()
     {       
@@ -108,11 +108,16 @@ public class GraphComponent : MonoBehaviour
         SetSelectedFlowIndex();
     }
 
-    public void GoToFlow(string name)
+    public bool GoToFlow(string name)
     {
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
+        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
+        int nextIndex = flowDictionary.GetIndex(nextStartNavigateTo);
+        if (selectedFlow == nextIndex) return false;
+        
+
         //if flow exists it would be initialized, otherwise initialized would be flow currently defaulted.
         //Make sure statemachine is ready for this type of move
-
         nextStartNavigateTo = name;
 
         FlowStateMachine fsm = GetComponent<FlowStateMachine>();
@@ -120,6 +125,8 @@ public class GraphComponent : MonoBehaviour
         {
             fsm.GoToStart();
         }
+
+        return true;
     }
 
     public bool GoToFlowStage2()
