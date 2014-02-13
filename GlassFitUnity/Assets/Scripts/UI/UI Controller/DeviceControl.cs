@@ -9,23 +9,57 @@ public class DeviceControl : MonoBehaviour {
 	void Start () {
 		DataVault.Set("first_menu", " ");
 		
-		if(Platform.Instance.Device() != null)
+		//set default strings for this screen.
+		DataVault.Set("register_title", "Initialising");
+		DataVault.Set("register_body", "Please Wait");
+		
+		UpdateStatus();
+	}
+	
+	/// <summary>
+	/// Updates the status.
+	/// Check if we have wifi/device, and either update the strings or proceed to next menu
+	/// </summary>
+	protected void UpdateStatus()
+	{
+		if(Platform.Instance.HasWifi())
 		{
-			UnityEngine.Debug.Log("DeviceControl: device obtained");
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs[0];
-			if(gConnect != null)
+			if(Platform.Instance.Device() != null)
 			{
-				UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
-				fs.parentMachine.FollowConnection(gConnect);
+				UnityEngine.Debug.Log("DeviceControl: device obtained");
+				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+				GConnector gConnect = fs.Outputs[0];
+				if(gConnect != null)
+				{
+					UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
+					fs.parentMachine.FollowConnection(gConnect);
+				} else
+				{
+					UnityEngine.Debug.Log("DeviceControl: connection not found");
+				}
 			} else
 			{
-				UnityEngine.Debug.Log("DeviceControl: connection not found");
+				SetStringsNoDevice();
+				UnityEngine.Debug.Log("DeviceControl: device null");
 			}
-		} else
-		{
-			UnityEngine.Debug.Log("DeviceControl: device null");
 		}
+		else
+		{
+			SetStringsNoInternet();
+		}
+		
+	}
+	
+	protected void SetStringsNoInternet()
+	{
+		DataVault.Set("register_title", "Please Connect to the Internet");
+		DataVault.Set("register_body", "Welcome to Race Yourself!\n\nBefore first using this software you must be connected to the internet.");
+	}
+	
+	protected void SetStringsNoDevice()
+	{
+		DataVault.Set("register_title", "Please Sign Up");
+		DataVault.Set("register_body", "You must register on the RaceYourself website before running this build\n\nPlease visit:\nauth.raceyourself.com/users/sign_up");
 	}
 	
 	// Update is called once per frame
@@ -50,23 +84,25 @@ public class DeviceControl : MonoBehaviour {
             }
 #else
 			pollTime -= 5.0f;
-			if(Platform.Instance.Device() != null)
-			{
-				UnityEngine.Debug.Log("DeviceControl: device obtained");
-				FlowState fs = FlowStateMachine.GetCurrentFlowState();
-				GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-				if(gConnect != null)
-				{
-					UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
-					fs.parentMachine.FollowConnection(gConnect);
-				} else
-				{
-					UnityEngine.Debug.Log("DeviceControl: connection not found: MenuExit");
-				}
-			} else
-			{
-				UnityEngine.Debug.Log("DeviceControl: device null");
-			}
+			
+			UpdateStatus();
+//			if(Platform.Instance.Device() != null)
+//			{
+//				UnityEngine.Debug.Log("DeviceControl: device obtained");
+//				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//				GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+//				if(gConnect != null)
+//				{
+//					UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
+//					fs.parentMachine.FollowConnection(gConnect);
+//				} else
+//				{
+//					UnityEngine.Debug.Log("DeviceControl: connection not found: MenuExit");
+//				}
+//			} else
+//			{
+//				UnityEngine.Debug.Log("DeviceControl: device null");
+//			}
 #endif
         }
 	}
