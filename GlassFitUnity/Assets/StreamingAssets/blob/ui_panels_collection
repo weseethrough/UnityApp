@@ -1,12 +1,6 @@
-screen1
-screen2
-screen3
 HexMenu
 HUD
-Settings
 Track Select
-Friend List
-Friends
 Complete
 PursuitSettings
 Dead
@@ -45,5 +39,12 @@ ChallengeInfo
 HUD2
 Crosshair
 Zombie Death
+GameIntro
 EULA
 Warning
+TapToBegin
+Game_Intro
+PauseFirst
+PauseSecond
+FirstComplete
+FirstRaceComplete

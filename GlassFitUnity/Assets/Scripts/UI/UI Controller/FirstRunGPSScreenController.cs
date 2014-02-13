@@ -1,37 +1,76 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class FirstRunGPSScreenController : SwipeListener {
-	
-	GestureHelper.OnTap taphandler = null;
-	GestureHelper.OnSwipeLeft leftHandler = null;
-	GestureHelper.OnSwipeRight rightHandler = null;
+public class FirstRunGPSScreenController : MPChildGestureHandler {
 	
 	bool canProceed = false;
 	
+	MultiPanel parentPanel = null;
+	MultiPanelChild containerMultipanelChild = null;
+	int indexInParentPanel = -1;
+	
 	// Use this for initialization
-	public void Start () {
-		
+	
+	public override void Start() {
 		base.Start();
-
+	
 		UnityEngine.Debug.Log("Starting FirstRun GPS screen controller");
-		
-		//register tap handler
-//		taphandler = new GestureHelper.OnTap( () => {
-//			HandleTap();
-//		});
-		//GestureHelper.onTap += taphandler;
 	
 		bool bIndoor = Platform.Instance.IsIndoor();
 		setStringsForIndoor(bIndoor);
 		
+		
+		//get parent panel
+		parentPanel = FlowStateMachine.GetCurrentFlowState() as MultiPanel;
+		//get list of children
+		List<MultiPanelChild> children = parentPanel.GetMultiPanelChildren();
+		
+		//find index which contains this script
+		for(int i=0; i<children.Count; i++)
+		{
+			MultiPanelChild child = children[i];
+			if( IsInMultiChildPanel(child) )
+			{
+				containerMultipanelChild = child;
+				indexInParentPanel = i;
+				break;
+			}
+		}
+			
 		//assume no gps to begin with, so ghost progress dot for it
-		PageIndicatorController paging = Component.FindObjectOfType(typeof(PageIndicatorController)) as PageIndicatorController;
-		int currentPage = (int)DataVault.Get("currentPageIndex");
-		paging.GhostProgressBeyondPage(currentPage);
-
+		SetBlockProgress(true);
 		
 	}
+	
+
+
+	/// <summary>
+	/// Sets whether progress should be blocked beyond this slide in the the multipanel.
+	/// </summary>
+	/// <param name='bBlock'>
+	/// B block.
+	/// </param>
+	protected void SetBlockProgress(bool bBlock)
+	{
+		//set whether we should block
+		
+		//ghost or unghost
+		PageIndicatorController paging = Component.FindObjectOfType(typeof(PageIndicatorController)) as PageIndicatorController;
+		if(bBlock)
+		{
+			paging.GhostProgressBeyondPage(indexInParentPanel);
+			parentPanel.SetLastAvaliableChild(containerMultipanelChild);
+		}
+		else
+		{
+			paging.UnGhostAllPages();
+			parentPanel.SetLastAvaliableChild(null);
+		}
+		
+	}
+	
+	
 	
 	// Update is called once per frame
 	void Update () {
@@ -42,14 +81,10 @@ public class FirstRunGPSScreenController : SwipeListener {
 			{
 				canProceed = true;
 				DataVault.Set("FrGPS_navPrompt", "Swipe Forward to proceed");
-				//grey the icons
-				PageIndicatorController paging = Component.FindObjectOfType(typeof(PageIndicatorController)) as PageIndicatorController;
-				if(paging)
-				{
-					paging.UnGhostAllPages();
-				}
-				else
-				{	UnityEngine.Debug.LogWarning("FirstRunGPS: couldn't find paging controller"); }
+				
+				//allow swiping progress
+				SetBlockProgress(false);
+				
 				//update strings
 				setStringsForIndoor(Platform.Instance.IsIndoor());
 			}
@@ -60,15 +95,10 @@ public class FirstRunGPSScreenController : SwipeListener {
 			{
 				canProceed = false;
 				DataVault.Set("FrGPS_navPrompt", " ");
-				//grey out the icons
-				PageIndicatorController paging = Component.FindObjectOfType(typeof(PageIndicatorController)) as PageIndicatorController;
-				if(paging)
-				{
-					int currentPage = (int)DataVault.Get("currentPageIndex");
-					paging.GhostProgressBeyondPage(currentPage);
-				}
-				else
-				{	UnityEngine.Debug.LogWarning("FirstRunGPS: couldn't find paging controller"); }
+				
+				//block swiping progress
+				SetBlockProgress(true);
+				
 				//update strings
 				setStringsForIndoor(Platform.Instance.IsIndoor());
 			}
@@ -76,21 +106,12 @@ public class FirstRunGPSScreenController : SwipeListener {
 		
 	}
 	
-	public void HandleTap() {
+	protected override void HandleTap() {
 		//toggle indoor mode
 		bool bIndoor = Platform.Instance.IsIndoor();
 		Platform.Instance.SetIndoor(!bIndoor);
 		//update strings as appropriate
 		setStringsForIndoor(!bIndoor);
-	}
-	
-	protected override void handleRight ()
-	{
-		bool canProceed = Platform.Instance.IsIndoor() || Platform.Instance.HasLock();
-		if(canProceed)
-		{
-			base.handleRight ();
-		}
 	}
 
 	void setStringsForIndoor(bool indoor) {
@@ -126,11 +147,5 @@ public class FirstRunGPSScreenController : SwipeListener {
 			}
 		}
 	}
-	
-	void OnDestroy()
-	{
-		base.OnDestroy();
-		//unregister tap handler
-		//GestureHelper.onTap -= taphandler;
-	}
+
 }

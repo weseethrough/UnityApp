@@ -41,6 +41,11 @@ public class TargetController : MonoBehaviour {
 		}	
 	}
 	
+	public virtual void SetHeadstart(float dist)
+	{
+		
+	}
+	
 	public void SetLane(int lane) {
 		this.lane = lane;
 	}

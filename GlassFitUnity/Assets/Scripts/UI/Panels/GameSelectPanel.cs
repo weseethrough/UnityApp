@@ -321,4 +321,13 @@ public class GameSelectPanel : HexPanel
 		GestureHelper.onThreeTap -= threeHandler;
 		DataVault.Set("first_menu", " ");
 	}
+	
+    public override void OnClick(FlowButton button)
+	{
+		//store the name of the button in the DataVault. This is the gameID.
+		DataVault.Set("current_game_id", button.name);
+		
+		base.OnClick(button);	
+	}
+
 }

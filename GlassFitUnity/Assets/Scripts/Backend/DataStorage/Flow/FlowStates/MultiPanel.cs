@@ -19,7 +19,7 @@ public class MultiPanel : Panel
     private float firstOffset = 0.0f;
     private Vector2 firstTouchPosition;
 	
-	private GestureHelper.OnTap tapHandler = null;
+	//private GestureHelper.OnTap tapHandler = null;
 	
 	private static int SCREEN_WIDTH = 1440;
 
@@ -85,11 +85,11 @@ public class MultiPanel : Panel
     }
 				
 	
-	public void HandleTap() {
-		//toggle indoor mode
-		bool bIndoor = Platform.Instance.IsIndoor();
-		Platform.Instance.SetIndoor(!bIndoor);
-	}
+//	public void HandleTap() {
+//		//toggle indoor mode
+//		bool bIndoor = Platform.Instance.IsIndoor();
+//		Platform.Instance.SetIndoor(!bIndoor);
+//	}
 
     /// <summary>
     /// Enter function which allows to enter all managed children so they are ready for swiping
@@ -101,9 +101,9 @@ public class MultiPanel : Panel
         
         managedChildren = new List<MultiPanelChild>();
 		
-		tapHandler = new GestureHelper.OnTap( () => {
-			HandleTap();
-		});
+//		tapHandler = new GestureHelper.OnTap( () => {
+//			HandleTap();
+//		});
 		
         foreach (FlowState fs in m_children)
         {
@@ -216,20 +216,20 @@ public class MultiPanel : Panel
             firstOffset = 0.0f;
             dragTime = 0.0f;
 			
-			if(focusedChildPanel.GetDisplayName() == "MultiPanelChild: GPS") {				
-				UnityEngine.Debug.Log("MultiPanel: turning taphandler off");
-				GestureHelper.onTap -= tapHandler;
-				if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor()) {
-					UnityEngine.Debug.Log("MultiPanel: it is ok to progress");
-				} 
-				else
-				{
-					if(focusedChildPanel.GetOrder() < managedChildren[index].GetOrder())
-					{
-						index = focusedChildPanel.GetOrder();
-					}
-				}
-			} 
+//			if(focusedChildPanel.GetDisplayName() == "MultiPanelChild: GPS") {				
+//				UnityEngine.Debug.Log("MultiPanel: turning taphandler off");
+//				GestureHelper.onTap -= tapHandler;
+//				if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor()) {
+//					UnityEngine.Debug.Log("MultiPanel: it is ok to progress");
+//				} 
+//				else
+//				{
+//					if(focusedChildPanel.GetOrder() < managedChildren[index].GetOrder())
+//					{
+//						index = focusedChildPanel.GetOrder();
+//					}
+//				}
+//			} 
 			
 			pos.x = (-index * SCREEN_WIDTH);
 			focusedChildPanel = managedChildren[index];
@@ -239,10 +239,10 @@ public class MultiPanel : Panel
             firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.3f, pos);
             firstTweener.delay = 0.0f;
 			
-			if(focusedChildPanel.GetDisplayName() == "MultiPanelChild: GPS") {
-				UnityEngine.Debug.Log("MultiPanel: turning taphandler on");
-				GestureHelper.onTap += tapHandler;
-			}
+//			if(focusedChildPanel.GetDisplayName() == "MultiPanelChild: GPS") {
+//				UnityEngine.Debug.Log("MultiPanel: turning taphandler on");
+//				GestureHelper.onTap += tapHandler;
+//			}
         }
 
         ArangeScreens();   
@@ -290,4 +290,16 @@ public class MultiPanel : Panel
     {       
         return focusedChildPanel;
     }
+	
+	/// <summary>
+	/// Gets the multi panel children.
+	/// Needed for scripts to search which index their panel is in order to block progress correctly.
+	/// </summary>
+	/// <returns>
+	/// The multi panel children.
+	/// </returns>
+	public List<MultiPanelChild> GetMultiPanelChildren()
+	{
+		return managedChildren;
+	}
 }
