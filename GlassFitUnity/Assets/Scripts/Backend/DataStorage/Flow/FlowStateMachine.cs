@@ -474,11 +474,11 @@ public class FlowStateMachine : MonoBehaviour
     /// 
     /// </summary>
     /// <returns></returns>
-    void OnDestroy() 
+	void OnApplicationQuit() 
     {
         if (SaveRestorableArea.allowGameStateAutoSave)
         {
-            Debug.Log("-------SAVE ON EXIT by DESROY");
+            Debug.Log("-------SAVE ON EXIT by EXIT");
             SaveCurrentGameState();
         }
     }

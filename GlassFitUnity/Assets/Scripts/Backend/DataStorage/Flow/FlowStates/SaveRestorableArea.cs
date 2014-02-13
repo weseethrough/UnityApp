@@ -80,8 +80,14 @@ public class SaveRestorableArea : FlowState
     /// <returns></returns>
     public override void Exited()
     {
+        base.Exited();
         Storage storage = DataStore.GetStorage(DataStore.BlobNames.saves);
         storage.dictionary.Remove("Save1");
         allowGameStateAutoSave = false;
+        if (storage.dictionary.Contains("Save1"))
+        {
+            storage.dictionary.Remove("Save1");
+            DataStore.SaveStorage(DataStore.BlobNames.saves);
+        }
     }
 }
