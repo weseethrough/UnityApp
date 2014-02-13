@@ -60,7 +60,7 @@ public class SyncIcon : MonoBehaviour {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect;
 		
-		UnityEngine.Debug.Log("SyncIcon - Datavault value is " + DataVault.Get("tutorial_complete").ToString());
+		//UnityEngine.Debug.Log("SyncIcon - Datavault value is " + DataVault.Get("test_string").ToString());
 		
 		bool tutorial = Convert.ToBoolean(DataVault.Get("tutorial_complete"));
 		

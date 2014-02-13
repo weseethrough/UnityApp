@@ -29,6 +29,10 @@ public class FirstRun : GameBase {
 	const float showLabelMinRange = 0.1f;
 	const float showLabelMaxRange = 500.0f;
 	
+	private bool indoorRaceYourself = false;
+	
+	private bool indoorComplete = false;
+	
 	//public UINavProgressBar progressBar;
 	
 	bool hasResetGyros = false;  // possibly not needed? remove?
@@ -49,7 +53,7 @@ public class FirstRun : GameBase {
 		
 		//hide virtual track to begin with
 		SetVirtualTrackVisible(false);
-		SetRunnerVisible(false);
+		SetRunnerVisible(true);
 		
 		//create target trackers for a few different paces
 		float fInterval = (MAX_PACE - MIN_PACE) / NUM_PACES;
@@ -99,13 +103,17 @@ public class FirstRun : GameBase {
 		if(runner is FirstRaceOpponenet) {
 			runner.SetHeadstart(20.0f);
 		}else if(runner is FirstRaceIndoorOpponent){
-			runner.SetHeadstart(0.0f);
+			runner.SetHeadstart(50.0f);
 		}
 		
-		if(runner is FirstRaceOpponenet) {
-			SetRunnerVisible(true);
-		}
 		SetVirtualTrackVisible(true);
+	}
+	
+	IEnumerator GoBack()
+	{
+		yield return new WaitForSeconds(2.0f);
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		fs.parentMachine.FollowBack();
 	}
 	
 	// Update is called once per frame
@@ -116,12 +124,56 @@ public class FirstRun : GameBase {
 			base.Update();
 			
 			if(runner is FirstRaceIndoorOpponent) {
-				if(Platform.Instance.Distance() > 50)
+				double distance = Platform.Instance.Distance();
+				
+				if(distance > 50 && distance < 100)
 				{
-					if(!runner.gameObject.activeSelf)
+					if(!indoorRaceYourself)
 					{
-						SetRunnerVisible(true);
+						indoorRaceYourself = true;
+						FlowState fs = FlowStateMachine.GetCurrentFlowState();
+						GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceIndoorExit");
+						if(gConnect != null)
+						{
+							fs.parentMachine.FollowConnection(gConnect);
+							StartCoroutine(GoBack());
+						}
+						else
+						{
+							UnityEngine.Debug.Log("FirstRun: couldn't find " + gConnect.Name);
+						}
 						runner.SetHeadstart((float)Platform.Instance.Distance());
+						(runner as FirstRaceIndoorOpponent).SetRunnerSpeed();
+					}
+				}
+				else if(distance > 100)
+				{
+					if(!indoorComplete)
+					{
+						indoorComplete = true;
+						
+						FlowState fs = FlowStateMachine.GetCurrentFlowState();
+						GConnector gConnect = fs.Outputs.Find(r => r.Name == "IndoorCompleteExit");
+						if(gConnect != null)
+						{
+							if(runner.GetDistanceBehindTarget() < 0)
+							{
+								DataVault.Set("first_result", "You Won!");
+								DataVault.Set("first_desc", "You beat your previous time!");
+							}
+							else
+							{
+								DataVault.Set("first_result", "You Lost");
+								DataVault.Set("first_desc", "You previous time was faster");
+							}
+							fs.parentMachine.FollowConnection(gConnect);
+							runner.enabled = false;
+							StartCoroutine(GoBack());
+						}
+						else
+						{
+							UnityEngine.Debug.Log("FirstRun: couldn't find " + gConnect.Name);
+						}
 					}
 				}
 			}
