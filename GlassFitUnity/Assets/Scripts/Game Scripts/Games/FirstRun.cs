@@ -33,6 +33,8 @@ public class FirstRun : GameBase {
 	
 	private bool indoorComplete = false;
 	
+	private AudioSource chime;
+	
 	//public UINavProgressBar progressBar;
 	
 	bool hasResetGyros = false;  // possibly not needed? remove?
@@ -60,6 +62,7 @@ public class FirstRun : GameBase {
 		
 		Platform.Instance.ResetTargets();
 				
+		chime = GetComponent<AudioSource>();
 //		for(float TotalTimePace = 2.0f; TotalTimePace <= 10.0f; TotalTimePace += 1.0f)
 //		{
 //			float TotalSeconds = TotalTimePace * 60;	
@@ -135,6 +138,10 @@ public class FirstRun : GameBase {
 						GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceIndoorExit");
 						if(gConnect != null)
 						{
+							if(chime != null)
+							{
+								chime.Play();
+							}
 							fs.parentMachine.FollowConnection(gConnect);
 							StartCoroutine(GoBack());
 						}
@@ -165,6 +172,10 @@ public class FirstRun : GameBase {
 							{
 								DataVault.Set("first_result", "You Lost");
 								DataVault.Set("first_desc", "You previous time was faster");
+							}
+							if(chime != null)
+							{
+								chime.Play();
 							}
 							fs.parentMachine.FollowConnection(gConnect);
 							runner.enabled = false;
