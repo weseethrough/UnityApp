@@ -12,6 +12,8 @@ public class FirstRaceIndoorOpponent : TargetController {
 	
 	private Animator anim;
 	
+	private float currentSpeed = 0.0f;
+	
 	// Use this for initialization
 	void Start () {
 		anim = GetComponent<Animator>();
@@ -28,13 +30,13 @@ public class FirstRaceIndoorOpponent : TargetController {
 	
 	// Update is called once per frame
 	void Update () {
-		UnityEngine.Debug.Log("IndoorOpponent: we are in the update function");
+		//UnityEngine.Debug.Log("IndoorOpponent: we are in the update function");
 		playerDistance = Platform.Instance.Distance();
 		playerSpeed = Platform.Instance.Pace();
 		
-		SetAnimSpeed(playerSpeed);
+		SetAnimSpeed(currentSpeed);
 		
-		distanceFromStart += Time.deltaTime * playerSpeed;
+		distanceFromStart += Time.deltaTime * currentSpeed;
 		
 		base.Update();
 	}
@@ -48,13 +50,24 @@ public class FirstRaceIndoorOpponent : TargetController {
 	public override double GetDistanceBehindTarget ()
 	{
 		float relativeDist = distanceFromStart - (float)playerDistance;
-		UnityEngine.Debug.Log("IndoorOpponent: distance from start is " + distanceFromStart.ToString("f0") + " and player distance is " + playerDistance.ToString("f0"));
+		//UnityEngine.Debug.Log("IndoorOpponent: distance from start is " + distanceFromStart.ToString("f0") + " and player distance is " + playerDistance.ToString("f0"));
 		return relativeDist;
 	}
 	
 	public override void SetHeadstart(float dist) {
 		//headStartDistance = dist;
 		distanceFromStart = dist;	
+	}
+	
+	public void SetRunnerSpeed()
+	{
+		playerDistance = Platform.Instance.Distance();
+		float time = Platform.Instance.Time() / 1000f;
+		
+		UnityEngine.Debug.Log("IndoorOpponent: time is " + time.ToString("f2"));
+		
+		currentSpeed = (float)playerDistance/time;
+		UnityEngine.Debug.Log("IndoorOpponent: speed is " + currentSpeed.ToString("f2"));
 	}
 	
 	void SetAnimSpeed(float speed)
