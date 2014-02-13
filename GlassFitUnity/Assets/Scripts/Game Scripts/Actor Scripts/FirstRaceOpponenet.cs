@@ -56,7 +56,7 @@ public class FirstRaceOpponenet : TargetController {
 		}
 	}
 	
-	public void setHeadStart(float dist) {
+	public override void SetHeadstart(float dist) {
 		headStartDistance = dist;
 		distanceFromStart = dist;	
 	}

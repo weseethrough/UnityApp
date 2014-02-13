@@ -149,7 +149,7 @@ public class GUICamera : MonoBehaviour {
         {
             if (fs is HexPanel)
             {
-                Debug.Log("Is Hex menu");
+                //Debug.Log("Is Hex menu");
                 return true;
             }
             fs = fs.parent;
