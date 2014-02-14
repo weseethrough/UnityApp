@@ -79,7 +79,7 @@ public class FlowPanelComponent
                                 EditorGUILayout.EndHorizontal();
                                 if (data2 != data)
                                 {
-                                    componentList[id].intData.Set(data2, sName);
+                                    componentList[id].intData.Set(sName, data2);
                                     changed = true;
                                 }
                             }
@@ -98,7 +98,7 @@ public class FlowPanelComponent
                                 EditorGUILayout.EndHorizontal();
                                 if (data2 != data)
                                 {
-                                    componentList[id].strData.Set(data2, sName);
+                                    componentList[id].strData.Set(sName, data2);
                                     changed = true;
                                 }
                             }
@@ -117,7 +117,7 @@ public class FlowPanelComponent
                                 EditorGUILayout.EndHorizontal();
                                 if (data2 != data)
                                 {
-                                    componentList[id].doubleData.Set(data2, sName);
+                                    componentList[id].doubleData.Set(sName, data2);
                                     changed = true;
                                 }
                             }

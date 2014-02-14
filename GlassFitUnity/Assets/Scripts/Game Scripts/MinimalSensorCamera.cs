@@ -8,7 +8,8 @@ using System;
 public class MinimalSensorCamera : MonoBehaviour {
 	
 	public const Boolean DEBUG_ORIENTATION = false;
-
+	const float pitchSensitivity = 2.3f;
+	
 	public Quaternion offsetFromStart;
 	private Quaternion bearingOffset = Quaternion.identity; // rotation between initialBearing and player's current bearing.
 	                                                        // applied to camera in each update() call.
@@ -203,7 +204,13 @@ public class MinimalSensorCamera : MonoBehaviour {
 //		UnityEngine.Debug.Log("Bearing w-component: " + bearingOffset);
 		
 		// Check for changes in players head orientation
+		PlayerOrientation ori = Platform.Instance.GetPlayerOrientation();
 		Quaternion headOffset = Platform.Instance.GetPlayerOrientation().AsQuaternion();
+		
+		// Double the pitch
+		Vector3 eulerAngles = headOffset.eulerAngles;
+		eulerAngles.x *= 2.0f;
+		headOffset = Quaternion.Euler(eulerAngles);
 		
 		// Check for rearview
 		Quaternion rearviewOffset = Quaternion.Euler(0, (rearview ? 180 : 0), 0);

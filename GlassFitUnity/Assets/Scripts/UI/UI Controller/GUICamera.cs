@@ -6,22 +6,28 @@ public class GUICamera : MonoBehaviour {
     Vector3 cameraPosition;
     Vector3 startPosition;
     Vector2 draggingStartPos;
+    Quaternion startingRotation;
 		
-	const float CAMERA_SENSITIVITY_X = 3.5f;
-    const float CAMERA_SENSITIVITY_Y = 4.5f;
+	const float CAMERA_SENSITIVITY_X = 2.5f;
+    const float CAMERA_SENSITIVITY_Y = 2.5f;
 	
 	public float zoomLevel = -1.0f;        
 
 	// Use this for initialization
-	void Start () {
+	void Start () 
+    {
         cameraPosition = transform.position;
         startPosition = cameraPosition;
+        startingRotation = transform.rotation;
 	}
 	
-	public bool IsPopupDisplayed() {
+	public bool IsPopupDisplayed() 
+    {
 		HexInfoManager info = GameObject.FindObjectOfType(typeof(HexInfoManager)) as HexInfoManager;
-		if(info != null) {
-			if(info.IsInOpenStage()) {
+		if(info != null) 
+        {
+			if(info.IsInOpenStage()) 
+            {
 				info.AnimExit();
 				return true;
 			}
@@ -64,10 +70,28 @@ public class GUICamera : MonoBehaviour {
         else
         {
             Vector2 newCameraOffset;
-            ConvertOrientation(Platform.Instance.GetPlayerOrientation(), out newCameraOffset);
+            //provide camera rotation to gui camera. This will elt us roll ui view
+            PlayerOrientation p = Platform.Instance.GetPlayerOrientation();
+            Quaternion rot = ConvertOrientation(p, out newCameraOffset);
+			
+			//zero out pitch and yaw, we only want roll
+			Vector3 eulerAngles = rot.eulerAngles;
+			eulerAngles.x = 0.0f;
+			eulerAngles.y = 0.0f;
+			rot = Quaternion.Euler(eulerAngles);
+			
             Vector2 camPos = new Vector2(cameraPosition.x, cameraPosition.y);
             newCameraOffset -= camPos;
             transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
+
+            if (!IsHexTypeMenu())
+            {
+                transform.rotation = rot;
+            }
+            else
+            {
+                transform.rotation = startingRotation;
+            }
         }
 	}
 
@@ -116,6 +140,21 @@ public class GUICamera : MonoBehaviour {
     public void ResetCamera()
     {
         transform.position = startPosition;
+    }
+
+    public bool IsHexTypeMenu()
+    {
+        FlowState fs = FlowStateMachine.GetCurrentFlowState();
+        while(fs != null)
+        {
+            if (fs is HexPanel)
+            {
+                //Debug.Log("Is Hex menu");
+                return true;
+            }
+            fs = fs.parent;
+        }
+        return false;
     }
 }
 

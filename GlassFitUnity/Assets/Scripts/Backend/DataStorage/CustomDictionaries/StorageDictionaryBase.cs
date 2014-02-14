@@ -86,7 +86,7 @@ public class StorageDictionaryBase<T> : ISerializable
     /// <param name="obj">variable of type T to be included in dictionary</param>
     /// <param name="name">object identification name</param>
     /// <returns>true if successfully add or changed</returns>
-	public bool Set(T obj, string name)
+	public bool Set( string name, T obj)
 	{
 		if (this.data.Count != this.name.Count)
 		{

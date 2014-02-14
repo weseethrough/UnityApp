@@ -45,29 +45,43 @@ public class MPChildGestureHandler : MonoBehaviour {
 		if(parentPanel != null)
 		{
 			UnityEngine.Debug.Log("MPGestureHandler: Found parent panel");
-			MultiPanelChild child = parentPanel.GetFocusedChild();
-			if(child != null)
+			MultiPanelChild focusedChild = parentPanel.GetFocusedChild();
+			//check if this script is in the focused child
+			if( IsInMultiChildPanel(focusedChild) )
 			{
-				UnityEngine.Debug.Log("MPGestureHandler: Found focused child");
-				//if this script is within that child, we are in focus
-				MPChildGestureHandler script = child.physicalWidgetRoot.GetComponentInChildren<MPChildGestureHandler>();	
-				if (script == this)
-				{
-					UnityEngine.Debug.Log("MPGestureHandler: Focused child was us. We are in focus");
-					return true;
-				}
-				else if (script == null)
-				{
-					UnityEngine.Debug.Log("MPGestureHandler: Focused child doesn't have gesture listener component in children");
-				}
-				else
-				{
-					UnityEngine.Debug.Log("MPGestureHandler: Focused child isn't us");
-				}
+				return true;
 			}
 		}
 		return false;
 	}
+	
+	
+	protected bool IsInMultiChildPanel(MultiPanelChild panel)
+	{
+		if(panel != null)
+			{
+				//UnityEngine.Debug.Log("MPGestureHandler: Found focused child");
+				//if this script is within that child, we are in focus
+				MPChildGestureHandler script = panel.physicalWidgetRoot.GetComponentInChildren<MPChildGestureHandler>();	
+				if (script == this)
+				{
+					//UnityEngine.Debug.Log("MPGestureHandler: tested child was us. We are in focus");
+					return true;
+				}
+				else if (script == null)
+				{
+					//UnityEngine.Debug.Log("MPGestureHandler: tested child doesn't have gesture listener component in children");
+				}
+				else
+				{
+					//UnityEngine.Debug.Log("MPGestureHandler: tested child isn't us");
+				}
+			}
+		
+		return false;
+		
+	}
+	
 	
 	protected virtual void HandleTap() {
 		UnityEngine.Debug.Log("Multipanel Child: handle tap");

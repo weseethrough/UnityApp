@@ -223,6 +223,27 @@ public class FlowStateMachine : MonoBehaviour
     }
 
     /// <summary>
+    /// Function which goes to state with specified ID. It might 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public void GoToStateByID(uint id)
+    {
+        GraphComponent gc = GetComponent<GraphComponent>();
+        if (gc != null)
+        {
+            foreach (GNode node in gc.Data.Nodes)
+            {
+                if (node.Id == id)
+                {
+                    GoToState(node as FlowState);
+                    break;
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="state">state instance which we want navigate to</param>
@@ -376,4 +397,102 @@ public class FlowStateMachine : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public void LoadGameSaves()
+    {
+        DataStore.LoadStorage(DataStore.BlobNames.saves);        
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public void SaveCurrentGameState()
+    {
+        uint id;
+
+        if (targetState == null)
+        {
+            if (activeFlow == null || activeFlow.Count == 0) return;
+
+            FlowState fs = activeFlow[activeFlow.Count - 1];
+            id = fs.Id;
+        }
+        else
+        {
+            id = targetState.Id;
+        }
+
+        GameStateRestorable gsRestorable = new GameStateRestorable();
+        gsRestorable.StoreCurrent(this);
+                                     
+        Storage storage = DataStore.GetStorage(DataStore.BlobNames.saves);
+        storage.dictionary.Set("Save1", gsRestorable);
+
+        DataStore.SaveStorage(DataStore.BlobNames.saves);
+    }
+
+    /// <summary>
+    /// Retursn current target state, which is not null only during transition to new state
+    /// </summary>
+    /// <returns></returns>
+    public FlowState GetCurrentTargetState()
+    {
+        return targetState;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public void RestoreFromSave()
+    {
+        Storage storage = DataStore.GetStorage(DataStore.BlobNames.saves);
+        GameStateRestorable gsRestorable = storage.dictionary.Get("Save1") as GameStateRestorable;
+        if (gsRestorable != null)
+        {
+            gsRestorable.RestoreCurrent();
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    public FlowState GetCurrentState()
+    {
+        
+        if (activeFlow == null || activeFlow.Count == 0) return null;
+
+        return activeFlow[activeFlow.Count - 1];
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+	void OnApplicationQuit() 
+    {
+        if (SaveRestorableArea.allowGameStateAutoSave)
+        {
+            Debug.Log("-------SAVE ON EXIT by EXIT");
+            SaveCurrentGameState();
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    void OnApplicationPause() 
+    {
+        if (SaveRestorableArea.allowGameStateAutoSave)
+        {
+            Debug.Log("-------SAVE ON EXIT by PAUSE");
+            SaveCurrentGameState();
+        }
+    }
 }

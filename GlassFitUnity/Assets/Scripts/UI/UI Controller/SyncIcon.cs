@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class SyncIcon : MonoBehaviour {
 	
@@ -57,13 +58,27 @@ public class SyncIcon : MonoBehaviour {
 	
 	void GoToGame() {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
-			
+		GConnector gConnect;
+		
+		//UnityEngine.Debug.Log("SyncIcon - Datavault value is " + DataVault.Get("test_string").ToString());
+		
+		bool tutorial = Convert.ToBoolean(DataVault.Get("tutorial_complete"));
+		
+		if(tutorial) {
+			UnityEngine.Debug.Log("SyncIcon: tutorial is complete, going to game");
+			gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
+		}
+		else
+		{
+			UnityEngine.Debug.Log("SyncIcon: tutorial is not complete, going to tutorial");
+			gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
+		}
+		
 		if(gConnect != null) {
 			fs.parentMachine.FollowConnection(gConnect);
 			Platform.Instance.onSync -= syncHandler;
 		} else {
-			UnityEngine.Debug.Log("SyncIcon: Game exit not found");
+			UnityEngine.Debug.Log("SyncIcon: " + gConnect.Name + " not found");
 		}
 	}
 	

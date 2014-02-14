@@ -39,7 +39,8 @@ public class DataStore : MonoBehaviour
         activity,
         flow,
         persistent,        
-        maxItem
+        maxItem,
+        saves
     }
 
     //private properties
@@ -159,7 +160,7 @@ public class DataStore : MonoBehaviour
 	/// <returns>null if storage doesn't exist or datastore instance is null, or storage instance if one is found</returns>
 	static public Storage GetStorage(BlobNames name)
 	{
-		if (instance != null)
+        if (instance != null && instance.storageBank.ContainsKey(name.ToString()))
 		{
 			//UnityEngine.Debug.Log("DataStore: Name is " + name);
             return instance.storageBank[name.ToString()];	

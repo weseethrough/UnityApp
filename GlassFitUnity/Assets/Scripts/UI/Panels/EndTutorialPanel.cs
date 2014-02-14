@@ -97,6 +97,9 @@ public class EndTutorialPanel : HexPanel {
 			UnlockHex();
 		});
 		
+		DataVault.Set("tutorial_complete", true);
+		DataVault.SaveToBlob();
+		
 		GestureHelper.onTap += tapHandler;
 	}
 
