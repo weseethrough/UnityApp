@@ -41,6 +41,7 @@ public class Platform : MonoBehaviour {
 	
 	// Are we authenticated? Note: we mark it false at init and true when any auth call passes
 	public bool authenticated { get; private set; }	
+	public bool connected { get; private set; } // ditto
 	
 	// Other components may change this to disable sync temporarily?
 	public int syncInterval = 10;
@@ -55,6 +56,8 @@ public class Platform : MonoBehaviour {
 	public OnSyncProgress onSyncProgress = null;
 	public delegate void OnRegistered(string message);
 	public OnRegistered onDeviceRegistered = null;
+	public delegate void OnGroupCreated(int groupId);
+	public OnGroupCreated onGroupCreated = null;
 	
 	// The current user and device
 	private User user = null;
@@ -157,6 +160,7 @@ public class Platform : MonoBehaviour {
 	{        
 	                
 	    authenticated = false;
+		connected = false;
 	    targetTrackers = new List<TargetTracker>();
 	    UnityEngine.Debug.Log("Platform: Initialize() called");
 	                
@@ -171,66 +175,67 @@ public class Platform : MonoBehaviour {
             // call the following on the UI thread
             activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 	                                
-                // Get the singleton helper objects
-                try {
+				try {
+	                // Get the singleton helper objects
                     helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
                     points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
                     UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
-                } catch (Exception e) {
-                    UnityEngine.Debug.LogWarning("Platform: Helper.getInstance() failed");
-                    UnityEngine.Debug.LogException(e);
-                }
-
-				// Try to get a Java GPSTracker object
-                try {
+	
+					// Try to get a Java GPSTracker object
                     gps = helper.Call<AndroidJavaObject>("getGPSTracker");
                     UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
-                } catch (Exception e) {
-                    UnityEngine.Debug.LogWarning("Platform: Helper.getGPSTracker() failed");
-                    UnityEngine.Debug.LogException(e);
-                }
-                
-                // Cache the list of games and states from java
-	            GetGames();
-				
-				// get reference to Sensoria Socks
-				try {
-					sensoriaSock = new AndroidJavaObject("com.glassfitgames.glassfitplatform.sensors.SensoriaSock", context);
-					UnityEngine.Debug.Log("Platform: socks obtained");
-				} catch (Exception e) {
-					UnityEngine.Debug.LogWarning("Platform: Error attaching to Sensoria Socks: " + e.Message);
-				}
-			                       
-				//Poll();
-	            UnityEngine.Debug.Log("Platform: Opening points: " + GetOpeningPointsBalance());
-	            UnityEngine.Debug.Log("Platform: Current game points: " + GetCurrentPoints());
-	            UnityEngine.Debug.Log("Platform: Current gems: " + GetCurrentGemBalance());
-	            UnityEngine.Debug.Log("Platform: Current metabolism: " + GetCurrentMetabolism());
-	                                        
-				if (OnGlass() && HasInternet()) {
-					UnityEngine.Debug.Log("Platform: attempting authorize");
-					Authorize("any", "login");
-					UnityEngine.Debug.Log("Platform: authorize complete");
-				}
-				
-				if (IsRemoteDisplay()) {
-					BluetoothServer();
-				} else {
-					BluetoothClient();
-				}
-								
-	            initialised = true;
-				
-				UnityEngine.Debug.Log("Platform: initialise complete");
-				//ExportCSV();
-
-				// Log screen dimensions - for debug only, can be commented out
-				UnityEngine.Debug.Log("Platform: screen dimensions are " + GetScreenDimensions().x.ToString() + "x" + GetScreenDimensions().y.ToString());
+	                
+	                // Cache the list of games and states from java
+		            GetGames();
+					
+					// get reference to Sensoria Socks
+					try {
+						sensoriaSock = new AndroidJavaObject("com.glassfitgames.glassfitplatform.sensors.SensoriaSock", context);
+						UnityEngine.Debug.Log("Platform: socks obtained");
+					} catch (Exception e) {
+						UnityEngine.Debug.LogWarning("Platform: Error attaching to Sensoria Socks: " + e.Message);
+					}
+				                       
+					//Poll();
+		            UnityEngine.Debug.Log("Platform: Opening points: " + GetOpeningPointsBalance());
+		            UnityEngine.Debug.Log("Platform: Current game points: " + GetCurrentPoints());
+		            UnityEngine.Debug.Log("Platform: Current gems: " + GetCurrentGemBalance());
+		            UnityEngine.Debug.Log("Platform: Current metabolism: " + GetCurrentMetabolism());
+		                                        
+					if (OnGlass() && HasInternet()) {
+						UnityEngine.Debug.Log("Platform: attempting authorize");
+						Authorize("any", "login");
+						UnityEngine.Debug.Log("Platform: authorize complete");
+					}
+					
+					if (IsRemoteDisplay()) {
+						BluetoothServer();
+					} else {
+						BluetoothClient();
+					}
+					if (false && HasInternet() && HasPermissions("any", "login")) {
+						// TODO: Non-blocking connect?
+						ConnectSocket();
+					}
+									
+		            initialised = true;
+					
+					UnityEngine.Debug.Log("Platform: initialise complete");
+					//ExportCSV();
+	
+					// Log screen dimensions - for debug only, can be commented out
+					UnityEngine.Debug.Log("Platform: screen dimensions are " + GetScreenDimensions().x.ToString() + "x" + GetScreenDimensions().y.ToString());
+			    } catch (Exception e) {
+		            UnityEngine.Debug.LogWarning("Platform: Error in initialisation thread " + e.Message);
+		            UnityEngine.Debug.LogException(e);
+					Application.Quit();
+			    }				
 	    	}));
 	                        
 	    } catch (Exception e) {
-            UnityEngine.Debug.LogWarning("Platform: Error in constructor" + e.Message);
+            UnityEngine.Debug.LogWarning("Platform: Error in constructor " + e.Message);
             UnityEngine.Debug.LogException(e);
+			Application.Quit();
 	    }
 
 		// start listening for 2-tap gestures to reset gyros
@@ -303,6 +308,22 @@ public class Platform : MonoBehaviour {
 		OnBluetoothJson(json);
 	}
 	
+	public void OnUserMessage(string message) {
+		JSONNode json = JSON.Parse(message);
+		MessageWidget.AddMessage("Network", "<" + json["from"] + "> " + json["data"], "settings"); // DEBUG
+	}
+	
+	public void OnGroupMessage(string message) {
+		JSONNode json = JSON.Parse(message);
+		MessageWidget.AddMessage("Network", "#" + json["group"] + " <" + json["from"] + "> " + json["data"], "settings"); // DEBUG
+	}
+	
+	public void OnGroupCreation(string message) {
+		if (onGroupCreated != null) onGroupCreated(int.Parse(message));
+		// TODO: Potential hanging deferral. What do we do if socket is disconnected before a group is created?
+	}
+	
+	
 	private void OnBluetoothJson(JSONNode json) {
 		UnityEngine.Debug.Log("Platform: OnBluetoothJson"); 
 		switch(json["action"]) {
@@ -324,8 +345,6 @@ public class Platform : MonoBehaviour {
 			break;
 		}
 		
-		// TODO: Start train
-		// TODO: Start race
 		// TODO: Start challenge
 		// TODO: Toggle outdoor/indoor
 	}
@@ -1411,6 +1430,115 @@ public class Platform : MonoBehaviour {
 		{
 			UnityEngine.Debug.LogWarning("Platform: Error getting Bluetooth peers. " + e.Message);
 			return new string[0];
+		}
+	}
+	
+	public virtual bool ConnectSocket() {
+		try
+		{
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return false;
+			connected = true;
+			return true;
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error connecting to socket server. " + e.Message);
+			return false;
+		}
+	}
+
+	public virtual bool DisconnectSocket() {
+		try
+		{
+			helper.Call("disconnectSocket");
+			connected = false;
+			return true;
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error disconnecting from socket server. " + e.Message);
+			return false;
+		}
+	}
+
+	public virtual bool MessageUser(int userId, string message) {
+		try
+		{
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return false;
+			connected = true;
+			socket.Call("messageUser", userId, System.Text.Encoding.UTF8.GetBytes(message));
+			return true;
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error sending socket message. " + e.Message);
+			return false;
+		}
+	}
+
+	public virtual bool MessageGroup(int groupId, string message) {
+		try
+		{
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return false;
+			connected = true;
+			socket.Call("messageGroup", groupId, System.Text.Encoding.UTF8.GetBytes(message));
+			return true;
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error sending group socket message. " + e.Message);
+			return false;
+		}
+	}
+
+	public virtual bool CreateGroup() {
+		try
+		{
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return false;
+			connected = true;
+			socket.Call("createGroup");
+			return true;
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error creating messaging group. " + e.Message);
+			return false;
+		}
+	}
+
+	public virtual bool JoinGroup(int groupId) {
+		try
+		{
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return false;
+			connected = true;
+			socket.Call("joinGroup", groupId);
+			return true;
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error joining messaging group. " + e.Message);
+			return false;
+		}
+	}
+
+	public virtual bool LeaveGroup(int groupId) {
+		try
+		{
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return false;
+			connected = true;
+			socket.Call("leaveGroup", groupId);
+			return true;
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error leaving messaging group. " + e.Message);
+			return false;
 		}
 	}
 

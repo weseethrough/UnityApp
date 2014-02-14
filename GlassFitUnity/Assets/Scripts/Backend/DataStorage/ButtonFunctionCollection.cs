@@ -837,7 +837,8 @@ public class ButtonFunctionCollection
 		Debug.Log ("ButtonFunc: " + friendUid + " challenged");
 		MessageWidget.AddMessage("Challenge", "You challenged " + friend.name, "settings");
 		Platform.Instance.SyncToServer();
-		
+		if (Platform.Instance.connected && friend.userId.HasValue) Platform.Instance.MessageUser(friend.userId.Value, "Respond to my challenge, scoundrel!");
+			
 		return true;
 	}
 	
@@ -886,6 +887,7 @@ public class ButtonFunctionCollection
 		Debug.Log ("Challenge: " + friendUid + " challenged");
 		MessageWidget.AddMessage("Challenge", "You challenged " + friendUid, "settings");
 		Platform.Instance.SyncToServer();
+		if (Platform.Instance.connected && friend.userId.HasValue) Platform.Instance.MessageUser(friend.userId.Value, "I bite my thumb at thee, sir!");
 		
 		return true;
 	}
