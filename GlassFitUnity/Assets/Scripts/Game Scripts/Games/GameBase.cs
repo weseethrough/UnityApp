@@ -76,14 +76,19 @@ public class GameBase : MonoBehaviour {
 	// Target speed
 	public float targSpeed = 1.8f;
 	
-	private bool pause = false;
+	private bool pause = false; // true when the game is paused, either due to a user-tap or auto-pause
+	private bool autopause = false; // true when the game has automatically paused due to the user stopping runing
 	
 	protected GestureHelper.OnTap tapHandler = null;
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
 	protected GestureHelper.DownSwipe downHandler = null;
 	private GestureHelper.OnSwipeLeft leftHandler = null;
 	private GestureHelper.OnSwipeRight rightHandler = null;
-	
+
+	// Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via Unity Messages.
+	float playerStateEntryTime = UnityEngine.Time.time;
+	string playerState = "";
+
 	protected GameObject theVirtualTrack;
 	
 	private int lastDistance;
@@ -227,6 +232,12 @@ public class GameBase : MonoBehaviour {
 		{
 			UnityEngine.Debug.Log("GameBase: Couldn't find virtual track to set visiblity");
 		}
+	}
+
+	// Called by unity messages on each state change
+	void PlayerStateChange(string message) {
+		playerState = message;
+		playerStateEntryTime = UnityEngine.Time.time;
 	}
 	
 	public void ConsiderQuit() {
@@ -415,6 +426,7 @@ public class GameBase : MonoBehaviour {
 		} else {
 			UnityEngine.Debug.Log("GameBase: Pause pressed, turning off");
 			pause = false;
+			autopause = false; // user can exit auto-pause by swiping down
 			Time.timeScale = 1.0f;
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			UnityEngine.Debug.Log("GameBase: flowstate obtained");
@@ -612,7 +624,21 @@ public class GameBase : MonoBehaviour {
 	// Update is called once per frame
 	public virtual void Update () 
 	{
-	
+
+		// Auto-pause if player has stopped for > 0.5secs
+		if (!autopause && !pause && playerState == "STOPPED" && (UnityEngine.Time.time-playerStateEntryTime > 0.5f))
+		{
+			autopause = true;
+			ConsiderQuit();
+		}
+
+		// Auto-un-pause if player has started moving again
+		else if (autopause && playerState != "STOPPED" && (UnityEngine.Time.time-playerStateEntryTime > 0.5f))
+		{
+			autopause = false;
+			ReturnGame();
+		}
+
 		//Update variables for GUI	
 		Platform.Instance.Poll();
 		
