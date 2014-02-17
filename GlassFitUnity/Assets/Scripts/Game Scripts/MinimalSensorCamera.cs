@@ -210,6 +210,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 		// Double the pitch
 		Vector3 eulerAngles = headOffset.eulerAngles;
 		eulerAngles.x *= 2.0f;
+		//tilt down a little too
+		eulerAngles.x -= 15.0f;
 		headOffset = Quaternion.Euler(eulerAngles);
 		
 		// Check for rearview
