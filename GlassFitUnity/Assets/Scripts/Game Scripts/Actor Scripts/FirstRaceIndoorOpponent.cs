@@ -6,6 +6,9 @@ public class FirstRaceIndoorOpponent : TargetController {
 	private double playerDistance = 0f;
 	private float playerSpeed = 0f;
 	
+	private float distanceInterval = 50f;
+	private float intervalStartTime = 0.0f;
+	
 	private float distanceFromStart = 0;
 	
 	private bool notVisible = true;
@@ -13,6 +16,8 @@ public class FirstRaceIndoorOpponent : TargetController {
 	private Animator anim;
 	
 	private float currentSpeed = 0.0f;
+	
+	private double lastDistance = 0.0;
 	
 	// Use this for initialization
 	void Start () {
@@ -32,7 +37,12 @@ public class FirstRaceIndoorOpponent : TargetController {
 	void Update () {
 		//UnityEngine.Debug.Log("IndoorOpponent: we are in the update function");
 		playerDistance = Platform.Instance.Distance();
-		playerSpeed = Platform.Instance.Pace();
+		
+		if(playerDistance > distanceInterval)
+		{
+			SetRunnerSpeed();
+			distanceInterval += 50f;
+		}
 		
 		SetAnimSpeed(currentSpeed);
 		
@@ -61,12 +71,23 @@ public class FirstRaceIndoorOpponent : TargetController {
 	
 	public void SetRunnerSpeed()
 	{
-		playerDistance = Platform.Instance.Distance();
-		float time = Platform.Instance.Time() / 1000f;
+		double currentDistance = Platform.Instance.Distance();
+		float currentTime = Platform.Instance.Time() / 1000f;
 		
-		UnityEngine.Debug.Log("IndoorOpponent: time is " + time.ToString("f2"));
+		float intervalTotalTime = currentTime - intervalStartTime;
 		
-		currentSpeed = (float)playerDistance/time;
+		double newDistance = currentDistance - lastDistance;
+		
+		float newSpeed = (float)newDistance/intervalTotalTime;
+		
+		if(newSpeed > currentSpeed)
+		{
+			currentSpeed = newSpeed;
+		}
+		
+		lastDistance = currentDistance;
+		intervalStartTime = currentTime;
+		
 		UnityEngine.Debug.Log("IndoorOpponent: speed is " + currentSpeed.ToString("f2"));
 	}
 	

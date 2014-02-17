@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.Collections;
 using System;
 
-
-
-
 public class FirstRun : GameBase {
 	
 	const float MIN_PACE = 1.5f;
@@ -150,7 +147,7 @@ public class FirstRun : GameBase {
 							UnityEngine.Debug.Log("FirstRun: couldn't find " + gConnect.Name);
 						}
 						runner.SetHeadstart((float)Platform.Instance.Distance());
-						(runner as FirstRaceIndoorOpponent).SetRunnerSpeed();
+						//(runner as FirstRaceIndoorOpponent).SetRunnerSpeed();
 					}
 				}
 				else if(distance > 100)
@@ -166,19 +163,21 @@ public class FirstRun : GameBase {
 							if(runner.GetDistanceBehindTarget() < 0)
 							{
 								DataVault.Set("first_result", "You Won!");
-								DataVault.Set("first_desc", "You beat your previous time!");
+								//DataVault.Set("first_desc", "You beat your previous time!");
 							}
 							else
 							{
 								DataVault.Set("first_result", "You Lost");
-								DataVault.Set("first_desc", "You previous time was faster");
+								//DataVault.Set("first_desc", "You previous time was faster");
+								
 							}
+							DataVault.Set("first_desc", "Now try again!");
 							if(chime != null)
 							{
 								chime.Play();
 							}
 							fs.parentMachine.FollowConnection(gConnect);
-							runner.enabled = false;
+							//runner.enabled = false;
 							StartCoroutine(GoBack());
 						}
 						else
