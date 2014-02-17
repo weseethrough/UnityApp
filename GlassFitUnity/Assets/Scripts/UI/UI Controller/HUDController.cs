@@ -35,7 +35,8 @@ public class HUDController : MonoBehaviour {
 	}
 	
 	public void setInstrumentationVisible(bool visible) {
-		shouldShowInstrumentation = visible;
+		//shouldShowInstrumentation = visible;
+		UnityEngine.Debug.LogError("Call to setInstrumentationVisible() should be removed");
 	}
 	
 	protected void findLabelAndSetVisible(string name, ref GameObject localVar, bool visible)
@@ -61,30 +62,21 @@ public class HUDController : MonoBehaviour {
 		}
 	}
 	
-	/// <summary>
-	/// Public interface to set the instrumentation visible.
-	/// </summary>
-	/// <param name='visible'>
-	/// Visible.
-	/// </param>
-	public void SetInstrumentationVisible(bool visible) {
-		shouldShowInstrumentation = visible;	
-	}
 		
 	//update element visibilities. Internal function called later on to set visibility.
 	protected void UpdateInstrumentationVisible() {
 		//UnityEngine.Debug.Log("HUD: trying to set visibility of instrumentation to :" + shouldShowInstrumentation);
 
-		findLabelAndSetVisible("TimeBox", ref timeBox, shouldShowInstrumentation);
-		findLabelAndSetVisible("TimeUnits_Laligned", ref timeUnits, shouldShowInstrumentation);
-		findLabelAndSetVisible("DistanceBox", ref distanceBox, shouldShowInstrumentation);
-		findLabelAndSetVisible("DistanceUnits_Laligned", ref distanceUnits, shouldShowInstrumentation);
-		findLabelAndSetVisible("PaceBox", ref paceBox, shouldShowInstrumentation);
-		findLabelAndSetVisible("PaceUnits", ref paceUnits, shouldShowInstrumentation);
-		findLabelAndSetVisible("CaloriesBox", ref caloriesBox, shouldShowInstrumentation);
-		findLabelAndSetVisible("CalsUnits", ref caloriesUnits, shouldShowInstrumentation);
-		findLabelAndSetVisible("PointsBox", ref pointsBox, shouldShowInstrumentation);
-		findLabelAndSetVisible("PointsUnits", ref pointsUnits, shouldShowInstrumentation);
+//		findLabelAndSetVisible("TimeBox", ref timeBox, shouldShowInstrumentation);
+//		findLabelAndSetVisible("TimeUnits_Laligned", ref timeUnits, shouldShowInstrumentation);
+//		findLabelAndSetVisible("DistanceBox", ref distanceBox, shouldShowInstrumentation);
+//		findLabelAndSetVisible("DistanceUnits_Laligned", ref distanceUnits, shouldShowInstrumentation);
+//		findLabelAndSetVisible("PaceBox", ref paceBox, shouldShowInstrumentation);
+//		findLabelAndSetVisible("PaceUnits", ref paceUnits, shouldShowInstrumentation);
+//		findLabelAndSetVisible("CaloriesBox", ref caloriesBox, shouldShowInstrumentation);
+//		findLabelAndSetVisible("CalsUnits", ref caloriesUnits, shouldShowInstrumentation);
+//		findLabelAndSetVisible("PointsBox", ref pointsBox, shouldShowInstrumentation);
+//		findLabelAndSetVisible("PointsUnits", ref pointsUnits, shouldShowInstrumentation);
 	}
 	
 	public void setAheadBoxVisible(bool visible) {

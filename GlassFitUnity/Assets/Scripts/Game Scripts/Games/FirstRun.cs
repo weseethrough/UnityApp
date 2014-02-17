@@ -54,8 +54,8 @@ public class FirstRun : GameBase {
 		}
 		
 		//hide virtual track to begin with
-		SetVirtualTrackVisible(false);
-		SetRunnerVisible(true);
+		//SetVirtualTrackVisible(false);
+		//SetRunnerVisible(true);
 		
 		//create target trackers for a few different paces
 		float fInterval = (MAX_PACE - MIN_PACE) / NUM_PACES;
