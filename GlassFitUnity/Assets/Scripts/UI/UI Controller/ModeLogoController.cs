@@ -3,11 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class ModeLogoController : UIComponentSettings {
-
+	
+	public string gameKey = "current_game_id";
+	
 	// Use this for initialization
 	void Start () {
 		//subscribe to the key in the datavault
-		DataVault.RegisterListner(this, "current_game_id");
+		DataVault.RegisterListner(this, gameKey);
 		Apply();
 	}
 	
