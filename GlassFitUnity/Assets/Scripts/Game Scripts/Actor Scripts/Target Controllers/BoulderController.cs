@@ -27,17 +27,17 @@ public class BoulderController : TargetController {
 	// Current speed
 	private float currentSpeed = 1.25f;
 	
+	private float distanceFromStart = -50f;
+	
+	private double playerDistance = 0.0;
+	
 	/// <summary>
 	/// Sets the attributes
 	/// </summary>
 	void Start () {
 		// Set attributes and initial rotation.
-		SetAttribs(50f, 135f, 420f, 0f);
+		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 		xRot = 0;
-		if(target is FauxTargetTracker)
-		{
-			((FauxTargetTracker) target).SetTargetSpeed(currentSpeed);
-		}
 	}
 	
 	/// <summary>
@@ -47,16 +47,20 @@ public class BoulderController : TargetController {
 	{
 		// Enable the object and set attributes.
 		base.OnEnable();
-		SetAttribs(50f, 135f, 420f, 0f);		
+		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
+	}
+	
+	public void Reset()
+	{
+		currentSpeed = 1.25f;
+		currentTime = 0.0f;
+		distanceFromStart = -50f;
 	}
 	
 	/// <summary>
 	/// Update this instance + updates rotation
 	/// </summary>
 	void Update () {
-		
-		// Update the base.
-		base.Update();
 		
 		currentTime += Time.deltaTime;
 		
@@ -66,10 +70,6 @@ public class BoulderController : TargetController {
 			
 			currentSpeed += speedIncrease;
 			
-			if(target is FauxTargetTracker)
-			{
-				((FauxTargetTracker) target).SetTargetSpeed(currentSpeed);
-			}
 		}
 		
 		// Rotate the object based on speed.
@@ -84,5 +84,24 @@ public class BoulderController : TargetController {
 		// Make a new quaternion based on the rotation and apply
 		Quaternion rot = Quaternion.Euler(new Vector3(xRot,0,0));
 		transform.rotation = rot;
+		
+		distanceFromStart += Time.deltaTime * currentSpeed;	
+		
+		// Update the base.
+		base.Update();
+		
+		
+	}
+	
+	/// <summary>
+	/// Override base implementation, which queries target tracker.
+	/// </summary>
+	/// <returns>
+	/// The distance behind this target.
+	/// </returns>
+	public override double GetDistanceBehindTarget ()
+	{
+		float relativeDist = distanceFromStart - (float)playerDistance;
+		return relativeDist;
 	}
 }

@@ -163,13 +163,10 @@ public class FirstRun : GameBase {
 							if(runner.GetDistanceBehindTarget() < 0)
 							{
 								DataVault.Set("first_result", "You Won!");
-								//DataVault.Set("first_desc", "You beat your previous time!");
 							}
 							else
 							{
 								DataVault.Set("first_result", "You Lost");
-								//DataVault.Set("first_desc", "You previous time was faster");
-								
 							}
 							DataVault.Set("first_desc", "Now try again!");
 							if(chime != null)
@@ -177,7 +174,6 @@ public class FirstRun : GameBase {
 								chime.Play();
 							}
 							fs.parentMachine.FollowConnection(gConnect);
-							//runner.enabled = false;
 							StartCoroutine(GoBack());
 						}
 						else

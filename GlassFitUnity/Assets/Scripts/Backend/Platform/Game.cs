@@ -21,12 +21,13 @@ public class Game
 	public string type { get; private set; }
 	public int column { get; private set; }
 	public int row { get; private set; }
+	public string sceneName {get; private set; }
 	
 	public Game ()
 	{
 	}
 	
-	public Game(string gameID, string name, string iconName, string activity, string description, string state, int tier, long priceInPoints, long priceInGems, string type, int column, int row)
+	public Game(string gameID, string name, string iconName, string activity, string description, string state, int tier, long priceInPoints, long priceInGems, string type, int column, int row, string sceneName)
 	{
 		this.gameId = gameID;
 		this.name = name;
@@ -40,6 +41,7 @@ public class Game
 		this.type = type;
 		this.column = column;
 		this.row = row;
+		this.sceneName = sceneName;
 	}
 	
 	/// <summary>
@@ -65,6 +67,7 @@ public class Game
 			type = javaGame.Call<string> ("getType");
 			column = javaGame.Call<int> ("getColumn");
 			row = javaGame.Call<int> ("getRow");
+			sceneName = javaGame.Call<string> ("getSceneName");
 			UnityEngine.Debug.Log ("Game: Successfuly imported game: " + gameId);
 		}
 		catch (Exception e) {
