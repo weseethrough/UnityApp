@@ -112,10 +112,9 @@ public class GraphComponent : MonoBehaviour
     {
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
-        int nextIndex = flowDictionary.GetIndex(nextStartNavigateTo);
-        if (selectedFlow == nextIndex) return false;
+        int nextIndex = flowDictionary.GetIndex(name);
+        if (nextIndex == -1 || selectedFlow == nextIndex) return false;
         
-
         //if flow exists it would be initialized, otherwise initialized would be flow currently defaulted.
         //Make sure statemachine is ready for this type of move
         nextStartNavigateTo = name;
