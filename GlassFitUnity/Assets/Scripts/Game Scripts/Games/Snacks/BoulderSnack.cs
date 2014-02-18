@@ -3,12 +3,18 @@ using System.Collections;
 
 public class BoulderSnack : SnackBase {
 	
+	// The boulder
 	BoulderController boulder;
 	
+	/// <summary>
+	/// Override base class. Will enable the boulder to start the game.
+	/// </summary>
 	public override void Begin ()
 	{
+		// Call the base function
 		base.Begin ();
 		
+		// Enable the boulder if it is there
 		if(boulder != null)
 		{
 			boulder.enabled = true;
@@ -21,21 +27,33 @@ public class BoulderSnack : SnackBase {
 	
 	// Use this for initialization
 	void Start () {
+		// Call the base function
 		base.Start();
+		// Find the boulder
 		boulder = GetComponent<BoulderController>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		// Call the base function
 		base.Update();
+		
+		// Update the display
 		UpdateAhead(boulder.GetDistanceBehindTarget());
+		
+		// Check if the boulder is null
 		if(boulder != null)
 		{
+			// Check if the boulder reached the player
 			if(boulder.GetDistanceBehindTarget() > 0.0)
 			{				
+				// Set the attributes for the banner
 				DataVault.Set("death_colour", "EA0000FF");
 				DataVault.Set("snack_result", "You survived for " + SiDistance(boulder.GetPlayerDistanceTravelled()));
 				DataVault.Set("snack_result_desc", "returning to game...");
+				// End the game
+				finish = true;
+				// Show the banner
 				StartCoroutine(ShowBanner());
 			}
 		}
@@ -45,6 +63,15 @@ public class BoulderSnack : SnackBase {
 		}
 	}
 	
+	/// <summary>
+	/// Converts distance to a string.
+	/// </summary>
+	/// <returns>
+	/// The distance with units attached.
+	/// </returns>
+	/// <param name='meters'>
+	/// distance in meters.
+	/// </param>
 	protected string SiDistance(double meters) {
 		string postfix = "m";
 		string final;

@@ -27,10 +27,13 @@ public class BoulderController : TargetController {
 	// Current speed
 	private float currentSpeed = 1.25f;
 	
+	// Starting distance
 	private float distanceFromStart = -50f;
 	
+	// Players current distance
 	private double playerDistance = 0.0;
 	
+	// Player's starting distance
 	private double playerStartDistance = 0.0;
 	
 	/// <summary>
@@ -53,12 +56,19 @@ public class BoulderController : TargetController {
 		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 	}
 	
+	/// <summary>
+	/// Reset the attributes.
+	/// </summary>
 	public void Reset()
 	{
+		// Set the starting speed
 		currentSpeed = 1.25f;
+		// Set the start time
 		currentTime = 0.0f;
+		// Set the player's initial distance
 		playerDistance = Platform.Instance.Distance();
 		playerStartDistance = Platform.Instance.Distance();
+		// Set the boulder's starting distance
 		distanceFromStart = (float)playerDistance - 50f;
 	}
 	
@@ -66,10 +76,13 @@ public class BoulderController : TargetController {
 	/// Update this instance + updates rotation
 	/// </summary>
 	void Update () {
+		// Set the player distance 
 		playerDistance = Platform.Instance.Distance();
 		
+		// Increase the time
 		currentTime += Time.deltaTime;
 		
+		// Update the speed if enough time has passed
 		if(currentTime > updateTime) 
 		{
 			currentTime -= updateTime;
@@ -91,11 +104,12 @@ public class BoulderController : TargetController {
 		Quaternion rot = Quaternion.Euler(new Vector3(xRot,0,0));
 		transform.rotation = rot;
 		
+		// Increase distance
 		distanceFromStart += Time.deltaTime * currentSpeed;	
+		UnityEngine.Debug.Log("BoulderController: distance is " + distanceFromStart.ToString("f2"));
 		
 		// Update the base.
 		base.Update();
-		
 		
 	}
 	
@@ -111,6 +125,12 @@ public class BoulderController : TargetController {
 		return relativeDist;
 	}
 	
+	/// <summary>
+	/// Gets the distance the player has travelled in the minigame.
+	/// </summary>
+	/// <returns>
+	/// The player's distance.
+	/// </returns>
 	public double GetPlayerDistanceTravelled()
 	{
 		return playerDistance - playerStartDistance;
