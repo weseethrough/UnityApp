@@ -86,7 +86,6 @@ public class SnackController : MonoBehaviour {
 		//set strings in datavault for ui panel
 		DataVault.Set("snack_game_title", currentGame.name);
 		DataVault.Set("snack_game_desc", currentGame.description);
-		
 		//trigger alert flash / chime to get user attention
 		
 		
@@ -105,9 +104,9 @@ public class SnackController : MonoBehaviour {
 		//wait 5s
 		for(int i=10; i>0; i--)
 		{
-			yield return new WaitForSeconds(1.0f);
 			string s = i>0 ? i.ToString() : "";
 			DataVault.Set("snack_prompt", "Tap to play " + s);
+			yield return new WaitForSeconds(1.0f);
 		}
 			
 		if(!acceptedGame)
