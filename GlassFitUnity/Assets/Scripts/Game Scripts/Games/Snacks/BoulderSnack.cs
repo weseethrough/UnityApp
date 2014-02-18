@@ -25,43 +25,18 @@ public class BoulderSnack : SnackBase {
 		boulder = GetComponent<BoulderController>();
 	}
 	
-	IEnumerator Finish()
-	{
-		yield return new WaitForSeconds(2.0f);
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		fs.parentMachine.FollowBack();
-		SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));
-		if(run)
-		{
-			run.OnSnackFinished();
-		}
-		else
-		{
-			UnityEngine.Debug.Log("BoulderSnack: not found SnackRun");
-		}
-		Destroy(transform.gameObject);
-	}
-	
 	// Update is called once per frame
 	void Update () {
 		base.Update();
+		UpdateAhead(boulder.GetDistanceBehindTarget());
 		if(boulder != null)
 		{
 			if(boulder.GetDistanceBehindTarget() > 0.0)
-			{
-				
-				FlowState fs = FlowStateMachine.GetCurrentFlowState();
-				GConnector gConnect = fs.Outputs.Find(r => r.Name == "DeathExit");
-				if(gConnect != null)
-				{
-					fs.parentMachine.FollowConnection(gConnect);
-					StartCoroutine(Finish());
-				}
-				else
-				{
-					UnityEngine.Debug.Log("BoulderSnack: can't find exit!");
-				}
-				
+			{				
+				DataVault.Set("death_colour", "EA0000FF");
+				DataVault.Set("snack_result", "Game Over");
+				DataVault.Set("snack_result_desc", "returning to game...");
+				StartCoroutine(ShowBanner());
 			}
 		}
 		else

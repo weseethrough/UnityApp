@@ -10,7 +10,7 @@ public class SnackRun : GameBase {
 	protected float snackInterval = 200.0f;
 	
 	// Use this for initialization
-	void Start () {
+	void Start() {
 		base.Start();
 		//create snack controller
 		snackController = new GameObject().AddComponent<SnackController>();
