@@ -169,7 +169,7 @@ public class SnackController : MonoBehaviour {
 		return game.sceneName;
 	}
 	
-	IEnumerator doAsyncLoad( Game game )
+	IEnumerator doAsyncLoad(Game game)
 	{
 		UnityEngine.Debug.Log("SnackController: Loading snack: " + game.gameId );
 		

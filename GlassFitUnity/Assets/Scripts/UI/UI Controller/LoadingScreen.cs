@@ -26,10 +26,14 @@ public class LoadingScreen : MonoBehaviour {
 			}
 			else
 			{
-				levelName = "SnackRun";	
+				levelName = "FirstRun";	
 			}
 			break;
 		
+		case "snack":
+			levelName = "SnackRun";
+			break;
+			
 		case "challenge":
 			levelName = "Challenge Mode";
 			break;
