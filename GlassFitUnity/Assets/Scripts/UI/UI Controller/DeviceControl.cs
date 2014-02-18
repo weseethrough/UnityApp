@@ -22,7 +22,7 @@ public class DeviceControl : MonoBehaviour {
 	/// </summary>
 	protected void UpdateStatus()
 	{
-		if(Platform.Instance.HasWifi())
+		if(Platform.Instance.HasInternet())
 		{
 			if(Platform.Instance.Device() != null)
 			{

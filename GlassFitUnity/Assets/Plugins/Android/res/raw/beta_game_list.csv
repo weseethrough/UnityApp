@@ -7,7 +7,7 @@ activity_boulder,Boulder Dash,activity_boulder,run,Run away from the boulder!,Un
 activity_versus,Challenges,activity_versus,all,Race against your friends!,Unlocked,1,5000,3,Challenge,-1,1,Race Mode
 activity_race_yourself,Race Yourself,activity_run,run,Race against your own avatar,Unlocked,0,0,0,Race,0,-1,Race Mode
 activity_achievement,Achievements,activity_achievement,run,View your achievements and progress,Locked,2,5000,3,N/A,0,1,Race Mode
-activity_bolt_level1,Beat Bolt,activity_bolt_level1,run,Try to beat Bolt's 100m time,Locked,2,5000,3,N/A,1,0,UsainSnack
+activity_bolt_level1,Beat Bolt,activity_bolt_level1,run,Try to beat Bolt's 100m time,Unlocked,2,5000,3,Snack,1,0,UsainSnack
 activity_zoom,Zoom,activity_zoom,all,Zoom in to get a better view of your competitors,Locked,3,5000,3,N/A,1,-1,Race Mode
 activity_indoor,GPS Mode,!none,run,Toggle indoor mode,Unlocked,1,0,0,Mode,1,1,Race Mode
 activity_heart,Heart-rate monitor,activity_heart,all,Connect to a heart-rate monitor,Locked,3,5000,4,N/A,2,0,Race Mode
