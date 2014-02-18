@@ -31,6 +31,8 @@ public class BoulderController : TargetController {
 	
 	private double playerDistance = 0.0;
 	
+	private double playerStartDistance = 0.0;
+	
 	/// <summary>
 	/// Sets the attributes
 	/// </summary>
@@ -56,6 +58,7 @@ public class BoulderController : TargetController {
 		currentSpeed = 1.25f;
 		currentTime = 0.0f;
 		playerDistance = Platform.Instance.Distance();
+		playerStartDistance = Platform.Instance.Distance();
 		distanceFromStart = (float)playerDistance - 50f;
 	}
 	
@@ -63,6 +66,7 @@ public class BoulderController : TargetController {
 	/// Update this instance + updates rotation
 	/// </summary>
 	void Update () {
+		playerDistance = Platform.Instance.Distance();
 		
 		currentTime += Time.deltaTime;
 		
@@ -105,5 +109,10 @@ public class BoulderController : TargetController {
 	{
 		float relativeDist = distanceFromStart - (float)playerDistance;
 		return relativeDist;
+	}
+	
+	public double GetPlayerDistanceTravelled()
+	{
+		return playerDistance - playerStartDistance;
 	}
 }
