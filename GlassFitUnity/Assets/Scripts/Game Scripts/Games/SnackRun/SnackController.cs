@@ -10,14 +10,18 @@ public class SnackController : MonoBehaviour {
 	protected bool isGameInProgress = false;
 	protected int lastChosenGameIndex = -1;
 	
-	protected GameObject currentSnackGameMainObj = null;
+	protected SnackBase currentSnackGameMainObj = null;
 	
 	protected Game currentGame = null;
 	
-	GestureHelper.OnTap handleTapAccept = null;
-	GestureHelper.OnTap handleTapBegin = null;
-	GestureHelper.DownSwipe cancelGame = null;
+	//GestureHelper.OnSwipeRight handleAccept = null;
+	//GestureHelper.OnSwipeRight handleBegin = null;
+	//GestureHelper.DownSwipe cancelGame = null;
 	
+	protected bool acceptedGame = false;
+	
+	protected bool awaitingAcceptTap = false;
+		
 	void Start()
 	{
 		//initialise the list of available games
@@ -29,6 +33,7 @@ public class SnackController : MonoBehaviour {
 		{
 			if( game.type == "Snack" && game.state == "Unlocked")
 			{
+				UnityEngine.Debug.Log("SnackController: Found a snack: " + game.gameId );
 				snackGames.Add( game );	
 			}
 			UnityEngine.Debug.Log("Game. Type:" + game.type + ". id:" + game.gameId + ". scene:" + game.sceneName);
@@ -40,20 +45,21 @@ public class SnackController : MonoBehaviour {
 		}
 		
 		//create tap handlers
-		handleTapAccept = new GestureHelper.OnTap( () => {
-			LoadGame();
-			GestureHelper.onTap -= handleTapAccept;
-		});
-		
-		handleTapBegin = new GestureHelper.OnTap( () => {
-			BeginGame();
-			GestureHelper.onTap -= handleTapBegin;
-		});
-		
-		cancelGame = new GestureHelper.DownSwipe( () => {
-			CancelGame();
-			GestureHelper.onSwipeDown -= cancelGame;
-		});
+//		handleAccept = new GestureHelper.OnSwipeRight( () => {
+//			LoadGame();
+//			acceptedGame = true;
+//			GestureHelper.onSwipeRight -= handleAccept;
+//		});
+//		
+//		handleBegin = new GestureHelper.OnSwipeRight( () => {
+//			BeginGame();
+//			GestureHelper.onSwipeRight -= handleBegin;
+//		});
+//		
+//		cancelGame = new GestureHelper.DownSwipe( () => {
+//			CancelGame();
+//			GestureHelper.onSwipeDown -= cancelGame;
+//		});
 			
 	}
 	
@@ -63,18 +69,18 @@ public class SnackController : MonoBehaviour {
 	public void OfferGame()
 	{
 		currentGame = getNextGame();
-		StartCoroutine(ScheduleGameOffer());
-	}
-	
-	IEnumerator ScheduleGameOffer()
-	{
-		
+		UnityEngine.Debug.Log("SnackController: offering snack");
 		//transition flow to panel to offer game
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gc = fs.Outputs.Find( r => r.Name == "BeginSnack" );
 		if (gc != null)
 		{
 			fs.parentMachine.FollowConnection(gc);
+		}
+		else
+		{
+			//couldn't find HUD connector
+			UnityEngine.Debug.LogError("SnackController: couldn't find flow connector 'BeginSnack' ");
 		}
 		
 		//set strings in datavault for ui panel
@@ -83,25 +89,41 @@ public class SnackController : MonoBehaviour {
 		
 		//trigger alert flash / chime to get user attention
 		
+		
 		//activate gesture listener
-		GestureHelper.onTap += handleTapAccept;
+		//GestureHelper.onSwipeRight += handleAccept;
+		awaitingAcceptTap = true;
+		StartCoroutine("ScheduleGameOffer");
+	}
+	
+	IEnumerator ScheduleGameOffer()
+	{
+		
+		UnityEngine.Debug.Log("SnackController: Started coroutine. Counting out game offer");
+		acceptedGame = false;
 		
 		//wait 5s
-		for(int i=5; i>0; i++)
+		for(int i=10; i>0; i--)
 		{
 			yield return new WaitForSeconds(1.0f);
 			string s = i>0 ? i.ToString() : "";
-			DataVault.Set("snack_prompt", "tap to play" + s);
+			DataVault.Set("snack_prompt", "Tap to play " + s);
 		}
 			
-		//dismiss (transition flow back to HUD)
-		gc = fs.Outputs.Find( r => r.Name == "Return" );
-		if (gc != null)
+		if(!acceptedGame)
 		{
-			fs.parentMachine.FollowConnection(gc);
-		}		
-		//unregister gesture listener
-		GestureHelper.onTap -= handleTapAccept;
+			//dismiss (transition flow back to HUD)
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
+			if (gc != null)
+			{
+				fs.parentMachine.FollowConnection(gc);
+			}
+			
+			//unregister gesture listener
+			//GestureHelper.onSwipeRight -= handleAccept;
+			awaitingAcceptTap = false;
+		}
 		
 	}
 	
@@ -126,6 +148,8 @@ public class SnackController : MonoBehaviour {
 		
 		Game chosenGame = snackGames[lastChosenGameIndex];
 		
+		UnityEngine.Debug.Log("SnackController: Chose game: " + chosenGame.gameId);
+		
 		//store id in datavault
 		DataVault.Set("current_snack_game_id", chosenGame.gameId);
 		
@@ -142,31 +166,13 @@ public class SnackController : MonoBehaviour {
 	
 	string getSceneName(Game game)
 	{
-		
 		return game.sceneName;
-		
-		string sceneName = "";
-		
-		//get the scene name
-		if(game.gameId == "activity_boulder")
-		{
-			sceneName = "Snack_Boulder";
-		}
-		else if(game.gameId == "activity_bolt_level1")
-		{
-			sceneName = "Snack_Bolt";
-		}
-		else
-		{
-			UnityEngine.Debug.LogError("SnackController: Unable to get scene for game " + game.gameId);
-		}
-		
-		return sceneName;
-		
 	}
 	
 	IEnumerator doAsyncLoad( Game game )
 	{
+		UnityEngine.Debug.Log("SnackController: Loading snack: " + game.gameId );
+		
 		//transition flow to 'loading'
 		DataVault.Set("snack_prompt", "Loading...");
 		
@@ -176,26 +182,23 @@ public class SnackController : MonoBehaviour {
 		yield return async;
 	
 		//get the snack game main script
-		//snackGame = GetComponent<SnackBase>();
+		currentSnackGameMainObj = (SnackBase)FindObjectOfType(typeof(SnackBase));
 		if(currentSnackGameMainObj == null)
 		{
 			UnityEngine.Debug.LogError("Didn't find Snack game controller script");	
 		}
 		
-		//offer the user the chance to start the game. show 'tap to start' UI
-		DataVault.Set("snack_prompt", "Tap to Begin Game");
-		
-		//register gesture listener to start the game.
-		GestureHelper.onTap += handleTapAccept;
-		//register gesture listener to cancel the game.
-		GestureHelper.onSwipeDown += cancelGame;
+		//Start the game immediately.
+		BeginGame();
 	}
+	
+
 	
 	protected void BeginGame()
 	{
 		if(currentSnackGameMainObj != null)
 		{
-			//snackGame.Begin();
+			currentSnackGameMainObj.Begin();
 			UnityEngine.Debug.Log("SnackController: Beginning Game");
 		}
 		
@@ -220,6 +223,34 @@ public class SnackController : MonoBehaviour {
 		if (gc != null)
 		{
 			fs.parentMachine.FollowConnection(gc);
+		}
+		
+		//notify the game that the snack is over
+		SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));
+		if(run != null)
+		{
+			run.OnSnackFinished();
+		}
+	}
+	
+	/// <summary>
+	/// Handles the tap.
+	/// </summary>
+	/// <returns>
+	/// True if we handled it. False if we didn't.
+	/// </returns>
+	public bool HandleTap()
+	{
+		if(awaitingAcceptTap)
+		{
+			LoadGame();
+			acceptedGame = true;
+			awaitingAcceptTap = false;
+			return true;
+		}
+		else
+		{
+			return false;
 		}
 	}
 	
