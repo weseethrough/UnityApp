@@ -19,6 +19,15 @@ public class SnackRun : GameBase {
 		base.Start();
 		//create snack controller
 		snackController = new GameObject().AddComponent<SnackController>();
+		
+		ClearAheadBehind();
+	}
+
+	protected void ClearAheadBehind()
+	{
+		DataVault.Set("distance_position", "");
+		DataVault.Set("target_units", "");
+		DataVault.Set("ahead_box", "");	
 	}
 	
 	// Update is called once per frame
@@ -78,6 +87,7 @@ public class SnackRun : GameBase {
 		float currentDistance = Platform.Instance.GetDistance();
 		nextSnackDistance = currentDistance + snackInterval;
 		snackActive = false;
+		ClearAheadBehind();
 	}
 	
 	
