@@ -55,7 +55,8 @@ public class BoulderController : TargetController {
 	{
 		currentSpeed = 1.25f;
 		currentTime = 0.0f;
-		distanceFromStart = -50f;
+		playerDistance = Platform.Instance.Distance();
+		distanceFromStart = (float)playerDistance - 50f;
 	}
 	
 	/// <summary>
