@@ -165,7 +165,7 @@ public class SnackController : MonoBehaviour {
 		
 	}
 	
-	IEnumerator doAsyncLoad( Game game )
+	IEnumerator doAsyncLoad(Game game)
 	{
 		//transition flow to 'loading'
 		DataVault.Set("snack_prompt", "Loading...");

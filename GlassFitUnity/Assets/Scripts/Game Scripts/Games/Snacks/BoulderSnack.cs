@@ -30,6 +30,15 @@ public class BoulderSnack : SnackBase {
 		yield return new WaitForSeconds(2.0f);
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		fs.parentMachine.FollowBack();
+		SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));
+		if(run)
+		{
+			run.OnSnackFinished();
+		}
+		else
+		{
+			UnityEngine.Debug.Log("BoulderSnack: not found SnackRun");
+		}
 		Destroy(transform.gameObject);
 	}
 	
