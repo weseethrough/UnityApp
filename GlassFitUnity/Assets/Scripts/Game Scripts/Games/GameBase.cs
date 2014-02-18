@@ -569,7 +569,7 @@ public class GameBase : MonoBehaviour {
 	
 	}
 	
-	protected void UpdateAhead() {
+	protected virtual void UpdateAhead() {
 
 		double targetDistance = GetDistBehindForHud();
 
