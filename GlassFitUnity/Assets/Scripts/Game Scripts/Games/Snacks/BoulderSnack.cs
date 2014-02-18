@@ -12,6 +12,7 @@ public class BoulderSnack : SnackBase {
 		if(boulder != null)
 		{
 			boulder.enabled = true;
+			UnityEngine.Debug.Log("BoulderSnack: Starting game");
 		}
 		else
 		{
