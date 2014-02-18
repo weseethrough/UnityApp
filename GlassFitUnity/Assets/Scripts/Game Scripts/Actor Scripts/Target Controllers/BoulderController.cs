@@ -10,7 +10,7 @@ public class BoulderController : TargetController {
 	private float xRot;
 	
 	// Rotation speed
-	private float rotationSpeed = 10;
+	private float rotationSpeed = 20;
 	
 	// Rotation limit
 	private static float rotationLimit = 360f;
@@ -47,6 +47,7 @@ public class BoulderController : TargetController {
 	{
 		// Enable the object and set attributes.
 		base.OnEnable();
+		Reset();
 		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 	}
 	
