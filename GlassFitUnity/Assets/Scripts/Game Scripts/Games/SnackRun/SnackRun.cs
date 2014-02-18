@@ -15,7 +15,7 @@ public class SnackRun : GameBase {
 	bool snackActive = false;
 	
 	// Use this for initialization
-	void Start () {
+	void Start() {
 		base.Start();
 		//create snack controller
 		snackController = new GameObject().AddComponent<SnackController>();
