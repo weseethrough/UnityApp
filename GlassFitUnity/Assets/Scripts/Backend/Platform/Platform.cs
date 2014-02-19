@@ -13,6 +13,11 @@ public class Platform : MonoBehaviour {
 	protected double distance = 0.0;
 	private int calories = 0;
 	private float pace = 0;
+
+	// Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via Unity Messages.
+	internal float playerStateEntryTime = UnityEngine.Time.time;
+	internal string playerState = "";
+
 	protected Position position = null;
 	private PlayerOrientation playerOrientation = new PlayerOrientation();
 	protected float bearing = -999.0f;
@@ -347,6 +352,14 @@ public class Platform : MonoBehaviour {
 		
 		// TODO: Start challenge
 		// TODO: Toggle outdoor/indoor
+	}
+
+
+	// Called by unity messages on each state change
+	void PlayerStateChange(string message) {
+		UnityEngine.Debug.Log("Player state message received from Java: " + message);
+		playerState = message;
+		playerStateEntryTime = UnityEngine.Time.time;
 	}
 	
 	private void DataVaultFromJson(JSONNode json) {
