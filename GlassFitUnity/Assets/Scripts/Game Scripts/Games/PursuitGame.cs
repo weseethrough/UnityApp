@@ -105,17 +105,17 @@ public class PursuitGame : GameBase {
 	}
 	
 
-	public override void OnGUI() {
-		base.OnGUI();
-		
-		//update the lives readout
-		if(isDead) 
-		{
-			GUI.Label(new Rect(300, 0, 200, 200), "Lives left: " + lives.ToString(), getLabelStyle() );
-		}
-		
-
-	}
+//	public override void OnGUI() {
+//		base.OnGUI();
+//		
+//		//update the lives readout
+//		if(isDead) 
+//		{
+//			GUI.Label(new Rect(300, 0, 200, 200), "Lives left: " + lives.ToString(), getLabelStyle() );
+//		}
+//		
+//
+//	}
 	
 	void Update () {
 		base.Update();		
