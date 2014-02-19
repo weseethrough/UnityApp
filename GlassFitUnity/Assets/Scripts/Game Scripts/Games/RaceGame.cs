@@ -94,13 +94,19 @@ public class RaceGame : GameBase {
 		
 		Platform.Instance.ResetTargets();
 		
-		if(selectedTrack != null) {
-			Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
+		if (DataVault.Get("race_group") == null) {
+			if(selectedTrack != null) {
+				Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
+			} else {
+				Platform.Instance.CreateTargetTracker(targSpeed);
+			}
 		} else {
-			Platform.Instance.CreateTargetTracker(targSpeed);
+			int groupId = (int)DataVault.Get("race_group");
+			Platform.Instance.StartStreamingToGroup(groupId);
 		}
 		
 		InstantiateActors();
+		Platform.Instance.onRacerJoined += RacerJoined;
 		
 		//Platform.Instance.SetIndoor(true);
 		SetReadyToStart(true);
@@ -118,8 +124,11 @@ public class RaceGame : GameBase {
 		base.OnGUI();
 	}
 		
-
-	
+	public void RacerJoined(int userId, int groupId) {
+		MessageWidget.AddMessage("Game", userId.ToString() + " joined game " + groupId.ToString(), "settings");
+		UnityEngine.Debug.Log("Game: " + userId.ToString() + " joined game " + groupId.ToString());
+		InstantiateActors();
+	}
 	
 	protected void UpdateLeaderboard() {
 		double distance = Platform.Instance.Distance();
@@ -183,7 +192,7 @@ public class RaceGame : GameBase {
 	
 
 	
-	void Update () {
+	public override void Update () {
 
 //		
 //		// TODO: Multiple minimap targets
@@ -287,6 +296,18 @@ public class RaceGame : GameBase {
 			actor.SetActive(true);
 			actors.Add(actor);
 		}
+		if (DataVault.Get("race_group") != null) {
+			int groupId = (int)DataVault.Get("race_group");
+			TargetTracker[] racers = Platform.Instance.Racers(groupId);
+			foreach (TargetTracker tracker in racers) {
+				GameObject actor = Instantiate(template) as GameObject;
+				TargetController controller = actor.GetComponent<TargetController>();
+				controller.SetTracker(tracker);
+				controller.SetLane(lane++);
+				actor.SetActive(true);
+				actors.Add(actor);
+			}
+		}
 #else
 		GameObject actorDummy = Instantiate(template) as GameObject;
 		actorDummy.SetActive(true);
@@ -305,6 +326,12 @@ public class RaceGame : GameBase {
 	// Listen for UnitySendMessage with multiplier updates
 	// Display the ner multiplier on screen for a second or so
 
-	
+	public override void QuitGame ()
+	{
+		Platform.Instance.onRacerJoined -= RacerJoined;
+		DataVault.Remove("race_group");		
+		DataVault.Remove("racers");		
+		base.QuitGame ();
+	}
 }
 

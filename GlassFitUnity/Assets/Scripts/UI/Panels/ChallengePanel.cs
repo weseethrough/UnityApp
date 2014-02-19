@@ -174,6 +174,9 @@ public class ChallengePanel : HexPanel {
 	{
 		friendList = Platform.Instance.Friends();
 		
+		// Clear race variables
+		DataVault.Remove("race_group");
+		DataVault.Remove("racers");
 		if(friendList != null && friendList.Count > 0)
 		{
 			UnityEngine.Debug.Log("ChallengePanel: there are " + friendList.Count + " friends");
@@ -200,7 +203,7 @@ public class ChallengePanel : HexPanel {
 			hbd.textNormal = friendList[0].name;
 			
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
-		    gc.EventFunction = "SetFriend";
+		    gc.EventFunction = "RaceFriend";
 				
 			if(sendExit.Link.Count > 0) {
 				gComponent.Data.Connect(gc, sendExit.Link[0]);
@@ -226,7 +229,7 @@ public class ChallengePanel : HexPanel {
 				hbd.textNormal = friendList[i].name;
 					
 				gc = NewOutput(hbd.buttonName, "Flow");
-			    gc.EventFunction = "SetFriend";
+			    gc.EventFunction = "RaceFriend";
 					
 				if(sendExit.Link.Count > 0) {
 					gComponent.Data.Connect(gc, sendExit.Link[0]);

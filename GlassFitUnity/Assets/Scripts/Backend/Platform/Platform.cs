@@ -38,6 +38,7 @@ public class Platform : MonoBehaviour {
 	private AndroidJavaObject sensoriaSock;
 	
 	public List<TargetTracker> targetTrackers { get; private set; }
+	private StreamedTargetTracker[] racers = new StreamedTargetTracker[0];
 	
 	// Are we authenticated? Note: we mark it false at init and true when any auth call passes
 	public bool authenticated { get; private set; }	
@@ -58,6 +59,8 @@ public class Platform : MonoBehaviour {
 	public OnRegistered onDeviceRegistered = null;
 	public delegate void OnGroupCreated(int groupId);
 	public OnGroupCreated onGroupCreated = null;
+	public delegate void OnRacerJoined(int userId, int groupId);
+	public OnRacerJoined onRacerJoined = null;
 	
 	// The current user and device
 	private User user = null;
@@ -208,12 +211,12 @@ public class Platform : MonoBehaviour {
 						UnityEngine.Debug.Log("Platform: authorize complete");
 					}
 					
-					if (IsRemoteDisplay()) {
-						BluetoothServer();
-					} else {
-						BluetoothClient();
-					}
-					if (false && HasInternet() && HasPermissions("any", "login")) {
+//					if (IsRemoteDisplay()) {
+//						BluetoothServer();
+//					} else {
+//						BluetoothClient();
+//					}
+					if (HasInternet() && HasPermissions("any", "login")) {
 						// TODO: Non-blocking connect?
 						ConnectSocket();
 					}
@@ -309,13 +312,76 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public void OnUserMessage(string message) {
+		UnityEngine.Debug.Log("Net: " + message);
 		JSONNode json = JSON.Parse(message);
-		MessageWidget.AddMessage("Network", "<" + json["from"] + "> " + json["data"], "settings"); // DEBUG
+		UnityEngine.Debug.Log("Net j: " + json.ToString());
+		MessageWidget.AddMessage("Network", "<" + json["from"] + "> " + json["data"].ToString(), "settings"); // DEBUG
+		if ("race_query".Equals(json["data"]["type"])) {
+			// TODO: Dialog?
+			DataVault.Set("ingame", false);
+			MessageUser(json["from"].AsInt, "{\"type\" : \"race_accept\"}");
+			// TODO: Load lobby?
+		}
+		if ("race_accept".Equals(json["data"]["type"])) {			
+			if (DataVault.Get("race_group") == null) {
+				// Create group for race and remember racer
+				DataVault.Set("race_group", 0); // Don't create multiple groups
+				
+				onGroupCreated += deferredGroupCreation;
+				CreateGroup(); 				
+			} 
+			if ((int)DataVault.Get("race_group") <= 0) {
+				// Remember racer
+				if (DataVault.Get("racers") == null) DataVault.Set("racers", new HashSet<int>());
+				HashSet<int> racers = (HashSet<int>)DataVault.Get("racers");
+				racers.Add(json["from"].AsInt);
+				DataVault.Set("racers", racers);				
+			} else {
+				// Race!
+				int groupId = (int)DataVault.Get("race_group");
+				MessageUser(json["from"].AsInt, "{\"type\" : \"race\", \"group\" : " + groupId + "}");
+			}
+		}
+		if ("race".Equals(json["data"]["type"])) {
+			int groupId = json["data"]["group"].AsInt;
+			JoinGroup(groupId);
+			DataVault.Set("race_group", groupId);
+			MessageGroup(groupId, "{\"type\" : \"ehlo\"}");
+		}
+	}
+	
+	protected void deferredGroupCreation(int groupId) {
+		onGroupCreated -= deferredGroupCreation;
+		
+		DataVault.Set("race_group", groupId);
+		HashSet<int> racers = (HashSet<int>)DataVault.Get("racers");
+		
+		// Race!
+		foreach(int racer in racers) {
+			MessageUser(racer, "{\"type\" : \"race\", \"group\" : " + groupId + "}");
+		}
+		
 	}
 	
 	public void OnGroupMessage(string message) {
+		UnityEngine.Debug.Log("Net: #" + message);
 		JSONNode json = JSON.Parse(message);
-		MessageWidget.AddMessage("Network", "#" + json["group"] + " <" + json["from"] + "> " + json["data"], "settings"); // DEBUG
+		MessageWidget.AddMessage("Network", "#" + json["group"] + " <" + json["from"] + "> " + json["data"].ToString(), "settings"); // DEBUG
+		if ("ehlo".Equals(json["data"]["type"])) {
+			// TODO: Big red button with: start!
+			if (DataVault.Get("ingame") == null) DataVault.Set("ingame", false);
+			if((bool)DataVault.Get("ingame") == false) {
+				DataVault.Set("ingame", true); // TODO: inloading=true?
+				DataVault.Set("type", "Runner");
+				DataVault.Set("race_type", "race");
+				DataVault.Set("finish", 1000);
+				DataVault.Set("lower_finish", 5);
+				FlowStateMachine.Restart("Restart Point");
+				MessageGroup(json["group"].AsInt, "{\"type\" : \"ehlo\"}");
+			}
+			// Always
+			// Createsockettargettracker(fetchUser(json["from"].AsInt))
+		}
 	}
 	
 	public void OnGroupCreation(string message) {
@@ -323,6 +389,11 @@ public class Platform : MonoBehaviour {
 		// TODO: Potential hanging deferral. What do we do if socket is disconnected before a group is created?
 	}
 	
+	public void OnRacerConnected(string message) {
+		UnityEngine.Debug.Log("RCon: #" + message);
+		JSONNode json = JSON.Parse(message);
+		if (onRacerJoined != null) onRacerJoined(int.Parse(json["user"]), int.Parse(json["group"]));
+	}
 	
 	private void OnBluetoothJson(JSONNode json) {
 		UnityEngine.Debug.Log("Platform: OnBluetoothJson"); 
@@ -993,11 +1064,24 @@ public class Platform : MonoBehaviour {
 	
 	
 	public virtual float GetHighestDistBehind() {
+		if (racers.Length <= 0) return GetLowestDistBehindActor();
+		if (targetTrackers.Count <= 0) return GetHighestDistBehindRacer();
+		return Math.Max(GetHighestDistBehindActor(), GetHighestDistBehindRacer());
+	}
+	
+	
+	public virtual float GetLowestDistBehind() {
+		if (racers.Length <= 0) return GetLowestDistBehindActor();
+		if (targetTrackers.Count <= 0) return GetLowestDistBehindRacer();
+		return Math.Min(GetLowestDistBehindActor(), GetLowestDistBehindRacer());
+	}
+	
+	public virtual float GetHighestDistBehindActor() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
 		float h = (float)targetTrackers[0].GetTargetDistance() - (float)distance;
-		for(int i=0; i<targetTrackers.Count; i++) {
+		for(int i=1; i<targetTrackers.Count; i++) {
 			if(h < targetTrackers[i].GetTargetDistance() - (float)distance) {
 				h = (float)targetTrackers[i].GetTargetDistance() - (float)distance;
 			}
@@ -1006,14 +1090,41 @@ public class Platform : MonoBehaviour {
 	}
 	
 	
-	public virtual float GetLowestDistBehind() {
+	public virtual float GetLowestDistBehindActor() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
 		float l = (float)targetTrackers[0].GetTargetDistance() - (float)distance;
-		for(int i=0; i<targetTrackers.Count; i++) {
+		for(int i=1; i<targetTrackers.Count; i++) {
 			if(l > targetTrackers[i].GetTargetDistance() - (float)distance) {
 				l = (float)targetTrackers[i].GetTargetDistance() - (float)distance;
+			}
+		}
+		return l;
+	}
+	
+	public virtual float GetHighestDistBehindRacer() {
+		if(racers.Length <= 0)
+			return 0;
+		
+		float h = (float)racers[0].GetTargetDistance() - (float)distance;
+		for(int i=1; i<racers.Length; i++) {
+			if(h < racers[i].GetTargetDistance() - (float)distance) {
+				h = (float)racers[i].GetTargetDistance() - (float)distance;
+			}
+		}
+		return h;
+	}
+	
+	
+	public virtual float GetLowestDistBehindRacer() {
+		if(racers.Length <= 0)
+			return 0;
+		
+		float l = (float)racers[0].GetTargetDistance() - (float)distance;
+		for(int i=1; i<racers.Length; i++) {
+			if(l > racers[i].GetTargetDistance() - (float)distance) {
+				l = (float)racers[i].GetTargetDistance() - (float)distance;
 			}
 		}
 		return l;
@@ -1083,6 +1194,9 @@ public class Platform : MonoBehaviour {
 		//UnityEngine.Debug.Log("Platform: poll There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
 			targetTrackers[i].PollTargetDistance();
+		}
+		for(int i=0; i<racers.Length; i++) {
+			racers[i].PollTargetDistance();
 		}
 		
 		try {
@@ -1542,6 +1656,63 @@ public class Platform : MonoBehaviour {
 		}
 	}
 
+	public virtual bool StartStreamingToGroup(int groupId) {
+		try
+		{
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return false;
+			connected = true;
+			socket.Call("startStreamingToGroup", groupId);
+			return true;
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error starting socket stream. " + e.Message);
+			return false;
+		}
+	}
+
+	public virtual bool StopStreamingToGroup(int groupId) {
+		try
+		{
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return false;
+			connected = true;
+			socket.Call("stopStreamingToGroup", groupId);
+			return true;
+		}
+		catch (Exception e)
+		{
+			UnityEngine.Debug.LogWarning("Platform: Error stopping socket stream. " + e.Message);
+			return false;
+		}
+	}
+
+	public virtual StreamedTargetTracker[] Racers(int groupId) {
+		try {
+			UnityEngine.Debug.Log("Platform: getting racers for group " + groupId);
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return new StreamedTargetTracker[0];
+			connected = true;
+			using(AndroidJavaObject list = socket.Call<AndroidJavaObject>("getTargetTrackers", groupId)) {
+				int length = list.Call<int>("size");
+				StreamedTargetTracker[] trackers = new StreamedTargetTracker[length];
+				for (int i=0;i<length;i++) {
+					AndroidJavaObject p = list.Call<AndroidJavaObject>("get", i);
+					StreamedTargetTracker t = new StreamedTargetTracker(p, true);
+					trackers[i] = t;
+				}
+				UnityEngine.Debug.Log("Platform: " + trackers.Length + " racers fetched");
+				racers = trackers;
+				return trackers;
+			}
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Racers() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
+		return new StreamedTargetTracker[0];
+	}
+	
 	public Vector2i GetScreenDimensions()
 	{
 		try

@@ -103,6 +103,7 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	public virtual void Start () 
 	{
+		DataVault.Set("ingame", true);
 		UnityEngine.Debug.Log("GameBase: setting scale");
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
@@ -270,6 +271,7 @@ public class GameBase : MonoBehaviour {
 	}
 	
 	public virtual void QuitGame() {
+		DataVault.Set("ingame", false);
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 		if(gConnect != null) {

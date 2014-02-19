@@ -20,7 +20,7 @@ public class LoadingScreen : MonoBehaviour {
 		switch(raceType) {
 		case "race":
 			//if we have a track, load Race Mode, otherwise, load FirstRun. N.B. the menu flow will be different, so it isn't exactly the same FirstRun experience
-			if(track != null)
+			if(track != null || DataVault.Get("race_group") != null)
 			{
 				levelName = "Race Mode";
 			}

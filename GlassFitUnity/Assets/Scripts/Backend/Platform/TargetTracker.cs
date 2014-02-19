@@ -8,7 +8,7 @@ public class TargetTracker : System.Object {
 	public string name { get; set; }
 	public Dictionary<string, object> metadata { get; protected set; }
 	protected AndroidJavaObject target;
-	private double targetDistance = 0;
+	protected double targetDistance = 0;
 	
 	public TargetTracker() {}
 	
@@ -34,7 +34,7 @@ public class TargetTracker : System.Object {
 		return targetDistance;
 	}
 	
-	public void PollTargetDistance() {
+	public virtual void PollTargetDistance() {
 		try {
 			targetDistance = target.Call<double>("getCumulativeDistanceAtTime", Platform.Instance.Time());
 		} catch (Exception e) {

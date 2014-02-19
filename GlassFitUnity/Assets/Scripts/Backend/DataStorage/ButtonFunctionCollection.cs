@@ -143,6 +143,25 @@ public class ButtonFunctionCollection
 		}
 	}
 	
+	static public bool RaceFriend(FlowButton fb, Panel panel)
+	{
+		List<Friend> friendList = (List<Friend>)DataVault.Get("friend_list");
+		
+		if(friendList != null) {
+				for(int i=0; i<friendList.Count; i++)
+				{
+					if(fb.name == friendList[i].guid && friendList[i].userId.HasValue)
+					{					
+						Platform.Instance.MessageUser(friendList[i].userId.Value, "{\"type\" : \"race_query\"}");
+						return false;
+					}
+				}
+				UnityEngine.Debug.Log("ButtonFunc: Friend not found, returning");
+				return false;
+		}
+		return false;
+	}
+	
 	static public bool SetCeleb(FlowButton fb, Panel panel)
 	{
 		switch(fb.name)
