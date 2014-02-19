@@ -14,6 +14,8 @@ public class SnackRun : GameBase {
 	
 	bool snackActive = false;
 	
+	protected AudioSource chimeSound = null;
+	
 	// Use this for initialization
 	void Start() {
 		base.Start();
@@ -21,6 +23,8 @@ public class SnackRun : GameBase {
 		snackController = new GameObject().AddComponent<SnackController>();
 		
 		ClearAheadBehind();
+		
+		chimeSound = GetComponent<AudioSource>() as AudioSource;
 	}
 
 	protected void ClearAheadBehind()
@@ -59,11 +63,18 @@ public class SnackRun : GameBase {
 			UnityEngine.Debug.Log("SnackRun: Offering Snack");
 			snackController.OfferGame();
 			snackActive = true;
+			TriggerAlert();
 		}
 		else
 		{
 			UnityEngine.Debug.LogError("SnackRun: Couldn't find snack controller");
 		}	
+	}
+	
+	protected void TriggerAlert()
+	{
+		 if(chimeSound != null)
+		{ chimeSound.Play(); }
 	}
 	
 	public override void GameHandleTap ()
@@ -86,6 +97,7 @@ public class SnackRun : GameBase {
 		//queue up the next snack offer.
 		float currentDistance = Platform.Instance.GetDistance();
 		nextSnackDistance = currentDistance + snackInterval;
+		UnityEngine.Debug.Log("SnackRun: Snack finished. Next snack at " + nextSnackDistance);
 		snackActive = false;
 		ClearAheadBehind();
 	}

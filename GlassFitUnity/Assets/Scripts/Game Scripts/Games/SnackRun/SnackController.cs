@@ -119,9 +119,15 @@ public class SnackController : MonoBehaviour {
 				fs.parentMachine.FollowConnection(gc);
 			}
 			
-			//unregister gesture listener
-			//GestureHelper.onSwipeRight -= handleAccept;
 			awaitingAcceptTap = false;
+			UnityEngine.Debug.Log("SnackController: Snack declined");
+			
+			//notify the game that the snack is over
+			SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));
+			if(run != null)
+			{
+				run.OnSnackFinished();
+			}
 		}
 		
 	}
