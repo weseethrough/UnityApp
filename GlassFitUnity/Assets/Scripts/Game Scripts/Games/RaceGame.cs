@@ -113,10 +113,10 @@ public class RaceGame : GameBase {
 		gameParamsChanged = true;		
 	}
 	
-	public void OnGUI()
-	{
-		base.OnGUI();
-	}
+//	public void OnGUI()
+//	{
+//		base.OnGUI();
+//	}
 		
 
 	
