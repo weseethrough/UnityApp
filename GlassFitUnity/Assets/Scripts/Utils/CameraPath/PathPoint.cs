@@ -67,7 +67,7 @@ public class PathPoint : MonoBehaviour {
 	public Quaternion GetNodeOrientation() {
 		if(lookAtTarget != null)
 		{
-			transform.LookAt(lookAtTarget.transform.position);
+			transform.LookAt(lookAtTarget.transform.localPosition);
 		}
 		return transform.rotation;
 	}

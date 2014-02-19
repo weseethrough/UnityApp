@@ -24,6 +24,9 @@ public class TrainRescueSnack : SnackBase {
 	bool readyToStart = false;
 	
 	double playerStartDistance = 0;
+	
+	private GameObject mainCamera;
+	public GameObject flyCamera;
 
 	// Use this for initialization
 	void Start () {
@@ -96,6 +99,11 @@ public class TrainRescueSnack : SnackBase {
 		if(openingFlythroughPath != null)
 		{
 			openingFlythroughPath.StartFollowingPath();	
+			mainCamera = GameObject.Find("MainGameCamera");
+			if(mainCamera != null)
+			{
+				mainCamera.SetActive(false);
+			}
 		}
 		else
 		{
@@ -112,16 +120,18 @@ public class TrainRescueSnack : SnackBase {
 	public override void Begin ()
 	{
 		SetReadyToStart(true);
-		transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
+		//transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if(!finish && started)
 		{
+			//UnityEngine.Debug.Log("TrainRescueSnack: in finish loop");
 			//check if the train has reached the end
 			if(train.GetForwardDistance() > finishDistance && !finish)
 			{
+				//UnityEngine.Debug.Log("TrainRescueSnack: train has killed that woman");
 				DataVault.Set("death_colour", "EA0000FF");
 				DataVault.Set("snack_result", "You lost!");
 				DataVault.Set("snack_result_desc", "the damsel is dead!");
@@ -130,19 +140,28 @@ public class TrainRescueSnack : SnackBase {
 			}
 			else if(GetPlayerDistanceTravelled() > finishDistance && !finish)
 			{
+				//UnityEngine.Debug.Log("TrainRescueSnack: woman saved");
 				DataVault.Set("death_colour", "12D400FF");
 				DataVault.Set("snack_result", "You won!");
 				DataVault.Set("snack_result_desc", "you saved her life!");
 				StartCoroutine(ShowBanner());
 				finish = true;
 			}
+			
 		}
 		
 		//check if the flythrough is complete
 		if(!readyToStart)
 		{
+			//UnityEngine.Debug.Log("TrainRescueSnack: checking to see if flythrough finished");
 			if(openingFlythroughPath.IsFinished())
 			{
+				if(mainCamera != null)
+				{
+					mainCamera.SetActive(true);
+					flyCamera.GetComponentInChildren<Camera>().enabled = false;
+				}
+				transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
 				StartCountdown();
 			}
 		}
@@ -175,7 +194,7 @@ public class TrainRescueSnack : SnackBase {
 		{
 			//go to subtitle card
 			UnityEngine.Debug.Log("Train: Following 'subtitle' connector");
-			//FollowConnectorNamed("Subtitle");
+			FollowConnectorNamed("Subtitle");
 			//set value for subtitle. 0 = GO
 			string displayString = (i==0) ? "GO !" : i.ToString();
 			DataVault.Set("train_subtitle", displayString);
@@ -185,7 +204,7 @@ public class TrainRescueSnack : SnackBase {
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
-			//FollowConnectorNamed("ToBlank");
+			FollowConnectorNamed("ToBlank");
 			
 			//wait a second more, except after GO!
 			if(i!=0)
@@ -198,7 +217,7 @@ public class TrainRescueSnack : SnackBase {
 		yield return new WaitForSeconds(0.1f);
 		
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
-		//FollowConnectorNamed("Begin");
+		FollowConnectorNamed("Begin");
 		
 		playerStartDistance = Platform.Instance.Distance();
 		started = true;

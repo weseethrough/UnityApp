@@ -21,7 +21,9 @@ public class DanselController : MonoBehaviour {
 		} catch(Exception e) {
 			finish = 350;
 		}
-						
+			
+		finish = 350;
+		
 		xOffset = transform.localPosition.x;
 		height = transform.localPosition.y;
 	}
