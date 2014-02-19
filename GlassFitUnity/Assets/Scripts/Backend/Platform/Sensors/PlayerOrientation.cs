@@ -136,9 +136,10 @@ public class PlayerOrientation
 			}
 		}
 		else if (Mathf.Abs(cumulativeYaw) > AUTO_RESET_THRESHOLD  // facing more than AUTO_RESET_THRESHOLD away from current forward reference
+			 && Mathf.Abs (pitch) < AUTO_RESET_HUD_PITCH // not looking too far up or down
 			 && (!Platform.Instance.IsTracking() // not tracking, i.e. paused or on a menu screen
 			     || Platform.Instance.playerState == "STOPPED"
-			     || Mathf.Abs(Platform.Instance.Bearing() - Platform.Instance.Yaw()) < 20.0f))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going
+			     || Mathf.Abs(Platform.Instance.Bearing() - Platform.Instance.Yaw()) < 20.0f))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going. Note GpsBearing is not valid (-999.0) if the user is stationary
 		{
 			// we've passed the auto-reset threshold:
 			// increment timer and calculate average yaw since we passed the threshold
