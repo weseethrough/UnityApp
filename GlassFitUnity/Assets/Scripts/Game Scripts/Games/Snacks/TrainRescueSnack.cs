@@ -150,6 +150,8 @@ public class TrainRescueSnack : SnackBase {
 			
 		}
 		
+		UpdateAhead(GetDistanceBehind());
+		
 		//check if the flythrough is complete
 		if(!readyToStart)
 		{
