@@ -21,6 +21,7 @@ public class Platform : MonoBehaviour {
 	protected Position position = null;
 	private PlayerOrientation playerOrientation = new PlayerOrientation();
 	protected float bearing = -999.0f;
+	protected float yaw = -999.0f;
 	private bool started = false;
 	protected bool initialised = false;
 	private long currentActivityPoints = 0;
@@ -32,6 +33,7 @@ public class Platform : MonoBehaviour {
 	private List<Game> gameList;
 	
 	private Boolean tracking = false;
+	public Boolean IsTracking() { return tracking; }
 	
 	private AndroidJavaObject helper;
 	private AndroidJavaObject points_helper;
@@ -1133,6 +1135,12 @@ public class Platform : MonoBehaviour {
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
 		}
+
+		try {
+			yaw = helper.Call<float>("getAzimuth");
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
+		}
 		
 		try {
 			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
@@ -1194,6 +1202,10 @@ public class Platform : MonoBehaviour {
 	
 	public virtual float Bearing() {
 		return bearing;
+	}
+
+	public virtual float Yaw() {
+		return yaw;
 	}
 	
 	public virtual long GetOpeningPointsBalance() {

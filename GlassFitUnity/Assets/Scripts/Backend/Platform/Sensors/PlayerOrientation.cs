@@ -135,15 +135,17 @@ public class PlayerOrientation
 				autoResetYaw = null;
 			}
 		}
-		else if (Mathf.Abs(pitch) < AUTO_RESET_HUD_PITCH && Mathf.Abs(cumulativeYaw) > AUTO_RESET_THRESHOLD
-			|| Mathf.Abs(pitch) >= AUTO_RESET_HUD_PITCH && Mathf.Abs(cumulativeYaw) > AUTO_RESET_HUD_THRESHOLD)
+		else if (Mathf.Abs(cumulativeYaw) > AUTO_RESET_THRESHOLD  // facing more than AUTO_RESET_THRESHOLD away from current forward reference
+			 && (!Platform.Instance.IsTracking() // not tracking, i.e. paused or on a menu screen
+			     || Platform.Instance.playerState == "STOPPED"
+			     || Mathf.Abs(Platform.Instance.Bearing() - Platform.Instance.Yaw()) < 20.0f))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going
 		{
 			// we've passed the auto-reset threshold:
 			// increment timer and calculate average yaw since we passed the threshold
 			autoResetTimer += Time.deltaTime;
 			float realWorldYaw = OrientationUtils.QuaternionToYPR(realWorldToPlayerRotation)[2];
 			autoResetYaw = autoResetYaw.HasValue ? 0.7f*autoResetYaw.Value + 0.3f*realWorldYaw : realWorldYaw;
-			//UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + cumulativeYaw);
+			UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
 			//UnityEngine.Debug.Log("AutoReset: Smoothed Yaw: " + autoResetYaw.Value + "rad");
 
 			if (autoResetTimer > AUTO_RESET_TIME_DELAY)
@@ -159,7 +161,7 @@ public class PlayerOrientation
 		}
 		else
 		{
-			//UnityEngine.Debug.Log("AutoReset: Pitch: " + -pitch + ", Roll: " + roll + ", Yaw: " + cumulativeYaw);
+			UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
 			// back inside thresholds
 			// reset timer and yaw
 			autoResetTimer = 0;
