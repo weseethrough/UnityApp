@@ -1,11 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using System;
 
-public class Train_Rescue : GameBase {
-	
-	bool finished = false;
+public class TrainRescueSnack : SnackBase {
 	
 	protected TrainController_Rescue train;
 	public GameObject trainObject = null;
@@ -15,14 +12,21 @@ public class Train_Rescue : GameBase {
 	float junctionSpacing = 250.0f;
 	bool bFailed = false;
 	
+	bool started = false;
+	
 	//list of track pieces we create for the flythrough.
 	protected List<GameObject> extraTrackPieces;
 	
 	bool bWaitedForSubtitleTimeOut = false;
+	
+	float finishDistance = 350f;
+	
+	bool readyToStart = false;
+	
+	double playerStartDistance = 0;
+
 	// Use this for initialization
 	void Start () {
-		base.Start();
-		
 		train = trainObject.GetComponent<TrainController_Rescue>();
 		
 		//clear strings
@@ -32,48 +36,11 @@ public class Train_Rescue : GameBase {
 		//set flag so that trophy is shown if we win
 		DataVault.Set("showFinishTrophy", true);
 		
-		//set up a series of junctions for the train
-		//beginning at 200m
-		
 		float junctionDist = 75.0f;
 		
-		selectedTrack = (Track)DataVault.Get("current_track");
-		
-		//Platform.Instance.SetIndoor(true);
-		
-//		try {
-//			if(selectedTrack != null) {
-//				finish = (int)selectedTrack.distance;
-//			} else {
-//				finish = (int)DataVault.Get("finish");
-//			}
-//		} catch(Exception e) {
-//			finish = 5000;	
-//		}
-		
-		UnityEngine.Debug.Log("Train: finish = " + finish);
+		UnityEngine.Debug.Log("Train: finish = " + finishDistance);
 		
 		bool bDoneFirstOne = false;
-		
-//		while(junctionDist < 500.0f)
-//		{
-//			//create a junction
-//			GameObject junctionObject = (GameObject)Instantiate(Resources.Load("TrainJunction"));
-//			TrainTrackJunction junction = junctionObject.GetComponent<TrainTrackJunction>();
-//			junction.setTrain(trainObject);
-//			
-////			if(!bDoneFirstOne)
-////			{
-////				junction.SwitchOnDetour();
-////				bDoneFirstOne = true;
-////			}
-//			
-//			junction.distancePosition = junctionDist;
-//			
-//			//move distance along
-//			junctionDist += junctionSpacing;
-//		}
-		
 		
 		//create some additional tracks to put on the flythrough
 		extraTrackPieces = new List<GameObject>();
@@ -92,7 +59,7 @@ public class Train_Rescue : GameBase {
 			UnityEngine.Debug.Log("Train: couldn't find left hand track");
 		}
 		
-		while(totalTrackDistCovered <= finish + 500.0f)
+		while(totalTrackDistCovered <= finishDistance + 500.0f)
 		{
 			//create another one, 1km further on
 			trackPiecePosition += 1000.0f;
@@ -107,56 +74,24 @@ public class Train_Rescue : GameBase {
 			extraTrackPieces.Add(newTrackPieceLeft);
 			
 			totalTrackDistCovered += 1000.0f;
-			
-			//UnityEngine.Debug.Log("Train: Added another piece of track");
+		
 		}
-		
 	}
-		
-	protected override double GetDistBehindForHud ()
+	
+	protected double GetDistanceBehind ()
 	{
-		if(train == null)
+		if(train != null) 
 		{
-			train = trainObject.GetComponent<TrainController_Rescue>();
+			return train.GetDistanceBehindTarget();
+		} 
+		else 
+		{
+			UnityEngine.Debug.Log("TrainRescueSnack: train is null!");
+			return 0;
 		}
-		return train.GetDistanceBehindTarget();
 	}
 	
-	// Update is called once per frame
-	void Update () {
-		base.Update();
-		
-		if(Platform.Instance.IsIndoor())
-		{
-			DataVault.Set("calories", "INDOOR");
-		}
-		
-		if(!finished && !hasEnded)
-		{
-			//check if the train has reached the end
-			if(train.GetForwardDistance() > finish && !finished)
-			{
-				//finish the game
-				bFailed = true;
-				//set flag so that trophy isn't show
-				DataVault.Set("showFinishTrophy", false);
-				FinishGame();
-				finished = true;
-			}
-		}
-		
-		//check if the flythrough is complete
-		if(!readyToStart)
-		{
-			if(openingFlythroughPath.IsFinished())
-			{
-				StartCountdown();
-			}
-		}
-		
-	}
-	
-	public override void SetReadyToStart (bool ready)
+	public void SetReadyToStart (bool ready)
 	{		
 		if(openingFlythroughPath != null)
 		{
@@ -174,6 +109,46 @@ public class Train_Rescue : GameBase {
 		musicSource.Play();
 	}
 	
+	public override void Begin ()
+	{
+		SetReadyToStart(true);
+		transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
+	}
+	
+	// Update is called once per frame
+	void Update () {
+		if(!finish && started)
+		{
+			//check if the train has reached the end
+			if(train.GetForwardDistance() > finishDistance && !finish)
+			{
+				DataVault.Set("death_colour", "EA0000FF");
+				DataVault.Set("snack_result", "You lost!");
+				DataVault.Set("snack_result_desc", "the damsel is dead!");
+				StartCoroutine(ShowBanner());
+				finish = true;
+			}
+			else if(GetPlayerDistanceTravelled() > finishDistance && !finish)
+			{
+				DataVault.Set("death_colour", "12D400FF");
+				DataVault.Set("snack_result", "You won!");
+				DataVault.Set("snack_result_desc", "you saved her life!");
+				StartCoroutine(ShowBanner());
+				finish = true;
+			}
+		}
+		
+		//check if the flythrough is complete
+		if(!readyToStart)
+		{
+			if(openingFlythroughPath.IsFinished())
+			{
+				StartCountdown();
+			}
+		}
+		
+	}
+	
 	public void StartCountdown()
 	{
 		//delete extra track pieces
@@ -182,21 +157,15 @@ public class Train_Rescue : GameBase {
 			Destroy(piece);	
 		}
 		
-		base.SetReadyToStart(true);
+		readyToStart = true;
+		
 		if(train == null)
 		{
 			train = trainObject.GetComponent<TrainController_Rescue>();
 		}
 		train.BeginRace();
 		//progress flow to the normal HUD
-		//FollowConnectorNamed("Begin");
 		StartCoroutine(DoCountDown());
-	}
-	
-	//train game does its own version of the countdown
-	protected override bool shouldDoGameBaseCountdown ()
-	{
-		return false;
 	}
 	
 	IEnumerator DoCountDown()
@@ -206,7 +175,7 @@ public class Train_Rescue : GameBase {
 		{
 			//go to subtitle card
 			UnityEngine.Debug.Log("Train: Following 'subtitle' connector");
-			FollowConnectorNamed("Subtitle");
+			//FollowConnectorNamed("Subtitle");
 			//set value for subtitle. 0 = GO
 			string displayString = (i==0) ? "GO !" : i.ToString();
 			DataVault.Set("train_subtitle", displayString);
@@ -216,7 +185,7 @@ public class Train_Rescue : GameBase {
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
-			FollowConnectorNamed("ToBlank");
+			//FollowConnectorNamed("ToBlank");
 			
 			//wait a second more, except after GO!
 			if(i!=0)
@@ -229,13 +198,13 @@ public class Train_Rescue : GameBase {
 		yield return new WaitForSeconds(0.1f);
 		
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
-		FollowConnectorNamed("Begin");
+		//FollowConnectorNamed("Begin");
 		
+		playerStartDistance = Platform.Instance.Distance();
+		started = true;
 		//play the train's bell sound effect
 		train.soundBell();	
 		
-		//start the game
-		StartRace();
 	}
 	
 	public void FollowConnectorNamed(string name)
@@ -252,43 +221,8 @@ public class Train_Rescue : GameBase {
 		}
 	}
 	
-	public override GConnector GetFinalConnection ()
+	public double GetPlayerDistanceTravelled()
 	{
-		if(bFailed || Platform.Instance.GetDistance() < finish)
-		{
-			DataVault.Set("train_subtitle", "\"Aaaaargh!\"");
-		}
-		else
-		{
-			DataVault.Set("train_subtitle", "\"My Hero!\"");
-		}
-
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Subtitle" );
-		
-		//fire off coroutine to progress past this screen in 2 seconds
-		StartCoroutine( ProgressToFinish() );
-		
-		return gConnect;
-	}
-	
-	IEnumerator ProgressToFinish()
-	{
-		UnityEngine.Debug.Log("TrainGame: Progressing to finish in 5 seconds");
-		//wait for 2s then continue
-		yield return new WaitForSeconds(5.0f);
-		
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Finish");
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
-		}
-		else
-		{
-			UnityEngine.Debug.LogWarning("Train: Couldn't find Finish connector!");	
-		}
-		
-
+		return Platform.Instance.Distance() - playerStartDistance;
 	}
 }
