@@ -5,6 +5,8 @@ public class SnackRun : GameBase {
 	
 	protected SnackController snackController = null;
 	
+	public MinigameToken minigameToken = null;
+	
 	//snack every 250m
 	protected float nextSnackDistance = 20.0f;
 	protected float snackInterval = 30.0f;
@@ -25,6 +27,9 @@ public class SnackRun : GameBase {
 		ClearAheadBehind();
 		
 		chimeSound = GetComponent<AudioSource>() as AudioSource;
+		
+		if(minigameToken != null)
+		{ minigameToken.SetDistance(nextSnackDistance); }
 	}
 
 	protected void ClearAheadBehind()
@@ -97,6 +102,11 @@ public class SnackRun : GameBase {
 		//queue up the next snack offer.
 		float currentDistance = Platform.Instance.GetDistance();
 		nextSnackDistance = currentDistance + snackInterval;
+		
+		//shift token along
+		if(minigameToken != null)
+		{ minigameToken.SetDistance(nextSnackDistance); }
+		
 		UnityEngine.Debug.Log("SnackRun: Snack finished. Next snack at " + nextSnackDistance);
 		snackActive = false;
 		ClearAheadBehind();
