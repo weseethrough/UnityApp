@@ -32,6 +32,7 @@ public class BoulderSnack : SnackBase {
 		base.Start();
 		// Find the boulder
 		boulder = GetComponent<BoulderController>();
+		UnityEngine.Debug.Log("BoulderSnack: Start");
 	}
 	
 	// Update is called once per frame
