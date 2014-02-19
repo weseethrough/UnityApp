@@ -5,6 +5,7 @@ public class MinigameToken : MonoBehaviour {
 	
 	float xOffset = 0.0f;
 	float yOffset = 0.0f;
+	float zOffset = 0.0f;
 	float zDist = 0.0f;
 	
 	public float rotationSpeed = 10.0f;
@@ -14,6 +15,7 @@ public class MinigameToken : MonoBehaviour {
 		//get default position
 		xOffset = transform.position.x;
 		yOffset = transform.position.y;
+		zOffset = transform.position.z;
 	}
 	
 	public void SetDistance(float dist) {
@@ -23,8 +25,8 @@ public class MinigameToken : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		//set position in scene based on player distance and our distance
-		float zOffset = zDist - Platform.Instance.GetDistance();
-		transform.position = new Vector3(xOffset, yOffset, zOffset);
+		float zRel = zDist - Platform.Instance.GetDistance();
+		transform.position = new Vector3(xOffset, yOffset, zOffset + zRel);
 		
 		//spin
 		transform.Rotate(0.0f, rotationSpeed*Time.deltaTime, 0.0f);
