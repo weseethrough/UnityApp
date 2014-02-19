@@ -46,7 +46,7 @@ public class BoulderSnack : SnackBase {
 		if(boulder != null)
 		{
 			// Check if the boulder reached the player
-			if(boulder.GetDistanceBehindTarget() > 0.0)
+			if(boulder.GetDistanceBehindTarget() > 0.0 && !finish)
 			{				
 				// Set the attributes for the banner
 				DataVault.Set("death_colour", "EA0000FF");
