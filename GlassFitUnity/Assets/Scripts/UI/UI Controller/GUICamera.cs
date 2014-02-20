@@ -8,8 +8,10 @@ public class GUICamera : MonoBehaviour {
     Vector2 draggingStartPos;
     Quaternion startingRotation;
 		
-	const float CAMERA_SENSITIVITY_X = 2.5f;
-    const float CAMERA_SENSITIVITY_Y = 2.5f;
+	float camera_sensitivity_x = 2.5f;
+	float camera_sensitivity_x_hex = 5.5f;
+    float camera_sensitivity_y = 2.5f;
+	float camera_sensitivity_y_hex = 4.5f;
 	
 	public float zoomLevel = -1.0f;        
 
@@ -45,8 +47,8 @@ public class GUICamera : MonoBehaviour {
     {
         
         dynamicCamPos = new Vector2(p.AsCumulativeYaw(), -p.AsPitch());
-        dynamicCamPos.x *= CAMERA_SENSITIVITY_X;
-	    dynamicCamPos.y *= CAMERA_SENSITIVITY_Y;
+        dynamicCamPos.x *= IsHexTypeMenu() ? camera_sensitivity_x_hex : camera_sensitivity_x;
+	    dynamicCamPos.y *= IsHexTypeMenu() ? camera_sensitivity_y_hex : camera_sensitivity_y;
 		
         //UnityEngine.Debug.Log("Yaw:" + -p.AsYaw() + ", x-offset:" + dynamicCamPos.x);
 		//Vector3 e = p.AsQuaternion().eulerAngles;
@@ -70,28 +72,35 @@ public class GUICamera : MonoBehaviour {
         else
         {
             Vector2 newCameraOffset;
+			Quaternion rot;
             //provide camera rotation to gui camera. This will elt us roll ui view
             PlayerOrientation p = Platform.Instance.GetPlayerOrientation();
-            Quaternion rot = ConvertOrientation(p, out newCameraOffset);
-			
-			//zero out pitch and yaw, we only want roll
-			Vector3 eulerAngles = rot.eulerAngles;
-			eulerAngles.x = 0.0f;
-			eulerAngles.y = 0.0f;
-			rot = Quaternion.Euler(eulerAngles);
+            if(IsHexTypeMenu())
+			{
+				//slide the camera around
+				rot = ConvertOrientation(p, out newCameraOffset);
+				//zero rotation
+				transform.rotation = startingRotation;
+			}
+			else
+			{
+				//Base position on orientation of the main camera
+				rot = Camera.main.transform.rotation;
+
+				//zero out pitch and yaw, we only want roll
+				Vector3 eulerAngles = rot.eulerAngles;
+				newCameraOffset = new Vector2( Mathf.Sin(eulerAngles.x), Mathf.Sin(eulerAngles.y) );
+				eulerAngles.x = 0.0f;
+				eulerAngles.y = 0.0f;
+				rot = Quaternion.Euler(eulerAngles);
+				
+				transform.rotation = rot;
+			}
 			
             Vector2 camPos = new Vector2(cameraPosition.x, cameraPosition.y);
             newCameraOffset -= camPos;
             transform.position = new Vector3(newCameraOffset.x, newCameraOffset.y, zoomLevel);
 
-            if (!IsHexTypeMenu())
-            {
-                transform.rotation = rot;
-            }
-            else
-            {
-                transform.rotation = startingRotation;
-            }
         }
 	}
 
