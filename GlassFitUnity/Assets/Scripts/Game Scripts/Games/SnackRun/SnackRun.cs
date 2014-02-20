@@ -69,6 +69,7 @@ public class SnackRun : GameBase {
 			snackController.OfferGame();
 			snackActive = true;
 			TriggerAlert();
+			minigameToken.gameObject.SetActive(false);
 		}
 		else
 		{
@@ -103,9 +104,12 @@ public class SnackRun : GameBase {
 		float currentDistance = Platform.Instance.GetDistance();
 		nextSnackDistance = currentDistance + snackInterval;
 		
-		//shift token along
+		//shift token along and unhide
 		if(minigameToken != null)
-		{ minigameToken.SetDistance(nextSnackDistance); }
+		{ 
+			minigameToken.SetDistance(nextSnackDistance);
+			minigameToken.gameObject.SetActive(true);
+		}
 		
 		GameObject[] snackObjects = GameObject.FindGameObjectsWithTag("Snacks");
 		foreach(GameObject obj in snackObjects)

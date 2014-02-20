@@ -186,6 +186,10 @@ public class SnackController : MonoBehaviour {
 		//yield until the load is complete
 		yield return async;
 	
+		//wait a frame or two so that the objects have a chance to initialise.
+		//TODO, do this properly.
+		yield return new WaitForSeconds(0.2f);
+		
 		//get the snack game main script
 		currentSnackGameMainObj = (SnackBase)FindObjectOfType(typeof(SnackBase));
 		if(currentSnackGameMainObj == null)
