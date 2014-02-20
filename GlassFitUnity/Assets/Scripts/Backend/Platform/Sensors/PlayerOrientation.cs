@@ -3,29 +3,38 @@ using UnityEngine;
 
 public class PlayerOrientation
 {
-	private const float AUTO_RESET_THRESHOLD = 0.270f; //  0.233 radians from straight ahead to the side to trigger auto-reset
-	private const float AUTO_RESET_HUD_THRESHOLD = 10.0f; // radians to side when looking up at HUD height. Anything over Mathf.PI will disable reset.
-	private const float AUTO_RESET_HUD_PITCH = 0.20f; // radians up to HUD from horizontal
+	private const float AUTO_RESET_THRESHOLD = 20.0f*Mathf.Deg2Rad; //  20 degrees+ from forward to the side will trigger auto-reset
+	private const float AUTO_RESET_HUD_PITCH = 11.5f*Mathf.Deg2Rad; // degrees up to HUD from horizontal
 	private const float AUTO_RESET_TIME_DELAY = 1.5f;  // seconds before auto-reset
 	private const float AUTO_RESET_LERP_RATE = 1.0F/0.4f;  // 1/seconds animation duration
-
-	private Quaternion realWorldToPlayerRotation = Quaternion.identity;  // player's rotation from real-world co-ordinate system (north, east, up)
-	private Quaternion initialRotationOffset = Quaternion.identity;  // player's rotation when reset() was last called
-	private float pitchOffset = 0.0f; // degrees above/below pitch angle of glass unit to put game contents. e.g. -10 means everything will be rendered 10 degrees lower than normal.
-	private Quaternion playerOrientation = Quaternion.identity;  // player's rotation from when reset() was last called
+	private const float CORNERING_TOLERANCE = 20.0f;  // when outdoor, if GPS bearing and magnetic bearing are within this tolerance (degrees), the user must be facing forward
 
 	private Boolean autoResetEnabled = true;
-	private float yaw = 0f;
-	private float cumulativeYaw = 0f; // doesn't flip at +/-180 degrees
+
+	private Quaternion northReference = new Quaternion(Mathf.Sqrt(0.5f), 0, 0, -Mathf.Sqrt(0.5f));  // rotation from real-world to facing north/horizontal
+	private Quaternion forwardReference = new Quaternion(Mathf.Sqrt(0.5f), 0, 0, -Mathf.Sqrt(0.5f));  // rotation from real-world to facing forward (init north) /horizontal. Updated when player goes round a corner.
+	private float pitchOffset = 0.0f; // degrees above/below pitch angle of glass unit to put game contents. e.g. -10 means everything will be rendered 10 degrees lower than normal.
+
+	private Quaternion rotationFromDown = Quaternion.identity;  // rotation from real-world co-ordinate system (looking straight down, facing north) to player, as reported by sensors every frame
+	private Quaternion rotationFromNorth = Quaternion.identity;  // rotation from northReference to player, calculated in this class every frame
+	private Quaternion rotationFromForward = Quaternion.identity;  // rotation from forwardReference to player, calculated in this class every frame
+
+	private float yawFromNorth = 0f;
+	private float yawFromForward = 0f;
+	private float cumulativeYaw = 0f; // from forward, doesn't flip at +/-180 degrees
 	private float pitch = 0f;
 	private float roll = 0f;
 
 	// Accessor methods
-	public Quaternion AsQuaternion() { return playerOrientation; }
+	public Quaternion AsQuaternion() { return rotationFromForward; }
 
-	public Quaternion AsRealWorldQuaternion() { return realWorldToPlayerRotation; }
+	public Quaternion AsQuaternionFromNorth() { return rotationFromNorth; }
 
-	public float AsYaw() { return yaw; }
+	public Quaternion AsRealWorldQuaternion() { return rotationFromDown; }
+
+	public float AsYaw() { return yawFromForward; }
+
+	public float AsYawFromNorth() { return yawFromNorth; }
 
 	public float AsCumulativeYaw() { return cumulativeYaw; }
 
@@ -34,12 +43,12 @@ public class PlayerOrientation
 	public float AsRoll() { return roll; }
 
 	// update the internal state
-	// realWorldToPlayerRotation is as reported by the sensors
+	// rotationFromDown is as reported by the sensors
 	public void Update(Quaternion realWorldToPlayerRotation)
 	{
 
 		// update player orientation
-		this.realWorldToPlayerRotation = realWorldToPlayerRotation;
+		this.rotationFromDown = realWorldToPlayerRotation;
 		updatePlayerOrientation();
 
 		// reset the gyros if player has been looking to the side for a while
@@ -57,9 +66,7 @@ public class PlayerOrientation
 	// currently locked to the horizontal plane
 	public void Reset()
 	{
-		Vector3 realWorldYPR = OrientationUtils.QuaternionToYPR(realWorldToPlayerRotation); // returns yaw and pitch the wrong way round
-		Vector3 YPRoffset = new Vector3(realWorldYPR.z, (-90.0f-this.pitchOffset)*Mathf.Deg2Rad, 0.0f);
-		this.initialRotationOffset = OrientationUtils.YPRToQuaternion(YPRoffset); // feed above in reverese order to compensate
+		this.forwardReference = northReference*Quaternion.Euler (0, AsYawFromNorth()*Mathf.Rad2Deg, 0);
 
 		updatePlayerOrientation();  // we've changed the initial offset, so need to update this too
 		cumulativeYaw = 0f;
@@ -73,36 +80,41 @@ public class PlayerOrientation
 	// currently locked to the horizontal plane
 	public void SetPitchOffset(float pitchDegrees)
 	{
-		this.pitchOffset = pitchDegrees;
-
-		Vector3 currentYPR = OrientationUtils.QuaternionToYPR(initialRotationOffset);  // returns yaw and pitch the wrong way round
-		Vector3 newYPR = new Vector3(currentYPR.z, (-90.0f-this.pitchOffset)*Mathf.Deg2Rad, 0.0f); // same yaw, new pitch, zero roll
-		this.initialRotationOffset = OrientationUtils.YPRToQuaternion(newYPR);
-
-		updatePlayerOrientation();  // we've changed the initial offset, so need to update this too
+//		this.pitchOffset = pitchDegrees;
+//
+//		Vector3 currentYPR = OrientationUtils.QuaternionToYPR(forwardReference);  // returns yaw and pitch the wrong way round
+//		Vector3 newYPR = new Vector3(currentYPR.z, (-90.0f-this.pitchOffset)*Mathf.Deg2Rad, 0.0f); // same yaw, new pitch, zero roll
+//		this.forwardReference = OrientationUtils.YPRToQuaternion(newYPR);
+//
+//		updatePlayerOrientation();  // we've changed the initial offset, so need to update this too
 
 		UnityEngine.Debug.Log("PlayerOrientation pitch offset updated");
 
 	}
 
 
-	// update all relative values based on initial offset and realWorldToPlayerRotation
+	// update all relative values based on initial offset and rotationFromDown
 	private void updatePlayerOrientation()
 	{
-		playerOrientation = Quaternion.Inverse(initialRotationOffset) * realWorldToPlayerRotation;
+		rotationFromForward = Quaternion.Inverse(forwardReference) * rotationFromDown;
+		rotationFromNorth = Quaternion.Inverse(northReference) * rotationFromDown;
 
-		// update yaw, pitch and roll
-		Vector3 YPR = OrientationUtils.QuaternionToYPR(playerOrientation);
-		if (Math.Abs(YPR[0]-yaw) > 6) {
+		// update yaw, pitch and roll from forward
+		Vector3 YPR = OrientationUtils.QuaternionToYPR(rotationFromForward);
+		if (Math.Abs(YPR[0]-yawFromForward) > 6) {
 			// if we've gone past +/- pi radians (6 is just less than 2*pi radians)
 			// need to add/subtract 2*pi
-			this.cumulativeYaw += (YPR[0]-yaw) + (float)(Math.Sign(yaw)*2*Math.PI);
+			this.cumulativeYaw += (YPR[0]-AsYaw()) + (float)(Math.Sign(AsYaw())*2*Math.PI);
 		} else {
-			this.cumulativeYaw += (YPR[0]-yaw);
+			this.cumulativeYaw += (YPR[0]-AsYaw());
 		}
-		this.yaw = YPR[0];
+		this.yawFromForward = YPR[0];
 		this.pitch = YPR[1];
 		this.roll = YPR[2];
+
+		// update yaw from north
+		YPR = OrientationUtils.QuaternionToYPR(rotationFromNorth);
+		this.yawFromNorth = YPR[0];
 	}
 
 	private float autoResetTimer = 0;
@@ -123,13 +135,12 @@ public class PlayerOrientation
 			if (autoResetLerpTime < 1.0f)
 			{
 				// keep updating new yaw
-				float realWorldYaw = OrientationUtils.QuaternionToYPR(realWorldToPlayerRotation)[2];
-				autoResetYaw = autoResetYaw.HasValue ? 0.3f*autoResetYaw.Value + 0.7f*realWorldYaw : realWorldYaw;
-				Vector3 newOffset = new Vector3(autoResetYaw.Value, (-90.0f-this.pitchOffset)*Mathf.Deg2Rad, 0.0f);
-				autoResetTo = OrientationUtils.YPRToQuaternion(newOffset);
+				autoResetYaw = autoResetYaw.HasValue ? 0.3f*autoResetYaw.Value + 0.7f*AsYawFromNorth() : AsYawFromNorth();
+				autoResetTo = northReference*Quaternion.Euler(0, autoResetYaw.Value*Mathf.Rad2Deg, 0);
+				UnityEngine.Debug.Log("AutoResetting from " + (int)(OrientationUtils.QuaternionToYPR(autoResetFrom)[0]*Mathf.Rad2Deg) + " to " + (int)(autoResetYaw.Value*Mathf.Rad2Deg));
 
 				// lerp the world round to new bearing
-				initialRotationOffset = Quaternion.Lerp(autoResetFrom, autoResetTo, (1-Mathf.Cos (autoResetLerpTime*Mathf.PI))/2);
+				forwardReference = Quaternion.Lerp(autoResetFrom, autoResetTo, (1-Mathf.Cos (autoResetLerpTime*Mathf.PI))/2);
 				updatePlayerOrientation(); // we changed the initial rotation so must recalc player orientation values
 			}
 			else
@@ -140,24 +151,21 @@ public class PlayerOrientation
 				autoResetYaw = null;
 			}
 		}
-		else if (Mathf.Abs(cumulativeYaw) > AUTO_RESET_THRESHOLD  // facing more than AUTO_RESET_THRESHOLD away from current forward reference
-			 && Mathf.Abs (pitch) < AUTO_RESET_HUD_PITCH // not looking too far up or down
+		else if (Mathf.Abs(AsYaw()) > AUTO_RESET_THRESHOLD  // facing more than AUTO_RESET_THRESHOLD away from current forward reference
+			 && Mathf.Abs(AsPitch()) < AUTO_RESET_HUD_PITCH // not looking too far up or down
 			 && (!Platform.Instance.IsTracking() // not tracking, i.e. paused or on a menu screen
-			     || Platform.Instance.playerState == "STOPPED"
-			     || Mathf.Abs(Platform.Instance.Bearing() - Platform.Instance.Yaw()) < 20.0f))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going. Note GpsBearing is not valid (-999.0) if the user is stationary
+			     || Platform.Instance.Pace() < 1.0f  // going slowly/stopped
+			     || Mathf.Abs(Platform.Instance.Bearing() - Platform.Instance.Yaw()) < CORNERING_TOLERANCE))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going. Note GpsBearing is not valid (-999.0) if the user is stationary
 		{
 			// we've passed the auto-reset threshold:
 			// increment timer and calculate average yaw since we passed the threshold
 			autoResetTimer += Time.deltaTime;
-			float realWorldYaw = OrientationUtils.QuaternionToYPR(realWorldToPlayerRotation)[2];
-			autoResetYaw = autoResetYaw.HasValue ? 0.7f*autoResetYaw.Value + 0.3f*realWorldYaw : realWorldYaw;
-			UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
-			//UnityEngine.Debug.Log("AutoReset: Smoothed Yaw: " + autoResetYaw.Value + "rad");
+			autoResetYaw = autoResetYaw.HasValue ? 0.7f*autoResetYaw.Value + 0.3f*AsYawFromNorth() : AsYawFromNorth();
 
 			if (autoResetTimer > AUTO_RESET_TIME_DELAY)
 			{
 				// save current offset and start rotating
-				autoResetFrom = initialRotationOffset;
+				autoResetFrom = forwardReference;
 				resetting = true;
 
 				// clean up
@@ -167,7 +175,7 @@ public class PlayerOrientation
 		}
 		else
 		{
-			UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
+			//UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
 			// back inside thresholds
 			// reset timer and yaw
 			autoResetTimer = 0;

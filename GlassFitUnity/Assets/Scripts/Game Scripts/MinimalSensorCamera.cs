@@ -102,20 +102,25 @@ public class MinimalSensorCamera : MonoBehaviour {
 		{
 			// print bearing debug data
 		    GUI.Label(new Rect(200, 050, 400, 50), "Bearing: " + ((int)Platform.Instance.Bearing()).ToString(), labelStyle);
-		    GUI.Label(new Rect(200, 100, 400, 50), "Camera offset: " + ((int)bearingOffset.eulerAngles.y).ToString(), labelStyle);
-		    GUI.Label(new Rect(200, 150, 400, 50), "Indoor mode: " + indoor.ToString(), labelStyle);
-
-			// print orientation (x,y,z)
-			Quaternion realWorldOffset = Platform.Instance.GetPlayerOrientation().AsRealWorldQuaternion();
-//			GUI.Label(new Rect(200, 050, 400, 50), "Euler x: " + ((int)realWorldOffset.eulerAngles.x).ToString(), labelStyle);
-//			GUI.Label(new Rect(200, 100, 400, 50), "Euler y: " + ((int)realWorldOffset.eulerAngles.y).ToString(), labelStyle);
-//			GUI.Label(new Rect(200, 150, 400, 50), "Euler z: " + ((int)realWorldOffset.eulerAngles.z).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 100, 400, 50), "Yaw from north: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYawFromNorth()*Mathf.Rad2Deg)).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 150, 400, 50), "Yaw from forward: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 2000, 400, 50), "Cum-yaw from fwd: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsCumulativeYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
+//		    GUI.Label(new Rect(200, 100, 400, 50), "Camera offset: " + ((int)bearingOffset.eulerAngles.y).ToString(), labelStyle);
+//		    GUI.Label(new Rect(200, 150, 400, 50), "Indoor mode: " + indoor.ToString(), labelStyle);
 
 			// print orientation (yaw, pitch roll)
-			Vector3 YPR = OrientationUtils.QuaternionToYPR(realWorldOffset);
-			GUI.Label(new Rect(200, 250, 400, 50), "Euler yaw: "   + ((int)Mathf.Rad2Deg*YPR.x).ToString(), labelStyle);
-			GUI.Label(new Rect(200, 300, 400, 50), "Euler pitch: " + ((int)Mathf.Rad2Deg*YPR.y).ToString(), labelStyle);
-			GUI.Label(new Rect(200, 350, 400, 50), "Euler roll: "  + ((int)Mathf.Rad2Deg*YPR.z).ToString(), labelStyle);
+			Quaternion rff = Platform.Instance.GetPlayerOrientation().AsQuaternion();
+			Quaternion rfn = Platform.Instance.GetPlayerOrientation().AsQuaternionFromNorth();
+			Quaternion rfd = Platform.Instance.GetPlayerOrientation().AsRealWorldQuaternion();
+//			Debug.Log("QXF (x,y,z,w): (" + rff.x + ", " + rff.y + ", " + rff.z + ", " +  rff.w + ")");
+//			Debug.Log("QXD (x,y,z,w): (" + rfd.x + ", " + rfd.y + ", " + rfd.z + ", " +  rfd.w + ")");
+//
+			Vector3 YPR = OrientationUtils.QuaternionToYPR(rfn);
+			GUI.Label(new Rect(200, 250, 400, 50), "Quat yaw: "   + ((int)(YPR.x*Mathf.Rad2Deg)).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 300, 400, 50), "Quat pitch: " + ((int)(YPR.y*Mathf.Rad2Deg)).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 350, 400, 50), "Quat roll: "  + ((int)(YPR.z*Mathf.Rad2Deg)).ToString(), labelStyle);
+
+
 
 		}
 
