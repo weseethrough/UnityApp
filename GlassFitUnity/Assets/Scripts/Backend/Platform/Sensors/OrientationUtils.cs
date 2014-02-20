@@ -51,9 +51,9 @@ public static class OrientationUtils
 
 		// return result between +-180 in radians
 		return new Vector3(
-			yaw.eulerAngles.y > 180 ? yaw.eulerAngles.y : yaw.eulerAngles.y - 180,
-			yaw.eulerAngles.x > 180 ? yaw.eulerAngles.y : yaw.eulerAngles.y - 180,
-			yaw.eulerAngles.z > 180 ? yaw.eulerAngles.y : yaw.eulerAngles.y - 180
+			yaw.eulerAngles.y < 180 ? yaw.eulerAngles.y : yaw.eulerAngles.y - 360,
+			pitch.eulerAngles.x < 180 ? pitch.eulerAngles.x : pitch.eulerAngles.x - 360,
+			roll.eulerAngles.z < 180 ? roll.eulerAngles.z : roll.eulerAngles.z - 360
 			)*Mathf.Deg2Rad;
 
 	}
