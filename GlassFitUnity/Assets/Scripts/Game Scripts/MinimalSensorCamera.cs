@@ -106,16 +106,21 @@ public class MinimalSensorCamera : MonoBehaviour {
 		    GUI.Label(new Rect(200, 150, 400, 50), "Indoor mode: " + indoor.ToString(), labelStyle);
 
 			// print orientation (x,y,z)
-			Quaternion realWorldOffset = Platform.Instance.GetPlayerOrientation().AsRealWorldQuaternion();
+			//Quaternion realWorldOffset = Platform.Instance.GetPlayerOrientation().AsQuaternion();
 //			GUI.Label(new Rect(200, 050, 400, 50), "Euler x: " + ((int)realWorldOffset.eulerAngles.x).ToString(), labelStyle);
 //			GUI.Label(new Rect(200, 100, 400, 50), "Euler y: " + ((int)realWorldOffset.eulerAngles.y).ToString(), labelStyle);
 //			GUI.Label(new Rect(200, 150, 400, 50), "Euler z: " + ((int)realWorldOffset.eulerAngles.z).ToString(), labelStyle);
 
 			// print orientation (yaw, pitch roll)
-			Vector3 YPR = OrientationUtils.QuaternionToYPR(realWorldOffset);
-			GUI.Label(new Rect(200, 250, 400, 50), "Euler yaw: "   + ((int)Mathf.Rad2Deg*YPR.x).ToString(), labelStyle);
-			GUI.Label(new Rect(200, 300, 400, 50), "Euler pitch: " + ((int)Mathf.Rad2Deg*YPR.y).ToString(), labelStyle);
-			GUI.Label(new Rect(200, 350, 400, 50), "Euler roll: "  + ((int)Mathf.Rad2Deg*YPR.z).ToString(), labelStyle);
+			Quaternion rff = Platform.Instance.GetPlayerOrientation().AsQuaternion();
+			Quaternion rfd = Platform.Instance.GetPlayerOrientation().AsRealWorldQuaternion();
+			Debug.Log("QXF (x,y,z,w): (" + rff.x + ", " + rff.y + ", " + rff.z + ", " +  rff.w + ")");
+			Debug.Log("QXD (x,y,z,w): (" + rfd.x + ", " + rfd.y + ", " + rfd.z + ", " +  rfd.w + ")");
+
+			Vector3 YPR = OrientationUtils.QuaternionToYPR(rff);
+			GUI.Label(new Rect(200, 250, 400, 50), "Euler yaw: "   + ((int)YPR.x).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 300, 400, 50), "Euler pitch: " + ((int)YPR.y).ToString(), labelStyle);
+			GUI.Label(new Rect(200, 350, 400, 50), "Euler roll: "  + ((int)YPR.z).ToString(), labelStyle);
 
 		}
 

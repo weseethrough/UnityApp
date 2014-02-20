@@ -146,7 +146,7 @@ public class PlayerOrientation
 			autoResetTimer += Time.deltaTime;
 			float realWorldYaw = OrientationUtils.QuaternionToYPR(realWorldToPlayerRotation)[2];
 			autoResetYaw = autoResetYaw.HasValue ? 0.7f*autoResetYaw.Value + 0.3f*realWorldYaw : realWorldYaw;
-			UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
+			//UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
 			//UnityEngine.Debug.Log("AutoReset: Smoothed Yaw: " + autoResetYaw.Value + "rad");
 
 			if (autoResetTimer > AUTO_RESET_TIME_DELAY)
@@ -162,7 +162,7 @@ public class PlayerOrientation
 		}
 		else
 		{
-			UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
+			//UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
 			// back inside thresholds
 			// reset timer and yaw
 			autoResetTimer = 0;
