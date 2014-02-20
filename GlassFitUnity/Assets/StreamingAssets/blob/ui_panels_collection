@@ -2,7 +2,6 @@ HexMenu
 HUD
 Track Select
 Complete
-PursuitSettings
 Dead
 Challenge Game
 Floating HUD
@@ -48,3 +47,5 @@ PauseFirst
 PauseSecond
 FirstComplete
 FirstRaceComplete
+SnackDead
+OfferSnackGame

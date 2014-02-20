@@ -77,14 +77,14 @@ public class CameraPath : MonoBehaviour {
 		float p = (t-thisPoint.time)/(nextPoint.time - thisPoint.time);
 		
 		//lerp pos and ori
-		Vector3 pos = Vector3.Lerp(thisPoint.transform.position, nextPoint.transform.position, p);
+		Vector3 pos = Vector3.Lerp(thisPoint.transform.localPosition, nextPoint.transform.localPosition, p);
 		transform.localPosition = pos;
 		
 		//lerp between which object we're looking at, or the static orientation of the nodes
 		Quaternion rotThis, rotNext;
 		if(thisPoint.lookAtTarget != null)
 		{
-			transform.LookAt(thisPoint.lookAtTarget.transform.position);
+			transform.LookAt(thisPoint.lookAtTarget.transform.localPosition);
 			rotThis = transform.rotation;
 		}
 		else
@@ -94,7 +94,7 @@ public class CameraPath : MonoBehaviour {
 		
 		if(nextPoint.lookAtTarget != null)
 		{
-			transform.LookAt(nextPoint.lookAtTarget.transform.position);
+			transform.LookAt(nextPoint.lookAtTarget.transform.localPosition);
 			rotNext = transform.rotation;
 		}
 		else

@@ -187,6 +187,7 @@ public class ButtonFunctionCollection
 	/// <returns>always return true no matter what type of activity is set</returns>
 	static public bool SetType(FlowButton fb, Panel panel)
 	{
+		DataVault.Set("current_game_id", fb.name);
 		switch(fb.name) 
 		{
 		case "activity_race_yourself":
@@ -229,6 +230,12 @@ public class ButtonFunctionCollection
 			DataVault.Set("type", "Fire");
 			DataVault.Set("race_type", "pursuit");
 			break;
+			
+		case "activity_food_burn":
+			DataVault.Set("type", "Snack");
+			DataVault.Set("race_type", "snack");
+			break;
+			
 		}
 		
 		return true;

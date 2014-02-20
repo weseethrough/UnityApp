@@ -10,7 +10,7 @@ public class BoulderController : TargetController {
 	private float xRot;
 	
 	// Rotation speed
-	private float rotationSpeed = 10;
+	private float rotationSpeed = 20;
 	
 	// Rotation limit
 	private static float rotationLimit = 360f;
@@ -27,17 +27,22 @@ public class BoulderController : TargetController {
 	// Current speed
 	private float currentSpeed = 1.25f;
 	
+	// Starting distance
+	private float distanceFromStart = -50f;
+	
+	// Players current distance
+	private double playerDistance = 0.0;
+	
+	// Player's starting distance
+	private double playerStartDistance = 0.0;
+	
 	/// <summary>
 	/// Sets the attributes
 	/// </summary>
 	void Start () {
 		// Set attributes and initial rotation.
-		SetAttribs(50f, 135f, 420f, 0f);
+		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 		xRot = 0;
-		if(target is FauxTargetTracker)
-		{
-			((FauxTargetTracker) target).SetTargetSpeed(currentSpeed);
-		}
 	}
 	
 	/// <summary>
@@ -47,29 +52,43 @@ public class BoulderController : TargetController {
 	{
 		// Enable the object and set attributes.
 		base.OnEnable();
-		SetAttribs(50f, 135f, 420f, 0f);		
+		Reset();
+		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
+	}
+	
+	/// <summary>
+	/// Reset the attributes.
+	/// </summary>
+	public void Reset()
+	{
+		// Set the starting speed
+		currentSpeed = 1.25f;
+		// Set the start time
+		currentTime = 0.0f;
+		// Set the player's initial distance
+		playerDistance = Platform.Instance.Distance();
+		playerStartDistance = Platform.Instance.Distance();
+		// Set the boulder's starting distance
+		distanceFromStart = (float)playerDistance - 50f;
 	}
 	
 	/// <summary>
 	/// Update this instance + updates rotation
 	/// </summary>
 	void Update () {
+		// Set the player distance 
+		playerDistance = Platform.Instance.Distance();
 		
-		// Update the base.
-		base.Update();
-		
+		// Increase the time
 		currentTime += Time.deltaTime;
 		
+		// Update the speed if enough time has passed
 		if(currentTime > updateTime) 
 		{
 			currentTime -= updateTime;
 			
 			currentSpeed += speedIncrease;
 			
-			if(target is FauxTargetTracker)
-			{
-				((FauxTargetTracker) target).SetTargetSpeed(currentSpeed);
-			}
 		}
 		
 		// Rotate the object based on speed.
@@ -84,5 +103,36 @@ public class BoulderController : TargetController {
 		// Make a new quaternion based on the rotation and apply
 		Quaternion rot = Quaternion.Euler(new Vector3(xRot,0,0));
 		transform.rotation = rot;
+		
+		// Increase distance
+		distanceFromStart += Time.deltaTime * currentSpeed;	
+		UnityEngine.Debug.Log("BoulderController: distance is " + distanceFromStart.ToString("f2"));
+		
+		// Update the base.
+		base.Update();
+		
+	}
+	
+	/// <summary>
+	/// Override base implementation, which queries target tracker.
+	/// </summary>
+	/// <returns>
+	/// The distance behind this target.
+	/// </returns>
+	public override double GetDistanceBehindTarget ()
+	{
+		float relativeDist = distanceFromStart - (float)playerDistance;
+		return relativeDist;
+	}
+	
+	/// <summary>
+	/// Gets the distance the player has travelled in the minigame.
+	/// </summary>
+	/// <returns>
+	/// The player's distance.
+	/// </returns>
+	public double GetPlayerDistanceTravelled()
+	{
+		return playerDistance - playerStartDistance;
 	}
 }
