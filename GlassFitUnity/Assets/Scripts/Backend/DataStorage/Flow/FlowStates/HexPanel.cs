@@ -74,22 +74,6 @@ public class HexPanel : Panel
     }
 
     /// <summary>
-    /// Gets display name of the node, helps with node identification in editor
-    /// </summary>
-    /// <returns>name of the node</returns>
-    public override string GetDisplayName()
-    {
-        //base.GetDisplayName();
-
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
-        if (gName != null)
-        {
-            return "HEX Panel: " + gName.Value;
-        }
-        return "HEX Panel: UnInitialzied";
-    }
-
-    /// <summary>
     /// initializes node and creates name for it. Makes as well default input/output connection sockets
     /// </summary>
     /// <returns></returns>

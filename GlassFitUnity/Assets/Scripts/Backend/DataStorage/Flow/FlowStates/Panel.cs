@@ -70,9 +70,9 @@ public class Panel : FlowState
         GParameter gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
-            return "Panel: " + gName.Value;
+            return this.GetType().ToString() + ": " + gName.Value;
         }
-        return "Panel: UnInitialzied";
+        return this.GetType().ToString() + ": UnInitialzied";
     }
 
     /// <summary>

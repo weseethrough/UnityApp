@@ -110,6 +110,7 @@ public class GameSelectPanel : HexPanel
 		GConnector modeExit = Outputs.Find (r => r.Name == "modeExit");
 		GConnector deleteExit = Outputs.Find (r => r.Name == "deleteExit");
 		GConnector trainExit = Outputs.Find (r => r.Name == "trainExit");
+		GConnector multiplayerExit = Outputs.Find (r => r.Name == "multiplayerExit");
 			
 		
 		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
@@ -270,6 +271,14 @@ public class GameSelectPanel : HexPanel
 				if(challengeExit.Link.Count > 0) 
 				{
 					gComponent.Data.Connect(gc, challengeExit.Link[0]);
+				}
+			}
+			else if(games[i].type == "Multiplayer") 
+			{
+				gc.EventFunction = "AuthenticateUser";
+				if(multiplayerExit.Link.Count > 0) 
+				{
+					gComponent.Data.Connect(gc, multiplayerExit.Link[0]);
 				}
 			}
 			else if(games[i].type == "Celeb")
