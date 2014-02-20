@@ -68,6 +68,7 @@ public class Platform : MonoBehaviour {
 	private Device device = null;
 	
 	private static Platform _instance;
+	private bool postInitRun = false;
         
 
     public static Platform Instance 
@@ -212,16 +213,6 @@ public class Platform : MonoBehaviour {
 						UnityEngine.Debug.Log("Platform: authorize complete");
 					}
 					
-//					if (IsRemoteDisplay()) {
-//						BluetoothServer();
-//					} else {
-//						BluetoothClient();
-//					}
-					if (HasInternet() && HasPermissions("any", "login")) {
-						// TODO: Non-blocking connect?
-						ConnectSocket();
-					}
-									
 		            initialised = true;
 					
 					UnityEngine.Debug.Log("Platform: initialise complete");
@@ -258,6 +249,10 @@ public class Platform : MonoBehaviour {
 
             }
 		});
+	}
+	
+	private void PostInitialisation() {
+		UnityEngine.Debug.Log ("Platform: Post initialisation run");
 	}
 	
 	/// Message receivers
@@ -315,12 +310,16 @@ public class Platform : MonoBehaviour {
 	public void OnUserMessage(string message) {
 		UnityEngine.Debug.Log("Net: " + message);
 		JSONNode json = JSON.Parse(message);
-		UnityEngine.Debug.Log("Net j: " + json.ToString());
-		MessageWidget.AddMessage("Network", "<" + json["from"] + "> " + json["data"].ToString(), "settings"); // DEBUG
 		if ("race_query".Equals(json["data"]["type"])) {
 			// TODO: Dialog?
-			DataVault.Set("ingame", false);
-			MessageUser(json["from"].AsInt, "{\"type\" : \"race_accept\"}");
+			if (DataVault.Get("race_group") == null) {
+				DataVault.Set("ingame", false);
+				MessageUser(json["from"].AsInt, "{\"type\" : \"race_accept\"}");
+			} else {
+				// Already racing!
+				int groupId = (int)DataVault.Get("race_group");
+				MessageUser(json["from"].AsInt, "{\"type\" : \"race\", \"group\" : " + groupId + "}");
+			}
 			// TODO: Load lobby?
 		}
 		if ("race_accept".Equals(json["data"]["type"])) {			
@@ -347,7 +346,21 @@ public class Platform : MonoBehaviour {
 			int groupId = json["data"]["group"].AsInt;
 			JoinGroup(groupId);
 			DataVault.Set("race_group", groupId);
-			MessageGroup(groupId, "{\"type\" : \"ehlo\"}");
+			if (DataVault.Get("ingame") == null) DataVault.Set("ingame", false);
+			if((bool)DataVault.Get("ingame") == false) {
+				MessageGroup(groupId, "{\"type\" : \"ehlo\"}"); // ACK so sender can start
+				DataVault.Set("current_game_id", "activity_mp");
+				DataVault.Set("game_type_title", "Multiplayer");
+				DataVault.Set("game_type_subtitle", "You were challenged to an online race!");
+				DataVault.Set("ingame", true); // TODO: inloading=true?
+				DataVault.Set("type", "Runner");
+				DataVault.Set("race_type", "race");
+				DataVault.Set("finish", 1000);
+				DataVault.Set("lower_finish", 5);
+				FlowStateMachine.Restart("Restart Point");
+			} else {
+				UnityEngine.Debug.Log("OnUserMessage: race: Already in game");
+			}
 		}
 		if ("online_query".Equals(json["data"]["type"])) {
 			MessageUser(json["from"].AsInt, "{\"type\" : \"online\"}");
@@ -356,6 +369,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	protected void deferredGroupCreation(int groupId) {
+		UnityEngine.Debug.Log("Net: #" + groupId + " created");
 		onGroupCreated -= deferredGroupCreation;
 		
 		DataVault.Set("race_group", groupId);
@@ -371,9 +385,10 @@ public class Platform : MonoBehaviour {
 	public void OnGroupMessage(string message) {
 		UnityEngine.Debug.Log("Net: #" + message);
 		JSONNode json = JSON.Parse(message);
-		MessageWidget.AddMessage("Network", "#" + json["group"] + " <" + json["from"] + "> " + json["data"].ToString(), "settings"); // DEBUG
+		int userId = int.Parse(json["from"]);
+		int groupId = int.Parse(json["group"]);
 		if ("ehlo".Equals(json["data"]["type"])) {
-			// TODO: Big red button with: start!
+			// Recipient has joined, start game on challenger if not already started
 			if (DataVault.Get("ingame") == null) DataVault.Set("ingame", false);
 			if((bool)DataVault.Get("ingame") == false) {
 				DataVault.Set("ingame", true); // TODO: inloading=true?
@@ -382,10 +397,11 @@ public class Platform : MonoBehaviour {
 				DataVault.Set("finish", 1000);
 				DataVault.Set("lower_finish", 5);
 				FlowStateMachine.Restart("Restart Point");
-				MessageGroup(json["group"].AsInt, "{\"type\" : \"ehlo\"}");
+			} else {
+				UnityEngine.Debug.Log("OnGroupMessage: ehlo: Already in game");
 			}
-			// Always
-			// Createsockettargettracker(fetchUser(json["from"].AsInt))
+			// Reset any reconnecting clients
+			ResetRacer(userId, groupId);
 		}
 	}
 	
@@ -1119,6 +1135,10 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public virtual void Update() {
+		if (!postInitRun) {
+			postInitRun = true;
+			PostInitialisation();
+		}
 		//UnityEngine.Debug.Log("Platform: updating");
 		if (device == null) device = Device();
 		if (user == null) user = User();
@@ -1611,6 +1631,9 @@ public class Platform : MonoBehaviour {
 			if (socket.GetRawObject().ToInt32() == 0) return false;
 			connected = true;
 			socket.Call("leaveGroup", groupId);
+			targetTrackers.RemoveAll(tracker => (tracker is StreamedTargetTracker) 
+				                             && (tracker.metadata.ContainsKey("group")) 
+				                             && ((int)tracker.metadata["group"] == groupId));
 			return true;
 		}
 		catch (Exception e)
@@ -1664,13 +1687,36 @@ public class Platform : MonoBehaviour {
 			t.metadata.Add("group", groupId);
 			t.name = "User " + userId;
 			// TODO: Async fetch user name
+			targetTrackers.RemoveAll(tracker => (tracker is StreamedTargetTracker) 
+				                             && (tracker.metadata.ContainsKey("group")) 
+				                             && (tracker.metadata.ContainsKey("user")) 
+				                             && ((int)tracker.metadata["group"] == groupId)
+				                             && ((int)tracker.metadata["user"] == userId));
 			targetTrackers.Add(t);
 			return t;
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Racers() failed: " + e.Message);
+			UnityEngine.Debug.LogWarning("Platform: CreateTrackerForRacer() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
 		return null;
+	}
+	
+	public virtual void ResetRacer(int userId, int groupId) {
+		try {
+			UnityEngine.Debug.Log("Platform: resetting racer " + userId + " in group " + groupId);
+			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
+			if (socket.GetRawObject().ToInt32() == 0) return;
+			connected = true;
+			socket.Call("resetTargetTracker", groupId, userId);
+			targetTrackers.RemoveAll(tracker => (tracker is StreamedTargetTracker) 
+				                             && (tracker.metadata.ContainsKey("group")) 
+				                             && (tracker.metadata.ContainsKey("user")) 
+				                             && ((int)tracker.metadata["group"] == groupId)
+				                             && ((int)tracker.metadata["user"] == userId));
+		} catch (Exception e) {
+			UnityEngine.Debug.LogWarning("Platform: ResetRacer() failed: " + e.Message);
+			UnityEngine.Debug.LogException(e);
+		}
 	}
 	
 	public Vector2i GetScreenDimensions()

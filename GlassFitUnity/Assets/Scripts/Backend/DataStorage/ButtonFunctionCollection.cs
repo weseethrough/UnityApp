@@ -406,6 +406,13 @@ public class ButtonFunctionCollection
 							UnityEngine.Debug.Log("ButtonFunc: GPS is on (not indoor)");
 							Platform.Instance.SetIndoor(false);
 						}
+						if (fb.name == "activity_bt") {
+							if (Platform.Instance.IsRemoteDisplay()) {
+								Platform.Instance.BluetoothServer();
+							} else {
+								Platform.Instance.BluetoothClient();
+							}
+						}
 						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to true");
 						DataVault.Set(fb.name, true);
 					}

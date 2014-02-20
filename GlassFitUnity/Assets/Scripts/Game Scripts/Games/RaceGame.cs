@@ -100,9 +100,6 @@ public class RaceGame : GameBase {
 			} else {
 				Platform.Instance.CreateTargetTracker(targSpeed);
 			}
-		} else {
-			int groupId = (int)DataVault.Get("race_group");
-			Platform.Instance.StartStreamingToGroup(groupId);
 		}
 		
 		InstantiateActors();
@@ -129,6 +126,15 @@ public class RaceGame : GameBase {
 		UnityEngine.Debug.Log("Game: " + userId.ToString() + " joined game " + groupId.ToString());
 		tracker.offset = Platform.Instance.Distance();
 		InstantiateActors();
+	}
+	
+	protected override void StartRace()
+	{
+		base.StartRace();
+		if (DataVault.Get("race_group") != null) {
+			int groupId = (int)DataVault.Get("race_group");
+			Platform.Instance.StartStreamingToGroup(groupId);
+		}
 	}
 	
 	protected void UpdateLeaderboard() {
@@ -315,9 +321,25 @@ public class RaceGame : GameBase {
 	// Listen for UnitySendMessage with multiplier updates
 	// Display the ner multiplier on screen for a second or so
 
+	protected override void FinishGame ()
+	{
+		Platform.Instance.onRacerJoined -= RacerJoined;
+		if (DataVault.Get("race_group") != null) {
+			int groupId = (int)DataVault.Get("race_group");
+			Platform.Instance.LeaveGroup(groupId);
+		}
+		DataVault.Remove("race_group");		
+		DataVault.Remove("racers");		
+		base.FinishGame();
+	}
+	
 	public override void QuitGame ()
 	{
 		Platform.Instance.onRacerJoined -= RacerJoined;
+		if (DataVault.Get("race_group") != null) {
+			int groupId = (int)DataVault.Get("race_group");
+			Platform.Instance.LeaveGroup(groupId);
+		}
 		DataVault.Remove("race_group");		
 		DataVault.Remove("racers");		
 		base.QuitGame ();

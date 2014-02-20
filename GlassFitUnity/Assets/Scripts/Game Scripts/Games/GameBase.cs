@@ -329,11 +329,12 @@ public class GameBase : MonoBehaviour {
 		return fs.Outputs.Find(r => r.Name == "FinishButton");
 	}
 	
-		/// <summary>
+	/// <summary>
 	/// Delegate function for Glass - when the user swipes back this is called to end the game
 	/// </summary>
-	protected void FinishGame()
+	protected virtual void FinishGame()
 	{
+		DataVault.Set("ingame", false);		
 		UnityEngine.Debug.Log("GameBase: Ending game");
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
@@ -716,7 +717,7 @@ public class GameBase : MonoBehaviour {
 	/// Starts the race.
 	/// To be called when the countdown completes
 	/// </summary>
-	protected void StartRace()
+	protected virtual void StartRace()
 	{
 		Platform.Instance.StartTrack();
 		UnityEngine.Debug.Log("Tracking Started");

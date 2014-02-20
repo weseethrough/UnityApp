@@ -14,3 +14,4 @@ activity_heart,Heart-rate monitor,activity_heart,all,Connect to a heart-rate mon
 activity_fov,FOV test,!none,all,Change the FOV in game,Unlocked,1,0,0,Mode,0,2
 activity_pitch,Pitch change,!none,all,Change the pitch with 2 finger swipes,Unlocked,1,0,0,Mode,0,-2
 activity_mp,Multiplayer,activity_versus,all,Race online!,Unlocked,1,5000,3,Multiplayer,-2,-2
+activity_bt,Bluetooth,!none,all,Toggle Bluetooth networking,Unlocked,1,0,0,Mode,-2,2
