@@ -7,6 +7,7 @@ public class TargetTracker : System.Object {
 	
 	public string name { get; set; }
 	public Dictionary<string, object> metadata { get; protected set; }
+	public double offset { get; set; }
 	protected AndroidJavaObject target;
 	protected double targetDistance = 0;
 	
@@ -27,11 +28,11 @@ public class TargetTracker : System.Object {
 			UnityEngine.Debug.LogWarning("TargetTracker: Helper.getTrackTargetTracker() failed" + e.Message);
 			UnityEngine.Debug.LogException(e);
 			return null;
-		}			
+		}
 	}
 	
 	public double GetTargetDistance() {
-		return targetDistance;
+		return targetDistance + offset;
 	}
 	
 	public virtual void PollTargetDistance() {
@@ -44,7 +45,7 @@ public class TargetTracker : System.Object {
 	}
 	
 	public float GetDistanceBehindTarget() {
-		return (float)(targetDistance - Platform.Instance.Distance());
+		return (float)(GetTargetDistance() - Platform.Instance.Distance());
 	}
 	
 	public float PollCurrentSpeed() {

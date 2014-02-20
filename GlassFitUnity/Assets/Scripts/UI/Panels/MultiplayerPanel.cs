@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization;
-using System.Threading;
+using System.Diagnostics;
 using System;
 using System.Collections.Generic;
+using SimpleJSON;
 
 [Serializable]
 public class MultiplayerPanel : HexPanel {
@@ -37,7 +38,10 @@ public class MultiplayerPanel : HexPanel {
 	private Vector2 levelStartPosition;
 	
 	// Friend list
-	List<Friend> friendList;
+	private List<Friend> friendList;
+	private Dictionary<int, HexButtonData> friendButtons = new Dictionary<int, HexButtonData>();
+	
+	private Stopwatch timeout = new Stopwatch();
 	
 	public MultiplayerPanel() { }
     public MultiplayerPanel(SerializationInfo info, StreamingContext ctxt)
@@ -55,12 +59,30 @@ public class MultiplayerPanel : HexPanel {
 		gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		
 		buttonData = new List<HexButtonData>();
+		friendButtons.Clear();
 		
 		notSet = true;
 		
-//		DataVault.Set("tutorial_hint", "Syncing with the server");
+		DataVault.Set("tutorial_hint", "Connecting to server");
+		if (!Platform.Instance.ConnectSocket()) {
+			MessageWidget.AddMessage("Network", "Could not open a socket to server", "settings");
+			FlowStateMachine.GetCurrentFlowState().parentMachine.FollowBack();
+		}
+		Platform.Instance.onUserMessage += OnUserMessage;
+		DataVault.Set("tutorial_hint", "");
 		base.EnterStart ();
 	}	
+	
+	public void OnUserMessage(int userId, JSONNode message) {
+		UnityEngine.Debug.Log("MultiplayerPanel: Pong from " + userId);
+		HexButtonData hbd;
+		if (friendButtons.TryGetValue(userId, out hbd)) {
+			hbd.backgroundTileColor = 0x00A30EFF;	
+			hbd.markedForVisualRefresh = true;
+			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
+        	list.UpdateButtonList();
+		}
+	}
 	
 	public void AddFriendHexes()
 	{
@@ -86,7 +108,11 @@ public class MultiplayerPanel : HexPanel {
 			if(hbd == null)
 			{
 				hbd = new HexButtonData();
+				hbd.backgroundTileColor = 0x171717FF;	
 				buttonData.Add(hbd);
+			}
+			if (friendList[0].userId.HasValue) {
+				friendButtons.Add(friendList[0].userId.Value, hbd);
 			}
 				
 			hbd.column = (int)currentPosition.x;
@@ -106,7 +132,11 @@ public class MultiplayerPanel : HexPanel {
 				if(hbd == null)
 				{
 					hbd = new HexButtonData();
+					hbd.backgroundTileColor = 0x171717FF;
 					buttonData.Add(hbd);
+				}
+				if (friendList[i].userId.HasValue) {
+					friendButtons.Add(friendList[i].userId.Value, hbd);
 				}
 				
 				//UnityEngine.Debug.Log("MultiplayerPanel: HBD obtained");
@@ -123,9 +153,18 @@ public class MultiplayerPanel : HexPanel {
 			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
         	list.UpdateButtonList();
 			DataVault.Set("friend_list", friendList);
+			PingFriends();
 		} else 
 		{
 			UnityEngine.Debug.Log("MultiplayerPanel: friend list is null!");
+		}
+	}
+	
+	private void PingFriends() {
+		timeout.Start();
+		foreach(int friendId in friendButtons.Keys) {
+			Platform.Instance.MessageUser(friendId, "{\"type\" : \"online_query\"}");
+			// TODO: OnDisconnect(friendId) => locked = true;?
 		}
 	}
 	
@@ -134,8 +173,13 @@ public class MultiplayerPanel : HexPanel {
 		base.StateUpdate ();
 		
 		if(notSet) {
+			timeout.Reset();
 			AddFriendHexes();
 			notSet = false;
+		}
+		if(timeout.ElapsedMilliseconds > 5000) {
+			timeout.Reset();
+			PingFriends();
 		}
 	}
 		
@@ -235,6 +279,7 @@ public class MultiplayerPanel : HexPanel {
 	
 	public override void Exited ()
 	{
+		Platform.Instance.onUserMessage -= OnUserMessage;
 		base.Exited ();
 		DataVault.Set("tutorial_hint", " ");
 	}

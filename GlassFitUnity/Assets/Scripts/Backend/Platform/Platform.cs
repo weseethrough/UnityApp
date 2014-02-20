@@ -38,7 +38,6 @@ public class Platform : MonoBehaviour {
 	private AndroidJavaObject sensoriaSock;
 	
 	public List<TargetTracker> targetTrackers { get; private set; }
-	private StreamedTargetTracker[] racers = new StreamedTargetTracker[0];
 	
 	// Are we authenticated? Note: we mark it false at init and true when any auth call passes
 	public bool authenticated { get; private set; }	
@@ -59,8 +58,10 @@ public class Platform : MonoBehaviour {
 	public OnRegistered onDeviceRegistered = null;
 	public delegate void OnGroupCreated(int groupId);
 	public OnGroupCreated onGroupCreated = null;
-	public delegate void OnRacerJoined(int userId, int groupId);
+	public delegate void OnRacerJoined(int userId, int groupId, StreamedTargetTracker tracker);
 	public OnRacerJoined onRacerJoined = null;
+	public delegate void OnUserMessageDelegate(int userId, JSONNode message);
+	public OnUserMessageDelegate onUserMessage = null;
 	
 	// The current user and device
 	private User user = null;
@@ -348,6 +349,10 @@ public class Platform : MonoBehaviour {
 			DataVault.Set("race_group", groupId);
 			MessageGroup(groupId, "{\"type\" : \"ehlo\"}");
 		}
+		if ("online_query".Equals(json["data"]["type"])) {
+			MessageUser(json["from"].AsInt, "{\"type\" : \"online\"}");
+		}
+		if (onUserMessage != null) onUserMessage(json["from"].AsInt, json["data"]);
 	}
 	
 	protected void deferredGroupCreation(int groupId) {
@@ -390,9 +395,11 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public void OnRacerConnected(string message) {
-		UnityEngine.Debug.Log("RCon: #" + message);
 		JSONNode json = JSON.Parse(message);
-		if (onRacerJoined != null) onRacerJoined(int.Parse(json["user"]), int.Parse(json["group"]));
+		int userId = int.Parse(json["user"]);
+		int groupId = int.Parse(json["group"]);
+		StreamedTargetTracker tracker = CreateTrackerForRacer(userId, groupId);
+		if (onRacerJoined != null) onRacerJoined(userId, groupId, tracker);
 	}
 	
 	private void OnBluetoothJson(JSONNode json) {
@@ -1064,19 +1071,6 @@ public class Platform : MonoBehaviour {
 	
 	
 	public virtual float GetHighestDistBehind() {
-		if (racers.Length <= 0) return GetLowestDistBehindActor();
-		if (targetTrackers.Count <= 0) return GetHighestDistBehindRacer();
-		return Math.Max(GetHighestDistBehindActor(), GetHighestDistBehindRacer());
-	}
-	
-	
-	public virtual float GetLowestDistBehind() {
-		if (racers.Length <= 0) return GetLowestDistBehindActor();
-		if (targetTrackers.Count <= 0) return GetLowestDistBehindRacer();
-		return Math.Min(GetLowestDistBehindActor(), GetLowestDistBehindRacer());
-	}
-	
-	public virtual float GetHighestDistBehindActor() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
@@ -1090,7 +1084,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	
-	public virtual float GetLowestDistBehindActor() {
+	public virtual float GetLowestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
@@ -1101,34 +1095,7 @@ public class Platform : MonoBehaviour {
 			}
 		}
 		return l;
-	}
-	
-	public virtual float GetHighestDistBehindRacer() {
-		if(racers.Length <= 0)
-			return 0;
-		
-		float h = (float)racers[0].GetTargetDistance() - (float)distance;
-		for(int i=1; i<racers.Length; i++) {
-			if(h < racers[i].GetTargetDistance() - (float)distance) {
-				h = (float)racers[i].GetTargetDistance() - (float)distance;
-			}
-		}
-		return h;
-	}
-	
-	
-	public virtual float GetLowestDistBehindRacer() {
-		if(racers.Length <= 0)
-			return 0;
-		
-		float l = (float)racers[0].GetTargetDistance() - (float)distance;
-		for(int i=1; i<racers.Length; i++) {
-			if(l > racers[i].GetTargetDistance() - (float)distance) {
-				l = (float)racers[i].GetTargetDistance() - (float)distance;
-			}
-		}
-		return l;
-	}
+	}	
 	
 	// Update the data
 	public virtual void EraseBlob(string id) {
@@ -1194,9 +1161,6 @@ public class Platform : MonoBehaviour {
 		//UnityEngine.Debug.Log("Platform: poll There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
 			targetTrackers[i].PollTargetDistance();
-		}
-		for(int i=0; i<racers.Length; i++) {
-			racers[i].PollTargetDistance();
 		}
 		
 		try {
@@ -1688,29 +1652,25 @@ public class Platform : MonoBehaviour {
 		}
 	}
 
-	public virtual StreamedTargetTracker[] Racers(int groupId) {
+	public virtual StreamedTargetTracker CreateTrackerForRacer(int userId, int groupId) {
 		try {
-			UnityEngine.Debug.Log("Platform: getting racers for group " + groupId);
+			UnityEngine.Debug.Log("Platform: getting racer " + userId + " in group " + groupId);
 			AndroidJavaObject socket = helper.Call<AndroidJavaObject>("getSocket");
-			if (socket.GetRawObject().ToInt32() == 0) return new StreamedTargetTracker[0];
+			if (socket.GetRawObject().ToInt32() == 0) return null;
 			connected = true;
-			using(AndroidJavaObject list = socket.Call<AndroidJavaObject>("getTargetTrackers", groupId)) {
-				int length = list.Call<int>("size");
-				StreamedTargetTracker[] trackers = new StreamedTargetTracker[length];
-				for (int i=0;i<length;i++) {
-					AndroidJavaObject p = list.Call<AndroidJavaObject>("get", i);
-					StreamedTargetTracker t = new StreamedTargetTracker(p, true);
-					trackers[i] = t;
-				}
-				UnityEngine.Debug.Log("Platform: " + trackers.Length + " racers fetched");
-				racers = trackers;
-				return trackers;
-			}
+			AndroidJavaObject p = socket.Call<AndroidJavaObject>("getTargetTracker", groupId, userId);
+			StreamedTargetTracker t = new StreamedTargetTracker(p, true);
+			t.metadata.Add("user", userId);
+			t.metadata.Add("group", groupId);
+			t.name = "User " + userId;
+			// TODO: Async fetch user name
+			targetTrackers.Add(t);
+			return t;
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Racers() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
-		return new StreamedTargetTracker[0];
+		return null;
 	}
 	
 	public Vector2i GetScreenDimensions()

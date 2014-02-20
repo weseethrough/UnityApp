@@ -124,9 +124,10 @@ public class RaceGame : GameBase {
 		base.OnGUI();
 	}
 		
-	public void RacerJoined(int userId, int groupId) {
+	public void RacerJoined(int userId, int groupId, StreamedTargetTracker tracker) {
 		MessageWidget.AddMessage("Game", userId.ToString() + " joined game " + groupId.ToString(), "settings");
 		UnityEngine.Debug.Log("Game: " + userId.ToString() + " joined game " + groupId.ToString());
+		tracker.offset = Platform.Instance.Distance();
 		InstantiateActors();
 	}
 	
@@ -295,18 +296,6 @@ public class RaceGame : GameBase {
 			controller.SetLane(lane++);
 			actor.SetActive(true);
 			actors.Add(actor);
-		}
-		if (DataVault.Get("race_group") != null) {
-			int groupId = (int)DataVault.Get("race_group");
-			TargetTracker[] racers = Platform.Instance.Racers(groupId);
-			foreach (TargetTracker tracker in racers) {
-				GameObject actor = Instantiate(template) as GameObject;
-				TargetController controller = actor.GetComponent<TargetController>();
-				controller.SetTracker(tracker);
-				controller.SetLane(lane++);
-				actor.SetActive(true);
-				actors.Add(actor);
-			}
 		}
 #else
 		GameObject actorDummy = Instantiate(template) as GameObject;
