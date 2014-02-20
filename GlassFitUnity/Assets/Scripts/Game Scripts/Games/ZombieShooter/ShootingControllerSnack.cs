@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections;
 
-public class ShootingController : MonoBehaviour {
+public class ShootingControllerSnack : MonoBehaviour {
 
 	GestureHelper.OnTap tapHandler = null;
 	
-	ZombieShootGame game;
+	ZombieSnack game;
 	
 	float reloadTime = 0.0f;
 	float fireTime = 0.75f;
@@ -29,7 +29,7 @@ public class ShootingController : MonoBehaviour {
 		GameObject obj = GameObject.Find("ZombieGUI");
 		if(obj != null)
 		{
-			game = obj.GetComponent<ZombieShootGame>();
+			game = obj.GetComponent<ZombieSnack>();
 			if(game == null)
 			{
 				UnityEngine.Debug.Log("Shooter: game not found!");

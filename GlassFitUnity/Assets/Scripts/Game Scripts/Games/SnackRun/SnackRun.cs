@@ -111,6 +111,12 @@ public class SnackRun : GameBase {
 			minigameToken.gameObject.SetActive(true);
 		}
 		
+		GameObject[] snackObjects = GameObject.FindGameObjectsWithTag("Snacks");
+		foreach(GameObject obj in snackObjects)
+		{
+			Destroy(obj);
+		}
+		
 		UnityEngine.Debug.Log("SnackRun: Snack finished. Next snack at " + nextSnackDistance);
 		snackActive = false;
 		ClearAheadBehind();

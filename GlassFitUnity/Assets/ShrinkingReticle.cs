@@ -37,9 +37,6 @@ public class ShrinkingReticle : MonoBehaviour {
 	public void StartTurning()
 	{
 		scaling = true;
-//		cutoffValue += Time.deltaTime;
-//		float realCutoff = (cutoffValue / 0.3f) * 0.4f;
-//		currentScale = Vector3.Lerp(startScale, endScale, cutoffValue);
 		transform.localScale = currentScale;
 		renderer.enabled = true;
 	}

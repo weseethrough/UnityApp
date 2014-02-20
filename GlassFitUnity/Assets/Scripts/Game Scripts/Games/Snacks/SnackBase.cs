@@ -28,7 +28,7 @@ public class SnackBase : MonoBehaviour {
 	/// <summary>
 	/// Finishes the game.
 	/// </summary>
-	protected virtual void Finish()
+	public virtual void Finish()
 	{
 		// Call the function in the main game
 		SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));
