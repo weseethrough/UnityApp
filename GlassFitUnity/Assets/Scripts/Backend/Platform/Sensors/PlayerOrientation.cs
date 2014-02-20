@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class PlayerOrientation
 {
-	private const Boolean AUTO_RESET_ENABLED = false;
 	private const float AUTO_RESET_THRESHOLD = 0.270f; //  0.233 radians from straight ahead to the side to trigger auto-reset
 	private const float AUTO_RESET_HUD_THRESHOLD = 10.0f; // radians to side when looking up at HUD height. Anything over Mathf.PI will disable reset.
 	private const float AUTO_RESET_HUD_PITCH = 0.20f; // radians up to HUD from horizontal
@@ -15,6 +14,7 @@ public class PlayerOrientation
 	private float pitchOffset = 0.0f; // degrees above/below pitch angle of glass unit to put game contents. e.g. -10 means everything will be rendered 10 degrees lower than normal.
 	private Quaternion playerOrientation = Quaternion.identity;  // player's rotation from when reset() was last called
 
+	private Boolean autoResetEnabled = true;
 	private float yaw = 0f;
 	private float cumulativeYaw = 0f; // doesn't flip at +/-180 degrees
 	private float pitch = 0f;
@@ -43,10 +43,15 @@ public class PlayerOrientation
 		updatePlayerOrientation();
 
 		// reset the gyros if player has been looking to the side for a while
-		if (AUTO_RESET_ENABLED) AutoReset();
+		if (autoResetEnabled) AutoReset();
 
 	}
-
+	
+	public void SetAutoReset(Boolean res)
+	{
+		autoResetEnabled = res;
+	}
+	
 	// reset the player orientation to current device orientation
 	// future calls to the accessor methods will report offset from this position
 	// currently locked to the horizontal plane

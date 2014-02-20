@@ -83,6 +83,19 @@ public class ZombieController : MonoBehaviour {
 				direction.Normalize();
 				transform.rotation = Quaternion.LookRotation(direction);
 			}
+			else
+			{
+				GameObject gui = GameObject.Find("ZombieGUI");
+				if(gui != null)
+				{
+					ZombieSnack snack = gui.GetComponent<ZombieSnack>();
+					if(snack != null)
+					{
+						snack.EndGame();
+					}
+				}
+				
+			}
 			
 			if(distanceFromTarget > 10.0f)
 			{
@@ -115,23 +128,23 @@ public class ZombieController : MonoBehaviour {
 		{
 			animator.SetBool("Dead", true);
 			
-			GameObject obj = GameObject.Find("ZombieGUI");
-			if(obj != null)
-			{
-				ZombieShootGame game = obj.GetComponent<ZombieShootGame>();
-				if(game != null)
-				{
-					game.ReduceNumberOfZombies();
-				}
-				else
-				{
-					UnityEngine.Debug.Log("Shooter: game not found!");
-				}
-			}
-			else
-			{
-				UnityEngine.Debug.Log("Shooter: ZombieGUI object not found!");
-			}
+//			GameObject obj = GameObject.Find("ZombieGUI");
+//			if(obj != null)
+//			{
+//				ZombieShootGame game = obj.GetComponent<ZombieShootGame>();
+//				if(game != null)
+//				{
+//					game.ReduceNumberOfZombies();
+//				}
+//				else
+//				{
+//					UnityEngine.Debug.Log("Shooter: game not found!");
+//				}
+//			}
+//			else
+//			{
+//				UnityEngine.Debug.Log("Shooter: ZombieGUI object not found!");
+//			}
 			
 			if(deathSound != null)
 			{
