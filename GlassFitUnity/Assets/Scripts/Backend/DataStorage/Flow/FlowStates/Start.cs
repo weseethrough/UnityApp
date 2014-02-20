@@ -83,7 +83,17 @@ public class Start : FlowState
 
         if (Outputs.Count > 0 && parentMachine != null)
         {
+			//in the editor, go straight to in-game HUD
+#if UNITY_EDITOR
+			GConnector editorGC = Outputs.Find( r => r.Name == "Editor Start Point" );
+
+			if(editorGC != null)
+			{
+				parentMachine.FollowConnection(editorGC);
+			}
+#else
             parentMachine.FollowConnection(Outputs[0]);
+#endif
         }
         else
         {

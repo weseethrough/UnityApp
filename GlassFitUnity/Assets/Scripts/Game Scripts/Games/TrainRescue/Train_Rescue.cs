@@ -157,25 +157,7 @@ public class Train_Rescue : GameBase {
 	}
 	
 	public override void SetReadyToStart (bool ready)
-	{
-//		base.SetReadyToStart (ready);
-//		train.BeginRace();
-		//start the flythrough
-		
-
-		
-
-		
-//		CameraFlythrough flythrough = (CameraFlythrough)Component.FindObjectOfType(typeof(CameraFlythrough));
-//		if(flythrough)
-//		{
-//			flythrough.StartFlythrough();	
-//		}
-//		else
-//		{
-//			UnityEngine.Debug.LogWarning("Train: couldn't find camera flythrough controller");
-//		}
-		
+	{		
 		if(openingFlythroughPath != null)
 		{
 			openingFlythroughPath.StartFollowingPath();	
@@ -266,7 +248,7 @@ public class Train_Rescue : GameBase {
 		}	
 		else
 		{
-			UnityEngine.Debug.LogWarning("TrainGame: couldn't find flow connector");	
+			UnityEngine.Debug.LogWarning("TrainGame: couldn't find flow connector - " + name);	
 		}
 	}
 	

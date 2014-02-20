@@ -54,7 +54,12 @@ public class PlayerOrientation
 		if (AUTO_RESET_ENABLED) AutoReset();
 
 	}
-
+	
+	public void SetAutoReset(Boolean res)
+	{
+		autoResetEnabled = res;
+	}
+	
 	// reset the player orientation to current device orientation
 	// future calls to the accessor methods will report offset from this position
 	// currently locked to the horizontal plane

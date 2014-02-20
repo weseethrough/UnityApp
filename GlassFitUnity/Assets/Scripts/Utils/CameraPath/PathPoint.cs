@@ -39,14 +39,20 @@ public class PathPoint : MonoBehaviour {
 	protected void FollowFlowLinkNamed(string linkName)
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == linkName );
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
+		if(fs != null) {
+			GConnector gConnect = fs.Outputs.Find( r => r.Name == linkName );
+			if(gConnect != null)
+			{
+				fs.parentMachine.FollowConnection(gConnect);
+			}
+			else
+			{
+				UnityEngine.Debug.LogWarning("Train, CameraFlythrough: Couldn't fine flow exit named " + linkName);
+			}
 		}
 		else
 		{
-			UnityEngine.Debug.LogWarning("Train, CameraFlythrough: Couldn't fine flow exit named " + linkName);
+			UnityEngine.Debug.Log("PathPoint: flowstate is null");
 		}
 	}
 
@@ -61,7 +67,7 @@ public class PathPoint : MonoBehaviour {
 	public Quaternion GetNodeOrientation() {
 		if(lookAtTarget != null)
 		{
-			transform.LookAt(lookAtTarget.transform.position);
+			transform.LookAt(lookAtTarget.transform.localPosition);
 		}
 		return transform.rotation;
 	}

@@ -13,13 +13,17 @@ public class ZombieController : MonoBehaviour {
 	
 	private Animator animator;
 	
-	private GestureHelper.DownSwipe downHandler = null;
-	
 	Vector3 direction;
 	
 	bool dead = false;
 	
 	float speed = 2.4f;
+	
+	AudioSource deathSound;
+	
+	AudioSource growl;
+	
+	GameObject marker;
 	
 	/// <summary>
 	/// Start this instance. Sets the attributes
@@ -28,13 +32,30 @@ public class ZombieController : MonoBehaviour {
 		
 		animator = GetComponent<Animator>();
 		
-		downHandler = new GestureHelper.DownSwipe(() => {
-			Application.Quit();
-		});
+		AudioSource[] sounds = GetComponents<AudioSource>();
 		
-		GestureHelper.onSwipeDown += downHandler;
-		
-		float yRotation = UnityEngine.Random.Range(0f, 360f);
+		if(sounds != null) {
+			int sound = UnityEngine.Random.Range(0, 3);
+			
+			if(sound < sounds.Length) {
+				growl = sounds[sound];
+				growl.Play();
+			}
+			else
+			{
+				UnityEngine.Debug.Log("Zombie: not enough sounds for growl!");
+			}
+			
+			sound = UnityEngine.Random.Range(3, 6);
+			if(sound < sounds.Length) {
+				deathSound = sounds[sound];
+			}
+			else
+			{
+				UnityEngine.Debug.Log("Zombie: not enough sounds for death");
+			}
+		}
+		float yRotation = UnityEngine.Random.Range(120f, 240f);
 		
 		transform.rotation = Quaternion.Euler(0, yRotation, 0);
 		
@@ -42,23 +63,102 @@ public class ZombieController : MonoBehaviour {
 		
 		direction = Vector3.zero - transform.position;
 		direction.Normalize();
+		
+		marker = transform.Find("Pointer").gameObject;
 	}
 	
 	/// <summary>
 	/// Update this instance.
 	/// </summary>
 	void Update () {
-		// Update the base.
-		transform.position += (direction * speed) * Time.deltaTime;
+		// Calculate the position based on the player's position.
+		if(!dead) {
+			float distanceFromTarget = transform.position.magnitude;
+			if(distanceFromTarget > 2.0f)
+			{
+				float pace = Platform.Instance.Pace();
+				transform.position += ((direction * speed) * Time.deltaTime) - ((new Vector3(0, 0, 1) * pace) * Time.deltaTime);
+				
+				direction = Vector3.zero - transform.position;
+				direction.Normalize();
+				transform.rotation = Quaternion.LookRotation(direction);
+			}
+			else
+			{
+				GameObject gui = GameObject.Find("ZombieGUI");
+				if(gui != null)
+				{
+					ZombieSnack snack = gui.GetComponent<ZombieSnack>();
+					if(snack != null)
+					{
+						snack.EndGame();
+					}
+				}
+				
+			}
+			
+			if(distanceFromTarget > 10.0f)
+			{
+				if(marker != null)
+				{
+					marker.renderer.enabled = true;
+				}
+				else
+				{
+					UnityEngine.Debug.Log("Zombie: pointer is null!");
+				}
+			}
+			else
+			{
+				if(marker != null)
+				{
+					marker.renderer.enabled = false;
+				}
+				else
+				{
+					UnityEngine.Debug.Log("Zombie: pointer is null!");
+				}
+			}
+		}
 	}
-	
+		
 	public void SetDead() {
 		
 		if(animator != null && !dead)
 		{
 			animator.SetBool("Dead", true);
+			
+//			GameObject obj = GameObject.Find("ZombieGUI");
+//			if(obj != null)
+//			{
+//				ZombieShootGame game = obj.GetComponent<ZombieShootGame>();
+//				if(game != null)
+//				{
+//					game.ReduceNumberOfZombies();
+//				}
+//				else
+//				{
+//					UnityEngine.Debug.Log("Shooter: game not found!");
+//				}
+//			}
+//			else
+//			{
+//				UnityEngine.Debug.Log("Shooter: ZombieGUI object not found!");
+//			}
+			
+			if(deathSound != null)
+			{
+				deathSound.Play();
+			}
+			
+			if(marker != null)
+			{
+				marker.renderer.enabled = false;
+			}
+			
 			StartCoroutine(RemoveDead());
 			dead = true;
+			speed = 0.0f;
 		}
 	
 	}
@@ -81,11 +181,6 @@ public class ZombieController : MonoBehaviour {
 	public bool IsDead()
 	{
 		return dead;
-	}
-	
-	void OnDestroy()
-	{
-		GestureHelper.onSwipeDown -= downHandler;
 	}
 	
 	public void SetSpeed(float s)

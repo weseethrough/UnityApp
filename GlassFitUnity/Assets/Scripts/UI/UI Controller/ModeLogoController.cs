@@ -4,12 +4,12 @@ using System.Collections.Generic;
 
 public class ModeLogoController : UIComponentSettings {
 	
-	public string gameKey = "current_game_id";
+	public string gameIDKey = "current_game_id";
 	
 	// Use this for initialization
 	void Start () {
 		//subscribe to the key in the datavault
-		DataVault.RegisterListner(this, gameKey);
+		DataVault.RegisterListner(this, gameIDKey);
 		Apply();
 	}
 	
@@ -20,7 +20,7 @@ public class ModeLogoController : UIComponentSettings {
 	
 	public override void Apply () {
 		//get the latest game type and pick the appropriate logo name
-		string sName = (string)DataVault.Get("current_game_id");
+		string sName = (string)DataVault.Get(gameIDKey);
 		
 		
 		UnityEngine.Debug.Log("Game Intro Panel: set logo sprite to " + sName);
