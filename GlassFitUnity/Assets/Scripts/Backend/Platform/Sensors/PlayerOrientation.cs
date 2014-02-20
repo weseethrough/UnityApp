@@ -3,12 +3,13 @@ using UnityEngine;
 
 public class PlayerOrientation
 {
-	private const Boolean AUTO_RESET_ENABLED = true;
 	private const float AUTO_RESET_THRESHOLD = 20.0f*Mathf.Deg2Rad; //  20 degrees+ from forward to the side will trigger auto-reset
 	private const float AUTO_RESET_HUD_PITCH = 11.5f*Mathf.Deg2Rad; // degrees up to HUD from horizontal
 	private const float AUTO_RESET_TIME_DELAY = 1.5f;  // seconds before auto-reset
 	private const float AUTO_RESET_LERP_RATE = 1.0F/0.4f;  // 1/seconds animation duration
 	private const float CORNERING_TOLERANCE = 20.0f;  // when outdoor, if GPS bearing and magnetic bearing are within this tolerance (degrees), the user must be facing forward
+
+	private Boolean autoResetEnabled = true;
 
 	private Quaternion northReference = new Quaternion(Mathf.Sqrt(0.5f), 0, 0, -Mathf.Sqrt(0.5f));  // rotation from real-world to facing north/horizontal
 	private Quaternion forwardReference = new Quaternion(Mathf.Sqrt(0.5f), 0, 0, -Mathf.Sqrt(0.5f));  // rotation from real-world to facing forward (init north) /horizontal. Updated when player goes round a corner.
@@ -51,7 +52,7 @@ public class PlayerOrientation
 		updatePlayerOrientation();
 
 		// reset the gyros if player has been looking to the side for a while
-		if (AUTO_RESET_ENABLED) AutoReset();
+		if (autoResetEnabled) AutoReset();
 
 	}
 	
