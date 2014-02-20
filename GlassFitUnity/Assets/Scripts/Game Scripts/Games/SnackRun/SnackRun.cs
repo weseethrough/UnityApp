@@ -17,17 +17,25 @@ public class SnackRun : GameBase {
 	bool snackActive = false;
 	
 	protected AudioSource chimeSound = null;
+	protected AudioSource whooshInSound = null;
+	protected AudioSource whooshOutSound = null;
 	
 	// Use this for initialization
 	void Start() {
 		base.Start();
+		
 		//create snack controller
 		snackController = new GameObject().AddComponent<SnackController>();
 		
 		ClearAheadBehind();
 		
-		chimeSound = GetComponent<AudioSource>() as AudioSource;
+		//get audio sources
+		Component[] sources = GetComponents(typeof(AudioSource));
+		chimeSound = (AudioSource)sources[0];
+		whooshInSound = (AudioSource)sources[1];
+		whooshOutSound = (AudioSource)sources[2];
 		
+		//initialise minigame 
 		if(minigameToken != null)
 		{ minigameToken.SetDistance(nextSnackDistance); }
 	}
@@ -98,8 +106,17 @@ public class SnackRun : GameBase {
 		//do nothing. The snacks handle it in this case.
 	}
 	
+	public void OnSnackBegun()
+	{
+		//play whoosh in
+		whooshInSound.Play();
+	}
+	
 	public void OnSnackFinished()
 	{
+		//play whoosh out
+		whooshOutSound.Play();
+		
 		//queue up the next snack offer.
 		float currentDistance = Platform.Instance.GetDistance();
 		nextSnackDistance = currentDistance + snackInterval;
