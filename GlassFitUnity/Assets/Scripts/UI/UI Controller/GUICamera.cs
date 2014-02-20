@@ -65,7 +65,12 @@ public class GUICamera : MonoBehaviour {
 	/// <returns></returns>
 	void Update () 
     {
-        if (!Platform.Instance.IsRemoteDisplay())
+		bool bShouldDoSensorNavigation = Platform.Instance.IsRemoteDisplay();
+#if UNITY_EDITOR
+		bShouldDoSensorNavigation = true;
+#endif
+		
+        if (!bShouldDoSensorNavigation)
         {
             NonSensorNavigation();
         }
@@ -89,7 +94,8 @@ public class GUICamera : MonoBehaviour {
 
 				//zero out pitch and yaw, we only want roll
 				Vector3 eulerAngles = rot.eulerAngles;
-				newCameraOffset = new Vector2( Mathf.Sin(eulerAngles.x), Mathf.Sin(eulerAngles.y) );
+				newCameraOffset = new Vector2( Mathf.Sin(eulerAngles.y * Mathf.Deg2Rad), -Mathf.Sin(eulerAngles.x * Mathf.Deg2Rad) );
+				//newCameraOffset = new Vector2(eulerAngles.y * Mathf.Deg2Rad, -eulerAngles.x * Mathf.Deg2Rad);
 				eulerAngles.x = 0.0f;
 				eulerAngles.y = 0.0f;
 				rot = Quaternion.Euler(eulerAngles);
