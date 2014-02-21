@@ -51,6 +51,16 @@ public class BoltController : TargetController {
 		// Calculate the distance travelled for Bolt
 		distanceFromStart += Time.deltaTime * speed;
 		
+		if(GetBoltDistanceTravelled() > 100)
+		{
+			speed = 0.0f;
+			if(anim != null) 
+			{
+				anim.SetFloat("Speed", speed);
+				anim.speed = 1.5f;
+			}
+		}
+		
 		base.Update();
 	}
 	

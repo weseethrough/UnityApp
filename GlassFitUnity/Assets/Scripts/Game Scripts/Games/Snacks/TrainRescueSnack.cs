@@ -119,6 +119,7 @@ public class TrainRescueSnack : SnackBase {
 	
 	public override void Begin ()
 	{
+		SetTrack(false);
 		SetReadyToStart(true);
 		//transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
 	}
@@ -185,6 +186,7 @@ public class TrainRescueSnack : SnackBase {
 			train = trainObject.GetComponent<TrainController_Rescue>();
 		}
 		train.BeginRace();
+		playerStartDistance = Platform.Instance.Distance();
 		//progress flow to the normal HUD
 		StartCoroutine(DoCountDown());
 	}
@@ -221,7 +223,7 @@ public class TrainRescueSnack : SnackBase {
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
 		FollowConnectorNamed("Begin");
 		
-		playerStartDistance = Platform.Instance.Distance();
+		
 		started = true;
 		//play the train's bell sound effect
 		train.soundBell();	

@@ -23,6 +23,8 @@ public class BoltSnack : SnackBase {
 	
 	StadiumController stadiumController;
 	
+	StadiumController finishController;
+	
 	// Use this for initialization
 	void Start () {
 		base.Start();
@@ -32,6 +34,20 @@ public class BoltSnack : SnackBase {
 		{
 			stadiumController = stadium.GetComponent<StadiumController>();
 			if(stadiumController == null)
+			{
+				UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController");
+			}
+		}
+		else
+		{
+			UnityEngine.Debug.Log("BoltSnack: couldn't find Stadium object");
+		}
+		
+		stadium = GameObject.Find("Finish Line");
+		if(stadium != null)
+		{
+			finishController = stadium.GetComponent<StadiumController>();
+			if(finishController == null)
 			{
 				UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController");
 			}
@@ -106,6 +122,12 @@ public class BoltSnack : SnackBase {
 		{
 			stadiumController.ShouldMove(false);
 		}
+		
+		if(finishController != null)
+		{
+			finishController.ShouldMove(false);
+		}
+		
 		yield return new WaitForSeconds(5.0f);
 		DataVault.Set("countdown_subtitle", "");
 		// Finish the game
@@ -154,7 +176,16 @@ public class BoltSnack : SnackBase {
 		}
 		else
 		{
-			UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController");
+			UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController on stadium");
+		}
+		
+		if(finishController != null)
+		{
+			finishController.ShouldMove(true);
+		}
+		else
+		{
+			UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController on finish line");
 		}
 		
 		StartRace();
