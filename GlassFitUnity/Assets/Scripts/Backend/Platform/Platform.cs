@@ -388,6 +388,8 @@ public class Platform : MonoBehaviour {
 		int userId = int.Parse(json["from"]);
 		int groupId = int.Parse(json["group"]);
 		if ("ehlo".Equals(json["data"]["type"])) {
+			// Reset any reconnecting clients
+			ResetRacer(userId, groupId);
 			// Recipient has joined, start game on challenger if not already started
 			if (DataVault.Get("ingame") == null) DataVault.Set("ingame", false);
 			if((bool)DataVault.Get("ingame") == false) {
@@ -400,8 +402,6 @@ public class Platform : MonoBehaviour {
 			} else {
 				UnityEngine.Debug.Log("OnGroupMessage: ehlo: Already in game");
 			}
-			// Reset any reconnecting clients
-			ResetRacer(userId, groupId);
 		}
 	}
 	
@@ -1085,6 +1085,15 @@ public class Platform : MonoBehaviour {
 		return (float)distance;
 	}
 	
+	public virtual double GetRaceTail() {
+		double tail = distance;
+		
+		foreach(TargetTracker tracker in targetTrackers) {
+			if (tracker.metadata.ContainsKey("racer") &&
+				tracker.GetTargetDistance() < tail) tail = tracker.GetTargetDistance();
+		}
+		return tail;
+	}
 	
 	public virtual float GetHighestDistBehind() {
 		if(targetTrackers.Count <= 0)
@@ -1685,6 +1694,7 @@ public class Platform : MonoBehaviour {
 			StreamedTargetTracker t = new StreamedTargetTracker(p, true);
 			t.metadata.Add("user", userId);
 			t.metadata.Add("group", groupId);
+			t.metadata.Add("racer", true);
 			t.name = "User " + userId;
 			// TODO: Async fetch user name
 			targetTrackers.RemoveAll(tracker => (tracker is StreamedTargetTracker) 

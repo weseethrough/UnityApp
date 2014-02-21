@@ -46,7 +46,7 @@ public class RaceGame : GameBase {
 	public GameObject chrisHolder;
 	public GameObject bradleyHolder;
 		
-	void Start () {
+	public override void Start () {
 		base.Start();
 		
 		//instantiate teh appropriate actor
@@ -106,9 +106,8 @@ public class RaceGame : GameBase {
 		Platform.Instance.onRacerJoined += RacerJoined;
 		
 		//Platform.Instance.SetIndoor(true);
-		SetReadyToStart(true);
-		SetVirtualTrackVisible(true);
-
+		
+		StartCoroutine("StateSync");
 	}
 	
 	public void SetActorType(ActorType targ) {
@@ -124,8 +123,16 @@ public class RaceGame : GameBase {
 	public void RacerJoined(int userId, int groupId, StreamedTargetTracker tracker) {
 		MessageWidget.AddMessage("Game", userId.ToString() + " joined game " + groupId.ToString(), "settings");
 		UnityEngine.Debug.Log("Game: " + userId.ToString() + " joined game " + groupId.ToString());
-		tracker.offset = Platform.Instance.Distance();
+		// Spawn alongside slowest racer
+		tracker.offset = Platform.Instance.GetRaceTail();
 		InstantiateActors();
+	}
+	
+	IEnumerator StateSync()
+	{
+		while (true) {
+			yield return new WaitForSeconds(10);
+		}
 	}
 	
 	protected override void StartRace()
@@ -323,6 +330,7 @@ public class RaceGame : GameBase {
 
 	protected override void FinishGame ()
 	{
+		StopCoroutine("StateSync");
 		Platform.Instance.onRacerJoined -= RacerJoined;
 		if (DataVault.Get("race_group") != null) {
 			int groupId = (int)DataVault.Get("race_group");
@@ -335,6 +343,7 @@ public class RaceGame : GameBase {
 	
 	public override void QuitGame ()
 	{
+		StopCoroutine("StateSync");
 		Platform.Instance.onRacerJoined -= RacerJoined;
 		if (DataVault.Get("race_group") != null) {
 			int groupId = (int)DataVault.Get("race_group");
