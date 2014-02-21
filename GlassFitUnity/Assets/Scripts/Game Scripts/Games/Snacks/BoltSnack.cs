@@ -102,6 +102,7 @@ public class BoltSnack : SnackBase {
 		// Set the default booleans
 		boltFinished = false;
 		playerFinished = false;
+		SetTrack(false);
 		// Start the countdown
 		StartCoroutine(DoCountDown());
 	}
