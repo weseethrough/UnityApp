@@ -106,7 +106,7 @@ public class BoulderController : TargetController {
 		
 		// Increase distance
 		distanceFromStart += Time.deltaTime * currentSpeed;	
-		UnityEngine.Debug.Log("BoulderController: distance is " + distanceFromStart.ToString("f2"));
+		//UnityEngine.Debug.Log("BoulderController: distance is " + distanceFromStart.ToString("f2"));
 		
 		// Update the base.
 		base.Update();
