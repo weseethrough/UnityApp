@@ -35,10 +35,11 @@ public class SnackBase : MonoBehaviour {
 		if(run)
 		{
 			run.OnSnackFinished();
+			run.SetVirtualTrackVisible(true);
 		}
 		else
 		{
-			UnityEngine.Debug.Log("BoulderSnack: not found SnackRun");
+			UnityEngine.Debug.Log("SnackBase: not found SnackRun");
 		}
 		// Destroy the object
 		Destroy(transform.gameObject);
@@ -129,5 +130,18 @@ public class SnackBase : MonoBehaviour {
 		//set the units string for the HUD
 		DataVault.Set(units, postfix);
 		return final;
+	}
+	
+	protected void SetTrack(bool visible)
+	{
+		SnackRun snack = (SnackRun)FindObjectOfType(typeof(SnackRun));
+		if(snack != null)
+		{
+			snack.SetVirtualTrackVisible(visible);
+		}
+		else
+		{
+			UnityEngine.Debug.Log("BoulderSnack: can't find SnackRun");
+		}
 	}
 }
