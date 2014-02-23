@@ -24,6 +24,8 @@ public class TrainController_Rescue : TargetController {
 	protected AudioSource wheelSound;
 	protected AudioSource bellSound;
 	
+	private double playerStartDistance;
+	
 	// Use this for initialization
 	void Start () {
 		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
@@ -46,6 +48,8 @@ public class TrainController_Rescue : TargetController {
 		//sound the bell
 		hornSound.Play();
 		
+		//absolutePos.z += (float)Platform.Instance.Distance();
+		playerStartDistance = Platform.Instance.Distance();
 		//enable the on-look-at audio
 		OnLookAtSound lookAtSound = GetComponent<OnLookAtSound>();
 		lookAtSound.enabled = true;
@@ -186,7 +190,7 @@ public class TrainController_Rescue : TargetController {
 	/// </returns>
 	public override double GetDistanceBehindTarget ()
 	{
-		float relativeDist = absolutePos.z - (float)playerDistance;
+		float relativeDist = absolutePos.z - ((float)playerDistance - (float)playerStartDistance);
 		return relativeDist;
 	}
 }

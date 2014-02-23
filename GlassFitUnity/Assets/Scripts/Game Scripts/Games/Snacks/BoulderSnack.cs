@@ -14,6 +14,8 @@ public class BoulderSnack : SnackBase {
 		// Call the base function
 		base.Begin ();
 		
+		SetTrack(false);
+		
 		// Enable the boulder if it is there
 		if(boulder != null)
 		{

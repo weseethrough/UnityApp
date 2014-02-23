@@ -21,9 +21,41 @@ public class BoltSnack : SnackBase {
 	// The end time for the player
 	private long finalTime = 0;
 	
+	StadiumController stadiumController;
+	
+	StadiumController finishController;
+	
 	// Use this for initialization
 	void Start () {
 		base.Start();
+		
+		GameObject stadium = GameObject.Find("Stadium");
+		if(stadium != null)
+		{
+			stadiumController = stadium.GetComponent<StadiumController>();
+			if(stadiumController == null)
+			{
+				UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController");
+			}
+		}
+		else
+		{
+			UnityEngine.Debug.Log("BoltSnack: couldn't find Stadium object");
+		}
+		
+		stadium = GameObject.Find("Finish Line");
+		if(stadium != null)
+		{
+			finishController = stadium.GetComponent<StadiumController>();
+			if(finishController == null)
+			{
+				UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController");
+			}
+		}
+		else
+		{
+			UnityEngine.Debug.Log("BoltSnack: couldn't find Stadium object");
+		}
 	}
 	
 	// Update is called once per frame
@@ -86,6 +118,16 @@ public class BoltSnack : SnackBase {
 	{
 		// Show the player's time for 5 seconds
 		DataVault.Set("countdown_subtitle", "100m time: " + finalTime / 1000 + " seconds");
+		if(stadiumController != null)
+		{
+			stadiumController.ShouldMove(false);
+		}
+		
+		if(finishController != null)
+		{
+			finishController.ShouldMove(false);
+		}
+		
 		yield return new WaitForSeconds(5.0f);
 		DataVault.Set("countdown_subtitle", "");
 		// Finish the game
@@ -102,6 +144,7 @@ public class BoltSnack : SnackBase {
 		// Set the default booleans
 		boltFinished = false;
 		playerFinished = false;
+		SetTrack(false);
 		// Start the countdown
 		StartCoroutine(DoCountDown());
 	}
@@ -126,6 +169,25 @@ public class BoltSnack : SnackBase {
 		}
 		//start the game
 		DataVault.Set("countdown_subtitle", " ");
+		
+		if(stadiumController != null)
+		{
+			stadiumController.ShouldMove(true);
+		}
+		else
+		{
+			UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController on stadium");
+		}
+		
+		if(finishController != null)
+		{
+			finishController.ShouldMove(true);
+		}
+		else
+		{
+			UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController on finish line");
+		}
+		
 		StartRace();
 	}
 	

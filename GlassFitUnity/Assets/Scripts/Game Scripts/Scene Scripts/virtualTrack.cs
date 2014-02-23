@@ -13,10 +13,12 @@ public class virtualTrack : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		//plane in scene is 10m x 10m
+		
 		Vector3 scale = new Vector3(TrackWidth/10.0f, 1.0f, TrackLength/10.0f);
 		
 		//initialise the dimensions of the track
 		transform.localScale = scale;
+		
 	}
 	
 	// Update is called once per frame

@@ -8,7 +8,7 @@ public class SnackController : MonoBehaviour {
 	protected List<Game> snackGames = null;
 	
 	protected bool isGameInProgress = false;
-	protected int lastChosenGameIndex = 2;
+	protected int lastChosenGameIndex = -1;
 	
 	protected SnackBase currentSnackGameMainObj = null;
 	
@@ -29,7 +29,7 @@ public class SnackController : MonoBehaviour {
 		List<Game> allGames = Platform.Instance.GetGames();
 		
 		//cherry pick the games which are of type snack, and are unlocked
-		foreach( Game game in allGames )
+		foreach(Game game in allGames)
 		{
 			if( game.type == "Snack" && game.state == "Unlocked")
 			{
