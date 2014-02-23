@@ -116,7 +116,13 @@ public class PlayerOrientation
 		YPR = OrientationUtils.QuaternionToYPR(rotationFromNorth);
 		this.yawFromNorth = YPR[0];
 	}
-
+	
+	private float bearingDiffDegrees(float bearing1, float bearing2) {
+    	float diff = bearing1 - bearing2;
+    	diff  += (diff>180) ? -360 : (diff<-180) ? 360 : 0;
+    	return Mathf.Abs(diff);
+    }
+	
 	private float autoResetTimer = 0;
 	private float autoResetLerpTime = 0;
 	private float? autoResetYaw = null;
@@ -155,7 +161,7 @@ public class PlayerOrientation
 			 && Mathf.Abs(AsPitch()) < AUTO_RESET_HUD_PITCH // not looking too far up or down
 			 && (!Platform.Instance.IsTracking() // not tracking, i.e. paused or on a menu screen
 			     || Platform.Instance.Pace() < 1.0f  // going slowly/stopped
-			     || Mathf.Abs(Platform.Instance.Bearing() - Platform.Instance.Yaw()) < CORNERING_TOLERANCE))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going. Note GpsBearing is not valid (-999.0) if the user is stationary
+			     || bearingDiffDegrees(Platform.Instance.Bearing(), Platform.Instance.Yaw()) < CORNERING_TOLERANCE))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going. Note GpsBearing is not valid (-999.0) if the user is stationary
 		{
 			// we've passed the auto-reset threshold:
 			// increment timer and calculate average yaw since we passed the threshold
