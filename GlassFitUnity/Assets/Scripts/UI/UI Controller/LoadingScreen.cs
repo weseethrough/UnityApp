@@ -56,6 +56,7 @@ public class LoadingScreen : MonoBehaviour {
 		}
 		
 		if (Platform.Instance.IsDisplayRemote()) {
+			//send bluetooth message to load the mode.
             JSONObject json = new JSONObject();
 			json.AddField("action", "LoadLevelAsync");
 			
@@ -68,13 +69,26 @@ public class LoadingScreen : MonoBehaviour {
 			if (DataVault.Get("lower_finish") != null) data.AddField("lower_finish", (int)DataVault.Get("lower_finish"));
 			if (DataVault.Get("challenger") != null) data.AddField("challenger", DataVault.Get("challenger") as string);
 			if (DataVault.Get("current_challenge_notification") != null) data.AddField("current_challenge_notification", (DataVault.Get("current_challenge_notification") as ChallengeNotification).AsJson);
+			string currentGame = (string)DataVault.Get("current_game_id");
+			UnityEngine.Debug.Log("Triggering load: game id = " + currentGame);
+			if (DataVault.Get("current_game_id") != null) data.AddField("current_game_id", DataVault.Get("current_game_id") as string);
 			
 			json.AddField("data", data);
 			Platform.Instance.BluetoothBroadcast(json);
 			MessageWidget.AddMessage("Bluetooth", "Started game on Glass", "settings");
+			
+			
+			UnityEngine.Debug.Log("Loading game: " + raceType);
 			// Return to menu
 		    FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		    GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+			
+			string exitName = "MenuExit";
+			//for snack run, go to the snack remote control meu
+			if(raceType == "snack")
+			{
+				exitName = "SnackRemote";
+			}
+		    GConnector gConnect = fs.Outputs.Find(r => r.Name == exitName);
 			if (gConnect != null) {
 				fs.parentMachine.FollowConnection(gConnect);
 				return;

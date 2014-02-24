@@ -333,6 +333,7 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	protected void FinishGame()
 	{
+		OnFinishedGame();
 		UnityEngine.Debug.Log("GameBase: Ending game");
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
@@ -365,6 +366,15 @@ public class GameBase : MonoBehaviour {
 		} else {
 			UnityEngine.Debug.Log("GameBase: No connection found - FinishButton");
 		}
+	}
+	
+	/// <summary>
+	/// Raises the finished game event.
+	/// Can be implemented by subclasses to do custom behaviour on finishing the run.
+	/// </summary>
+	protected virtual void OnFinishedGame()
+	{
+		return;
 	}
 	
 	/// <summary>

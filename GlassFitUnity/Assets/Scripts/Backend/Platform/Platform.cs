@@ -347,6 +347,37 @@ public class Platform : MonoBehaviour {
 				FlowStateMachine.Restart("Restart Point");
 			}
 			break;
+		case "InitiateSnack":
+			if (IsRemoteDisplay()) {
+				//find SnackRun Object
+				SnackRun snackRunGame = (SnackRun)FindObjectOfType(typeof(SnackRun));
+				string gameID = json["snack_gameID"];
+				if(snackRunGame != null)
+				{
+					UnityEngine.Debug.Log("Platform: Received InitiateSnack message. Initiating game: " + gameID);
+					snackRunGame.OfferPlayerSnack(gameID);
+				}
+				else
+				{
+					UnityEngine.Debug.LogWarning("Platform: Received InitiateSnack message for " + gameID + " but not currently on a snack run");
+				}
+			}
+			break;
+		case "ReturnToMainMenu":
+			if(IsDisplayRemote()) {
+				FlowStateMachine.Restart("Start Point");	
+			}
+			break;
+		case "OnSnackFinished":
+			if(IsDisplayRemote()) {
+				//find SnackRemoteControlPanel
+				SnackRemoteControlPanel remotePanel = (SnackRemoteControlPanel)GameObject.FindObjectOfType(typeof(SnackRemoteControlPanel));
+				if(remotePanel != null)
+				{
+					remotePanel.ClearCurrentSnackHex();
+				}
+			}
+			break;
 		default:
 			UnityEngine.Debug.Log("Platform: unknown Bluetooth message: " + json);
 			break;

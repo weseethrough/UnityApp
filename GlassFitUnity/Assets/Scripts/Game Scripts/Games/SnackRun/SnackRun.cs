@@ -74,7 +74,7 @@ public class SnackRun : GameBase {
 		if(snackController != null)
 		{
 			UnityEngine.Debug.Log("SnackRun: Offering Snack");
-			snackController.OfferGame();
+			snackController.OfferGameRotation();
 			snackActive = true;
 			TriggerAlert();
 			minigameToken.gameObject.SetActive(false);
@@ -83,6 +83,24 @@ public class SnackRun : GameBase {
 		{
 			UnityEngine.Debug.LogError("SnackRun: Couldn't find snack controller");
 		}	
+	}
+	
+	public void OfferPlayerSnack(string gameID)
+	{
+		if(snackController != null)
+		{
+			if(gameID != null)
+			{
+				snackController.OfferGame(gameID);
+				snackActive = true;
+				TriggerAlert();
+				minigameToken.gameObject.SetActive(false);
+			}
+			else
+			{
+				OfferPlayerSnack();	
+			}
+		}
 	}
 	
 	protected void TriggerAlert()
@@ -112,6 +130,9 @@ public class SnackRun : GameBase {
 		whooshInSound.Play();
 	}
 	
+	/// <summary>
+	/// Call when the currently running snack ends, or when the currently offered snack is declined.
+	/// </summary>
 	public void OnSnackFinished()
 	{
 		//play whoosh out
@@ -137,7 +158,26 @@ public class SnackRun : GameBase {
 		UnityEngine.Debug.Log("SnackRun: Snack finished. Next snack at " + nextSnackDistance);
 		snackActive = false;
 		ClearAheadBehind();
+		
+		//send bluetooth message
+		if(Platform.Instance.IsRemoteDisplay)
+		{
+			JSONObject json = new JSONObject();
+			json.AddField("action", "OnSnackFinished");
+		}
 	}
 	
+	protected override void OnFinishedGame ()
+	{
+		//send Bluetooth message to Remote, if applicable
+		if(Platform.Instance.IsRemoteDisplay())
+		{
+	        JSONObject json = new JSONObject();
+			json.AddField("action", "ReturnToMainMenu");
+			Platform.Instance.BluetoothBroadcast(json);		
+		}
+			
+		base.OnFinishedGame ();
+	}	
 	
 }

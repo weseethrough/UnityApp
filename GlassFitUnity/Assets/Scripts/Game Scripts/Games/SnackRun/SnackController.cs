@@ -5,10 +5,10 @@ using System.Collections.Generic;
 public class SnackController : MonoBehaviour {
 	
 	//list of available games
-	protected List<Game> snackGames = null;
+	public static List<Game> snackGames {get; private set;}
 	
 	protected bool isGameInProgress = false;
-	protected int lastChosenGameIndex = 1;
+	protected int lastRotationGameIndex = 1;
 	
 	protected SnackBase currentSnackGameMainObj = null;
 	
@@ -21,28 +21,39 @@ public class SnackController : MonoBehaviour {
 	protected bool acceptedGame = false;
 	
 	protected bool awaitingAcceptTap = false;
-		
+	
+	public static List<Game> getSnackGames()
+	{
+		if(snackGames == null)
+		{
+			//initialise the list of available games
+			snackGames = new List<Game>();
+			List<Game> allGames = Platform.Instance.GetGames();
+			
+			//cherry pick the games which are of type snack, and are unlocked
+			foreach( Game game in allGames )
+			{
+				if( game.type == "Snack" && game.state == "Unlocked")
+				{
+					UnityEngine.Debug.Log("SnackController: Found a snack: " + game.gameId );
+					snackGames.Add( game );	
+				}
+				UnityEngine.Debug.Log("Game. Type:" + game.type + ". id:" + game.gameId + ". scene:" + game.sceneName);
+			}
+			
+			if(snackGames.Count < 1)
+			{
+				UnityEngine.Debug.LogError("SnackController: No suitable games found");
+			}
+		}
+		return snackGames;
+	}
+	
+	
 	void Start()
 	{
-		//initialise the list of available games
-		snackGames = new List<Game>();
-		List<Game> allGames = Platform.Instance.GetGames();
-		
-		//cherry pick the games which are of type snack, and are unlocked
-		foreach( Game game in allGames )
-		{
-			if( game.type == "Snack" && game.state == "Unlocked")
-			{
-				UnityEngine.Debug.Log("SnackController: Found a snack: " + game.gameId );
-				snackGames.Add( game );	
-			}
-			UnityEngine.Debug.Log("Game. Type:" + game.type + ". id:" + game.gameId + ". scene:" + game.sceneName);
-		}
-		
-		if(snackGames.Count < 1)
-		{
-			UnityEngine.Debug.LogError("SnackController: No suitable games found");
-		}
+		//initialise the list of snack games, if necessary
+		getSnackGames();
 		
 		//create tap handlers
 //		handleAccept = new GestureHelper.OnSwipeRight( () => {
@@ -66,16 +77,37 @@ public class SnackController : MonoBehaviour {
 	/// <summary>
 	/// Offers the user the opportunity to play a game.
 	/// </summary>
-	public void OfferGame()
+	public void OfferGameRotation()
 	{
 		currentGame = getNextGame();
+		OfferGame();
+	}
+	
+	
+	public void OfferGame()
+	{
+		//unload current snack
+		CancelCurrentSnack();
+		
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		//clear current snack offer
+		if(awaitingAcceptTap)
+		{
+			GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
+			if (gc != null)
+			{
+				fs.parentMachine.FollowConnection(gc);
+			}
+			
+			awaitingAcceptTap = false;
+		}
+		
 		UnityEngine.Debug.Log("SnackController: offering snack");
 		//transition flow to panel to offer game
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gc = fs.Outputs.Find( r => r.Name == "BeginSnack" );
-		if (gc != null)
+		GConnector gcBegin = fs.Outputs.Find( r => r.Name == "BeginSnack" );
+		if (gcBegin != null)
 		{
-			fs.parentMachine.FollowConnection(gc);
+			fs.parentMachine.FollowConnection(gcBegin);
 		}
 		else
 		{
@@ -93,6 +125,23 @@ public class SnackController : MonoBehaviour {
 		//GestureHelper.onSwipeRight += handleAccept;
 		awaitingAcceptTap = true;
 		StartCoroutine("ScheduleGameOffer");
+	}
+	
+	public void OfferGame(string gameID)
+	{
+		Game game = snackGames.Find( r => r.gameId == gameID );
+		if(game != null)
+		{
+			currentGame = game;
+			OfferGame();
+		}
+		else
+		{
+			UnityEngine.Debug.LogWarning("SnackController: Couldn't find specific game to offer:" + gameID + " Offering based on rotation instead");
+			OfferGameRotation();
+		}
+		
+			
 	}
 	
 	IEnumerator ScheduleGameOffer()
@@ -132,7 +181,23 @@ public class SnackController : MonoBehaviour {
 		
 	}
 	
-	
+	/// <summary>
+	/// Cancels and unloads the current snack
+	/// </summary>
+	/// <returns>
+	/// <c>true</c> if this instance cancel current snack; otherwise, <c>false</c>.
+	/// </returns>
+	public void CancelCurrentSnack()
+	{
+		//find snack
+		SnackBase snack = (SnackBase)FindObjectOfType(typeof(SnackBase));
+		
+		//call finish
+		if(snack != null)
+		{
+			snack.Finish();
+		}
+	}
 	
 	/// <summary>
 	/// Gets the next game to play
@@ -144,14 +209,14 @@ public class SnackController : MonoBehaviour {
 	protected Game getNextGame()
 	{
 		//choose next game
-		lastChosenGameIndex ++;
+		lastRotationGameIndex ++;
 		//wrap back to start if necessary
-		if(lastChosenGameIndex >= snackGames.Count)
+		if(lastRotationGameIndex >= snackGames.Count)
 		{
-			lastChosenGameIndex = 0;
+			lastRotationGameIndex = 0;
 		}
 		
-		Game chosenGame = snackGames[lastChosenGameIndex];
+		Game chosenGame = snackGames[lastRotationGameIndex];
 		
 		UnityEngine.Debug.Log("SnackController: Chose game: " + chosenGame.gameId);
 		
