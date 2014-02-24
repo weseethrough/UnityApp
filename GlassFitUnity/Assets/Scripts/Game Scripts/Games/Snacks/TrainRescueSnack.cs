@@ -204,7 +204,7 @@ public class TrainRescueSnack : SnackBase {
 			DataVault.Set("train_subtitle", displayString);
 			
 			//wait half a second
-			yield return new WaitForSeconds(1.0f);
+			yield return new WaitForSeconds(0.5f);
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
@@ -213,7 +213,7 @@ public class TrainRescueSnack : SnackBase {
 			//wait a second more, except after GO!
 			if(i!=0)
 			{
-				yield return new WaitForSeconds(1.5f);
+				yield return new WaitForSeconds(0.5f);
 			}
 			
 		}

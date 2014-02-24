@@ -4,7 +4,7 @@ using System.Collections;
 public class TrainController_Rescue : TargetController {
 	
 	protected float headStartDistance = 0.0f;
-	protected float currentMovementSpeed = 4.00f;
+	protected float currentMovementSpeed = 2.4f;
 	protected float timeRunStarted;
 	protected float playerDistance = 0.0f;
 	
@@ -154,10 +154,7 @@ public class TrainController_Rescue : TargetController {
 				//sound the horn, if we haven't
 				if(!bSoundedHorn)
 				{
-					var aSources = GetComponents<AudioSource>();
-					AudioSource trainWhistle = aSources[1];
-					trainWhistle.Play();
-					
+					hornSound.Play();
 				}
 			}
 			else if(detourProgress < 0.9f)
