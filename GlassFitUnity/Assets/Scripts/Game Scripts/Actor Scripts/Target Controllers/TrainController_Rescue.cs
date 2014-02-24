@@ -4,7 +4,7 @@ using System.Collections;
 public class TrainController_Rescue : TargetController {
 	
 	protected float headStartDistance = 0.0f;
-	protected float currentMovementSpeed = 4.00f;
+	protected float currentMovementSpeed = 2.4f;
 	protected float timeRunStarted;
 	protected float playerDistance = 0.0f;
 	
@@ -23,6 +23,8 @@ public class TrainController_Rescue : TargetController {
 	protected AudioSource hornSound;
 	protected AudioSource wheelSound;
 	protected AudioSource bellSound;
+	
+	private double playerStartDistance;
 	
 	// Use this for initialization
 	void Start () {
@@ -46,6 +48,8 @@ public class TrainController_Rescue : TargetController {
 		//sound the bell
 		hornSound.Play();
 		
+		//absolutePos.z += (float)Platform.Instance.Distance();
+		playerStartDistance = Platform.Instance.Distance();
 		//enable the on-look-at audio
 		OnLookAtSound lookAtSound = GetComponent<OnLookAtSound>();
 		lookAtSound.enabled = true;
@@ -150,10 +154,7 @@ public class TrainController_Rescue : TargetController {
 				//sound the horn, if we haven't
 				if(!bSoundedHorn)
 				{
-					var aSources = GetComponents<AudioSource>();
-					AudioSource trainWhistle = aSources[1];
-					trainWhistle.Play();
-					
+					hornSound.Play();
 				}
 			}
 			else if(detourProgress < 0.9f)
@@ -186,7 +187,7 @@ public class TrainController_Rescue : TargetController {
 	/// </returns>
 	public override double GetDistanceBehindTarget ()
 	{
-		float relativeDist = absolutePos.z - (float)playerDistance;
+		float relativeDist = absolutePos.z - ((float)playerDistance - (float)playerStartDistance);
 		return relativeDist;
 	}
 }
