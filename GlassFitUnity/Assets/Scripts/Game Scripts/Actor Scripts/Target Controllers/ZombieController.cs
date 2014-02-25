@@ -128,24 +128,6 @@ public class ZombieController : MonoBehaviour {
 		{
 			animator.SetBool("Dead", true);
 			
-//			GameObject obj = GameObject.Find("ZombieGUI");
-//			if(obj != null)
-//			{
-//				ZombieShootGame game = obj.GetComponent<ZombieShootGame>();
-//				if(game != null)
-//				{
-//					game.ReduceNumberOfZombies();
-//				}
-//				else
-//				{
-//					UnityEngine.Debug.Log("Shooter: game not found!");
-//				}
-//			}
-//			else
-//			{
-//				UnityEngine.Debug.Log("Shooter: ZombieGUI object not found!");
-//			}
-			
 			if(deathSound != null)
 			{
 				deathSound.Play();

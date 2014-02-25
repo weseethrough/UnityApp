@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ZombieSnack : SnackBase {
 	
@@ -24,12 +25,46 @@ public class ZombieSnack : SnackBase {
 	
 	private bool ending = false;
 	
+	private int zombieID = 0;
+	
+	private List<GameObject> zombieList;
+	
+	private GameObject leftMarker;
+	private GameObject rightMarker;
+	
+	private Camera zombieCamera;
+	
 	public override void Begin ()
 	{
 		base.Begin ();
 		Platform.Instance.GetPlayerOrientation().SetAutoReset(false);
 		AddZombie();
+		zombieList = new List<GameObject>();
 		zombiesKilled = 0;
+		leftMarker = GameObject.Find("LeftPointer");
+		rightMarker = GameObject.Find("RightPointer");
+		GameObject obj = GameObject.Find("ZombieCamera");
+		if(obj != null)
+		{
+			zombieCamera = obj.GetComponent<Camera>();
+		}
+	}
+	
+	void Start()
+	{
+		Platform.Instance.GetPlayerOrientation().SetAutoReset(false);
+		
+		zombieList = new List<GameObject>();
+		AddZombie();
+		zombiesKilled = 0;
+		leftMarker = GameObject.Find("LeftPointer");
+		rightMarker = GameObject.Find("RightPointer");
+		GameObject obj = GameObject.Find("ZombieCamera");
+		if(obj != null)
+		{
+			zombieCamera = obj.GetComponent<Camera>();
+		}
+		UnityEngine.Debug.Log("ZombieSnack: reached the end of Start function");
 	}
 	
 	// Update is called once per frame
@@ -60,6 +95,45 @@ public class ZombieSnack : SnackBase {
 			}
 		}
 		
+		if(zombieList != null && zombieList.Count > 0)
+		{
+			if(leftMarker != null && rightMarker != null)
+			{
+				leftMarker.renderer.enabled = false;
+				rightMarker.renderer.enabled = false;
+			}
+			foreach(GameObject zombie in zombieList)
+			{
+				SkinnedMeshRenderer zombieRenderer = zombie.GetComponentInChildren<SkinnedMeshRenderer>();
+				if(zombieCamera != null && zombieRenderer != null) {
+					if(!zombieRenderer.isVisible) {
+						Vector3 position = zombie.transform.position;
+						Vector3 direction = zombieCamera.transform.position - position;
+						direction.Normalize();
+						direction.y = 0f;
+						Vector3 cameraDirection = zombieCamera.transform.forward;
+						cameraDirection.y = 0f;
+						
+						float dotProduct = Vector3.Dot(direction, cameraDirection);
+						
+						position = zombieCamera.WorldToScreenPoint(position);
+						
+						if(dotProduct <= 0f)
+						{
+							position.x = -position.x;
+						}
+						if(leftMarker != null && position.x > 0)
+						{
+							leftMarker.renderer.enabled = true;
+						}
+						else if(rightMarker != null && position.x < 0)
+						{
+							rightMarker.renderer.enabled = true;
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	public void EndGame()
@@ -82,12 +156,15 @@ public class ZombieSnack : SnackBase {
 		{
 			GameObject zombie = (GameObject)Instantiate(zombiePrefab);
 			zombie.tag = "Snacks";
+			zombie.name = "Zombie" + zombieID.ToString();
 			ZombieController controller = zombie.GetComponent<ZombieController>();
 			if(controller != null)
 			{
 				controller.SetSpeed(speed);
 			}
+			zombieList.Add(zombie);
 			numberOfZombies++;
+			zombieID++;
 			UnityEngine.Debug.Log("Zombie: new zombie added, total is now " + numberOfZombies.ToString());
 			DataVault.Set("current_zombies", "Zombies killed: " + zombiesKilled);
 		}
@@ -97,10 +174,19 @@ public class ZombieSnack : SnackBase {
 		}
 	}
 	
-	public void ReduceNumberOfZombies()
+	public void ReduceNumberOfZombies(string zombieName)
 	{
 		numberOfZombies--;
 		zombiesKilled++;
+		foreach(GameObject zombie in zombieList)
+		{
+			if(zombie.name == zombieName)
+			{
+				zombieList.Remove(zombie);
+				break;
+			}
+		}
+		
 		DataVault.Set("current_zombies", "Zombies killed: " + zombiesKilled);
 		UnityEngine.Debug.Log("Zombie: zombie removed, total killed is now " + zombiesKilled.ToString());
 	}
