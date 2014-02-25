@@ -53,7 +53,7 @@ public class RaceTypePanel : HexPanel {
 		}
 		
 		
-		hbd = GetButtonAt(0, 1);
+		hbd = GetButtonAt(1, 0);
         //if we do not have button at provided coordinates we will create new button data for it
         if (hbd == null)
         {
