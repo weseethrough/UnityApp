@@ -3,7 +3,7 @@ using System.Collections;
 
 public class StadiumController : MonoBehaviour {
 	
-	private bool shouldMove;
+	private bool shouldMove = false;
 	
 	// Use this for initialization
 	void Start () {

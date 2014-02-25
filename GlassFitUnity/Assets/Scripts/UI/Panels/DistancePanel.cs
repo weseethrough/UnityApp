@@ -9,6 +9,7 @@ public class DistancePanel : HexPanel {
 	
 	GConnector gameExit;
 	GConnector tutorialExit;
+	GConnector snackExit;
 	string raceType;
 	
 	public DistancePanel() { }
@@ -28,6 +29,7 @@ public class DistancePanel : HexPanel {
 		
 		tutorialExit = Outputs.Find(r => r.Name == "TutorialExit");
 		gameExit = Outputs.Find(r => r.Name ==  "gameExit");
+		snackExit = Outputs.Find(r => r.Name == "snackExit");
 		
 		GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 				
@@ -315,6 +317,11 @@ public class DistancePanel : HexPanel {
 			if(tutorialExit.Link.Count > 0) {
 				UnityEngine.Debug.Log("DistancePanel: Tutorial exit set");
 				gComponent.Data.Connect(gc, tutorialExit.Link[0]);
+			}
+		} else if(raceType == "snack") {
+			if(snackExit.Link.Count > 0) {
+				UnityEngine.Debug.Log("DistancePanel: snack exit set");
+				gComponent.Data.Connect(gc, snackExit.Link[0]);
 			}
 		} else {
 			if(gameExit.Link.Count > 0) {
