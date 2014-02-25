@@ -22,7 +22,7 @@ public class ShrinkingReticle : MonoBehaviour {
 			cutoffValue += Time.deltaTime;
 			float realCutoff = (cutoffValue / 0.3f) * 0.4f;
 			currentScale = Vector3.Lerp(startScale, endScale, realCutoff);
-			UnityEngine.Debug.Log("Shrinking: current size is - " + currentScale.ToString());
+			//UnityEngine.Debug.Log("Shrinking: current size is - " + currentScale.ToString());
 		}
 		
 		transform.localScale = currentScale;

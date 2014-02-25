@@ -19,13 +19,13 @@ public class BoulderController : TargetController {
 	private float currentTime = 0;
 	
 	// Threshold for speed increase
-	private float updateTime = 30f;
+	private float updateTime = 10f;
 	
 	// Value to increase speed by
 	private float speedIncrease = 0.5f;
 	
 	// Current speed
-	private float currentSpeed = 1.25f;
+	private float currentSpeed = 2.5f;
 	
 	// Starting distance
 	private float distanceFromStart = -50f;
