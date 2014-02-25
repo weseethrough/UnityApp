@@ -91,7 +91,7 @@ public class ShootingControllerSnack : MonoBehaviour {
 					if(!zombie.IsDead()) {
 						if(game != null)
 						{
-							game.ReduceNumberOfZombies();
+							game.ReduceNumberOfZombies(zombie.gameObject.name);
 						}
 						else
 						{
@@ -140,19 +140,18 @@ public class ShootingControllerSnack : MonoBehaviour {
 		{
 			if(hit.collider.tag == "Head" || hit.collider.tag == "Body")
 			{
-				UnityEngine.Debug.Log("Shooter: looking at one of the ugly SOB's!");
+				//UnityEngine.Debug.Log("Shooter: looking at one of the ugly SOB's!");
 								
 				GameObject zombiePart = hit.transform.gameObject;
 				ZombieController zombie = zombiePart.transform.root.GetComponent<ZombieController>();
 				
 				if(!zombie.IsDead()) {
-					UnityEngine.Debug.Log("Shooter: he alive, kill it quick!");
+					//UnityEngine.Debug.Log("Shooter: he alive, kill it quick!");
 					ChangeReticleColour(Color.red);
 					if(reloadTime == 0.0f)
 					{
 						if(shootingIcon != null)
 						{
-							UnityEngine.Debug.Log("Shooter: starting turning");
 							shootingIcon.StartTurning();
 						}
 						else
@@ -166,7 +165,7 @@ public class ShootingControllerSnack : MonoBehaviour {
 						if(zombie != null) {
 							if(game != null)
 							{
-								game.ReduceNumberOfZombies();
+								game.ReduceNumberOfZombies(zombie.gameObject.name);
 							}
 							else
 							{

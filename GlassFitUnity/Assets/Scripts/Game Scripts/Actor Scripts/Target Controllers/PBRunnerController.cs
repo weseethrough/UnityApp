@@ -44,20 +44,26 @@ public class PBRunnerController : TargetController {
 		//UnityEngine.Debug.Log("PBRunnerController: This is a PB Runner");
 		base.Update();
 #if !UNITY_EDITOR
-		float newSpeed = target.PollCurrentSpeed();
-		if(speed != newSpeed)
-		{
-			speed = newSpeed;
-			anim.SetFloat("Speed", speed);
-			if(speed > 2.2f && speed < 4.0f) {
-				anim.speed = newSpeed / 2.2f;
-			} else if(speed > 4.0f) {
-				anim.speed = Mathf.Clamp(newSpeed / 4.0f, 1, 2);
-			} else if(speed > 0.0f) {
-				anim.speed = speed / 1.25f;
-			} else {
-				anim.speed = 1.0f;
+		if(target != null) {
+			float newSpeed = target.PollCurrentSpeed();
+			if(speed != newSpeed)
+			{
+				speed = newSpeed;
+				anim.SetFloat("Speed", speed);
+				if(speed > 2.2f && speed < 4.0f) {
+					anim.speed = newSpeed / 2.2f;
+				} else if(speed > 4.0f) {
+					anim.speed = Mathf.Clamp(newSpeed / 4.0f, 1, 2);
+				} else if(speed > 0.0f) {
+					anim.speed = speed / 1.25f;
+				} else {
+					anim.speed = 1.0f;
+				}
 			}
+		} 
+		else
+		{
+			UnityEngine.Debug.Log("PBRunnerController: Target is null!");
 		}
 #endif
 	}

@@ -126,7 +126,10 @@ public class GestureHelper : MonoBehaviour {
 		UnityEngine.Debug.Log("GestureHelper: Swipe down message received...");
 		if(onSwipeDown != null) {
 			UnityEngine.Debug.Log("GestureHelper: ... calling swipe down delegates");
-			onSwipeDown();
+			if(Platform.Instance.OnGlass())
+			{
+				onSwipeDown();
+			}
 		} else {
 			UnityEngine.Debug.Log("GestureHelper: ... but no swipe down delegates are registered. Dropping message.");
 		}
@@ -183,29 +186,30 @@ public class GestureHelper : MonoBehaviour {
 						TouchInfo ti = touches[touch.fingerId];
 						ti.distanceTravelled += touch.deltaPosition;
 						ti.time += touch.deltaTime;
-
-						// if they move far enough, count as a swipe
-						if(ti.distanceTravelled.x <= -SWIPE_MIN_DIST)
-						{
-							//	swiped left
-							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe left");
-							touches.Remove(touch.fingerId);
-							if (onSwipeLeft != null) onSwipeLeft();
-						}
-						else if (ti.distanceTravelled.x >= SWIPE_MIN_DIST)
-						{
-							//	swiped right
-							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe right");
-							touches.Remove(touch.fingerId);
-							if (onSwipeRight != null) onSwipeRight();
-						}
-						else if(ti.distanceTravelled.y <= - SWIPE_MIN_DIST)
-						{
-							//swiped down
-							touches.Remove(touch.fingerId);
-							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe down");
-							if (onSwipeDown != null) onSwipeDown();
-						}
+						
+						//Removing these events for now. They shouldn't be required any longer
+//						// if they move far enough, count as a swipe
+//						if(ti.distanceTravelled.x <= -SWIPE_MIN_DIST)
+//						{
+//							//	swiped left
+//							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe left");
+//							touches.Remove(touch.fingerId);
+//							if (onSwipeLeft != null) onSwipeLeft();
+//						}
+//						else if (ti.distanceTravelled.x >= SWIPE_MIN_DIST)
+//						{
+//							//	swiped right
+//							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe right");
+//							touches.Remove(touch.fingerId);
+//							if (onSwipeRight != null) onSwipeRight();
+//						}
+//						else if(ti.distanceTravelled.y <= - SWIPE_MIN_DIST)
+//						{
+//							//swiped down
+//							touches.Remove(touch.fingerId);
+//							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe down");
+//							if (onSwipeDown != null) onSwipeDown();
+//						}
 					}
 				}
 

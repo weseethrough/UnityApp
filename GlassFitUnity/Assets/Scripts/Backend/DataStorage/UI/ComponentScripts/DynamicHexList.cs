@@ -81,7 +81,16 @@ public class DynamicHexList : MonoBehaviour
                 break;
             }
         }
-        if (Platform.Instance.OnGlass())
+		
+		//down handler also picks up Back so should also be registered on mobile.
+		downHandler = new GestureHelper.DownSwipe(() =>
+		{
+			GoBack();
+		});
+		
+		GestureHelper.onSwipeDown += downHandler;
+        
+		if (Platform.Instance.OnGlass())
         {
             tapHandler = new GestureHelper.OnTap(() =>
             {
@@ -90,12 +99,6 @@ public class DynamicHexList : MonoBehaviour
 
             GestureHelper.onTap += tapHandler;
 
-            downHandler = new GestureHelper.DownSwipe(() =>
-            {
-                GoBack();
-            });
-
-            GestureHelper.onSwipeDown += downHandler;
 
             leftHandler = new GestureHelper.OnSwipeLeft(() =>
             {

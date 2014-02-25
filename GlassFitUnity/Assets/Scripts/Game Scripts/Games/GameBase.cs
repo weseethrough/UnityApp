@@ -121,7 +121,7 @@ public class GameBase : MonoBehaviour {
 		
 		UnityEngine.Debug.Log("GameBase: setting down swipe handler");
 		downHandler = new GestureHelper.DownSwipe(() => {
-			ConsiderQuit();
+			QuitImmediately();
 		});
 		GestureHelper.onSwipeDown += downHandler;
 		
@@ -212,6 +212,29 @@ public class GameBase : MonoBehaviour {
 		{
 			DataVault.Set("fps", "");
 		}
+	}
+	
+	/// <summary>
+	/// Quits immediately back to main menu, without user confirmation.
+	/// </summary>
+	protected void QuitImmediately()
+	{
+		//Flow to main hex menu
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gc = fs.Outputs.Find( r => r.Name == "Quit");
+		if(gc != null)
+		{
+			fs.parentMachine.FollowConnection(gc);
+		}
+		
+		//clean up handlers
+		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onTap -= tapHandler;
+		GestureHelper.onSwipeLeft -= leftHandler;
+		GestureHelper.onSwipeRight -= rightHandler;
+		
+		//load env
+		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 	}
 	
 	public void SetVirtualTrackVisible(bool visible)
@@ -333,6 +356,7 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	protected void FinishGame()
 	{
+		OnFinishedGame();
 		UnityEngine.Debug.Log("GameBase: Ending game");
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
@@ -365,6 +389,15 @@ public class GameBase : MonoBehaviour {
 		} else {
 			UnityEngine.Debug.Log("GameBase: No connection found - FinishButton");
 		}
+	}
+	
+	/// <summary>
+	/// Raises the finished game event.
+	/// Can be implemented by subclasses to do custom behaviour on finishing the run.
+	/// </summary>
+	protected virtual void OnFinishedGame()
+	{
+		return;
 	}
 	
 	/// <summary>
@@ -750,6 +783,13 @@ public class GameBase : MonoBehaviour {
 		Platform.Instance.StartTrack();
 		UnityEngine.Debug.Log("Tracking Started");
 		started = true;
+		
+		//from this point onward, swipe down should quit via confirmation
+		GestureHelper.onSwipeDown -= downHandler;
+		downHandler = new GestureHelper.DownSwipe(() => {
+			ConsiderQuit();
+		});
+		GestureHelper.onSwipeDown += downHandler;
 	}
 	
 	/// <summary>

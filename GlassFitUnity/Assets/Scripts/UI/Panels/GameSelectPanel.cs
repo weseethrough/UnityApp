@@ -116,15 +116,12 @@ public class GameSelectPanel : HexPanel
 		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentMetabolism());
 		
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-		
+
+		//downswipe = back on mobile. All other gestures should be Glass only.
 		downHandler = new GestureHelper.DownSwipe(() => {
 			QuitApp();
 		});
-
-        if (Platform.Instance.OnGlass())
-        {
-            GestureHelper.onSwipeDown += downHandler;
-        }
+        GestureHelper.onSwipeDown += downHandler;
 		
 		tapHandler = new GestureHelper.OnTap(() => {
 			CheckCheat(Gestures.Tap);
@@ -249,7 +246,8 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, unlockExit.Link[0]);
 				}
 			}
-			else */if(games[i].type == "Race") 
+			else */
+			if(games[i].type == "Race") 
 			{
 				gc.EventFunction = "SetType";
 				if(raceExit.Link.Count > 0) 
