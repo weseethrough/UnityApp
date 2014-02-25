@@ -38,8 +38,8 @@ public class ZombieSnack : SnackBase {
 	{
 		base.Begin ();
 		Platform.Instance.GetPlayerOrientation().SetAutoReset(false);
-		AddZombie();
 		zombieList = new List<GameObject>();
+		AddZombie();
 		zombiesKilled = 0;
 		leftMarker = GameObject.Find("LeftPointer");
 		rightMarker = GameObject.Find("RightPointer");
@@ -50,22 +50,22 @@ public class ZombieSnack : SnackBase {
 		}
 	}
 	
-	void Start()
-	{
-		Platform.Instance.GetPlayerOrientation().SetAutoReset(false);
-		
-		zombieList = new List<GameObject>();
-		AddZombie();
-		zombiesKilled = 0;
-		leftMarker = GameObject.Find("LeftPointer");
-		rightMarker = GameObject.Find("RightPointer");
-		GameObject obj = GameObject.Find("ZombieCamera");
-		if(obj != null)
-		{
-			zombieCamera = obj.GetComponent<Camera>();
-		}
-		UnityEngine.Debug.Log("ZombieSnack: reached the end of Start function");
-	}
+//	void Start()
+//	{
+//		Platform.Instance.GetPlayerOrientation().SetAutoReset(false);
+//		
+//		zombieList = new List<GameObject>();
+//		AddZombie();
+//		zombiesKilled = 0;
+//		leftMarker = GameObject.Find("LeftPointer");
+//		rightMarker = GameObject.Find("RightPointer");
+//		GameObject obj = GameObject.Find("ZombieCamera");
+//		if(obj != null)
+//		{
+//			zombieCamera = obj.GetComponent<Camera>();
+//		}
+//		UnityEngine.Debug.Log("ZombieSnack: reached the end of Start function");
+//	}
 	
 	// Update is called once per frame
 	void Update () {
