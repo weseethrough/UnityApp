@@ -212,18 +212,20 @@ public class Panel : FlowState
 
             if (physicalWidgetRoot != null)
             {
-                Component[] buttons = physicalWidgetRoot.GetComponentsInChildren(typeof(UIButtonColor));
-                foreach (Component b in buttons)
+                Component[] buttons = physicalWidgetRoot.GetComponentsInChildren(typeof(UIButtonColor), true);
+                if (buttons != null && buttons.Length > 0)
                 {
-                    UIButtonColor bScript = b as UIButtonColor;
-                    FlowButton fb = bScript != null ? bScript.GetComponent<FlowButton>() : null;
-                    if (fb == null)
+                    foreach (UIButtonColor bScript in buttons)
                     {
-                        fb = bScript.gameObject.AddComponent<FlowButton>();
-                    }
+                        FlowButton fb = bScript.GetComponent<FlowButton>();
+                        if (fb == null)
+                        {
+                            fb = bScript.gameObject.AddComponent<FlowButton>();
+                        }
 
-                    fb.owner = this;
-                    fb.name = fb.transform.parent.name;
+                        fb.owner = this;
+                        fb.name = fb.transform.parent.name;
+                    }
                 }
             }
         }
