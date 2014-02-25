@@ -246,7 +246,8 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, unlockExit.Link[0]);
 				}
 			}
-			else */if(games[i].type == "Race") 
+			else */
+			if(games[i].type == "Race") 
 			{
 				gc.EventFunction = "SetType";
 				if(raceExit.Link.Count > 0) 
