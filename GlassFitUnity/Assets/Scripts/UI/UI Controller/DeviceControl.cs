@@ -22,30 +22,33 @@ public class DeviceControl : MonoBehaviour {
 	/// </summary>
 	protected void UpdateStatus()
 	{
-		if(Platform.Instance.HasInternet())
+		if(Platform.Instance.Device() != null)
 		{
-			if(Platform.Instance.Device() != null)
+			UnityEngine.Debug.Log("DeviceControl: device obtained");
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs[0];
+			if(gConnect != null)
 			{
-				UnityEngine.Debug.Log("DeviceControl: device obtained");
-				FlowState fs = FlowStateMachine.GetCurrentFlowState();
-				GConnector gConnect = fs.Outputs[0];
-				if(gConnect != null)
-				{
-					UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
-					fs.parentMachine.FollowConnection(gConnect);
-				} else
-				{
-					UnityEngine.Debug.Log("DeviceControl: connection not found");
-				}
+				UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
+				fs.parentMachine.FollowConnection(gConnect);
 			} else
 			{
-				SetStringsNoDevice();
-				UnityEngine.Debug.Log("DeviceControl: device null");
+				UnityEngine.Debug.Log("DeviceControl: connection not found");
 			}
-		}
-		else
+		} else
 		{
-			SetStringsNoInternet();
+			UnityEngine.Debug.Log("DeviceControl: device null");
+			
+			//we don't have a device. If this is because we don't have internet, set the appropriate string
+			if(!Platform.Instance.HasInternet())
+			{
+				SetStringsNoInternet();
+			}
+			else
+			{
+				//we do have internet, so let's deduce that we need to register.
+				SetStringsNoDevice();
+			}
 		}
 		
 	}
