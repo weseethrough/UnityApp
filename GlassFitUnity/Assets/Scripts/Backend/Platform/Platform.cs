@@ -937,13 +937,14 @@ public class Platform : MonoBehaviour {
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getFriends")) {
 				UnityEngine.Debug.Log("Platform: getting friends list size");
 				int length = list.Call<int>("size");
-				List<Friend> friendList = new List<Friend>();
+                UnityEngine.Debug.Log("Platform: Friends to fetch " + length);
+				List<Friend> friendList = new List<Friend>();                
 				for (int i=0;i<length;i++) {
 					using (AndroidJavaObject f = list.Call<AndroidJavaObject>("get", i)) {
-						UnityEngine.Debug.Log("Platform: getting a friend");
+						UnityEngine.Debug.Log("Platform: getting a friend ("+i+")");
 						Friend friend = new Friend(f.Get<string>("friend"));
 						friendList.Add(friend);
-						UnityEngine.Debug.Log("Platform: got a friend");
+						UnityEngine.Debug.Log("Platform: got a friend ("+i+")");
 					}
 				}
 				UnityEngine.Debug.Log("Platform: " + friendList.Count + " friends fetched");

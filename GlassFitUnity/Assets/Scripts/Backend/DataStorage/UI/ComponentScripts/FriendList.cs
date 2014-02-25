@@ -8,42 +8,45 @@ using System.Threading;
 /// Displays friend list with available challenges
 /// </summary>
 public class FriendList : UIComponentSettings
-{
-    const string BUTTON_BASE_NAME = "Friend1";    
+{    
 
-    private GameObject buttonBaseInstance;
+    private GameObject ftcBaseButtonInstance;
+    private GameObject incChalBaseButtonInstance;
     private List<GameObject> friendButtons;
 
     private bool threadComplete = false;
     private bool buttonsCreated = false;
     private static List<ChallengeNotification> challengeNotifications;
 
+    private GameObject friendsToChallenge;
+    private GameObject friendsToChallengeHeader;
+    private GameObject incommingChallenges;
+    private GameObject incommingChallengesHeader;
+    private GameObject lineDivider;
 
     void Start()
     {
-        challengeNotifications = new List<ChallengeNotification>();
+        incommingChallengesHeader   = GameObject.Find("IncommingChallengesLine");
+        incommingChallenges         = GameObject.Find("IncommingChallenges");
+        friendsToChallengeHeader    = GameObject.Find("FriendsToChallengeLine");
+        friendsToChallenge          = GameObject.Find("FriendsToChallenge");
+        lineDivider                 = GameObject.Find("friendListLineDivider");
 
-        buttonBaseInstance = GameObject.Find(BUTTON_BASE_NAME);
-        if (buttonBaseInstance == null)
+        challengeNotifications      = new List<ChallengeNotification>();
+
+        ftcBaseButtonInstance = friendsToChallenge.transform.GetChild(0).gameObject;
+        incChalBaseButtonInstance = incommingChallenges.transform.GetChild(0).gameObject;
+
+        ftcBaseButtonInstance.SetActive(false);
+        incChalBaseButtonInstance.SetActive(false);
+
+        if (incChalBaseButtonInstance == null)
         {
             Debug.Log("button base not found");
         }
 
-       // buttonBaseInstance.SetActive(false);
-
-#if UNITY_EDITOR
-        challengeNotifications = new List<ChallengeNotification>();
-
-        for (int i=0; i<12; i++)
-        {
-            User user = new User(i, "User"+i, "User"+i);
-            ChallengeNotification cn = new ChallengeNotification(null, null, user, null);
-            challengeNotifications.Add(cn);
-        }
-        threadComplete = true;
-#else
+        incChalBaseButtonInstance.SetActive(false);
         GetChallenges();
-#endif
     }
 
     void Update()
@@ -54,42 +57,92 @@ public class FriendList : UIComponentSettings
         }
 
         friendButtons = new List<GameObject>();
-        //List<Friend> friendsData = Platform.Instance.Friends();
-        //buttonBaseInstance.SetActive(true);
+        buttonsCreated = true;                
+
+        Vector3 headerPos = incommingChallengesHeader.transform.localPosition;
+        float yPosForNextElement = headerPos.y;
+
+        yPosForNextElement -= 30.0f;
 
         for (int i = 0; i < challengeNotifications.Count; i++)
         {
             GameObject friend;
             if (i==0)
             {
-                friend = buttonBaseInstance;
+                incChalBaseButtonInstance.SetActive(true);
+                friend = incChalBaseButtonInstance;
             }
             else
             {
-                friend = GameObject.Instantiate(buttonBaseInstance) as GameObject;
+                friend = GameObject.Instantiate(incChalBaseButtonInstance) as GameObject;
             }
 
-            friend.transform.parent = buttonBaseInstance.transform.parent;
-            Vector3 pos = friend.transform.localPosition;
-            friend.name = "Friend" + i;
-           // pos.y -= 120 * i;
-            friend.transform.localPosition = pos;
+            friend.transform.parent = incChalBaseButtonInstance.transform.parent;            
+            friend.name = "Friend" + i;                        
 
             friendButtons.Add(friend);
 
             GameObjectUtils.SetTextOnLabelInChildren(friend, "friendName", challengeNotifications[i].GetName());
-            GameObjectUtils.SetTextOnLabelInChildren(friend, "distance", ""+ challengeNotifications[i].GetDistance());            
+            GameObjectUtils.SetTextOnLabelInChildren(friend, "distance", ""+ challengeNotifications[i].GetDistance());
+
+            yPosForNextElement -= 120;
+
         }
 
-        UIGrid grid = buttonBaseInstance.transform.parent.gameObject.GetComponent<UIGrid>();
+        UIGrid grid = incommingChallenges.GetComponent<UIGrid>();
+        if (grid != null)
+        {
+            grid.Reposition();
+        }        
+
+        yPosForNextElement -= 30.0f;
+
+        /*GameObject divider = GameObject.Instantiate(lineDivider) as GameObject;
+        divider.transform.parent = friendsToChallengeHeader.transform.parent;
+        divider.transform.localPosition = new Vector3(0, yPosForNextElement, 0);
+
+        yPosForNextElement -= 30.0f;*/
+
+        headerPos = friendsToChallengeHeader.transform.localPosition;
+        headerPos.y = yPosForNextElement;
+        friendsToChallengeHeader.transform.localPosition = headerPos;
+
+        yPosForNextElement -= 30.0f;
+
+        headerPos = friendsToChallenge.transform.localPosition;
+        headerPos.y = yPosForNextElement;
+        friendsToChallenge.transform.localPosition = headerPos;
+
+        List<Friend> friendsData = Platform.Instance.Friends();
+
+        for (int i = 0; i < friendsData.Count; i++)
+        {
+            GameObject friend;
+            if (i == 0)
+            {
+                ftcBaseButtonInstance.SetActive(true);
+                friend = ftcBaseButtonInstance;
+            }
+            else
+            {
+                friend = GameObject.Instantiate(ftcBaseButtonInstance) as GameObject;
+            }
+
+            friend.transform.parent = ftcBaseButtonInstance.transform.parent;            
+            friend.name = "Friend" + i;            
+
+            friendButtons.Add(friend);
+
+            GameObjectUtils.SetTextOnLabelInChildren(friend, "friendName", friendsData[i].name);            
+
+            yPosForNextElement -= 120.0f;
+        }
+
+        grid = friendsToChallenge.GetComponent<UIGrid>();
         if (grid != null)
         {
             grid.Reposition();
         }
-
-
-        //buttonBaseInstance.SetActive(false);
-        buttonsCreated = true;
     }
 
     public void GetChallenges()
@@ -191,6 +244,6 @@ public class FriendList : UIComponentSettings
             }
         });
         Platform.Instance.onSync += shandler;
-
+        Platform.Instance.SyncToServer();
     }
 }

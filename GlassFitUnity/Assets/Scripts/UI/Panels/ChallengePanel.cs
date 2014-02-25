@@ -220,10 +220,10 @@ public class ChallengePanel : HexPanel {
 				
 				//UnityEngine.Debug.Log("ChallengePanel: HBD obtained");
 					
-				hbd.column = (int)currentPosition.x;
-				hbd.row = (int)-currentPosition.y;
-				hbd.buttonName = friendList[i].guid;
-				hbd.textNormal = friendList[i].name;
+				hbd.column      = (int)currentPosition.x;
+				hbd.row         = (int)-currentPosition.y;
+				hbd.buttonName  = friendList[i].guid;
+				hbd.textNormal  = friendList[i].name;
 					
 				gc = NewOutput(hbd.buttonName, "Flow");
 			    gc.EventFunction = "SetFriend";
