@@ -23,6 +23,12 @@ public class SnackRun : GameBase {
 	// Use this for initialization
 	void Start() {
 		
+		if( !Platform.Instance.IsIndoor() )
+		{
+			nextSnackDistance = 50.0f;
+			snackInterval = 100.0f;
+		}
+		
 		base.Start();
 		
 		//create snack controller
