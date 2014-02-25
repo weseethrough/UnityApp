@@ -88,10 +88,8 @@ public class TutorialPanel : HexPanel
 		downHandler = new GestureHelper.DownSwipe(() => {
 			QuitApp();
 		});
-        if (Platform.Instance.OnGlass())
-        {
-            GestureHelper.onSwipeDown += downHandler;
-        }
+        GestureHelper.onSwipeDown += downHandler;
+
 
 		Platform.Instance.GetPlayerOrientation().Reset();
 		InitialButtons();

@@ -7,11 +7,15 @@ public class GUICamera : MonoBehaviour {
     Vector3 startPosition;
     Vector2 draggingStartPos;
     Quaternion startingRotation;
-		
-	float camera_sensitivity_x = 2.5f;
+	
+	float camera_sensitivity_x = 3.5f;
+	float camera_sensitivity_x_outer = 2.5f;
+	float camera_sensitivity_x_inner_angle = 25.0f * Mathf.Deg2Rad;
 	float camera_sensitivity_x_hex = 5.5f;
-    float camera_sensitivity_y = 2.5f;
+    float camera_sensitivity_y = 3.5f;
 	float camera_sensitivity_y_hex = 4.5f;
+	
+	const float camera_default_yPos = 0.3f;
 	
 	public float zoomLevel = -1.0f;        
 
@@ -80,6 +84,8 @@ public class GUICamera : MonoBehaviour {
 			Quaternion rot;
             //provide camera rotation to gui camera. This will elt us roll ui view
             PlayerOrientation p = Platform.Instance.GetPlayerOrientation();
+			
+			
             if(IsHexTypeMenu())
 			{
 				//slide the camera around
@@ -94,13 +100,37 @@ public class GUICamera : MonoBehaviour {
 
 				//zero out pitch and yaw, we only want roll
 				Vector3 eulerAngles = rot.eulerAngles;
-				newCameraOffset = new Vector2( Mathf.Sin(eulerAngles.y * Mathf.Deg2Rad), -Mathf.Sin(eulerAngles.x * Mathf.Deg2Rad) );
-				//newCameraOffset = new Vector2(eulerAngles.y * Mathf.Deg2Rad, -eulerAngles.x * Mathf.Deg2Rad);
-				eulerAngles.x = 0.0f;
-				eulerAngles.y = 0.0f;
-				rot = Quaternion.Euler(eulerAngles);
 				
-				transform.rotation = rot;
+				float yaw;
+				if(!Application.isEditor)
+				{
+					//get yaw from player orientation
+					yaw = p.AsYaw();
+				}
+				else
+				{
+					//in editor, grab y euler angle from main camera. As long as this is the only axis of rotation, it's the same as yaw.
+					yaw = Camera.main.transform.rotation.eulerAngles.y;
+					if(yaw > 180) { yaw -= 180; }
+					yaw *= Mathf.Deg2Rad;
+					UnityEngine.Debug.LogWarning("yaw = " + yaw);
+				}
+								
+				float xOffset = yaw * camera_sensitivity_x;
+								
+				//newCameraOffset = new Vector2( camera_sensitivity_x * Mathf.Sin(eulerAngles.y * Mathf.Deg2Rad), -camera_sensitivity_y * Mathf.Sin(eulerAngles.x * Mathf.Deg2Rad) );
+				
+				newCameraOffset = new Vector2( xOffset, -p.AsPitch() * camera_sensitivity_y + camera_default_yPos);
+				
+				//flag if roll is extreme
+				float rollDeg = p.AsRoll() * Mathf.Rad2Deg;
+				if(rollDeg > 90)
+				{
+					UnityEngine.Debug.LogWarning("GuiCamera: extreme HUD roll. Full euler angles: " + eulerAngles);
+				}
+				
+				//set the gui camera orientation just from the roll. Can use euler angles for this since yaw = pitch = 0
+				transform.rotation = Quaternion.Euler(0,0,rollDeg);;
 			}
 			
             Vector2 camPos = new Vector2(cameraPosition.x, cameraPosition.y);
