@@ -22,6 +22,7 @@ public class SnackRun : GameBase {
 	
 	// Use this for initialization
 	void Start() {
+		
 		base.Start();
 		
 		//create snack controller
@@ -30,7 +31,7 @@ public class SnackRun : GameBase {
 		ClearAheadBehind();
 		
 		//get audio sources
-		Component[] sources = GetComponents(typeof(AudioSource));
+		Component[] sources = GetComponentsInChildren(typeof(AudioSource));
 		chimeSound = (AudioSource)sources[0];
 		whooshInSound = (AudioSource)sources[1];
 		whooshOutSound = (AudioSource)sources[2];
@@ -87,6 +88,19 @@ public class SnackRun : GameBase {
 	
 	public void OfferPlayerSnack(string gameID)
 	{
+		StartCoroutine(DoSpecificSnackOffer(gameID));
+	}
+	
+	IEnumerator DoSpecificSnackOffer(string gameID)
+	{
+		//reset the flow to the main HUD, as we could be anywhere in the flow right now.
+		FlowStateMachine.Restart("SnackRestartPoint");
+		
+		//stop countdown
+		countdown = false;
+		
+		yield return new WaitForSeconds(0.5f);
+		
 		if(snackController != null)
 		{
 			if(gameID != null)
@@ -127,7 +141,7 @@ public class SnackRun : GameBase {
 	public void OnSnackBegun()
 	{
 		//play whoosh in
-		whooshInSound.Play();
+		//whooshInSound.Play();
 	}
 	
 	/// <summary>
@@ -136,7 +150,7 @@ public class SnackRun : GameBase {
 	public void OnSnackFinished()
 	{
 		//play whoosh out
-		whooshOutSound.Play();
+		//whooshOutSound.Play();
 		
 		//queue up the next snack offer.
 		float currentDistance = Platform.Instance.GetDistance();
@@ -160,10 +174,12 @@ public class SnackRun : GameBase {
 		ClearAheadBehind();
 		
 		//send bluetooth message
-		if(Platform.Instance.IsRemoteDisplay)
+		if(Platform.Instance.IsRemoteDisplay())
 		{
+			UnityEngine.Debug.Log("SnackRun: Sending Bluetooth message that snack has ended");
 			JSONObject json = new JSONObject();
 			json.AddField("action", "OnSnackFinished");
+			Platform.Instance.BluetoothBroadcast(json);		
 		}
 	}
 	

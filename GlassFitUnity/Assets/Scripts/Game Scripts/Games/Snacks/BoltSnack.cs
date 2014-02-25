@@ -149,6 +149,14 @@ public class BoltSnack : SnackBase {
 		StartCoroutine(DoCountDown());
 	}
 	
+	public override void Finish ()
+	{
+		//clear subtitle on HUD
+		DataVault.Set("countdown_subtitle", "");
+		
+		base.Finish ();
+	}
+	
 	/// <summary>
 	/// Starts the countdown.
 	/// </summary>

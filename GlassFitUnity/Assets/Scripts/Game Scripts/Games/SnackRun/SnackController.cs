@@ -86,9 +86,7 @@ public class SnackController : MonoBehaviour {
 	
 	public void OfferGame()
 	{
-		//unload current snack
-		CancelCurrentSnack();
-		
+	
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		//clear current snack offer
 		if(awaitingAcceptTap)
@@ -124,6 +122,9 @@ public class SnackController : MonoBehaviour {
 		//activate gesture listener
 		//GestureHelper.onSwipeRight += handleAccept;
 		awaitingAcceptTap = true;
+		//stop any existing offers
+		StopCoroutine("ScheduleGameOffer");
+		//schedule the new offer
 		StartCoroutine("ScheduleGameOffer");
 	}
 	
@@ -146,6 +147,10 @@ public class SnackController : MonoBehaviour {
 	
 	IEnumerator ScheduleGameOffer()
 	{
+		//unload current snack
+		CancelCurrentSnack();
+		
+		yield return new WaitForSeconds(0.5f);
 		
 		UnityEngine.Debug.Log("SnackController: Started coroutine. Counting out game offer");
 		acceptedGame = false;
@@ -177,6 +182,8 @@ public class SnackController : MonoBehaviour {
 			{
 				run.OnSnackFinished();
 			}
+
+			//
 		}
 		
 	}

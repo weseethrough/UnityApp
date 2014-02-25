@@ -370,11 +370,16 @@ public class Platform : MonoBehaviour {
 			break;
 		case "OnSnackFinished":
 			if(IsDisplayRemote()) {
+				UnityEngine.Debug.Log("Platform: Received bluetooth snack finished message");
 				//find SnackRemoteControlPanel
-				SnackRemoteControlPanel remotePanel = (SnackRemoteControlPanel)GameObject.FindObjectOfType(typeof(SnackRemoteControlPanel));
+				SnackRemoteControlPanel remotePanel = (SnackRemoteControlPanel)FlowStateMachine.GetCurrentFlowState();
 				if(remotePanel != null)
 				{
 					remotePanel.ClearCurrentSnackHex();
+				}
+				else
+				{
+					UnityEngine.Debug.LogWarning("Platform: Couldn't find Snack remote panel");
 				}
 			}
 			break;
@@ -413,6 +418,12 @@ public class Platform : MonoBehaviour {
 		else DataVault.Remove("lower_finish");
 		if (json["challenger"] != null) DataVault.Set("challenger", json["challenger"] as string);
 		else DataVault.Remove("challenger");
+		if (json["current_game_id"] != null)
+		{
+			UnityEngine.Debug.Log("Bluetooth: Current Game ID received: " + json["current_game_id"]);
+			DataVault.Set("current_game_id", json["current_game_id"] as string);
+		}
+		else DataVault.Remove("current_game_id");
 		JSONNode challengeNotification = json["current_challenge_notification"];
 		if (challengeNotification != null) {
 			// TODO: fetch challenge notification and store in datavault

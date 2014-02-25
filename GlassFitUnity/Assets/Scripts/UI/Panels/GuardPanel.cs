@@ -60,9 +60,7 @@ public class GuardPanel : Panel {
 		GestureHelper.onTap += tapHandler;		
 		
 		quitHandler = new GestureHelper.DownSwipe(() => {
-			if (Platform.Instance.OnGlass()) {
 				Application.Quit();
-			}
 		});
 		GestureHelper.onSwipeDown += quitHandler;
 		

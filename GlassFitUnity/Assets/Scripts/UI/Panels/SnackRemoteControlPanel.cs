@@ -63,8 +63,10 @@ public class SnackRemoteControlPanel : HexPanel {
 	
 	public override void OnClick (FlowButton button)
 	{
-		//send a bluetooth message to start the game
+		//clear currently highlighted hex
+		ClearCurrentSnackHex();
 		
+		//send a bluetooth message to start the game
 		string gameID = button.name;
 		
         JSONObject json = new JSONObject();
@@ -78,23 +80,29 @@ public class SnackRemoteControlPanel : HexPanel {
 		//turn hex green
 		HexButtonData hbd = buttonData.Find( r => r.buttonName == button.name );
 		hbd.backgroundTileColor = 0x00A30EFF;
-		//refresh
+		//refresh display
 		hbd.markedForVisualRefresh = true;
+		currentActiveSnackHex = hbd;
 		DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
 		list.UpdateButtonList();
 	}
-	
-	
 	
 	// Update is called once per frame
 	void Update () {
 	
 	}
 	
-	void ClearCurrentSnackHex() {
+	public override void OnBack ()
+	{
+		//base goes back on the flow state. Instead, we just want to reset the flow to the start
+		FlowStateMachine.Restart("Start Point");
+	}
+	
+	public void ClearCurrentSnackHex() {
+		UnityEngine.Debug.Log("SnackRemoteController: Clearing current snack on Remote Control panel");
 		if(currentActiveSnackHex != null)
 		{
-			currentActiveSnackHex.backgroundTileColor = 0;
+			currentActiveSnackHex.backgroundTileColor = 0x00000000;
 			//refresh
 			currentActiveSnackHex.markedForVisualRefresh = true;
 			DynamicHexList list = (DynamicHexList)physicalWidgetRoot.GetComponentInChildren(typeof(DynamicHexList));
