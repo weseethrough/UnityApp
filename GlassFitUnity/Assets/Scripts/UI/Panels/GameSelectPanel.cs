@@ -236,9 +236,9 @@ public class GameSelectPanel : HexPanel
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
             gc.EventFunction = "SetType";
 			
-			gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
+			/*gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
 			
-			/*if(games[i].state == "Locked" && games[i].type != "N/A")
+			if(games[i].state == "Locked" && games[i].type != "N/A")
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
@@ -255,13 +255,13 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, raceExit.Link[0]);
 				}
 			} 
-			else if(games[i].type == "Pursuit") 
-			{
-				if(pursuitExit.Link.Count > 0) 
-				{
-					gComponent.Data.Connect(gc, pursuitExit.Link[0]);
-				}
-			} 
+//			else if(games[i].type == "Pursuit") 
+//			{
+//				if(pursuitExit.Link.Count > 0) 
+//				{
+//					gComponent.Data.Connect(gc, pursuitExit.Link[0]);
+//				}
+//			} 
 			else if(games[i].type == "Challenge") 
 			{
 				gc.EventFunction = "AuthenticateUser";
@@ -276,21 +276,6 @@ public class GameSelectPanel : HexPanel
 				if(celebExit.Link.Count > 0)
 				{
 					gComponent.Data.Connect(gc, celebExit.Link[0]);
-				}
-			}
-//			else if(games[i].type == "Mode")
-//			{
-//				gc.EventFunction = "SetModeDesc";
-//				if(modeExit.Link.Count > 0)
-//				{
-//					gComponent.Data.Connect(gc, modeExit.Link[0]);
-//				}
-//			}
-			else if(games[i].type == "Delete")
-			{
-				if(deleteExit.Link.Count > 0)
-				{
-					gComponent.Data.Connect(gc, deleteExit.Link[0]);
 				}
 			}
 			else if(games[i].type == "TrainRescue")
