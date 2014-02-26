@@ -11,6 +11,7 @@ public class TapToBegin : MPChildGestureHandler {
 		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Begin" );
 		if(gConnect != null)
 		{
+			SoundManager.PlaySound(SoundManager.Sounds.Tap);
 			fs.parentMachine.FollowConnection(gConnect);
 		}
 	

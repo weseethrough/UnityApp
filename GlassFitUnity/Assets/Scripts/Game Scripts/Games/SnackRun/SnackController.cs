@@ -237,7 +237,7 @@ public class SnackController : MonoBehaviour {
 	protected void LoadGame()
 	{
 		UnityEngine.Debug.Log("SnackController: Loading Game");
-		
+		SoundManager.PlaySound(SoundManager.Sounds.Tap);
 		StartCoroutine( doAsyncLoad(currentGame) );
 	}
 	

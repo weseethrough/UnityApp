@@ -298,7 +298,7 @@ public class FlowStateMachine : MonoBehaviour
         {
             FlowState fs = navigationHistory[navigationHistory.Count - 1];
             navigationHistory.RemoveAt(navigationHistory.Count - 1);
-
+			SoundManager.PlaySound(SoundManager.Sounds.HidePopup);
             targetState = fs;
             return true;
         }

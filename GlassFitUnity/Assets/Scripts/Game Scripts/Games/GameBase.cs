@@ -408,7 +408,7 @@ public class GameBase : MonoBehaviour {
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
 		if(gConnect != null) {
 			//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-			
+			SoundManager.PlaySound(SoundManager.Sounds.Tap);
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		} else {
@@ -422,6 +422,7 @@ public class GameBase : MonoBehaviour {
 		if(started)
 		{
 			UnityEngine.Debug.Log("GameBase: tap detected");
+			SoundManager.PlaySound(SoundManager.Sounds.Tap);
 			PauseGame();
 		}
 	}

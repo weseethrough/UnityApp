@@ -483,8 +483,7 @@ public class DynamicHexList : MonoBehaviour
 		FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
         if (fb != null)
         {
-			
-            parent.OnClick(fb);
+			parent.OnClick(fb);
 			//guiCamera.transform.position =  new Vector3(0, 0, -1.5f);
         }
 	}
