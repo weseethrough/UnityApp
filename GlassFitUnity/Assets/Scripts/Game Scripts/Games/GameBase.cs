@@ -148,6 +148,11 @@ public class GameBase : MonoBehaviour {
 		}
 
 #endif	
+		
+#if RY_INDOOR
+		SetReadyToStart(true);
+		SetVirtualTrackVisible(true);
+#endif
 		UnityEngine.Debug.Log("GameBase: setting finish km");
 		DataVault.Set("finish_km", SiDistanceUnitless(finish, string.Empty) );
 		
