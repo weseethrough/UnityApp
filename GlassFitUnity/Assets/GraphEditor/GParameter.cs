@@ -20,6 +20,18 @@ public class GParameter
 		FloatMin = min;
 		FloatMax = max;
 	}
+
+    public GParameter Clone()
+    {
+        GParameter param = new GParameter();
+        param.Key = Key;
+        param.Value = Value;
+        param.Type = Type;
+        param.FloatMin = FloatMin;
+        param.FloatMax = FloatMax;
+
+        return param;
+    }
 }
 
 public enum GraphValueType
