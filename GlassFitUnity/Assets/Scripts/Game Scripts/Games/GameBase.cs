@@ -433,12 +433,12 @@ public class GameBase : MonoBehaviour {
 			//only pause if we've actually started, or the countdown has started
 			if(started || countdown)
 			{
-				pause = true;
-				Platform.Instance.StopTrack();
 				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
 			 	if(gConnect != null)
 				{
+					pause = true;
+					Platform.Instance.StopTrack();
 					fs.parentMachine.FollowConnection(gConnect);
 				} else
 				{
