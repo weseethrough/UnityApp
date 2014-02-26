@@ -25,7 +25,7 @@ public class GraphComponent : MonoBehaviour
             DataStore.LoadStorage(DataStore.BlobNames.flow);
             initialize = true;
             //below is the example how to initialize game with specific flow
-            if (!Platform.Instance.OnGlass() && Platform.Instance.GetIntent().Length > 0 )
+            if (!Platform.Instance.OnGlass() )//&& Platform.Instance.GetIntent().Length > 0 )
             {
                 string flowName = Platform.Instance.GetIntent();
                 SetSelectedFlowByName("MobileUX");//temporarly hardcode  

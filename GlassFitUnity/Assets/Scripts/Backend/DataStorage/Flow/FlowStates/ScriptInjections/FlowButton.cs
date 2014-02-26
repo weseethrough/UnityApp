@@ -28,6 +28,11 @@ public class FlowButton : MonoBehaviour
 	/// <returns></returns>
 	public void OnClick()
     {
+        /*if (transform != null && transform.parent != null && transform.parent.parent != null)
+        {
+            Debug.Log("CLICK on button: " + transform.name + " -> " + transform.parent.name + " -> " + transform.parent.parent.name);
+        }*/
+
         //check type of click
         if (Input.touchCount > 1)
         {

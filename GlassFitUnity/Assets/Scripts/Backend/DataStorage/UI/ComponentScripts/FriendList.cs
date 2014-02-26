@@ -24,8 +24,12 @@ public class FriendList : UIComponentSettings
     private GameObject incommingChallengesHeader;
     private GameObject lineDivider;
 
+    private GraphComponent gComponent;
+
     void Start()
     {
+        gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+
         incommingChallengesHeader   = GameObject.Find("IncommingChallengesLine");
         incommingChallenges         = GameObject.Find("IncommingChallenges");
         friendsToChallengeHeader    = GameObject.Find("FriendsToChallengeLine");
@@ -58,6 +62,9 @@ public class FriendList : UIComponentSettings
 
         Panel parentPanel = FlowStateMachine.GetCurrentFlowState() as Panel;
 
+        GConnector sendExit = parentPanel.Outputs.Find(r => r.Name == "sendExit");
+        GConnector challengeExit = parentPanel.Outputs.Find(r => r.Name == "challengeExit");
+
         friendButtons = new List<GameObject>();
         buttonsCreated = true;                
 
@@ -88,10 +95,16 @@ public class FriendList : UIComponentSettings
             if (button != null)
             {
                 FlowButton fb = button.gameObject.AddComponent<FlowButton>();
-                fb.owner = parentPanel;
+                fb.owner    = parentPanel;
+                fb.name     = friend.name;
 
                 GConnector gc = parentPanel.NewOutput(friend.name, "Flow");
-		        gc.EventFunction = "SetFriend";
+                gc.EventFunction = "SetChallenge";
+
+                if (challengeExit.Link.Count > 0)
+                {
+                    gComponent.Data.Connect(gc, challengeExit.Link[0]);
+                }
             }
 
             GameObjectUtils.SetTextOnLabelInChildren(friend, "friendName", challengeNotifications[i].GetName());
@@ -144,10 +157,16 @@ public class FriendList : UIComponentSettings
             if (button != null)
             {
                 FlowButton fb = button.gameObject.AddComponent<FlowButton>();
-                fb.owner = parentPanel;
+                fb.owner    = parentPanel;
+                fb.name     = friend.name;
 
                 GConnector gc = parentPanel.NewOutput(friend.name, "Flow");
-                gc.EventFunction = "SetFriend";
+    //            gc.EventFunction = "SetFriend";
+
+                if (sendExit.Link.Count > 0)
+                {
+                    gComponent.Data.Connect(gc, sendExit.Link[0]);
+                }
             }
 
             yPosForNextElement -= 120.0f;

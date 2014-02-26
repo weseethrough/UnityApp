@@ -153,6 +153,12 @@ public class FlowStateMachine : MonoBehaviour
     /// <returns>returns true if follow connection is possible (connection is valid)</returns>
     public bool FollowConnection(GConnector connection)
     {
+
+        Debug.LogWarning("FollowConnection " + (connection != null));
+        Debug.LogWarning("FollowConnection " + (connection.Link != null));
+        Debug.LogWarning("FollowConnection " + (connection.Link.Count > 0));
+        Debug.LogWarning("FollowConnection " + (connection.Link[0].Parent != null));
+        
         if (connection != null && 
             connection.Link != null && 
             connection.Link.Count > 0 &&

@@ -252,12 +252,13 @@ public class Panel : FlowState
     /// <param name="button">button which send this event</param>
     /// <returns></returns>
     public virtual void OnClick(FlowButton button)
-    {
+    {        
         if (Outputs.Count > 0 && parentMachine != null)
         {
             GConnector gConect = Outputs.Find(r => r.Name == button.name);
+            
             if (gConect != null)
-            {
+            {            
                 ConnectionWithCall(gConect, button);                
             }            
         }
@@ -274,12 +275,14 @@ public class Panel : FlowState
     /// <param name="button">button which triggered event</param>
     /// <returns></returns>
     public void ConnectionWithCall(GConnector gConect, FlowButton button)
-    {
+    {        
         if (gConect.EventFunction != null && gConect.EventFunction != "")
         {
+            Debug.LogWarning("-2a-");
             if (CallStaticFunction(gConect.EventFunction, button))
             {
-                parentMachine.FollowConnection(gConect);
+                bool connection = parentMachine.FollowConnection(gConect);
+                Debug.LogWarning("-3- " + connection);
             }
             else
             {
@@ -288,7 +291,9 @@ public class Panel : FlowState
         }
         else
         {
-            parentMachine.FollowConnection(gConect);
+            bool connection = parentMachine.FollowConnection(gConect);
+            Debug.LogWarning("-2b- " + connection);
+            
         }
     }
 
