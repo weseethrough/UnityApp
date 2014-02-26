@@ -56,6 +56,8 @@ public class FriendList : UIComponentSettings
             return;
         }
 
+        Panel parentPanel = FlowStateMachine.GetCurrentFlowState() as Panel;
+
         friendButtons = new List<GameObject>();
         buttonsCreated = true;                
 
@@ -78,15 +80,24 @@ public class FriendList : UIComponentSettings
             }
 
             friend.transform.parent = incChalBaseButtonInstance.transform.parent;            
-            friend.name = "Friend" + i;                        
+            friend.name = "CNFriend" + i;                        
 
             friendButtons.Add(friend);
+
+            UIButton button = friend.GetComponentInChildren<UIButton>();
+            if (button != null)
+            {
+                FlowButton fb = button.gameObject.AddComponent<FlowButton>();
+                fb.owner = parentPanel;
+
+                GConnector gc = parentPanel.NewOutput(friend.name, "Flow");
+		        gc.EventFunction = "SetFriend";
+            }
 
             GameObjectUtils.SetTextOnLabelInChildren(friend, "friendName", challengeNotifications[i].GetName());
             GameObjectUtils.SetTextOnLabelInChildren(friend, "distance", ""+ challengeNotifications[i].GetDistance());
 
-            yPosForNextElement -= 120;
-
+            yPosForNextElement -= 120;            
         }
 
         UIGrid grid = incommingChallenges.GetComponent<UIGrid>();
@@ -95,13 +106,7 @@ public class FriendList : UIComponentSettings
             grid.Reposition();
         }        
 
-        yPosForNextElement -= 30.0f;
-
-        /*GameObject divider = GameObject.Instantiate(lineDivider) as GameObject;
-        divider.transform.parent = friendsToChallengeHeader.transform.parent;
-        divider.transform.localPosition = new Vector3(0, yPosForNextElement, 0);
-
-        yPosForNextElement -= 30.0f;*/
+        yPosForNextElement -= 30.0f;  
 
         headerPos = friendsToChallengeHeader.transform.localPosition;
         headerPos.y = yPosForNextElement;
@@ -129,11 +134,21 @@ public class FriendList : UIComponentSettings
             }
 
             friend.transform.parent = ftcBaseButtonInstance.transform.parent;            
-            friend.name = "Friend" + i;            
+            friend.name = "FTCFriend" + i;            
 
             friendButtons.Add(friend);
 
-            GameObjectUtils.SetTextOnLabelInChildren(friend, "friendName", friendsData[i].name);            
+            GameObjectUtils.SetTextOnLabelInChildren(friend, "friendName", friendsData[i].name);
+
+            UIButton button = friend.GetComponentInChildren<UIButton>();
+            if (button != null)
+            {
+                FlowButton fb = button.gameObject.AddComponent<FlowButton>();
+                fb.owner = parentPanel;
+
+                GConnector gc = parentPanel.NewOutput(friend.name, "Flow");
+                gc.EventFunction = "SetFriend";
+            }
 
             yPosForNextElement -= 120.0f;
         }
