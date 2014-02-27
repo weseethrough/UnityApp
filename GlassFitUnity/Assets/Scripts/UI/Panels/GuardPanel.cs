@@ -9,7 +9,7 @@ public class GuardPanel : Panel {
 	public string guardKey = null;
 	
 	private GestureHelper.OnTap tapHandler = null;
-	private GestureHelper.DownSwipe quitHandler = null;
+	private GestureHelper.OnBack quitHandler = null;
 	
 	public GuardPanel() {}
 	public GuardPanel(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt) {
@@ -41,7 +41,7 @@ public class GuardPanel : Panel {
 
 		tapHandler = new GestureHelper.OnTap(() => {
 			GestureHelper.onTap -= tapHandler;		
-			GestureHelper.onSwipeDown -= quitHandler;
+			GestureHelper.onBack -= quitHandler;
 			DataVault.Set(guardKey, true);
 			DataVault.SetPersistency(guardKey, true);
 			DataVault.SaveToBlob();
@@ -59,10 +59,10 @@ public class GuardPanel : Panel {
 		});		
 		GestureHelper.onTap += tapHandler;		
 		
-		quitHandler = new GestureHelper.DownSwipe(() => {
+		quitHandler = new GestureHelper.OnBack(() => {
 				Application.Quit();
 		});
-		GestureHelper.onSwipeDown += quitHandler;
+		GestureHelper.onBack += quitHandler;
 		
 		base.EnterStart();
 	}

@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public class GameSelectPanel : HexPanel 
 {
-	GestureHelper.DownSwipe downHandler = null;
+	GestureHelper.OnBack backHandler = null;
 	
 	// Handlers for cheats
 	GestureHelper.OnTap tapHandler = null;
@@ -41,7 +41,7 @@ public class GameSelectPanel : HexPanel
 
 	public void QuitApp() {
 		if(!IsPopupDisplayed()) {
-			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onBack -= backHandler;
 			Application.Quit();
 		}
 	}
@@ -117,11 +117,11 @@ public class GameSelectPanel : HexPanel
 		
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 
-		//downswipe = back on mobile. All other gestures should be Glass only.
-		downHandler = new GestureHelper.DownSwipe(() => {
+		//OnBack = back on mobile. All other gestures should be Glass only.
+		backHandler = new GestureHelper.OnBack(() => {
 			QuitApp();
 		});
-        GestureHelper.onSwipeDown += downHandler;
+        GestureHelper.onBack += backHandler;
 		
 		tapHandler = new GestureHelper.OnTap(() => {
 			CheckCheat(Gestures.Tap);
@@ -298,7 +298,7 @@ public class GameSelectPanel : HexPanel
 	public override void Exited ()
 	{
 		base.Exited ();
-		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onBack -= backHandler;
 		GestureHelper.onTap -= tapHandler;
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;

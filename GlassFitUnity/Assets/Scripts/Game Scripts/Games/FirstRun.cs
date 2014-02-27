@@ -242,7 +242,7 @@ public class FirstRun : GameBase {
 //		}
 		
 		if(gConnect != null) {
-			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onBack -= backHandler;
 			GestureHelper.onTap -= tapHandler;
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);

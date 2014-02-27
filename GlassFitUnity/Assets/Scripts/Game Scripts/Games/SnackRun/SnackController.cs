@@ -16,7 +16,7 @@ public class SnackController : MonoBehaviour {
 	
 	//GestureHelper.OnSwipeRight handleAccept = null;
 	//GestureHelper.OnSwipeRight handleBegin = null;
-	//GestureHelper.DownSwipe cancelGame = null;
+	//GestureHelper.OnBack cancelGame = null;
 	
 	protected bool acceptedGame = false;
 	
@@ -67,9 +67,9 @@ public class SnackController : MonoBehaviour {
 //			GestureHelper.onSwipeRight -= handleBegin;
 //		});
 //		
-//		cancelGame = new GestureHelper.DownSwipe( () => {
+//		cancelGame = new GestureHelper.OnBack( () => {
 //			CancelGame();
-//			GestureHelper.onSwipeDown -= cancelGame;
+//			GestureHelper.onBack -= cancelGame;
 //		});
 			
 	}

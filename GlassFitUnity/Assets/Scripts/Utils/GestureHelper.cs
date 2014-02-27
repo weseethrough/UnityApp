@@ -51,8 +51,8 @@ public class GestureHelper : MonoBehaviour {
 	public delegate void UpSwipe();
 	public static UpSwipe onSwipeUp = null;
 
-	public delegate void DownSwipe();
-	public static DownSwipe onSwipeDown = null;
+	public delegate void OnBack();
+	public static OnBack onBack = null;
 	
 	
 	/// <summary>
@@ -124,11 +124,11 @@ public class GestureHelper : MonoBehaviour {
 	// Get a fling down message and set the timer
 	void FlingDown(string message) {
 		UnityEngine.Debug.Log("GestureHelper: Swipe down message received...");
-		if(onSwipeDown != null) {
+		if(onBack != null) {
 			UnityEngine.Debug.Log("GestureHelper: ... calling swipe down delegates");
 			if(Platform.Instance.OnGlass())
 			{
-				onSwipeDown();
+				onBack();
 			}
 		} else {
 			UnityEngine.Debug.Log("GestureHelper: ... but no swipe down delegates are registered. Dropping message.");
@@ -152,8 +152,8 @@ public class GestureHelper : MonoBehaviour {
 		// (on glass, swipe down means back)
 		if(Input.GetKeyDown(KeyCode.Escape))
 		{
-			if(onSwipeDown != null) {
-				onSwipeDown();
+			if(onBack != null) {
+				onBack();
 			}
 		}
 #if UNITY_EDITOR		
@@ -208,7 +208,7 @@ public class GestureHelper : MonoBehaviour {
 //							//swiped down
 //							touches.Remove(touch.fingerId);
 //							UnityEngine.Debug.Log("Gesture Helper: Touchscreen swipe down");
-//							if (onSwipeDown != null) onSwipeDown();
+//							if (onBack != null) onBack();
 //						}
 					}
 				}

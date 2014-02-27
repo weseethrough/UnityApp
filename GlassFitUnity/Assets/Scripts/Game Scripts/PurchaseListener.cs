@@ -5,7 +5,7 @@ public class PurchaseListener : MonoBehaviour {
 	
 	private GestureHelper.OnTap tapHandler = null;
 	
-	private GestureHelper.DownSwipe backHandler = null;
+	private GestureHelper.OnBack backHandler = null;
 	
 	// Use this for initialization
 	void Start () {
@@ -15,11 +15,11 @@ public class PurchaseListener : MonoBehaviour {
 		
 		GestureHelper.onTap +=  tapHandler;
 		
-		backHandler = new GestureHelper.DownSwipe(() => {
+		backHandler = new GestureHelper.OnBack(() => {
 			GoBack();
 		});
 		
-		GestureHelper.onSwipeDown += backHandler;
+		GestureHelper.onBack += backHandler;
 	}
 	
 	void GoBack() 
@@ -62,6 +62,6 @@ public class PurchaseListener : MonoBehaviour {
 	// Update is called once per frame
 	void OnDestroy() {
 		GestureHelper.onTap -= tapHandler;
-		GestureHelper.onSwipeDown -= backHandler;
+		GestureHelper.onBack -= backHandler;
 	}
 }
