@@ -28,7 +28,7 @@ public class GraphComponent : MonoBehaviour
             if (!Platform.Instance.OnGlass() )//&& Platform.Instance.GetIntent().Length > 0 )
             {
                 string flowName = Platform.Instance.GetIntent();
-                SetSelectedFlowByName("MobileUX");//temporarly hardcode  
+                SetSelectedFlowByName("MobileUX");
             }
             else
             {

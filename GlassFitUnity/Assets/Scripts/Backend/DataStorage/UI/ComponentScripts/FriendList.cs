@@ -86,7 +86,8 @@ public class FriendList : UIComponentSettings
                 friend = GameObject.Instantiate(incChalBaseButtonInstance) as GameObject;
             }
 
-            friend.transform.parent = incChalBaseButtonInstance.transform.parent;            
+            friend.transform.parent = incChalBaseButtonInstance.transform.parent;
+            friend.transform.localScale = incChalBaseButtonInstance.transform.localScale;
             friend.name = "CNFriend" + i;                        
 
             friendButtons.Add(friend);
@@ -146,8 +147,10 @@ public class FriendList : UIComponentSettings
                 friend = GameObject.Instantiate(ftcBaseButtonInstance) as GameObject;
             }
 
-            friend.transform.parent = ftcBaseButtonInstance.transform.parent;            
-            friend.name = "FTCFriend" + i;            
+            friend.transform.parent = ftcBaseButtonInstance.transform.parent;
+            friend.transform.localScale = ftcBaseButtonInstance.transform.localScale;
+            friend.name = "FTCFriend" + i;
+            
 
             friendButtons.Add(friend);
 
