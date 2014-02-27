@@ -35,7 +35,7 @@ public class FriendDisplay : MonoBehaviour {
 	GestureHelper.OnTap tapHandler = null;
 	
 	// Gesture to go back
-	GestureHelper.DownSwipe downHandler = null;
+	GestureHelper.OnBack backHandler = null;
 	
 	// Gesture for next friend
 	GestureHelper.OnSwipeLeft leftHandler = null;
@@ -74,10 +74,10 @@ public class FriendDisplay : MonoBehaviour {
 		});
 		Platform.Instance.onSync += handler;	
 		
-		downHandler = new GestureHelper.DownSwipe(() => {
+		backHandler = new GestureHelper.OnBack(() => {
 			GoBack();
 		});
-		GestureHelper.onSwipeDown += downHandler;
+		GestureHelper.onBack += backHandler;
 		
 		leftHandler = new GestureHelper.OnSwipeLeft(() => {
 			PreviousFriend();

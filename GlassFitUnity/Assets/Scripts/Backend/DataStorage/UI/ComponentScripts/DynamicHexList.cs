@@ -48,7 +48,7 @@ public class DynamicHexList : MonoBehaviour
 	
     bool initialized = false;
 	
-	private GestureHelper.DownSwipe downHandler = null;
+	private GestureHelper.OnBack backHandler = null;
 	
 	private GestureHelper.OnSwipeLeft leftHandler = null;
 	
@@ -82,13 +82,11 @@ public class DynamicHexList : MonoBehaviour
             }
         }
 		
-		//down handler also picks up Back so should also be registered on mobile.
-		downHandler = new GestureHelper.DownSwipe(() =>
+		backHandler = new GestureHelper.OnBack(() =>
 		{
 			GoBack();
 		});
-		
-		GestureHelper.onSwipeDown += downHandler;
+		GestureHelper.onBack += backHandler;
         
 		if (Platform.Instance.OnGlass())
         {
@@ -483,8 +481,7 @@ public class DynamicHexList : MonoBehaviour
 		FlowButton fb = selection.gameObject.GetComponent<FlowButton>();
         if (fb != null)
         {
-			
-            parent.OnClick(fb);
+			parent.OnClick(fb);
 			//guiCamera.transform.position =  new Vector3(0, 0, -1.5f);
         }
 	}
@@ -864,7 +861,7 @@ public class DynamicHexList : MonoBehaviour
         }
 		
 		GestureHelper.onTap -= tapHandler;
-		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onBack -= backHandler;
     }
 
 

@@ -234,6 +234,7 @@ public class HexPanel : Panel
             GConnector gConect = Outputs.Find(r => r.Name == button.name);
             if (gConect != null)
             {
+				SoundManager.PlaySound(SoundManager.Sounds.Tap);
                 ConnectionWithCall(gConect, button);
             }
             else

@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 [Serializable]
 public class GameSelectPanel : HexPanel 
 {
-	GestureHelper.DownSwipe downHandler = null;
+	GestureHelper.OnBack backHandler = null;
 	
 	// Handlers for cheats
 	GestureHelper.OnTap tapHandler = null;
@@ -41,7 +41,7 @@ public class GameSelectPanel : HexPanel
 
 	public void QuitApp() {
 		if(!IsPopupDisplayed()) {
-			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onBack -= backHandler;
 			Application.Quit();
 		}
 	}
@@ -117,11 +117,11 @@ public class GameSelectPanel : HexPanel
 		
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 
-		//downswipe = back on mobile. All other gestures should be Glass only.
-		downHandler = new GestureHelper.DownSwipe(() => {
+		//OnBack = back on mobile. All other gestures should be Glass only.
+		backHandler = new GestureHelper.OnBack(() => {
 			QuitApp();
 		});
-        GestureHelper.onSwipeDown += downHandler;
+        GestureHelper.onBack += backHandler;
 		
 		tapHandler = new GestureHelper.OnTap(() => {
 			CheckCheat(Gestures.Tap);
@@ -236,9 +236,9 @@ public class GameSelectPanel : HexPanel
 			GConnector gc = NewOutput(hbd.buttonName, "Flow");
             gc.EventFunction = "SetType";
 			
-			gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
+			/*gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
 			
-			/*if(games[i].state == "Locked" && games[i].type != "N/A")
+			if(games[i].state == "Locked" && games[i].type != "N/A")
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
@@ -255,13 +255,13 @@ public class GameSelectPanel : HexPanel
 					gComponent.Data.Connect(gc, raceExit.Link[0]);
 				}
 			} 
-			else if(games[i].type == "Pursuit") 
-			{
-				if(pursuitExit.Link.Count > 0) 
-				{
-					gComponent.Data.Connect(gc, pursuitExit.Link[0]);
-				}
-			} 
+//			else if(games[i].type == "Pursuit") 
+//			{
+//				if(pursuitExit.Link.Count > 0) 
+//				{
+//					gComponent.Data.Connect(gc, pursuitExit.Link[0]);
+//				}
+//			} 
 			else if(games[i].type == "Challenge") 
 			{
 				gc.EventFunction = "AuthenticateUser";
@@ -276,21 +276,6 @@ public class GameSelectPanel : HexPanel
 				if(celebExit.Link.Count > 0)
 				{
 					gComponent.Data.Connect(gc, celebExit.Link[0]);
-				}
-			}
-//			else if(games[i].type == "Mode")
-//			{
-//				gc.EventFunction = "SetModeDesc";
-//				if(modeExit.Link.Count > 0)
-//				{
-//					gComponent.Data.Connect(gc, modeExit.Link[0]);
-//				}
-//			}
-			else if(games[i].type == "Delete")
-			{
-				if(deleteExit.Link.Count > 0)
-				{
-					gComponent.Data.Connect(gc, deleteExit.Link[0]);
 				}
 			}
 			else if(games[i].type == "TrainRescue")
@@ -313,7 +298,7 @@ public class GameSelectPanel : HexPanel
 	public override void Exited ()
 	{
 		base.Exited ();
-		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onBack -= backHandler;
 		GestureHelper.onTap -= tapHandler;
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;

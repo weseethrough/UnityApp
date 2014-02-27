@@ -51,7 +51,7 @@ public class TrackSelect : MonoBehaviour {
 	
 	private GestureHelper.OnSwipeRight rightHandler = null;
 	
-	private GestureHelper.DownSwipe downHandler = null;
+	private GestureHelper.OnBack backHandler = null;
 	
 	/// <summary>
 	/// Start this instance. Gets the tracklist
@@ -85,11 +85,11 @@ public class TrackSelect : MonoBehaviour {
 		
 		GestureHelper.onSwipeRight += rightHandler;
 		
-		downHandler = new GestureHelper.DownSwipe(() => {
+		backHandler = new GestureHelper.OnBack(() => {
 			GoBack();
 		});
 		
-		GestureHelper.onSwipeDown += downHandler;
+		GestureHelper.onBack += backHandler;
 	}
 	
 	public void GoBack() 
@@ -100,7 +100,7 @@ public class TrackSelect : MonoBehaviour {
 		GestureHelper.onTap -= tapHandler;
 		GestureHelper.onSwipeLeft -= leftHandler;
 		GestureHelper.onSwipeRight -= rightHandler;
-		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onBack -= backHandler;
 	}
 	
 	public void NextTrack() 
@@ -187,7 +187,7 @@ public class TrackSelect : MonoBehaviour {
 			GestureHelper.onTap -= tapHandler;
 			GestureHelper.onSwipeLeft -= leftHandler;
 			GestureHelper.onSwipeRight -= rightHandler;
-			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onBack -= backHandler;
 			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
 			fs.parentMachine.FollowConnection(gConnect);
 		} else 

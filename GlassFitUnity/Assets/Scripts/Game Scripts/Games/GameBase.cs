@@ -81,7 +81,7 @@ public class GameBase : MonoBehaviour {
 	
 	protected GestureHelper.OnTap tapHandler = null;
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
-	protected GestureHelper.DownSwipe downHandler = null;
+	protected GestureHelper.OnBack backHandler = null;
 	private GestureHelper.OnSwipeLeft leftHandler = null;
 	private GestureHelper.OnSwipeRight rightHandler = null;
 
@@ -120,10 +120,10 @@ public class GameBase : MonoBehaviour {
 		GestureHelper.onTap += tapHandler;
 		
 		UnityEngine.Debug.Log("GameBase: setting down swipe handler");
-		downHandler = new GestureHelper.DownSwipe(() => {
+		backHandler = new GestureHelper.OnBack(() => {
 			QuitImmediately();
 		});
-		GestureHelper.onSwipeDown += downHandler;
+		GestureHelper.onBack += backHandler;
 		
 		UnityEngine.Debug.Log("GameBase: setting indoor move text");
 		DataVault.Set("indoor_move", " ");
@@ -148,6 +148,11 @@ public class GameBase : MonoBehaviour {
 		}
 
 #endif	
+		
+#if RY_INDOOR
+		SetReadyToStart(true);
+		SetVirtualTrackVisible(true);
+#endif
 		UnityEngine.Debug.Log("GameBase: setting finish km");
 		DataVault.Set("finish_km", SiDistanceUnitless(finish, string.Empty) );
 		
@@ -221,14 +226,14 @@ public class GameBase : MonoBehaviour {
 	{
 		//Flow to main hex menu
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gc = fs.Outputs.Find( r => r.Name == "Quit");
+		GConnector gc = fs.Outputs.Find( r => r.Name == "QuitImmediately");
 		if(gc != null)
 		{
 			fs.parentMachine.FollowConnection(gc);
 		}
 		
 		//clean up handlers
-		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onBack -= backHandler;
 		GestureHelper.onTap -= tapHandler;
 		GestureHelper.onSwipeLeft -= leftHandler;
 		GestureHelper.onSwipeRight -= rightHandler;
@@ -262,13 +267,13 @@ public class GameBase : MonoBehaviour {
 			if(gConnect != null) {
 				maybeQuit = true;
 				Platform.Instance.StopTrack();
-				GestureHelper.onSwipeDown -= downHandler;
+				GestureHelper.onBack -= backHandler;
 				fs.parentMachine.FollowConnection(gConnect);
 				
-				downHandler = new GestureHelper.DownSwipe(() => {
+				backHandler = new GestureHelper.OnBack(() => {
 					ReturnGame();
 				});
-				GestureHelper.onSwipeDown += downHandler;
+				GestureHelper.onBack += backHandler;
 				
 				leftHandler = new GestureHelper.OnSwipeLeft(() => {
 					ReturnGame();
@@ -297,7 +302,7 @@ public class GameBase : MonoBehaviour {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 		if(gConnect != null) {
-			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onBack -= backHandler;
 			GestureHelper.onTap -= tapHandler;
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
@@ -317,14 +322,14 @@ public class GameBase : MonoBehaviour {
 				countdown = false;
 			}
 			fs.parentMachine.FollowConnection(gConnect);
-			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onBack -= backHandler;
 			GestureHelper.onSwipeLeft -= leftHandler;
 			GestureHelper.onSwipeRight -= rightHandler;
 		
-			downHandler = new GestureHelper.DownSwipe(() => {
+			backHandler = new GestureHelper.OnBack(() => {
 				ConsiderQuit();
 			});
-			GestureHelper.onSwipeDown += downHandler;
+			GestureHelper.onBack += backHandler;
 			
 			GestureHelper.onTap -= tapHandler;
 			
@@ -371,7 +376,7 @@ public class GameBase : MonoBehaviour {
 				DataVault.Set("bonus", 0);
 			}
 			Platform.Instance.StopTrack();
-			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onBack -= backHandler;
 			GestureHelper.onTap -= tapHandler;
 			GestureHelper.onSwipeLeft -= leftHandler;
 			GestureHelper.onSwipeRight -= rightHandler;
@@ -408,7 +413,7 @@ public class GameBase : MonoBehaviour {
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
 		if(gConnect != null) {
 			//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-			
+			SoundManager.PlaySound(SoundManager.Sounds.Tap);
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		} else {
@@ -422,6 +427,7 @@ public class GameBase : MonoBehaviour {
 		if(started)
 		{
 			UnityEngine.Debug.Log("GameBase: tap detected");
+			SoundManager.PlaySound(SoundManager.Sounds.Tap);
 			PauseGame();
 		}
 	}
@@ -433,12 +439,12 @@ public class GameBase : MonoBehaviour {
 			//only pause if we've actually started, or the countdown has started
 			if(started || countdown)
 			{
-				pause = true;
-				Platform.Instance.StopTrack();
 				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
 			 	if(gConnect != null)
 				{
+					pause = true;
+					Platform.Instance.StopTrack();
 					fs.parentMachine.FollowConnection(gConnect);
 				} else
 				{
@@ -785,11 +791,11 @@ public class GameBase : MonoBehaviour {
 		started = true;
 		
 		//from this point onward, swipe down should quit via confirmation
-		GestureHelper.onSwipeDown -= downHandler;
-		downHandler = new GestureHelper.DownSwipe(() => {
+		GestureHelper.onBack -= backHandler;
+		backHandler = new GestureHelper.OnBack(() => {
 			ConsiderQuit();
 		});
-		GestureHelper.onSwipeDown += downHandler;
+		GestureHelper.onBack += backHandler;
 	}
 	
 	/// <summary>

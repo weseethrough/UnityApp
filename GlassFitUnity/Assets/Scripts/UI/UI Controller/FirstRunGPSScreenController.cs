@@ -142,7 +142,7 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 			{
 				//ready to go!
 				DataVault.Set("FrGPS_tether", " ");
-				DataVault.Set("FrGPS_tapPrompt", "GPS lock obtained\nReady to go!\nSwipe to continue");
+				DataVault.Set("FrGPS_tapPrompt", "GPS lock obtained\nSwipe to continue");
 				DataVault.Set("FrGPS_haveGPS", true);
 			}
 		}

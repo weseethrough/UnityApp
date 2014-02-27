@@ -3,7 +3,7 @@ using System.Collections;
 
 public class DeleteController : MonoBehaviour {
 	
-	private GestureHelper.DownSwipe downHandler;
+	private GestureHelper.OnBack backHandler;
 	private GestureHelper.OnTap tapHandler;
 	
 	// Use this for initialization
@@ -22,11 +22,11 @@ public class DeleteController : MonoBehaviour {
 		
 		GestureHelper.onTap += tapHandler;
 		
-		downHandler = new GestureHelper.DownSwipe(() => {
+		backHandler = new GestureHelper.OnBack(() => {
 			ReturnGame();
 		});
 		
-		GestureHelper.onSwipeDown += downHandler;
+		GestureHelper.onBack += backHandler;
 	}
 	
 	void ReturnGame() {
@@ -44,6 +44,6 @@ public class DeleteController : MonoBehaviour {
 	// Update is called once per frame
 	void OnDisable() {
 		GestureHelper.onTap -= tapHandler;
-		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onBack -= backHandler;
 	}
 }

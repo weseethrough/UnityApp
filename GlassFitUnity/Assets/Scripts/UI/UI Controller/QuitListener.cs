@@ -3,7 +3,7 @@ using System.Collections;
 
 public class QuitListener : MonoBehaviour {
 	
-	GestureHelper.DownSwipe downHandler = null;
+	GestureHelper.OnBack backHandler = null;
 	
 	GestureHelper.OnTap tapHandler = null;
 	
@@ -15,17 +15,17 @@ public class QuitListener : MonoBehaviour {
 		
 		GestureHelper.onTap += tapHandler;
 		
-		downHandler = new GestureHelper.DownSwipe(() => {
+		backHandler = new GestureHelper.OnBack(() => {
 			
 		});
-		GestureHelper.onSwipeDown += downHandler;
+		GestureHelper.onBack += backHandler;
 	}
 	
 	void ReturnGame() {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
 		if(gConnect != null) {
-			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onBack -= backHandler;
 			fs.parentMachine.FollowConnection(gConnect);
 			
 		} else {

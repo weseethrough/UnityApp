@@ -234,6 +234,17 @@ public class MultiPanel : Panel
 			pos.x = (-index * SCREEN_WIDTH);
 			focusedChildPanel = managedChildren[index];
 			
+			int lastIndex = (int)DataVault.Get("currentPageIndex");
+			
+			if(lastIndex < index)
+			{
+				SoundManager.PlaySound(SoundManager.Sounds.ShowPopup);
+			}
+			else if(lastIndex > index)
+			{
+				SoundManager.PlaySound(SoundManager.Sounds.HidePopup);
+			}
+			
             //Set current page in the data vault, for paging indicator
 			DataVault.Set("currentPageIndex", index);
             firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.3f, pos);

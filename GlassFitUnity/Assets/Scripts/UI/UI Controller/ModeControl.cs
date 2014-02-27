@@ -17,7 +17,7 @@ public class ModeControl : MonoBehaviour {
 	
 	GestureHelper.OnTap tapHandler = null;
 	
-	GestureHelper.DownSwipe downHandler = null;
+	GestureHelper.OnBack backHandler = null;
 	
 	private string currentMode = "";
 	
@@ -106,11 +106,11 @@ public class ModeControl : MonoBehaviour {
 		});
 		GestureHelper.onTap += tapHandler;
 			
-		downHandler = new GestureHelper.DownSwipe(() => {
+		backHandler = new GestureHelper.OnBack(() => {
 			BackToMenu();
 		});
 		
-		GestureHelper.onSwipeDown += downHandler;
+		GestureHelper.onBack += backHandler;
 			
 	}
 	
@@ -164,6 +164,6 @@ public class ModeControl : MonoBehaviour {
 	// Update is called once per frame
 	void OnDestroy () {
 		GestureHelper.onTap -= tapHandler;
-		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onBack -= backHandler;
 	}
 }

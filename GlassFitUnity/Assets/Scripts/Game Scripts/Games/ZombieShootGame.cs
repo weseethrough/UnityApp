@@ -26,11 +26,11 @@ public class ZombieShootGame : GameBase {
 	void Start () {
 		AddZombie();
 		
-		downHandler = new GestureHelper.DownSwipe(() => {
+		backHandler = new GestureHelper.OnBack(() => {
 			Application.Quit();
 		});
 		
-		GestureHelper.onSwipeDown += downHandler;
+		GestureHelper.onBack += backHandler;
 		
 		DataVault.Set("countdown_subtitle", " ");
 		
@@ -99,7 +99,7 @@ public class ZombieShootGame : GameBase {
 	
 	void OnDestroy()
 	{
-		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onBack -= backHandler;
 	}
 	
 	public void ReduceNumberOfZombies()

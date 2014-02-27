@@ -19,7 +19,7 @@ public class TutorialPanel : HexPanel
     
 	private GestureHelper.TwoFingerTap twoHandler = null;
 	
-	private GestureHelper.DownSwipe downHandler = null;
+	private GestureHelper.OnBack backHandler = null;
 	
 	private Camera camera;
 	
@@ -49,7 +49,7 @@ public class TutorialPanel : HexPanel
 	
 	public void QuitApp() {
 		if(!IsPopupDisplayed()) {
-			GestureHelper.onSwipeDown -= downHandler;
+			GestureHelper.onBack -= backHandler;
 			Application.Quit();
 		}
 	}
@@ -85,10 +85,10 @@ public class TutorialPanel : HexPanel
 		
 		DataVault.Set("race_type", "tutorial");
 		
-		downHandler = new GestureHelper.DownSwipe(() => {
+		backHandler = new GestureHelper.OnBack(() => {
 			QuitApp();
 		});
-        GestureHelper.onSwipeDown += downHandler;
+        GestureHelper.onBack += backHandler;
 
 
 		Platform.Instance.GetPlayerOrientation().Reset();
@@ -392,7 +392,7 @@ public class TutorialPanel : HexPanel
 		base.Exited ();
 		GestureHelper.onThreeTap -= threeHandler;
 		GestureHelper.onTwoTap -= twoHandler;
-		GestureHelper.onSwipeDown -= downHandler;
+		GestureHelper.onBack -= backHandler;
 		DataVault.Set("highlight", " ");
 	}
 }

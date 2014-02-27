@@ -158,17 +158,17 @@ public class PlayerOrientation
 			}
 		}
 		else if (Mathf.Abs(AsYaw()) > AUTO_RESET_THRESHOLD  // facing more than AUTO_RESET_THRESHOLD away from current forward reference
-			 && Mathf.Abs(AsPitch()) < AUTO_RESET_HUD_PITCH // not looking too far up or down
-			 && (!Platform.Instance.IsTracking() // not tracking, i.e. paused or on a menu screen
-			     || Platform.Instance.Pace() < 1.0f  // going slowly/stopped
-			     || bearingDiffDegrees(Platform.Instance.Bearing(), Platform.Instance.Yaw()) < CORNERING_TOLERANCE))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going. Note GpsBearing is not valid (-999.0) if the user is stationary
+			 && Mathf.Abs(AsPitch()) < AUTO_RESET_HUD_PITCH) // not looking too far up or down
 		{
 			// we've passed the auto-reset threshold:
 			// increment timer and calculate average yaw since we passed the threshold
 			autoResetTimer += Time.deltaTime;
 			autoResetYaw = autoResetYaw.HasValue ? 0.7f*autoResetYaw.Value + 0.3f*AsYawFromNorth() : AsYawFromNorth();
 
-			if (autoResetTimer > AUTO_RESET_TIME_DELAY)
+			if (autoResetTimer > AUTO_RESET_TIME_DELAY
+				&& (!Platform.Instance.IsTracking() // not tracking, i.e. paused or on a menu screen
+			     || Platform.Instance.Pace() < 1.0f  // going slowly/stopped
+			     || bearingDiffDegrees(Platform.Instance.Bearing(), Platform.Instance.Yaw()) < CORNERING_TOLERANCE))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going. Note GpsBearing is not valid (-999.0) if the user is stationary
 			{
 				// save current offset and start rotating
 				autoResetFrom = forwardReference;
