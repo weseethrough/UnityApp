@@ -39,16 +39,16 @@ public class FirstRun : GameBase {
 	// Use this for initialization
 	void Start () {
 
-		base.Start ();
-				
-		UnityEngine.Debug.Log("FirstRun: Start");
-		
 		if(runnerObj != null)
 		{
 			runnerObj.GetComponent<FirstRaceOpponenet>().enabled = false;
 			runnerObj.GetComponent<FirstRaceIndoorOpponent>().enabled = false;
 			
 		}
+		
+		base.Start ();
+				
+		UnityEngine.Debug.Log("FirstRun: Start");
 		
 		//hide virtual track to begin with
 		//SetVirtualTrackVisible(false);
@@ -91,6 +91,7 @@ public class FirstRun : GameBase {
 		if(Platform.Instance.IsIndoor())
 		{
 			runner = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
+			UnityEngine.Debug.Log("FirstRun: runner is indoor opponent");
 			//runnerObj.GetComponent<FirstRaceOpponenet>().enabled = false;
 		}
 		else

@@ -395,7 +395,7 @@ public class Platform : MonoBehaviour {
 
 	// Called by unity messages on each state change
 	void PlayerStateChange(string message) {
-		UnityEngine.Debug.Log("Player state message received from Java: " + message);
+		//UnityEngine.Debug.Log("Player state message received from Java: " + message);
 		playerState = message;
 		playerStateEntryTime = UnityEngine.Time.time;
 	}
