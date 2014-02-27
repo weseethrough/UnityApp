@@ -30,6 +30,13 @@ public class UISensorCamera : MonoBehaviour {
 		});
 		GestureHelper.onTwoTap += twoTapHandler;
 		
+#if RY_INDOOR
+		UnityEngine.Debug.LogError("UISensorCamera: we are indoor, using indoor flow");
+		Platform.Instance.SetIndoor(true);
+		GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+    	gc.GoToFlow("IndoorFlow");	
+#endif
+		
 		LoadingTextComponent.SetVisibility(false);
 	}
 	
