@@ -226,7 +226,7 @@ public class GameBase : MonoBehaviour {
 	{
 		//Flow to main hex menu
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gc = fs.Outputs.Find( r => r.Name == "Quit");
+		GConnector gc = fs.Outputs.Find( r => r.Name == "QuitImmediately");
 		if(gc != null)
 		{
 			fs.parentMachine.FollowConnection(gc);
