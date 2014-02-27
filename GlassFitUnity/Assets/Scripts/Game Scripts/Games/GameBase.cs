@@ -616,10 +616,10 @@ public class GameBase : MonoBehaviour {
 		if (targetDistance > 0) {
 			DataVault.Set("distance_position", "BEHIND");
 			//DataVault.Set("ahead_col_header", "D20000FF");
-            DataVault.Set("ahead_col_box", "E5312FFF");
+            DataVault.Set("ahead_col_box", UIColour.red);
 		} else {
 			DataVault.Set("distance_position", "AHEAD");
-            DataVault.Set("ahead_col_box", "009540FF");
+            DataVault.Set("ahead_col_box", UIColour.green);
 			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
 		//UnityEngine.Debug.Log("GameBase: distance behind is " + GetDistBehindForHud().ToString());

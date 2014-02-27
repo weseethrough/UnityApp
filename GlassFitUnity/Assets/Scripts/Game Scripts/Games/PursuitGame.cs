@@ -138,8 +138,8 @@ public class PursuitGame : GameBase {
 			} else if(!finished) {
 				//restart - should consolidate this with the 'back' function
 				DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-				DataVault.Set("ahead_col_header", "D20000FF");
-				DataVault.Set("ahead_col_box", "D20000EE");
+				DataVault.Set("ahead_col_header", UIColour.red);
+				DataVault.Set("ahead_col_box", UIColour.red);
 				DataVault.Set("finish_header", "You died!");
 				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");

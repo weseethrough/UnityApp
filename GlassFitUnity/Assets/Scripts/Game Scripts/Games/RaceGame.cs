@@ -136,12 +136,12 @@ public class RaceGame : GameBase {
 				if (tracker.GetTargetDistance() > distance) position++;
 		}
 		}
-		DataVault.Set("ahead_col_box", "D20000EE");
+		DataVault.Set("ahead_col_box", UIColour.red);
 		
 		DataVault.Set("leader_header", "You are");
 		if (position == 1) { 
 			DataVault.Set("ahead_leader", "in the lead!");
-			DataVault.Set("ahead_col_box", "19D200EE");
+			DataVault.Set("ahead_col_box", UIColour.green);
 		}  else {
 			DataVault.Set("ahead_leader", "behind by " + SiDistance(trackers[0].GetDistanceBehindTarget()));
 		}
