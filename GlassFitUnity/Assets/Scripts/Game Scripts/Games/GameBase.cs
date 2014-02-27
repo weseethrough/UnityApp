@@ -148,6 +148,11 @@ public class GameBase : MonoBehaviour {
 		}
 
 #endif	
+		
+#if RY_INDOOR
+		SetReadyToStart(true);
+		SetVirtualTrackVisible(true);
+#endif
 		UnityEngine.Debug.Log("GameBase: setting finish km");
 		DataVault.Set("finish_km", SiDistanceUnitless(finish, string.Empty) );
 		
@@ -408,7 +413,7 @@ public class GameBase : MonoBehaviour {
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
 		if(gConnect != null) {
 			//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-			
+			SoundManager.PlaySound(SoundManager.Sounds.Tap);
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		} else {
@@ -422,6 +427,7 @@ public class GameBase : MonoBehaviour {
 		if(started)
 		{
 			UnityEngine.Debug.Log("GameBase: tap detected");
+			SoundManager.PlaySound(SoundManager.Sounds.Tap);
 			PauseGame();
 		}
 	}
@@ -433,12 +439,12 @@ public class GameBase : MonoBehaviour {
 			//only pause if we've actually started, or the countdown has started
 			if(started || countdown)
 			{
-				pause = true;
-				Platform.Instance.StopTrack();
 				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
 			 	if(gConnect != null)
 				{
+					pause = true;
+					Platform.Instance.StopTrack();
 					fs.parentMachine.FollowConnection(gConnect);
 				} else
 				{

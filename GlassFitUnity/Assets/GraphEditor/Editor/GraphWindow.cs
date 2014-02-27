@@ -29,6 +29,7 @@ public class GraphWindow : EditorWindow, IDraw
     bool m_dragConnector;
     bool m_selectionChanges;
     bool m_showExitManager;
+    bool m_ctrlDown;
 
     float m_zoomScale = 1.0f;
 
@@ -45,6 +46,8 @@ public class GraphWindow : EditorWindow, IDraw
     GConnector m_hoverConnector;
     GConnector m_selectionConnector;
     Vector2 m_dragPosition;
+
+    FlowState m_storedCopy;
 	
 	[MenuItem("Window/Image Graph Editor")]
 	public static void Init ()
@@ -67,7 +70,7 @@ public class GraphWindow : EditorWindow, IDraw
         {
             SaveGraph();
             dirtySave = false;
-        }
+        }        
     }
 
 	// returns currently selected graph
@@ -288,68 +291,96 @@ public class GraphWindow : EditorWindow, IDraw
 	
 	void ProcessEvents()
 	{
-		switch (Event.current.type)
-		{
-		case EventType.ScrollWheel:
-            if (Event.current.delta.y > 0)
-            {
-                m_zoomScale =  Mathf.Max(0.2f, m_zoomScale - 0.1f);
-            }
-            else if (Event.current.delta.y < 0)
-            {
-                m_zoomScale = Mathf.Min(1.0f, m_zoomScale + 0.1f);
-            }            
-			Event.current.Use();
-			break;
-		case EventType.MouseMove:
-			MainMouseMove();
-			break;
-		case EventType.MouseDrag:
-			if (m_dragMain)
-			{
-				MainDrag();
-				MainMouseMove();
-			}
-			break;        
-
-		case EventType.MouseDown:
-			{
-                
-                if (IsMainPoint(Event.current.mousePosition))
+        switch (Event.current.type)
+        {
+            case EventType.ScrollWheel:
+                if (Event.current.delta.y > 0)
                 {
-                    if (Event.current.button == 2)
+                    m_zoomScale = Mathf.Max(0.2f, m_zoomScale - 0.1f);
+                }
+                else if (Event.current.delta.y < 0)
+                {
+                    m_zoomScale = Mathf.Min(1.0f, m_zoomScale + 0.1f);
+                }
+                Event.current.Use();
+                break;
+            case EventType.MouseMove:
+                MainMouseMove();
+                break;
+            case EventType.MouseDrag:
+                if (m_dragMain)
+                {
+                    MainDrag();
+                    MainMouseMove();
+                }
+                break;
+
+            case EventType.MouseDown:
+                {
+
+                    if (IsMainPoint(Event.current.mousePosition))
                     {
-                        m_dragMain = true;
-                        m_dragStart = Event.current.mousePosition;
-                        m_viewStart = ViewPosition;
-                        SelectNode(null);
+                        if (Event.current.button == 2)
+                        {
+                            m_dragMain = true;
+                            m_dragStart = Event.current.mousePosition;
+                            m_viewStart = ViewPosition;
+                            SelectNode(null);
+                        }
+                        else
+                        {
+                            Vector2 mouse = Event.current.mousePosition * 1.0f / m_zoomScale;
+                            Vector2 pos = MouseToWorld(mouse);
+                            MainMouseDown(pos);
+                        }
                     }
                     else
                     {
+                        m_dragMain = false;
+                    }
+
+                }
+                break;
+            case EventType.MouseUp:
+                {
+                    if (IsMainPoint(Event.current.mousePosition))
+                    {
                         Vector2 mouse = Event.current.mousePosition * 1.0f / m_zoomScale;
                         Vector2 pos = MouseToWorld(mouse);
-                        MainMouseDown(pos);
+                        MainMouseUp(pos);
                     }
-                }
-                else
-                {
                     m_dragMain = false;
                 }
-                
-			}			
-			break;
-		case EventType.MouseUp:
-			{
-				if (IsMainPoint(Event.current.mousePosition))
-				{
-                    Vector2 mouse = Event.current.mousePosition * 1.0f / m_zoomScale;
-                    Vector2 pos = MouseToWorld(mouse);
-					MainMouseUp(pos);
-				}
-				m_dragMain = false;
-			}			
-			break;
-		}
+                break;
+            case EventType.KeyDown:
+                {
+                    if (Event.current.control)
+                    {
+                        m_ctrlDown = true;
+                    }
+
+                    if (Event.current.keyCode == KeyCode.C && Event.current.alt)// && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
+                    {                        
+                        m_storedCopy = m_selection as FlowState;
+                    }
+
+                    if (m_storedCopy != null && Event.current.keyCode == KeyCode.V && Event.current.alt)
+                    {
+                        CloneNode(m_storedCopy, null);
+
+                        m_storedCopy = null;
+                    }
+                }
+                break;
+            case EventType.KeyUp:
+                {
+                    if (Event.current.control == false)
+                    {
+                        m_ctrlDown = false ;
+                    }
+                }
+                break; 
+        }
 	}
 	
 	public void GuiLabel(Rect r, string text, GUIStyle style)
@@ -1010,8 +1041,7 @@ public class GraphWindow : EditorWindow, IDraw
 		GUI.color = Color.red;
         if (GUILayout.Button("Delete Node"))
         {
-            bool ok = Graph.Data.Remove(node);
-            if (ok)
+            if (DeleteNode(node as FlowState))
             {
                 SelectNode(null);
                 dirtySave = true;
@@ -1359,24 +1389,77 @@ public class GraphWindow : EditorWindow, IDraw
 
     public void SaveGraph()
     {
-
-/*
-        GraphComponent gc = Graph;            
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
-        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
-        if (gc != null && gc.Data != null)
-        {
-            if (!flowDictionary.Contains("MainFlow"))
-            {
-                flowDictionary.Add("MainFlow", gc.m_graph);
-            }
-            else
-            {
-                flowDictionary.Set("MainFlow", gc.m_graph);
-            }
-        }    */
-
         DataStore.SaveStorage(DataStore.BlobNames.flow);
+    }
+
+    public void CloneNode(FlowState source, FlowState parent)
+    {
+        FlowState node = Activator.CreateInstance(source.GetType()) as FlowState;
+
+        node.Id = Graph.Data.IdNext++;
+        Graph.Data.Add(node);
+
+        if (parent == null)
+        {
+            node.Position = GetNewPosition(source.Size);
+            node.Size = source.Size;
+            SelectNode(node);
+        }
+        else
+        {
+            node.Position = parent.Position + (source.Position - source.parent.Position);
+            node.Size = source.Size;
+            parent.AddChild(node);
+        }
+
+        node.Parameters.Clear();
+        foreach(GParameter param in source.Parameters)
+        {            
+            node.NewParameter(param.Key, param.Type, param.Value);
+        }
+
+        node.Inputs.Clear();
+        foreach (GConnector entry in source.Inputs)
+        {
+            node.NewInput(entry.Name, entry.Type);
+        }
+
+        node.Outputs.Clear();
+        foreach (GConnector exit in source.Outputs)
+        {
+            node.NewOutput(exit.Name, exit.Type);
+        }
+
+        foreach (FlowState child in source.children)
+        {
+            CloneNode(child, node);
+        }
+        
+        UnityEditor.EditorUtility.SetDirty(Graph.gameObject);
+
+        dirtySave = true;
+    }
+
+    public bool DeleteNode(FlowState node)
+    {        
+        while(node.children.Count > 0)
+        {
+            if (!DeleteNode(node.children[0]))
+            {
+                return false;
+            }
+        }
+
+        //remove connections
+        Graph.Data.Disconnect(node);
+
+        //leave parent
+        if (node.parent != null)
+        {
+            node.parent.RemoveChild(node);
+        }
+
+        return Graph.Data.Remove(node);
     }
 
 }
