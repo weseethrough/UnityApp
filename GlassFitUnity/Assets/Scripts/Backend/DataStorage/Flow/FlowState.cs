@@ -292,4 +292,15 @@ public abstract class FlowState : GNode
     {
         return m_enterTimeStamp;
     }
+
+    static void FollowNamedLinkInCurrentFlowstate(string name)
+    {
+        FlowState fs = FlowStateMachine.GetCurrentFlowState();
+        GConnector gc = fs.Outputs.Find(r => r.Name == "Quit");
+
+        if (gc != null)
+        {
+            fs.parentMachine.FollowConnection(gc);
+        }
+    }
 }

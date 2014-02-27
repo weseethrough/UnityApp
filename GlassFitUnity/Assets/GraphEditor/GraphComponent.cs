@@ -64,6 +64,18 @@ public class GraphComponent : MonoBehaviour
         return selectedFlow;
     }
 
+    public string GetSelectedFlowName()
+    {
+        DataStore.LoadStorage(DataStore.BlobNames.flow);
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
+        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
+        string name;
+        System.Runtime.Serialization.ISerializable data;
+        flowDictionary.Get(selectedFlow, out name, out data);
+
+        return name;
+    }
+
     public void SetSelectedFlowIndex()
     {
         SetSelectedFlowIndex(selectedFlow);
