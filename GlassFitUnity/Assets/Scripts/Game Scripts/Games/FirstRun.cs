@@ -9,10 +9,6 @@ public class FirstRun : GameBase {
 	const float MAX_PACE = 6.0f;
 	const int NUM_PACES = 6;
 	
-	protected GestureHelper.OnSwipeRight swipeHandler = null;
-	private GestureHelper.OnSwipeLeft leftHandler = null;
-
-	
 	private bool runReadyToStart = false;
 	private TargetController runner;		//a runner object. This will be cloned around for various benchmark paces.
 	public GameObject runnerObj;
@@ -210,65 +206,31 @@ public class FirstRun : GameBase {
 		}
 	}
 
-//	public override GConnector GetFinalConnection ()
-//	{
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		if((string)DataVault.Get("race_type") == "race") {
-//			return fs.Outputs.Find(r => r.Name == "FinishButton");
-//		} else {
-//			return fs.Outputs.Find(r => r.Name == "TutorialExit");
-//		}
-//	}
-		
-//	void OnGUI() {
-//		if(runReadyToStart) {
-//			base.OnGUI();
-//		}
-//		
-//		//if the user has swiped down to quit, and is seeing the quit confirmation box, dont' show anything here.
-//		if(maybeQuit) {
-//			base.OnGUI();
-//		}
-//	}
-//	
-//	public override void GameHandleTap ()
-//	{
-//		if(started)
-//		{
-//			base.GameHandleTap ();
-//		}
-//	}
+	public override GConnector GetFinalConnection ()
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		if((string)DataVault.Get("race_type") == "race") {
+			return fs.Outputs.Find(r => r.Name == "FinishButton");
+		} else {
+			return fs.Outputs.Find(r => r.Name == "TutorialExit");
+		}
+	}
 
-	
+
+	///UNUSED?
+	/// <summary>
+	/// Quits the game. This just seems to do the base behaviour with a different exit name. Should improve.
+	/// </summary>
 	public override void QuitGame ()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton"); 
-//		if((string)DataVault.Get("race_type") == "race") {
-//			gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-//		} else {
-//			gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
-//		}
 		
 		if(gConnect != null) {
-			GestureHelper.onBack -= backHandler;
-			GestureHelper.onTap -= tapHandler;
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		} else {
 			UnityEngine.Debug.Log("FirstRun: Error finding quit exit");
-		}
-	}
-	
-	void OnDestroy() {
-		//deregister handlers
-		if(swipeHandler != null)
-		{
-			GestureHelper.onSwipeRight -= swipeHandler;
-		}
-		if(leftHandler != null)
-		{
-			GestureHelper.onSwipeLeft -= leftHandler;
 		}
 	}
 	

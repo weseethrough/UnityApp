@@ -37,9 +37,6 @@ public class GameBase : MonoBehaviour {
 	
 	// Start tracking and 3-2-1 countdown variables
 	protected bool started = false;
-	protected bool countdown = true;
-	protected float countTime = 3.0f;
-	protected bool readyToStart = false;	//becomes true when the user resets the gyro. Countdown can start when this is true.
 	
 	// Multiplier variables
 	private float baseMultiplier;
@@ -77,7 +74,8 @@ public class GameBase : MonoBehaviour {
 		DataVault.Set("distance_position", " ");
 		DataVault.Set("target_units", "");
 		DataVault.Set("ahead_box", " ");
-
+		
+		//gesture handlers. All gestures should be handled by these delegates by editing/extending the GameHandleXXXX method.
 		tapHandler = new GestureHelper.OnTap(() => {
 			GameHandleTap();
 		});
@@ -99,7 +97,7 @@ public class GameBase : MonoBehaviour {
 		GestureHelper.onSwipeRight += rightHandler;
 		
 		backHandler = new GestureHelper.OnBack(() => {
-			QuitImmediately();
+			GameHandleBack();
 		});
 		GestureHelper.onBack += backHandler;
 		
@@ -175,11 +173,7 @@ public class GameBase : MonoBehaviour {
 			fs.parentMachine.FollowConnection(gc);
 		}
 		
-		//clean up handlers
-		GestureHelper.onBack -= backHandler;
-		GestureHelper.onTap -= tapHandler;
-		GestureHelper.onSwipeLeft -= leftHandler;
-		GestureHelper.onSwipeRight -= rightHandler;
+		CleanUp();
 		
 		//load env
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
@@ -206,82 +200,27 @@ public class GameBase : MonoBehaviour {
 			GConnector gConnect = fs.Outputs.Find(r => r.Name == "QuitExit");
 			if(gConnect != null) {
 				Platform.Instance.StopTrack();
-				GestureHelper.onBack -= backHandler;
-				fs.parentMachine.FollowConnection(gConnect);
-				
-				backHandler = new GestureHelper.OnBack(() => {
-					SetGameState(GAMESTATE_RUNNING);
-				});
-				GestureHelper.onBack += backHandler;
-				
-				leftHandler = new GestureHelper.OnSwipeLeft(() => {
-					SetGameState(GAMESTATE_RUNNING);
-				});
-				GestureHelper.onSwipeLeft += leftHandler;
-				
-				rightHandler = new GestureHelper.OnSwipeRight(() => {
-					SetGameState(GAMESTATE_RUNNING);
-				});
-				GestureHelper.onSwipeRight += rightHandler;
-				
-				GestureHelper.onTap -= tapHandler;
-				
-				tapHandler = new GestureHelper.OnTap(() => {
-					finalBonus = 0;
-					FinishGame();
-					GestureHelper.onTap -= tapHandler;
-				});
-				GestureHelper.onTap += tapHandler;	
-		}
+			}
 	}
 	
-	public virtual void QuitGame() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-		if(gConnect != null) {
-			GestureHelper.onBack -= backHandler;
-			GestureHelper.onTap -= tapHandler;
-			fs.parentMachine.FollowConnection(gConnect);
-			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-		}
-	}
+	//UNUSED?
+//	public virtual void QuitGame() {
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+//		if(gConnect != null) {
+//			fs.parentMachine.FollowConnection(gConnect);
+//			CleanUp();
+//			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+//		}
+//	}
 	
 	public void ReturnGame() {
 		
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
 		if(gConnect != null) {
-			if(started) {
-				Platform.Instance.StartTrack();
-			} else {
-				countTime = 3.0f;
-				countdown = false;
-			}
 			fs.parentMachine.FollowConnection(gConnect);
-			GestureHelper.onBack -= backHandler;
-			GestureHelper.onSwipeLeft -= leftHandler;
-			GestureHelper.onSwipeRight -= rightHandler;
-		
-			backHandler = new GestureHelper.OnBack(() => {
-				SetGameState(GAMESTATE_QUIT_CONFIRMATION);
-			});
-			GestureHelper.onBack += backHandler;
-			
-			GestureHelper.onTap -= tapHandler;
-			
-			tapHandler = new GestureHelper.OnTap(() => {
-				GameHandleTap();
-			});
-			
-			GestureHelper.onTap += tapHandler;
-			}
-	}
-	
-	/// <summary>
-	/// Handles a left swipe gesture. Finishes the run by default. Can be overridden by game modes, esp tutorials.
-	/// </summary>
-	public virtual void HandleLeftSwipe() {
-
+		}
 	}
 	
 	public virtual GConnector GetFinalConnection() {
@@ -360,8 +299,15 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	protected void FinishGame()
 	{
+		//stop tracking
+		Platform.Instance.StopTrack();
+		
+		//invoke any game-specific behaviour
 		OnFinishedGame();
+		
 		UnityEngine.Debug.Log("GameBase: Ending game");
+		
+		//follow the flow link to the results page
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
@@ -374,20 +320,22 @@ public class GameBase : MonoBehaviour {
 			} else {
 				DataVault.Set("bonus", 0);
 			}
-			Platform.Instance.StopTrack();
-			GestureHelper.onBack -= backHandler;
-			GestureHelper.onTap -= tapHandler;
-			GestureHelper.onSwipeLeft -= leftHandler;
-			GestureHelper.onSwipeRight -= rightHandler;
 			
-			if(gConnect.Name == "TutorialExit") {
-				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-			} else {
-				tapHandler = new GestureHelper.OnTap(() => {
-					Continue();
-				});
-				GestureHelper.onTap += tapHandler;
-			}
+			
+			///Leaving this block out for now - it goes straight back to the menu if the 'tutorial' exit was returned for GetFinalConnection
+			///Probably best to instead have the FirstRun mode do that transition with its own customisation of the state transitions instead.
+			
+//			if(gConnect.Name == "TutorialExit") {
+//				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+//			} else {
+//				tapHandler = new GestureHelper.OnTap(() => {
+//					Continue();
+//				});
+//				GestureHelper.onTap += tapHandler;
+//			}
+			
+			
+			//follow the connector
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowConnection(gConnect);
 		} else {
@@ -418,7 +366,8 @@ public class GameBase : MonoBehaviour {
 		} else {
 			UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
 		}
-		GestureHelper.onTap -= tapHandler;
+		
+		CleanUp();
 	}
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
@@ -444,6 +393,54 @@ public class GameBase : MonoBehaviour {
 				break;
 			}
 		}
+	}
+	
+	public virtual void GameHandleBack() {
+		switch (gameState)
+		{
+		case GAMESTATE_AWAITING_USER_READY:
+			QuitImmediately();
+			break;
+		case GAMESTATE_COUNTING_DOWN:
+			QuitImmediately();
+			break;
+		case GAMESTATE_RUNNING:
+			SetGameState(GAMESTATE_QUIT_CONFIRMATION);
+			break;
+		case GAMESTATE_PAUSED:
+			//do nothing
+			break;
+		case GAMESTATE_QUIT_CONFIRMATION:
+			//cancel quit
+			SetGameState(GAMESTATE_RUNNING);
+			break;
+		case GAMESTATE_FINISHED:
+			//continue
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+			if(gConnect != null) {
+				//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+				SoundManager.PlaySound(SoundManager.Sounds.Tap);
+				fs.parentMachine.FollowConnection(gConnect);
+				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+			} else {
+				UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
+			}
+			//do nothing
+			break;
+		}
+	}
+	
+	public virtual void GameHandleTwoTap() {
+		//do nothing
+	}
+	
+	public virtual void GameHandleLeftSwipe() {
+		//do nothing
+	}
+	
+	public virtual void GameHandleRightSwipe() {
+		//do nothing
 	}
 	
 	protected void EnterPause()
@@ -674,13 +671,6 @@ public class GameBase : MonoBehaviour {
 		Platform.Instance.StartTrack();
 		UnityEngine.Debug.Log("Tracking Started");
 		started = true;
-		
-		//from this point onward, swipe down should quit via confirmation
-		GestureHelper.onBack -= backHandler;
-		backHandler = new GestureHelper.OnBack(() => {
-			SetGameState(GAMESTATE_QUIT_CONFIRMATION);
-		});
-		GestureHelper.onBack += backHandler;
 	}
 	
 	/// <summary>
@@ -828,7 +818,15 @@ public class GameBase : MonoBehaviour {
 	
 	protected void CleanUp()
 	{
+		//stop tracking
+		Platform.Instance.StopTrack();
+			
 		//release handlers
+		GestureHelper.onBack -= backHandler;
+		GestureHelper.onTap -= tapHandler;
+		GestureHelper.onTwoTap -= twoTapHandler;
+		GestureHelper.onSwipeLeft -= leftHandler;
+		GestureHelper.onSwipeRight -= rightHandler;
 		
 	}
 }
