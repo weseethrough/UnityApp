@@ -12,6 +12,8 @@ public class CameraPath : MonoBehaviour {
 	
 	protected bool bFinished = false;
 	
+	public bool doFlythrough = true;
+	
 	// Use this for initialization
 	void Start () {
 		//gather the path points from the scene
@@ -38,7 +40,9 @@ public class CameraPath : MonoBehaviour {
 		{
 			//update time
 			timer += Time.deltaTime;
-			ApplyTransFormForTime(timer);
+			if(doFlythrough) {
+				ApplyTransFormForTime(timer);
+			}
 		}
 		
 	}
@@ -115,10 +119,71 @@ public class CameraPath : MonoBehaviour {
 		
 		//cache time started.
 		timer = 0;
-		bRunning = true;
+		
 		MinimalSensorCamera.PauseSensorRotation();
 		
+		bRunning = true;
+		
+		if(!doFlythrough)
+		{
+			StartCoroutine(CutCamera());
+		}
+		
 		UnityEngine.Debug.LogError("CamPath: Started following path");
+	}
+	
+	IEnumerator CutCamera()
+	{
+		Vector3 originalPosition = transform.position;
+		
+		transform.position = new Vector3(1.20425f, 0.6631389f, 350.6969f);
+		
+		GameObject damsel = GameObject.Find("Damsel_Tracks");
+		
+		Time.timeScale = 0.0f;
+		
+		if(damsel != null)
+		{
+			transform.LookAt(damsel.transform);
+		}
+		
+		DataVault.Set("train_subtitle", "Help!");
+		FollowFlowLinkNamed("Subtitle");
+		
+		//yield return new WaitForSeconds(2.0f);
+		System.DateTime continueTime = System.DateTime.Now.AddSeconds(2.0f);
+		while(System.DateTime.Now < continueTime)
+		{
+			yield return null;	
+		}
+		
+		FollowFlowLinkNamed("ToBlank");
+		
+		Time.timeScale = 1.0f;
+		
+		transform.position = originalPosition;
+		
+		StopFollowingPath();
+	}
+	
+	protected void FollowFlowLinkNamed(string linkName)
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		if(fs != null) {
+			GConnector gConnect = fs.Outputs.Find( r => r.Name == linkName );
+			if(gConnect != null)
+			{
+				fs.parentMachine.FollowConnection(gConnect);
+			}
+			else
+			{
+				UnityEngine.Debug.LogWarning("Train, CameraFlythrough: Couldn't find flow exit named " + linkName);
+			}
+		}
+		else
+		{
+			UnityEngine.Debug.Log("PathPoint: flowstate is null");
+		}
 	}
 	
 	public void StopFollowingPath()
