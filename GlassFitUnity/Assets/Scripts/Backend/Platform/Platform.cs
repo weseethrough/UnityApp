@@ -158,7 +158,7 @@ public class Platform : MonoBehaviour {
 	
 	 void Awake()
     {
-		Application.targetFrameRate = 25;
+		//Application.targetFrameRate = 25;
         if (initialised == false)
         {
             Initialize();

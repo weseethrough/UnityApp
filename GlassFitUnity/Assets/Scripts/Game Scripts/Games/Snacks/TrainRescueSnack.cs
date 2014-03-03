@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class TrainRescueSnack : SnackBase {
 	
 	protected TrainController_Rescue train;
+	private int trainLevel = 0;
 	public GameObject trainObject = null;
 	public GameObject damsel = null;
 	public CameraPath openingFlythroughPath = null;
@@ -79,6 +81,12 @@ public class TrainRescueSnack : SnackBase {
 			totalTrackDistCovered += 1000.0f;
 		
 		}
+		
+		UnityEngine.Debug.Log("TrainRescueSnack: the object is " + DataVault.Get("train_level").ToString());
+		
+		trainLevel = (int)DataVault.Get("train_level");
+		
+		train.SetLevel(trainLevel);
 	}
 	
 	protected double GetDistanceBehind ()
@@ -147,6 +155,9 @@ public class TrainRescueSnack : SnackBase {
 				DataVault.Set("snack_result_desc", "you saved her life!");
 				StartCoroutine(ShowBanner());
 				finish = true;
+				trainLevel++;
+				DataVault.Set("train_level", trainLevel);
+				DataVault.SaveToBlob();
 			}
 			
 		}

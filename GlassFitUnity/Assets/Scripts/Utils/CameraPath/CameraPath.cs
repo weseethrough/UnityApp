@@ -124,6 +124,8 @@ public class CameraPath : MonoBehaviour {
 		
 		bRunning = true;
 		
+		UnityEngine.Debug.Log("SnackController: trying to find Subtitle exit");
+		
 		if(!doFlythrough)
 		{
 			StartCoroutine(CutCamera());
@@ -133,35 +135,41 @@ public class CameraPath : MonoBehaviour {
 	}
 	
 	IEnumerator CutCamera()
-	{
-		Vector3 originalPosition = transform.position;
+	{		
+		yield return null;
 		
-		transform.position = new Vector3(1.20425f, 0.6631389f, 350.6969f);
+		FollowFlowLinkNamed("ToBlank");
+		
+		Vector3 originalPosition = transform.position;
 		
 		GameObject damsel = GameObject.Find("Damsel_Tracks");
 		
-		Time.timeScale = 0.0f;
-		
+		transform.position = new Vector3(originalPosition.x, originalPosition.y, damsel.transform.position.z);		
+				
 		if(damsel != null)
 		{
 			transform.LookAt(damsel.transform);
 		}
 		
+		yield return new WaitForSeconds(1.0f);
+		
 		DataVault.Set("train_subtitle", "Help!");
 		FollowFlowLinkNamed("Subtitle");
 		
-		//yield return new WaitForSeconds(2.0f);
-		System.DateTime continueTime = System.DateTime.Now.AddSeconds(2.0f);
-		while(System.DateTime.Now < continueTime)
-		{
-			yield return null;	
-		}
+		yield return new WaitForSeconds(2.0f);
 		
 		FollowFlowLinkNamed("ToBlank");
 		
-		Time.timeScale = 1.0f;
-		
 		transform.position = originalPosition;
+		
+		yield return new WaitForSeconds(1.0f);
+		
+		DataVault.Set("train_subtitle", "Look behind you!");
+		FollowFlowLinkNamed("Subtitle");
+		
+		yield return new WaitForSeconds(3.0f);
+		
+		FollowFlowLinkNamed("ToBlank");
 		
 		StopFollowingPath();
 	}
