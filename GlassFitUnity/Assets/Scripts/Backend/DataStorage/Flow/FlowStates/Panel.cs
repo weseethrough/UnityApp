@@ -135,13 +135,30 @@ public class Panel : FlowState
     {
         if (node == null) return;
 
+        bool found = false;
+
         foreach (string s in InteractivePrefabs)
         {
             if (node.GetPrefabName() == s)
             {                                
                 NewOutput(node.GetName(),"Flow");
+                found = true;
             }
         }
+
+        if (!found)
+        {
+            GameObject prefab = Resources.Load(node.GetPrefabName()) as GameObject;
+            if (prefab != null)
+            {
+                UIButton[] buttons = prefab.GetComponentsInChildren<UIButton>(true) as UIButton[];
+                foreach (UIButton button in buttons)
+                {
+                    NewOutput(button.transform.parent.name, "Flow");
+                }
+            }
+        }
+
 
         for (int i = 0; i < node.subBranches.Count; i++)
         {
