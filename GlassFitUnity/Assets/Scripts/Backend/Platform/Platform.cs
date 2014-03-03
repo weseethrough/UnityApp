@@ -14,6 +14,8 @@ public class Platform : MonoBehaviour {
 	private int calories = 0;
 	private float pace = 0;
 
+    private string intent = "";
+
 	// Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via Unity Messages.
 	internal float playerStateEntryTime = UnityEngine.Time.time;
 	internal string playerState = "";
@@ -302,6 +304,7 @@ public class Platform : MonoBehaviour {
 	public void OnActionIntent(string message) {
 		UnityEngine.Debug.Log("Platform: action " + message); 
 		MessageWidget.AddMessage("Internal", "App opened with intent " + message, "settings");
+        intent = message;
 	}
 	
 	public void OnBluetoothConnect(string message) {
@@ -1631,4 +1634,9 @@ public class Platform : MonoBehaviour {
 			Application.Quit();
 		}
 	}
+
+    public string GetIntent()
+    {
+        return intent;
+    }
 }

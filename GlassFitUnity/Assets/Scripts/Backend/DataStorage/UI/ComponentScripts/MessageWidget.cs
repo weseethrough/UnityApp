@@ -92,7 +92,7 @@ public class MessageWidget : MonoBehaviour
         {
             gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
         }
-        AddMessage(title, content, iconName, gc.m_defaultHexagonalAtlas);        
+        AddMessage(title, content, iconName, gc != null ? gc.m_defaultHexagonalAtlas : null);
     }
 
     /// <summary>

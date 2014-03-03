@@ -25,13 +25,14 @@ public class GraphComponent : MonoBehaviour
             DataStore.LoadStorage(DataStore.BlobNames.flow);
             initialize = true;
             //below is the example how to initialize game with specific flow
-            if(true || Platform.Instance.OnGlass())
+            if (!Platform.Instance.OnGlass() && Platform.Instance.GetIntent().Length > 0 )
             {
-                SetSelectedFlowIndex(selectedFlow);
+                string flowName = Platform.Instance.GetIntent();
+                SetSelectedFlowByName("MobileUX");
             }
             else
             {
-                SetSelectedFlowByName("MobileUX");
+                SetSelectedFlowIndex(selectedFlow);
             }            
         }
     }
@@ -61,6 +62,18 @@ public class GraphComponent : MonoBehaviour
         }
 
         return selectedFlow;
+    }
+
+    public string GetSelectedFlowName()
+    {
+        DataStore.LoadStorage(DataStore.BlobNames.flow);
+        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
+        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
+        string name;
+        System.Runtime.Serialization.ISerializable data;
+        flowDictionary.Get(selectedFlow, out name, out data);
+
+        return name;
     }
 
     public void SetSelectedFlowIndex()

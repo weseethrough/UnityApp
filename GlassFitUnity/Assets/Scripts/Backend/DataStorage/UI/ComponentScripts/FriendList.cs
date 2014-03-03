@@ -24,8 +24,12 @@ public class FriendList : UIComponentSettings
     private GameObject incommingChallengesHeader;
     private GameObject lineDivider;
 
+    private GraphComponent gComponent;
+
     void Start()
     {
+        gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+
         incommingChallengesHeader   = GameObject.Find("IncommingChallengesLine");
         incommingChallenges         = GameObject.Find("IncommingChallenges");
         friendsToChallengeHeader    = GameObject.Find("FriendsToChallengeLine");
@@ -56,6 +60,11 @@ public class FriendList : UIComponentSettings
             return;
         }
 
+        Panel parentPanel = FlowStateMachine.GetCurrentFlowState() as Panel;
+
+        GConnector sendExit = parentPanel.Outputs.Find(r => r.Name == "sendExit");
+        GConnector challengeExit = parentPanel.Outputs.Find(r => r.Name == "challengeExit");
+
         friendButtons = new List<GameObject>();
         buttonsCreated = true;                
 
@@ -77,16 +86,32 @@ public class FriendList : UIComponentSettings
                 friend = GameObject.Instantiate(incChalBaseButtonInstance) as GameObject;
             }
 
-            friend.transform.parent = incChalBaseButtonInstance.transform.parent;            
-            friend.name = "Friend" + i;                        
+            friend.transform.parent = incChalBaseButtonInstance.transform.parent;
+            friend.transform.localScale = incChalBaseButtonInstance.transform.localScale;
+            friend.name = "CNFriend" + i;                        
 
             friendButtons.Add(friend);
+
+            UIButton button = friend.GetComponentInChildren<UIButton>();
+            if (button != null)
+            {
+                FlowButton fb = button.gameObject.AddComponent<FlowButton>();
+                fb.owner    = parentPanel;
+                fb.name     = friend.name;
+
+                GConnector gc = parentPanel.NewOutput(friend.name, "Flow");
+                gc.EventFunction = "SetChallenge";
+
+                if (challengeExit.Link.Count > 0)
+                {
+                    gComponent.Data.Connect(gc, challengeExit.Link[0]);
+                }
+            }
 
             GameObjectUtils.SetTextOnLabelInChildren(friend, "friendName", challengeNotifications[i].GetName());
             GameObjectUtils.SetTextOnLabelInChildren(friend, "distance", ""+ challengeNotifications[i].GetDistance());
 
-            yPosForNextElement -= 120;
-
+            yPosForNextElement -= 120;            
         }
 
         UIGrid grid = incommingChallenges.GetComponent<UIGrid>();
@@ -95,13 +120,7 @@ public class FriendList : UIComponentSettings
             grid.Reposition();
         }        
 
-        yPosForNextElement -= 30.0f;
-
-        /*GameObject divider = GameObject.Instantiate(lineDivider) as GameObject;
-        divider.transform.parent = friendsToChallengeHeader.transform.parent;
-        divider.transform.localPosition = new Vector3(0, yPosForNextElement, 0);
-
-        yPosForNextElement -= 30.0f;*/
+        yPosForNextElement -= 30.0f;  
 
         headerPos = friendsToChallengeHeader.transform.localPosition;
         headerPos.y = yPosForNextElement;
@@ -128,12 +147,30 @@ public class FriendList : UIComponentSettings
                 friend = GameObject.Instantiate(ftcBaseButtonInstance) as GameObject;
             }
 
-            friend.transform.parent = ftcBaseButtonInstance.transform.parent;            
-            friend.name = "Friend" + i;            
+            friend.transform.parent = ftcBaseButtonInstance.transform.parent;
+            friend.transform.localScale = ftcBaseButtonInstance.transform.localScale;
+            friend.name = "FTCFriend" + i;
+            
 
             friendButtons.Add(friend);
 
-            GameObjectUtils.SetTextOnLabelInChildren(friend, "friendName", friendsData[i].name);            
+            GameObjectUtils.SetTextOnLabelInChildren(friend, "friendName", friendsData[i].name);
+
+            UIButton button = friend.GetComponentInChildren<UIButton>();
+            if (button != null)
+            {
+                FlowButton fb = button.gameObject.AddComponent<FlowButton>();
+                fb.owner    = parentPanel;
+                fb.name     = friend.name;
+
+                GConnector gc = parentPanel.NewOutput(friend.name, "Flow");
+    //            gc.EventFunction = "SetFriend";
+
+                if (sendExit.Link.Count > 0)
+                {
+                    gComponent.Data.Connect(gc, sendExit.Link[0]);
+                }
+            }
 
             yPosForNextElement -= 120.0f;
         }
