@@ -83,6 +83,21 @@ public class GameBase : MonoBehaviour {
 		});
 		GestureHelper.onTap += tapHandler;
 		
+		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
+			GameHandleTwoTap();
+		});
+		GestureHelper.onTwoTap += tapHandler;
+		
+		leftHandler = new GestureHelper.OnSwipeLeft(() => {
+			GameHandleLeftSwipe();
+		});
+		GestureHelper.onSwipeLeft += leftHandler;
+		
+		rightHandler = new GestureHelper.OnSwipeRight(() => {
+			GameHandleRightSwipe();
+		});
+		GestureHelper.onSwipeRight += rightHandler;
+		
 		backHandler = new GestureHelper.OnBack(() => {
 			QuitImmediately();
 		});
@@ -285,8 +300,8 @@ public class GameBase : MonoBehaviour {
 		if(state != gameState)
 		{
 			UnityEngine.Debug.Log("GameBase: Transitioning from state: " + gameState + " to: " + state);
-			OnEnterState(state);
 			OnExitState(gameState);
+			OnEnterState(state);
 			gameState = state;
 		}
 	}
@@ -325,6 +340,10 @@ public class GameBase : MonoBehaviour {
 		UnityEngine.Debug.Log("GameBase: Exiting State: " + state);
 		switch(state)
 		{
+		case GAMESTATE_COUNTING_DOWN:
+			//start the race
+			StartRace();
+			break;
 		case GAMESTATE_PAUSED:
 			//switch flow back to main flow
 			ExitPause();
@@ -505,7 +524,6 @@ public class GameBase : MonoBehaviour {
 		
 		//start the game
 		DataVault.Set("countdown_subtitle", " ");
-		StartRace();
 		SetGameState(GAMESTATE_RUNNING);
 	}
 	
@@ -668,7 +686,7 @@ public class GameBase : MonoBehaviour {
 	/// <summary>
 	/// Called externally to show that the user is ready to start. Probably called from scripto on the tap-to-start UI panel
 	/// </summary>
-	public void TriggerUserReady()
+	public virtual void TriggerUserReady()
 	{
 		if(gameState!=GAMESTATE_AWAITING_USER_READY)
 		{

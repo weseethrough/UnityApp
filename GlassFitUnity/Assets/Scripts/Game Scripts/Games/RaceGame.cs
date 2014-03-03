@@ -185,44 +185,6 @@ public class RaceGame : GameBase {
 	
 	void Update () {
 
-//		
-//		// TODO: Multiple minimap targets
-//#if !UNITY_EDITOR
-//		double targetDistance = Platform.Instance.GetHighestDistBehind();
-//		Position position = Platform.Instance.Position();
-//		float bearing = Platform.Instance.Bearing();
-//#else
-//		double targetDistance = PlatformDummy.Instance.DistanceBehindTarget();
-//		Position position = PlatformDummy.Instance.Position();
-//		float bearing = PlatformDummy.Instance.Bearing();
-//#endif
-//		double bearingRad = bearing*Math.PI/180;
-////		if (position != null) {
-////			// Fake target coord using distance and bearing
-////			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearingRad)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearingRad)*targetDistance/111229d));
-////			GetMap(position, bearingRad, targetCoord);
-////		}
-
-//		if(Platform.Instance.Distance() >= finish && !end)
-//		{
-//			end = true;
-//			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-//			DataVault.Set("bonus", (int)finalBonus);
-//			Platform.Instance.StopTrack();
-//			GameObject h = GameObject.Find("minimap");
-//			if(h != null) {
-//				h.renderer.enabled = false;
-//			}
-//			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
-//			if(gConect != null) {
-//				fs.parentMachine.FollowConnection(gConect);
-//			} else {
-//				UnityEngine.Debug.Log("Game: No connection found!");
-//			}
-//		}
-
-	
 		base.Update ();
 	
 		UpdateLeaderboard();

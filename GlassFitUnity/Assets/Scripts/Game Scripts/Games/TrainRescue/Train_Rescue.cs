@@ -5,6 +5,8 @@ using System;
 
 public class Train_Rescue : GameBase {
 	
+	public const string GAMESTATE_FLYTHROUGH = "flythrough";
+	
 	bool finished = false;
 	
 	protected TrainController_Rescue train;
@@ -38,8 +40,6 @@ public class Train_Rescue : GameBase {
 		float junctionDist = 75.0f;
 		
 		selectedTrack = (Track)DataVault.Get("current_track");
-		
-		//Platform.Instance.SetIndoor(true);
 		
 //		try {
 //			if(selectedTrack != null) {
@@ -113,6 +113,42 @@ public class Train_Rescue : GameBase {
 		
 	}
 		
+	protected override void OnEnterState (string state)
+	{
+		switch(gameState)
+		{
+		case GAMESTATE_COUNTING_DOWN:
+			//start the specialised train rescue countdown
+			StartCoroutine("DoTrainRescueCountDown()");
+			return;
+			break;
+			
+		case GAMESTATE_FLYTHROUGH:
+			//initiate the flythrough
+			openingFlythroughPath.StartFollowingPath();
+			//start the music
+			GameObject musicPlayer = GameObject.Find("MusicPlayer");
+			AudioSource musicSource = (AudioSource)musicPlayer.GetComponent(typeof(AudioSource));
+			musicSource.Play();
+			return;
+			break;
+			
+		case GAMESTATE_FINISHED:
+			//don't go straight to end.
+			StartCoroutine( ProgressToFinish() );
+			return;
+			break;
+		}
+		
+		base.OnEnterState (state);
+	}
+	
+	protected override void OnExitState (string state)
+	{
+		
+		base.OnExitState (state);
+	}
+	
 	protected override double GetDistBehindForHud ()
 	{
 		if(train == null)
@@ -124,55 +160,56 @@ public class Train_Rescue : GameBase {
 	
 	// Update is called once per frame
 	void Update () {
-		base.Update();
 		
-//		if(Platform.Instance.IsIndoor())
-//		{
-//			DataVault.Set("calories", "INDOOR");
-//		}
-//		
-//		if(!finished && !hasEnded)
-//		{
-//			//check if the train has reached the end
-//			if(train.GetForwardDistance() > finish && !finished)
-//			{
-//				//finish the game
-//				bFailed = true;
-//				//set flag so that trophy isn't show
-//				DataVault.Set("showFinishTrophy", false);
-//				FinishGame();
-//				finished = true;
-//			}
-//		}
-//		
-//		//check if the flythrough is complete
-//		if(!readyToStart)
-//		{
-//			if(openingFlythroughPath.IsFinished())
-//			{
-//				StartCountdown();
-//			}
-//		}
+		if(Platform.Instance.IsIndoor())
+		{
+			DataVault.Set("calories", "INDOOR");
+		}
+		
+		switch(gameState)
+		{
+		case GAMESTATE_RUNNING:
+			//check if the train has reached the end
+			if(train.GetForwardDistance() > finish)
+			{
+				//finish the game
+				bFailed = true;
+				//set flag so that trophy isn't show
+				DataVault.Set("showFinishTrophy", false);
+				SetGameState(GAMESTATE_FINISHED);
+			}
+			break;
+		case GAMESTATE_FLYTHROUGH:
+			if(openingFlythroughPath.IsFinished())
+			{
+				SetGameState(GAMESTATE_COUNTING_DOWN);
+			}
+			break;
+		}
+		
+		base.Update();
 //		
 	}
 	
-//	public override void SetReadyToStart (bool ready)
-//	{		
-//		if(openingFlythroughPath != null)
-//		{
-//			openingFlythroughPath.StartFollowingPath();	
-//		}
-//		else
-//		{
-//			UnityEngine.Debug.LogError("Train: Don't have camera path set!");	
-//		}
-//		
-//		
-//		//start the music
-//		GameObject musicPlayer = GameObject.Find("MusicPlayer");
-//		AudioSource musicSource = (AudioSource)musicPlayer.GetComponent(typeof(AudioSource));
-//		musicSource.Play();
-//	}
+	protected override void OnFinishedGame ()
+	{
+		//Finished takes us to subtitle card.
+		base.OnFinishedGame ();
+	}
+
+	public override void TriggerUserReady ()
+	{
+		if(gameState!=GAMESTATE_AWAITING_USER_READY)
+		{
+			UnityEngine.Debug.Log("GameBase: Received User Ready trigger, when not waiting for it");
+			//move to countdown state
+		}
+		else
+		{
+			UnityEngine.Debug.Log("GameBase: Received User ready trigger");
+			SetGameState(GAMESTATE_FLYTHROUGH);
+		}
+	}
 	
 	public void StartCountdown()
 	{
@@ -190,8 +227,10 @@ public class Train_Rescue : GameBase {
 		train.BeginRace();
 		//progress flow to the normal HUD
 		//FollowConnectorNamed("Begin");
-		StartCoroutine(DoCountDown());
+		StartCoroutine(DoTrainRescueCountDown());
 	}
+
+	
 	
 //	//train game does its own version of the countdown
 //	protected override bool shouldDoGameBaseCountdown ()
@@ -199,7 +238,7 @@ public class Train_Rescue : GameBase {
 //		return false;
 //	}
 	
-	IEnumerator DoCountDown()
+	IEnumerator DoTrainRescueCountDown()
 	{
 		UnityEngine.Debug.Log("Train:Starting Countdown Coroutine");
 		for(int i=3; i>=0; i--)
@@ -235,7 +274,7 @@ public class Train_Rescue : GameBase {
 		train.soundBell();	
 		
 		//start the game
-		StartRace();
+		SetGameState(GAMESTATE_RUNNING);;
 	}
 	
 	public void FollowConnectorNamed(string name)
@@ -252,8 +291,16 @@ public class Train_Rescue : GameBase {
 		}
 	}
 	
-	public override GConnector GetFinalConnection ()
+	IEnumerator ProgressToFinish()
 	{
+		UnityEngine.Debug.Log("TrainGame: Progressing to finish in 5 seconds");
+		
+		//go to subtitle card
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Subtitle" );
+		fs.parentMachine.FollowConnection(gConnect);
+		
+		//set appropriate link subtitle
 		if(bFailed || Platform.Instance.GetDistance() < finish)
 		{
 			DataVault.Set("train_subtitle", "\"Aaaaargh!\"");
@@ -262,33 +309,12 @@ public class Train_Rescue : GameBase {
 		{
 			DataVault.Set("train_subtitle", "\"My Hero!\"");
 		}
-
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Subtitle" );
 		
-		//fire off coroutine to progress past this screen in 2 seconds
-		StartCoroutine( ProgressToFinish() );
-		
-		return gConnect;
-	}
-	
-	IEnumerator ProgressToFinish()
-	{
-		UnityEngine.Debug.Log("TrainGame: Progressing to finish in 5 seconds");
-		//wait for 2s then continue
+		//wait for 5s then continue
 		yield return new WaitForSeconds(5.0f);
 		
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Finish");
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
-		}
-		else
-		{
-			UnityEngine.Debug.LogWarning("Train: Couldn't find Finish connector!");	
-		}
+		//now we are finished
+		FinishGame();
 		
-
 	}
 }
