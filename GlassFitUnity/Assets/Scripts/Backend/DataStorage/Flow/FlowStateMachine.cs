@@ -94,23 +94,25 @@ public class FlowStateMachine : MonoBehaviour
     void Update()
     {
         ProgressStateChanges();
-
-        for (int i = 0; i < activeFlow.Count; i++)
-        {
-            bool specialProgress = UpdateState(activeFlow[i]);
-
-            if (activeFlow[i].state == FlowState.State.Dead)
-            {
-                activeFlow.RemoveAt(i);
-                i--;
-                ProgressStateChanges();
-            }
-            else if (specialProgress)
-            {
-                i--;
-                ProgressStateChanges();
-            }
-        }
+		if(activeFlow != null)
+		{
+	        for (int i = 0; i < activeFlow.Count; i++)
+	        {
+	            bool specialProgress = UpdateState(activeFlow[i]);
+	
+	            if (activeFlow[i].state == FlowState.State.Dead)
+	            {
+	                activeFlow.RemoveAt(i);
+	                i--;
+	                ProgressStateChanges();
+	            }
+	            else if (specialProgress)
+	            {
+	                i--;
+	                ProgressStateChanges();
+	            }
+	        }
+		}
     }
 
     /// <summary>

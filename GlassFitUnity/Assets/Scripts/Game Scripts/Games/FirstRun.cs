@@ -83,32 +83,44 @@ public class FirstRun : GameBase {
 	}
 
 	
-	public override void SetReadyToStart (bool ready)
+	protected override void OnEnterState(string state)
 	{
-		base.SetReadyToStart(ready);
-		runReadyToStart = ready;
-		
-		if(Platform.Instance.IsIndoor())
-		{
-			runner = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
-			UnityEngine.Debug.Log("FirstRun: runner is indoor opponent");
-			//runnerObj.GetComponent<FirstRaceOpponenet>().enabled = false;
-		}
-		else
-		{
-			runner = runnerObj.GetComponent<FirstRaceOpponenet>();
-			//runnerObj.GetComponent<FirstRaceIndoorOpponent>().enabled = false;
-		}
-		runner.enabled = true;
-		
-		if(runner is FirstRaceOpponenet) {
-			runner.SetHeadstart(20.0f);
-		}else if(runner is FirstRaceIndoorOpponent){
-			runner.SetHeadstart(50.0f);
-		}
-		
-		SetVirtualTrackVisible(true);
+		base.OnEnterState(state);	
 	}
+	
+	protected override void OnExitState(string state)
+	{
+		switch(state)
+		{
+		case GAMESTATE_AWAITING_USER_READY:
+			//substitute the opponent according to whether we are indoors or outdoors
+			runReadyToStart = true;
+			
+			if(Platform.Instance.IsIndoor())
+			{
+				runner = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
+				UnityEngine.Debug.Log("FirstRun: runner is indoor opponent");
+				//runnerObj.GetComponent<FirstRaceOpponenet>().enabled = false;
+			}
+			else
+			{
+				runner = runnerObj.GetComponent<FirstRaceOpponenet>();
+				//runnerObj.GetComponent<FirstRaceIndoorOpponent>().enabled = false;
+			}
+			runner.enabled = true;
+			
+			if(runner is FirstRaceOpponenet) {
+				runner.SetHeadstart(20.0f);
+			}else if(runner is FirstRaceIndoorOpponent){
+				runner.SetHeadstart(50.0f);
+			}
+			
+			SetVirtualTrackVisible(true);
+			break;
+		}
+		base.OnExitState(state);
+	}
+	
 	
 	IEnumerator GoBack()
 	{
@@ -120,10 +132,10 @@ public class FirstRun : GameBase {
 	// Update is called once per frame
 	void Update () {
 		
+		base.Update();
+		
 		if(runReadyToStart)
 		{
-			base.Update();
-			
 			if(runner is FirstRaceIndoorOpponent) {
 				double distance = Platform.Instance.Distance();
 				
@@ -226,11 +238,7 @@ public class FirstRun : GameBase {
 //			base.GameHandleTap ();
 //		}
 //	}
-	
-	protected override void OnUnpause ()
-	{
 
-	}
 	
 	public override void QuitGame ()
 	{

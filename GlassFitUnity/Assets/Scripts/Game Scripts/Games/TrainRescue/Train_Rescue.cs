@@ -126,53 +126,53 @@ public class Train_Rescue : GameBase {
 	void Update () {
 		base.Update();
 		
-		if(Platform.Instance.IsIndoor())
-		{
-			DataVault.Set("calories", "INDOOR");
-		}
-		
-		if(!finished && !hasEnded)
-		{
-			//check if the train has reached the end
-			if(train.GetForwardDistance() > finish && !finished)
-			{
-				//finish the game
-				bFailed = true;
-				//set flag so that trophy isn't show
-				DataVault.Set("showFinishTrophy", false);
-				FinishGame();
-				finished = true;
-			}
-		}
-		
-		//check if the flythrough is complete
-		if(!readyToStart)
-		{
-			if(openingFlythroughPath.IsFinished())
-			{
-				StartCountdown();
-			}
-		}
-		
+//		if(Platform.Instance.IsIndoor())
+//		{
+//			DataVault.Set("calories", "INDOOR");
+//		}
+//		
+//		if(!finished && !hasEnded)
+//		{
+//			//check if the train has reached the end
+//			if(train.GetForwardDistance() > finish && !finished)
+//			{
+//				//finish the game
+//				bFailed = true;
+//				//set flag so that trophy isn't show
+//				DataVault.Set("showFinishTrophy", false);
+//				FinishGame();
+//				finished = true;
+//			}
+//		}
+//		
+//		//check if the flythrough is complete
+//		if(!readyToStart)
+//		{
+//			if(openingFlythroughPath.IsFinished())
+//			{
+//				StartCountdown();
+//			}
+//		}
+//		
 	}
 	
-	public override void SetReadyToStart (bool ready)
-	{		
-		if(openingFlythroughPath != null)
-		{
-			openingFlythroughPath.StartFollowingPath();	
-		}
-		else
-		{
-			UnityEngine.Debug.LogError("Train: Don't have camera path set!");	
-		}
-		
-		
-		//start the music
-		GameObject musicPlayer = GameObject.Find("MusicPlayer");
-		AudioSource musicSource = (AudioSource)musicPlayer.GetComponent(typeof(AudioSource));
-		musicSource.Play();
-	}
+//	public override void SetReadyToStart (bool ready)
+//	{		
+//		if(openingFlythroughPath != null)
+//		{
+//			openingFlythroughPath.StartFollowingPath();	
+//		}
+//		else
+//		{
+//			UnityEngine.Debug.LogError("Train: Don't have camera path set!");	
+//		}
+//		
+//		
+//		//start the music
+//		GameObject musicPlayer = GameObject.Find("MusicPlayer");
+//		AudioSource musicSource = (AudioSource)musicPlayer.GetComponent(typeof(AudioSource));
+//		musicSource.Play();
+//	}
 	
 	public void StartCountdown()
 	{
@@ -182,7 +182,7 @@ public class Train_Rescue : GameBase {
 			Destroy(piece);	
 		}
 		
-		base.SetReadyToStart(true);
+//		base.SetReadyToStart(true);
 		if(train == null)
 		{
 			train = trainObject.GetComponent<TrainController_Rescue>();
@@ -193,11 +193,11 @@ public class Train_Rescue : GameBase {
 		StartCoroutine(DoCountDown());
 	}
 	
-	//train game does its own version of the countdown
-	protected override bool shouldDoGameBaseCountdown ()
-	{
-		return false;
-	}
+//	//train game does its own version of the countdown
+//	protected override bool shouldDoGameBaseCountdown ()
+//	{
+//		return false;
+//	}
 	
 	IEnumerator DoCountDown()
 	{

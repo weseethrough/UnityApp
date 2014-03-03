@@ -20,6 +20,7 @@ public class PursuitGame : GameBase {
 	//private int bonusTarget = 1000;
 	
 	private ActorType currentActorType;
+    public List<GameObject> actors = new List<GameObject>();
 	
 	private GestureHelper.OnTap tapHandler;
 	
@@ -32,7 +33,7 @@ public class PursuitGame : GameBase {
 	
 	private bool finished = false;
 	
-	//private double offset = 0;
+	private double offset = 0;
 	
 	private int lives = 1;
 	
@@ -252,20 +253,6 @@ public class PursuitGame : GameBase {
 		offset = 50;
 	}
 		
-
-	
-	public void OnSliderValueChange() 
-	{
-		gameParamsChanged = true;
-		targSpeed = UISlider.current.value * 10.4f;
-		UnityEngine.Debug.Log(UISlider.current.value);
-	}
-	
-	public void SetActorType(ActorType type) {
-		currentActorType = type;
-		gameParamsChanged = true;
-	}
-	
 	public void OnDestroy() {
 		GestureHelper.onTap -= tapHandler;
 	}

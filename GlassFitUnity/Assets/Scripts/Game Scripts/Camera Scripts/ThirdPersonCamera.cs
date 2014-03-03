@@ -28,7 +28,7 @@ public class ThirdPersonCamera : MonoBehaviour {
 		if(!Convert.ToBoolean(DataVault.Get("activity_fov"))){
 			leftHandler = new GestureHelper.OnSwipeLeft(() => {
 				if(game != null) {
-					if(game.IsReady() && !isChanging) 
+					if(game.IsRunning() && !isChanging) 
 					{
 						GoThird();
 					}
@@ -43,7 +43,7 @@ public class ThirdPersonCamera : MonoBehaviour {
 			
 			rightHandler = new GestureHelper.OnSwipeRight(() => {
 				if(game != null) {
-					if(game.IsReady() && !isChanging) 
+					if(game.IsRunning() && !isChanging) 
 					{
 						GoFirst();
 					}

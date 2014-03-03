@@ -20,6 +20,7 @@ public class RaceGame : GameBase {
 	}
 	
 	private ActorType currentActorType = ActorType.Runner;
+    public List<GameObject> actors = new List<GameObject>();
 
 	
 //	// Minimap attributes
@@ -110,7 +111,6 @@ public class RaceGame : GameBase {
 	
 	public void SetActorType(ActorType targ) {
 		currentActorType = targ;
-		gameParamsChanged = true;		
 	}
 	
 //	public void OnGUI()
@@ -293,13 +293,6 @@ public class RaceGame : GameBase {
 		actors.Add(actorDummy);
 		UnityEngine.Debug.Log("RaceGame: instantiated actors");
 #endif
-	}
-	
-	public void OnSliderValueChange() 
-	{
-		gameParamsChanged = true;
-		targSpeed = UISlider.current.value * 10.4f;
-		UnityEngine.Debug.Log(UISlider.current.value);
 	}
 	
 	// Listen for UnitySendMessage with multiplier updates

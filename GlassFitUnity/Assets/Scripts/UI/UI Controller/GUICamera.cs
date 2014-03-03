@@ -84,7 +84,11 @@ public class GUICamera : MonoBehaviour {
 			Quaternion rot;
             //provide camera rotation to gui camera. This will elt us roll ui view
             PlayerOrientation p = Platform.Instance.GetPlayerOrientation();
-			
+			if(p == null)
+			{
+				//probably in the editor. Make a dummy p
+				p = new PlayerOrientation();
+			}
 			
             if(IsHexTypeMenu())
 			{
