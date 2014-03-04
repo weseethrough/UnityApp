@@ -69,7 +69,7 @@ public class BoulderController : TargetController {
 		playerDistance = Platform.Instance.Distance();
 		playerStartDistance = Platform.Instance.Distance();
 		// Set the boulder's starting distance
-		distanceFromStart = (float)playerDistance - 50f;
+		distanceFromStart = (float)playerDistance - 25f;
 	}
 	
 	/// <summary>

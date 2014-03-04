@@ -454,16 +454,17 @@ public class GameBase : MonoBehaviour {
 		if(gConnect != null)
 		{
 			fs.parentMachine.FollowConnection(gConnect);
+			//set string for GUI
+			DataVault.Set("paused", "Paused");
+			
+			Time.timeScale = 0.0f;
+			
+			//stop tracking
+			Platform.Instance.StopTrack();
 		} else
 		{
 			UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
 		}
-
-		//set string for GUI
-		DataVault.Set("paused", "Paused");
-	
-		//stop tracking
-		Platform.Instance.StopTrack();
 		
 	}
 	
@@ -476,13 +477,17 @@ public class GameBase : MonoBehaviour {
 		if(gConnect != null)
 		{
 			fs.parentMachine.FollowConnection(gConnect);
+			
+			Time.timeScale = 1.0f;
+			
+			//resume tracking
+			Platform.Instance.StartTrack();
 		} else
 		{
 			UnityEngine.Debug.LogWarning("GameBase: Can't find exit - PauseExit");
 		}
 		
-		//resume tracking
-		Platform.Instance.StartTrack();
+		
 	}
 	
 	protected virtual void UpdateAhead() {

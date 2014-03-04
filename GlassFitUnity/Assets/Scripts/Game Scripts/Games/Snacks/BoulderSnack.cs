@@ -18,12 +18,12 @@ public class BoulderSnack : SnackBase {
 		// Call the base function
 		base.Begin ();
 		
-		mainCamera = GameObject.Find("MainGameCamera");
-		
-		if(mainCamera != null)
-		{
-			mainCamera.SetActive(false);
-		}
+//		mainCamera = GameObject.Find("MainGameCamera");
+//		
+//		if(mainCamera != null)
+//		{
+//			mainCamera.SetActive(false);
+//		}
 		
 		SetTrack(false);
 		
@@ -69,14 +69,14 @@ public class BoulderSnack : SnackBase {
 				// End the game
 				finish = true;
 				
-				if(mainCamera != null)
-				{
-					mainCamera.SetActive(true);
-				}
-				
-				if(boulderCamera != null) {
-					boulderCamera.SetActive(false);
-				}
+//				if(mainCamera != null)
+//				{
+//					mainCamera.SetActive(true);
+//				}
+//				
+//				if(boulderCamera != null) {
+//					boulderCamera.SetActive(false);
+//				}
 				
 				// Show the banner
 				StartCoroutine(ShowBanner(3.0f));
