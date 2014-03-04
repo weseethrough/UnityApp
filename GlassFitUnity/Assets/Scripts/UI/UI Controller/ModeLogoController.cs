@@ -26,7 +26,7 @@ public class ModeLogoController : UIComponentSettings {
 		UnityEngine.Debug.Log("Game Intro Panel: set logo sprite to " + sName);
 		
 		//get the game title and description and update the relevant strings in the datavault
-		List<Game> games = PlatformDummy.Instance.GetGames();
+		List<Game> games = Platform.Instance.GetGames();
 		
 		Game currentGame = games.Find( r => r.gameId == sName );
 		

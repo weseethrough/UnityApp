@@ -17,7 +17,12 @@ public class Treasure : MonoBehaviour {
 	private bool obtained = false;
 	
 	// Float for the distance to the treasure.
-	private float treasureDist = 0.0f;
+	private double treasureDist = 0.0;
+	
+	// Variables for starting the game.
+	private bool started = false;
+	private bool countdown = false;
+	private float countTime = 3.0f;
 	
 	// OnGUI elements.
 	// TODO: Change to nGUI.
@@ -36,11 +41,6 @@ public class Treasure : MonoBehaviour {
 	// Opacity for boxes for OnGUI - to be updated.
 	private const float OPACITY = 0.5f;
 	
-	// Variables for starting the game.
-	private bool started = false;
-	private bool countdown = false;
-	private float countTime = 3.0f;
-	
 	// Texture for the boxes for OnGUI - to be updated.
 	Texture2D normal;
 	
@@ -50,10 +50,10 @@ public class Treasure : MonoBehaviour {
 	void Start () {
 		
 		// Set real world position near Camden for testing purposes.
-		// Final game will be based on user's position.
-		worldCoordinate = new Position(UnityEngine.Random.Range(51.5320f, 51.5380f), UnityEngine.Random.Range(0.1353f, 0.1453f));
+		// Final game will be based on user's position. 		
+		worldCoordinate = new Position(UnityEngine.Random.Range(51.530479f, 51.539075f), UnityEngine.Random.Range(-0.142651f, -0.134411f));
 		UnityEngine.Debug.Log("Chest position is: " + worldCoordinate.latitude + ", " + worldCoordinate.longitude);
-		
+	
 		// Set the box to display distance.
 		distance = new Rect((originalWidth/2.0f) - 100, MARGIN, 200, 100);
 		distanceText = "Distance\n";
@@ -71,14 +71,13 @@ public class Treasure : MonoBehaviour {
 		scale.x = (float)Screen.width / originalWidth;
 		scale.y = (float)Screen.height / originalHeight;
     	scale.z = 1;
+		
+		Platform.Instance.SetIndoor(false);
 	}
 	
-	/// <summary>
-	/// Raises the GU event. Needs changing to nGUI
-	/// </summary>
-	void OnGUI ()
+	void OnGUI()
 	{
-		// Scale for devices.
+				// Scale for devices.
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		GUI.depth = 10;
 		
@@ -103,25 +102,6 @@ public class Treasure : MonoBehaviour {
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
 		
-		// If counting down.
-		if(countdown)
-		{
-			// Increase the label size.
-			GUI.skin.label.fontSize = 40;
-			
-			// Get the current time rounded up.
-			int cur = Mathf.CeilToInt(countTime);
-			
-			// Display countdown on screen.
-			if(countTime > 0.0f)
-			{
-				GUI.Label(new Rect(300, 150, 200, 200), cur.ToString()); 
-			}
-			else if(countTime > -1.0f && countTime < 0.0f)
-			{
-				GUI.Label(new Rect(300, 150, 200, 200), "GO!"); 
-			}
-		}
 	}
 	
 	/// <summary>
@@ -134,31 +114,25 @@ public class Treasure : MonoBehaviour {
 		if(Platform.Instance.HasLock()) {
 			
 			// Initiate the countdown.
-			countdown = true;
-		 	if(countTime <= -1.0f && !started)
+			if(!started)
 			{
 				Platform.Instance.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
 				started = true;
 			}
-			else if(countTime > -1.0f)
-			{
-				UnityEngine.Debug.LogWarning("Counting Down");
-				countTime -= Time.deltaTime;
-			}
+			
 			UnityEngine.Debug.Log("Current Position is: " + Platform.Instance.Position().latitude + ", " + Platform.Instance.Position().longitude);
 			
 			// Get the current position of the treasure based on distance between the player and its real world position.
-			Vector2 currentPos = MercatorToPixel(worldCoordinate) - MercatorToPixel(Platform.Instance.Position());
-			
-			// Set the game coordinates.
-			gameCoordinate = new Vector3(currentPos.x, 0, currentPos.y);
+			//Vector2 currentPos = MercatorToPixel(worldCoordinate) - MercatorToPixel(Platform.Instance.Position());
 			
 			// Get the magnitude of the distance.
-			treasureDist = currentPos.magnitude;
+			treasureDist = LatLongToMetre(Platform.Instance.Position(), worldCoordinate);
+			
+			gameCoordinate = new Vector3(0, transform.position.y, (float)treasureDist);
 			
 			// If the player is close enough, obtain the treasure.
-			if(treasureDist < 10 && !obtained) {
+			if(treasureDist < 5 && !obtained) {
 				obtained = true;
 				GetComponent<MeshRenderer>().enabled = false;
 			}		
@@ -166,10 +140,14 @@ public class Treasure : MonoBehaviour {
 			// Set the position based on the game coordinate.
 			transform.position  = gameCoordinate;
 		} 
+		else
+		{
+			UnityEngine.Debug.Log("Treasure: distance should actually be " + LatLongToMetre(new Position(51.535452f, -0.139732f), worldCoordinate).ToString("f2"));
+		}
 		
 		// If its not started, set the treasure's position far away out of sight.
 		if(!started) {
-			transform.position = new Vector3(0.0f, 0.0f, 10000.0f);
+			transform.position = new Vector3(0.0f, 0.0f, 100.0f);
 		}
 	}
 	
@@ -208,19 +186,18 @@ public class Treasure : MonoBehaviour {
 		return world * 100000;
 	}
 	
-//	private double gps2m(float lat_a, float lng_a, float lat_b, float lng_b) {
-//	    float pk = (float) (180/3.14169);
-//	
-//	    float a1 = lat_a / pk;
-//	    float a2 = lng_a / pk;
-//	    float b1 = lat_b / pk;
-//	    float b2 = lng_b / pk;
-//	
-//	    float t1 = Math.cos(a1) * Math.cos(a2) * Math.cos(b1) * Math.cos(b2);
-//	    float t2 = Math.cos(a1) * Math.sin(a2) * Math.cos(b1) * Math.sin(b2);
-//	    float t3 = Math.sin(a1) * Math.sin(b1);
-//	    double tt = Math.acos(t1 + t2 + t3);
-//	
-//	    return 6366000*tt;
-//	}
+	private double LatLongToMetre(Position start, Position end)
+	{
+		float R = 6371000;
+		
+		float startLatInRads = start.latitude * ((Mathf.PI * 2) / 360f);
+		float endLatInRads = end.latitude * ((Mathf.PI * 2) / 360f);
+		float startLongInRads = start.longitude * ((Mathf.PI * 2) / 360f);
+		float endLongInRads = end.longitude * ((Mathf.PI * 2) / 360f);
+		
+		double d = Math.Acos(Math.Sin(startLatInRads) * Math.Sin(endLatInRads) +
+							 (Math.Cos(startLatInRads) * Math.Cos(endLatInRads) *
+							 Math.Cos(endLongInRads - startLongInRads))) * R;
+		return d;
+	}
 }

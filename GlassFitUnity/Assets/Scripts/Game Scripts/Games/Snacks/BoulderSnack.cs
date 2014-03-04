@@ -58,7 +58,7 @@ public class BoulderSnack : SnackBase {
 				// End the game
 				finish = true;
 				// Show the banner
-				StartCoroutine(ShowBanner());
+				StartCoroutine(ShowBanner(3.0f));
 			}
 		}
 		else

@@ -25,6 +25,12 @@ public class ZombieController : MonoBehaviour {
 	
 	GameObject marker;
 	
+	CapsuleCollider collider;
+	
+	float nearPlayerTime = 0.0f;
+	
+	bool nearPlayer = false;
+	
 	/// <summary>
 	/// Start this instance. Sets the attributes
 	/// </summary>
@@ -55,7 +61,7 @@ public class ZombieController : MonoBehaviour {
 				UnityEngine.Debug.Log("Zombie: not enough sounds for death");
 			}
 		}
-		float yRotation = UnityEngine.Random.Range(120f, 240f);
+		float yRotation = UnityEngine.Random.Range(150f, 210f);
 		
 		transform.rotation = Quaternion.Euler(0, yRotation, 0);
 		
@@ -65,6 +71,8 @@ public class ZombieController : MonoBehaviour {
 		direction.Normalize();
 		
 		marker = transform.Find("Pointer").gameObject;
+		
+		collider = GetComponentInChildren<CapsuleCollider>();
 	}
 	
 	/// <summary>
@@ -82,19 +90,23 @@ public class ZombieController : MonoBehaviour {
 				direction = Vector3.zero - transform.position;
 				direction.Normalize();
 				transform.rotation = Quaternion.LookRotation(direction);
+				nearPlayerTime = 0.0f;;
 			}
 			else
 			{
-				GameObject gui = GameObject.Find("ZombieGUI");
-				if(gui != null)
+				nearPlayerTime += Time.deltaTime;
+				if(nearPlayerTime > 2.0f)
 				{
-					ZombieSnack snack = gui.GetComponent<ZombieSnack>();
-					if(snack != null)
+					GameObject gui = GameObject.Find("ZombieGUI");
+					if(gui != null)
 					{
-						snack.EndGame();
+						ZombieSnack snack = gui.GetComponent<ZombieSnack>();
+						if(snack != null)
+						{
+							snack.EndGame();
+						}
 					}
 				}
-				
 			}
 			
 			if(distanceFromTarget > 10.0f)
@@ -107,6 +119,15 @@ public class ZombieController : MonoBehaviour {
 				{
 					UnityEngine.Debug.Log("Zombie: pointer is null!");
 				}
+				
+				if(collider != null)
+				{
+					collider.transform.localScale = new Vector3(1.069066f, 1.837455f, 0.5571659f);
+				}
+				else
+				{
+					UnityEngine.Debug.Log("Zombie: collider is null!");
+				}
 			}
 			else
 			{
@@ -117,6 +138,15 @@ public class ZombieController : MonoBehaviour {
 				else
 				{
 					UnityEngine.Debug.Log("Zombie: pointer is null!");
+				}
+				
+				if(collider != null)
+				{
+					collider.transform.localScale = new Vector3(0.4809462f, 1.430881f, 0.4338819f);
+				}
+				else
+				{
+					UnityEngine.Debug.Log("Zombie: collider is null!");
 				}
 			}
 		}
