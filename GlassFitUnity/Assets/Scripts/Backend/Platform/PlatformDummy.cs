@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
+#if UNITY_EDITOR
 [ExecuteInEditMode()] 
 public class PlatformDummy : Platform
 {
@@ -103,12 +104,12 @@ public class PlatformDummy : Platform
     }
 
 	//if there is a platform dummy about on the device, kill it.
-#if !UNITY_EDITOR
-	void Awake()
-	{
-		Destroy(gameObject);			
-	}
-#endif
+//#if !UNITY_EDITOR
+//	void Awake()
+//	{
+//		Destroy(gameObject);			
+//	}
+//#endif
 
 	public override void Initialize()
 	{
@@ -445,3 +446,4 @@ public class PlatformDummy : Platform
 	}
 	
 }
+#endif
