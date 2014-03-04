@@ -7,7 +7,7 @@ using System;
 using System.Runtime.CompilerServices;
 using SimpleJSON;
 
-public class Platform : MonoBehaviour {
+public abstract class Platform : MonoBehaviour {
 	private double targetElapsedDistance = 0;
 	private long time = 0;
 	protected double distance = 0.0;
@@ -112,7 +112,7 @@ public class Platform : MonoBehaviour {
                 {
 					UnityEngine.Debug.Log("Creating new " + platformType.Name);
 					GameObject singleton = new GameObject();
-                	instance = singleton.AddComponent<Platform>();
+                	instance = (Platform)singleton.AddComponent(platformType);
                 	singleton.name = "Platform"; // Used as target for messages
 					instance.enabled = true;
 					singleton.SetActive(true);
