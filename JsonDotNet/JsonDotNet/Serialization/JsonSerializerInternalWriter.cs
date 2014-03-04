@@ -36,7 +36,6 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Utilities;
 using System.Runtime.Serialization;
 using System.Security;
-using UnityEngine;
 
 namespace Newtonsoft.Json.Serialization
 {
@@ -223,9 +222,7 @@ namespace Newtonsoft.Json.Serialization
 
       if (SerializeStack.IndexOf(value) != -1)
       {
-		var selfRef = (value is Vector2 || value is Vector3 || value is Vector4 || value is Color || value is Color32) 
-			? ReferenceLoopHandling.Ignore 
-			: referenceLoopHandling.GetValueOrDefault(Serializer.ReferenceLoopHandling);
+		var selfRef = referenceLoopHandling.GetValueOrDefault(Serializer.ReferenceLoopHandling);
 		switch (selfRef)
         {
           case ReferenceLoopHandling.Error:

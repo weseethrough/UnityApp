@@ -49,6 +49,46 @@ namespace RaceYourself
 		}
 		
 		/// <summary>
+		/// Coroutine to retrieve a globally unique device id from the server.
+		/// Triggers Platform.OnRegistration upon completion.
+		/// </summary>
+		public IEnumerator RegisterDevice() {
+			Debug.Log("API: RegisterDevice()");
+			
+			string ret = "Failure";
+			try {
+				Device device = new Device();
+				device.manufacturer = "Bob";
+				device.model = "test";
+				string body = JsonConvert.SerializeObject(device);
+				
+				var encoding = new System.Text.UTF8Encoding();			
+				var headers = new Hashtable();
+				headers.Add("Content-Type", "application/json");
+				
+				var post = new WWW(ApiUrl("devices"), encoding.GetBytes(body), headers);
+				yield return post;
+							
+				if (!String.IsNullOrEmpty(post.error)) {
+					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
+					ret = "Network error";
+					yield break;
+				}
+
+				var response = JsonConvert.DeserializeObject<SingleResponse<Device>>(post.text);
+				
+				device = response.response;
+				device.self = true;
+				db.StoreObject(device);
+				Debug.Log("API: RegisterDevice(): device registered");
+				
+				ret = "Success";
+			} finally {
+				Platform.Instance.OnRegistration(ret);
+			}
+		}
+		
+		/// <summary>
 		/// Coroutine to log in using Resource Owner Password Credentials flow.
 		/// Triggers Platform.OnAuthentication upon completion.
 		/// </summary>
@@ -146,6 +186,57 @@ namespace RaceYourself
 			Debug.Log("API: UpdateAuthentications() fetched " + user.authentications.Count + " authentications");
 		}
 		
+		/// <summary>
+		/// Coroutine to sync the database to the server and back.
+		/// Triggers Platform.OnSynchronization upon completion.
+		/// </summary>
+		public IEnumerator Sync() {
+			if (token == null || token.HasExpired) {
+				Debug.LogError("API: UpdateAuthentications() called with expired or missing token");
+				yield break;
+			}
+			Debug.Log("API: Sync()");
+			
+			string ret = "Failure";
+			try {
+				DataWrapper wrapper = new DataWrapper();
+				
+				wrapper.data.devices = new List<Device>(1);				
+				Device self = db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
+				if (self == null) {
+					// Register device
+					IEnumerator e = RegisterDevice();
+					while(e.MoveNext()) yield return e.Current;
+					self = db.Cast<Device>().Where(d => d.self == true).First();
+				}
+				wrapper.data.devices.Add(self);
+				
+				string body = JsonConvert.SerializeObject(wrapper);
+				
+				var encoding = new System.Text.UTF8Encoding();			
+				var headers = new Hashtable();
+				headers.Add("Content-Type", "application/json");
+				headers.Add("Authorization", "Bearer " + token.access_token);
+				
+				var post = new WWW(ApiUrl("sync/-1"), encoding.GetBytes(body), headers);
+				yield return post;
+							
+				if (!String.IsNullOrEmpty(post.error)) {
+					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
+					ret = "Network error";
+					yield break;
+				}
+
+//				var response = JsonConvert.DeserializeObject<SingleResponse<Device>>(post.text);
+				
+				Debug.Log("API: Sync(): " + post.text);
+				
+				ret = "Failure";
+			} finally {
+				Platform.Instance.OnSynchronization(ret);
+			}
+		}
+		
 		private string ApiUrl(string path) 
 		{
 			return SCHEME + apiHost + "/api/1/" + path;
@@ -154,6 +245,16 @@ namespace RaceYourself
 		private class SingleResponse<T> 
 		{
 			public T response;
+		}
+				
+		private class DataWrapper
+		{
+			public Data data = new Data();			
+		}
+		
+		private class Data
+		{
+			public List<Device> devices;
 		}
 	}
 	

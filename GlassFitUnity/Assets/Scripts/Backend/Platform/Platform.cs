@@ -6,6 +6,7 @@ using System.Threading;
 using System;
 using System.Runtime.CompilerServices;
 using SimpleJSON;
+using RaceYourself.Models;
 
 public abstract class Platform : MonoBehaviour {
 	private double targetElapsedDistance = 0;
@@ -106,6 +107,7 @@ public abstract class Platform : MonoBehaviour {
             {
 				// if an instance exists, use it
 				var instance = (Platform) FindObjectOfType(platformType);
+				var owner = false;
 
 				// otherwise initialise a new one
 				if(instance == null)
@@ -117,6 +119,7 @@ public abstract class Platform : MonoBehaviour {
 					instance.enabled = true;
 					singleton.SetActive(true);
                     DontDestroyOnLoad(singleton);
+					owner = true;
             	}
 				else
 				{
@@ -130,6 +133,7 @@ public abstract class Platform : MonoBehaviour {
 					continue;
                 }
 				_instance  = instance;
+				if (owner) _instance.PostInit();
 
 			}
 
@@ -250,6 +254,10 @@ public abstract class Platform : MonoBehaviour {
 
             }
 		});
+	}
+	
+	protected virtual void PostInit() {
+		UnityEngine.Debug.Log("Platform: post init");
 	}
 	
 	/// Message receivers
@@ -435,7 +443,7 @@ public abstract class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Getting user details");
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getDevice");
 			if (ajo.GetRawObject().ToInt32() == 0) return null;
-			return new Device(ajo.Get<int>("id"), ajo.Get<string>("manufacturer"), ajo.Get<string>("model"), ajo.Get<int>("glassfit_version"));
+			return new Device();
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: failed to fetch device " + e.Message);
 			UnityEngine.Debug.LogException(e);
