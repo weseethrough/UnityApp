@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Sqo;
 using UnityEngine;
+using RaceYourself.Models;
 
 namespace RaceYourself
 {
@@ -89,7 +90,6 @@ namespace RaceYourself
 				var transaction = db.BeginTransaction();
 				try {
 					if (!db.UpdateObjectBy("userId", token)) {
-						Debug.Log("API: Could not update token");
 						db.StoreObject(token);
 					}
 					transaction.Commit();
@@ -135,12 +135,12 @@ namespace RaceYourself
 			var transaction = db.BeginTransaction();
 			try {			
 				if (!db.UpdateObjectBy("id", user)) {
-					Debug.Log("API: Could not update account");
 					db.StoreObject(user);
 				}
 				transaction.Commit();
 			} catch (Exception ex) {
 				transaction.Rollback();
+				throw ex;
 			}
 			
 			Debug.Log("API: UpdateAuthentications() fetched " + user.authentications.Count + " authentications");
@@ -150,60 +150,7 @@ namespace RaceYourself
 		{
 			return SCHEME + apiHost + "/api/1/" + path;
 		}
-		
-		private class OauthToken 
-		{
-			public string access_token;
-			public string token_type;			
-			public int expires_in;
-			public string refresh_token;
-			// Non-JSON fields
-			private DateTime created;
-			public int userId;
-
-			public OauthToken() {
-				created = DateTime.Now;
-			}
-			
-			public bool HasExpired {
-				get {
-					return (DateTime.Now - created).Seconds > expires_in;
-				}
-			}
-		}
-		
-		private class Account 
-		{
-			public int id;
-			public string username;
-			public string email;
-			public string token;
-			public string name;
-			public DateTime created_at;
-			public DateTime updated_at;
-			public bool admin;
-			public int sync_key;
-			public DateTime sync_timestamp;
-			public string gender;
-			public int points;
-			public List<Authentication> authentications;
-			
-			public string DisplayName {
-				get {
-					if (!String.IsNullOrEmpty(username)) return username;
-					if (!String.IsNullOrEmpty(name)) return name;
-					return email;
-				}
-			}
-		}
-		
-		private class Authentication 
-		{
-			public string provider;
-			public string uid;
-			public string permissions;
-		}
-		
+				
 		private class SingleResponse<T> 
 		{
 			public T response;

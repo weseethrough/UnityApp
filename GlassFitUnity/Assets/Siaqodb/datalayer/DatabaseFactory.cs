@@ -22,18 +22,14 @@ namespace SiaqodbDemo
                 SiaqodbConfigurator.SetLicense(@"Tebhiwc9k0xmxegCMu52/wuW8Vb41BAbvmNC+yyAariYtXIwZ6boPhyIpRH2GPWB");
                
 
-#if UNITY_EDITOR
-				siaoqodbPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + @"database";
-#else
                 siaoqodbPath = Application.persistentDataPath;
-#endif
 		
                 if (!Directory.Exists(siaoqodbPath))
                 {
                     Directory.CreateDirectory(siaoqodbPath);
                 }
                 instance = new Siaqodb(siaoqodbPath);
-				Debug.Log("Database: Path: " + siaoqodbPath);
+				Debug.Log("Database: path: " + siaoqodbPath);
             }
             return instance;
         }
@@ -43,6 +39,7 @@ namespace SiaqodbDemo
             {
                 instance.Close();
                 instance = null;
+				Debug.Log("Database: closed");
             }
         }
     }
