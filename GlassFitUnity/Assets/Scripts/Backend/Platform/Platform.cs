@@ -102,19 +102,19 @@ public class Platform : MonoBehaviour {
 			#endif
 
 			// find, or create, an instance of the right type
-            if(_instance == null || _instance.GetType().Equals(platformType))
+            if(_instance == null || !_instance.GetType().Equals(platformType))
             {
 				// if an instance exists, use it
-				_instance = (Platform) FindObjectOfType(platformType);
+				var instance = (Platform) FindObjectOfType(platformType);
 
 				// otherwise initialise a new one
-				if(_instance == null)
+				if(instance == null)
                 {
 					UnityEngine.Debug.Log("Creating new " + platformType.Name);
 					GameObject singleton = new GameObject();
-                	_instance = singleton.AddComponent<Platform>();
+                	instance = singleton.AddComponent<Platform>();
                 	singleton.name = "Platform"; // Used as target for messages
-					_instance.enabled = true;
+					instance.enabled = true;
 					singleton.SetActive(true);
                     DontDestroyOnLoad(singleton);
             	}
@@ -124,12 +124,12 @@ public class Platform : MonoBehaviour {
 				}
 
 				// make sure the instance is initialized before returning
-				while (_instance.initialised == false)
+				while (instance.initialised == false)
                 {
                     //yield return null;
 					continue;
                 }
-
+				_instance  = instance;
 
 			}
 
@@ -143,7 +143,7 @@ public class Platform : MonoBehaviour {
 		applicationIsQuitting = true;
 	}
 	
-	 void Awake()
+	void Awake()
     {
 		//Application.targetFrameRate = 25;
         if (initialised == false)
