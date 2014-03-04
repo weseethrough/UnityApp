@@ -5,6 +5,8 @@ using System;
 
 public class Train_Rescue : GameBase {
 	
+	public const string GAMESTATE_FLYTHROUGH = "flythrough";
+	
 	bool finished = false;
 	
 	protected TrainController_Rescue train;
@@ -39,8 +41,6 @@ public class Train_Rescue : GameBase {
 		
 		selectedTrack = (Track)DataVault.Get("current_track");
 		
-		//Platform.Instance.SetIndoor(true);
-		
 //		try {
 //			if(selectedTrack != null) {
 //				finish = (int)selectedTrack.distance;
@@ -73,8 +73,7 @@ public class Train_Rescue : GameBase {
 //			//move distance along
 //			junctionDist += junctionSpacing;
 //		}
-		
-		
+
 		//create some additional tracks to put on the flythrough
 		extraTrackPieces = new List<GameObject>();
 		float totalTrackDistCovered = 500.0f;	//half of one track obj
@@ -113,6 +112,52 @@ public class Train_Rescue : GameBase {
 		
 	}
 		
+	protected override void OnEnterState (string state)
+	{
+		UnityEngine.Debug.Log("TrainRescue: entering state " + state);
+		switch(state)
+		{
+		case GAMESTATE_COUNTING_DOWN:
+			//start the specialised train rescue countdown
+			StartCountdown();
+			return;
+			break;
+			
+		case GAMESTATE_FLYTHROUGH:
+			//initiate the flythrough
+			UnityEngine.Debug.Log("TrainRescue: Entering Flythrough state");
+			if(openingFlythroughPath != null)
+			{
+				FollowConnectorNamed("ToBlank");
+				openingFlythroughPath.StartFollowingPath();
+			}
+			else
+			{
+				UnityEngine.Debug.LogWarning("TrainRescue: Couldn't find opening flythrough path");	
+			}
+			//start the music
+			GameObject musicPlayer = GameObject.Find("MusicPlayer");
+			AudioSource musicSource = (AudioSource)musicPlayer.GetComponent(typeof(AudioSource));
+			musicSource.Play();
+			return;
+			break;
+			
+		case GAMESTATE_FINISHED:
+			//don't go straight to end.
+			StartCoroutine( ProgressToFinish() );
+			return;
+			break;
+		}
+		
+		base.OnEnterState (state);
+	}
+	
+	protected override void OnExitState (string state)
+	{
+		
+		base.OnExitState (state);
+	}
+	
 	protected override double GetDistBehindForHud ()
 	{
 		if(train == null)
@@ -124,54 +169,55 @@ public class Train_Rescue : GameBase {
 	
 	// Update is called once per frame
 	void Update () {
-		base.Update();
 		
 		if(Platform.Instance.IsIndoor())
 		{
 			DataVault.Set("calories", "INDOOR");
 		}
 		
-		if(!finished && !hasEnded)
+		switch(gameState)
 		{
+		case GAMESTATE_RUNNING:
 			//check if the train has reached the end
-			if(train.GetForwardDistance() > finish && !finished)
+			if(train.GetForwardDistance() > finish)
 			{
 				//finish the game
 				bFailed = true;
 				//set flag so that trophy isn't show
 				DataVault.Set("showFinishTrophy", false);
-				FinishGame();
-				finished = true;
+				SetGameState(GAMESTATE_FINISHED);
 			}
-		}
-		
-		//check if the flythrough is complete
-		if(!readyToStart)
-		{
+			break;
+		case GAMESTATE_FLYTHROUGH:
 			if(openingFlythroughPath.IsFinished())
 			{
-				StartCountdown();
+				SetGameState(GAMESTATE_COUNTING_DOWN);
 			}
+			break;
 		}
 		
+		base.Update();
+//		
 	}
 	
-	public override void SetReadyToStart (bool ready)
-	{		
-		if(openingFlythroughPath != null)
+	protected override void OnFinishedGame ()
+	{
+		//Finished takes us to subtitle card.
+		base.OnFinishedGame ();
+	}
+
+	public override void TriggerUserReady ()
+	{
+		if(gameState!=GAMESTATE_AWAITING_USER_READY)
 		{
-			openingFlythroughPath.StartFollowingPath();	
+			UnityEngine.Debug.Log("GameBase: Received User Ready trigger, when not waiting for it");
+			//move to countdown state
 		}
 		else
 		{
-			UnityEngine.Debug.LogError("Train: Don't have camera path set!");	
+			UnityEngine.Debug.Log("GameBase: Received User ready trigger");
+			SetGameState(GAMESTATE_FLYTHROUGH);
 		}
-		
-		
-		//start the music
-		GameObject musicPlayer = GameObject.Find("MusicPlayer");
-		AudioSource musicSource = (AudioSource)musicPlayer.GetComponent(typeof(AudioSource));
-		musicSource.Play();
 	}
 	
 	public void StartCountdown()
@@ -182,26 +228,34 @@ public class Train_Rescue : GameBase {
 			Destroy(piece);	
 		}
 		
-		base.SetReadyToStart(true);
+//		base.SetReadyToStart(true);
 		if(train == null)
 		{
 			train = trainObject.GetComponent<TrainController_Rescue>();
 		}
 		train.BeginRace();
 		//progress flow to the normal HUD
-		//FollowConnectorNamed("Begin");
-		StartCoroutine(DoCountDown());
+		StartCoroutine(DoTrainRescueCountDown());
 	}
+
 	
-	//train game does its own version of the countdown
-	protected override bool shouldDoGameBaseCountdown ()
-	{
-		return false;
-	}
 	
-	IEnumerator DoCountDown()
+//	//train game does its own version of the countdown
+//	protected override bool shouldDoGameBaseCountdown ()
+//	{
+//		return false;
+//	}
+	
+	IEnumerator DoTrainRescueCountDown()
 	{
 		UnityEngine.Debug.Log("Train:Starting Countdown Coroutine");
+		
+		//get to the HUD since all flow stems from here
+		FollowConnectorNamed("Begin");
+		
+		//small pause to allow flow to catch up
+		yield return new WaitForSeconds(0.1f);
+		
 		for(int i=3; i>=0; i--)
 		{
 			//go to subtitle card
@@ -212,7 +266,7 @@ public class Train_Rescue : GameBase {
 			DataVault.Set("train_subtitle", displayString);
 			
 			//wait half a second
-			yield return new WaitForSeconds(1.0f);
+			yield return new WaitForSeconds(0.5f);
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
@@ -221,7 +275,7 @@ public class Train_Rescue : GameBase {
 			//wait a second more, except after GO!
 			if(i!=0)
 			{
-				yield return new WaitForSeconds(1.5f);
+				yield return new WaitForSeconds(0.25f);
 			}
 			
 		}
@@ -235,7 +289,7 @@ public class Train_Rescue : GameBase {
 		train.soundBell();	
 		
 		//start the game
-		StartRace();
+		SetGameState(GAMESTATE_RUNNING);;
 	}
 	
 	public void FollowConnectorNamed(string name)
@@ -252,8 +306,16 @@ public class Train_Rescue : GameBase {
 		}
 	}
 	
-	public override GConnector GetFinalConnection ()
+	IEnumerator ProgressToFinish()
 	{
+		UnityEngine.Debug.Log("TrainGame: Progressing to finish in 5 seconds");
+		
+		//go to subtitle card
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Subtitle" );
+		fs.parentMachine.FollowConnection(gConnect);
+		
+		//set appropriate link subtitle
 		if(bFailed || Platform.Instance.GetDistance() < finish)
 		{
 			DataVault.Set("train_subtitle", "\"Aaaaargh!\"");
@@ -262,33 +324,12 @@ public class Train_Rescue : GameBase {
 		{
 			DataVault.Set("train_subtitle", "\"My Hero!\"");
 		}
-
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Subtitle" );
 		
-		//fire off coroutine to progress past this screen in 2 seconds
-		StartCoroutine( ProgressToFinish() );
-		
-		return gConnect;
-	}
-	
-	IEnumerator ProgressToFinish()
-	{
-		UnityEngine.Debug.Log("TrainGame: Progressing to finish in 5 seconds");
-		//wait for 2s then continue
+		//wait for 5s then continue
 		yield return new WaitForSeconds(5.0f);
 		
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Finish");
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
-		}
-		else
-		{
-			UnityEngine.Debug.LogWarning("Train: Couldn't find Finish connector!");	
-		}
+		//now we are finished
+		FinishGame();
 		
-
 	}
 }

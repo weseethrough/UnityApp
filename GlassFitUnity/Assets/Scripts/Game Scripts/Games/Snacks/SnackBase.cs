@@ -87,10 +87,10 @@ public class SnackBase : MonoBehaviour {
 		// Set the text and colour based on the target's distance
 		if (targetDistance > 0) {
 			DataVault.Set("distance_position", "BEHIND");
-            DataVault.Set("ahead_col_box", "E5312FFF");
+            DataVault.Set("ahead_col_box", UIColour.red);
 		} else {
 			DataVault.Set("distance_position", "AHEAD");
-            DataVault.Set("ahead_col_box", "009540FF");
+            DataVault.Set("ahead_col_box", UIColour.green);
 		}
 		// Set the units
 		string siDistance = SiDistanceUnitless(Math.Abs(targetDistance), "target_units");

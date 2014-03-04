@@ -102,9 +102,6 @@ public class SnackRun : GameBase {
 		//reset the flow to the main HUD, as we could be anywhere in the flow right now.
 		FlowStateMachine.Restart("SnackRestartPoint");
 		
-		//stop countdown
-		countdown = false;
-		
 		yield return new WaitForSeconds(0.5f);
 		
 		if(snackController != null)

@@ -20,6 +20,7 @@ public class RaceGame : GameBase {
 	}
 	
 	private ActorType currentActorType = ActorType.Runner;
+    public List<GameObject> actors = new List<GameObject>();
 
 	
 //	// Minimap attributes
@@ -110,7 +111,6 @@ public class RaceGame : GameBase {
 	
 	public void SetActorType(ActorType targ) {
 		currentActorType = targ;
-		gameParamsChanged = true;		
 	}
 	
 //	public void OnGUI()
@@ -136,14 +136,14 @@ public class RaceGame : GameBase {
 				if (tracker.GetTargetDistance() > distance) position++;
 		}
 		}
-		DataVault.Set("ahead_col_box", "D20000EE");
+		DataVault.Set("ahead_col_box", UIColour.red);
 		
 		DataVault.Set("leader_header", "You are");
 		if (position == 1) { 
 			DataVault.Set("ahead_leader", "in the lead!");
-			DataVault.Set("ahead_col_box", "19D200EE");
+			DataVault.Set("ahead_col_box", UIColour.green);
 		}  else {
-			DataVault.Set("ahead_leader", "behind by " + SiDistance(trackers[0].GetDistanceBehindTarget()));
+			DataVault.Set("ahead_leader", "behind by " + UnitsHelper.SiDistance(trackers[0].GetDistanceBehindTarget()));
 		}
 		
 		DataVault.Set("position_header", "Position");
@@ -174,7 +174,7 @@ public class RaceGame : GameBase {
 			string which = " behind";
 			if (d > 0) which = " ahead";
 			DataVault.Set("follow_header", nemesis.name + " is"); 
-			DataVault.Set("follow_box", SiDistance(Math.Abs(d)) + which);
+			DataVault.Set("follow_box", UnitsHelper.SiDistance(Math.Abs(d)) + which);
 		}  else {
 			DataVault.Set("follow_header", "Solo");
 			DataVault.Set("follow_box", "round!");
@@ -185,44 +185,6 @@ public class RaceGame : GameBase {
 	
 	void Update () {
 
-//		
-//		// TODO: Multiple minimap targets
-//#if !UNITY_EDITOR
-//		double targetDistance = Platform.Instance.GetHighestDistBehind();
-//		Position position = Platform.Instance.Position();
-//		float bearing = Platform.Instance.Bearing();
-//#else
-//		double targetDistance = PlatformDummy.Instance.DistanceBehindTarget();
-//		Position position = PlatformDummy.Instance.Position();
-//		float bearing = PlatformDummy.Instance.Bearing();
-//#endif
-//		double bearingRad = bearing*Math.PI/180;
-////		if (position != null) {
-////			// Fake target coord using distance and bearing
-////			Position targetCoord = new Position(position.latitude + (float)(Math.Cos(bearingRad)*targetDistance/111229d), position.longitude + (float)(Math.Sin(bearingRad)*targetDistance/111229d));
-////			GetMap(position, bearingRad, targetCoord);
-////		}
-
-//		if(Platform.Instance.Distance() >= finish && !end)
-//		{
-//			end = true;
-//			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-//			DataVault.Set("bonus", (int)finalBonus);
-//			Platform.Instance.StopTrack();
-//			GameObject h = GameObject.Find("minimap");
-//			if(h != null) {
-//				h.renderer.enabled = false;
-//			}
-//			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//			GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
-//			if(gConect != null) {
-//				fs.parentMachine.FollowConnection(gConect);
-//			} else {
-//				UnityEngine.Debug.Log("Game: No connection found!");
-//			}
-//		}
-
-	
 		base.Update ();
 	
 		UpdateLeaderboard();
@@ -293,13 +255,6 @@ public class RaceGame : GameBase {
 		actors.Add(actorDummy);
 		UnityEngine.Debug.Log("RaceGame: instantiated actors");
 #endif
-	}
-	
-	public void OnSliderValueChange() 
-	{
-		gameParamsChanged = true;
-		targSpeed = UISlider.current.value * 10.4f;
-		UnityEngine.Debug.Log(UISlider.current.value);
 	}
 	
 	// Listen for UnitySendMessage with multiplier updates
