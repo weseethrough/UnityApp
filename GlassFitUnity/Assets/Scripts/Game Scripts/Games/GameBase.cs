@@ -84,7 +84,7 @@ public class GameBase : MonoBehaviour {
 		twoTapHandler = new GestureHelper.TwoFingerTap(() => {
 			GameHandleTwoTap();
 		});
-		GestureHelper.onTwoTap += tapHandler;
+		GestureHelper.onTwoTap += twoTapHandler;
 		
 		leftHandler = new GestureHelper.OnSwipeLeft(() => {
 			GameHandleLeftSwipe();
@@ -127,7 +127,7 @@ public class GameBase : MonoBehaviour {
 		SetVirtualTrackVisible(true);
 #endif
 		//set distance with units for the menu cards
-		DataVault.Set("finish_km", SiDistanceUnitless(finish, string.Empty) );
+		DataVault.Set("finish_km", UnitsHelper.SiDistanceUnitless(finish, string.Empty) );
 	
 		UnityEngine.Debug.Log("GameBase: resetting platform");
 		Platform.Instance.Reset();
@@ -199,6 +199,7 @@ public class GameBase : MonoBehaviour {
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			GConnector gConnect = fs.Outputs.Find(r => r.Name == "QuitExit");
 			if(gConnect != null) {
+				fs.parentMachine.FollowConnection(gConnect);
 				Platform.Instance.StopTrack();
 			}
 	}
@@ -311,9 +312,8 @@ public class GameBase : MonoBehaviour {
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
-			countdown = false;
 			DataVault.Set("total", (Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance() + finalBonus).ToString("n0"));
-			DataVault.Set("distance_with_units", SiDistance(Platform.Instance.GetDistance()));
+			DataVault.Set("distance_with_units", UnitsHelper.SiDistance(Platform.Instance.GetDistance()));
 			UnityEngine.Debug.Log("GameBase: setting points");
 			if(finish >= 1000) {
 				DataVault.Set("bonus", finalBonus.ToString("n0")); 
@@ -390,6 +390,9 @@ public class GameBase : MonoBehaviour {
 				break;
 			case GAMESTATE_PAUSED:
 				SetGameState(GAMESTATE_RUNNING);
+				break;
+			case GAMESTATE_QUIT_CONFIRMATION:
+				FinishGame();
 				break;
 			}
 		}
@@ -496,7 +499,7 @@ public class GameBase : MonoBehaviour {
 			//DataVault.Set("ahead_col_header", "19D200FF");
 		}
 		//UnityEngine.Debug.Log("GameBase: distance behind is " + GetDistBehindForHud().ToString());
-		string siDistance = SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
+		string siDistance = UnitsHelper.SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
 		//UnityEngine.Debug.Log("GameBase: setting target distance to: " + siDistance);
 		DataVault.Set("ahead_box", siDistance);
 		
@@ -612,27 +615,10 @@ public class GameBase : MonoBehaviour {
 			break;
 			
 		default:
-			UnityEngine.Debug.Log("GameBase: state not handled by game base: " + gameState);
 			break;
 		}
 		
-		//Update variables for GUI	
-		DataVault.Set("calories", Platform.Instance.Calories().ToString()/* + "kcal"*/);
-		float pace = SpeedToKmPace(Platform.Instance.Pace());
-		string paceString = (pace > 20.0f || pace == 0.0f) ? "--:--" : TimestampMMSSnearestTenSecs(pace); // show dashes if slower than slow walk, otherwise round to nearest 10s
-		DataVault.Set("pace", paceString/* + "min/km"*/);
-		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance(), "distance_units"));
-		DataVault.Set("time", TimestampMMSSfromMillis(Platform.Instance.Time()));
-		
-		DataVault.Set("rawdistance", Platform.Instance.Distance());
-		DataVault.Set("rawtime", Platform.Instance.Time());
-        DataVault.Set("sweat_points", string.Format("{0:N0}", Platform.Instance.GetCurrentPoints()));
 
-
-        TimeSpan span = TimeSpan.FromMilliseconds(Platform.Instance.Time());
-						
-        DataVault.Set("time_minutes_only", (int)(span.Minutes + span.Hours * 60));
-        DataVault.Set("time_seconds_only", string.Format("{0:00}" ,span.Seconds));	
 	}
 	
 	protected void UpdateIndoorPrompts()
@@ -690,104 +676,8 @@ public class GameBase : MonoBehaviour {
 		}
 	}
 	
-	
-	//TODO move these to a utility class
-	protected string SiDistance(double meters) {
-		return SiDistanceUnitless(meters, "distanceunits") + DataVault.Get("distance_units");
-	}
-	
-	protected string SiDistanceUnitless(double meters, string units) {
-		string postfix = "m";
-		string final;
-		float value = (float)meters;
-		if (value > 1000) {
-			value = value/1000;
-			postfix = "km";
-			if(value >= 10) {
-				final = value.ToString("f1");
-			} else {
-				final = value.ToString("f2");
-			}
-		}
-		else
-		{
-			final = value.ToString("f0");
-		}
-		//set the units string for the HUD
-		DataVault.Set(units, postfix);
-		return final;
-	}
-			
-	protected float SpeedToKmPace(float speed) {
-		if (speed <= 0) {
-			return 0;
-		}
-		// m/s -> mins/Km
-		return ((1/speed)/60) * 1000;
-	}
-	
-	protected string TimestampMMSSdd(long milliseconds) {
-		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
-		//if we're into hours, show them
-		if(span.Hours > 0)
-		{
-			return string.Format("{0:0}:{1:00}:{2:00}:{3:00}", span.Hours, span.Minutes, span.Seconds, span.Milliseconds/10);
-			//set units string for HUD
-			DataVault.Set("time_units", "h:m:s");
-		}
-		else
-		{				
-			return string.Format("{0:0}:{1:00}:{2:00}",span.Hours*60 + span.Minutes, span.Seconds, span.Milliseconds/10);
-			//set units string for HUD
-			DataVault.Set("time_units", "m:s:ds");
-		}
-			
-	}
-	protected string TimestampMMSS(long minutes) {
-		TimeSpan span = TimeSpan.FromMinutes(minutes);
 
-		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
-	}
 
-	protected string TimestampMMSSnearestTenSecs(float mins) {
-		TimeSpan span = TimeSpan.FromMinutes(mins);
-		int minutes = span.Minutes;
-		int seconds = (int)Math.Ceiling(span.Seconds / 10.0f) * 10; // ceil to nearest 10
-		return string.Format("{0:00}:{1:00}", minutes, seconds);
-	}
-	
-	protected string TimestampMMSSfromMillis(long milliseconds) {
-		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
-		
-		if(span.Hours > 0)
-		{
-			DataVault.Set("time_units", "m:s");
-			return string.Format("{0:0}:{1:00}", span.Minutes, span.Seconds);
-		} else {
-			DataVault.Set("time_units", "h:m:s");
-			return string.Format("{0:0}:{1:00}:{2:00}", span.Hours, span.Minutes, span.Seconds);
-		}
-	}
-	
-	/// <summary>
-	/// Show a timestamp in the form MM:SS, without milliseconds
-	/// </summary>
-	/// <returns>
-	/// The MMSS from M.
-	/// </returns>
-	protected string TimestampMMSSFromMS(long milliseconds) {
-		//UnityEngine.Debug.Log("Converting Timestamp in milliseconds" + milliseconds);
-		TimeSpan span = TimeSpan.FromMilliseconds(milliseconds);
-		//if we're into hours, show them
-		if(span.Hours > 0)
-		{
-			return string.Format("{0:0}:{1:00}:{2:00}", span.Hours, span.Minutes, span.Seconds);
-		}
-		else
-		{
-			return string.Format("{0:0}:{1:00}",span.Hours*60 + span.Minutes, span.Seconds);
-		}
-	}
 	
 	public void NewBaseMultiplier(String message) {
 		// format the multiplier to 2 sig figs:

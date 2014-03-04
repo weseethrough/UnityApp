@@ -73,8 +73,7 @@ public class Train_Rescue : GameBase {
 //			//move distance along
 //			junctionDist += junctionSpacing;
 //		}
-		
-		
+
 		//create some additional tracks to put on the flythrough
 		extraTrackPieces = new List<GameObject>();
 		float totalTrackDistCovered = 500.0f;	//half of one track obj
@@ -115,17 +114,27 @@ public class Train_Rescue : GameBase {
 		
 	protected override void OnEnterState (string state)
 	{
-		switch(gameState)
+		UnityEngine.Debug.Log("TrainRescue: entering state " + state);
+		switch(state)
 		{
 		case GAMESTATE_COUNTING_DOWN:
 			//start the specialised train rescue countdown
-			StartCoroutine("DoTrainRescueCountDown()");
+			StartCountdown();
 			return;
 			break;
 			
 		case GAMESTATE_FLYTHROUGH:
 			//initiate the flythrough
-			openingFlythroughPath.StartFollowingPath();
+			UnityEngine.Debug.Log("TrainRescue: Entering Flythrough state");
+			if(openingFlythroughPath != null)
+			{
+				FollowConnectorNamed("ToBlank");
+				openingFlythroughPath.StartFollowingPath();
+			}
+			else
+			{
+				UnityEngine.Debug.LogWarning("TrainRescue: Couldn't find opening flythrough path");	
+			}
 			//start the music
 			GameObject musicPlayer = GameObject.Find("MusicPlayer");
 			AudioSource musicSource = (AudioSource)musicPlayer.GetComponent(typeof(AudioSource));
@@ -226,7 +235,6 @@ public class Train_Rescue : GameBase {
 		}
 		train.BeginRace();
 		//progress flow to the normal HUD
-		//FollowConnectorNamed("Begin");
 		StartCoroutine(DoTrainRescueCountDown());
 	}
 
@@ -241,6 +249,13 @@ public class Train_Rescue : GameBase {
 	IEnumerator DoTrainRescueCountDown()
 	{
 		UnityEngine.Debug.Log("Train:Starting Countdown Coroutine");
+		
+		//get to the HUD since all flow stems from here
+		FollowConnectorNamed("Begin");
+		
+		//small pause to allow flow to catch up
+		yield return new WaitForSeconds(0.1f);
+		
 		for(int i=3; i>=0; i--)
 		{
 			//go to subtitle card
@@ -251,7 +266,7 @@ public class Train_Rescue : GameBase {
 			DataVault.Set("train_subtitle", displayString);
 			
 			//wait half a second
-			yield return new WaitForSeconds(1.0f);
+			yield return new WaitForSeconds(0.5f);
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
@@ -260,7 +275,7 @@ public class Train_Rescue : GameBase {
 			//wait a second more, except after GO!
 			if(i!=0)
 			{
-				yield return new WaitForSeconds(1.5f);
+				yield return new WaitForSeconds(0.25f);
 			}
 			
 		}

@@ -143,7 +143,7 @@ public class RaceGame : GameBase {
 			DataVault.Set("ahead_leader", "in the lead!");
 			DataVault.Set("ahead_col_box", UIColour.green);
 		}  else {
-			DataVault.Set("ahead_leader", "behind by " + SiDistance(trackers[0].GetDistanceBehindTarget()));
+			DataVault.Set("ahead_leader", "behind by " + UnitsHelper.SiDistance(trackers[0].GetDistanceBehindTarget()));
 		}
 		
 		DataVault.Set("position_header", "Position");
@@ -174,7 +174,7 @@ public class RaceGame : GameBase {
 			string which = " behind";
 			if (d > 0) which = " ahead";
 			DataVault.Set("follow_header", nemesis.name + " is"); 
-			DataVault.Set("follow_box", SiDistance(Math.Abs(d)) + which);
+			DataVault.Set("follow_box", UnitsHelper.SiDistance(Math.Abs(d)) + which);
 		}  else {
 			DataVault.Set("follow_header", "Solo");
 			DataVault.Set("follow_box", "round!");

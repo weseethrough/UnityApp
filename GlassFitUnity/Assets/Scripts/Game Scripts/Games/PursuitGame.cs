@@ -134,8 +134,6 @@ public class PursuitGame : GameBase {
 					actor.GetComponent<TargetController>().IncreaseOffset();
 				}
 				started = false;
-				countdown = false;
-				countTime = 3.0f;
 			} else if(!finished) {
 				//restart - should consolidate this with the 'back' function
 				DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
