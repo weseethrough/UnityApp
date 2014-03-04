@@ -143,6 +143,7 @@ public class Treasure : MonoBehaviour {
 		else
 		{
 			UnityEngine.Debug.Log("Treasure: distance should actually be " + LatLongToMetre(new Position(51.535452f, -0.139732f), worldCoordinate).ToString("f2"));
+			CalcBearing(new Position(51.535452f, -0.139732f), worldCoordinate);
 		}
 		
 		// If its not started, set the treasure's position far away out of sight.
@@ -199,5 +200,26 @@ public class Treasure : MonoBehaviour {
 							 (Math.Cos(startLatInRads) * Math.Cos(endLatInRads) *
 							 Math.Cos(endLongInRads - startLongInRads))) * R;
 		return d;
+	}
+	
+	private double CalcBearing(Position start, Position end)
+	{
+		float startLatInRads = start.latitude * ((Mathf.PI * 2) / 360f);
+		float endLatInRads = end.latitude * ((Mathf.PI * 2) / 360f);
+		float startLongInRads = start.longitude * ((Mathf.PI * 2) / 360f);
+		float endLongInRads = end.longitude * ((Mathf.PI * 2) / 360f);
+		
+		double y = Math.Sin(endLongInRads - startLongInRads) * Math.Cos(endLatInRads);
+		double x = Math.Cos(startLatInRads) * Math.Sin(endLatInRads) - 
+				  Math.Sin(startLatInRads) * Math.Cos(endLatInRads) * Math.Cos(endLongInRads - startLongInRads);
+		double bearing = Math.Atan2(y, x) * (360 / (Mathf.PI * 2));
+		
+		UnityEngine.Debug.Log("Treasure: bearing without turning to 360 is " + bearing.ToString("f2"));
+		
+		bearing = (bearing + 360.0) % 360.0;
+		
+		UnityEngine.Debug.Log("Treasure: bearing after turning to 360 is " + bearing.ToString("f2"));
+		
+		return bearing;
 	}
 }
