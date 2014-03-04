@@ -24,6 +24,8 @@ public class TrainController_Rescue : TargetController {
 	protected AudioSource wheelSound;
 	protected AudioSource bellSound;
 	
+	private int trainLevel = 0;
+	
 	private double playerStartDistance;
 	
 	// Use this for initialization
@@ -41,6 +43,13 @@ public class TrainController_Rescue : TargetController {
 		wheelSound = (AudioSource)sources[0];
 		hornSound = (AudioSource)sources[1];
 		bellSound = (AudioSource)sources[2];
+	}
+	
+	public void SetLevel(int level)
+	{
+		trainLevel = level;
+		currentMovementSpeed = 2.4f + (trainLevel * 0.5f);
+		UnityEngine.Debug.Log("TrainController: level is " + trainLevel.ToString());
 	}
 	
 	public void BeginRace() {
