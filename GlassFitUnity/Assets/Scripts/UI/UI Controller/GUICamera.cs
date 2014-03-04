@@ -81,7 +81,7 @@ public class GUICamera : MonoBehaviour {
         else
         {
             Vector2 newCameraOffset;
-			Quaternion rot;
+			Quaternion rot = Quaternion.identity;
             //provide camera rotation to gui camera. This will elt us roll ui view
             PlayerOrientation p = Platform.Instance.GetPlayerOrientation();
 			if(p == null)
@@ -100,25 +100,14 @@ public class GUICamera : MonoBehaviour {
 			else
 			{
 				//Base position on orientation of the main camera
-				rot = Camera.main.transform.rotation;
+
 
 				//zero out pitch and yaw, we only want roll
 				Vector3 eulerAngles = rot.eulerAngles;
 				
 				float yaw;
-				if(!Application.isEditor)
-				{
-					//get yaw from player orientation
-					yaw = p.AsYaw();
-				}
-				else
-				{
-					//in editor, grab y euler angle from main camera. As long as this is the only axis of rotation, it's the same as yaw.
-					yaw = Camera.main.transform.rotation.eulerAngles.y;
-					if(yaw > 180) { yaw -= 180; }
-					yaw *= Mathf.Deg2Rad;
-					UnityEngine.Debug.LogWarning("yaw = " + yaw);
-				}
+				//get yaw from player orientation
+				yaw = p.AsYaw();
 								
 				float xOffset = yaw * camera_sensitivity_x;
 								
