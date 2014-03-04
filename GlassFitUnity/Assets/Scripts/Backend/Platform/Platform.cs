@@ -73,11 +73,17 @@ public class Platform : MonoBehaviour {
 	private Device device = null;
 	
 	private static Platform _instance;
-        
+	private static Type platformType;
 
+	/// <summary>
+	/// Gets the single instance of the right kind of platform for the OS we're running on,
+	/// or creates one if it doesn't exist.
+	/// </summary>
+	/// <value>
+	/// The instance.
+	/// </value>
     public static Platform Instance 
     {
-#if !UNITY_EDITOR        
 		get 
         {
             if(applicationIsQuitting) 
@@ -85,69 +91,50 @@ public class Platform : MonoBehaviour {
             	UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
                 return null;
             }
-                        
-            if(_instance == null) 
-            {
-            	_instance = (Platform) FindObjectOfType(typeof(Platform));
-                                
-                /* Too heavy operation to be called by instance reference
-                 * if(FindObjectsOfType(typeof(Platform)).Length > 1) 
-                {
-                	UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-                                        //return _instance;
-                }*/
-                
-				if(_instance == null || (_instance is PlatformDummy) )
-                {
-                	GameObject singleton = new GameObject();
-                	_instance = singleton.AddComponent<Platform>();
-                	singleton.name = "Platform"; // Used as target for messages										
-					// Enable Update() function
-					_instance.enabled = true; 
-					singleton.SetActive(true);
-                                                
-                    DontDestroyOnLoad(singleton);
-            	} 
-                else 
-                {
-               		UnityEngine.Debug.Log("Singleton: already exists!!");
-                }
-       		}
 
-            if (_instance != null)
+			// work out which type of platform we need
+			#if UNITY_EDITOR
+        	    platformType = typeof(PlatformDummy);
+			#elif UNITY_ANDROID
+				platformType = typeof(AndroidPlatform);
+			#elif UNITY_IPHONE
+				platformType = typeof(IosPlatform);
+			#endif
+
+			// find, or create, an instance of the right type
+            if(_instance == null || _instance.GetType().Equals(platformType))
             {
-                while (_instance.initialised == false)
+				// if an instance exists, use it
+				_instance = (Platform) FindObjectOfType(platformType);
+
+				// otherwise initialise a new one
+				if(_instance == null)
                 {
-                    continue;
+					UnityEngine.Debug.Log("Creating new " + platformType.Name);
+					GameObject singleton = new GameObject();
+                	_instance = singleton.AddComponent<Platform>();
+                	singleton.name = "Platform"; // Used as target for messages
+					_instance.enabled = true;
+					singleton.SetActive(true);
+                    DontDestroyOnLoad(singleton);
+            	}
+				else
+				{
+					UnityEngine.Debug.Log("Found existing " + platformType.Name + ", won't create a new one. This is unlikely to happen..");
+				}
+
+				// make sure the instance is initialized before returning
+				while (_instance.initialised == false)
+                {
+                    //yield return null;
+					continue;
                 }
-            }
+
+
+			}
+
             return _instance;
-                        
      	}
-#else
-		//create an instance of platformdummy
-		get
-		{
-			if(_instance == null)
-			{
-				//Look for an instance already in existence
-				//_instance = (PlatformDummy)FindObjectOfType(typeof(PlatformDummy));
-				_instance = FindObjectOfType(typeof(PlatformDummy)) as PlatformDummy;
-			}
-			if(_instance == null)
-			{
-				//create instance
-				GameObject singleton = new GameObject();
-                _instance = singleton.AddComponent<PlatformDummy>();
-                singleton.name = "PlatformDummy"; // Used as target for messages
-				
-				_instance.enabled = true;
-				singleton.SetActive(true);
-			}
-			return _instance;	
-		}
-		
-#endif
     }
 	
 	private static bool applicationIsQuitting = false;
@@ -238,7 +225,8 @@ public class Platform : MonoBehaviour {
 		            UnityEngine.Debug.LogWarning("Platform: Error in initialisation thread " + e.Message);
 		            UnityEngine.Debug.LogException(e);
 					Application.Quit();
-			    }				
+			    }
+				initialised = true;
 	    	}));
 	                        
 	    } catch (Exception e) {
@@ -246,7 +234,6 @@ public class Platform : MonoBehaviour {
             UnityEngine.Debug.LogException(e);
 			Application.Quit();
 	    }
-
 		// start listening for 2-tap gestures to reset gyros
 		GestureHelper.onTwoTap += new GestureHelper.TwoFingerTap(() => {
             if (IsRemoteDisplay())
@@ -442,7 +429,7 @@ public class Platform : MonoBehaviour {
 	public virtual bool HasStarted() {
 		return started;
 	}
-	
+
 	public virtual Device Device() {
 		try {
 			UnityEngine.Debug.Log("Platform: Getting user details");
@@ -454,8 +441,8 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 			return null;
 		}
-	}	
-	
+	}
+
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual User User() {
 		try {
@@ -469,7 +456,7 @@ public class Platform : MonoBehaviour {
 			return null;
 		}
 	}
-	
+
 	public virtual User GetUser(int userId) {
 		// TODO: Implement me!
 		try {
@@ -484,7 +471,7 @@ public class Platform : MonoBehaviour {
 			return new User(userId, name, name + " Who");
 		}
 	}
-	
+
 	// Starts tracking
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void StartTrack() {
@@ -498,7 +485,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		}
 	}
-	
+
 	// Set the indoor mode
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void SetIndoor(bool indoor) {
@@ -520,7 +507,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: Error setting indoor mode " + e.Message);
 		}
 	}
-	
+
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual bool IsIndoor() {
   		try {
@@ -542,7 +529,7 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("Platform: Error clearing targets");
 		}
 	}
-	
+
 	// Returns the target tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual TargetTracker CreateTargetTracker(float constantSpeed){
@@ -561,6 +548,7 @@ public class Platform : MonoBehaviour {
 		targetTrackers.Add(t);
 		return t;
 	}
+
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual TargetTracker CreateTargetTracker(int deviceId, int trackId){
 		TargetTracker t = TargetTracker.Build(helper, deviceId, trackId);
