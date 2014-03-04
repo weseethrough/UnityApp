@@ -43,13 +43,12 @@ public class TrainController_Rescue : TargetController {
 		wheelSound = (AudioSource)sources[0];
 		hornSound = (AudioSource)sources[1];
 		bellSound = (AudioSource)sources[2];
-		
-		currentMovementSpeed += trainLevel * 0.5f;
 	}
 	
 	public void SetLevel(int level)
 	{
 		trainLevel = level;
+		currentMovementSpeed = 2.4f + (trainLevel * 0.5f);
 		UnityEngine.Debug.Log("TrainController: level is " + trainLevel.ToString());
 	}
 	

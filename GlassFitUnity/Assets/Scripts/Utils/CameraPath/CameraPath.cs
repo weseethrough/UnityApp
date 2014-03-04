@@ -160,16 +160,24 @@ public class CameraPath : MonoBehaviour {
 		
 		FollowFlowLinkNamed("ToBlank");
 		
-		transform.position = originalPosition;
+		transform.position = new Vector3(originalPosition.x, originalPosition.y, 0f);
+		
+		GameObject train = GameObject.Find("Train_Rescue");
+		
+		transform.LookAt(new Vector3(originalPosition.x, originalPosition.y, 1f));
 		
 		yield return new WaitForSeconds(1.0f);
 		
-		DataVault.Set("train_subtitle", "Look behind you!");
+		DataVault.Set("train_subtitle", "Oh no! A train!");
 		FollowFlowLinkNamed("Subtitle");
 		
-		yield return new WaitForSeconds(3.0f);
+		yield return new WaitForSeconds(2.0f);
+		
+		transform.LookAt(train.transform);
 		
 		FollowFlowLinkNamed("ToBlank");
+		
+		yield return new WaitForSeconds(1.0f);
 		
 		StopFollowingPath();
 	}

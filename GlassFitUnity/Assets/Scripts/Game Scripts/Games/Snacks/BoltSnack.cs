@@ -79,7 +79,7 @@ public class BoltSnack : SnackBase {
 					DataVault.Set("death_colour", "EA0000FF");
 					DataVault.Set("snack_result", "You lost!");
 					DataVault.Set("snack_result_desc", "it was inevitable");
-					StartCoroutine(ShowBanner());
+					StartCoroutine(ShowBanner(3.0f));
 				}
 			}
 			
@@ -92,7 +92,7 @@ public class BoltSnack : SnackBase {
 					DataVault.Set("death_colour", "12D400FF");
 					DataVault.Set("snack_result", "You won?!");
 					DataVault.Set("snack_result_desc", "you must be cheating!");
-					StartCoroutine(ShowBanner());
+					StartCoroutine(ShowBanner(3.0f));
 				}
 				// Set the player finished to true
 				playerFinished = true;
