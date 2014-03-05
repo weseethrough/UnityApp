@@ -14,7 +14,7 @@ namespace RaceYourself.Models
 		public DateTime updated_at;
 		public bool admin;
 		public int sync_key;
-		public DateTime sync_timestamp;
+		public DateTime? sync_timestamp;
 		public string gender;
 		public int points;
 		public List<Authentication> authentications;

@@ -6,6 +6,9 @@ using System.Threading;
 using System;
 using System.Runtime.CompilerServices;
 using SimpleJSON;
+using RaceYourself;
+using SiaqodbDemo;
+using Sqo;
 using RaceYourself.Models;
 
 public abstract class Platform : MonoBehaviour {
@@ -75,6 +78,8 @@ public abstract class Platform : MonoBehaviour {
 	
 	private static Platform _instance;
 	private static Type platformType;
+	
+	private Siaqodb db;	
 
 	/// <summary>
 	/// Gets the single instance of the right kind of platform for the OS we're running on,
@@ -258,6 +263,20 @@ public abstract class Platform : MonoBehaviour {
 	
 	protected virtual void PostInit() {
 		UnityEngine.Debug.Log("Platform: post init");
+		if (Application.isPlaying) {
+			db = DatabaseFactory.GetInstance();
+			var api = new API(db);
+			StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
+			Platform.Instance.onAuthenticated += new Platform.OnAuthenticated((authenticated) => {
+				Device self = db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
+				if (self == null) {
+					StartCoroutine(api.RegisterDevice());
+				} else {
+					UnityEngine.Debug.Log ("DEBUG: device id: " + self._id);					
+					StartCoroutine(api.Sync());
+				}
+			});
+		}
 	}
 	
 	/// Message receivers
@@ -1635,4 +1654,12 @@ public abstract class Platform : MonoBehaviour {
     {
         return intent;
     }
+	
+	public void OnApplicationQuit ()
+	{
+		if (db != null) {
+			DatabaseFactory.CloseDatabase();
+		}
+		Destroy(gameObject);
+	}	
 }

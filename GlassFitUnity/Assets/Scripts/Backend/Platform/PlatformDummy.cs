@@ -5,9 +5,6 @@ using System.Runtime.InteropServices;
 using System;
 using System.Diagnostics;
 using System.IO;
-using RaceYourself;
-using SiaqodbDemo;
-using Sqo;
 using RaceYourself.Models;
 
 #if UNITY_EDITOR
@@ -35,8 +32,6 @@ public class PlatformDummy : Platform
 
 //	private bool initialised = false;	
 	private List<Game> games;
-	
-	private Siaqodb db;
 	
 	/*
 	public static PlatformDummy Instance {
@@ -186,20 +181,7 @@ public class PlatformDummy : Platform
 	}
 	
 	protected override void PostInit() {
-		if (Application.isPlaying) {
-			db = DatabaseFactory.GetInstance();
-			var api = new API(db);
-			StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
-			Platform.Instance.onAuthenticated += new Platform.OnAuthenticated((authenticated) => {
-				Device self = db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
-				if (self == null) {
-					StartCoroutine(api.RegisterDevice());
-				} else {
-					UnityEngine.Debug.Log ("DEBUG: device id: " + self._id);					
-					StartCoroutine(api.Sync());
-				}
-			});
-		}
+		base.PostInit();
 	}
 	
     public override Device Device()
@@ -481,11 +463,5 @@ public class PlatformDummy : Platform
 	}
 	
 	
-	public void OnApplicationQuit ()
-	{
-		if (db != null) {
-			DatabaseFactory.CloseDatabase();
-		}
-	}
 }
 #endif

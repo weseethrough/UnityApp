@@ -211,14 +211,17 @@ namespace RaceYourself
 				}
 				wrapper.data.devices.Add(self);
 				
-				string body = JsonConvert.SerializeObject(wrapper);
 				
 				var encoding = new System.Text.UTF8Encoding();			
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
-				headers.Add("Authorization", "Bearer " + token.access_token);
+				headers.Add("Accept-Encoding", "gzip");
+				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
-				var post = new WWW(ApiUrl("sync/-1"), encoding.GetBytes(body), headers);
+				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
+				Debug.Log("API: Sync() pushing " + (body.Length/1000) + "kB");
+				
+				var post = new WWW(ApiUrl("sync/0"), body, headers);
 				yield return post;
 							
 				if (!String.IsNullOrEmpty(post.error)) {
@@ -226,12 +229,31 @@ namespace RaceYourself
 					ret = "Network error";
 					yield break;
 				}
-
-//				var response = JsonConvert.DeserializeObject<SingleResponse<Device>>(post.text);
+				string responseEncoding = "uncompressed";
+				foreach (string key in post.responseHeaders.Keys) {
+					if (key.ToLower().Equals("content-encoding")) {
+						responseEncoding = post.responseHeaders[key];
+						break;
+					}
+				}
+				Debug.Log("API: Sync() received " + (post.size/1000) + "kB " + responseEncoding);
 				
-				Debug.Log("API: Sync(): " + post.text);
+				ResponseWrapper response = null;
+				try {
+					string responseBody = null;
+					if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(post.bytes));
+					else responseBody = post.text;
+					Debug.Log (responseBody);
+					response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
+				} catch (Exception ex) {
+					ret = "Failure";
+					Debug.Log("API: Sync() threw exception " + ex.ToString());
+					throw ex;
+				}
 				
-				ret = "Failure";
+				Debug.Log("API: Sync(): " + response.response.ToString());
+				
+				ret = "stuff";
 			} finally {
 				Platform.Instance.OnSynchronization(ret);
 			}
@@ -255,6 +277,50 @@ namespace RaceYourself
 		private class Data
 		{
 			public List<Device> devices;
+		}
+		
+		private class ResponseWrapper
+		{
+			public Response response;
+		}
+		
+		private class Response
+		{
+			public long sync_timestamp;
+			public long? tail_timestamp;
+			public long? tail_skip;
+			
+			public List<Models.Device> devices;
+			public List<Models.Friendship> friends;
+			public List<Models.Challenge> challenges;
+			public List<Models.Track> tracks;
+			public List<Models.Position> positions;
+			public List<Models.Orientation> orientations;
+			public List<Models.Notification> notifications;
+			public List<Models.Transaction> transactions;
+			
+			public List<string> errors;	
+			
+			public override string ToString()
+			{
+				return ("head: " + sync_timestamp
+						+ " tail: " + tail_timestamp + "#" + tail_skip + "; "
+					    + LengthOrNull(devices) + " devices, "
+						+ LengthOrNull(friends) + " friends, "
+						+ LengthOrNull(challenges) + " challenges, "
+						+ LengthOrNull(tracks) + " tracks, "
+						+ LengthOrNull(positions) + " positions, "
+						+ LengthOrNull(orientations) + " orientations, "
+						+ LengthOrNull(notifications) + " notifications, "
+						+ LengthOrNull(transactions) + " transactions, "
+						+ LengthOrNull(errors) + " errors");
+			}
+			
+		}
+		
+		private static string LengthOrNull(IList list) {
+			if (list == null) return "null";
+			return list.Count.ToString();
 		}
 	}
 	
