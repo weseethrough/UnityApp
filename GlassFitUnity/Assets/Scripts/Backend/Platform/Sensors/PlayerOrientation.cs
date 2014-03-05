@@ -31,6 +31,12 @@ public class PlayerOrientation
 	public Quaternion AsQuaternionFromNorth() { return rotationFromNorth; }
 
 	public Quaternion AsRealWorldQuaternion() { return rotationFromDown; }
+	
+	public float AsNorthReference() 
+	{
+		Quaternion rotated = Quaternion.Inverse(northReference) * forwardReference;
+		return rotated.eulerAngles.y;
+	}
 
 	public float AsYaw() { return yawFromForward; }
 

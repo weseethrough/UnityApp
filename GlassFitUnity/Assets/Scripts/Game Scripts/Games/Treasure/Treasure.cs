@@ -129,7 +129,7 @@ public class Treasure : MonoBehaviour {
 			// Get the magnitude of the distance.
 			treasureDist = LatLongToMetre(Platform.Instance.Position(), worldCoordinate);
 			
-			gameCoordinate = new Vector3(0, transform.position.y, (float)treasureDist);
+			gameCoordinate = new Vector3(0, 0, (float)treasureDist);
 			
 			// If the player is close enough, obtain the treasure.
 			if(treasureDist < 5 && !obtained) {
@@ -137,18 +137,52 @@ public class Treasure : MonoBehaviour {
 				GetComponent<MeshRenderer>().enabled = false;
 			}		
 			
+			double bearing = CalcBearing(Platform.Instance.Position(), worldCoordinate);
+			
+			UnityEngine.Debug.Log("Treasure: bearing is " + bearing.ToString("f2"));
+			
+			float yaw = Platform.Instance.GetPlayerOrientation().AsNorthReference(); // * (360 / (Mathf.PI * 2));
+			
+			UnityEngine.Debug.Log("Treasure: yaw is " + yaw.ToString("f2"));
+			
+			float finalYaw = (float)bearing - yaw;
+			
+			UnityEngine.Debug.Log("Treasure: final yaw is " + finalYaw.ToString("f2"));
+			
+			
+			transform.root.rotation = Quaternion.Euler(new Vector3(0, (float)finalYaw, 0));
+			
 			// Set the position based on the game coordinate.
-			transform.position  = gameCoordinate;
+			transform.localPosition  = gameCoordinate;
 		} 
 		else
 		{
-			UnityEngine.Debug.Log("Treasure: distance should actually be " + LatLongToMetre(new Position(51.535452f, -0.139732f), worldCoordinate).ToString("f2"));
-			CalcBearing(new Position(51.535452f, -0.139732f), worldCoordinate);
+			//UnityEngine.Debug.Log("Treasure: distance should actually be " + LatLongToMetre(new Position(51.535452f, -0.139732f), worldCoordinate).ToString("f2"));
+			//CalcBearing(new Position(51.535452f, -0.139732f), worldCoordinate);
 		}
 		
 		// If its not started, set the treasure's position far away out of sight.
 		if(!started) {
-			transform.position = new Vector3(0.0f, 0.0f, 100.0f);
+			
+			treasureDist = LatLongToMetre(new Position(51.535452f, -0.139732f), worldCoordinate);
+			
+			gameCoordinate = new Vector3(0, 0, (float)treasureDist);
+			
+			double bearing = CalcBearing(new Position(51.535452f, -0.139732f), worldCoordinate);
+			
+			UnityEngine.Debug.Log("Treasure: bearing is " + bearing.ToString("f2"));
+			
+			float yaw = Platform.Instance.GetPlayerOrientation().AsNorthReference(); //* (360 / (Mathf.PI * 2));
+			
+			UnityEngine.Debug.Log("Treasure: yaw is " + yaw.ToString("f2"));
+			
+			float finalYaw = (float)bearing - yaw;
+			
+			UnityEngine.Debug.Log("Treasure: final yaw is " + finalYaw.ToString("f2"));
+			
+			transform.root.rotation = Quaternion.Euler(new Vector3(0, finalYaw, 0));
+			
+			transform.localPosition = gameCoordinate;
 		}
 	}
 	
@@ -214,11 +248,11 @@ public class Treasure : MonoBehaviour {
 				  Math.Sin(startLatInRads) * Math.Cos(endLatInRads) * Math.Cos(endLongInRads - startLongInRads);
 		double bearing = Math.Atan2(y, x) * (360 / (Mathf.PI * 2));
 		
-		UnityEngine.Debug.Log("Treasure: bearing without turning to 360 is " + bearing.ToString("f2"));
+		//UnityEngine.Debug.Log("Treasure: bearing without turning to 360 is " + bearing.ToString("f2"));
 		
 		bearing = (bearing + 360.0) % 360.0;
 		
-		UnityEngine.Debug.Log("Treasure: bearing after turning to 360 is " + bearing.ToString("f2"));
+		//UnityEngine.Debug.Log("Treasure: bearing after turning to 360 is " + bearing.ToString("f2"));
 		
 		return bearing;
 	}
