@@ -21,9 +21,6 @@ namespace RaceYourself.Models
 		public float distance;
 		public int time;
 
-		[JsonIgnore]
-		public List<Position> positions;
-
 		public DateTime? deleted_at;
 	}
 }

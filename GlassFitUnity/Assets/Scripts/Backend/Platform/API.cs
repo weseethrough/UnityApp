@@ -336,10 +336,9 @@ namespace RaceYourself
 						state.tail_timestamp = tail_timestamp;
 						state.tail_skip = tail_skip;
 					}
-					
+										
 					if (devices != null) {
 						db.StartBulkInsert(typeof(Models.Device));
-						UnityEngine.Debug.Log("DEBUG: devices");
 						foreach (Models.Device device in devices) {							
 							if (!db.UpdateObjectBy("id", device)) {
 								db.StoreObject(device);
@@ -349,19 +348,21 @@ namespace RaceYourself
 					}
 					
 					if (friends != null) {
-						db.StartBulkInsert(typeof(Models.Friendship));
-						UnityEngine.Debug.Log("DEBUG: friends");
+						db.StartBulkInsert(typeof(Models.Friend));
 						foreach (Models.Friendship friendship in friends) {
-							if (!db.UpdateObjectBy("_id", friendship)) {
-								//db.StoreObject(friendship);
+							if (friendship.deleted_at != null) {
+								db.DeleteObjectBy("_id", friendship.friend);
+								continue;
+							}
+							if (!db.UpdateObjectBy("_id", friendship.friend)) {
+								db.StoreObject(friendship.friend);
 							}
 						}
-						db.EndBulkInsert(typeof(Models.Friendship));
+						db.EndBulkInsert(typeof(Models.Friend));
 					}
 					
 					if (challenges != null) {
 						db.StartBulkInsert(typeof(Models.Challenge));
-						UnityEngine.Debug.Log("DEBUG: challenges");
 						foreach (Models.Challenge challenge in challenges) {
 							if (!db.UpdateObjectBy("_id", challenge)) {
 								db.StoreObject(challenge);
@@ -372,8 +373,12 @@ namespace RaceYourself
 					
 					if (tracks != null) {
 						db.StartBulkInsert(typeof(Models.Device));
-						UnityEngine.Debug.Log("DEBUG: tracks");
 						foreach (Models.Track track in tracks) {
+							if (track.deleted_at != null) {
+								db.DeleteObjectBy("_id", track);
+								continue;
+							}
+							// TODO: Generate composite keys before upsert
 							if (!db.UpdateObjectBy("_id", track)) {
 								db.StoreObject(track);
 							}
@@ -383,8 +388,12 @@ namespace RaceYourself
 					
 					if (positions != null) {
 						db.StartBulkInsert(typeof(Models.Position));
-						UnityEngine.Debug.Log("DEBUG: positions");
 						foreach (Models.Position position in positions) {
+							if (position.deleted_at != null) {
+								db.DeleteObjectBy("_id", position);
+								continue;
+							}
+							// TODO: Generate composite keys before upsert
 							if (!db.UpdateObjectBy("_id", position)) {
 								db.StoreObject(position);
 							}
@@ -394,8 +403,12 @@ namespace RaceYourself
 					
 					if (orientations != null) {
 						db.StartBulkInsert(typeof(Models.Orientation));
-						UnityEngine.Debug.Log("DEBUG: orientations");
 						foreach (Models.Orientation orientation in orientations) {
+							if (orientation.deleted_at != null) {
+								db.DeleteObjectBy("_id", orientation);
+								continue;
+							}
+							// TODO: Generate composite keys before upsert
 							if (!db.UpdateObjectBy("_id", orientation)) {
 								db.StoreObject(orientation);
 							}
@@ -405,10 +418,9 @@ namespace RaceYourself
 					
 					if (notifications != null) {
 						db.StartBulkInsert(typeof(Models.Notification));
-						UnityEngine.Debug.Log("DEBUG: notifications");
 						foreach (Models.Notification notification in notifications) {
 							if (!db.UpdateObjectBy("_id", notification)) {
-								//db.StoreObject(notification);
+								db.StoreObject(notification);
 							}
 						}
 						db.EndBulkInsert(typeof(Models.Notification));
@@ -416,8 +428,11 @@ namespace RaceYourself
 					
 					if (transactions != null) {
 						db.StartBulkInsert(typeof(Models.Transaction));
-						UnityEngine.Debug.Log("DEBUG: transactions");
 						foreach (Models.Transaction gtransaction in transactions) {
+							if (gtransaction.deleted_at != null) {
+								db.DeleteObjectBy("_id", gtransaction);
+								continue;
+							}
 							if (!db.UpdateObjectBy("_id", gtransaction)) {
 								db.StoreObject(gtransaction);
 							}
@@ -426,7 +441,6 @@ namespace RaceYourself
 					}
 					
 					db.StoreObject(state);
-					UnityEngine.Debug.Log("DEBUG: done");
 					transaction.Commit();
 					db.Flush();
 				} catch (Exception ex) {
