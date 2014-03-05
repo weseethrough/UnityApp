@@ -634,14 +634,14 @@ public class GameBase : MonoBehaviour {
 	IEnumerator DoCountDown()
 	{
 		UnityEngine.Debug.Log("GameBase: Starting Countdown Coroutine");
-		for(int i=3; i>=0; i--)
+		while (Platform.Instance.Pace() == 0.0f)
 		{
 			//set value for subtitle. 0 = GO
-			string displayString = (i==0) ? "GO !" : i.ToString();
+			string displayString = "Press Go on Console";
 			DataVault.Set("countdown_subtitle", displayString);
 			
 			//wait half a second
-			yield return new WaitForSeconds(1.0f);
+			yield return new WaitForSeconds(0.05f);
 		}
 		//start the game
 		DataVault.Set("countdown_subtitle", " ");
@@ -731,6 +731,7 @@ public class GameBase : MonoBehaviour {
 //			}
 			countdown = false;
 			StartCoroutine("DoCountDown");
+			//StartRace ();
 		}
 		
 		// Awards the player points for running certain milestones

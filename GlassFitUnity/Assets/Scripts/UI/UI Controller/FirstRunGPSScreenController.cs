@@ -117,16 +117,16 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 	void setStringsForIndoor(bool indoor) {
 		if(indoor)
 		{
-			DataVault.Set("FrGPS_title", "Demo Mode");
-			DataVault.Set("FrGPS_tapPrompt", "Tap to switch to Normal Mode\nor\nSwipe to continue");
-			DataVault.Set("FrGPS_tether", "Demo Mode works indoors\nRun on the spot to move forwards");
+			DataVault.Set("FrGPS_title", "Inertial Mode");
+			DataVault.Set("FrGPS_tether", "Inertial Mode uses a built-in pedometer.\nRun on the spot to move forwards");
+			DataVault.Set("FrGPS_tapPrompt", "Tap to switch to Console Mode\nor\nSwipe left to continue");
 			//set display condition
 			DataVault.Set("FrGPS_ShowIcons", false);
 		}
 		else
 		{
 			//outdoor
-			DataVault.Set("FrGPS_title", "GPS Lock Required");
+			DataVault.Set("FrGPS_title", "Gym Mode");
 			//set display condition to show icons
 			DataVault.Set("FrGPS_ShowIcons", true);
 			
@@ -134,15 +134,15 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 			if(!Platform.Instance.HasLock())
 			{	
 				//please tether
-				DataVault.Set("FrGPS_tether", "Tether phone to proceed");
-				DataVault.Set("FrGPS_tapPrompt", "Tap to switch to Demo Mode\n");
+				DataVault.Set("FrGPS_tether", "Not connected. Attach to the Console's\nUSB port to continue");
+				DataVault.Set("FrGPS_tapPrompt", "(or tap to switch to Inertial Mode)\n");
 				DataVault.Set("FrGPS_haveGPS", false);
 			}
 			else
 			{
 				//ready to go!
-				DataVault.Set("FrGPS_tether", " ");
-				DataVault.Set("FrGPS_tapPrompt", "GPS lock obtained\nReady to go!\nSwipe to continue");
+				DataVault.Set("FrGPS_tether", "Connected to Life Fitness console\nReady to go!");
+				DataVault.Set("FrGPS_tapPrompt", "Swipe left to continue");
 				DataVault.Set("FrGPS_haveGPS", true);
 			}
 		}

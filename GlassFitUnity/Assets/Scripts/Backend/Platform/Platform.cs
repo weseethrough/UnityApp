@@ -75,7 +75,7 @@ public class Platform : MonoBehaviour {
 
     public static Platform Instance 
     {
-#if !UNITY_EDITOR        
+#if !UNITY_EDITOR
 		get 
         {
             if(applicationIsQuitting) 
@@ -506,12 +506,12 @@ public class Platform : MonoBehaviour {
 			
 			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				gps.Call("setIndoorMode", indoor);
-				if (indoor) {
-				    gps.Call("setIndoorSpeed", 5.0f);
-				    UnityEngine.Debug.Log("Platform: Indoor mode set to true, indoor speed = 4 min/km");
-				} else {
-					UnityEngine.Debug.Log("Platform: Indoor mode set to false, will use true GPS speed");
-				}
+//				if (indoor) {
+//				    gps.Call("setIndoorSpeed", 5.0f);
+//				    UnityEngine.Debug.Log("Platform: Indoor mode set to true, indoor speed = 4 min/km");
+//				} else {
+//					UnityEngine.Debug.Log("Platform: Indoor mode set to false, will use true GPS speed");
+//				}
 			}));
 		} catch(Exception e) {
 			UnityEngine.Debug.Log("Platform: Error setting indoor mode " + e.Message);
@@ -1156,27 +1156,27 @@ public class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogWarning("Platform: getCurrentSpeed() failed: " + e.Message);            
 			UnityEngine.Debug.LogException(e);
 		}
-		try {
-			if (HasLock()) {
-				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
-				//UnityEngine.Debug.Log("Platform: poll position");
-				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
-			}
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting position: " + e.Message);
-//			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
-		}
+//		try {
+//			if (HasLock()) {
+//				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
+//				//UnityEngine.Debug.Log("Platform: poll position");
+//				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+//			}
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: Error getting position: " + e.Message);
+////			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
+//		}
 
-		try {
-			if (gps.Call<bool>("hasBearing")) {
-				bearing = gps.Call<float>("getCurrentBearing");
-				//UnityEngine.Debug.Log("Platform: poll bearing");
-			} else {
-				bearing = -999.0f;
-			}
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
-		}
+//		try {
+//			if (gps.Call<bool>("hasBearing")) {
+//				bearing = gps.Call<float>("getCurrentBearing");
+//				//UnityEngine.Debug.Log("Platform: poll bearing");
+//			} else {
+//				bearing = -999.0f;
+//			}
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
+//		}
 
 		try {
 			yaw = helper.Call<float>("getAzimuth");
