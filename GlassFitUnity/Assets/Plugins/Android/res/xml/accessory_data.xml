@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <usb-accessory manufacturer="Life Fitness" model="Upright Bike" version="1.0" /> 
+    <usb-accessory manufacturer="Life Fitness" model="Recumbent Bike" version="1.0" /> 
+    <usb-accessory manufacturer="Life Fitness" model="Cross-Trainer" version="1.0" /> 
+    <usb-accessory manufacturer="Life Fitness" model="Treadmill" version="1.0" /> 
+</resources>
