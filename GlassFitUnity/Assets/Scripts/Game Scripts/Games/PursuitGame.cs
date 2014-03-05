@@ -20,6 +20,7 @@ public class PursuitGame : GameBase {
 	//private int bonusTarget = 1000;
 	
 	private ActorType currentActorType;
+    public List<GameObject> actors = new List<GameObject>();
 	
 	private GestureHelper.OnTap tapHandler;
 	
@@ -32,7 +33,7 @@ public class PursuitGame : GameBase {
 	
 	private bool finished = false;
 	
-	//private double offset = 0;
+	private double offset = 0;
 	
 	private int lives = 1;
 	
@@ -133,13 +134,11 @@ public class PursuitGame : GameBase {
 					actor.GetComponent<TargetController>().IncreaseOffset();
 				}
 				started = false;
-				countdown = false;
-				countTime = 3.0f;
 			} else if(!finished) {
 				//restart - should consolidate this with the 'back' function
 				DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
-				DataVault.Set("ahead_col_header", "D20000FF");
-				DataVault.Set("ahead_col_box", "D20000EE");
+				DataVault.Set("ahead_col_header", UIColour.red);
+				DataVault.Set("ahead_col_box", UIColour.red);
 				DataVault.Set("finish_header", "You died!");
 				FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
@@ -252,20 +251,6 @@ public class PursuitGame : GameBase {
 		offset = 50;
 	}
 		
-
-	
-	public void OnSliderValueChange() 
-	{
-		gameParamsChanged = true;
-		targSpeed = UISlider.current.value * 10.4f;
-		UnityEngine.Debug.Log(UISlider.current.value);
-	}
-	
-	public void SetActorType(ActorType type) {
-		currentActorType = type;
-		gameParamsChanged = true;
-	}
-	
 	public void OnDestroy() {
 		GestureHelper.onTap -= tapHandler;
 	}

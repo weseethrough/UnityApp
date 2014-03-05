@@ -51,7 +51,7 @@ public class SnackBase : MonoBehaviour {
 	/// <returns>
 	/// N/A
 	/// </returns>
-	protected IEnumerator ShowBanner()
+	protected IEnumerator ShowBanner(float waitTime)
 	{
 		// Try to find the exit for the banner
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
@@ -61,7 +61,7 @@ public class SnackBase : MonoBehaviour {
 			// Follow the connection
 			fs.parentMachine.FollowConnection(gConnect);
 			// Wait for 3 seconds
-			yield return new WaitForSeconds(3.0f);
+			yield return new WaitForSeconds(waitTime);
 			// Return to the game
 			fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowBack();
@@ -87,10 +87,10 @@ public class SnackBase : MonoBehaviour {
 		// Set the text and colour based on the target's distance
 		if (targetDistance > 0) {
 			DataVault.Set("distance_position", "BEHIND");
-            DataVault.Set("ahead_col_box", "E5312FFF");
+            DataVault.Set("ahead_col_box", UIColour.red);
 		} else {
 			DataVault.Set("distance_position", "AHEAD");
-            DataVault.Set("ahead_col_box", "009540FF");
+            DataVault.Set("ahead_col_box", UIColour.green);
 		}
 		// Set the units
 		string siDistance = SiDistanceUnitless(Math.Abs(targetDistance), "target_units");

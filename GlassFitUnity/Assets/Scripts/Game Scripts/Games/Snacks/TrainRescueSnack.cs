@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class TrainRescueSnack : SnackBase {
 	
 	protected TrainController_Rescue train;
+	private int trainLevel = 0;
 	public GameObject trainObject = null;
 	public GameObject damsel = null;
 	public CameraPath openingFlythroughPath = null;
@@ -79,6 +81,12 @@ public class TrainRescueSnack : SnackBase {
 			totalTrackDistCovered += 1000.0f;
 		
 		}
+		
+		UnityEngine.Debug.Log("TrainRescueSnack: the object is " + DataVault.Get("train_level").ToString());
+		
+		trainLevel = (int)DataVault.Get("train_level");
+		
+		train.SetLevel(trainLevel);
 	}
 	
 	protected double GetDistanceBehind ()
@@ -136,17 +144,18 @@ public class TrainRescueSnack : SnackBase {
 				DataVault.Set("death_colour", "EA0000FF");
 				DataVault.Set("snack_result", "You lost!");
 				DataVault.Set("snack_result_desc", "the damsel is dead!");
-				StartCoroutine(ShowBanner());
+				StartCoroutine(ShowBanner(3.0f));
 				finish = true;
 			}
 			else if(GetPlayerDistanceTravelled() > finishDistance && !finish)
 			{
-				//UnityEngine.Debug.Log("TrainRescueSnack: woman saved");
+				trainLevel++;
 				DataVault.Set("death_colour", "12D400FF");
-				DataVault.Set("snack_result", "You won!");
-				DataVault.Set("snack_result_desc", "you saved her life!");
-				StartCoroutine(ShowBanner());
+				StartCoroutine(SetWinningText());
+				StartCoroutine(ShowBanner(6.0f));
 				finish = true;
+				DataVault.Set("train_level", trainLevel);
+				DataVault.SaveToBlob();
 			}
 			
 		}
@@ -169,6 +178,17 @@ public class TrainRescueSnack : SnackBase {
 			}
 		}
 		
+	}
+	
+	IEnumerator SetWinningText()
+	{
+		DataVault.Set("snack_result", "You won!");
+		DataVault.Set("snack_result_desc", "you saved her life!");
+		
+		yield return new WaitForSeconds(3.0f);
+		
+		DataVault.Set("snack_result", "Train is now level " + trainLevel.ToString());
+		DataVault.Set("snack_result_desc", "It's now harder to beat!");
 	}
 	
 	public void StartCountdown()

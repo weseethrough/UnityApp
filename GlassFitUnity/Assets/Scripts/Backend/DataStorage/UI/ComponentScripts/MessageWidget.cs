@@ -124,7 +124,7 @@ public class MessageWidget : MonoBehaviour
         {
 
             case State.idle:
-                if ( messageStack.Count > 0)
+                if ( messageStack!= null && messageStack.Count > 0)
                 {
                     currentAnimation = messageStack[0];
                     UILabel label = title.GetComponent<UILabel>();

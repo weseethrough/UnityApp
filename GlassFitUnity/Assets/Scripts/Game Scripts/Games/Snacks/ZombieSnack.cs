@@ -146,7 +146,7 @@ public class ZombieSnack : SnackBase {
 			UnityEngine.Debug.Log("ZombieSnack: you killed " + zombiesKilled.ToString() + " zombies!");
 			finish = true;
 			Platform.Instance.GetPlayerOrientation().SetAutoReset(true);
-			StartCoroutine(ShowBanner());
+			StartCoroutine(ShowBanner(3.0f));
 		}
 	}
 	

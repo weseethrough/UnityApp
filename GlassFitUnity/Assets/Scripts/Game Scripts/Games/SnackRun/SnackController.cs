@@ -8,7 +8,7 @@ public class SnackController : MonoBehaviour {
 	public static List<Game> snackGames {get; private set;}
 	
 	protected bool isGameInProgress = false;
-	protected int lastRotationGameIndex = 1;
+	protected int lastRotationGameIndex = 0;
 	
 	protected SnackBase currentSnackGameMainObj = null;
 	
@@ -277,19 +277,22 @@ public class SnackController : MonoBehaviour {
 	
 	protected void BeginGame()
 	{
+		UnityEngine.Debug.Log("SnackController: looking for return exit");
+		//transition UI back to HUD
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
+//		if (gc != null)
+//		{
+//			UnityEngine.Debug.Log("SnackController: return exit found, going now");
+//			fs.parentMachine.FollowConnection(gc);
+//		}
+		fs.parentMachine.FollowBack();
+		
 		if(currentSnackGameMainObj != null)
 		{
 			currentSnackGameMainObj.Begin();
 			UnityEngine.Debug.Log("SnackController: Beginning Game");
-		}
-		
-		//transition UI back to HUD
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
-		if (gc != null)
-		{
-			fs.parentMachine.FollowConnection(gc);
-		}
+		}		
 	}
 	
 	protected void CancelGame()

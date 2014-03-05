@@ -6,6 +6,10 @@ public class BoulderSnack : SnackBase {
 	// The boulder
 	BoulderController boulder;
 	
+	GameObject mainCamera;
+	
+	public GameObject boulderCamera;
+	
 	/// <summary>
 	/// Override base class. Will enable the boulder to start the game.
 	/// </summary>
@@ -13,6 +17,13 @@ public class BoulderSnack : SnackBase {
 	{
 		// Call the base function
 		base.Begin ();
+		
+//		mainCamera = GameObject.Find("MainGameCamera");
+//		
+//		if(mainCamera != null)
+//		{
+//			mainCamera.SetActive(false);
+//		}
 		
 		SetTrack(false);
 		
@@ -57,8 +68,18 @@ public class BoulderSnack : SnackBase {
 				DataVault.Set("snack_result_desc", "returning to game...");
 				// End the game
 				finish = true;
+				
+//				if(mainCamera != null)
+//				{
+//					mainCamera.SetActive(true);
+//				}
+//				
+//				if(boulderCamera != null) {
+//					boulderCamera.SetActive(false);
+//				}
+				
 				// Show the banner
-				StartCoroutine(ShowBanner());
+				StartCoroutine(ShowBanner(3.0f));
 			}
 		}
 		else

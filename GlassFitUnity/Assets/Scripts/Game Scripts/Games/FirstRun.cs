@@ -9,10 +9,6 @@ public class FirstRun : GameBase {
 	const float MAX_PACE = 6.0f;
 	const int NUM_PACES = 6;
 	
-	protected GestureHelper.OnSwipeRight swipeHandler = null;
-	private GestureHelper.OnSwipeLeft leftHandler = null;
-
-	
 	private bool runReadyToStart = false;
 	private TargetController runner;		//a runner object. This will be cloned around for various benchmark paces.
 	public GameObject runnerObj;
@@ -83,32 +79,44 @@ public class FirstRun : GameBase {
 	}
 
 	
-	public override void SetReadyToStart (bool ready)
+	protected override void OnEnterState(string state)
 	{
-		base.SetReadyToStart(ready);
-		runReadyToStart = ready;
-		
-		if(Platform.Instance.IsIndoor())
-		{
-			runner = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
-			UnityEngine.Debug.Log("FirstRun: runner is indoor opponent");
-			//runnerObj.GetComponent<FirstRaceOpponenet>().enabled = false;
-		}
-		else
-		{
-			runner = runnerObj.GetComponent<FirstRaceOpponenet>();
-			//runnerObj.GetComponent<FirstRaceIndoorOpponent>().enabled = false;
-		}
-		runner.enabled = true;
-		
-		if(runner is FirstRaceOpponenet) {
-			runner.SetHeadstart(20.0f);
-		}else if(runner is FirstRaceIndoorOpponent){
-			runner.SetHeadstart(50.0f);
-		}
-		
-		SetVirtualTrackVisible(true);
+		base.OnEnterState(state);	
 	}
+	
+	protected override void OnExitState(string state)
+	{
+		switch(state)
+		{
+		case GAMESTATE_AWAITING_USER_READY:
+			//substitute the opponent according to whether we are indoors or outdoors
+			runReadyToStart = true;
+			
+			if(Platform.Instance.IsIndoor())
+			{
+				runner = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
+				UnityEngine.Debug.Log("FirstRun: runner is indoor opponent");
+				//runnerObj.GetComponent<FirstRaceOpponenet>().enabled = false;
+			}
+			else
+			{
+				runner = runnerObj.GetComponent<FirstRaceOpponenet>();
+				//runnerObj.GetComponent<FirstRaceIndoorOpponent>().enabled = false;
+			}
+			runner.enabled = true;
+			
+			if(runner is FirstRaceOpponenet) {
+				runner.SetHeadstart(20.0f);
+			}else if(runner is FirstRaceIndoorOpponent){
+				runner.SetHeadstart(50.0f);
+			}
+			
+			SetVirtualTrackVisible(true);
+			break;
+		}
+		base.OnExitState(state);
+	}
+	
 	
 	IEnumerator GoBack()
 	{
@@ -120,10 +128,10 @@ public class FirstRun : GameBase {
 	// Update is called once per frame
 	void Update () {
 		
+		base.Update();
+		
 		if(runReadyToStart)
 		{
-			base.Update();
-			
 			if(runner is FirstRaceIndoorOpponent) {
 				double distance = Platform.Instance.Distance();
 				
@@ -198,71 +206,33 @@ public class FirstRun : GameBase {
 		}
 	}
 
-//	public override GConnector GetFinalConnection ()
-//	{
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		if((string)DataVault.Get("race_type") == "race") {
-//			return fs.Outputs.Find(r => r.Name == "FinishButton");
-//		} else {
-//			return fs.Outputs.Find(r => r.Name == "TutorialExit");
-//		}
-//	}
-		
-//	void OnGUI() {
-//		if(runReadyToStart) {
-//			base.OnGUI();
-//		}
-//		
-//		//if the user has swiped down to quit, and is seeing the quit confirmation box, dont' show anything here.
-//		if(maybeQuit) {
-//			base.OnGUI();
-//		}
-//	}
-//	
-//	public override void GameHandleTap ()
-//	{
-//		if(started)
-//		{
-//			base.GameHandleTap ();
-//		}
-//	}
-	
-	protected override void OnUnpause ()
-	{
-
-	}
-	
-	public override void QuitGame ()
+	public override GConnector GetFinalConnection ()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton"); 
-//		if((string)DataVault.Get("race_type") == "race") {
-//			gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-//		} else {
-//			gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
-//		}
-		
-		if(gConnect != null) {
-			GestureHelper.onBack -= backHandler;
-			GestureHelper.onTap -= tapHandler;
-			fs.parentMachine.FollowConnection(gConnect);
-			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+		if((string)DataVault.Get("race_type") == "race") {
+			return fs.Outputs.Find(r => r.Name == "FinishButton");
 		} else {
-			UnityEngine.Debug.Log("FirstRun: Error finding quit exit");
+			return fs.Outputs.Find(r => r.Name == "TutorialExit");
 		}
 	}
-	
-	void OnDestroy() {
-		//deregister handlers
-		if(swipeHandler != null)
-		{
-			GestureHelper.onSwipeRight -= swipeHandler;
-		}
-		if(leftHandler != null)
-		{
-			GestureHelper.onSwipeLeft -= leftHandler;
-		}
-	}
+
+
+//	///UNUSED?
+//	/// <summary>
+//	/// Quits the game. This just seems to do the base behaviour with a different exit name. Should improve.
+//	/// </summary>
+//	public override void QuitGame ()
+//	{
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton"); 
+//		
+//		if(gConnect != null) {
+//			fs.parentMachine.FollowConnection(gConnect);
+//			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+//		} else {
+//			UnityEngine.Debug.Log("FirstRun: Error finding quit exit");
+//		}
+//	}
 	
 //	private void InstantiateActors() {
 //		//create an actor for each active target tracker

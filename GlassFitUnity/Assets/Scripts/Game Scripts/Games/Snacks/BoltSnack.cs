@@ -25,6 +25,8 @@ public class BoltSnack : SnackBase {
 	
 	StadiumController finishController;
 	
+	private int boltLevel = 0;
+	
 	// Use this for initialization
 	void Start () {
 		base.Start();
@@ -56,6 +58,8 @@ public class BoltSnack : SnackBase {
 		{
 			UnityEngine.Debug.Log("BoltSnack: couldn't find Stadium object");
 		}
+		
+		boltLevel = (int)DataVault.Get("bolt_level");
 	}
 	
 	// Update is called once per frame
@@ -78,8 +82,8 @@ public class BoltSnack : SnackBase {
 				if(!playerFinished) {
 					DataVault.Set("death_colour", "EA0000FF");
 					DataVault.Set("snack_result", "You lost!");
-					DataVault.Set("snack_result_desc", "it was inevitable");
-					StartCoroutine(ShowBanner());
+					DataVault.Set("snack_result_desc", "Try again next time");
+					StartCoroutine(ShowBanner(3.0f));
 				}
 			}
 			
@@ -90,9 +94,16 @@ public class BoltSnack : SnackBase {
 				if(!boltFinished) {
 					// Set the attributes and show the banner
 					DataVault.Set("death_colour", "12D400FF");
-					DataVault.Set("snack_result", "You won?!");
-					DataVault.Set("snack_result_desc", "you must be cheating!");
-					StartCoroutine(ShowBanner());
+					DataVault.Set("snack_result", "You won!");
+					DataVault.Set("snack_result_desc", "Your enemy has leveled up!");
+					UnityEngine.Debug.Log("BoltSnack: Increasing level");
+					boltLevel++;
+					UnityEngine.Debug.Log("BoltSnack: Setting level in DataVault");
+					DataVault.Set("bolt_level", boltLevel);
+					UnityEngine.Debug.Log("BoltSnack: About to save to blob");
+					DataVault.SaveToBlob();
+					UnityEngine.Debug.Log("BoltSnack: Showing banner");
+					StartCoroutine(ShowBanner(3.0f));
 				}
 				// Set the player finished to true
 				playerFinished = true;
@@ -101,7 +112,7 @@ public class BoltSnack : SnackBase {
 			}
 			
 			// If both finished, end the game
-			if(playerFinished && boltFinished)
+			if(playerFinished)
 			{
 				StartCoroutine(EndGame());
 			}
@@ -145,6 +156,7 @@ public class BoltSnack : SnackBase {
 		boltFinished = false;
 		playerFinished = false;
 		SetTrack(false);
+		
 		// Start the countdown
 		StartCoroutine(DoCountDown());
 	}
@@ -210,6 +222,7 @@ public class BoltSnack : SnackBase {
 		{
 			// Enable him and save the start time
 			bolt.enabled = true;
+			bolt.SetLevel(boltLevel);
 			startTime = Platform.Instance.Time();
 		}
 		else

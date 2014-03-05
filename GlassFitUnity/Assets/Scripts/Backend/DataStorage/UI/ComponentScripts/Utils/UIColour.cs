@@ -7,7 +7,11 @@ using System;
 /// </summary>
 [ExecuteInEditMode]
 public class UIColour : UIComponentSettings {
-
+	
+	//colour constants
+	public const string green = "009540FF";
+	public const string red = "E5312FFF";
+	
     public string colorInt = "AABBAABB";
     public string databaseIDName = "";        
     

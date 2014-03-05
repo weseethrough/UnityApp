@@ -557,19 +557,6 @@ public class ButtonFunctionCollection
 //		return false;
 //	}
 
-    /// <summary>
-    /// sets pursuit game mode to eagle mode
-    /// </summary>
-    /// <param name="fb"> button providng event </param>
-    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
-    /// <returns>never allow further navigation</returns>
-	static public bool ChangeToEagle(FlowButton fb, Panel panel)
-	{
-		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.SetActorType(PursuitGame.ActorType.Eagle);
-		return false;
-	}
-	
 	static public bool DemoLeaderBoard(FlowButton fb, Panel panel)
 	{
 		// Reset world
@@ -586,61 +573,24 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
-    /// <summary>
-    /// sets pursuit game mode to zombie mode
-    /// </summary>
-    /// <param name="fb"> button providng event </param>
-    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
-    /// <returns>never allow further navigation</returns>
-	static public bool ChangeToZombie(FlowButton fb, Panel panel)
-	{
-		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.SetActorType(PursuitGame.ActorType.Zombie);
-		return false;
-	}
+ 
 
-    /// <summary>
-    /// sets pursuit game mode to train mode
-    /// </summary>
-    /// <param name="fb"> button providng event </param>
-    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
-    /// <returns>never allow further navigation</returns>
-	static public bool ChangeToTrain(FlowButton fb, Panel panel)
-	{
-		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.SetActorType(PursuitGame.ActorType.Train);
-		return false;
-	}
-
-    /// <summary>
-    /// sets pursuit game mode to boulder mode
-    /// </summary>
-    /// <param name="fb"> button providng event </param>
-    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
-    /// <returns>never allow further navigation</returns>
-	static public bool ChangeToBoulder(FlowButton fb, Panel panel)
-	{
-		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.SetActorType(PursuitGame.ActorType.Boulder);
-		return false;
-	}
-
-    /// <summary>
-    /// resets pursuit game (todo: confirmation this is not clear)
-    /// </summary>
-    /// <param name="fb"> button providng event </param>
-    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
-    /// <returns>always allow further navigation</returns>
-	static public bool BackPursuit(FlowButton fb, Panel panel)
-	{
-		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
-		ps.Back();
-		GameObject h = GameObject.Find("blackPlane");
-		if(h != null) {
-			h.renderer.enabled = false;
-		}
-		return true;
-	}
+//    /// <summary>
+//    /// resets pursuit game (todo: confirmation this is not clear)
+//    /// </summary>
+//    /// <param name="fb"> button providng event </param>
+//    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+//    /// <returns>always allow further navigation</returns>
+//	static public bool BackPursuit(FlowButton fb, Panel panel)
+//	{
+//		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
+//		ps.Back();
+//		GameObject h = GameObject.Find("blackPlane");
+//		if(h != null) {
+//			h.renderer.enabled = false;
+//		}
+//		return true;
+//	}
 
     /// <summary>
     /// leaves game state and resets platform instance

@@ -20,7 +20,8 @@ public class TapToBegin : MPChildGestureHandler {
 		if(game != null)
 		{
 			game.SetVirtualTrackVisible(true);
-			game.SetReadyToStart(true);
+			//game.SetReadyToStart(true);
+			game.TriggerUserReady();
 		}
 		else
 		{

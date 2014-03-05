@@ -18,10 +18,35 @@ public class BoltController : TargetController {
 	// Animator for the model
 	private Animator anim;
 	
+	// Level for the enemy
+	private int currentLevel = 0;
+	
+	// Movement speed of enemy
+	//private float movementSpeed = 2.4f;
+	
 	// Use this for initialization
 	void Start () {
 		// Get the animator
 		anim = GetComponent<Animator>();
+	}
+	
+	public void SetLevel(int l)
+	{
+		currentLevel = l;
+		speed = 3.0f + (currentLevel * 0.5f);
+		
+		if(anim != null) {
+			anim.SetFloat("Speed", speed);
+			if(speed > 2.2f && speed < 4.0f) {
+				anim.speed = speed / 2.2f;
+			} else if(speed > 4.0f) {
+				anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2);
+			} else if(speed > 0.0f) {
+				anim.speed = speed / 1.25f;
+			} else {
+				anim.speed = 1.0f;
+			}
+		}
 	}
 	
 	void OnEnable()
@@ -31,8 +56,10 @@ public class BoltController : TargetController {
 		distanceFromStart = startDistance;
 		// Get the animator and set the speed
 		anim = GetComponent<Animator>();
-		anim.SetFloat("Speed", speed);
-		anim.speed = 1.5f;
+		if(anim != null) {
+			anim.SetFloat("Speed", speed);
+			anim.speed = 1.5f;
+		}
 		// Set the atttributes for the character
 		SetAttribs(0, 1, transform.position.y, transform.position.x);
 	}

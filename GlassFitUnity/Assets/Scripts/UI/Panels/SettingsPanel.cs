@@ -71,7 +71,7 @@ public class SettingsPanel : Panel {
 				
 			// Goes back to the game
 			case "BackMainButton":
-				ss.Back();
+				//ss.Back();
 				GameObject h = GameObject.Find("blackPlane");
 				h.renderer.enabled = false;
 				

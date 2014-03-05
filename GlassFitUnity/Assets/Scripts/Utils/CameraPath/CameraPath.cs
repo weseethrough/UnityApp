@@ -12,6 +12,8 @@ public class CameraPath : MonoBehaviour {
 	
 	protected bool bFinished = false;
 	
+	public bool doFlythrough = true;
+	
 	// Use this for initialization
 	void Start () {
 		//gather the path points from the scene
@@ -38,7 +40,9 @@ public class CameraPath : MonoBehaviour {
 		{
 			//update time
 			timer += Time.deltaTime;
-			ApplyTransFormForTime(timer);
+			if(doFlythrough) {
+				ApplyTransFormForTime(timer);
+			}
 		}
 		
 	}
@@ -115,10 +119,87 @@ public class CameraPath : MonoBehaviour {
 		
 		//cache time started.
 		timer = 0;
-		bRunning = true;
+		
 		MinimalSensorCamera.PauseSensorRotation();
 		
+		bRunning = true;
+		
+		UnityEngine.Debug.Log("SnackController: trying to find Subtitle exit");
+		
+		if(!doFlythrough)
+		{
+			StartCoroutine(CutCamera());
+		}
+		
 		UnityEngine.Debug.LogError("CamPath: Started following path");
+	}
+	
+	IEnumerator CutCamera()
+	{		
+		yield return null;
+		
+		FollowFlowLinkNamed("ToBlank");
+		
+		Vector3 originalPosition = transform.position;
+		
+		GameObject damsel = GameObject.Find("Damsel_Tracks");
+		
+		transform.position = new Vector3(originalPosition.x, originalPosition.y, damsel.transform.position.z);		
+				
+		if(damsel != null)
+		{
+			transform.LookAt(damsel.transform);
+		}
+		
+		yield return new WaitForSeconds(1.0f);
+		
+		DataVault.Set("train_subtitle", "Help!");
+		FollowFlowLinkNamed("Subtitle");
+		
+		yield return new WaitForSeconds(2.0f);
+		
+		FollowFlowLinkNamed("ToBlank");
+		
+		transform.position = new Vector3(originalPosition.x, originalPosition.y, 0f);
+		
+		GameObject train = GameObject.Find("Train_Rescue");
+		
+		transform.LookAt(new Vector3(originalPosition.x, originalPosition.y, 1f));
+		
+		yield return new WaitForSeconds(1.0f);
+		
+		DataVault.Set("train_subtitle", "Oh no! A train!");
+		FollowFlowLinkNamed("Subtitle");
+		
+		yield return new WaitForSeconds(2.0f);
+		
+		transform.LookAt(train.transform);
+		
+		FollowFlowLinkNamed("ToBlank");
+		
+		yield return new WaitForSeconds(1.0f);
+		
+		StopFollowingPath();
+	}
+	
+	protected void FollowFlowLinkNamed(string linkName)
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		if(fs != null) {
+			GConnector gConnect = fs.Outputs.Find( r => r.Name == linkName );
+			if(gConnect != null)
+			{
+				fs.parentMachine.FollowConnection(gConnect);
+			}
+			else
+			{
+				UnityEngine.Debug.LogWarning("Train, CameraFlythrough: Couldn't find flow exit named " + linkName);
+			}
+		}
+		else
+		{
+			UnityEngine.Debug.Log("PathPoint: flowstate is null");
+		}
 	}
 	
 	public void StopFollowingPath()
