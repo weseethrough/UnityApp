@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Sqo.Attributes;
 
 namespace RaceYourself.Models
 {
 	public class Friendship
 	{
+		[Index]
+		[UniqueConstraint]
 		public string _id;
 
 		public string identity_id;

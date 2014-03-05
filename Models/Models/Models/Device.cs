@@ -1,10 +1,13 @@
 using System;
 using Newtonsoft.Json;
+using Sqo.Attributes;
 
 namespace RaceYourself.Models
 {
 	public class Device
 	{
+		[Index]
+		[UniqueConstraint]
 		public int _id;
 		public string manufacturer;
 		public string model;

@@ -1,10 +1,13 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Sqo.Attributes;
 
 namespace RaceYourself.Models
 {
 	public class Orientation
 	{
+		[Index]
+		[UniqueConstraint]
 		[JsonConverter(typeof(ObjectIdConverter))]
 		public string _id;
 

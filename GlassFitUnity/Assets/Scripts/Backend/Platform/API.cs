@@ -26,6 +26,8 @@ namespace RaceYourself
 		private OauthToken token = null;
 		private Account user = null;
 		
+		private bool syncing = false;
+		
 		public API(Siaqodb database) 
 		{
 			Debug.Log("API: created");
@@ -199,6 +201,11 @@ namespace RaceYourself
 			
 			string ret = "Failure";
 			try {
+				if (syncing) {
+					Debug.Log("API: Sync() already syncing");
+					yield break;
+				}
+				syncing = true;
 				DataWrapper wrapper = new DataWrapper();
 				
 				wrapper.data.devices = new List<Device>(1);				
@@ -210,8 +217,7 @@ namespace RaceYourself
 					self = db.Cast<Device>().Where(d => d.self == true).First();
 				}
 				wrapper.data.devices.Add(self);
-				
-				
+								
 				var encoding = new System.Text.UTF8Encoding();			
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
@@ -250,11 +256,14 @@ namespace RaceYourself
 					Debug.Log("API: Sync() threw exception " + ex.ToString());
 					throw ex;
 				}
+				Debug.Log("API: Sync() parsed " + response.response.ToString());
 				
-				Debug.Log("API: Sync(): " + response.response.ToString());
+				response.response.persist(db);
+				Debug.Log("API: Sync() persisted " + response.response.ToString());
 				
 				ret = "stuff";
 			} finally {
+				syncing = false;
 				Platform.Instance.OnSynchronization(ret);
 			}
 		}
@@ -316,6 +325,115 @@ namespace RaceYourself
 						+ LengthOrNull(errors) + " errors");
 			}
 			
+			public void persist(Siaqodb db) {
+				var transaction = db.BeginTransaction();
+				try {
+					SyncState state = db.Cast<SyncState>().FirstOrDefault();
+					if (state == null) {
+						state = new SyncState(sync_timestamp, tail_timestamp, tail_skip);
+					} else {
+						state.sync_timestamp = sync_timestamp;
+						state.tail_timestamp = tail_timestamp;
+						state.tail_skip = tail_skip;
+					}
+					
+					if (devices != null) {
+						db.StartBulkInsert(typeof(Models.Device));
+						UnityEngine.Debug.Log("DEBUG: devices");
+						foreach (Models.Device device in devices) {							
+							if (!db.UpdateObjectBy("id", device)) {
+								db.StoreObject(device);
+							}
+						}
+						db.EndBulkInsert(typeof(Models.Device));
+					}
+					
+					if (friends != null) {
+						db.StartBulkInsert(typeof(Models.Friendship));
+						UnityEngine.Debug.Log("DEBUG: friends");
+						foreach (Models.Friendship friendship in friends) {
+							if (!db.UpdateObjectBy("_id", friendship)) {
+								//db.StoreObject(friendship);
+							}
+						}
+						db.EndBulkInsert(typeof(Models.Friendship));
+					}
+					
+					if (challenges != null) {
+						db.StartBulkInsert(typeof(Models.Challenge));
+						UnityEngine.Debug.Log("DEBUG: challenges");
+						foreach (Models.Challenge challenge in challenges) {
+							if (!db.UpdateObjectBy("_id", challenge)) {
+								db.StoreObject(challenge);
+							}
+						}
+						db.EndBulkInsert(typeof(Models.Challenge));
+					}
+					
+					if (tracks != null) {
+						db.StartBulkInsert(typeof(Models.Device));
+						UnityEngine.Debug.Log("DEBUG: tracks");
+						foreach (Models.Track track in tracks) {
+							if (!db.UpdateObjectBy("_id", track)) {
+								db.StoreObject(track);
+							}
+						}
+						db.EndBulkInsert(typeof(Models.Device));
+					}
+					
+					if (positions != null) {
+						db.StartBulkInsert(typeof(Models.Position));
+						UnityEngine.Debug.Log("DEBUG: positions");
+						foreach (Models.Position position in positions) {
+							if (!db.UpdateObjectBy("_id", position)) {
+								db.StoreObject(position);
+							}
+						}
+						db.EndBulkInsert(typeof(Models.Position));
+					}
+					
+					if (orientations != null) {
+						db.StartBulkInsert(typeof(Models.Orientation));
+						UnityEngine.Debug.Log("DEBUG: orientations");
+						foreach (Models.Orientation orientation in orientations) {
+							if (!db.UpdateObjectBy("_id", orientation)) {
+								db.StoreObject(orientation);
+							}
+						}
+						db.EndBulkInsert(typeof(Models.Orientation));
+					}
+					
+					if (notifications != null) {
+						db.StartBulkInsert(typeof(Models.Notification));
+						UnityEngine.Debug.Log("DEBUG: notifications");
+						foreach (Models.Notification notification in notifications) {
+							if (!db.UpdateObjectBy("_id", notification)) {
+								//db.StoreObject(notification);
+							}
+						}
+						db.EndBulkInsert(typeof(Models.Notification));
+					}
+					
+					if (transactions != null) {
+						db.StartBulkInsert(typeof(Models.Transaction));
+						UnityEngine.Debug.Log("DEBUG: transactions");
+						foreach (Models.Transaction gtransaction in transactions) {
+							if (!db.UpdateObjectBy("_id", gtransaction)) {
+								db.StoreObject(gtransaction);
+							}
+						}
+						db.EndBulkInsert(typeof(Models.Transaction));
+					}
+					
+					db.StoreObject(state);
+					UnityEngine.Debug.Log("DEBUG: done");
+					transaction.Commit();
+					db.Flush();
+				} catch (Exception ex) {
+					transaction.Rollback();
+					throw ex;
+				}
+			}
 		}
 		
 		private static string LengthOrNull(IList list) {

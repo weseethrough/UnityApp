@@ -1,9 +1,12 @@
 ﻿using System;
+using Sqo.Attributes;
 
 namespace RaceYourself.Models
 {
 	public class Transaction
 	{
+		[Index]
+		[UniqueConstraint]
 		public string _id;
 
 		public int device_id;

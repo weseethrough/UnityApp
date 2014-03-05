@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Sqo.Attributes;
 
 namespace RaceYourself.Models
 {
 	public class Account 
 	{
+		[Index]
+		[UniqueConstraint]
 		public int id;
 		public string username;
 		public string email;
