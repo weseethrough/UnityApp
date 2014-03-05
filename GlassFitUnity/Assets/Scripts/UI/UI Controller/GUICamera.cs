@@ -50,7 +50,7 @@ public class GUICamera : MonoBehaviour {
     private Quaternion ConvertOrientation(PlayerOrientation p, out Vector2 dynamicCamPos)
     {
         
-        dynamicCamPos = new Vector2(p.AsCumulativeYaw(), -p.AsPitch());
+		dynamicCamPos = new Vector2(p.AsCumulativeYaw(), -p.AsPitch());
         dynamicCamPos.x *= IsHexTypeMenu() ? camera_sensitivity_x_hex : camera_sensitivity_x;
 	    dynamicCamPos.y *= IsHexTypeMenu() ? camera_sensitivity_y_hex : camera_sensitivity_y;
 		
@@ -177,7 +177,7 @@ public class GUICamera : MonoBehaviour {
             Vector3 pos = transform.position;
             pos.x += offset.x;
             pos.y += offset.y;
-            transform.position = pos;
+            //transform.position = pos;
         }
 
     }
