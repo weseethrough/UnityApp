@@ -80,7 +80,10 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 			if(!canProceed)
 			{
 				canProceed = true;
-				DataVault.Set("FrGPS_navPrompt", "Swipe Forward to proceed");
+				if (Platform.Instance.OnGlass())
+					DataVault.Set("FrGPS_navPrompt", "Swipe Forward to proceed");
+				else
+					DataVault.Set("FrGPS_navPrompt", "Swipe Left to proceed");
 				
 				//allow swiping progress
 				SetBlockProgress(false);
@@ -109,9 +112,9 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 	protected override void HandleTap() {
 		//toggle indoor mode
 		bool bIndoor = Platform.Instance.IsIndoor();
-		Platform.Instance.SetIndoor(!bIndoor);
+		//Platform.Instance.SetIndoor(!bIndoor);
 		//update strings as appropriate
-		setStringsForIndoor(!bIndoor);
+		setStringsForIndoor(bIndoor);
 	}
 
 	void setStringsForIndoor(bool indoor) {
@@ -135,7 +138,8 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 			{	
 				//please tether
 				DataVault.Set("FrGPS_tether", "Not connected. Attach to the Console's\nUSB port to continue");
-				DataVault.Set("FrGPS_tapPrompt", "(or tap to switch to Inertial Mode)\n");
+				DataVault.Set("FrGPS_tapPrompt", "");
+				//DataVault.Set("FrGPS_tapPrompt", "(or tap to switch to Inertial Mode)\n");
 				DataVault.Set("FrGPS_haveGPS", false);
 			}
 			else
