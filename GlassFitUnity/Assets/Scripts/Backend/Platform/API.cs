@@ -67,6 +67,7 @@ namespace RaceYourself
 				var encoding = new System.Text.UTF8Encoding();			
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
+				// TODO: Shortcircuit linkage to user by adding Authorization if available
 				
 				var post = new WWW(ApiUrl("devices"), encoding.GetBytes(body), headers);
 				yield return post;
@@ -206,18 +207,17 @@ namespace RaceYourself
 					yield break;
 				}
 				syncing = true;
-				DataWrapper wrapper = new DataWrapper();
 				
-				wrapper.data.devices = new List<Device>(1);				
+				// Register device if it doesn't exist
+				// TODO: Shortcircuit registration through sync?
 				Device self = db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
 				if (self == null) {
-					// Register device
 					IEnumerator e = RegisterDevice();
 					while(e.MoveNext()) yield return e.Current;
 					self = db.Cast<Device>().Where(d => d.self == true).First();
 				}
-				wrapper.data.devices.Add(self);
-								
+				DataWrapper wrapper = new DataWrapper(db);
+												
 				var encoding = new System.Text.UTF8Encoding();			
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
@@ -280,12 +280,39 @@ namespace RaceYourself
 				
 		private class DataWrapper
 		{
-			public Data data = new Data();			
+			public Data data;
+			
+			public DataWrapper(Siaqodb db) {
+				data = new Data(db);	
+			}
 		}
 		
 		private class Data
 		{
-			public List<Device> devices;
+			public IList<Models.Device> devices;
+			public IList<Models.Track> tracks;
+			public IList<Models.Position> positions;
+			public IList<Models.Orientation> orientations;
+			public IList<Models.Notification> notifications;
+			public IList<Models.Transaction> transactions;
+//			public IList<Models.Action> actions;
+//			public IList<Models.Event> events;
+			
+			public Data(Siaqodb db) {
+				devices = db.LoadAll<Models.Device>();
+				tracks = new List<Models.Track>(db.Cast<Models.Track>().Where<Models.Track>(t => t.dirty == true));
+				positions = new List<Models.Position>(db.Cast<Models.Position>().Where<Models.Position>(p => p.dirty == true));
+				orientations = new List<Models.Orientation>(db.Cast<Models.Orientation>().Where<Models.Orientation>(o => o.dirty == true));
+				notifications = new List<Models.Notification>(db.Cast<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
+				transactions = new List<Models.Transaction>(db.Cast<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
+//				actions = db.LoadAll<Models.Action>();
+//				events = db.LoadAll<Models.Event>();
+			}
+			
+			public void flush(Siaqodb db) {
+				// TODO: Reset dirty flag
+				// TODO: Remove soft-deleted models
+			}
 		}
 		
 		private class ResponseWrapper
@@ -328,6 +355,10 @@ namespace RaceYourself
 			public void persist(Siaqodb db) {
 				var transaction = db.BeginTransaction();
 				try {
+					var start = DateTime.Now;
+					uint inserts, updates, deletes;
+					inserts = updates = deletes = 0;
+					
 					SyncState state = db.Cast<SyncState>().FirstOrDefault();
 					if (state == null) {
 						state = new SyncState(sync_timestamp, tail_timestamp, tail_skip);
@@ -339,10 +370,12 @@ namespace RaceYourself
 										
 					if (devices != null) {
 						db.StartBulkInsert(typeof(Models.Device));
-						foreach (Models.Device device in devices) {							
+						foreach (Models.Device device in devices) {
+							// TODO: Move to <model>.save(db)?
 							if (!db.UpdateObjectBy("id", device)) {
 								db.StoreObject(device);
-							}
+								inserts++;
+							} else updates++;
 						}
 						db.EndBulkInsert(typeof(Models.Device));
 					}
@@ -351,12 +384,13 @@ namespace RaceYourself
 						db.StartBulkInsert(typeof(Models.Friend));
 						foreach (Models.Friendship friendship in friends) {
 							if (friendship.deleted_at != null) {
-								db.DeleteObjectBy("_id", friendship.friend);
+								if (db.DeleteObjectBy("_id", friendship.friend)) deletes++;
 								continue;
 							}
 							if (!db.UpdateObjectBy("_id", friendship.friend)) {
 								db.StoreObject(friendship.friend);
-							}
+								inserts++;
+							} else updates++;
 						}
 						db.EndBulkInsert(typeof(Models.Friend));
 					}
@@ -366,7 +400,8 @@ namespace RaceYourself
 						foreach (Models.Challenge challenge in challenges) {
 							if (!db.UpdateObjectBy("_id", challenge)) {
 								db.StoreObject(challenge);
-							}
+								inserts++;
+							} else updates++;
 						}
 						db.EndBulkInsert(typeof(Models.Challenge));
 					}
@@ -374,14 +409,15 @@ namespace RaceYourself
 					if (tracks != null) {
 						db.StartBulkInsert(typeof(Models.Device));
 						foreach (Models.Track track in tracks) {
+							track.GenerateCompositeId();
 							if (track.deleted_at != null) {
 								db.DeleteObjectBy("_id", track);
 								continue;
 							}
-							// TODO: Generate composite keys before upsert
 							if (!db.UpdateObjectBy("_id", track)) {
 								db.StoreObject(track);
-							}
+								inserts++;
+							} else updates++;
 						}
 						db.EndBulkInsert(typeof(Models.Device));
 					}
@@ -389,14 +425,15 @@ namespace RaceYourself
 					if (positions != null) {
 						db.StartBulkInsert(typeof(Models.Position));
 						foreach (Models.Position position in positions) {
+							position.GenerateCompositeId();
 							if (position.deleted_at != null) {
-								db.DeleteObjectBy("_id", position);
+								if (db.DeleteObjectBy("id", position)) deletes++;
 								continue;
 							}
-							// TODO: Generate composite keys before upsert
-							if (!db.UpdateObjectBy("_id", position)) {
+							if (!db.UpdateObjectBy("id", position)) {
 								db.StoreObject(position);
-							}
+								inserts++;
+							} else updates++;
 						}
 						db.EndBulkInsert(typeof(Models.Position));
 					}
@@ -404,14 +441,15 @@ namespace RaceYourself
 					if (orientations != null) {
 						db.StartBulkInsert(typeof(Models.Orientation));
 						foreach (Models.Orientation orientation in orientations) {
+							orientation.GenerateCompositeId();
 							if (orientation.deleted_at != null) {
-								db.DeleteObjectBy("_id", orientation);
+								if (db.DeleteObjectBy("id", orientation)) deletes++;
 								continue;
-							}
-							// TODO: Generate composite keys before upsert
-							if (!db.UpdateObjectBy("_id", orientation)) {
+							}							
+							if (!db.UpdateObjectBy("id", orientation)) {
 								db.StoreObject(orientation);
-							}
+								inserts++;
+							} else updates++;
 						}
 						db.EndBulkInsert(typeof(Models.Orientation));
 					}
@@ -421,7 +459,8 @@ namespace RaceYourself
 						foreach (Models.Notification notification in notifications) {
 							if (!db.UpdateObjectBy("_id", notification)) {
 								db.StoreObject(notification);
-							}
+								inserts++;
+							} else updates++;
 						}
 						db.EndBulkInsert(typeof(Models.Notification));
 					}
@@ -430,12 +469,13 @@ namespace RaceYourself
 						db.StartBulkInsert(typeof(Models.Transaction));
 						foreach (Models.Transaction gtransaction in transactions) {
 							if (gtransaction.deleted_at != null) {
-								db.DeleteObjectBy("_id", gtransaction);
+								if (db.DeleteObjectBy("_id", gtransaction)) deletes++;
 								continue;
 							}
 							if (!db.UpdateObjectBy("_id", gtransaction)) {
 								db.StoreObject(gtransaction);
-							}
+								inserts++;
+							} else updates++;
 						}
 						db.EndBulkInsert(typeof(Models.Transaction));
 					}
@@ -443,6 +483,7 @@ namespace RaceYourself
 					db.StoreObject(state);
 					transaction.Commit();
 					db.Flush();
+					Debug.Log("API: Sync: " + inserts + " inserts, " + updates + " updates, " + deletes + " deletes in " + (DateTime.Now - start));
 				} catch (Exception ex) {
 					transaction.Rollback();
 					throw ex;

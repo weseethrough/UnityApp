@@ -9,7 +9,9 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-		public string _id;
+		public long id;
+
+		public string _id; // Server-side guid. TODO: Ignore in the future?
 
 		public int device_id;
 		public int track_id;
@@ -22,6 +24,18 @@ namespace RaceYourself.Models
 		public int time;
 
 		public DateTime? deleted_at;
+
+		[JsonIgnore]
+		public bool dirty = false;
+
+		public long GenerateCompositeId() {
+			uint high = (uint)device_id;
+			uint low = (uint)track_id;
+
+			ulong composite = (((ulong) high) << 32) | low;
+			this.id = (long)composite;
+			return this.id;
+		}
 	}
 }
 

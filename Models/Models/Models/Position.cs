@@ -8,13 +8,15 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
+		public long id;
+
 		[JsonConverter(typeof(ObjectIdConverter))]
-		public string _id;
+		public string _id; // Server-side guid. TODO: Ignore in the future?
 
 		public int device_id;
-		public int track_id;
 		public int position_id;
 
+		public int track_id;
 		public int state_id;
 		public long gps_ts;
 		public long device_ts;
@@ -30,6 +32,18 @@ namespace RaceYourself.Models
 		public string nmea;
 
 		public DateTime? deleted_at;
+
+		[JsonIgnore]
+		public bool dirty = false;
+
+		public long GenerateCompositeId() {
+			uint high = (uint)device_id;
+			uint low = (uint)position_id;
+
+			ulong composite = (((ulong) high) << 32) | low;
+			this.id = (long)composite;
+			return this.id;
+		}
 	}
 }
 

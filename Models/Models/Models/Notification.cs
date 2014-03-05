@@ -14,6 +14,9 @@ namespace RaceYourself.Models
 
 		public bool read;
 		public Message message;
+
+		[JsonIgnore]
+		public bool dirty = false;
 	}
 }
 

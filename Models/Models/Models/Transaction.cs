@@ -1,5 +1,6 @@
 ﻿using System;
 using Sqo.Attributes;
+using Newtonsoft.Json;
 
 namespace RaceYourself.Models
 {
@@ -26,6 +27,9 @@ namespace RaceYourself.Models
 
 		public DateTime updated_at;
 		public DateTime? deleted_at;
+
+		[JsonIgnore]
+		public bool dirty = false;
 	}
 }
 
