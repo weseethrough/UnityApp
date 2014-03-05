@@ -187,8 +187,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 	/// </summary>
 	void Update () {
 
-#if !UNITY_EDITOR	
-		// Set the offset if it hasn't been set already, doesn't work in Start() function
 		if(!started)
 		{
 
@@ -231,7 +229,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 				transform.rotation = rearviewOffset * headOffset;
 			}
 		}
-#else
+
+		///EDITOR-Specific keyboard controls
 		if(Input.GetKeyDown(KeyCode.B)) {
 			yRotate += 180f;
 			if(yRotate >= 360f) {
@@ -250,8 +249,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 				UnityEngine.Debug.Log("Game: No connection found!");
 			}
 		}
-#endif
 		
+		
+		///special camera controls
 		if(fovActive) {
 			if(Platform.Instance.GetTouchCount() == 1)
 			{

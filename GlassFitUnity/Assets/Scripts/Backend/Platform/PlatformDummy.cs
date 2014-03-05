@@ -27,6 +27,11 @@ public class PlatformDummy : Platform
 
     public float[] sensoriaSockPressure = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
 	
+	private PlayerOrientation playerOrientation = new PlayerOrientation();
+	private float oriYaw = 0.0f;
+	private float oriPitch = 0.0f;
+	const float lookSensitivity = 10.0f;
+	
 	private static PlatformDummy _instance;
 
 //	private bool initialised = false;	
@@ -164,7 +169,12 @@ public class PlatformDummy : Platform
 		current = new Game("Settings", "settings", "settings", "run", "Settings for Indoor mode", "unlocked", 2, 0, 0, "Mode", -1, 2, "Race Mode");
 		games.Add(current);
 		
+		//init player orientation
+		playerOrientation.Reset();
+		playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
+		
 		initialised = true;
+		
 	}
 	
     public override Device Device()
@@ -173,6 +183,7 @@ public class PlatformDummy : Platform
     }
 
 	public override void StartTrack() {
+		UnityEngine.Debug.Log("PlatformDummy:StartTrack");
 		timer.Start();
 	}
 	
@@ -245,10 +256,8 @@ public class PlatformDummy : Platform
 		throw new NotImplementedException();
 	}
 	
-	public Quaternion GetPlayerOrientation() {
-		//just return the identity quaternion, to look straight forward.
-		//might be useful to optionally have some wiggle on this in the future.
-		return new PlayerOrientation().AsQuaternion();
+	public override PlayerOrientation GetPlayerOrientation() {
+		return playerOrientation;
 	}
 	
 	public override Challenge FetchChallenge(string id) {
@@ -442,8 +451,43 @@ public class PlatformDummy : Platform
 
 	
 	public override void Update ()
-	{		
+	{
+		if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+		{
+			//check for input and update player orientation as appropriate
+			float x = Input.GetAxis("Mouse X");
+			float y = Input.GetAxis("Mouse Y");
+			
+			oriYaw -= x * lookSensitivity;
+			oriPitch += y * lookSensitivity;
+			
+			//construct quaternion and update player ori
+			Quaternion fromForward = Quaternion.Euler(oriPitch, oriYaw, 0.0f);
+			Quaternion fromDown = Quaternion.FromToRotation(Vector3.down,Vector3.forward) * fromForward;
+			
+			playerOrientation.Update(fromDown);
+		}
 	}
 	
+	public override Vector2? GetTouchInput ()
+	{
+		if(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.RightCommand))
+		{
+			float x = Input.mousePosition.x / Screen.width;
+			float y = Input.mousePosition.y / Screen.height;
+			return new Vector2(x,y);
+		}
+		else return null;
+	}
+	
+	public override int GetTouchCount ()
+	{
+		if(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.RightCommand))
+		{
+			return 1;
+		}
+		return 0;
+	}
+
 }
 #endif

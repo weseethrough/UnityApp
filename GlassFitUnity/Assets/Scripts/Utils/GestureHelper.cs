@@ -148,20 +148,54 @@ public class GestureHelper : MonoBehaviour {
 	
 	void Update()
 	{
-		// If the back key is pressed, call any swipe-down delegates
-		// (on glass, swipe down means back)
-		if(Input.GetKeyDown(KeyCode.Escape))
+		
+		UnityEngine.Debug.Log("GestureHelper: Update");
+		
+		//Update keys for editor
+		if(Application.isEditor)
 		{
-			if(onBack != null) {
-				onBack();
+			// 1-tap
+			if( Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown(KeyCode.Alpha1) ) 
+			{
+				if (onTap != null) onTap();
+				UnityEngine.Debug.Log("GestureHelper: simulating tap from keypress");
+			}
+			// 2-tap
+			if( Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown(KeyCode.Alpha2) )
+			{
+				if (onTwoTap != null) onTwoTap();
+			}
+			// 3-tap
+			if( Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown(KeyCode.Alpha3) )
+			{
+				if (onThreeTap != null) onThreeTap();
+			}
+			//up
+			if(Input.GetKeyDown(KeyCode.UpArrow))
+			{
+				if(onSwipeUp != null) onSwipeUp();
+			}
+			
+			//back = down or backspace or escape
+			if(Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape) )
+			{
+				if(onBack != null) onBack();
+			}
+			
+			//left swipe
+			if(Input.GetKeyDown(KeyCode.LeftArrow))
+			{
+				if(onSwipeLeft != null) onSwipeLeft();
+			}
+			
+			//right swipe
+			if(Input.GetKeyDown(KeyCode.RightArrow))
+			{
+				if(onSwipeRight != null) onSwipeRight();
 			}
 		}
-#if UNITY_EDITOR		
-		if(Input.GetKeyDown(KeyCode.Return)) 
-		{
-			if (onTap != null) onTap();
-		}
-#endif
+			
+
 
 		//check for gestures on non-glass devices where unity can pick up the input
 		if(!Platform.Instance.OnGlass())
