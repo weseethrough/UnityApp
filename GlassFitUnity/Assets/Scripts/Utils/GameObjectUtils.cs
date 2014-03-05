@@ -28,4 +28,19 @@ public class GameObjectUtils
             label.MarkAsChanged();
         }
     }
+
+    static public GameObject SearchTreeByName(GameObject root, string uniqueName)
+    {
+        Transform[] components = root.GetComponentsInChildren<Transform>() as Transform[];
+
+        foreach (Transform component in components)
+        {
+            if (component.gameObject.name == uniqueName)
+            {
+                return component.gameObject;
+            }
+        }
+
+        return null;
+    }
 }

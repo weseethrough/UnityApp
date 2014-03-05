@@ -269,7 +269,8 @@ public class Panel : FlowState
     /// <param name="button">button which send this event</param>
     /// <returns></returns>
     public virtual void OnClick(FlowButton button)
-    {        
+    {
+        Debug.LogWarning("CLICK test -1-");
         if (Outputs.Count > 0 && parentMachine != null)
         {
             GConnector gConect = Outputs.Find(r => r.Name == button.name);
@@ -295,11 +296,11 @@ public class Panel : FlowState
     {        
         if (gConect.EventFunction != null && gConect.EventFunction != "")
         {
-            Debug.LogWarning("-2a-");
+            Debug.LogWarning("CLICK test -2a-");
             if (CallStaticFunction(gConect.EventFunction, button))
             {
                 bool connection = parentMachine.FollowConnection(gConect);
-                Debug.LogWarning("-3- " + connection);
+                Debug.LogWarning("CLICK test -3- " + connection);
             }
             else
             {
@@ -309,7 +310,7 @@ public class Panel : FlowState
         else
         {
             bool connection = parentMachine.FollowConnection(gConect);
-            Debug.LogWarning("-2b- " + connection);
+            Debug.LogWarning("CLICK test -2b- " + connection);
             
         }
     }

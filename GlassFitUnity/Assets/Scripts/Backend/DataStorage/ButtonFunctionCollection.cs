@@ -731,7 +731,21 @@ public class ButtonFunctionCollection
 		panel.parentMachine.ForbidBack();
 		return true;
 	}
-	
+
+
+    /// <summary>
+    /// Function which allows to attach generic "go back" functionality to buttons
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns>Never allows to use connection navigation. Instead it uses state machine back navigation</returns>
+    static public bool FollowBack(FlowButton fb, Panel panel)
+    {        
+
+        bool backSucceed = panel.parentMachine.FollowBack();
+        Debug.Log("Back succeed: " + backSucceed);
+        return false;
+    }
 
     /// <summary>
     /// sets friend name in database from button name, authorize friend provider and asynchronously follow button connection

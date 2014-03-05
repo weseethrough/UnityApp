@@ -153,11 +153,6 @@ public class FlowStateMachine : MonoBehaviour
     /// <returns>returns true if follow connection is possible (connection is valid)</returns>
     public bool FollowConnection(GConnector connection)
     {
-
-        Debug.LogWarning("FollowConnection " + (connection != null));
-        Debug.LogWarning("FollowConnection " + (connection.Link != null));
-        Debug.LogWarning("FollowConnection " + (connection.Link.Count > 0));
-        Debug.LogWarning("FollowConnection " + (connection.Link[0].Parent != null));
         
         if (connection != null && 
             connection.Link != null && 
@@ -299,13 +294,14 @@ public class FlowStateMachine : MonoBehaviour
     /// </summary>
     /// <returns>returns false if navigation history was invalid/empty</returns>
     public bool FollowBack()
-    {
+    {        
         if (navigationHistory != null && navigationHistory.Count > 0)
         {
             FlowState fs = navigationHistory[navigationHistory.Count - 1];
             navigationHistory.RemoveAt(navigationHistory.Count - 1);
 			SoundManager.PlaySound(SoundManager.Sounds.HidePopup);
             targetState = fs;
+            Debug.Log("'Back' to flow state: " + fs.GetDisplayName());
             return true;
         }
         return false;
