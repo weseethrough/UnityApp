@@ -102,7 +102,9 @@ public class LoadingScreen : MonoBehaviour {
 			slider.Set(0, false);
 		}
 		
+
 		StartCoroutine("LoadLevel");
+
 	}
 	
 	IEnumerator LoadLevel() {

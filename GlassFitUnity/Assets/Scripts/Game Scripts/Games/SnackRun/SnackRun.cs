@@ -62,17 +62,6 @@ public class SnackRun : GameBase {
 			OfferPlayerSnack();
 		}
 		
-		//debug trigger in editor
-#if UNITY_EDITOR
-	dbg_timer += Time.deltaTime;
-		if(!dbg_hasOfferedSnack && dbg_timer > 5.0f && !snackActive)
-		{
-			OfferPlayerSnack();
-			dbg_hasOfferedSnack = true;
-		}
-#endif
-		
-		
 		base.Update();
 	}
 	

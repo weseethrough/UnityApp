@@ -91,11 +91,16 @@ public class AutoFade : MonoBehaviour {
             DrawQuad(aColor,t);
         }
 		
+#if !UNITY_EDITOR
 		// The level is then loaded based on the name or number given
         if (mLevelName != "")
             Application.LoadLevel(mLevelName);
         else
             Application.LoadLevel(mLevelIndex);
+#else
+		bool bResult = UnityEditor.EditorApplication.OpenScene("Assets/Scenes/"+mLevelName);
+		if(!bResult) { UnityEngine.Debug.LogError("Couldn't load scene: " + mLevelName); };
+#endif
        
 		// Now the level is loaded we fade back in based on the time specified.
 		while (t>0.0f)

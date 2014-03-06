@@ -110,8 +110,10 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 		//toggle indoor mode
 		bool bIndoor = Platform.Instance.IsIndoor();
 		Platform.Instance.SetIndoor(!bIndoor);
-		//update strings as appropriate
-		setStringsForIndoor(!bIndoor);
+
+		///get new state and set strings as appropriate
+		bIndoor = Platform.Instance.IsIndoor();
+		setStringsForIndoor(bIndoor);
 	}
 
 	void setStringsForIndoor(bool indoor) {

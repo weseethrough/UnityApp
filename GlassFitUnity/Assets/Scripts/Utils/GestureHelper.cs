@@ -148,9 +148,6 @@ public class GestureHelper : MonoBehaviour {
 	
 	void Update()
 	{
-		
-		UnityEngine.Debug.Log("GestureHelper: Update");
-		
 		//Update keys for editor
 		if(Application.isEditor)
 		{

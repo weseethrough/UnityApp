@@ -85,7 +85,9 @@ public class Start : FlowState
         {
 			//in the editor, go straight to in-game HUD
 #if UNITY_EDITOR
-			GConnector editorGC = Outputs.Find( r => r.Name == "Editor Start Point" );
+			string playerExit = PlayerPrefs.GetString("playerStartExit");
+
+			GConnector editorGC = Outputs.Find( r => r.Name == playerExit );
 
 			if(editorGC != null)
 			{
