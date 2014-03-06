@@ -229,6 +229,10 @@ public class GraphComponent : MonoBehaviour
     /// <returns></returns>
     static public GraphComponent GetInstance()
     {
+        if (instance == null)
+        {
+            return GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+        }
         return instance;
     }
 }
