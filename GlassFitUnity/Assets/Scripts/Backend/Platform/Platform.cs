@@ -17,7 +17,7 @@ public abstract class Platform : MonoBehaviour {
     private string intent = "";
 
 	// Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via Unity Messages.
-	internal float playerStateEntryTime = UnityEngine.Time.time;
+	internal float playerStateEntryTime;
 	internal string playerState = "";
 
 	protected Position position = null;
@@ -145,9 +145,9 @@ public abstract class Platform : MonoBehaviour {
 	
 	void Awake()
     {
-		//Application.targetFrameRate = 25;
-        if (initialised == false)
+		if (initialised == false)
         {
+			playerStateEntryTime = UnityEngine.Time.time;
             Initialize();
         }
     }

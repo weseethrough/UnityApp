@@ -27,7 +27,6 @@ public class TrainRescueSnack : SnackBase {
 	
 	double playerStartDistance = 0;
 	
-	private GameObject mainCamera;
 	public GameObject flyCamera;
 
 	// Use this for initialization
@@ -107,11 +106,7 @@ public class TrainRescueSnack : SnackBase {
 		if(openingFlythroughPath != null)
 		{
 			openingFlythroughPath.StartFollowingPath();	
-			mainCamera = GameObject.Find("MainGameCamera");
-			if(mainCamera != null)
-			{
-				mainCamera.SetActive(false);
-			}
+			SetMainCamera(false);
 		}
 		else
 		{
@@ -127,6 +122,8 @@ public class TrainRescueSnack : SnackBase {
 	
 	public override void Begin ()
 	{
+		base.Begin();
+		
 		SetTrack(false);
 		SetReadyToStart(true);
 		//transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
@@ -168,11 +165,9 @@ public class TrainRescueSnack : SnackBase {
 			//UnityEngine.Debug.Log("TrainRescueSnack: checking to see if flythrough finished");
 			if(openingFlythroughPath.IsFinished())
 			{
-				if(mainCamera != null)
-				{
-					mainCamera.SetActive(true);
-					flyCamera.GetComponentInChildren<Camera>().enabled = false;
-				}
+				SetMainCamera(true);
+				flyCamera.GetComponentInChildren<Camera>().enabled = false;
+				
 				transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
 				StartCountdown();
 			}

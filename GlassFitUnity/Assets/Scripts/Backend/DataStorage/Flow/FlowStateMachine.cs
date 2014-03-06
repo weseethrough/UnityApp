@@ -166,36 +166,36 @@ public class FlowStateMachine : MonoBehaviour
             connection.Link.Count > 0 &&
             connection.Link[0].Parent != null)
         {
-            if (!grabAnalyticsInitialized)
-            {
-                //use this to enable debug output
-                GrabBridge.ToggleLog(true);
-
-                GrabBridge.Start("pxeqexpldwfcwdp:faef0c81e352b38894b8df87:R7mg9jl2t4UOOWGxHTDh2Ys3KRHH/NOs0QAy9osBUEE=");
-
-                string userid = "tester";
-                GrabBridge.FirstLogin(userid);
-
-                grabAnalyticsInitialized = true;                
-            }
+//            if (!grabAnalyticsInitialized)
+//            {
+//                //use this to enable debug output
+//                //GrabBridge.ToggleLog(true);
+//
+//                //GrabBridge.Start("pxeqexpldwfcwdp:faef0c81e352b38894b8df87:R7mg9jl2t4UOOWGxHTDh2Ys3KRHH/NOs0QAy9osBUEE=");
+//
+//                string userid = "tester";
+//                //GrabBridge.FirstLogin(userid);
+//
+//                //grabAnalyticsInitialized = true;                
+//            }
             
 
-            JSONObject gameDetails = new JSONObject();
-            object type = DataVault.Get("type");
-            object log = DataVault.Get("warning_log");
-            DataVault.Set("warning_log", "");
+            //JSONObject gameDetails = new JSONObject();
+            //object type = DataVault.Get("type");
+            //object log = DataVault.Get("warning_log");
+            //DataVault.Set("warning_log", "");
 
-            gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
-            gameDetails.AddField("Game type", (string)type);
-            gameDetails.AddField("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
-            gameDetails.AddField("State live", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
-            gameDetails.AddField("Custom Log", (string)log );
+//            gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
+//            gameDetails.AddField("Game type", (string)type);
+//            gameDetails.AddField("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
+//            gameDetails.AddField("State live", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
+//            gameDetails.AddField("Custom Log", (string)log );
 
-            GrabBridge.CustomEvent("Flow state changed", gameDetails);
+            //GrabBridge.CustomEvent("Flow state changed", gameDetails);
 
             // Our own internal logging for analytics
-            gameDetails.AddField("Event type", "Flow state changed");
-            Platform.Instance.LogAnalytics(gameDetails);
+            //gameDetails.AddField("Event type", "Flow state changed");
+            //Platform.Instance.LogAnalytics(gameDetails);
 
             if (navigationHistory == null)
             {
@@ -259,36 +259,36 @@ public class FlowStateMachine : MonoBehaviour
     public bool GoToState(FlowState state)
     {
         
-        if (!grabAnalyticsInitialized)
-        {
-            //use this to enable debug output
-            GrabBridge.ToggleLog(true);
-
-            GrabBridge.Start("pxeqexpldwfcwdp:faef0c81e352b38894b8df87:R7mg9jl2t4UOOWGxHTDh2Ys3KRHH/NOs0QAy9osBUEE=");
-
-            string userid = "tester";
-            GrabBridge.FirstLogin(userid);
-
-            grabAnalyticsInitialized = true;
-        }
-
-
-        JSONObject gameDetails = new JSONObject();
-        object type = DataVault.Get("type");
-        object log = DataVault.Get("warning_log");
-        DataVault.Set("warning_log", "");
-
-        gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
-        gameDetails.AddField("Game type", (string)type);
-        gameDetails.AddField("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
-        gameDetails.AddField("State live", (int)((Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000));
-        gameDetails.AddField("Custom Log", (string)log);
-
-        GrabBridge.CustomEvent("Flow state changed", gameDetails);
-
-        // Our own internal logging for analytics
-        gameDetails.AddField("Event type", "Flow state changed");
-        Platform.Instance.LogAnalytics(gameDetails);
+//        if (!grabAnalyticsInitialized)
+//        {
+//            //use this to enable debug output
+//            GrabBridge.ToggleLog(true);
+//
+//            GrabBridge.Start("pxeqexpldwfcwdp:faef0c81e352b38894b8df87:R7mg9jl2t4UOOWGxHTDh2Ys3KRHH/NOs0QAy9osBUEE=");
+//
+//            string userid = "tester";
+//            GrabBridge.FirstLogin(userid);
+//
+//            grabAnalyticsInitialized = true;
+//        }
+//
+//
+//        JSONObject gameDetails = new JSONObject();
+//        object type = DataVault.Get("type");
+//        object log = DataVault.Get("warning_log");
+//        DataVault.Set("warning_log", "");
+//
+//        gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
+//        gameDetails.AddField("Game type", (string)type);
+//        gameDetails.AddField("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
+//        gameDetails.AddField("State live", (int)((Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000));
+//        gameDetails.AddField("Custom Log", (string)log);
+//
+//        GrabBridge.CustomEvent("Flow state changed", gameDetails);
+//
+//        // Our own internal logging for analytics
+//        gameDetails.AddField("Event type", "Flow state changed");
+//        Platform.Instance.LogAnalytics(gameDetails);
 
         ForbidBack();        
         targetState = state;

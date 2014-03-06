@@ -21,14 +21,29 @@ public class DinosaurController : TargetController {
 	// Boolean to reset animation
 	private bool isScream = false;
 	
-	// Get the head of the dinosaur
-	private GameObject dinoHead;
-	
 	// Original head rotation
 	private Quaternion headRotation;
 	
-	// Get the camera
-	private GameObject cam;
+	// Starting distance
+	private float distanceFromStart = -50f;
+	
+	// Players current distance
+	private double playerDistance = 0.0;
+	
+	// Player's starting distance
+	private double playerStartDistance = 0.0;
+	
+	// Time passed for speed up
+	private float currentTime = 0;
+	
+	// Threshold for speed increase
+	private float updateTime = 10f;
+	
+	// Value to increase speed by
+	private float speedIncrease = 0.5f;
+	
+	// Current speed
+	private float currentSpeed = 2.5f;
 	
 	/// <summary>
 	/// Start this instance. Sets the initial attributes
@@ -36,22 +51,15 @@ public class DinosaurController : TargetController {
 	void Start () {
 		
 		// Start the base and set the attributes
-		base.Start();
-		SetAttribs(50, 135, -240, 0);
+		//base.Start();
+		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 		
 		// Get the animator
 		anim = GetComponentInChildren<Animator>();
 				
 		// Get the scream sound
-		scream = GetComponent<AudioSource>();
+		scream = GetComponentInChildren<AudioSource>();
 		
-		// Get the dino's head
-		dinoHead = GameObject.Find("LowerNeck");
-		
-		if(dinoHead==null)
-		UnityEngine.Debug.Log("Dino: Lower neck not found");
-		else
-			UnityEngine.Debug.Log("Dino: Lower neck found");
 		
 //		// Get the camera
 //		cam = GameObject.Find("ARCamera");
@@ -64,14 +72,27 @@ public class DinosaurController : TargetController {
 	void OnEnable() {
 		// Enable the base and set the attributes.
 		base.OnEnable();
-		dinoHead = GameObject.Find("LowerNeck");
 		
-		if(dinoHead==null)
-			UnityEngine.Debug.Log("Dino: Lower neck not found");
-		else
-			UnityEngine.Debug.Log("Dino: Lower neck found");
+		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 		
-		SetAttribs(50, 135, -240, 0f);
+		Reset();
+		//SetAttribs(50, 135, -240, 0f);
+	}
+	
+	/// <summary>
+	/// Reset the attributes.
+	/// </summary>
+	public void Reset()
+	{
+		// Set the starting speed
+		currentSpeed = 2.4f;
+		// Set the start time
+		currentTime = 0.0f;
+		// Set the player's initial distance
+		playerDistance = Platform.Instance.Distance();
+		playerStartDistance = Platform.Instance.Distance();
+		// Set the boulder's starting distance
+		distanceFromStart = (float)playerDistance - 25f;
 	}
 	
 	/// <summary>
@@ -79,13 +100,12 @@ public class DinosaurController : TargetController {
 	/// </summary>
 	void Update () {
 		
-		// Update the base
-		base.Update();
-			
 		// If it screamed previously, make the animator bool false
 		if(isScream)
 		{
-			anim.SetBool("Shout", false);
+			if(anim != null) {
+				anim.SetBool("Shout", false);
+			}
 			isScream = false;
 			isPlaying = false;
 		}
@@ -100,45 +120,56 @@ public class DinosaurController : TargetController {
 		}
 		
 		// Set the scream boolean to true and play the sound
-		if(screamTime > 10.0f) {
+		if(screamTime > 15.0f) {
 			//scream.Play();
-			anim.SetBool("Shout", true);
-			screamTime -= 10.0f;
+			if(anim != null) {
+				anim.SetBool("Shout", true);
+			}
+			screamTime -= 15.0f;
 			isScream = true;
 		}
+		
+		// Set the player distance 
+		playerDistance = Platform.Instance.Distance();
+		
+		// Increase the time
+		currentTime += Time.deltaTime;
+		
+		// Update the speed if enough time has passed
+		if(currentTime > updateTime) 
+		{
+			currentTime -= updateTime;
+			
+			currentSpeed += speedIncrease;
+			
+		}
+		
+		distanceFromStart += Time.deltaTime * currentSpeed;	
+		
+		// Update the base.
+		base.Update();
 	}
 	
 	/// <summary>
-	/// Used to override the animation so the dinosaur looks at the player
+	/// Override base implementation, which queries target tracker.
 	/// </summary>
-	void LateUpdate() {
-		if(dinoHead == null) 
-		{
-			dinoHead = GameObject.Find("LowerNeck");
-			UnityEngine.Debug.Log("Dino: Lower neck found");
-		}
-		
-		// Make the head look at the player
-		if(dinoHead != null) {
-			//UpdateRotation(dinoHead.transform);
-		}
-		else {
-			UnityEngine.Debug.Log("Dino: no head, no transform");
-		}
+	/// <returns>
+	/// The distance behind this target.
+	/// </returns>
+	public override double GetDistanceBehindTarget ()
+	{
+		float relativeDist = distanceFromStart - (float)playerDistance;
+		return relativeDist;
 	}
 	
-	void UpdateRotation(Transform parent) 
+	/// <summary>
+	/// Gets the distance the player has travelled in the minigame.
+	/// </summary>
+	/// <returns>
+	/// The player's distance.
+	/// </returns>
+	public double GetPlayerDistanceTravelled()
 	{
-		UnityEngine.Debug.Log("Dino: current transform is for " + parent.gameObject.name);
-		headRotation = parent.rotation;
-		parent.LookAt(Vector3.zero);
-		Quaternion finalRotation = parent.rotation;
-//		finalRotation.x = headRotation.x;
-//		finalRotation.y = headRotation.y;
-		parent.rotation = Quaternion.Euler(headRotation.eulerAngles.x, headRotation.eulerAngles.y, finalRotation.eulerAngles.z);
-//		foreach(Transform child in parent) 
-//		{
-//			UpdateRotation(child);
-//		}
+		return playerDistance - playerStartDistance;
 	}
 }

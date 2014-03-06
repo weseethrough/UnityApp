@@ -7,12 +7,20 @@ public class SnackBase : MonoBehaviour {
 	// Boolean for when the game ends
 	protected bool finish = false;
 	
+	protected GameObject mainCamera;
+	
+	protected ThirdPersonCamera thirdPerson;
+	
 	/// <summary>
 	/// Virtual function for starting the minigame
 	/// </summary>
 	public virtual void Begin()	
 	{
-		
+		mainCamera = GameObject.Find("MainGameCamera");
+		if(mainCamera != null)
+		{
+			thirdPerson = mainCamera.GetComponentInChildren<ThirdPersonCamera>();
+		}
 	}
 	
 	// Use this for initialization
@@ -34,6 +42,21 @@ public class SnackBase : MonoBehaviour {
 		SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));
 		if(run)
 		{
+			if(mainCamera != null)
+			{
+				if(!mainCamera.activeSelf)
+				{
+					mainCamera.SetActive(true);
+				}
+			}
+			
+			if(thirdPerson != null)
+			{
+				if(!thirdPerson.enabled)
+				{
+					thirdPerson.enabled = true;
+				}
+			}
 			run.OnSnackFinished();
 			run.SetVirtualTrackVisible(true);
 		}
@@ -141,7 +164,31 @@ public class SnackBase : MonoBehaviour {
 		}
 		else
 		{
-			UnityEngine.Debug.Log("BoulderSnack: can't find SnackRun");
+			UnityEngine.Debug.Log("SnackBase: can't find SnackRun");
+		}
+	}
+	
+	protected void SetMainCamera(bool visible)
+	{
+		if(mainCamera != null)
+		{
+			mainCamera.SetActive(visible);
+		}
+		else
+		{
+			UnityEngine.Debug.Log("SnackBase: camera is null");
+		}
+	}
+	
+	protected void SetThirdPerson(bool visible)
+	{
+		if(thirdPerson != null)
+		{
+			if(!visible)
+			{
+				thirdPerson.ForceFirst();
+			}
+			thirdPerson.enabled = false;
 		}
 	}
 }

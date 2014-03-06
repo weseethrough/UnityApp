@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
  
 [System.Serializable]
@@ -165,14 +165,9 @@ public class HeadLookController : MonoBehaviour {
             Vector3.OrthoNormalize(ref lookDir, ref segment.dirUp);
  
             // Look rotation in world space
-            Quaternion lookRot = (
-                (parentRot * Quaternion.LookRotation(lookDir, segment.dirUp))
-                * Quaternion.Inverse(
-                    parentRot * Quaternion.LookRotation(
-                        segment.referenceLookDir, segment.referenceUpDir
-                    )
-                )
-            );
+            Quaternion lookRot = ((parentRot * Quaternion.LookRotation(lookDir, parentRotInv * Vector3.up)) *
+				Quaternion.Inverse( parentRot * Quaternion.LookRotation( segment.referenceLookDir, segment.referenceUpDir ) )
+			);
  
             // Distribute rotation over all joints in segment
             Quaternion dividedRotation =

@@ -156,4 +156,12 @@ public class ThirdPersonCamera : MonoBehaviour {
 		GestureHelper.onSwipeRight -= rightHandler;
 		GestureHelper.onSwipeLeft -= leftHandler;
 	}
+	
+	public void ForceFirst() {
+		height = 0.0f;
+		zoom = 0.0f;
+		third = false;
+		
+		transform.localPosition = new Vector3(0,0,0);
+	}
 }
