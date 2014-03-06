@@ -26,6 +26,7 @@ namespace RaceYourself.Models
 		[OnSerializing]
 		internal void OnSerializingMethod(StreamingContext context)
 		{
+			// TODO: Remove in production?
 			if (!device_id.HasValue) throw new Exception ("Set a device_id before serializing!");
 		}
 	}

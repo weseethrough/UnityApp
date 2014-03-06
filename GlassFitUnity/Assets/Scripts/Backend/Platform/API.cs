@@ -1,7 +1,9 @@
 using System;
+using System.IO;
 using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Sqo;
 using UnityEngine;
@@ -21,6 +23,9 @@ namespace RaceYourself
 			
 		private const string CLIENT_ID = "8c8f56a8f119a2074be04c247c3d35ebed42ab0dcc653eb4387cff97722bb968";
 		private const string CLIENT_SECRET = "892977fbc0d31799dfc52e2d59b3cba88b18a8e0080da79a025e1a06f56aa8b2";
+		
+		private readonly Regex CACHE_REGEXP = new Regex(".*max-age=(?<maxage>[0-9]*).*");
+		private readonly string CACHE_PATH = Path.Combine(Application.persistentDataPath, "www-cache");
 		
 		private Siaqodb db;
 		
@@ -49,8 +54,7 @@ namespace RaceYourself
 			} else {
 				Debug.Log("API: No stored account");
 			}
-			Models.Event e = new Models.Event("{}", 1);
-			db.StoreObject(e);
+			Directory.CreateDirectory(CACHE_PATH);
 		}
 		
 		/// <summary>
@@ -225,12 +229,14 @@ namespace RaceYourself
 					while(e.MoveNext()) yield return e.Current;
 					self = db.Cast<Device>().Where(d => d.self == true).First();
 				}
+				var gatherStart = DateTime.Now;
 				DataWrapper wrapper = new DataWrapper(db, self);
-				Debug.Log("API: Sync() gathered " + wrapper.data.ToString());
+				Debug.Log("API: Sync() gathered " + wrapper.data.ToString() + " in " + (DateTime.Now - gatherStart));
 				
 				var encoding = new System.Text.UTF8Encoding();			
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
+				headers.Add("Accept-Charset", "utf-8");
 				headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
@@ -242,7 +248,13 @@ namespace RaceYourself
 							
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
-					ret = "Network error";
+					if (post.error.ToLower().Contains("401 unauthorized")) {
+						db.Delete(token);
+						token = null;
+						ret = "Unauthorized";						
+					} else {
+						ret = "Network error";
+					}
 					yield break;
 				}
 				string responseEncoding = "uncompressed";
@@ -299,15 +311,103 @@ namespace RaceYourself
 				Platform.Instance.OnSynchronization(ret);
 			}
 		}
+
+		/// <summary>
+		/// Fetch cached data from API
+		/// Returns cached data or null if missing
+		/// </summary>
+		public string getCached(string route) {
+			var cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).FirstOrDefault();
+			if (cache == null || cache.Expired) return null;
+			return File.ReadAllText(Path.Combine(CACHE_PATH, route));
+		}
+		
+		/// <summary>
+		/// Coroutine to fetch data from API.
+		/// Response string or null if failed returned through callback.
+		/// </summary>
+		public IEnumerator get(string route, Action<string> callback, bool checkCache=true) {
+			if (checkCache) {
+				var cached = getCached(route);
+				if (cached != null) {
+					callback(cached);
+					yield break;
+				}
+			}
+			
+			if (token == null || token.HasExpired) {
+				callback(null);
+				yield break;
+			}
+			var start = DateTime.Now;
+			var headers = new Hashtable();
+			headers.Add("Accept-Charset", "utf-8");
+			headers.Add("Accept-Encoding", "gzip");
+			headers.Add("Authorization", "Bearer " + token.access_token);
+			
+			var www = new WWW(ApiUrl(route), null, headers);
+			yield return www;
+				
+			if (!String.IsNullOrEmpty(www.error)) {
+				Debug.LogError("API: get(" + route + ") threw error: " + www.error);
+				if (www.error.ToLower().Contains("401 unauthorized")) {
+					db.Delete(token);
+					token = null;
+				}
+				callback(null);
+				yield break;
+			}			
+			
+			string responseEncoding = "uncompressed";
+			string cacheControl = "no-cache";
+			long maxAge = 60;
+			foreach (string key in www.responseHeaders.Keys) {
+				if (key.ToLower().Equals("content-encoding")) {
+					responseEncoding = www.responseHeaders[key];
+				}
+				if (key.ToLower().Equals("cache-control")) {
+					cacheControl = www.responseHeaders[key];
+					Match matches = CACHE_REGEXP.Match(cacheControl);
+					if (matches.Success) {
+						maxAge = long.Parse(matches.Groups["maxage"].Value);
+						if (maxAge < 60) maxAge = 60; // TODO: Fix server cache-control responses
+					}
+				}
+			}
+			
+			var encoding = new System.Text.UTF8Encoding();
+			string body = null;			
+			if (responseEncoding.ToLower().Equals("gzip")) body = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(www.bytes));
+			else body = encoding.GetString(www.bytes);
+			
+			Models.Cache cache = new Models.Cache(route, maxAge);
+			if (maxAge > 0) {
+				if (!db.UpdateObjectBy("id", cache)) {
+					db.StoreObject(cache);
+				}
+				File.WriteAllText(Path.Combine(CACHE_PATH, route), body);
+				Debug.Log("API: get(" + route + ") cached for " + maxAge + "s");
+			} else {
+				db.DeleteObjectBy("id", cache);
+			}
+			
+			Debug.Log("API: get(" + route + ") returned in " + (DateTime.Now - start));
+			callback(body);
+		}
 		
 		private string ApiUrl(string path) 
 		{
 			return SCHEME + apiHost + "/api/1/" + path;
 		}
 				
-		private class SingleResponse<T> 
+		public class SingleResponse<T> 
 		{
 			public T response;
+		}
+		
+		public class ListResponse<T>
+		{
+			public List<T> response;
 		}
 				
 		private class DataWrapper
