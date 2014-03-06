@@ -36,6 +36,12 @@ public class BoulderController : TargetController {
 	// Player's starting distance
 	private double playerStartDistance = 0.0;
 	
+	// Headstart time
+	float headstartTime = 5.0f;
+	
+	// Boolean to check if headstart is over
+	private bool headstartComplete = false;
+	
 	/// <summary>
 	/// Sets the attributes
 	/// </summary>
@@ -62,34 +68,50 @@ public class BoulderController : TargetController {
 	public void Reset()
 	{
 		// Set the starting speed
-		currentSpeed = 1.25f;
+		currentSpeed = 0f;
 		// Set the start time
 		currentTime = 0.0f;
 		// Set the player's initial distance
 		playerDistance = Platform.Instance.Distance();
 		playerStartDistance = Platform.Instance.Distance();
 		// Set the boulder's starting distance
-		distanceFromStart = (float)playerDistance - 25f;
+		distanceFromStart = (float)playerDistance - 10f;
+		
+		headstartComplete = false;
+		headstartTime = 5.0f;
 	}
 	
 	/// <summary>
 	/// Update this instance + updates rotation
 	/// </summary>
 	void Update () {
+		if(!headstartComplete)
+		{
+			headstartTime -= Time.deltaTime;
+			
+			if(headstartTime < 0.0f)
+			{
+				headstartComplete = true;
+				currentSpeed = 1.25f;
+			}
+		}
+		else
+		{
+			// Increase the time
+			currentTime += Time.deltaTime;
+			
+			// Update the speed if enough time has passed
+			if(currentTime > updateTime) 
+			{
+				currentTime -= updateTime;
+				
+				currentSpeed += speedIncrease;
+			
+			}
+		}
+		
 		// Set the player distance 
 		playerDistance = Platform.Instance.Distance();
-		
-		// Increase the time
-		currentTime += Time.deltaTime;
-		
-		// Update the speed if enough time has passed
-		if(currentTime > updateTime) 
-		{
-			currentTime -= updateTime;
-			
-			currentSpeed += speedIncrease;
-			
-		}
 		
 		// Rotate the object based on speed.
 		xRot += (rotationSpeed * currentSpeed) * Time.deltaTime;
@@ -99,17 +121,34 @@ public class BoulderController : TargetController {
 		{
 			xRot -= rotationLimit;
 		}
-		
+			
 		// Make a new quaternion based on the rotation and apply
 		Quaternion rot = Quaternion.Euler(new Vector3(xRot,0,0));
-		transform.rotation = rot;
+		if(transform.childCount > 0) {
+			transform.GetChild(0).rotation = rot;
+		}
+		else {
+			transform.rotation = rot;
+		}
+		
 		
 		// Increase distance
 		distanceFromStart += Time.deltaTime * currentSpeed;	
 		//UnityEngine.Debug.Log("BoulderController: distance is " + distanceFromStart.ToString("f2"));
 		
-		// Update the base.
-		base.Update();
+		scaledDistance = GetDistanceBehindTarget();
+		
+		//UnityEngine.Debug.Log("TargetController: distance behind is: " + scaledDistance.ToString());
+		UnityEngine.Debug.Log("BoulderController: current z position is " + transform.position.z.ToString("f2"));
+		//set position
+		if(transform.childCount > 0) {
+			Vector3 movement = new Vector3(xOffset, transform.GetChild(0).localPosition.y, (float)scaledDistance);
+			transform.GetChild(0).localPosition = movement;
+		}
+		else
+		{
+			base.Update();
+		}
 		
 	}
 	

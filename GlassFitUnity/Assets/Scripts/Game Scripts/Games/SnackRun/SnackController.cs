@@ -8,7 +8,7 @@ public class SnackController : MonoBehaviour {
 	public static List<Game> snackGames {get; private set;}
 	
 	protected bool isGameInProgress = false;
-	protected int lastRotationGameIndex = -1;
+	protected int lastRotationGameIndex = 1;
 	
 	protected SnackBase currentSnackGameMainObj = null;
 	
