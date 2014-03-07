@@ -19,7 +19,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
-    static public bool MyFunction1(FlowButton fb, Panel panel)
+    static public bool MyFunction1(FlowButton fb, FlowState panel)
     {
         Debug.Log("Testing linked function true");
       
@@ -32,7 +32,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
-    static public bool GoToCustomExit(FlowButton fb, Panel panel)
+    static public bool GoToCustomExit(FlowButton fb, FlowState panel)
     {
         Debug.Log("Testing linked function true");       
         if (panel != null)
@@ -61,27 +61,27 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>always return false blocking further navigation</returns>
-    static public bool isAuthent(FlowButton fb, Panel panel) 
+    static public bool isAuthent(FlowButton fb, FlowState panel) 
 	{
 		// Connection followed asynchronously
 		return false; 
 	}
-	
-	static public bool RegisterDevice(FlowButton fb, Panel panel) 
+
+    static public bool RegisterDevice(FlowButton fb, FlowState panel) 
 	{
 		
 		return false;
 	}
-	
-	static public bool SetTutorial(FlowButton fb, Panel panel)
+
+    static public bool SetTutorial(FlowButton fb, FlowState panel)
 	{
 		DataVault.Set("type", "Runner");
 		DataVault.Set("race_type", "tutorial");
 	
 		return true;
 	}
-	
-	static public bool SetChallenge(FlowButton fb, Panel panel)
+
+    static public bool SetChallenge(FlowButton fb, FlowState panel)
 	{
 		List<ChallengeNotification> challenges = (List<ChallengeNotification>)DataVault.Get("challenge_notifications");
 		if(challenges != null)
@@ -108,8 +108,8 @@ public class ButtonFunctionCollection
 			return false;
 		}
 	}
-	
-	static public bool SetFriend(FlowButton fb, Panel panel)
+
+    static public bool SetFriend(FlowButton fb, FlowState panel)
 	{
 		List<Friend> friendList = (List<Friend>)DataVault.Get("friend_list");
 		
@@ -142,8 +142,8 @@ public class ButtonFunctionCollection
 			return false;
 		}
 	}
-	
-	static public bool SetCeleb(FlowButton fb, Panel panel)
+
+    static public bool SetCeleb(FlowButton fb, FlowState panel)
 	{
 		switch(fb.name)
 		{
@@ -185,7 +185,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
 	/// <returns>always return true no matter what type of activity is set</returns>
-	static public bool SetType(FlowButton fb, Panel panel)
+    static public bool SetType(FlowButton fb, FlowState panel)
 	{
 		DataVault.Set("current_game_id", fb.name);
 		switch(fb.name) 
@@ -240,8 +240,8 @@ public class ButtonFunctionCollection
 		
 		return true;
 	}
-	
-	static public bool SetModeDesc(FlowButton fb, Panel panel) 
+
+    static public bool SetModeDesc(FlowButton fb, FlowState panel) 
 	{
 		#if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
@@ -275,7 +275,7 @@ public class ButtonFunctionCollection
 	/// <param name='panel'>
 	/// The panel.
 	/// </param>
-	static public bool SetGameDesc(FlowButton fb, Panel panel)
+    static public bool SetGameDesc(FlowButton fb, FlowState panel)
 	{
 #if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
@@ -306,7 +306,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>always allow for further navigation</returns>
-    static public bool StartGame(FlowButton fb, Panel panel)
+    static public bool StartGame(FlowButton fb, FlowState panel)
 	{
 		AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 		
@@ -339,8 +339,8 @@ public class ButtonFunctionCollection
 		
 		return true;
 	}
-	
-	static public bool CheckTracks(FlowButton fb, Panel panel) 
+
+    static public bool CheckTracks(FlowButton fb, FlowState panel) 
 	{
 		int finish = (int)DataVault.Get("finish") + 500;
 		int lowerFinish = (int)DataVault.Get("lower_finish");
@@ -358,15 +358,16 @@ public class ButtonFunctionCollection
 			return false;
 		}
 	}
-	
-	static public bool StartPresetSpeed(FlowButton fb, Panel panel) {
+
+    static public bool StartPresetSpeed(FlowButton fb, FlowState panel)
+    {
 		//DataVault.Set("current_track", null);
 		//AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
 		
 		return true;
 	}
-	
-	static public bool SetMode(FlowButton fb, Panel panel)
+
+    static public bool SetMode(FlowButton fb, FlowState panel)
 	{
 		if(panel is HexPanel)
 		{
@@ -408,8 +409,8 @@ public class ButtonFunctionCollection
 		}
 		return true;
 	}
-	
-	static public bool SetFinish(FlowButton fb, Panel panel)
+
+    static public bool SetFinish(FlowButton fb, FlowState panel)
 	{
 		if((string)DataVault.Get("race_type") == "trainRescue") {
 			DataVault.Set("finish", 350);
@@ -480,8 +481,8 @@ public class ButtonFunctionCollection
 		current.Unlock();
 		return true;
 	}
-	
-//	static public bool SetMode(FlowButton fb, Panel panel) 
+
+//	static public bool SetMode(FlowButton fb, FlowState panel) 
 //	{
 //		string currentMode = (string)DataVault.Get("game_name");
 //		
@@ -510,7 +511,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>always allow for further navigation</returns>
-	static public bool StartPursuitGame(FlowButton fb, Panel panel) 
+    static public bool StartPursuitGame(FlowButton fb, FlowState panel) 
 	{
 		AutoFade.LoadLevel("Pursuit Mode", 0f, 1.0f, Color.black);
 		
@@ -548,7 +549,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>never allow further navigation</returns>
-//	static public bool SetIndoor(FlowButton fb, Panel panel)
+//	static public bool SetIndoor(FlowButton fb, FlowState panel)
 //	{
 ////		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 ////		ps.SetIndoor();
@@ -557,7 +558,7 @@ public class ButtonFunctionCollection
 //		return false;
 //	}
 
-	static public bool DemoLeaderBoard(FlowButton fb, Panel panel)
+    static public bool DemoLeaderBoard(FlowButton fb, FlowState panel)
 	{
 		// Reset world
 		Platform.Instance.ResetTargets();
@@ -581,7 +582,7 @@ public class ButtonFunctionCollection
 //    /// <param name="fb"> button providng event </param>
 //    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
 //    /// <returns>always allow further navigation</returns>
-//	static public bool BackPursuit(FlowButton fb, Panel panel)
+//	static public bool BackPursuit(FlowButton fb, FlowState panel)
 //	{
 //		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 //		ps.Back();
@@ -598,7 +599,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>always allow further navigation</returns>
-	static public bool EndGame(FlowButton fb, Panel panel)
+    static public bool EndGame(FlowButton fb, FlowState panel)
 	{
 		Debug.Log("EndGame called");
 		Track track = Platform.Instance.StopTrack();			
@@ -676,7 +677,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>always allow further navigation</returns>
-	static public bool ClearHistory(FlowButton fb, Panel panel)
+    static public bool ClearHistory(FlowButton fb, FlowState panel)
 	{
 		panel.parentMachine.ForbidBack();
 		return true;
@@ -689,7 +690,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>Never allows to use connection navigation. Instead it uses state machine back navigation</returns>
-    static public bool FollowBack(FlowButton fb, Panel panel)
+    static public bool FollowBack(FlowButton fb, FlowState panel)
     {        
 
         bool backSucceed = panel.parentMachine.FollowBack();
@@ -703,7 +704,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>allow further navigation if friend provider authorized</returns>
-	static public bool SetFriendType(FlowButton fb, Panel panel) 
+    static public bool SetFriendType(FlowButton fb, FlowState panel) 
 	{
 		DataVault.Set("friend_type", fb.name);
 			
@@ -728,8 +729,9 @@ public class ButtonFunctionCollection
 		
 		return false;
 	}
-	
-	static public bool AuthenticateUser(FlowButton fb, Panel panel) {
+
+    static public bool AuthenticateUser(FlowButton fb, FlowState panel)
+    {
 		GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
 		// Follow connection once authentication has returned asynchronously
 		Platform.OnAuthenticated handler = null;
@@ -746,8 +748,8 @@ public class ButtonFunctionCollection
 		
 		return false;
 	}
-	
-	static public bool ShareTrack(FlowButton button, Panel panel)
+
+    static public bool ShareTrack(FlowButton button, FlowState panel)
 	{
 		Platform.OnAuthenticated handler = null;
 		handler = new Platform.OnAuthenticated((authenticated) => {
@@ -768,8 +770,8 @@ public class ButtonFunctionCollection
 		Platform.Instance.Authorize("facebook", "share");
 		return false;
 	}
-	
-	static public bool ChallengeFriend(FlowButton button, Panel panel)
+
+    static public bool ChallengeFriend(FlowButton button, FlowState panel)
 	{
 		Track track = DataVault.Get("current_track") as Track;
 		if(track == null) {
@@ -819,7 +821,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>always allow further navigation</returns>
-    static public bool Challenge(FlowButton button, Panel panel)
+    static public bool Challenge(FlowButton button, FlowState panel)
     {
 		Track track = DataVault.Get("track") as Track;
 		if (track == null) {
@@ -870,7 +872,7 @@ public class ButtonFunctionCollection
     /// <param name="fb"> button providng event </param>
     /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
     /// <returns>never allow further navigation</returns>
-	static public bool AcceptChallenges(FlowButton button, Panel panel) 
+    static public bool AcceptChallenges(FlowButton button, FlowState panel) 
 	{
 		MessageWidget.AddMessage("ERROR", "Deprecated. Stop using and remove once all links removed.", "settings");		
 		return false;
@@ -879,7 +881,7 @@ public class ButtonFunctionCollection
 	/// <summary>
 	/// Enables the flow to go straight to game if we are in the editor
 	/// </summary>
-	static public bool GoStraightToGameInEditor(FlowButton button, Panel panel)
+    static public bool GoStraightToGameInEditor(FlowButton button, FlowState panel)
 	{
 		if(Application.isEditor)
 		{
@@ -908,7 +910,7 @@ public class ButtonFunctionCollection
     /// <param name="button"></param>
     /// <param name="panel"></param>
     /// <returns></returns>
-    static public bool AddButton(FlowButton button, Panel panel)
+    static public bool AddButton(FlowButton button, FlowState panel)
     {
         if (panel != null)
         {
@@ -934,7 +936,7 @@ public class ButtonFunctionCollection
     /// <param name="button"></param>
     /// <param name="panel"></param>
     /// <returns></returns>
-    static public bool GoToFlow1(FlowButton button, Panel panel)
+    static public bool GoToFlow1(FlowButton button, FlowState panel)
     {
         GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
         gc.GoToFlow("Flow1");
@@ -947,14 +949,14 @@ public class ButtonFunctionCollection
     /// <param name="button"></param>
     /// <param name="panel"></param>
     /// <returns></returns>
-    static public bool GoToFlow2(FlowButton button, Panel panel)
+    static public bool GoToFlow2(FlowButton button, FlowState panel)
     {
         GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
         gc.GoToFlow("Flow2");
         return false;
     }
-	
-	static public bool SetChosenActivitySpriteName(FlowButton button, Panel panel)
+
+    static public bool SetChosenActivitySpriteName(FlowButton button, FlowState panel)
 	{
 		UnityEngine.Debug.Log("Game Intro: setting game id to: " + button.name);
 		
@@ -964,4 +966,19 @@ public class ButtonFunctionCollection
 		//follow link as normal
 		return true;
 	}
+
+    static public bool UseCustomRedirection(FlowButton button, FlowState panel)
+    {
+        string start = DataVault.Get("custom_redirection_point") as string;
+        if (start != null && start.Length > 0)
+        {
+            GConnector newExit = panel.Outputs.Find(r => r.Name == start);
+            if (newExit != null)
+            {
+                panel.parentMachine.FollowConnection(newExit);
+                return false;
+            }
+        }
+        return true;
+    }
 }
