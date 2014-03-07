@@ -169,8 +169,8 @@ public class GameBase : MonoBehaviour {
 		//indoor = true;
 		
 		// Set indoor mode
-		//Platform.Instance.SetIndoor(indoor);
-		Platform.Instance.Reset();
+		//Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
+		Platform.Instance.LocalPlayerPosition.Reset();
 		//DataVault.Set("indoor_text", "Indoor Active");
 		
 		hasEnded = false;
@@ -266,7 +266,7 @@ public class GameBase : MonoBehaviour {
 			GConnector gConnect = fs.Outputs.Find(r => r.Name == "QuitExit");
 			if(gConnect != null) {
 				maybeQuit = true;
-				Platform.Instance.StopTrack();
+				Platform.Instance.LocalPlayerPosition.StopTrack();
 				GestureHelper.onBack -= backHandler;
 				fs.parentMachine.FollowConnection(gConnect);
 				
@@ -316,7 +316,7 @@ public class GameBase : MonoBehaviour {
 		if(gConnect != null) {
 			maybeQuit = false;
 			if(started) {
-				Platform.Instance.StartTrack();
+				Platform.Instance.LocalPlayerPosition.StartTrack();
 			} else {
 				countTime = 3.0f;
 				countdown = false;
@@ -367,15 +367,15 @@ public class GameBase : MonoBehaviour {
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
 			countdown = false;
-			DataVault.Set("total", (Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance() + finalBonus).ToString("n0"));
-			DataVault.Set("distance_with_units", SiDistance(Platform.Instance.GetDistance()));
+			DataVault.Set("total", (Platform.Instance.PlayerPoints.CurrentActivityPoints + Platform.Instance.PlayerPoints.OpeningPointsBalance + finalBonus).ToString("n0"));
+			DataVault.Set("distance_with_units", SiDistance(Platform.Instance.LocalPlayerPosition.Distance));
 			UnityEngine.Debug.Log("GameBase: setting points");
 			if(finish >= 1000) {
 				DataVault.Set("bonus", finalBonus.ToString("n0")); 
 			} else {
 				DataVault.Set("bonus", 0);
 			}
-			Platform.Instance.StopTrack();
+			Platform.Instance.LocalPlayerPosition.StopTrack();
 			GestureHelper.onBack -= backHandler;
 			GestureHelper.onTap -= tapHandler;
 			GestureHelper.onSwipeLeft -= leftHandler;
@@ -444,7 +444,7 @@ public class GameBase : MonoBehaviour {
 			 	if(gConnect != null)
 				{
 					pause = true;
-					Platform.Instance.StopTrack();
+					Platform.Instance.LocalPlayerPosition.StopTrack();
 					fs.parentMachine.FollowConnection(gConnect);
 				} else
 				{
@@ -471,7 +471,7 @@ public class GameBase : MonoBehaviour {
 			if(started)
 			{
 				UnityEngine.Debug.Log("GameBase: Starting to track");
-				Platform.Instance.StartTrack();
+				Platform.Instance.LocalPlayerPosition.StartTrack();
 				UnityEngine.Debug.Log("GameBase: Track started successfully");
 			} 
 			else
@@ -527,7 +527,7 @@ public class GameBase : MonoBehaviour {
 		if(gameParamsChanged)
 		{
 // Reset platform, set new target speed and indoor/outdoor mode
-			Platform.Instance.Reset();
+			Platform.Instance.LocalPlayerPosition.Reset();
 			Platform.Instance.ResetTargets();
 					
 			if(selectedTrack == null) {
@@ -536,7 +536,7 @@ public class GameBase : MonoBehaviour {
 				Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
 			}
 			
-			//Platform.Instance.SetIndoor(indoor);			
+			//Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);			
 			
 			// Start countdown again
 			started = false;
@@ -551,7 +551,7 @@ public class GameBase : MonoBehaviour {
 		{
 			// Else restart tracking
 
-			Platform.Instance.StartTrack();
+			Platform.Instance.LocalPlayerPosition.StartTrack();
 		}
 	}
 	
@@ -655,7 +655,7 @@ public class GameBase : MonoBehaviour {
 
 		// Auto-pause if player has stopped for > 0.5secs
 		if (started && !autopause && !pause
-			&& !Platform.Instance.IsIndoor()
+			&& !Platform.Instance.LocalPlayerPosition.IsIndoor()
 			&& Platform.Instance.playerState == "STOPPED"
 			&& (UnityEngine.Time.time-Platform.Instance.playerStateEntryTime > 1.0f))
 		{
@@ -670,7 +670,7 @@ public class GameBase : MonoBehaviour {
 
 		// Auto-un-pause if player has started moving again
 		else if (started && autopause
-			&& !Platform.Instance.IsIndoor()
+			&& !Platform.Instance.LocalPlayerPosition.IsIndoor()
 			&& Platform.Instance.playerState != "STOPPED"
 			&& (UnityEngine.Time.time-Platform.Instance.playerStateEntryTime > 0.5f))
 		{
@@ -686,20 +686,20 @@ public class GameBase : MonoBehaviour {
 		//Update variables for GUI	
 		Platform.Instance.Poll();
 		
-		DataVault.Set("calories", Platform.Instance.Calories().ToString()/* + "kcal"*/);
-		float pace = SpeedToKmPace(Platform.Instance.Pace());
+		DataVault.Set("calories", Platform.Instance.LocalPlayerPosition.Calories.ToString()/* + "kcal"*/);
+		float pace = SpeedToKmPace(Platform.Instance.LocalPlayerPosition.Pace);
 		string paceString = (pace > 20.0f || pace == 0.0f) ? "--:--" : TimestampMMSSnearestTenSecs(pace); // show dashes if slower than slow walk, otherwise round to nearest 10s
 		DataVault.Set("pace", paceString/* + "min/km"*/);
-		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.Distance(), "distance_units"));
-		DataVault.Set("time", TimestampMMSSfromMillis(Platform.Instance.Time()));
+		DataVault.Set("distance", SiDistanceUnitless(Platform.Instance.LocalPlayerPosition.Distance, "distance_units"));
+		DataVault.Set("time", TimestampMMSSfromMillis(Platform.Instance.LocalPlayerPosition.Time));
 		DataVault.Set("indoor_text", indoorText);
 		
-		DataVault.Set("rawdistance", Platform.Instance.Distance());
-		DataVault.Set("rawtime", Platform.Instance.Time());
-        DataVault.Set("sweat_points", string.Format("{0:N0}", Platform.Instance.GetCurrentPoints()));
+		DataVault.Set("rawdistance", Platform.Instance.LocalPlayerPosition.Distance);
+		DataVault.Set("rawtime", Platform.Instance.LocalPlayerPosition.Time);
+        DataVault.Set("sweat_points", string.Format("{0:N0}", Platform.Instance.PlayerPoints.CurrentActivityPoints));
 
 
-        TimeSpan span = TimeSpan.FromMilliseconds(Platform.Instance.Time());
+        TimeSpan span = TimeSpan.FromMilliseconds(Platform.Instance.LocalPlayerPosition.Time);
 						
 			/*return string.Format("{0:0}:{1:00}", span.Minutes, span.Seconds);
 		} else {
@@ -735,7 +735,7 @@ public class GameBase : MonoBehaviour {
 		}
 		
 		// Awards the player points for running certain milestones
-		if(Platform.Instance.Distance() >= bonusTarget)
+		if(Platform.Instance.LocalPlayerPosition.Distance >= bonusTarget)
 		{
 			int targetToKm = bonusTarget / 1000;
 			if(bonusTarget < finish) 
@@ -748,15 +748,15 @@ public class GameBase : MonoBehaviour {
 		
 		//if we're finished, hide the map, and progress to the finished menu
 		//currently firing when targetDistance is 0...
-		if(Platform.Instance.Distance() >= finish && !hasEnded)
+		if(Platform.Instance.LocalPlayerPosition.Distance >= finish && !hasEnded)
 		{
 			hasEnded = true;
 
 			FinishGame();
 		}
 		
-		if(Platform.Instance.IsIndoor()) {
-			if((int)Platform.Instance.Distance() == lastDistance) 
+		if(Platform.Instance.LocalPlayerPosition.IsIndoor()) {
+			if((int)Platform.Instance.LocalPlayerPosition.Distance == lastDistance) 
 			{
 				//UnityEngine.Debug.Log("GameBase: distance is the same, increasing time");
 				if(started)
@@ -770,7 +770,7 @@ public class GameBase : MonoBehaviour {
 			} else {
 				//UnityEngine.Debug.Log("GameBase: distance not the same, resetting");
 				DataVault.Set("indoor_move", " ");
-				lastDistance = (int)Platform.Instance.Distance();
+				lastDistance = (int)Platform.Instance.LocalPlayerPosition.Distance;
 				indoorTime = 0f;
 			}
 		} else {
@@ -786,7 +786,7 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	protected void StartRace()
 	{
-		Platform.Instance.StartTrack();
+		Platform.Instance.LocalPlayerPosition.StartTrack();
 		UnityEngine.Debug.Log("Tracking Started");
 		started = true;
 		

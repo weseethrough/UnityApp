@@ -11,7 +11,17 @@ using RaceYourself.Models;
 [ExecuteInEditMode()] 
 public class PlatformDummy : Platform
 {
-	
+
+	// Helper class for accessing the player's current position, speed and direction of movement
+	private EditorPlayerPosition _localPlayerPosition;
+    public override PlayerPosition LocalPlayerPosition {
+        get { return _localPlayerPosition; }
+    }
+
+	// Helper class for accessing/awarding points
+	private PlayerPoints _playerPoints;
+	public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
+
 	private Stopwatch timer = new Stopwatch();
 	private System.Random random = new System.Random();
 	private long update = 0;
@@ -94,11 +104,6 @@ public class PlatformDummy : Platform
 		applicationIsQuitting = true;
 	}
 
-    public override float GetDistance()
-    {
-        return (float)distance;
-    }
-
     public override bool IsPluggedIn()
     {
         return false;
@@ -112,8 +117,10 @@ public class PlatformDummy : Platform
 	}
 #endif
 
-	public override void Initialize()
+	protected override void Initialize()
 	{
+		_localPlayerPosition = new EditorPlayerPosition();
+		_playerPoints = new EditorPlayerPoints();
 		try {
 			initialised = false;
 			//timer.Start();
@@ -189,20 +196,6 @@ public class PlatformDummy : Platform
         return null;
     }
 
-	public override void StartTrack() {
-		timer.Start();
-	}
-	
-	public override void SetIndoor(bool indoor) {
-		//nothing to do in dummy.
-		return;	
-	}
-	
-	public override bool IsIndoor() {
-		//always indoor in editor
-		return true;
-	}
-
 	
 	public override void ResetTargets() {
 		//Nothing to do?
@@ -219,16 +212,6 @@ public class PlatformDummy : Platform
 		return null;	
 	}
 
-	public Boolean HasLock() {
-		//always report that we have gps lock in editor
-		return true;
-	}
-	
-	public override Track StopTrack() {
-		timer.Stop();
-		return null;
-	}
-
 	public override void Authorize(string provider, string permissions) {
 		//ignore in dummy
 		return;
@@ -242,14 +225,6 @@ public class PlatformDummy : Platform
 	public override void SyncToServer() {
 		//do nothing for dummy
 		return;	
-	}
-
-	public override void Reset() {
-		timer.Stop();
-		timer.Reset();
-		distance = 0;
-		update = 0;
-		target = 1;
 	}
 	
 	public void SetTargetSpeed(float speed)
@@ -360,19 +335,14 @@ public class PlatformDummy : Platform
 	
 	public override void Poll() {
 		if (!timer.IsRunning) return;
-		//if (Time() - update > 1000) { 
-			distance += 4f * UnityEngine.Time.deltaTime;
-			target += targetSpeed * UnityEngine.Time.deltaTime;
-			if (random.Next() % 5 == 0) target += 1 * UnityEngine.Time.deltaTime;
-			if (random.Next() % 5 == 4) { 
-					target -= 1 * UnityEngine.Time.deltaTime;
-					bearing += 10;
-			}
-			update = Time();
-		//}
-		//if (Time () > 1000) {
-			position = new Position((float)(51.400+Math.Cos(bearing*Math.PI/180)*distance/111229d), (float)(-0.15+Math.Sin(bearing*Math.PI/180)*distance/111229d));
-		//}
+
+		LocalPlayerPosition.Update();
+
+		target += targetSpeed * UnityEngine.Time.deltaTime;
+		if (random.Next() % 5 == 0) target += 1 * UnityEngine.Time.deltaTime;
+		if (random.Next() % 5 == 4) {
+				target -= 1 * UnityEngine.Time.deltaTime;
+		}
 
 	}
 	
@@ -400,61 +370,7 @@ public class PlatformDummy : Platform
 	}
 	
 	public override double DistanceBehindTarget() {
-		return target - distance;
-	}
-	
-	public override long Time() {
-		return timer.ElapsedMilliseconds;
-	}
-	
-	public override double Distance() {
-		return distance;
-	}
-	
-	public override int Calories() {
-		return (int)(factor * weight * distance/1000);
-	}
-	
-	public override float Pace() {
-		return 1.0f;
-	}
-	
-	public Position Position() {
-		return position;
-	}	
-	
-	public float Bearing() {
-		return bearing;
-	}
-
-	public int GetCurrentGemBalance ()
-	{
-		//give lots of gems for testing in editor
-		return 100;
-	}
-	
-	public override float GetCurrentMetabolism ()
-	{
-		//return a default value
-		return 1.0f;
-	}
-	
-	public override void SetBasePointsSpeed (float speed)
-	{
-		//do nothing
-		return;
-	}
-	
-	public override void AwardPoints (string reason, string gameId, long points)
-	{
-		//do nothing
-		return;
-	}
-	
-	public override void AwardGems (string reason, string gameId, int gems)
-	{
-		//do nothing
-		return;
+		return target - LocalPlayerPosition.Distance;
 	}
 
 	

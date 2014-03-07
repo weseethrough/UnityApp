@@ -10,7 +10,7 @@ public class ThirdPersonController : MonoBehaviour {
 		animator = GetComponent<Animator>();
 		if(animator != null)
 		{
-			float speed = Platform.Instance.Pace();
+			float speed = Platform.Instance.LocalPlayerPosition.Pace;
 			animator.SetFloat("Speed", speed);
 			if(speed > 2.2f && speed < 4.0f) {
 				animator.speed = speed / 2.2f;
@@ -33,7 +33,7 @@ public class ThirdPersonController : MonoBehaviour {
 		animator = GetComponent<Animator>();
 		if(animator != null)
 		{
-			float speed = Platform.Instance.Pace();
+			float speed = Platform.Instance.LocalPlayerPosition.Pace;
 			animator.SetFloat("Speed", speed);
 			if(speed > 2.2f && speed < 4.0f) {
 				animator.speed = speed / 2.2f;
@@ -56,7 +56,7 @@ public class ThirdPersonController : MonoBehaviour {
 		
 		if(animator != null)
 		{
-			float speed = Platform.Instance.Pace();
+			float speed = Platform.Instance.LocalPlayerPosition.Pace;
 			//UnityEngine.Debug.Log("ThirdPersonController: speed is currently " + speed.ToString("f2"));
 			animator.SetFloat("Speed", speed);
 			if(speed > 2.2f && speed < 4.0f) {

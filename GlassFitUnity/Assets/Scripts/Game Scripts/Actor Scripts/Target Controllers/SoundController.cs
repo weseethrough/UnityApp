@@ -67,8 +67,8 @@ public class SoundController : TargetController {
 			{
 				indoor = false;
 				indoorText = "Outdoor Active";
-				Platform.Instance.Reset();
-				Platform.Instance.SetIndoor(indoor);
+				Platform.Instance.LocalPlayerPosition.Reset();
+				Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
 				
 				score = 0;
 				mult = 1;
@@ -86,8 +86,8 @@ public class SoundController : TargetController {
 			{
 				indoor = true;
 				indoorText = "Indoor Active";
-				Platform.Instance.Reset();
-				Platform.Instance.SetIndoor(indoor);
+				Platform.Instance.LocalPlayerPosition.Reset();
+				Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
 				//Platform.Instance.StartTrack(indoor);
 				score = 0;
 				mult = 1;
@@ -128,12 +128,12 @@ public class SoundController : TargetController {
 		Platform.Instance.Poll();
 		
 		// If indoor mode or gps has a lock, start countdown.
-		if(Platform.Instance.HasLock() || indoor)
+		if(Platform.Instance.LocalPlayerPosition.HasLock() || indoor)
 		{
 			countdown = true;
 		 	if(countTime <= -1.0f && !started)
 			{
-				Platform.Instance.StartTrack();
+				Platform.Instance.LocalPlayerPosition.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
 				started = true;
 			}

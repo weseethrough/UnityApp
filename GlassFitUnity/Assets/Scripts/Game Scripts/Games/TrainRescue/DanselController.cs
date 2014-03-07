@@ -20,9 +20,9 @@ public class DanselController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		float playerDistance = Platform.Instance.GetDistance();
+		float playerDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		
-		zPosition -= Platform.Instance.Pace() * Time.deltaTime;
+		zPosition -= Platform.Instance.LocalPlayerPosition.Pace * Time.deltaTime;
 		
 		//position us at the finish, relative to player
 		transform.localPosition = new Vector3(xOffset, height, zPosition+zOffset);

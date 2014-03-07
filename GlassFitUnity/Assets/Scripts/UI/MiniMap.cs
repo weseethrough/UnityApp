@@ -48,8 +48,8 @@ public class MiniMap : MonoBehaviour {
 	
 				// TODO: Multiple minimap targets
 		double targetDistance = Platform.Instance.GetHighestDistBehind();
-		Position position = Platform.Instance.Position();
-		float bearing = Platform.Instance.Bearing();
+		Position position = Platform.Instance.LocalPlayerPosition.Position;
+		float bearing = Platform.Instance.LocalPlayerPosition.Bearing;
 
 		double bearingRad = bearing*Math.PI/180;
 		

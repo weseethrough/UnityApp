@@ -39,7 +39,7 @@ public class Train_Rescue : GameBase {
 		
 		selectedTrack = (Track)DataVault.Get("current_track");
 		
-		//Platform.Instance.SetIndoor(true);
+		//Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		
 //		try {
 //			if(selectedTrack != null) {
@@ -126,7 +126,7 @@ public class Train_Rescue : GameBase {
 	void Update () {
 		base.Update();
 		
-		if(Platform.Instance.IsIndoor())
+		if(Platform.Instance.LocalPlayerPosition.IsIndoor())
 		{
 			DataVault.Set("calories", "INDOOR");
 		}
@@ -254,7 +254,7 @@ public class Train_Rescue : GameBase {
 	
 	public override GConnector GetFinalConnection ()
 	{
-		if(bFailed || Platform.Instance.GetDistance() < finish)
+		if(bFailed || Platform.Instance.LocalPlayerPosition.Distance < finish)
 		{
 			DataVault.Set("train_subtitle", "\"Aaaaargh!\"");
 		}

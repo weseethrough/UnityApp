@@ -80,8 +80,8 @@ public class TutorialPanel : HexPanel
 		
 		UnityEngine.Debug.Log("TutorialPanel: screen width is " + Screen.width + ", height is " + Screen.height);
 		
-		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
-		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentMetabolism());
+		DataVault.Set("rp", (int)Platform.Instance.PlayerPoints.OpeningPointsBalance);
+		DataVault.Set("metabolism", (int)Platform.Instance.PlayerPoints.CurrentMetabolism);
 		
 		DataVault.Set("race_type", "tutorial");
 		

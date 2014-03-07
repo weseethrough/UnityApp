@@ -102,7 +102,7 @@ public class RaceGame : GameBase {
 		
 		InstantiateActors();
 		
-		//Platform.Instance.SetIndoor(true);
+		//Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		//SetReadyToStart(true);
 		SetVirtualTrackVisible(true);
 
@@ -122,7 +122,7 @@ public class RaceGame : GameBase {
 	
 	
 	protected void UpdateLeaderboard() {
-		double distance = Platform.Instance.Distance();
+		double distance = Platform.Instance.LocalPlayerPosition.Distance;
 		// TODO: Decide if we are allowed to sort in place or need to make a copy
 		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
 		int position = 1;
@@ -189,8 +189,8 @@ public class RaceGame : GameBase {
 //		// TODO: Multiple minimap targets
 //#if !UNITY_EDITOR
 //		double targetDistance = Platform.Instance.GetHighestDistBehind();
-//		Position position = Platform.Instance.Position();
-//		float bearing = Platform.Instance.Bearing();
+//		Position position = Platform.Instance.LocalPlayerPosition.Position;
+//		float bearing = Platform.Instance.LocalPlayerPosition.Bearing;
 //#else
 //		double targetDistance = PlatformDummy.Instance.DistanceBehindTarget();
 //		Position position = PlatformDummy.Instance.Position();
@@ -203,12 +203,12 @@ public class RaceGame : GameBase {
 ////			GetMap(position, bearingRad, targetCoord);
 ////		}
 
-//		if(Platform.Instance.Distance() >= finish && !end)
+//		if(Platform.Instance.LocalPlayerPosition.Distance >= finish && !end)
 //		{
 //			end = true;
-//			DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+//			DataVault.Set("total", Platform.Instance.PlayerPoints.CurrentActivityPoints + Platform.Instance.PlayerPoints.OpeningPointsBalance);
 //			DataVault.Set("bonus", (int)finalBonus);
-//			Platform.Instance.StopTrack();
+//			Platform.Instance.LocalPlayerPosition.StopTrack();
 //			GameObject h = GameObject.Find("minimap");
 //			if(h != null) {
 //				h.renderer.enabled = false;

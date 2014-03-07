@@ -129,7 +129,7 @@ public class TrainRescueSnack : SnackBase {
 	{
 		SetTrack(false);
 		SetReadyToStart(true);
-		//transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
+		//transform.position = new Vector3(0, 0, (float)Platform.Instance.LocalPlayerPosition.Distance);
 	}
 	
 	// Update is called once per frame
@@ -173,7 +173,7 @@ public class TrainRescueSnack : SnackBase {
 					mainCamera.SetActive(true);
 					flyCamera.GetComponentInChildren<Camera>().enabled = false;
 				}
-				transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
+				transform.position = new Vector3(0, 0, (float)Platform.Instance.LocalPlayerPosition.Distance);
 				StartCountdown();
 			}
 		}
@@ -206,7 +206,7 @@ public class TrainRescueSnack : SnackBase {
 			train = trainObject.GetComponent<TrainController_Rescue>();
 		}
 		train.BeginRace();
-		playerStartDistance = Platform.Instance.Distance();
+		playerStartDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		//progress flow to the normal HUD
 		StartCoroutine(DoCountDown());
 	}
@@ -266,6 +266,6 @@ public class TrainRescueSnack : SnackBase {
 	
 	public double GetPlayerDistanceTravelled()
 	{
-		return Platform.Instance.Distance() - playerStartDistance;
+		return Platform.Instance.LocalPlayerPosition.Distance - playerStartDistance;
 	}
 }

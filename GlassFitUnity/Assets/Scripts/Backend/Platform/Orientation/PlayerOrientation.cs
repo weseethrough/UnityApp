@@ -166,9 +166,9 @@ public class PlayerOrientation
 			autoResetYaw = autoResetYaw.HasValue ? 0.7f*autoResetYaw.Value + 0.3f*AsYawFromNorth() : AsYawFromNorth();
 
 			if (autoResetTimer > AUTO_RESET_TIME_DELAY
-				&& (!Platform.Instance.IsTracking() // not tracking, i.e. paused or on a menu screen
-			     || Platform.Instance.Pace() < 1.0f  // going slowly/stopped
-			     || bearingDiffDegrees(Platform.Instance.Bearing(), Platform.Instance.Yaw()) < CORNERING_TOLERANCE))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going. Note GpsBearing is not valid (-999.0) if the user is stationary
+				&& (!Platform.Instance.LocalPlayerPosition.IsTracking // not tracking, i.e. paused or on a menu screen
+			     || Platform.Instance.LocalPlayerPosition.Pace < 1.0f  // going slowly/stopped
+			     || bearingDiffDegrees(Platform.Instance.LocalPlayerPosition.Bearing, Platform.Instance.Yaw()) < CORNERING_TOLERANCE))  // facing with 20 degrees of GPS-based forward movement, i.e. looking where they are going. Note GpsBearing is not valid (-999.0) if the user is stationary
 			{
 				// save current offset and start rotating
 				autoResetFrom = forwardReference;
@@ -181,7 +181,7 @@ public class PlayerOrientation
 		}
 		else
 		{
-			//UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.Bearing());
+			//UnityEngine.Debug.Log("AutoReset: Pitch: " + pitch + ", Roll: " + roll + ", Yaw: " + Platform.Instance.Yaw() + ", GPSbearing: " + Platform.Instance.LocalPlayerPosition.Bearing);
 			// back inside thresholds
 			// reset timer and yaw
 			autoResetTimer = 0;

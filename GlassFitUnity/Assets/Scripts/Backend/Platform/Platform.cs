@@ -13,39 +13,38 @@ using RaceYourself.Models;
 
 public abstract class Platform : MonoBehaviour {
 	private double targetElapsedDistance = 0;
-	private long time = 0;
-	protected double distance = 0.0;
-	private int calories = 0;
-	private float pace = 0;
 
     private string intent = "";
 
+	private PlayerOrientation playerOrientation = new PlayerOrientation();
+
+	// Holds the local player's position and bearing
+	public abstract PlayerPosition LocalPlayerPosition { get; }
+
+	// Helper class for accessing/awarding points
+	public abstract PlayerPoints PlayerPoints { get; }
+
 	// Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via Unity Messages.
+	// This should probably move into PlayerPosition at some point..
 	internal float playerStateEntryTime = UnityEngine.Time.time;
 	internal string playerState = "";
 
-	protected Position position = null;
-	private PlayerOrientation playerOrientation = new PlayerOrientation();
-	protected float bearing = -999.0f;
 	protected float yaw = -999.0f;
 	private bool started = false;
 	protected bool initialised = false;
-	private long currentActivityPoints = 0;
-	private long openingPointsBalance = 0;
+
 	public int currentTrack { get; set; }
 	public float[] sensoriaSockPressure { get; private set;}
 	
 	private List<Track> trackList;
 	private List<Game> gameList;
 	
-	private Boolean tracking = false;
-	public Boolean IsTracking() { return tracking; }
-	
+
 	private AndroidJavaObject helper;
-	private AndroidJavaObject points_helper;
-	private AndroidJavaObject gps;
+
+
 	private AndroidJavaClass helper_class;
-	private AndroidJavaClass points_helper_class;
+
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
 	private AndroidJavaObject sensoriaSock;
@@ -78,6 +77,8 @@ public abstract class Platform : MonoBehaviour {
 	
 	private static Platform _instance;
 	private static Type platformType;
+
+	protected static Log log = new Log("Platform");  // for use by subclasses
 	
 	private Siaqodb db;	
 
@@ -94,7 +95,7 @@ public abstract class Platform : MonoBehaviour {
         {
             if(applicationIsQuitting) 
             {
-            	UnityEngine.Debug.Log("Singleton: already destroyed on application quit - won't create again");
+            	log.info("Application is quitting - won't create a new instance of Platform");
                 return null;
             }
 
@@ -117,7 +118,7 @@ public abstract class Platform : MonoBehaviour {
 				// otherwise initialise a new one
 				if(instance == null)
                 {
-					UnityEngine.Debug.Log("Creating new " + platformType.Name);
+					log.info("Creating new " + platformType.Name);
 					GameObject singleton = new GameObject();
                 	instance = (Platform)singleton.AddComponent(platformType);
                 	singleton.name = "Platform"; // Used as target for messages
@@ -128,7 +129,7 @@ public abstract class Platform : MonoBehaviour {
             	}
 				else
 				{
-					UnityEngine.Debug.Log("Found existing " + platformType.Name + ", won't create a new one. This is unlikely to happen..");
+					log.info("Found existing " + platformType.Name + ", won't create a new one. This is unlikely to happen..");
 				}
 
 				// make sure the instance is initialized before returning
@@ -161,20 +162,19 @@ public abstract class Platform : MonoBehaviour {
         }
     }
         
-	public virtual void Initialize()
+	protected virtual void Initialize()
 	{        
 	                
 	    authenticated = false;
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();
-	    UnityEngine.Debug.Log("Platform: Initialize() called");
 	                
 	    try {
             AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     		activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             context = activity.Call<AndroidJavaObject>("getApplicationContext");
             helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
-            points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
+
             UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
 	                        
             // call the following on the UI thread
@@ -183,36 +183,29 @@ public abstract class Platform : MonoBehaviour {
 				try {
 	                // Get the singleton helper objects
                     helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
-                    points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+
                     UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
-	
-					// Try to get a Java GPSTracker object
-                    gps = helper.Call<AndroidJavaObject>("getGPSTracker");
-                    UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
-	                
+
 	                // Cache the list of games and states from java
+					log.info("Initializing Games");
 		            GetGames();
 					
 					// get reference to Sensoria Socks
+					log.info("Initializing Sensoria socks");
 					try {
 						sensoriaSock = new AndroidJavaObject("com.glassfitgames.glassfitplatform.sensors.SensoriaSock", context);
-						UnityEngine.Debug.Log("Platform: socks obtained");
 					} catch (Exception e) {
-						UnityEngine.Debug.LogWarning("Platform: Error attaching to Sensoria Socks: " + e.Message);
+						log.error("Error attaching to Sensoria Socks: " + e.Message);
 					}
-				                       
-					//Poll();
-		            UnityEngine.Debug.Log("Platform: Opening points: " + GetOpeningPointsBalance());
-		            UnityEngine.Debug.Log("Platform: Current game points: " + GetCurrentPoints());
-		            UnityEngine.Debug.Log("Platform: Current gems: " + GetCurrentGemBalance());
-		            UnityEngine.Debug.Log("Platform: Current metabolism: " + GetCurrentMetabolism());
+
 		                                        
 					if (OnGlass() && HasInternet()) {
-						UnityEngine.Debug.Log("Platform: attempting authorize");
+						log.info("Attempting authorize");
 						Authorize("any", "login");
-						UnityEngine.Debug.Log("Platform: authorize complete");
+						log.info("Authorize complete");
 					}
-					
+
+					log.info("Initializing bluetooth");
 					if (IsRemoteDisplay()) {
 						BluetoothServer();
 					} else {
@@ -222,25 +215,23 @@ public abstract class Platform : MonoBehaviour {
 						// TODO: Non-blocking connect?
 						ConnectSocket();
 					}
-									
-		            initialised = true;
+
 					
-					UnityEngine.Debug.Log("Platform: initialise complete");
+
 					//ExportCSV();
 	
 					// Log screen dimensions - for debug only, can be commented out
-					UnityEngine.Debug.Log("Platform: screen dimensions are " + GetScreenDimensions().x.ToString() + "x" + GetScreenDimensions().y.ToString());
+					log.info("Screen dimensions are " + GetScreenDimensions().x.ToString() + "x" + GetScreenDimensions().y.ToString());
 			    } catch (Exception e) {
-		            UnityEngine.Debug.LogWarning("Platform: Error in initialisation thread " + e.Message);
-		            UnityEngine.Debug.LogException(e);
+		            log.error("Error in android initialisation thread " + e.Message);
 					Application.Quit();
 			    }
 				initialised = true;
+				log.info("Initialise complete");
 	    	}));
 	                        
 	    } catch (Exception e) {
-            UnityEngine.Debug.LogWarning("Platform: Error in constructor " + e.Message);
-            UnityEngine.Debug.LogException(e);
+            log.error("Error in initialisation " + e.Message);
 			Application.Quit();
 	    }
 		// start listening for 2-tap gestures to reset gyros
@@ -498,54 +489,6 @@ public abstract class Platform : MonoBehaviour {
 			return new User(userId, name, name + " Who");
 		}
 	}
-
-	// Starts tracking
-	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual void StartTrack() {
-		try {
-			gps.Call("startTracking");
-			tracking = true;
-			started = true;
-			UnityEngine.Debug.Log("Platform: StartTrack succeeded");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: StartTrack failed " + e.Message);
-			UnityEngine.Debug.LogException(e);
-		}
-	}
-
-	// Set the indoor mode
-	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual void SetIndoor(bool indoor) {
-		try {
-			UnityEngine.Debug.Log("Platform: setting indoor");
-			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-    	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-			
-			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
-				gps.Call("setIndoorMode", indoor);
-				if (indoor) {
-				    gps.Call("setIndoorSpeed", 5.0f);
-				    UnityEngine.Debug.Log("Platform: Indoor mode set to true, indoor speed = 4 min/km");
-				} else {
-					UnityEngine.Debug.Log("Platform: Indoor mode set to false, will use true GPS speed");
-				}
-			}));
-		} catch(Exception e) {
-			UnityEngine.Debug.Log("Platform: Error setting indoor mode " + e.Message);
-		}
-	}
-
-	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual bool IsIndoor() {
-  		try {
-			//UnityEngine.Debug.Log("Platform: checking indoor");
-		    return gps.Call<bool>("isIndoorMode");
-		  } catch (Exception e) {
-		   UnityEngine.Debug.LogWarning("Platform: Error returning isIndoor");
-		   UnityEngine.Debug.Log(e.Message);
-		   return false;
-		  }
-	}
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void ResetTargets() {
@@ -650,36 +593,7 @@ public abstract class Platform : MonoBehaviour {
 		return false;
 	}
 	
-	// Check if has GPS lock
-	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Boolean HasLock() {
-		try {
-			//UnityEngine.Debug.Log("Platform: checking GPS");
-			bool gpsLock = gps.Call<Boolean>("hasPosition");
-//			UnityEngine.Debug.Log("Platform: hasLock() returned " + gpsLock);
-			return gpsLock;
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: hasLock() failed: " + e.Message);
-			UnityEngine.Debug.LogException(e);
-			return false;
-		}
-	}
-	
-	// Stop tracking 
-	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual Track StopTrack() {
-		try {
-			UnityEngine.Debug.Log("Platform: calling stop track");
-			gps.Call("stopTracking");
-			using (AndroidJavaObject rawtrack = gps.Call<AndroidJavaObject>("getTrack")) {
-				return convertTrack(rawtrack);
-			}
-		} catch(Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Problem stopping tracking");
-			UnityEngine.Debug.LogException(e);
-			return null;
-		}
-	}
+
 	
 	// Authentication 
 	// result returned through onAuthenticated
@@ -724,22 +638,6 @@ public abstract class Platform : MonoBehaviour {
 			UnityEngine.Debug.LogException(e);
 		}
 	}
-
-	
-	// Reset GPS tracker
-	[MethodImpl(MethodImplOptions.Synchronized)]
-	public virtual void Reset() {
-		try {
-			gps.Call("startNewTrack");
-			points_helper.Call("reset");
-			started = false;
-			Poll();
-			UnityEngine.Debug.Log("Platform: GPS has been reset");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: reset() failed: " + e.Message);
-			UnityEngine.Debug.LogException(e);
-		}
-	}
 		
 	// Load the game blob
 	public virtual byte[] LoadBlob(string id) {
@@ -758,6 +656,8 @@ public abstract class Platform : MonoBehaviour {
 	public virtual PlayerOrientation GetPlayerOrientation() {
 		return playerOrientation;
 	}
+
+
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual Challenge FetchChallenge(string id) {
@@ -783,31 +683,14 @@ public abstract class Platform : MonoBehaviour {
 		}
 	}
 	
-	private Track convertTrack(AndroidJavaObject rawtrack) {
-		UnityEngine.Debug.Log("Platform: converting track");
-		string name = rawtrack.Call<string>("getName");
-		int[] ids = rawtrack.Call<int[]>("getIDs"); 
-		double trackDistance = rawtrack.Call<double>("getDistance");
-		long trackTime = rawtrack.Call<long>("getTime");
-		string date = rawtrack.Call<string>("getDate");
-		using(AndroidJavaObject poslist = rawtrack.Call<AndroidJavaObject>("getTrackPositions")) {
-			int numPositions = poslist.Call<int>("size");
-			List<Position> pos = new List<Position>(numPositions);
-			for(int j=0; j<numPositions; j++) {
-				AndroidJavaObject position = poslist.Call<AndroidJavaObject>("get", j);
-				Position current = new Position((float)position.Call<double>("getLatx"), (float)position.Call<double>("getLngx"));
-				pos.Add(current);
-			}
-			return new Track(name, ids[0], ids[1], pos, trackDistance, trackTime, date);
-		}
-	}
+
 	
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual Track FetchTrack(int deviceId, int trackId) {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching track");
 			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
-				Track track = convertTrack(rawtrack);
+				Track track = new Track(rawtrack);
 				return track;
 			}
 		} catch (Exception e) {
@@ -826,7 +709,7 @@ public abstract class Platform : MonoBehaviour {
 				try {
 					for(int i=0; i<size; i++) {
 						using(AndroidJavaObject rawTrack = list.Call<AndroidJavaObject>("get", i)) {
-							Track currentTrack = convertTrack(rawTrack);
+							Track currentTrack = new Track(rawTrack);
 							trackList.Add(currentTrack);
 						}
 					}
@@ -855,7 +738,7 @@ public abstract class Platform : MonoBehaviour {
 				try {
 					for(int i=0; i<size; i++) {
 						using (AndroidJavaObject rawtrack = list.Call<AndroidJavaObject>("get", i)) {
-							Track currentTrack = convertTrack(rawtrack);
+							Track currentTrack = new Track(rawtrack);
 							trackList.Add(currentTrack);
 						}
 					}
@@ -1063,19 +946,14 @@ public abstract class Platform : MonoBehaviour {
 		return;
 	}
 	
-	public virtual float GetDistance() {
-		return (float)distance;
-	}
-	
-	
 	public virtual float GetHighestDistBehind() {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
-		float h = (float)targetTrackers[0].GetTargetDistance() - (float)distance;
+		float h = (float)targetTrackers[0].GetTargetDistance() - (float)LocalPlayerPosition.Distance;
 		for(int i=0; i<targetTrackers.Count; i++) {
-			if(h < targetTrackers[i].GetTargetDistance() - (float)distance) {
-				h = (float)targetTrackers[i].GetTargetDistance() - (float)distance;
+			if(h < targetTrackers[i].GetTargetDistance() - (float)LocalPlayerPosition.Distance) {
+				h = (float)targetTrackers[i].GetTargetDistance() - (float)LocalPlayerPosition.Distance;
 			}
 		}
 		return h;
@@ -1086,10 +964,10 @@ public abstract class Platform : MonoBehaviour {
 		if(targetTrackers.Count <= 0)
 			return 0;
 		
-		float l = (float)targetTrackers[0].GetTargetDistance() - (float)distance;
+		float l = (float)targetTrackers[0].GetTargetDistance() - (float)LocalPlayerPosition.Distance;
 		for(int i=0; i<targetTrackers.Count; i++) {
-			if(l > targetTrackers[i].GetTargetDistance() - (float)distance) {
-				l = (float)targetTrackers[i].GetTargetDistance() - (float)distance;
+			if(l > targetTrackers[i].GetTargetDistance() - (float)LocalPlayerPosition.Distance) {
+				l = (float)targetTrackers[i].GetTargetDistance() - (float)LocalPlayerPosition.Distance;
 			}
 		}
 		return l;
@@ -1145,81 +1023,19 @@ public abstract class Platform : MonoBehaviour {
 	}	
 	
 	public virtual void Poll() {
-		//UnityEngine.Debug.Log("Platform: poll now");
-		
-//		if (!hasLock ()) return;
-		try {
-			time = gps.Call<long>("getElapsedTime");
-			//UnityEngine.Debug.Log("Platform: poll time");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: getElapsedTime() failed: " + e.Message);
-			UnityEngine.Debug.LogException(e);
-		}
-		
+
+		this.LocalPlayerPosition.Update();  // update current position
+		this.PlayerPoints.Update(); // update current points
+
 		//UnityEngine.Debug.Log("Platform: poll There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
 			targetTrackers[i].PollTargetDistance();
-		}
-		
-		try {
-			distance = gps.Call<double>("getElapsedDistance");
-			//UnityEngine.Debug.Log("Platform: poll distance");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: getElapsedDistance() failed: " + e.Message);
-			UnityEngine.Debug.LogException(e);
-		}
-		try {
-			pace = gps.Call<float>("getCurrentSpeed");
-			//UnityEngine.Debug.Log("Platform: poll speed");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: getCurrentSpeed() failed: " + e.Message);            
-			UnityEngine.Debug.LogException(e);
-		}
-		try {
-			if (HasLock()) {
-				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
-				//UnityEngine.Debug.Log("Platform: poll position");
-				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
-			}
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting position: " + e.Message);
-//			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
-		}
-
-		try {
-			if (gps.Call<bool>("hasBearing")) {
-				bearing = gps.Call<float>("getCurrentBearing");
-				//UnityEngine.Debug.Log("Platform: poll bearing");
-			} else {
-				bearing = -999.0f;
-			}
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
 		}
 
 		try {
 			yaw = helper.Call<float>("getAzimuth");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
-		}
-		
-		try {
-			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
-			//UnityEngine.Debug.Log("Platform: poll current points");
-			string pointsFormatted = currentActivityPoints.ToString("n0");
-			DataVault.Set ("points", pointsFormatted/* + "RP"*/);
-			
-			//UnityEngine.Debug.Log("Platform: poll points vault set");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting current activity points: " + e.Message);
-			DataVault.Set("points", -1);
-		}		
-		
-		try {
-			openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
-			//UnityEngine.Debug.Log("Platform: poll opening points");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting opening points balance: " + e.Message);
 		}
 		
 		try {
@@ -1232,59 +1048,19 @@ public abstract class Platform : MonoBehaviour {
 	
 	// Return the distance behind target
 	public virtual double DistanceBehindTarget(TargetTracker tracker) {
-		double returnDistance = (tracker.GetTargetDistance() - distance);
+		double returnDistance = (tracker.GetTargetDistance() - LocalPlayerPosition.Distance);
 		return returnDistance;
 	}
 	
 	public virtual double DistanceBehindTarget() {
 		return GetLowestDistBehind();
 	}
-	
-	public virtual long Time() {
-		return time;
-	}
-	
-	public virtual double Distance() {
-		return distance;
-	}
-	
-	public virtual int Calories() {
-		double cal = 76.0 / 1000.0 * distance;
-		return (int)cal;
-	}
-	
-	public virtual float Pace() {
-		return pace;
-	}
-	
-	public virtual Position Position() {
-		return position;
-	}
-	
-	public virtual float Bearing() {
-		return bearing;
-	}
 
 	public virtual float Yaw() {
 		return yaw;
 	}
 	
-	public virtual long GetOpeningPointsBalance() {
-		return openingPointsBalance;
-	}
-	
-	public virtual long GetCurrentPoints() {
-		return currentActivityPoints;
-	}
-	
-	public virtual int GetCurrentGemBalance() {
-		try {
-			return points_helper.Call<int>("getCurrentGemBalance");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting current gem balance: " + e.Message);
-			return 0;
-		}
-	}
+
 	
 	/// <summary>
 	/// Gets the target speed. Only used by Eagle? Will be better done by a dummy targetController.
@@ -1296,74 +1072,7 @@ public abstract class Platform : MonoBehaviour {
 		return 0.0f;
 	}
 	
-	public virtual float GetCurrentMetabolism() {
-		try {
-			return points_helper.Call<float>("getCurrentMetabolism");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting current metabolism: " + e.Message);
-			return 0;
-		}
-	}
-	
-	public virtual void SetBasePointsSpeed(float speed) {
-		try {
-			points_helper.Call("setBaseSpeed", speed);
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error setting base points speed: " + e.Message);
-		}
-	}
-	
-	
-	
-	/// <summary>
-	/// Use this method to award the user points.
-	/// </summary>
-	/// <param name='reason'>
-	/// Reason that the points are being awarded, e.g. "1km bonus".
-	/// </param>
-	/// <param name='gameId'>
-	/// Game identifier so we can log which game the points came from.
-	/// </param>
-	/// <param name='points'>
-	/// Number of points to award.
-	/// </param>
-	public virtual void AwardPoints(String reason, String gameId, long points)
-	{
-		try
-		{
-			points_helper.Call("awardPoints", "in-game bonus", reason, gameId, points);
-			UnityEngine.Debug.Log("Platform: " + gameId + " awarded " + points + " points for " + reason);
-		}
-		catch (Exception e)
-		{
-			UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + points + " points in " + gameId);
-		}
-	}
-	
-	/// <summary>
-	/// Use this method to award the user gems.
-	/// </summary>
-	/// <param name='reason'>
-	/// Reason that the gems are being awarded, e.g. "race completion".
-	/// </param>
-	/// <param name='gameId'>
-	/// Game identifier so we can log which game the gems came from.
-	/// </param>
-	/// <param name='gems'>
-	/// Number of gems to award.
-	/// </param>
-	public virtual void AwardGems(String reason, String gameId, int gems)
-	{
-		try
-		{
-			points_helper.Call("awardGems", "in-game bonus", reason, gameId, gems);
-			UnityEngine.Debug.Log("Platform: " + gameId + " awarded " + gems + " gem(s) for " + reason);
-		}
-		catch (Exception e)
-		{
-			UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + gems + " gems in " + gameId);
-		}
-	}
+
 
 	/// <summary>
 	/// Use this method to record events for analytics, e.g. a user action.

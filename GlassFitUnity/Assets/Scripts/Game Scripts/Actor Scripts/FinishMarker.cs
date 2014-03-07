@@ -34,7 +34,7 @@ public class FinishMarker : MonoBehaviour {
 	/// </summary>
 	void Update () {
 		// Get the current distance travelled.
-		distance = Platform.Instance.Distance();
+		distance = Platform.Instance.LocalPlayerPosition.Distance;
 		// If the finish line is in range, display it.
 		if(distance > target - 100) 
 		{

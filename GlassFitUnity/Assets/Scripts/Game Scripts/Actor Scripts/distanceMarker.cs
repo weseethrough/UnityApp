@@ -51,11 +51,7 @@ public class DistanceMarker : MonoBehaviour {
 	void Update () 
 	{
 		// Get current distance travelled.
-#if !UNITY_EDITOR
-		distance = Platform.Instance.Distance();
-#else
-		distance = PlatformDummy.Instance.Distance();
-#endif
+		distance = Platform.Instance.LocalPlayerPosition.Distance;
 		// Reset markers.
 		transform.position = new Vector3(0, 0, 500000);
 		

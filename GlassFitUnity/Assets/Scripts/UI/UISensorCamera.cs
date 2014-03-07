@@ -32,7 +32,7 @@ public class UISensorCamera : MonoBehaviour {
 		
 #if RY_INDOOR
 		UnityEngine.Debug.LogError("UISensorCamera: we are indoor, using indoor flow");
-		Platform.Instance.SetIndoor(true);
+		Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
     	gc.GoToFlow("IndoorFlow");	
 #endif

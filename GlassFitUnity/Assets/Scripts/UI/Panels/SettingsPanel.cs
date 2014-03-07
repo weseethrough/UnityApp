@@ -38,8 +38,8 @@ public class SettingsPanel : Panel {
 			// Sets indoor mode
 			case "IndoorButton":
 				//ss.SetIndoor();
-				bool indoor = Platform.Instance.IsIndoor();
-				Platform.Instance.SetIndoor(!indoor);
+				bool indoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
+				Platform.Instance.LocalPlayerPosition.SetIndoor(!indoor);
 				
 				break;
 				

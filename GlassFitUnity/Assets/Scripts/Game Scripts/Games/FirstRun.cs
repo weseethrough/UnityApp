@@ -88,7 +88,7 @@ public class FirstRun : GameBase {
 		base.SetReadyToStart(ready);
 		runReadyToStart = ready;
 		
-		if(Platform.Instance.IsIndoor())
+		if(Platform.Instance.LocalPlayerPosition.IsIndoor())
 		{
 			runner = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
 			UnityEngine.Debug.Log("FirstRun: runner is indoor opponent");
@@ -125,7 +125,7 @@ public class FirstRun : GameBase {
 			base.Update();
 			
 			if(runner is FirstRaceIndoorOpponent) {
-				double distance = Platform.Instance.Distance();
+				double distance = Platform.Instance.LocalPlayerPosition.Distance;
 				
 				if(distance > 50 && distance < 100)
 				{
@@ -147,7 +147,7 @@ public class FirstRun : GameBase {
 						{
 							UnityEngine.Debug.Log("FirstRun: couldn't find " + gConnect.Name);
 						}
-						runner.SetHeadstart((float)Platform.Instance.Distance());
+						runner.SetHeadstart((float)Platform.Instance.LocalPlayerPosition.Distance);
 						//(runner as FirstRaceIndoorOpponent).SetRunnerSpeed();
 					}
 				}

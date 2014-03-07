@@ -66,8 +66,8 @@ public class BoulderController : TargetController {
 		// Set the start time
 		currentTime = 0.0f;
 		// Set the player's initial distance
-		playerDistance = Platform.Instance.Distance();
-		playerStartDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
+		playerStartDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		// Set the boulder's starting distance
 		distanceFromStart = (float)playerDistance - 50f;
 	}
@@ -77,7 +77,7 @@ public class BoulderController : TargetController {
 	/// </summary>
 	void Update () {
 		// Set the player distance 
-		playerDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		
 		// Increase the time
 		currentTime += Time.deltaTime;

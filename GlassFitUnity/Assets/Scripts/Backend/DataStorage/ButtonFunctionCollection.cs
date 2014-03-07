@@ -382,7 +382,7 @@ public class ButtonFunctionCollection
 						hex.buttonData[i].textSmall = "Off";
 						if(fb.name == "activity_indoor") {
 							UnityEngine.Debug.Log("ButtonFunc: GPS is off (indoor)");
-							Platform.Instance.SetIndoor(true);
+							Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 						}
 						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to false");
 						DataVault.Set(fb.name, false);
@@ -392,7 +392,7 @@ public class ButtonFunctionCollection
 						hex.buttonData[i].textSmall = "On";
 						if(fb.name == "activity_indoor") {
 							UnityEngine.Debug.Log("ButtonFunc: GPS is on (not indoor)");
-							Platform.Instance.SetIndoor(false);
+							Platform.Instance.LocalPlayerPosition.SetIndoor(false);
 						}
 						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to true");
 						DataVault.Set(fb.name, true);
@@ -552,8 +552,8 @@ public class ButtonFunctionCollection
 //	{
 ////		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 ////		ps.SetIndoor();
-//		bool indoor = Platform.Instance.IsIndoor();
-//		Platform.Instance.SetIndoor(!indoor);
+//		bool indoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
+//		Platform.Instance.LocalPlayerPosition.SetIndoor(!indoor);
 //		return false;
 //	}
 
@@ -651,14 +651,14 @@ public class ButtonFunctionCollection
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
 		Debug.Log("EndGame called");
-		Track track = Platform.Instance.StopTrack();			
+		Track track = Platform.Instance.LocalPlayerPosition.StopTrack();			
 		if (track != null) DataVault.Set("track", track);
 		else DataVault.Remove("track");		
 		
-		DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+		DataVault.Set("total", Platform.Instance.PlayerPoints.CurrentActivityPoints + Platform.Instance.PlayerPoints.OpeningPointsBalance);
 		DataVault.Set("bonus", 0);
 		
-		//Platform.Instance.Reset();
+		//Platform.Instance.LocalPlayerPosition.Reset();
 		Platform.Instance.ResetTargets();
 		AutoFade.LoadLevel("Game End", 0f, 1.0f, Color.black);
 
