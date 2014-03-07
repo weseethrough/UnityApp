@@ -975,6 +975,10 @@ public class ButtonFunctionCollection
             GConnector newExit = panel.Outputs.Find(r => r.Name == start);
             if (newExit != null)
             {
+                //clear redirection target, next time passing this switch we will chose default behavior unless value get restored by external systems
+                DataVault.Set("custom_redirection_point", "");
+
+                //navigate using new connection.
                 panel.parentMachine.FollowConnection(newExit);
                 return false;
             }
