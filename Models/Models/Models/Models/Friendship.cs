@@ -11,7 +11,7 @@ namespace RaceYourself.Models
 		public string _id;
 
 		public string identity_id;
-		public Dictionary<string, string> friend;
+		public Friend friend;
 
 		public DateTime updated_at;
 		public DateTime? deleted_at;

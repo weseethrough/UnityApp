@@ -10,6 +10,7 @@ using RaceYourself;
 using SiaqodbDemo;
 using Sqo;
 using RaceYourself.Models;
+using Newtonsoft.Json;
 
 public abstract class Platform : MonoBehaviour {
 	private double targetElapsedDistance = 0;
@@ -263,8 +264,12 @@ public abstract class Platform : MonoBehaviour {
 				if (self == null) {
 					StartCoroutine(api.RegisterDevice());
 				} else {
-					UnityEngine.Debug.Log ("DEBUG: device id: " + self._id);					
+					UnityEngine.Debug.Log ("DEBUG: device id: " + self._id);	
 					StartCoroutine(api.Sync());
+					StartCoroutine(api.get("users", (body) => {
+						UnityEngine.Debug.Log(body);
+						UnityEngine.Debug.Log(JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Account>>(body).response.Count);
+					}));
 				}
 			});
 		}

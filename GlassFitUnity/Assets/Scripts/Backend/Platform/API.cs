@@ -1,6 +1,9 @@
 using System;
+using System.IO;
+using System.Threading;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Sqo;
 using UnityEngine;
@@ -20,6 +23,9 @@ namespace RaceYourself
 			
 		private const string CLIENT_ID = "8c8f56a8f119a2074be04c247c3d35ebed42ab0dcc653eb4387cff97722bb968";
 		private const string CLIENT_SECRET = "892977fbc0d31799dfc52e2d59b3cba88b18a8e0080da79a025e1a06f56aa8b2";
+		
+		private readonly Regex CACHE_REGEXP = new Regex(".*max-age=(?<maxage>[0-9]*).*");
+		private readonly string CACHE_PATH = Path.Combine(Application.persistentDataPath, "www-cache");
 		
 		private Siaqodb db;
 		
@@ -48,6 +54,7 @@ namespace RaceYourself
 			} else {
 				Debug.Log("API: No stored account");
 			}
+			Directory.CreateDirectory(CACHE_PATH);
 		}
 		
 		/// <summary>
@@ -67,6 +74,7 @@ namespace RaceYourself
 				var encoding = new System.Text.UTF8Encoding();			
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
+				// TODO: Shortcircuit linkage to user by adding Authorization if available
 				
 				var post = new WWW(ApiUrl("devices"), encoding.GetBytes(body), headers);
 				yield return post;
@@ -139,6 +147,7 @@ namespace RaceYourself
 					transaction.Rollback();
 					throw ex;
 				}
+				db.Flush();
 				
 				ret = "Success";				
 			} finally {
@@ -198,6 +207,7 @@ namespace RaceYourself
 				yield break;
 			}
 			Debug.Log("API: Sync()");
+			var start = DateTime.Now;
 			
 			string ret = "Failure";
 			try {
@@ -206,33 +216,45 @@ namespace RaceYourself
 					yield break;
 				}
 				syncing = true;
-				DataWrapper wrapper = new DataWrapper();
 				
-				wrapper.data.devices = new List<Device>(1);				
+				SyncState state = db.Cast<SyncState>().FirstOrDefault();
+				if (state == null) state = new SyncState(0);
+				Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
+						+ " tail: " + state.tail_timestamp + "#" + state.tail_skip);
+				
+				// Register device if it doesn't exist
 				Device self = db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
 				if (self == null) {
-					// Register device
 					IEnumerator e = RegisterDevice();
 					while(e.MoveNext()) yield return e.Current;
 					self = db.Cast<Device>().Where(d => d.self == true).First();
 				}
-				wrapper.data.devices.Add(self);
-								
+				var gatherStart = DateTime.Now;
+				DataWrapper wrapper = new DataWrapper(db, self);
+				Debug.Log("API: Sync() gathered " + wrapper.data.ToString() + " in " + (DateTime.Now - gatherStart));
+				
 				var encoding = new System.Text.UTF8Encoding();			
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
+				headers.Add("Accept-Charset", "utf-8");
 				headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
 				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
 				Debug.Log("API: Sync() pushing " + (body.Length/1000) + "kB");
 				
-				var post = new WWW(ApiUrl("sync/0"), body, headers);
+				var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
 				yield return post;
 							
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
-					ret = "Network error";
+					if (post.error.ToLower().Contains("401 unauthorized")) {
+						db.Delete(token);
+						token = null;
+						ret = "Unauthorized";						
+					} else {
+						ret = "Network error";
+					}
 					yield break;
 				}
 				string responseEncoding = "uncompressed";
@@ -244,28 +266,133 @@ namespace RaceYourself
 				}
 				Debug.Log("API: Sync() received " + (post.size/1000) + "kB " + responseEncoding);
 				
-				ResponseWrapper response = null;
-				try {
-					string responseBody = null;
-					if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(post.bytes));
-					else responseBody = post.text;
-					Debug.Log (responseBody);
-					response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
-				} catch (Exception ex) {
-					ret = "Failure";
-					Debug.Log("API: Sync() threw exception " + ex.ToString());
-					throw ex;
-				}
-				Debug.Log("API: Sync() parsed " + response.response.ToString());
+				// Run slow ops in a background thread
+				var bytes = post.bytes;				
+				Thread backgroundThread = new Thread(() => {				
+					ResponseWrapper response = null;
+					var parseStart = DateTime.Now;
+					try {
+						string responseBody = null;
+						if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(bytes));
+						else responseBody = encoding.GetString(bytes);
+						response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
+					} catch (Exception ex) {
+						ret = "Failure";
+						Debug.Log("API: Sync() threw exception " + ex.ToString());
+						throw ex;
+					}
+					Debug.Log("API: Sync() parsed " + response.response.ToString() + " in " + (DateTime.Now - parseStart));
+					if (response.response.errors.Count > 0) {
+						Debug.LogError("API: Sync(): server reported " + response.response.errors.Count + " errors: " + string.Join("\n", response.response.errors.ToArray()));
+					}
+					
+					var transaction = db.BeginTransaction();
+					try {
+						wrapper.data.flush(db);
+						response.response.persist(db);
+						transaction.Commit();
+					} catch (Exception ex) {
+						ret = "Failure";
+						Debug.Log("API: Sync() threw exception " + ex.ToString());
+						transaction.Rollback();
+						throw ex;
+					}
+					
+					if (response.response.tail_timestamp.HasValue && response.response.tail_timestamp.Value > 0) ret = "partial";
+					else ret = "full";
+				});
+				backgroundThread.Start();
+				while (backgroundThread.IsAlive) yield return null;
 				
-				response.response.persist(db);
-				Debug.Log("API: Sync() persisted " + response.response.ToString());
+				if (ret.Equals("full") || ret.Equals("partial")) Debug.Log("API: Sync() completed successfully in " + (DateTime.Now - start));
 				
-				ret = "stuff";
 			} finally {
 				syncing = false;
 				Platform.Instance.OnSynchronization(ret);
 			}
+		}
+
+		/// <summary>
+		/// Fetch cached data from API
+		/// Returns cached data or null if missing
+		/// </summary>
+		public string getCached(string route) {
+			var cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).FirstOrDefault();
+			if (cache == null || cache.Expired) return null;
+			return File.ReadAllText(Path.Combine(CACHE_PATH, route));
+		}
+		
+		/// <summary>
+		/// Coroutine to fetch data from API.
+		/// Response string or null if failed returned through callback.
+		/// </summary>
+		public IEnumerator get(string route, Action<string> callback, bool checkCache=true) {
+			if (checkCache) {
+				var cached = getCached(route);
+				if (cached != null) {
+					callback(cached);
+					yield break;
+				}
+			}
+			
+			if (token == null || token.HasExpired) {
+				callback(null);
+				yield break;
+			}
+			var start = DateTime.Now;
+			var headers = new Hashtable();
+			headers.Add("Accept-Charset", "utf-8");
+			headers.Add("Accept-Encoding", "gzip");
+			headers.Add("Authorization", "Bearer " + token.access_token);
+			
+			var www = new WWW(ApiUrl(route), null, headers);
+			yield return www;
+				
+			if (!String.IsNullOrEmpty(www.error)) {
+				Debug.LogError("API: get(" + route + ") threw error: " + www.error);
+				if (www.error.ToLower().Contains("401 unauthorized")) {
+					db.Delete(token);
+					token = null;
+				}
+				callback(null);
+				yield break;
+			}			
+			
+			string responseEncoding = "uncompressed";
+			string cacheControl = "no-cache";
+			long maxAge = 60;
+			foreach (string key in www.responseHeaders.Keys) {
+				if (key.ToLower().Equals("content-encoding")) {
+					responseEncoding = www.responseHeaders[key];
+				}
+				if (key.ToLower().Equals("cache-control")) {
+					cacheControl = www.responseHeaders[key];
+					Match matches = CACHE_REGEXP.Match(cacheControl);
+					if (matches.Success) {
+						maxAge = long.Parse(matches.Groups["maxage"].Value);
+						if (maxAge < 60) maxAge = 60; // TODO: Fix server cache-control responses
+					}
+				}
+			}
+			
+			var encoding = new System.Text.UTF8Encoding();
+			string body = null;			
+			if (responseEncoding.ToLower().Equals("gzip")) body = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(www.bytes));
+			else body = encoding.GetString(www.bytes);
+			
+			Models.Cache cache = new Models.Cache(route, maxAge);
+			if (maxAge > 0) {
+				if (!db.UpdateObjectBy("id", cache)) {
+					db.StoreObject(cache);
+				}
+				File.WriteAllText(Path.Combine(CACHE_PATH, route), body);
+				Debug.Log("API: get(" + route + ") cached for " + maxAge + "s");
+			} else {
+				db.DeleteObjectBy("id", cache);
+			}
+			
+			Debug.Log("API: get(" + route + ") returned in " + (DateTime.Now - start));
+			callback(body);
 		}
 		
 		private string ApiUrl(string path) 
@@ -273,19 +400,135 @@ namespace RaceYourself
 			return SCHEME + apiHost + "/api/1/" + path;
 		}
 				
-		private class SingleResponse<T> 
+		public class SingleResponse<T> 
 		{
 			public T response;
+		}
+		
+		public class ListResponse<T>
+		{
+			public List<T> response;
 		}
 				
 		private class DataWrapper
 		{
-			public Data data = new Data();			
+			public Data data;
+			
+			public DataWrapper(Siaqodb db, Device self) {
+				data = new Data(db, self);	
+			}
 		}
 		
 		private class Data
 		{
-			public List<Device> devices;
+			public List<Models.Device> devices;
+			public List<Models.Track> tracks;
+			public List<Models.Position> positions;
+			public List<Models.Orientation> orientations;
+			public List<Models.Notification> notifications;
+			public List<Models.Transaction> transactions;
+			public List<Models.Action> actions;
+			public List<Models.Event> events;
+			
+			public Data(Siaqodb db, Device self) {
+				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
+				tracks = new List<Models.Track>(db.Cast<Models.Track>().Where<Models.Track>(t => t.dirty == true));
+				positions = new List<Models.Position>(db.Cast<Models.Position>().Where<Models.Position>(p => p.dirty == true));
+				orientations = new List<Models.Orientation>(db.Cast<Models.Orientation>().Where<Models.Orientation>(o => o.dirty == true));
+				notifications = new List<Models.Notification>(db.Cast<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
+				transactions = new List<Models.Transaction>(db.Cast<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
+				actions = new List<Models.Action>(db.LoadAll<Models.Action>());
+				events = new List<Models.Event>(db.LoadAll<Models.Event>());
+				
+				// Populate device_id
+				foreach (Models.Track track in tracks) {
+					track.device_id = self._id;
+				}
+				foreach (Models.Position pos in positions) {
+					pos.device_id = self._id;
+				}
+				foreach (Models.Orientation o in orientations) {
+					o.device_id = self._id;
+				}
+				foreach (Models.Event e in events) {
+					e.device_id = self._id;
+				}
+			}
+			
+			public void flush(Siaqodb db) {
+				var start = DateTime.Now;
+				uint updates, deletes;
+				updates = deletes = 0;
+				// Reset dirty flag and remove soft-deleted models
+				foreach (Models.Track track in tracks) {
+					if (track.deleted_at.HasValue) {
+						db.Delete(track);
+						deletes++;
+						continue;
+					}
+					track.dirty = false;
+					db.StoreObject(track); // Store non-transient object by OID
+					updates++;
+				}
+				foreach (Models.Position p in positions) {
+					if (p.deleted_at.HasValue) {
+						db.Delete(p);
+						deletes++;
+						continue;
+					}
+					p.dirty = false;
+					db.StoreObject(p); // Store non-transient object by OID
+					updates++;
+				}
+				foreach (Models.Orientation o in orientations) {
+					if (o.deleted_at.HasValue) {
+						db.Delete(o);
+						deletes++;
+						continue;
+					}
+					o.dirty = false;
+					db.StoreObject(o); // Store non-transient object by OID
+					updates++;
+				}
+				foreach (Models.Notification n in notifications) {
+					n.dirty = false;
+					db.StoreObject(n); // Store non-transient object by OID
+					updates++;
+				}
+				foreach (Models.Transaction t in transactions) {
+					if (t.deleted_at.HasValue) {
+						db.Delete(t);
+						deletes++;
+						continue;
+					}
+					t.dirty = false;
+					db.StoreObject(t); // Store non-transient object by OID
+					updates++;
+				}
+				
+				// Remove fire and forget model
+				foreach (Models.Action action in actions) {
+					db.Delete(action);
+					deletes++;
+				}
+				foreach (Models.Event e in events) {
+					db.Delete(e);
+					deletes++;
+				}
+				Debug.Log("API: Sync: flushed old data: " + updates + " updates, " + deletes + " deletes in " + (DateTime.Now - start));				
+			}
+			
+			public override string ToString()
+			{
+				return (LengthOrNull(devices) + " devices, "
+						+ LengthOrNull(tracks) + " tracks, "
+						+ LengthOrNull(positions) + " positions, "
+						+ LengthOrNull(orientations) + " orientations, "
+						+ LengthOrNull(notifications) + " notifications, "
+						+ LengthOrNull(transactions) + " transactions, "
+						+ LengthOrNull(actions) + " actions, "
+						+ LengthOrNull(events) + " events");
+			}
 		}
 		
 		private class ResponseWrapper
@@ -308,7 +551,7 @@ namespace RaceYourself
 			public List<Models.Notification> notifications;
 			public List<Models.Transaction> transactions;
 			
-			public List<string> errors;	
+			public List<string> errors = new List<string>();
 			
 			public override string ToString()
 			{
@@ -326,113 +569,133 @@ namespace RaceYourself
 			}
 			
 			public void persist(Siaqodb db) {
-				var transaction = db.BeginTransaction();
-				try {
-					SyncState state = db.Cast<SyncState>().FirstOrDefault();
-					if (state == null) {
-						state = new SyncState(sync_timestamp, tail_timestamp, tail_skip);
-					} else {
-						state.sync_timestamp = sync_timestamp;
-						state.tail_timestamp = tail_timestamp;
-						state.tail_skip = tail_skip;
-					}
-					
-					if (devices != null) {
-						db.StartBulkInsert(typeof(Models.Device));
-						UnityEngine.Debug.Log("DEBUG: devices");
-						foreach (Models.Device device in devices) {							
-							if (!db.UpdateObjectBy("id", device)) {
-								db.StoreObject(device);
-							}
-						}
-						db.EndBulkInsert(typeof(Models.Device));
-					}
-					
-					if (friends != null) {
-						db.StartBulkInsert(typeof(Models.Friendship));
-						UnityEngine.Debug.Log("DEBUG: friends");
-						foreach (Models.Friendship friendship in friends) {
-							if (!db.UpdateObjectBy("_id", friendship)) {
-								//db.StoreObject(friendship);
-							}
-						}
-						db.EndBulkInsert(typeof(Models.Friendship));
-					}
-					
-					if (challenges != null) {
-						db.StartBulkInsert(typeof(Models.Challenge));
-						UnityEngine.Debug.Log("DEBUG: challenges");
-						foreach (Models.Challenge challenge in challenges) {
-							if (!db.UpdateObjectBy("_id", challenge)) {
-								db.StoreObject(challenge);
-							}
-						}
-						db.EndBulkInsert(typeof(Models.Challenge));
-					}
-					
-					if (tracks != null) {
-						db.StartBulkInsert(typeof(Models.Device));
-						UnityEngine.Debug.Log("DEBUG: tracks");
-						foreach (Models.Track track in tracks) {
-							if (!db.UpdateObjectBy("_id", track)) {
-								db.StoreObject(track);
-							}
-						}
-						db.EndBulkInsert(typeof(Models.Device));
-					}
-					
-					if (positions != null) {
-						db.StartBulkInsert(typeof(Models.Position));
-						UnityEngine.Debug.Log("DEBUG: positions");
-						foreach (Models.Position position in positions) {
-							if (!db.UpdateObjectBy("_id", position)) {
-								db.StoreObject(position);
-							}
-						}
-						db.EndBulkInsert(typeof(Models.Position));
-					}
-					
-					if (orientations != null) {
-						db.StartBulkInsert(typeof(Models.Orientation));
-						UnityEngine.Debug.Log("DEBUG: orientations");
-						foreach (Models.Orientation orientation in orientations) {
-							if (!db.UpdateObjectBy("_id", orientation)) {
-								db.StoreObject(orientation);
-							}
-						}
-						db.EndBulkInsert(typeof(Models.Orientation));
-					}
-					
-					if (notifications != null) {
-						db.StartBulkInsert(typeof(Models.Notification));
-						UnityEngine.Debug.Log("DEBUG: notifications");
-						foreach (Models.Notification notification in notifications) {
-							if (!db.UpdateObjectBy("_id", notification)) {
-								//db.StoreObject(notification);
-							}
-						}
-						db.EndBulkInsert(typeof(Models.Notification));
-					}
-					
-					if (transactions != null) {
-						db.StartBulkInsert(typeof(Models.Transaction));
-						UnityEngine.Debug.Log("DEBUG: transactions");
-						foreach (Models.Transaction gtransaction in transactions) {
-							if (!db.UpdateObjectBy("_id", gtransaction)) {
-								db.StoreObject(gtransaction);
-							}
-						}
-						db.EndBulkInsert(typeof(Models.Transaction));
-					}
-					
-					db.StoreObject(state);
-					UnityEngine.Debug.Log("DEBUG: done");
-					transaction.Commit();
-					db.Flush();
-				} catch (Exception ex) {
-					transaction.Rollback();
-					throw ex;
+				var start = DateTime.Now;
+				uint inserts, updates, deletes;
+				inserts = updates = deletes = 0;
+				
+				SyncState state = db.Cast<SyncState>().FirstOrDefault();
+				if (state == null) {
+					state = new SyncState(sync_timestamp, tail_timestamp, tail_skip);
+				} else {
+					state.sync_timestamp = sync_timestamp;
+					state.tail_timestamp = tail_timestamp;
+					state.tail_skip = tail_skip;
 				}
+									
+				if (devices != null) {
+					db.StartBulkInsert(typeof(Models.Device));
+					foreach (Models.Device device in devices) {
+						// TODO: Move to <model>.save(db)?
+						if (!db.UpdateObjectBy("id", device)) {
+							db.StoreObject(device);
+							inserts++;
+						} else updates++;
+					}
+					db.EndBulkInsert(typeof(Models.Device));
+				}
+				
+				if (friends != null) {
+					db.StartBulkInsert(typeof(Models.Friend));
+					foreach (Models.Friendship friendship in friends) {
+						if (friendship.deleted_at != null) {
+							if (db.DeleteObjectBy("_id", friendship.friend)) deletes++;
+							continue;
+						}
+						if (!db.UpdateObjectBy("_id", friendship.friend)) {
+							db.StoreObject(friendship.friend);
+							inserts++;
+						} else updates++;
+					}
+					db.EndBulkInsert(typeof(Models.Friend));
+				}
+				
+				if (challenges != null) {
+					db.StartBulkInsert(typeof(Models.Challenge));
+					foreach (Models.Challenge challenge in challenges) {
+						if (!db.UpdateObjectBy("_id", challenge)) {
+							db.StoreObject(challenge);
+							inserts++;
+						} else updates++;
+					}
+					db.EndBulkInsert(typeof(Models.Challenge));
+				}
+				
+				if (tracks != null) {
+					db.StartBulkInsert(typeof(Models.Device));
+					foreach (Models.Track track in tracks) {
+						track.GenerateCompositeId();
+						if (track.deleted_at != null) {
+							db.DeleteObjectBy("_id", track);
+							continue;
+						}
+						if (!db.UpdateObjectBy("_id", track)) {
+							db.StoreObject(track);
+							inserts++;
+						} else updates++;
+					}
+					db.EndBulkInsert(typeof(Models.Device));
+				}
+				
+				if (positions != null) {
+					db.StartBulkInsert(typeof(Models.Position));
+					foreach (Models.Position position in positions) {
+						position.GenerateCompositeId();
+						if (position.deleted_at != null) {
+							if (db.DeleteObjectBy("id", position)) deletes++;
+							continue;
+						}
+						if (!db.UpdateObjectBy("id", position)) {
+							db.StoreObject(position);
+							inserts++;
+						} else updates++;
+					}
+					db.EndBulkInsert(typeof(Models.Position));
+				}
+				
+				if (orientations != null) {
+					db.StartBulkInsert(typeof(Models.Orientation));
+					foreach (Models.Orientation orientation in orientations) {
+						orientation.GenerateCompositeId();
+						if (orientation.deleted_at != null) {
+							if (db.DeleteObjectBy("id", orientation)) deletes++;
+							continue;
+						}							
+						if (!db.UpdateObjectBy("id", orientation)) {
+							db.StoreObject(orientation);
+							inserts++;
+						} else updates++;
+					}
+					db.EndBulkInsert(typeof(Models.Orientation));
+				}
+				
+				if (notifications != null) {
+					db.StartBulkInsert(typeof(Models.Notification));
+					foreach (Models.Notification notification in notifications) {
+						if (!db.UpdateObjectBy("_id", notification)) {
+							db.StoreObject(notification);
+							inserts++;
+						} else updates++;
+					}
+					db.EndBulkInsert(typeof(Models.Notification));
+				}
+				
+				if (transactions != null) {
+					db.StartBulkInsert(typeof(Models.Transaction));
+					foreach (Models.Transaction gtransaction in transactions) {
+						if (gtransaction.deleted_at != null) {
+							if (db.DeleteObjectBy("_id", gtransaction)) deletes++;
+							continue;
+						}
+						if (!db.UpdateObjectBy("_id", gtransaction)) {
+							db.StoreObject(gtransaction);
+							inserts++;
+						} else updates++;
+					}
+					db.EndBulkInsert(typeof(Models.Transaction));
+				}
+				
+				db.StoreObject(state);
+				Debug.Log("API: Sync: persisted new data: " + inserts + " inserts, " + updates + " updates, " + deletes + " deletes in " + (DateTime.Now - start));
 			}
 		}
 		

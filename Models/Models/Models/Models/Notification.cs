@@ -13,7 +13,10 @@ namespace RaceYourself.Models
 		public string _id;
 
 		public bool read;
-		public Dictionary<string, object> message;
+		public Message message;
+
+		[JsonIgnore]
+		public bool dirty = false;
 	}
 }
 
