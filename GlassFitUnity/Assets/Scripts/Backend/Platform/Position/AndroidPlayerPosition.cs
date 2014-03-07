@@ -141,8 +141,6 @@ public class AndroidPlayerPosition : PlayerPosition {
 
 	public override void Update() {
 
-		log.profile("Update() called");
-
 		try {
 			_time = androidGpsTracker.Call<long>("getElapsedTime");
 			//log.info("poll time");
@@ -186,8 +184,6 @@ public class AndroidPlayerPosition : PlayerPosition {
 		} catch (Exception e) {
 			log.warning("Error getting bearing: " + e.Message);
 		}
-
-		log.profile("Update() complete");
 
 	}
 

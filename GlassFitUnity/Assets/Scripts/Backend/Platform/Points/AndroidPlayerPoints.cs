@@ -23,7 +23,7 @@ public class AndroidPlayerPoints : PlayerPoints
 		try {
 			return points_helper.Call<int>("getCurrentGemBalance");
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting current gem balance: " + e.Message);
+			log.error("Error getting current gem balance: " + e.Message);
 			return 0;
 		}
 	}}
@@ -33,7 +33,7 @@ public class AndroidPlayerPoints : PlayerPoints
 		try {
 			return points_helper.Call<float>("getCurrentMetabolism");
 		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting current metabolism: " + e.Message);
+			log.error("Error getting current metabolism: " + e.Message);
 			return 0;
 		}
 	}}
@@ -42,7 +42,8 @@ public class AndroidPlayerPoints : PlayerPoints
 	{
 		log.profile("Connecting to Android points helper");
 
-		try {
+		try
+		{
 			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
 	    	AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
 			AndroidJavaObject context = currentActivity.Call<AndroidJavaObject>("getApplicationContext");
@@ -59,58 +60,58 @@ public class AndroidPlayerPoints : PlayerPoints
 
 		Update();
 
-        UnityEngine.Debug.Log("Platform: Opening points: " + OpeningPointsBalance);
-        UnityEngine.Debug.Log("Platform: Current game points: " + CurrentActivityPoints);
-        UnityEngine.Debug.Log("Platform: Current gems: " + CurrentGemBalance);
-        UnityEngine.Debug.Log("Platform: Current metabolism: " + CurrentMetabolism);
+        log.info(" Opening points: " + OpeningPointsBalance);
+        log.info(" Current game points: " + CurrentActivityPoints);
+        log.info(" Current gems: " + CurrentGemBalance);
+        log.info(" Current metabolism: " + CurrentMetabolism);
 
 		log.profile("Connected to Android points helper");
 	}
 
 	public override void Update()
 	{
-		log.profile("Update() called");
-
-		try {
+		try
+		{
 			_currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
-			UnityEngine.Debug.Log("Platform: poll current points");
 			string pointsFormatted = _currentActivityPoints.ToString("n0");
 			DataVault.Set ("points", pointsFormatted/* + "RP"*/);
-			
-			UnityEngine.Debug.Log("Platform: poll points vault set");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting current activity points: " + e.Message);
+		}
+		catch (Exception e)
+		{
+			log.error(" Error getting current activity points: " + e.Message);
 			DataVault.Set("points", -1);
 		}		
 		
-		try {
+		try
+		{
 			_openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
-			UnityEngine.Debug.Log("Platform: poll opening points");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting opening points balance: " + e.Message);
 		}
-
-		log.profile("Update() complete");
-
+		catch (Exception e)
+		{
+			log.error("Error getting opening points balance: " + e.Message);
+		}
 	}
 
 	public override void Reset() {
 		try
 		{
 			points_helper.Call("reset");
-			UnityEngine.Debug.Log("Platform: Playerpoints reset");
+			log.info("Current activity points reset");
 		}
 		catch (Exception e)
 		{
-			UnityEngine.Debug.LogWarning("Platform: Error resetting playerpoints");
+			log.error("Error resetting current activity points");
 		}
 	}
 	
 	public override void SetBasePointsSpeed(float speed) {
-		try {
+		try
+		{
 			points_helper.Call("setBaseSpeed", speed);
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error setting base points speed: " + e.Message);
+		}
+		catch (Exception e)
+		{
+			log.error("Error setting base speed: " + e.Message);
 		}
 	}
 
@@ -131,11 +132,11 @@ public class AndroidPlayerPoints : PlayerPoints
 		try
 		{
 			points_helper.Call("awardPoints", "in-game bonus", reason, gameId, points);
-			UnityEngine.Debug.Log("Platform: " + gameId + " awarded " + points + " points for " + reason);
+			log.info(gameId + " awarded " + points + " points for " + reason);
 		}
 		catch (Exception e)
 		{
-			UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + points + " points in " + gameId);
+			log.error("Error awarding " + reason + " of " + points + " points in " + gameId);
 		}
 	}
 	
@@ -156,11 +157,11 @@ public class AndroidPlayerPoints : PlayerPoints
 		try
 		{
 			points_helper.Call("awardGems", "in-game bonus", reason, gameId, gems);
-			UnityEngine.Debug.Log("Platform: " + gameId + " awarded " + gems + " gem(s) for " + reason);
+			log.info(gameId + " awarded " + gems + " gem(s) for " + reason);
 		}
 		catch (Exception e)
 		{
-			UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + gems + " gems in " + gameId);
+			log.error("Error awarding " + reason + " of " + gems + " gems in " + gameId);
 		}
 	}
 
