@@ -15,6 +15,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 	                                                        // applied to camera in each update() call.
 	private Quaternion? initialBearing = null;  // first valid bearing we receive. Updated on 2-tap (along with gyros)
 	                                            // null iff no valid bearing has been calculated yet
+
+	protected float pitchOffset = 0.0f;
+
 	private bool started;
 	public GameObject grid;
 	private bool gridOn = false;
@@ -214,8 +217,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 		Vector3 eulerAngles = headOffset.eulerAngles;
 		eulerAngles.x *= 2.0f;
 		//tilt down a little too
-		eulerAngles.x -= 15.0f;
-		headOffset = Quaternion.Euler(eulerAngles);
+		//eulerAngles.x -= 15.0f;
+		//headOffset = Quaternion.Euler(eulerAngles);
 		
 		// Check for rearview
 		Quaternion rearviewOffset = Quaternion.Euler(0, (rearview ? 180 : 0), 0);
@@ -262,7 +265,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 						float addedValue = xChange.Value.x - previousZoom;
 						float newFOV = Camera.main.fieldOfView;
 						newFOV += addedValue * 60f;
-						UnityEngine.Debug.Log("MinimalSensorCamera: current FOV is " + newFOV.ToString("f2"));
+						//UnityEngine.Debug.Log("MinimalSensorCamera: current FOV is " + newFOV.ToString("f2"));
 						Camera.main.fieldOfView = Mathf.Clamp(newFOV, 10f, 60f);
 					} 
 					else {
@@ -289,8 +292,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 						float addedValue = xChange.Value.x - previousPitch;
 						float newPitch = Platform.Instance.GetPlayerOrientation().GetPitchOffset();
 						newPitch += addedValue * 40f;
-						UnityEngine.Debug.Log("MinimalSensorCamera: pitch is set to " + Mathf.Clamp(newPitch, -20f, 20f).ToString("f2"));
-						Platform.Instance.GetPlayerOrientation().SetPitchOffset(Mathf.Clamp(newPitch, -20f, 20f));
+						pitchOffset = Mathf.Clamp(newPitch, -20f, 20f);
+						//UnityEngine.Debug.Log("MinimalSensorCamera: pitch is set to " + pitchOffset.ToString("f2"));
+						Platform.Instance.GetPlayerOrientation().SetPitchOffset(pitchOffset);
 					}
 					else
 					{

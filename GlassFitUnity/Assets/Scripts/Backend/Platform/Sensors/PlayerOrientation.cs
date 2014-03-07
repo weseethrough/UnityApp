@@ -86,15 +86,17 @@ public class PlayerOrientation
 	// currently locked to the horizontal plane
 	public void SetPitchOffset(float pitchDegrees)
 	{
-//		this.pitchOffset = pitchDegrees;
-//
+		UnityEngine.Debug.Log("PlayerOrientation pitch offset updated");
+		this.pitchOffset = pitchDegrees;
+
 //		Vector3 currentYPR = OrientationUtils.QuaternionToYPR(forwardReference);  // returns yaw and pitch the wrong way round
 //		Vector3 newYPR = new Vector3(currentYPR.z, (-90.0f-this.pitchOffset)*Mathf.Deg2Rad, 0.0f); // same yaw, new pitch, zero roll
 //		this.forwardReference = OrientationUtils.YPRToQuaternion(newYPR);
 //
-//		updatePlayerOrientation();  // we've changed the initial offset, so need to update this too
+		updatePlayerOrientation();  // we've changed the initial offset, so need to update this too
 
-		UnityEngine.Debug.Log("PlayerOrientation pitch offset updated");
+
+
 
 	}
 
@@ -102,8 +104,13 @@ public class PlayerOrientation
 	// update all relative values based on initial offset and rotationFromDown
 	private void updatePlayerOrientation()
 	{
-		rotationFromForward = Quaternion.Inverse(forwardReference) * rotationFromDown;
-		rotationFromNorth = Quaternion.Inverse(northReference) * rotationFromDown;
+		//apply pitch offset
+		Quaternion offsetForPitch = Quaternion.AngleAxis(pitchOffset, Vector3.right);
+
+		rotationFromDown = rotationFromDown;
+
+		rotationFromForward = Quaternion.Inverse(forwardReference) * rotationFromDown * offsetForPitch;
+		rotationFromNorth = Quaternion.Inverse(northReference) * rotationFromDown * offsetForPitch;
 
 		// update yaw, pitch and roll from forward
 		Vector3 YPR = OrientationUtils.QuaternionToYPR(rotationFromForward);

@@ -93,7 +93,7 @@ public class PlatformDummy : Platform
     }
 	public override bool IsRemoteDisplay()
 	{
-		return false;
+		return true;
 	}
 	
 	public void OnDestroy() 
@@ -164,7 +164,9 @@ public class PlatformDummy : Platform
 	
 	public override void Initialize()
 	{
-		
+		//create list of target trackers, since this is a public member, an empty list is preferable to a null list.
+		targetTrackers = new List<TargetTracker>();
+
 		//take us to the start hex scene if appropriate
 //		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 //		if(fs == null)
@@ -275,7 +277,7 @@ public class PlatformDummy : Platform
 		return null;	
 	}
 
-	public Boolean HasLock() {
+	public override Boolean HasLock() {
 		//always report that we have gps lock in editor
 		return true;
 	}
@@ -540,7 +542,7 @@ public class PlatformDummy : Platform
 	
 	public override Vector2? GetTouchInput ()
 	{
-		if(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.RightCommand))
+		if(GetTouchCount() > 0)
 		{
 			float x = Input.mousePosition.x / Screen.width;
 			float y = Input.mousePosition.y / Screen.height;
@@ -551,11 +553,13 @@ public class PlatformDummy : Platform
 	
 	public override int GetTouchCount ()
 	{
-		if(Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.LeftCommand) || Input.GetKey(KeyCode.RightControl) || Input.GetKey(KeyCode.RightCommand))
-		{
-			return 1;
-		}
-		return 0;
+		int touchCount = 0;
+		//simulate multiple touchers by holding more than one modifier key
+		if(Input.GetKey(KeyCode.LeftControl)) { touchCount++;}
+		if(Input.GetKey(KeyCode.LeftCommand)) { touchCount++;}
+		if(Input.GetKey(KeyCode.RightControl)) { touchCount++;}
+		if(Input.GetKey(KeyCode.RightCommand)) { touchCount++;}
+		return touchCount;
 	}
 
 }

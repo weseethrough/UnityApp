@@ -46,7 +46,7 @@ public abstract class Platform : MonoBehaviour {
 	private AndroidJavaObject context;
 	private AndroidJavaObject sensoriaSock;
 	
-	public List<TargetTracker> targetTrackers { get; private set; }
+	public List<TargetTracker> targetTrackers { get; protected set; }
 	
 	// Are we authenticated? Note: we mark it false at init and true when any auth call passes
 	public bool authenticated { get; private set; }	
