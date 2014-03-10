@@ -166,17 +166,13 @@ public class GameBase : MonoBehaviour {
 	protected void QuitImmediately()
 	{
 		//Flow to main hex menu
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gc = fs.Outputs.Find( r => r.Name == "QuitImmediately");
-		if(gc != null)
+		if(FlowState.FollowFlowLinkNamed("QuitImmediately"))
 		{
-			fs.parentMachine.FollowConnection(gc);
+			CleanUp();
+			//load env
+			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		}
 		
-		CleanUp();
-		
-		//load env
-		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 	}
 	
 	public void SetVirtualTrackVisible(bool visible)
@@ -196,12 +192,8 @@ public class GameBase : MonoBehaviour {
 	}
 
 	public void ConsiderQuit() {
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "QuitExit");
-			if(gConnect != null) {
-				fs.parentMachine.FollowConnection(gConnect);
-				Platform.Instance.StopTrack();
-			}
+		FlowState.FollowFlowLinkNamed("QuitExit");	
+		Platform.Instance.StopTrack();
 	}
 	
 	//UNUSED?
@@ -216,12 +208,7 @@ public class GameBase : MonoBehaviour {
 //	}
 	
 	public void ReturnGame() {
-		
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
-		if(gConnect != null) {
-			fs.parentMachine.FollowConnection(gConnect);
-		}
+		FlowState.FollowFlowLinkNamed("GameExit");
 	}
 	
 	public virtual GConnector GetFinalConnection() {
@@ -352,23 +339,23 @@ public class GameBase : MonoBehaviour {
 		return;
 	}
 	
-	/// <summary>
-	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
-	/// </summary>
-	void Continue() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
-		if(gConnect != null) {
-			//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-			SoundManager.PlaySound(SoundManager.Sounds.Tap);
-			fs.parentMachine.FollowConnection(gConnect);
-			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-		} else {
-			UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
-		}
-		
-		CleanUp();
-	}
+//	/// <summary>
+//	/// Continue, once we h
+//	/// </summary>
+//	void Continue() {
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+//		if(gConnect != null) {
+//			//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+//			SoundManager.PlaySound(SoundManager.Sounds.Tap);
+//			fs.parentMachine.FollowConnection(gConnect);
+//			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+//		} else {
+//			UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
+//		}
+//		
+//		CleanUp();
+//	}
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
 	public virtual void GameHandleTap() {
@@ -419,16 +406,12 @@ public class GameBase : MonoBehaviour {
 			break;
 		case GAMESTATE_FINISHED:
 			//continue
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
-			if(gConnect != null) {
-				//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-				SoundManager.PlaySound(SoundManager.Sounds.Tap);
-				fs.parentMachine.FollowConnection(gConnect);
-				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-			} else {
+			if(!FlowState.FollowFlowLinkNamed("ContinueButton"))
+			{
 				UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
 			}
+
+
 			//do nothing
 			break;
 		}
@@ -449,11 +432,8 @@ public class GameBase : MonoBehaviour {
 	protected void EnterPause()
 	{
 		//transition to pause screen
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
-		if(gConnect != null)
+		if(FlowState.FollowFlowLinkNamed("PauseExit"))
 		{
-			fs.parentMachine.FollowConnection(gConnect);
 			//set string for GUI
 			DataVault.Set("paused", "Paused");
 			
@@ -471,15 +451,9 @@ public class GameBase : MonoBehaviour {
 	protected virtual void ExitPause()
 	{
 		UnityEngine.Debug.Log("GameBase: Unpausing");
-
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ReturnExit");
-		if(gConnect != null)
+		if(FlowState.FollowFlowLinkNamed("ReturnExit"))
 		{
-			fs.parentMachine.FollowConnection(gConnect);
-			
-			Time.timeScale = 1.0f;
-			
+			Time.timeScale = 1.0f;	
 			//resume tracking
 			Platform.Instance.StartTrack();
 		} else

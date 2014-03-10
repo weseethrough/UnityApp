@@ -94,9 +94,7 @@ public class TrackSelect : MonoBehaviour {
 	
 	public void GoBack() 
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		
-		fs.parentMachine.FollowBack();
+		FlowState.FollowBackLink();
 		GestureHelper.onTap -= tapHandler;
 		GestureHelper.onSwipeLeft -= leftHandler;
 		GestureHelper.onSwipeRight -= rightHandler;

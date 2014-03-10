@@ -75,16 +75,7 @@ public class DeviceControl : MonoBehaviour {
 
             pollTime -= 500.0f; //simply shouldn't have to happen again
             FlowState fs = FlowStateMachine.GetCurrentFlowState();
-            GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-            if (gConnect != null)
-            {
-                UnityEngine.Debug.Log("DeviceControl: Automatic exit");
-                fs.parentMachine.FollowConnection(gConnect);
-            }
-            else
-            {
-                UnityEngine.Debug.Log("DeviceControl: Connection not found: MenuExit");
-            }
+			FlowState.FollowFlowLinkNamed("MenuExit");
 #else
 			pollTime -= 5.0f;
 			

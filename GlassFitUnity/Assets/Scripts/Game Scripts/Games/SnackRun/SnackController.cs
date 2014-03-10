@@ -86,32 +86,17 @@ public class SnackController : MonoBehaviour {
 	
 	public void OfferGame()
 	{
-	
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		//clear current snack offer
 		if(awaitingAcceptTap)
 		{
-			GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
-			if (gc != null)
-			{
-				fs.parentMachine.FollowConnection(gc);
-			}
-			
+			FlowState.FollowFlowLinkNamed("Return");			
 			awaitingAcceptTap = false;
 		}
 		
 		UnityEngine.Debug.Log("SnackController: offering snack");
+
 		//transition flow to panel to offer game
-		GConnector gcBegin = fs.Outputs.Find( r => r.Name == "BeginSnack" );
-		if (gcBegin != null)
-		{
-			fs.parentMachine.FollowConnection(gcBegin);
-		}
-		else
-		{
-			//couldn't find HUD connector
-			UnityEngine.Debug.LogError("SnackController: couldn't find flow connector 'BeginSnack' ");
-		}
+		FlowState.FollowFlowLinkNamed("BeginSnack");
 		
 		//set strings in datavault for ui panel
 		DataVault.Set("snack_game_title", currentGame.name);
@@ -166,12 +151,7 @@ public class SnackController : MonoBehaviour {
 		if(!acceptedGame)
 		{
 			//dismiss (transition flow back to HUD)
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
-			if (gc != null)
-			{
-				fs.parentMachine.FollowConnection(gc);
-			}
+			FlowState.FollowFlowLinkNamed("Return");
 			
 			awaitingAcceptTap = false;
 			UnityEngine.Debug.Log("SnackController: Snack declined");
@@ -279,14 +259,8 @@ public class SnackController : MonoBehaviour {
 	{
 		UnityEngine.Debug.Log("SnackController: looking for return exit");
 		//transition UI back to HUD
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
-//		if (gc != null)
-//		{
-//			UnityEngine.Debug.Log("SnackController: return exit found, going now");
-//			fs.parentMachine.FollowConnection(gc);
-//		}
-		fs.parentMachine.FollowBack();
+
+		FlowState.FollowBackLink();
 		
 		if(currentSnackGameMainObj != null)
 		{
@@ -302,12 +276,7 @@ public class SnackController : MonoBehaviour {
 		currentSnackGameMainObj = null;
 		
 		//transition UI back to HUD
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
-		if (gc != null)
-		{
-			fs.parentMachine.FollowConnection(gc);
-		}
+		FlowState.FollowFlowLinkNamed("Return");
 		
 		//notify the game that the snack is over
 		SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));

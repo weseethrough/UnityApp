@@ -24,38 +24,20 @@ public class PurchaseListener : MonoBehaviour {
 	
 	void GoBack() 
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		
-		GConnector gConect = fs.Outputs.Find(r => r.Name == "MenuButton");
-		if(gConect != null) {
-			fs.parentMachine.FollowConnection(gConect);
-		}
+		FlowState.FollowFlowLinkNamed("MenuButton");
 	}
 	
 	void PurchaseGame() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuButton");
-		
-		if(gConnect != null) {
+		if(FlowState.FollowFlowLinkNamed("MenuButton")) {
 			Game current = (Game)DataVault.Get("actual_game");
 			UnityEngine.Debug.Log("Purchase: Game bought");
 			current.Unlock();
-			fs.parentMachine.FollowConnection(gConnect);
-		} else {
-			UnityEngine.Debug.Log("Purchase: No connection found, cannot purchase");
 		}
 	}
 	
 	void Update() {
 		if(Input.GetKeyDown(KeyCode.Escape)) {
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuButton");
-			
-			if(gConnect != null) {
-				fs.parentMachine.FollowConnection(gConnect);
-			} else {
-				UnityEngine.Debug.Log("Purchase: No connection found, cannot purchase");
-			}
+			FlowState.FollowFlowLinkNamed("MenuButton");
 		}
 	}
 	

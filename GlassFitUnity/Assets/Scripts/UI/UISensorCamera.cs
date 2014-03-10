@@ -42,12 +42,7 @@ public class UISensorCamera : MonoBehaviour {
 	
 	void GoBack() 
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		
-		GConnector gConect = fs.Outputs.Find(r => r.Name == "MenuButton");
-		if(gConect != null) {
-			fs.parentMachine.FollowConnection(gConect);
-		}
+		FlowState.FollowFlowLinkNamed("MenuButton");
 	}
 	
 	/// <summary>

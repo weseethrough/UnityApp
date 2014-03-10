@@ -10,14 +10,7 @@ public class DeleteController : MonoBehaviour {
 	void Start () {
 		tapHandler = new GestureHelper.OnTap(() => {
 			Platform.Instance.ResetGames();
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "gameExit");
-			if(gConnect != null) 
-			{
-				fs.parentMachine.FollowConnection(gConnect);	
-			} else {
-				UnityEngine.Debug.Log("DeleteController: Error finding game exit");
-			}
+			FlowState.FollowFlowLinkNamed("gameExit");
 		});
 		
 		GestureHelper.onTap += tapHandler;
@@ -30,15 +23,7 @@ public class DeleteController : MonoBehaviour {
 	}
 	
 	void ReturnGame() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "returnExit");
-		
-		if(gConnect != null) 
-		{
-			fs.parentMachine.FollowConnection(gConnect);	
-		} else {
-			UnityEngine.Debug.Log("DeleteController: Error finding return exit");
-		}
+		FlowState.FollowFlowLinkNamed("returnExit");
 	}
 	
 	// Update is called once per frame

@@ -171,12 +171,8 @@ public class AutoFade : MonoBehaviour {
 			Platform.Instance.BluetoothBroadcast(json);
 			MessageWidget.AddMessage("Bluetooth", "Started game on Glass", "settings");
 			// Return to menu
-		    FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		    GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-			if (gConnect != null) {
-				fs.parentMachine.FollowConnection(gConnect);
-				return;
-			}
+		    FlowState.FollowFlowLinkNamed("MenuExit");
+			return;
 		}		
 		
 		

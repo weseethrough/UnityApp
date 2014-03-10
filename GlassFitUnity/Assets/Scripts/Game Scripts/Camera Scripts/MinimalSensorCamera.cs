@@ -244,13 +244,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.G))
 		{
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConect = fs.Outputs.Find(r => r.Name == "straightPursuitExit");
-			if(gConect != null) {
-				fs.parentMachine.FollowConnection(gConect);
-			} else {
-				UnityEngine.Debug.Log("Game: No connection found!");
-			}
+			FlowState.FollowFlowLinkNamed("straightPursuitExit");
 		}
 		
 		

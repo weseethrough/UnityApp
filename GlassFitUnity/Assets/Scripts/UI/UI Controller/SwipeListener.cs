@@ -27,7 +27,7 @@ public class SwipeListener : MonoBehaviour {
 		
 	protected virtual void handleLeft()
 	{
-		if(FollowFlowLinkNamed("Back"))
+		if(FlowState.FollowFlowLinkNamed("Back"))
 		{
 			int currentPage = 1;
 			//increment page
@@ -49,7 +49,7 @@ public class SwipeListener : MonoBehaviour {
 	
 	protected virtual void handleRight()
 	{
-		if(FollowFlowLinkNamed("Swipe"))
+		if(FlowState.FollowFlowLinkNamed("Swipe"))
 		{
 			int currentPage = 1;
 			//decrement page
@@ -65,22 +65,6 @@ public class SwipeListener : MonoBehaviour {
 				UnityEngine.Debug.LogWarning("Couldn't set current page index");
 				UnityEngine.Debug.LogException(e);
 			}
-		}
-	}
-	
-	protected bool FollowFlowLinkNamed(string name)
-	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == name );
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
-			return true;
-		}
-		else
-		{
-			UnityEngine.Debug.Log("swipelistener: didn't find flow link named :" + name);
-			return false;
 		}
 	}
 	

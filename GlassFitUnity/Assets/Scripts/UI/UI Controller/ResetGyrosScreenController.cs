@@ -43,12 +43,7 @@ public class ResetGyrosScreenController : MPChildGestureHandler {
 				
 		//progress to next screen
 		//follow the 'begin' link
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Begin" );
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
-		}
+		FlowState.FollowFlowLinkNamed("Begin");
 		
 		//start the game
 		GameBase game = GameObject.FindObjectOfType(typeof(GameBase)) as GameBase;

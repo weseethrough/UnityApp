@@ -95,25 +95,11 @@ public class FriendDisplay : MonoBehaviour {
 	}
 	
 	void ChallengeFriend() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ChallengeButton");
-		if(gConnect != null) {
-			if((gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null)) {
-				fs.parentMachine.FollowConnection(gConnect);
-			}
-		} else {
-			UnityEngine.Debug.Log("FriendDisplay: Didn't find connection - BackSettingsButton");
-		}
+		FlowState.FollowFlowLinkNamed("ChallengeButton");
 	}
 	
 	void GoBack() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "BackSettingsButton");
-		if(gConnect != null) {
-			fs.parentMachine.FollowConnection(gConnect);
-		} else {
-			UnityEngine.Debug.Log("FriendDisplay: Didn't find connection - BackSettingsButton");
-		}
+		FlowState.FollowFlowLinkNamed("BackSettingsButton");
 	}
 	
 	void PreviousFriend() {

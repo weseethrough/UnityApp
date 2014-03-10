@@ -80,19 +80,14 @@ public class LoadingScreen : MonoBehaviour {
 			
 			UnityEngine.Debug.Log("Loading game: " + raceType);
 			// Return to menu
-		    FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			
+
 			string exitName = "MenuExit";
 			//for snack run, go to the snack remote control meu
 			if(raceType == "snack")
 			{
 				exitName = "SnackRemote";
 			}
-		    GConnector gConnect = fs.Outputs.Find(r => r.Name == exitName);
-			if (gConnect != null) {
-				fs.parentMachine.FollowConnection(gConnect);
-				return;
-			}
+			FlowState.FollowFlowLinkNamed(exitName);
 		}
 		
 		slider = GetComponentInChildren<UISlider>();
@@ -132,48 +127,18 @@ public class LoadingScreen : MonoBehaviour {
 			    //	e.g. FirstRun for tutorial, or using a new track			-AH
 			    if(raceType == "tutorial")
 			    {
-			    	GConnector gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
-			    	if(gConnect != null)
-			    	{
-			       		fs.parentMachine.FollowConnection(gConnect);
-				    }
-			    	else 
-
-					{
-						UnityEngine.Debug.LogWarning("LoadingScreen: error finding tutorial exit");
-					}
+			    	FlowState.FollowFlowLinkNamed("TutorialExit");
 				}
 
 			    else if(raceType == "trainRescue")
 			    {
-				    GConnector gConnect = fs.Outputs.Find(r => r.Name == "TrainExit");
-				    if(gConnect != null)
-					{
-						fs.parentMachine.FollowConnection(gConnect);	
-					}
-					else
-					{
-						UnityEngine.Debug.LogWarning("LoadingScreen: error finding train exit");
-					}
+				    FlowState.FollowFlowLinkNamed("TrainExit");
 				}
 				else
 				{
-					GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceExit");
-					if(gConnect != null)
-					{
-						fs.parentMachine.FollowConnection(gConnect);
-					} 
-					else 
-					{
-						UnityEngine.Debug.LogWarning("LoadingScreen: error finding race exit");	
-					}
+					FlowState.FollowFlowLinkNamed("RaceExit");
 				}
-	
 			} 
-            else 
-			{
-				
-			}
 		}
 		
 	}

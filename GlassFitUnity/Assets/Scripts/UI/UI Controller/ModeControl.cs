@@ -115,13 +115,7 @@ public class ModeControl : MonoBehaviour {
 	}
 	
 	void BackToMenu() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuButton");
-		if(gConnect != null) {
-			fs.parentMachine.FollowConnection(gConnect);
-		} else {
-			UnityEngine.Debug.Log("Mode: Menu button not found!!");
-		}
+		FlowState.FollowFlowLinkNamed("MenuButton");
 	}
 	
 	void SetMode() {

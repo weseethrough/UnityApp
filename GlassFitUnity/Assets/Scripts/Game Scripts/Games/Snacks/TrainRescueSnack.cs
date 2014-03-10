@@ -213,7 +213,7 @@ public class TrainRescueSnack : SnackBase {
 		{
 			//go to subtitle card
 			UnityEngine.Debug.Log("Train: Following 'subtitle' connector");
-			FollowConnectorNamed("Subtitle");
+			FlowState.FollowFlowLinkNamed("Subtitle");
 			//set value for subtitle. 0 = GO
 			string displayString = (i==0) ? "GO !" : i.ToString();
 			DataVault.Set("train_subtitle", displayString);
@@ -223,7 +223,7 @@ public class TrainRescueSnack : SnackBase {
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
-			FollowConnectorNamed("ToBlank");
+			FlowState.FollowFlowLinkNamed("ToBlank");
 			
 			//wait a second more, except after GO!
 			if(i!=0)
@@ -236,27 +236,13 @@ public class TrainRescueSnack : SnackBase {
 		yield return new WaitForSeconds(0.1f);
 		
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
-		FollowConnectorNamed("Begin");
+		FlowState.FollowFlowLinkNamed("Begin");
 		
 		
 		started = true;
 		//play the train's bell sound effect
 		train.soundBell();	
 		
-	}
-	
-	public void FollowConnectorNamed(string name)
-	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == name );
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
-		}	
-		else
-		{
-			UnityEngine.Debug.LogWarning("TrainGame: couldn't find flow connector - " + name);	
-		}
 	}
 	
 	public double GetPlayerDistanceTravelled()

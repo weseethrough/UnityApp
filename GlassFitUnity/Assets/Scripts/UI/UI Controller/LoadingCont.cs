@@ -91,7 +91,7 @@ public class LoadingCont : MonoBehaviour {
 						}		
 						if (!finish.HasValue || relevant.Count == 0) {
 							MessageWidget.AddMessage("Challenges", "No relevant challenges", "settings");
-							fs.parentMachine.FollowConnection(back);
+							FlowState.FollowBackLink();
 							return;
 						}
 						
