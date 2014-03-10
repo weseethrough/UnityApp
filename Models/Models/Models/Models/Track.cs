@@ -23,6 +23,8 @@ namespace RaceYourself.Models
 		public float distance;
 		public int time;
 
+		public List<Position> positions; // Embedded positions for explicit track fetch
+
 		public DateTime? deleted_at;
 
 		[JsonIgnore]

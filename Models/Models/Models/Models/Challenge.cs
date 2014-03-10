@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Sqo.Attributes;
 
 namespace RaceYourself.Models
 {
-	public class Challenge
+	[JsonConverter(typeof(CustomConverter))]
+	public abstract class Challenge : Jsonable
 	{
 		[Index]
 		[UniqueConstraint]
@@ -13,17 +15,38 @@ namespace RaceYourself.Models
 		public string _id;
 
 		public int? creator_id;
-		public List<string> attempt_ids;
+		public List<Attempt> attempts;
 		public List<int> subscribers;
 		public DateTime? start_time;
 		public DateTime? stop_time;
 		public List<double> location;
 		public bool @public;
 
-		// TODO: Polymorphism
-		public int? duration;
-		public int? distance;
-		public int? time;
+		public string type;
+
+		void Jsonable.WriteJson(JsonWriter writer, JsonSerializer serializer) {
+			throw new NotImplementedException(); // abstract, handle in subclass or override with DefaultConverter
+		}
+		public static Challenge ReadJson(JsonReader reader, JsonSerializer serializer) {
+			JObject jo = JObject.Load(reader);
+
+			var type = jo.Value<string>("type");
+			switch(type) {
+			case "distance":
+				return jo.ToObject<DistanceChallenge>();
+			case "duration":
+				return jo.ToObject<DurationChallenge>();
+			default:
+				throw new NotImplementedException("Unknown challenge type: " + jo["type"]);
+			}
+		}
+
+		public class Attempt 
+		{
+			public int device_id;
+			public int track_id;
+			public int user_id;
+		}
 	}
 }
 

@@ -14,14 +14,12 @@ namespace RaceYourself.Models
 
 		public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
 		{
-			Jsonable jo = existingValue as Jsonable;
-			if (jo == null) jo = Activator.CreateInstance(objectType) as Jsonable;
-			jo.ReadJson(reader, serializer);
-			return jo;
+			return objectType.GetMethod("ReadJson").Invoke(null, new object[] {reader, serializer});
 		}
 
 		public override bool CanConvert(Type objectType)
 		{
+			Console.WriteLine (objectType.ToString ());
 			return (typeof(Jsonable).IsAssignableFrom(objectType));
 		}
 	}

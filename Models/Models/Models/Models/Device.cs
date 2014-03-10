@@ -16,9 +16,14 @@ namespace RaceYourself.Models
 		[JsonIgnore]
 		public bool self;
 
-		public Device() {
-			self = false;
-			glassfit_version = "1";
+		public Device() {}
+		public Device(string manufacturer, string model) {
+			this._id = 0; // 
+			this.self = true;
+			this.glassfit_version = "1";
+			this.manufacturer = manufacturer;
+			this.model = model;
+			this.push_id = null;
 		}
 	}
 }

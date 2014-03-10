@@ -20,8 +20,10 @@ namespace RaceYourself.Models
 		public int state_id;
 		public long gps_ts;
 		public long device_ts;
-		public float lng;
-		public float lat;
+		[JsonProperty("lat")]
+		public float latitude;
+		[JsonProperty("lng")]
+		public float longitude;
 		public float alt;
 		public float bearing;
 		public float corrected_bearing;
@@ -35,6 +37,13 @@ namespace RaceYourself.Models
 
 		[JsonIgnore]
 		public bool dirty = false;
+
+		public Position() {}
+		public Position(float lat, float lng)
+		{
+			this.latitude = lat;
+			this.longitude = lng;
+		}
 
 		public long GenerateCompositeId() {
 			uint high = (uint)device_id;

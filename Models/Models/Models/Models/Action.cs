@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace RaceYourself.Models
 {
+	[JsonConverter(typeof(CustomConverter))]
 	public class Action : Jsonable
 	{
 		public string json;
@@ -17,9 +18,9 @@ namespace RaceYourself.Models
 			JObject jo = JObject.Parse(json);
 			jo.WriteTo(writer);
 		}
-		void Jsonable.ReadJson(JsonReader reader, JsonSerializer serializer) {
+		public static Action ReadJson(JsonReader reader, JsonSerializer serializer) {
 			JObject jo = JObject.Load(reader);
-			json = jo.ToString();
+			return new Action(jo.ToString());
 		}
 	}
 }

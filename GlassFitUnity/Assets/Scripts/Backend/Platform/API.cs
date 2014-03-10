@@ -16,7 +16,7 @@ namespace RaceYourself
 	/// </summary>
 	public class API
 	{
-		private const string SCHEME = "http://";
+		private const string SCHEME = "https://";
 		private const string AUTH_HOST = "auth.raceyourself.com";
 		private const string AUTH_TOKEN_URL = SCHEME + AUTH_HOST + "/oauth/token";
 		private string apiHost = "api.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
@@ -30,7 +30,7 @@ namespace RaceYourself
 		private Siaqodb db;
 		
 		private OauthToken token = null;
-		private Account user = null;
+		public User user { get; private set; }
 		
 		private bool syncing = false;
 		
@@ -38,7 +38,7 @@ namespace RaceYourself
 		{
 			Debug.Log("API: created");
 			db = database;
-			user = db.Cast<Account>().SingleOrDefault();
+			user = db.Cast<User>().SingleOrDefault();
 			token = db.Cast<OauthToken>().SingleOrDefault();
 			if (user != null && token != null) {
 				if (user.id != token.userId) {
@@ -55,20 +55,25 @@ namespace RaceYourself
 				Debug.Log("API: No stored account");
 			}
 			Directory.CreateDirectory(CACHE_PATH);
+			Device self = db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
+			if (self == null) {
+				self = Platform.Instance.DeviceInformation();
+				db.StoreObject(self);
+				Debug.Log("API: Unregistered device");
+			} else {
+				Debug.Log("API: Device registered as " + self._id);
+			}
 		}
 		
 		/// <summary>
 		/// Coroutine to retrieve a globally unique device id from the server.
 		/// Triggers Platform.OnRegistration upon completion.
 		/// </summary>
-		public IEnumerator RegisterDevice() {
+		public IEnumerator RegisterDevice(Device device) {
 			Debug.Log("API: RegisterDevice()");
 			
 			string ret = "Failure";
 			try {
-				Device device = new Device();
-				device.manufacturer = "Bob";
-				device.model = "test";
 				string body = JsonConvert.SerializeObject(device);
 				
 				var encoding = new System.Text.UTF8Encoding();			
@@ -87,10 +92,11 @@ namespace RaceYourself
 
 				var response = JsonConvert.DeserializeObject<SingleResponse<Device>>(post.text);
 				
+				db.Delete(device);
 				device = response.response;
 				device.self = true;
 				db.StoreObject(device);
-				Debug.Log("API: RegisterDevice(): device registered");
+				Debug.Log("API: RegisterDevice(): device registered as " + device._id);
 				
 				ret = "Success";
 			} finally {
@@ -176,7 +182,7 @@ namespace RaceYourself
 				yield break;
 			}
 			
-			var account = JsonConvert.DeserializeObject<SingleResponse<Account>>(request.text);
+			var account = JsonConvert.DeserializeObject<SingleResponse<User>>(request.text);
 			if (account.response.id <= 0) {
 				Debug.LogError("API: UpdateAuthentications(): received an invalid response: " + request.text);
 				yield break;
@@ -222,10 +228,10 @@ namespace RaceYourself
 				Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
 						+ " tail: " + state.tail_timestamp + "#" + state.tail_skip);
 				
-				// Register device if it doesn't exist
-				Device self = db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
-				if (self == null) {
-					IEnumerator e = RegisterDevice();
+				// Register device if it doesn't have an id
+				Device self = db.Cast<Device>().Where(d => d.self == true).First();
+				if (self._id <= 0) {
+					IEnumerator e = RegisterDevice(self);
 					while(e.MoveNext()) yield return e.Current;
 					self = db.Cast<Device>().Where(d => d.self == true).First();
 				}
@@ -251,7 +257,7 @@ namespace RaceYourself
 					if (post.error.ToLower().Contains("401 unauthorized")) {
 						db.Delete(token);
 						token = null;
-						ret = "Unauthorized";						
+						ret = "Unauthorized";
 					} else {
 						ret = "Network error";
 					}
@@ -278,7 +284,7 @@ namespace RaceYourself
 						response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
 					} catch (Exception ex) {
 						ret = "Failure";
-						Debug.Log("API: Sync() threw exception " + ex.ToString());
+						Debug.LogError("API: Sync() threw exception " + ex.ToString());
 						throw ex;
 					}
 					Debug.Log("API: Sync() parsed " + response.response.ToString() + " in " + (DateTime.Now - parseStart));
@@ -293,7 +299,7 @@ namespace RaceYourself
 						transaction.Commit();
 					} catch (Exception ex) {
 						ret = "Failure";
-						Debug.Log("API: Sync() threw exception " + ex.ToString());
+						Debug.LogError("API: Sync() threw exception " + ex.ToString());
 						transaction.Rollback();
 						throw ex;
 					}
@@ -319,7 +325,13 @@ namespace RaceYourself
 		public string getCached(string route) {
 			var cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).FirstOrDefault();
 			if (cache == null || cache.Expired) return null;
-			return File.ReadAllText(Path.Combine(CACHE_PATH, route));
+			try {
+				return File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
+			} catch (Exception ex) {
+				Debug.LogError("API: Cache get threw: " + ex.ToString());
+				db.Delete(cache);
+				return null;
+			}
 		}
 		
 		/// <summary>
@@ -385,8 +397,13 @@ namespace RaceYourself
 				if (!db.UpdateObjectBy("id", cache)) {
 					db.StoreObject(cache);
 				}
-				File.WriteAllText(Path.Combine(CACHE_PATH, route), body);
-				Debug.Log("API: get(" + route + ") cached for " + maxAge + "s");
+				try {
+					File.WriteAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")), body);
+					Debug.Log("API: get(" + route + ") cached for " + maxAge + "s");
+				} catch (Exception ex) {
+					Debug.LogError("API: Cache store threw: " + ex.ToString());
+					db.Delete(cache);
+				}
 			} else {
 				db.DeleteObjectBy("id", cache);
 			}
