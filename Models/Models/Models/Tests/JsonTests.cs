@@ -10,7 +10,6 @@ namespace RaceYourself.Models
 		[Test ()]
 		public void TestAction ()
 		{
-			Console.WriteLine ("who?");
 			string rawAction = "{}";
 			Action action = new Action(rawAction);
 			string json = JsonConvert.SerializeObject(action);
@@ -23,9 +22,7 @@ namespace RaceYourself.Models
 		{
 			Challenge challenge = new DistanceChallenge(1000, 60);
 			string json = JsonConvert.SerializeObject(challenge);
-			Console.WriteLine(json);
 			challenge = JsonConvert.DeserializeObject<Challenge>(json);
-			Console.WriteLine (challenge._id);
 			Assert.True(challenge.GetType() == typeof(DistanceChallenge));
 		}
 	}

@@ -61,7 +61,7 @@ namespace RaceYourself
 				db.StoreObject(self);
 				Debug.Log("API: Unregistered device");
 			} else {
-				Debug.Log("API: Device registered as " + self._id);
+				Debug.Log("API: Device registered as " + self.id);
 			}
 		}
 		
@@ -96,7 +96,7 @@ namespace RaceYourself
 				device = response.response;
 				device.self = true;
 				db.StoreObject(device);
-				Debug.Log("API: RegisterDevice(): device registered as " + device._id);
+				Debug.Log("API: RegisterDevice(): device registered as " + device.id);
 				
 				ret = "Success";
 			} finally {
@@ -230,7 +230,7 @@ namespace RaceYourself
 				
 				// Register device if it doesn't have an id
 				Device self = db.Cast<Device>().Where(d => d.self == true).First();
-				if (self._id <= 0) {
+				if (self.id <= 0) {
 					IEnumerator e = RegisterDevice(self);
 					while(e.MoveNext()) yield return e.Current;
 					self = db.Cast<Device>().Where(d => d.self == true).First();
@@ -459,16 +459,16 @@ namespace RaceYourself
 				
 				// Populate device_id
 				foreach (Models.Track track in tracks) {
-					track.device_id = self._id;
+					track.deviceId = self.id;
 				}
 				foreach (Models.Position pos in positions) {
-					pos.device_id = self._id;
+					pos.deviceId = self.id;
 				}
 				foreach (Models.Orientation o in orientations) {
-					o.device_id = self._id;
+					o.deviceId = self.id;
 				}
 				foreach (Models.Event e in events) {
-					e.device_id = self._id;
+					e.deviceId = self.id;
 				}
 			}
 			
@@ -615,10 +615,10 @@ namespace RaceYourself
 					db.StartBulkInsert(typeof(Models.Friend));
 					foreach (Models.Friendship friendship in friends) {
 						if (friendship.deleted_at != null) {
-							if (db.DeleteObjectBy("_id", friendship.friend)) deletes++;
+							if (db.DeleteObjectBy("guid", friendship.friend)) deletes++;
 							continue;
 						}
-						if (!db.UpdateObjectBy("_id", friendship.friend)) {
+						if (!db.UpdateObjectBy("guid", friendship.friend)) {
 							db.StoreObject(friendship.friend);
 							inserts++;
 						} else updates++;
@@ -629,7 +629,7 @@ namespace RaceYourself
 				if (challenges != null) {
 					db.StartBulkInsert(typeof(Models.Challenge));
 					foreach (Models.Challenge challenge in challenges) {
-						if (!db.UpdateObjectBy("_id", challenge)) {
+						if (!db.UpdateObjectBy("id", challenge)) {
 							db.StoreObject(challenge);
 							inserts++;
 						} else updates++;
@@ -658,10 +658,10 @@ namespace RaceYourself
 					foreach (Models.Position position in positions) {
 						position.GenerateCompositeId();
 						if (position.deleted_at != null) {
-							if (db.DeleteObjectBy("id", position)) deletes++;
+							if (db.DeleteObjectBy("_id", position)) deletes++;
 							continue;
 						}
-						if (!db.UpdateObjectBy("id", position)) {
+						if (!db.UpdateObjectBy("_id", position)) {
 							db.StoreObject(position);
 							inserts++;
 						} else updates++;
@@ -674,10 +674,10 @@ namespace RaceYourself
 					foreach (Models.Orientation orientation in orientations) {
 						orientation.GenerateCompositeId();
 						if (orientation.deleted_at != null) {
-							if (db.DeleteObjectBy("id", orientation)) deletes++;
+							if (db.DeleteObjectBy("_id", orientation)) deletes++;
 							continue;
 						}							
-						if (!db.UpdateObjectBy("id", orientation)) {
+						if (!db.UpdateObjectBy("_id", orientation)) {
 							db.StoreObject(orientation);
 							inserts++;
 						} else updates++;
@@ -688,7 +688,7 @@ namespace RaceYourself
 				if (notifications != null) {
 					db.StartBulkInsert(typeof(Models.Notification));
 					foreach (Models.Notification notification in notifications) {
-						if (!db.UpdateObjectBy("_id", notification)) {
+						if (!db.UpdateObjectBy("id", notification)) {
 							db.StoreObject(notification);
 							inserts++;
 						} else updates++;

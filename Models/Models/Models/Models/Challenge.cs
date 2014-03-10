@@ -12,7 +12,8 @@ namespace RaceYourself.Models
 		[Index]
 		[UniqueConstraint]
 		[JsonConverter(typeof(ObjectIdConverter))]
-		public string _id;
+		[JsonProperty("_id")]		
+		public string id;
 
 		public int? creator_id;
 		public List<Attempt> attempts;
@@ -23,6 +24,8 @@ namespace RaceYourself.Models
 		public bool @public;
 
 		public string type;
+					
+		///  Internal
 
 		void Jsonable.WriteJson(JsonWriter writer, JsonSerializer serializer) {
 			throw new NotImplementedException(); // abstract, handle in subclass or override with DefaultConverter

@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+using RaceYourself.Models;
+using Newtonsoft.Json;
+
 /// <summary>
 /// Fades the level to a specified colour and loads the new level before fading in again.
 /// </summary>
@@ -153,7 +156,7 @@ public class AutoFade : MonoBehaviour {
 			
 			JSONObject data = new JSONObject();
 			Track track = (Track)DataVault.Get("current_track");
-			if (track != null) data.AddField("current_track", track.AsJson);
+			if (track != null) data.AddField("current_track", JsonConvert.SerializeObject(track));
 			else data.AddField("current_track", (JSONObject)null);
 			data.AddField("race_type", DataVault.Get("race_type") as string);
 			data.AddField("type", DataVault.Get("type") as string);
@@ -205,7 +208,7 @@ public class AutoFade : MonoBehaviour {
 			
 			JSONObject data = new JSONObject();
 			Track track = (Track)DataVault.Get("current_track");
-			if (track != null) data.AddField("current_track", track.AsJson);
+			if (track != null) data.AddField("current_track", JsonConvert.SerializeObject(track));
 			else data.AddField("current_track", (JSONObject)null);
 			data.AddField("race_type", DataVault.Get("race_type") as string);
 			data.AddField("type", DataVault.Get("type") as string);

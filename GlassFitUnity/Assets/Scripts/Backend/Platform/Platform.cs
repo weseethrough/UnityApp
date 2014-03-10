@@ -82,6 +82,7 @@ public abstract class Platform : MonoBehaviour {
 	protected static Log log = new Log("Platform");  // for use by subclasses
 	
 	private Siaqodb db;	
+	private API api;
 
 	/// <summary>
 	/// Gets the single instance of the right kind of platform for the OS we're running on,
@@ -257,21 +258,7 @@ public abstract class Platform : MonoBehaviour {
 		UnityEngine.Debug.Log("Platform: post init");
 		if (Application.isPlaying) {
 			db = DatabaseFactory.GetInstance();
-			var api = new API(db);
-			StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
-			Platform.Instance.onAuthenticated += new Platform.OnAuthenticated((authenticated) => {
-				Device self = db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
-				if (self == null) {
-					StartCoroutine(api.RegisterDevice());
-				} else {
-					UnityEngine.Debug.Log ("DEBUG: device id: " + self._id);	
-					StartCoroutine(api.Sync());
-					StartCoroutine(api.get("users", (body) => {
-						UnityEngine.Debug.Log(body);
-						UnityEngine.Debug.Log(JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Account>>(body).response.Count);
-					}));
-				}
-			});
+			api = new API(db);
 		}
 	}
 	
@@ -472,7 +459,7 @@ public abstract class Platform : MonoBehaviour {
 			UnityEngine.Debug.Log("Platform: getting user");
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("getUser");
 			if (ajo.GetRawObject().ToInt32() == 0) return null;
-			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
+			return new User{id = ajo.Get<int>("guid"), username = ajo.Get<string>("username"), name = ajo.Get<string>("name")};
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: failed to fetch user " + e.Message);
 			UnityEngine.Debug.LogException(e);
@@ -481,17 +468,13 @@ public abstract class Platform : MonoBehaviour {
 	}
 
 	public virtual User GetUser(int userId) {
-		// TODO: Implement me!
 		try {
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("fetchUser", userId);
 			if(ajo.GetRawObject().ToInt32() == 0) return null;
-			return new User(ajo.Get<int>("guid"), ajo.Get<string>("username"), ajo.Get<string>("name"));
+			return new User{id = ajo.Get<int>("guid"), username = ajo.Get<string>("username"), name = ajo.Get<string>("name")};
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: error getting user");
-			string[] names = { "Cain", "Elijah", "Jake", "Finn", "Todd", "Juno", "Bubblegum", "Ella", "May", "Sofia" };
-			string name = names[userId % names.Length];
-			
-			return new User(userId, name, name + " Who");
+			return null;
 		}
 	}
 	
@@ -669,7 +652,7 @@ public abstract class Platform : MonoBehaviour {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching challenge");
 			using (AndroidJavaObject rawch = helper_class.CallStatic<AndroidJavaObject>("fetchChallenge", id)) {
-				return Challenge.Build(rawch.Get<string>("json"));
+				return JsonConvert.DeserializeObject<Challenge>(rawch.Get<string>("json"));
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
@@ -695,7 +678,7 @@ public abstract class Platform : MonoBehaviour {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching track");
 			using (AndroidJavaObject rawtrack = helper_class.CallStatic<AndroidJavaObject>("fetchTrack", deviceId, trackId)) {
-				Track track = new Track(rawtrack);
+				Track track = new AndroidTrack(rawtrack);
 				return track;
 			}
 		} catch (Exception e) {
@@ -714,7 +697,7 @@ public abstract class Platform : MonoBehaviour {
 				try {
 					for(int i=0; i<size; i++) {
 						using(AndroidJavaObject rawTrack = list.Call<AndroidJavaObject>("get", i)) {
-							Track currentTrack = new Track(rawTrack);
+							Track currentTrack = new AndroidTrack(rawTrack);
 							trackList.Add(currentTrack);
 						}
 					}
@@ -743,7 +726,7 @@ public abstract class Platform : MonoBehaviour {
 				try {
 					for(int i=0; i<size; i++) {
 						using (AndroidJavaObject rawtrack = list.Call<AndroidJavaObject>("get", i)) {
-							Track currentTrack = new Track(rawtrack);
+							Track currentTrack = new AndroidTrack(rawtrack);
 							trackList.Add(currentTrack);
 						}
 					}
@@ -890,7 +873,7 @@ public abstract class Platform : MonoBehaviour {
 				for (int i=0;i<length;i++) {
 					using (AndroidJavaObject f = list.Call<AndroidJavaObject>("get", i)) {
 						UnityEngine.Debug.Log("Platform: getting a friend ("+i+")");
-						Friend friend = new Friend(f.Get<string>("friend"));
+						Friend friend = JsonConvert.DeserializeObject<Friend>(f.Get<string>("friend"));
 						friendList.Add(friend);
 						UnityEngine.Debug.Log("Platform: got a friend ("+i+")");
 					}
@@ -914,8 +897,9 @@ public abstract class Platform : MonoBehaviour {
 				Notification[] notifications = new Notification[length];
 				for (int i=0;i<length;i++) {
 					AndroidJavaObject p = list.Call<AndroidJavaObject>("get", i);
-					notifications[i] = new Notification(p.Get<string>("id"), p.Get<bool>("read"), p.Get<string>("message"));
-					notifications[i].ajo = p; // Store java handle, TODO: Only when not read so as to save handles?
+					notifications[i] = new Notification{id = p.Get<string>("id"), read = p.Get<bool>("read"), message = JsonConvert.DeserializeObject<Message>(p.Get<string>("message"))};
+//					notifications[i].ajo = p; // Store java handle, TODO: Only when not read so as to save handles?
+					throw new NotImplementedException("Ajo hashmap?");
 				}
 				UnityEngine.Debug.Log("Platform: " + notifications.Length + " notifications fetched");
 				return notifications;
@@ -1368,6 +1352,11 @@ public abstract class Platform : MonoBehaviour {
     {
         return intent;
     }
+	
+	public virtual Device DeviceInformation() 
+	{
+		return new Device("Unknown", "Computer");
+	}	
 	
 	public void OnApplicationQuit ()
 	{

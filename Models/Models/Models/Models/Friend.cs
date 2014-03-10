@@ -1,5 +1,6 @@
 ﻿using System;
 using Sqo.Attributes;
+using Newtonsoft.Json;
 
 namespace RaceYourself.Models
 {
@@ -7,16 +8,21 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-		public string _id;
-		public bool has_glass;
+		[JsonProperty("_id")]
+		public string guid;
+		[JsonProperty("has_glass")]
+		public bool hasGlass;
 		public string name;
-		public string photo;
+		[JsonProperty("photo")]
+		public string image;
 		public string uid;
 		public string provider;
-		public int? user_id;
+		[JsonProperty("user_id")]
+		public int? userId;
 
 		// TOOD: Polymophism
-		public string screen_name;
+		[JsonProperty("screen_name")]
+		public string username;
 	}
 }
 

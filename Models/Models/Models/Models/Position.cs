@@ -1,6 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Sqo.Attributes;
+using UnityEngine;
 
 namespace RaceYourself.Models
 {
@@ -13,8 +14,10 @@ namespace RaceYourself.Models
 		[JsonConverter(typeof(ObjectIdConverter))]
 		public string _id; // Server-side guid. TODO: Ignore in the future?
 
-		public int device_id;
-		public int position_id;
+		[JsonProperty("device_id")]
+		public int deviceId;
+		[JsonProperty("position_id")]
+		public int positionId;
 
 		public int track_id;
 		public int state_id;
@@ -38,6 +41,8 @@ namespace RaceYourself.Models
 		[JsonIgnore]
 		public bool dirty = false;
 
+		private const float DEGREES_TO_METERS = 111111.11f;
+
 		public Position() {}
 		public Position(float lat, float lng)
 		{
@@ -46,12 +51,19 @@ namespace RaceYourself.Models
 		}
 
 		public long GenerateCompositeId() {
-			uint high = (uint)device_id;
-			uint low = (uint)position_id;
+			uint high = (uint)deviceId;
+			uint low = (uint)positionId;
 
 			ulong composite = (((ulong) high) << 32) | low;
 			this.id = (long)composite;
 			return this.id;
+		}
+
+		public Vector3 ToXYZ() {
+			float x = latitude * DEGREES_TO_METERS;
+			float y = 0f; //height
+			float z = longitude * DEGREES_TO_METERS * (float)Math.Cos (latitude);
+			return new Vector3(x,y,z);
 		}
 	}
 }

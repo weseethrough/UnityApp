@@ -1,4 +1,6 @@
 using System;
+using RaceYourself.Models;
+using UnityEngine;
 
 #if UNITY_ANDROID
 /// <summary>
@@ -6,6 +8,7 @@ using System;
 /// </summary>
 public class AndroidPlatform : Platform
 {
+	private readonly AndroidJavaClass build_class = new AndroidJavaClass("android.os.Build");	
 
 	private PlayerPosition _localPlayerPosition;
     public override PlayerPosition LocalPlayerPosition {
@@ -23,8 +26,12 @@ public class AndroidPlatform : Platform
 		log.info("Initializing AndroidPlayerPoints");
 		_playerPoints = new AndroidPlayerPoints();
 	}
-
-
+	
+	
+	public override Device DeviceInformation() 
+	{
+		return new Device(build_class.Get<string>("MANUFACTURER"), build_class.Get<string>("MODEL"));
+	}	
 }
 #endif
 

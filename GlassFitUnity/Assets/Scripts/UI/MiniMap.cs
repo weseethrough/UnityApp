@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections;
 using System;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Mini map. Manages the minimap on the UI - updates its image and
 /// </summary>
@@ -119,7 +121,7 @@ public class MiniMap : MonoBehaviour {
 		                          normalizedRadius*2, normalizedRadius*2);
 		Vector2 mapCenter = new Vector2(minimap.transform.position.x, minimap.transform.position.y);
 		//Matrix4x4 matrixBackup = GUI.matrix;
-		if (Event.current.type == EventType.Repaint) {
+		if (UnityEngine.Event.current.type == EventType.Repaint) {
 			// Rotation and indexing into atlas handled by shader
 			//minimap.renderer.material.SetFloat("_Rotation", (float)-bearing);			
 			//minimap.renderer.material.SetVector("_Rectangle", new Vector4(mapCoords.x, mapCoords.y, mapCoords.width, mapCoords.height));

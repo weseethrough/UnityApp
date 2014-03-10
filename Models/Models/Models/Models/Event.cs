@@ -9,8 +9,10 @@ namespace RaceYourself.Models
 	{
 		private const int VERSION = 1;
 
-		public int device_id;
-		public int session_id;
+		[JsonProperty("device_id")]
+		public int deviceId;
+		[JsonProperty("session_id")]
+		public int sessionId;
 		public long ts;
 		public int version;
 		[Text]
@@ -22,14 +24,14 @@ namespace RaceYourself.Models
 			this.version = VERSION;
 			this.ts = Date.UnixTime.Milliseconds;
 			this.data = data;
-			this.session_id = session_id;
+			this.sessionId = session_id;
 		}
 
 		[OnSerializing]
 		internal void OnSerializingMethod(StreamingContext context)
 		{
 			// TODO: Remove in production?
-			if (device_id <= 0) throw new Exception ("Set a device_id before serializing!");
+			if (deviceId <= 0) throw new Exception ("Set a device_id before serializing!");
 		}
 	}
 }

@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+using RaceYourself.Models;
+
 public class FirstRaceOpponenet : TargetController {
 	
 	protected float currentMovementSpeed = 0.0f;

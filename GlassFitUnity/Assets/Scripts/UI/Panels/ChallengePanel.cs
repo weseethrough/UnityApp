@@ -5,6 +5,8 @@ using System.Threading;
 using System;
 using System.Collections.Generic;
 
+using RaceYourself.Models;
+
 [Serializable]
 public class ChallengePanel : HexPanel {
 	
@@ -45,7 +47,7 @@ public class ChallengePanel : HexPanel {
 	private Vector2 levelStartPosition;
 	
 	// Friend list
-	List<Friend> friendList;
+	IList<Friend> friendList;
 	
 	public ChallengePanel() { }
     public ChallengePanel(SerializationInfo info, StreamingContext ctxt)
@@ -123,22 +125,20 @@ public class ChallengePanel : HexPanel {
 								continue;
 							}
 							UnityEngine.Debug.Log("ChallengePanel: notification not read");
-							if (string.Equals(notification.node["type"], "challenge")) {
-								int challengerId = notification.node["from"].AsInt;
+							if (string.Equals(notification.message.type, "challenge")) {
+								int challengerId = notification.message.from;
 								if (challengerId == null) continue;
-								string challengeId = notification.node["challenge_id"].ToString();
+								string challengeId = notification.message.challenge_id;
 								if (challengeId == null || challengeId.Length == 0) continue;
-								if (challengeId.Contains("$oid")) challengeId = notification.node["challenge_id"]["$oid"].ToString();
-								challengeId = challengeId.Replace("\"", "");
 								Challenge potential = Platform.Instance.FetchChallenge(challengeId);
 								if(potential is DistanceChallenge) {
 									User user = Platform.Instance.GetUser(challengerId);
 									//			UnityEngine.Debug.Log("ChallengeNotification: getting first track");
 									UnityEngine.Debug.Log("ChallengePanel: getting track");
-									Track track = potential.UserTrack(user.id);
+									var attempt = potential.attempts.Find(a => a.user_id == user.id);
 									UnityEngine.Debug.Log("ChallengePanel: fetching track using previous");
-									if(track == null) continue;									
-									Track realTrack = Platform.Instance.FetchTrack(track.deviceId, track.trackId);
+									if(attempt == null) continue;									
+									Track realTrack = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id);
 									
 									UnityEngine.Debug.Log("ChallengePanel: creating challenge notification");
 									ChallengeNotification challengeNot = new ChallengeNotification(notification, potential, user, realTrack);

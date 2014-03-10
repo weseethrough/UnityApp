@@ -19,7 +19,6 @@ namespace RaceYourself.Models
 
 		public override bool CanConvert(Type objectType)
 		{
-			Console.WriteLine (objectType.ToString ());
 			return (typeof(Jsonable).IsAssignableFrom(objectType));
 		}
 	}

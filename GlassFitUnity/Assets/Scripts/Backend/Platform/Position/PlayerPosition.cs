@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using System.Runtime.CompilerServices;
 
+using RaceYourself.Models;
+
 public abstract class PlayerPosition {
 
 	public abstract Position Position { get; }

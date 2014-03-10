@@ -3,6 +3,8 @@ using System.Diagnostics;
 using UnityEngine;
 using System.Runtime.CompilerServices;
 
+using RaceYourself.Models;
+
 public class EditorPlayerPosition : PlayerPosition {
 
 	private Position _position = null;

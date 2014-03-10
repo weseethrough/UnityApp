@@ -8,7 +8,8 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-		public int _id;
+		[JsonProperty("_id")]		
+		public int id;
 		public string manufacturer;
 		public string model;
 		public string glassfit_version;
@@ -18,7 +19,7 @@ namespace RaceYourself.Models
 
 		public Device() {}
 		public Device(string manufacturer, string model) {
-			this._id = 0; // 
+			this.id = 0; // 
 			this.self = true;
 			this.glassfit_version = "1";
 			this.manufacturer = manufacturer;

@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System;
 using System.Collections;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// This class is used to display the map and control the Track Select screen.
 /// </summary>
@@ -247,7 +249,7 @@ public class TrackSelect : MonoBehaviour {
 		float totalLong = 0;
 		
 		// Get the list of positions for the current track
-		List<Position> curTrackPositions = trackList[currentTrack].trackPositions;
+		List<Position> curTrackPositions = trackList[currentTrack].positions;
 		
 		// Loop through all positions and test for limits
 		for(int i=0; i<curTrackPositions.Count; i++)

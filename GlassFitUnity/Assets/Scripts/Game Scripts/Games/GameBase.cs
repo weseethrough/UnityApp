@@ -4,6 +4,8 @@ using System.Collections;
 using System.Threading;
 using System;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Game base. Base Game class which will handle aspects common to all games. Including
 /// 	Indoor/Outer management

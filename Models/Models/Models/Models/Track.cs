@@ -13,14 +13,17 @@ namespace RaceYourself.Models
 
 		public string _id; // Server-side guid. TODO: Ignore in the future?
 
-		public int device_id;
-		public int track_id;
+		[JsonProperty("device_id")]		
+		public int deviceId;
+		[JsonProperty("device_id")]		
+		public int trackId;
 
-		public string track_name;
+		[JsonProperty("track_name")]		
+		public string trackName;
 		public int track_type_id;
 		public long ts;
 		public bool @public;
-		public float distance;
+		public double distance;
 		public int time;
 
 		public List<Position> positions; // Embedded positions for explicit track fetch
@@ -31,12 +34,18 @@ namespace RaceYourself.Models
 		public bool dirty = false;
 
 		public long GenerateCompositeId() {
-			uint high = (uint)device_id;
-			uint low = (uint)track_id;
+			uint high = (uint)deviceId;
+			uint low = (uint)trackId;
 
 			ulong composite = (((ulong) high) << 32) | low;
 			this.id = (long)composite;
 			return this.id;
+		}
+
+		public DateTime date {
+			get {
+				return Date.FromUnixTime(ts);
+			}
 		}
 	}
 }

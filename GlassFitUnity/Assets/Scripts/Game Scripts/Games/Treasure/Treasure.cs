@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Controls the position of the treasure and draws the GUI - needs updating
 /// </summary>

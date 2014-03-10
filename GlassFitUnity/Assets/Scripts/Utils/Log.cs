@@ -1,11 +1,16 @@
 using System;
-
+using System.Diagnostics;
 
 public class Log
 {
 	private String tag = "";
 	private long lastLogTimeMillis = 0;
-
+	private static Stopwatch timer = new Stopwatch();
+	
+	static Log() {
+		timer.Start();
+	}
+	
 	public Log (String tag)
 	{
 		this.tag = tag;
@@ -39,7 +44,7 @@ public class Log
 	}
 
 	private long tic() {
-		return (int)(UnityEngine.Time.realtimeSinceStartup * 1000);
+		return (int)(timer.ElapsedMilliseconds * 1000);
 	}
 }
 

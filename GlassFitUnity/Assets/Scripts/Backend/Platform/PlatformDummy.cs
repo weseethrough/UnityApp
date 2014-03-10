@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using RaceYourself.Models;
+using Newtonsoft.Json;
 
 #if UNITY_EDITOR
 [ExecuteInEditMode()] 
@@ -298,7 +299,7 @@ public class PlatformDummy : Platform
 	        ""user_id"": null
 	      }";
 		List<Friend> friends = new List<Friend>(1);
-		friends[0] = new Friend(friend);
+		friends[0] = JsonConvert.DeserializeObject<Friend>(friend);
 		return friends;
 	}
 

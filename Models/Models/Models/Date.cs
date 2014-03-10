@@ -11,6 +11,11 @@ namespace RaceYourself.Models
 				return (DateTime.UtcNow - epoch);
 			}
 		}
+
+		public static DateTime FromUnixTime(long millis) {
+			var clone = epoch;
+			return clone.AddMilliseconds(millis);
+		}
 	}
 }
 

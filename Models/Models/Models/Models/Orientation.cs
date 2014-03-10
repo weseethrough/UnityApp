@@ -13,8 +13,10 @@ namespace RaceYourself.Models
 		[JsonConverter(typeof(ObjectIdConverter))]
 		public string _id; // Server-side guid. TODO: Ignore in the future?
 
-		public int device_id;
-		public int orientation_id;
+		[JsonProperty("device_id")]
+		public int deviceId;
+		[JsonProperty("orientation_id")]
+		public int orientationId;
 
 		public int track_id;
 		public long ts;
@@ -46,8 +48,8 @@ namespace RaceYourself.Models
 		public bool dirty = false;
 
 		public long GenerateCompositeId() {
-			uint high = (uint)device_id;
-			uint low = (uint)orientation_id;
+			uint high = (uint)deviceId;
+			uint low = (uint)orientationId;
 
 			ulong composite = (((ulong) high) << 32) | low;
 			this.id = (long)composite;

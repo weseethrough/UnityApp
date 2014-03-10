@@ -3,6 +3,8 @@ using UnityEngine;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 
+using RaceYourself.Models;
+
 public class AndroidPlayerPosition : PlayerPosition {
 
 	private Position _position = null;
@@ -115,7 +117,7 @@ public class AndroidPlayerPosition : PlayerPosition {
 			androidGpsTracker.Call("stopTracking");
 			base.StopTrack();
 			using (AndroidJavaObject rawtrack = androidGpsTracker.Call<AndroidJavaObject>("getTrack")) {
-				return new Track(rawtrack);
+				return new AndroidTrack(rawtrack);
 			}
 		} catch(Exception e) {
 			log.warning("Problem stopping tracking");

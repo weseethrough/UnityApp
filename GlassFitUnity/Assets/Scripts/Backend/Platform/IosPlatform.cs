@@ -7,7 +7,10 @@ using System;
 public class IosPlatform : Platform
 {
 
-
+	public override Device DeviceInformation() 
+	{
+		return new Device("Apple", "iUnknown");
+	}
 }
 #endif
 
