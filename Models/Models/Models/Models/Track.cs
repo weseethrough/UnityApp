@@ -24,7 +24,7 @@ namespace RaceYourself.Models
 		public long ts;
 		public bool @public;
 		public double distance;
-		public int time;
+		public long time;
 
 		public List<Position> positions; // Embedded positions for explicit track fetch
 

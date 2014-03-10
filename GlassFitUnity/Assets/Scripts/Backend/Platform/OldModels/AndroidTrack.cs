@@ -14,7 +14,8 @@ public class AndroidTrack : Track {
 		deviceId = device_id;
 		this.positions = positions;
 		distance = dist;
-		this.ts = time;
+		this.ts = Date.UnixTime.Milliseconds;
+		this.time = time;
 		UnityEngine.Debug.Log("Track: date is " + date);
 	}
 
@@ -28,7 +29,8 @@ public class AndroidTrack : Track {
 		this.trackId = ids[1];
 		this.deviceId = ids[0];
 		this.distance = rawtrack.Call<double>("getDistance");
-		this.ts = rawtrack.Call<long>("getTime");
+		this.time = rawtrack.Call<long>("getTime");
+		this.ts = rawtrack.Get<long>("ts");
 
 		using(AndroidJavaObject poslist = rawtrack.Call<AndroidJavaObject>("getTrackPositions")) {
 			int numPositions = poslist.Call<int>("size");

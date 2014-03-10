@@ -269,16 +269,6 @@ public class PlatformDummy : Platform
 		return null;
 	}
 	
-	/// <summary>
-	/// Not too sure how TempGames differs from Games. AH
-	/// </summary>
-	/// <returns>
-	/// This function will simply return the games list for Platform Dummy, for now.
-	/// </returns>
-	public override List<Game> GetTempGames() {
-		return games;	
-	}
-	
 	public override List<Game> GetGames() {
 		return games;
 	}

@@ -41,6 +41,7 @@ public class AndroidPlayerPoints : PlayerPoints
 	public AndroidPlayerPoints ()
 	{
 		log.profile("Connecting to Android points helper");
+		var initialised = false;
 
 		try
 		{
@@ -50,22 +51,32 @@ public class AndroidPlayerPoints : PlayerPoints
 	
 			points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
 			currentActivity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
-				points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+				try
+				{
+					points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);		
+					log.profile("Connected to Android points helper");
+					
+					initialised = true;
+				}
+				catch (Exception e)
+				{
+					log.error("Error connecting to Android points helper (UI thread): " + e.Message);
+				}
 			}));
 		}
 		catch (Exception e)
 		{
 			log.error("Error connecting to Android points helper: " + e.Message);
 		}
-
+		
+		while (!initialised) {}
+		
 		Update();
 
         log.info(" Opening points: " + OpeningPointsBalance);
         log.info(" Current game points: " + CurrentActivityPoints);
         log.info(" Current gems: " + CurrentGemBalance);
         log.info(" Current metabolism: " + CurrentMetabolism);
-
-		log.profile("Connected to Android points helper");
 	}
 
 	public override void Update()

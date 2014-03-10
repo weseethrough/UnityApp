@@ -24,7 +24,6 @@ public class GameSelectPanel : HexPanel
 	
 	private List<Gestures> lastGestures = new List<Gestures>();
 	private List<Gestures> pointsCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.TwoTap, Gestures.Tap};
-	private List<Gestures> screenCaptureCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.Tap, Gestures.TwoTap};
 
 	private List<Gestures> btServerCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.ThreeTap, Gestures.Tap};
 	private List<Gestures> btClientCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.ThreeTap, Gestures.TwoTap};
@@ -67,13 +66,6 @@ public class GameSelectPanel : HexPanel
 				Platform.Instance.PlayerPoints.AwardPoints("Dev Cheat", "Dev Cheat", 10000);
 				UnityEngine.Debug.Log("GameSelectPanel: points awarded in platform");
 				MessageWidget.AddMessage("Points Cheat", "You got 10,000 points for nothing!", "trophy copy");
-				lastGestures.Clear();
-		}
-		if (lastGestures.SequenceEqual(screenCaptureCheat)) {
-				UnityEngine.Debug.Log("GameSelectPanel: Final tap - screen capture toggled");
-				Platform.Instance.ToggleScreenCapture();
-				// TODO: Toggle audio recording
-				MessageWidget.AddMessage("Debug", "Toggling screen capture", "settings");
 				lastGestures.Clear();
 		}
 		if (lastGestures.SequenceEqual(btServerCheat)) {
