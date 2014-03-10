@@ -427,7 +427,7 @@ public class GameBase : MonoBehaviour {
 		if(started)
 		{
 			UnityEngine.Debug.Log("GameBase: tap detected");
-			PauseGame();
+			//PauseGame();
 		}
 	}
 	
