@@ -218,7 +218,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		eulerAngles.x *= 2.0f;
 		//tilt down a little too
 		//eulerAngles.x -= 15.0f;
-		//headOffset = Quaternion.Euler(eulerAngles);
+		headOffset = Quaternion.Euler(eulerAngles);
 		
 		// Check for rearview
 		Quaternion rearviewOffset = Quaternion.Euler(0, (rearview ? 180 : 0), 0);
@@ -292,8 +292,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 						float addedValue = xChange.Value.x - previousPitch;
 						float newPitch = Platform.Instance.GetPlayerOrientation().GetPitchOffset();
 						newPitch += addedValue * 40f;
-						pitchOffset = Mathf.Clamp(newPitch, -20f, 20f);
-						//UnityEngine.Debug.Log("MinimalSensorCamera: pitch is set to " + pitchOffset.ToString("f2"));
+						pitchOffset = Mathf.Clamp(newPitch, -40f, 40f);
+						UnityEngine.Debug.Log("MinimalSensorCamera: pitch is set to " + pitchOffset.ToString("f2"));
 						Platform.Instance.GetPlayerOrientation().SetPitchOffset(pitchOffset);
 					}
 					else

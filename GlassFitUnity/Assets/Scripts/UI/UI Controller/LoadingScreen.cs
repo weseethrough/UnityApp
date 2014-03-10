@@ -26,7 +26,7 @@ public class LoadingScreen : MonoBehaviour {
 			}
 			else
 			{
-				levelName = "TrainRescue";
+				levelName = "FirstRun";
 			}
 			break;
 		

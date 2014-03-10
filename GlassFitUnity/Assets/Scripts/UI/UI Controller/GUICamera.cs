@@ -12,7 +12,7 @@ public class GUICamera : MonoBehaviour {
 	float camera_sensitivity_x_outer = 2.5f;
 	float camera_sensitivity_x_inner_angle = 25.0f * Mathf.Deg2Rad;
 	float camera_sensitivity_x_hex = 5.5f;
-    float camera_sensitivity_y = 1.5f;
+    float camera_sensitivity_y = 3f;
 	float camera_sensitivity_y_hex = 4.5f;
 	
 	const float camera_default_yPos = 0.1f;
