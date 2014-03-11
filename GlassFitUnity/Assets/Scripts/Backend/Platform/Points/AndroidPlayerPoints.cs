@@ -71,12 +71,13 @@ public class AndroidPlayerPoints : PlayerPoints
 		
 		while (!initialised) {}
 		
-		Update();
-
-        log.info(" Opening points: " + OpeningPointsBalance);
-        log.info(" Current game points: " + CurrentActivityPoints);
-        log.info(" Current gems: " + CurrentGemBalance);
-        log.info(" Current metabolism: " + CurrentMetabolism);
+/// We cannot use DataVault before Platform (which DataVault depends on) has finished initializing
+//		Update();
+//
+//        log.info(" Opening points: " + OpeningPointsBalance);
+//        log.info(" Current game points: " + CurrentActivityPoints);
+//        log.info(" Current gems: " + CurrentGemBalance);
+//        log.info(" Current metabolism: " + CurrentMetabolism);
 	}
 
 	public override void Update()
