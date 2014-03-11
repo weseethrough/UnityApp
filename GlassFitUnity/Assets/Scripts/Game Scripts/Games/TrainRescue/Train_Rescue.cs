@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+using RaceYourself.Models;
+
 public class Train_Rescue : GameBase {
 	
 	public const string GAMESTATE_FLYTHROUGH = "flythrough";
@@ -169,8 +171,9 @@ public class Train_Rescue : GameBase {
 	
 	// Update is called once per frame
 	void Update () {
+
 		
-		if(Platform.Instance.IsIndoor())
+		if(Platform.Instance.LocalPlayerPosition.IsIndoor())
 		{
 			DataVault.Set("calories", "INDOOR");
 		}
@@ -301,7 +304,7 @@ public class Train_Rescue : GameBase {
 		FlowState.FollowFlowLinkNamed("Subtitle");
 		
 		//set appropriate link subtitle
-		if(bFailed || Platform.Instance.GetDistance() < finish)
+		if(bFailed || Platform.Instance.LocalPlayerPosition.Distance < finish)
 		{
 			DataVault.Set("train_subtitle", "\"Aaaaargh!\"");
 		}

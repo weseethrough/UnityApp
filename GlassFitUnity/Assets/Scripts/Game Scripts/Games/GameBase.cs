@@ -4,6 +4,8 @@ using System.Collections;
 using System.Threading;
 using System;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Game base. Base Game class which will handle aspects common to all games. Including
 /// 	Indoor/Outer management
@@ -130,7 +132,8 @@ public class GameBase : MonoBehaviour {
 		DataVault.Set("finish_km", UnitsHelper.SiDistanceUnitless(finish, string.Empty) );
 	
 		UnityEngine.Debug.Log("GameBase: resetting platform");
-		Platform.Instance.Reset();
+		//Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
+		Platform.Instance.LocalPlayerPosition.Reset();
 		
 		//initialise units for HUD
 		DataVault.Set("distance_units", "M");
@@ -193,7 +196,7 @@ public class GameBase : MonoBehaviour {
 
 	public void ConsiderQuit() {
 		FlowState.FollowFlowLinkNamed("QuitExit");	
-		Platform.Instance.StopTrack();
+				Platform.Instance.LocalPlayerPosition.StopTrack();
 	}
 	
 	//UNUSED?
@@ -299,15 +302,15 @@ public class GameBase : MonoBehaviour {
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
 			UnityEngine.Debug.Log("GameBase: final connection found");
-			DataVault.Set("total", (Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance() + finalBonus).ToString("n0"));
-			DataVault.Set("distance_with_units", UnitsHelper.SiDistance(Platform.Instance.GetDistance()));
+			DataVault.Set("total", (Platform.Instance.PlayerPoints.CurrentActivityPoints + Platform.Instance.PlayerPoints.OpeningPointsBalance + finalBonus).ToString("n0"));
+			DataVault.Set("distance_with_units", UnitsHelper.SiDistance(Platform.Instance.LocalPlayerPosition.Distance));
 			UnityEngine.Debug.Log("GameBase: setting points");
 			if(finish >= 1000) {
 				DataVault.Set("bonus", finalBonus.ToString("n0")); 
 			} else {
 				DataVault.Set("bonus", 0);
 			}
-			
+			Platform.Instance.LocalPlayerPosition.StopTrack();
 			
 			///Leaving this block out for now - it goes straight back to the menu if the 'tutorial' exit was returned for GetFinalConnection
 			///Probably best to instead have the FirstRun mode do that transition with its own customisation of the state transitions instead.
@@ -455,7 +458,7 @@ public class GameBase : MonoBehaviour {
 		{
 			Time.timeScale = 1.0f;	
 			//resume tracking
-			Platform.Instance.StartTrack();
+			Platform.Instance.LocalPlayerPosition.StartTrack();
 		} else
 		{
 			UnityEngine.Debug.LogWarning("GameBase: Can't find exit - PauseExit");
@@ -573,7 +576,7 @@ public class GameBase : MonoBehaviour {
 			
 		case GAMESTATE_PAUSED:
 			//check for auto-resume
-			if( bAutoPaused && !Platform.Instance.IsIndoor() && Platform.Instance.playerState != "STOPPED" )
+			if( bAutoPaused && !Platform.Instance.LocalPlayerPosition.IsIndoor() && Platform.Instance.playerState != "STOPPED" )
 			{
 				//can unpause - check for min time in this state
 				if(UnityEngine.Time.time-Platform.Instance.playerStateEntryTime > 0.5f)
@@ -603,8 +606,8 @@ public class GameBase : MonoBehaviour {
 	protected void UpdateIndoorPrompts()
 	{
 		//Show prompt to run on spot indoor
-		if(Platform.Instance.IsIndoor()) {
-			if((int)Platform.Instance.Distance() == lastDistance) 
+		if(Platform.Instance.LocalPlayerPosition.IsIndoor()) {
+			if((int)Platform.Instance.LocalPlayerPosition.Distance == lastDistance) 
 			{
 				//UnityEngine.Debug.Log("GameBase: distance is the same, increasing time");
 				if(started)
@@ -618,7 +621,7 @@ public class GameBase : MonoBehaviour {
 			} else {
 				//UnityEngine.Debug.Log("GameBase: distance not the same, resetting");
 				DataVault.Set("indoor_move", " ");
-				lastDistance = (int)Platform.Instance.Distance();
+				lastDistance = (int)Platform.Instance.LocalPlayerPosition.Distance;
 				indoorTime = 0f;
 			}
 		} else {
@@ -633,7 +636,7 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	protected void StartRace()
 	{
-		Platform.Instance.StartTrack();
+		Platform.Instance.LocalPlayerPosition.StartTrack();
 		UnityEngine.Debug.Log("Tracking Started");
 		started = true;
 	}

@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Controls the position of the treasure and draws the GUI - needs updating
 /// </summary>
@@ -72,7 +74,7 @@ public class Treasure : MonoBehaviour {
 		scale.y = (float)Screen.height / originalHeight;
     	scale.z = 1;
 		
-		Platform.Instance.SetIndoor(false);
+		Platform.Instance.LocalPlayerPosition.SetIndoor(false);
 	}
 	
 	void OnGUI()
@@ -97,7 +99,7 @@ public class Treasure : MonoBehaviour {
 		GUI.Box(distance, distanceText + treasureDist);
 		
 		// If there is no GPS lock, tell the player.
-		if(!Platform.Instance.HasLock())
+		if(!Platform.Instance.LocalPlayerPosition.HasLock())
 		{
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
@@ -111,23 +113,23 @@ public class Treasure : MonoBehaviour {
 		
 		Platform.Instance.Poll();
 		
-		if(Platform.Instance.HasLock()) {
+		if(Platform.Instance.LocalPlayerPosition.HasLock()) {
 			
 			// Initiate the countdown.
 			if(!started)
 			{
-				Platform.Instance.StartTrack();
+				Platform.Instance.LocalPlayerPosition.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
 				started = true;
 			}
 			
-			UnityEngine.Debug.Log("Current Position is: " + Platform.Instance.Position().latitude + ", " + Platform.Instance.Position().longitude);
+			UnityEngine.Debug.Log("Current Position is: " + Platform.Instance.LocalPlayerPosition.Position.latitude + ", " + Platform.Instance.LocalPlayerPosition.Position.longitude);
 			
 			// Get the current position of the treasure based on distance between the player and its real world position.
-			//Vector2 currentPos = MercatorToPixel(worldCoordinate) - MercatorToPixel(Platform.Instance.Position());
+			//Vector2 currentPos = MercatorToPixel(worldCoordinate) - MercatorToPixel(Platform.Instance.LocalPlayerPosition.Position);
 			
 			// Get the magnitude of the distance.
-			treasureDist = LatLongToMetre(Platform.Instance.Position(), worldCoordinate);
+			treasureDist = LatLongToMetre(Platform.Instance.LocalPlayerPosition.Position, worldCoordinate);
 			
 			gameCoordinate = new Vector3(0, 0, (float)treasureDist);
 			

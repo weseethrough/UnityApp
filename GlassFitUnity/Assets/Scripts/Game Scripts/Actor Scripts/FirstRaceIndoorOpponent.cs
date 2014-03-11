@@ -36,7 +36,7 @@ public class FirstRaceIndoorOpponent : TargetController {
 	// Update is called once per frame
 	void Update () {
 		//UnityEngine.Debug.Log("IndoorOpponent: we are in the update function");
-		playerDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		
 		if(playerDistance > distanceInterval)
 		{
@@ -71,8 +71,8 @@ public class FirstRaceIndoorOpponent : TargetController {
 	
 	public void SetRunnerSpeed()
 	{
-		double currentDistance = Platform.Instance.Distance();
-		float currentTime = Platform.Instance.Time() / 1000f;
+		double currentDistance = Platform.Instance.LocalPlayerPosition.Distance;
+		float currentTime = Platform.Instance.LocalPlayerPosition.Time / 1000f;
 		
 		float intervalTotalTime = currentTime - intervalStartTime;
 		

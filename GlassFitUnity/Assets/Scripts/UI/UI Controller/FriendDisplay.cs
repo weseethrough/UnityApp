@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Displays the friends on a texture.
 /// </summary>

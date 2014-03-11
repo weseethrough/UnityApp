@@ -21,7 +21,7 @@ public class StadiumController : MonoBehaviour {
 		{
 			Vector3 currentPosition = transform.position;
 			
-			currentPosition.z -= Platform.Instance.Pace() * Time.deltaTime;
+			currentPosition.z -= Platform.Instance.LocalPlayerPosition.Pace * Time.deltaTime;
 			
 			transform.position = currentPosition;
 		}

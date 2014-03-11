@@ -23,7 +23,7 @@ public class SnackRun : GameBase {
 	// Use this for initialization
 	void Start() {
 		
-		if( !Platform.Instance.IsIndoor() )
+		if( !Platform.Instance.LocalPlayerPosition.IsIndoor() )
 		{
 			nextSnackDistance = 50.0f;
 			snackInterval = 100.0f;
@@ -56,7 +56,7 @@ public class SnackRun : GameBase {
 	
 	// Update is called once per frame
 	void Update () {
-		float playerDistance = Platform.Instance.GetDistance();
+		float playerDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		if( !snackActive && playerDistance > nextSnackDistance )
 		{
 			OfferPlayerSnack();
@@ -145,7 +145,7 @@ public class SnackRun : GameBase {
 		//whooshOutSound.Play();
 		
 		//queue up the next snack offer.
-		float currentDistance = Platform.Instance.GetDistance();
+		float currentDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		nextSnackDistance = currentDistance + snackInterval;
 		
 		//shift token along and unhide

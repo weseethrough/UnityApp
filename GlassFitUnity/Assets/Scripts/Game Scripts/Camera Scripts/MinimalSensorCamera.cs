@@ -104,7 +104,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		if (DEBUG_ORIENTATION)
 		{
 			// print bearing debug data
-		    GUI.Label(new Rect(200, 050, 400, 50), "Bearing: " + ((int)Platform.Instance.Bearing()).ToString(), labelStyle);
+		    GUI.Label(new Rect(200, 050, 400, 50), "Bearing: " + ((int)Platform.Instance.LocalPlayerPosition.Bearing).ToString(), labelStyle);
 			GUI.Label(new Rect(200, 100, 400, 50), "Yaw from north: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYawFromNorth()*Mathf.Rad2Deg)).ToString(), labelStyle);
 			GUI.Label(new Rect(200, 150, 400, 50), "Yaw from forward: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
 			GUI.Label(new Rect(200, 2000, 400, 50), "Cum-yaw from fwd: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsCumulativeYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
@@ -174,10 +174,10 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 		// check to see if indoor has been changed, e.g. at the beginning
 		// of the game but after start() runs
-		indoor = Platform.Instance.IsIndoor();
+		indoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
 
-		if (Platform.Instance.Bearing() != -999.0f) {
-			initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+		if (Platform.Instance.LocalPlayerPosition.Bearing != -999.0f) {
+			initialBearing = Quaternion.Euler (0.0f, Platform.Instance.LocalPlayerPosition.Bearing, 0.0f);
 			bearingOffset = Quaternion.identity;
 		} else {
 			initialBearing = null;
@@ -199,8 +199,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 		
 		// Check for changes in the player's bearing
-		if (Platform.Instance.Bearing() != -999.0f) {
-			Quaternion currentBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+		if (Platform.Instance.LocalPlayerPosition.Bearing != -999.0f) {
+			Quaternion currentBearing = Quaternion.Euler (0.0f, Platform.Instance.LocalPlayerPosition.Bearing, 0.0f);
 			if (initialBearing.HasValue == false) {
 				// if this is the first valid bearing we've had, use it as the reference point and return identity
 				initialBearing = currentBearing;

@@ -5,6 +5,11 @@ using System.Runtime.InteropServices;
 using System;
 using System.Diagnostics;
 using System.IO;
+using RaceYourself.Models;
+using Newtonsoft.Json;
+using Sqo;
+using SiaqodbDemo;
+using RaceYourself;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -12,6 +17,17 @@ using UnityEditor;
 [ExecuteInEditMode()] 
 public class PlatformDummy : Platform
 {
+
+	// Helper class for accessing the player's current position, speed and direction of movement
+	private EditorPlayerPosition _localPlayerPosition;
+    public override PlayerPosition LocalPlayerPosition {
+        get { return _localPlayerPosition; }
+    }
+
+	// Helper class for accessing/awarding points
+	private PlayerPoints _playerPoints;
+	public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
+
 	private Stopwatch timer = new Stopwatch();
 	private System.Random random = new System.Random();
 	private long update = 0;
@@ -36,7 +52,9 @@ public class PlatformDummy : Platform
 	const float lookSensitivity = 10.0f;
 	
 	private static PlatformDummy _instance;
-
+	
+	private int sessionId = 0;
+	
 //	private bool initialised = false;	
 	private List<Game> games;
 	
@@ -101,23 +119,18 @@ public class PlatformDummy : Platform
 		applicationIsQuitting = true;
 	}
 
-    public override float GetDistance()
-    {
-        return (float)distance;
-    }
-
     public override bool IsPluggedIn()
     {
         return false;
     }
 
 	//if there is a platform dummy about on the device, kill it.
-//#if !UNITY_EDITOR
-//	void Awake()
-//	{
-//		Destroy(gameObject);			
-//	}
-//#endif
+#if !UNITY_EDITOR
+	void Awake()
+	{
+		Destroy(gameObject);			
+	}
+#endif
 	
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
@@ -162,12 +175,11 @@ public class PlatformDummy : Platform
 
 	}
 	
-	public override void Initialize()
+	protected override void Initialize()
 	{
-		//create list of target trackers, since this is a public member, an empty list is preferable to a null list.
-		targetTrackers = new List<TargetTracker>();
-
-		//take us to the start hex scene if appropriate
+		_localPlayerPosition = new EditorPlayerPosition();
+		try {
+			initialised = false;
 //		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 //		if(fs == null)
 //		{
@@ -182,84 +194,59 @@ public class PlatformDummy : Platform
 //			UnityEngine.Debug.Log("PlatformDummy initialise: flowstate exists");
 //		}
 		
-		//timer.Start();
-
-		UnityEngine.Debug.Log("Creating Platform Dummy instance");
-		
-		//blobstore = Path.Combine(Application.persistentDataPath, blobstore);
-		//Directory.CreateDirectory(blobstore);
-		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
-		Directory.CreateDirectory(blobassets);
-		UnityEngine.Debug.Log("Editor blobassets: " + blobassets);
-		
-		games = new List<Game>();
-		
-		Game current = new Game("Race Yourself (run)", "activity_run", "activity_run", "run", "Run against an avatar that follows your previous track","unlocked",1,0,0, "Race", 1, 0, "Race Mode");
-		games.Add(current);
-		
-		//current = new Game("Switch to cycle mode (run)","activity_bike", "activity_bike", "run","Switch to cycle mode","locked",1,1000,0, "Race", 1, 0, "Race Mode");
-        //games.Add(current);
-		
-		current = new Game("Zombies 1","activity_zombie", "activity_zombie","run","We all want to see if we could survive the zombie apocalypse, and now you can! Remember the #1 rule - cardio.","Unlocked",2,50000,0, "Snack", 0, -1, "ZombieSnack");
-        games.Add(current);
-		
-		current = new Game("Boulder 1","activity_boulder", "activity_boulder", "run","Relive that classic moment in Indiana Jones, run from the boulder! No treasure this time though.","Unocked",1,10000,0, "Snack", -1, 0, "BoulderSnack");
-        games.Add(current);
-		
-		current = new Game("Dinosaur 1","activity_dinosaurs", "activity_dinosaurs","run","Remember that time in Jurassic Park when the T-Rex ate those guys? Try to avoid the same fate!","locked",3,100000,0, "Pursuit", 0, 1, "Race Mode");
-        games.Add(current);
-		
-		current = new Game("Eagle 1","activity_eagle", "activity_eagle","run","You stole her eggs, now the giant eagle is after you! It's not your fault the eggs are really tasty...","locked",2,70000,0, "Pursuit", -1, 1, "Race Mode");
-        games.Add(current);
-		
-		current = new Game("Train 1","activity_train", "activity_train","run","Run away from a train!","Unlocked",2,20000,0, "Snack", 1, 1, "TrainSnack");
-		games.Add(current);
-
-		current = new Game("100m Sprint", "activity_bolt_level1", "ctivity_bolt_level1", "run", "RSprint for 100m against opponents in a stadium", "unlocked", 2, 70000, 0, "Celebrity", 2, 0, "Race Mode");
-        games.Add(current);
-		
-		current = new Game("Paula Radcliffe","activity_paula_radcliffe", "activity_paula_radcliffe", "run","Run a marathon with Paula Radcliffe! Try and beat her time at the 2007 NYC Marathon!","unlocked",2,20000,0, "Celebrity", 2, 1, "Race Mode");
-		games.Add(current);
-
-        current = new Game("Chris Hoy", "activity_chris_hoy", "activity_chris_hoy","run", "Cycle with Chris Hoy, in his almost record breaking 1km cycle in 2007", "unlocked", 2, 10000, 0, "Celebrity", 2, -1, "Race Mode");
-        games.Add(current);
-
-        current = new Game("Bradley Wiggins", "activity_bradley_wiggins", "activity_bradley_wiggins","cycle", "Participate in a 4km pursuit race with Bradley Wiggins on his 2008 Olympics gold medal time", "unlocked", 2, 10000, 0, "Celebrity", 1, -1, "Race Mode");
-        games.Add(current);
-
-        current = new Game("Fire", "activity_fire", "activity_fire","run", "Know what's good on a barbeque? Burgers. Know what isn't? You. So run before you get burned.", "unlocked", 2, 10000, 0, "Pursuit", 1, 2, "Race Mode");
-        games.Add(current);
-		
-		current = new Game("Settings", "settings", "settings", "run", "Settings for Indoor mode", "unlocked", 2, 0, 0, "Mode", -1, 2, "Race Mode");
-		games.Add(current);
-		
-		//init player orientation
-		playerOrientation.Reset();
+			//timer.Start();
+	
+			UnityEngine.Debug.Log("Creating Platform Dummy instance");
+			
+			//blobstore = Path.Combine(Application.persistentDataPath, blobstore);
+			//Directory.CreateDirectory(blobstore);
+			blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+			Directory.CreateDirectory(blobassets);
+			UnityEngine.Debug.Log("Editor blobassets: " + blobassets);
+			
+			games = new List<Game>();
+			games.Add(new Game("activity_monster","Giant Monster Challenge","activity_monster","run","You have woken up a giant monster - and he's hungry","Locked",3,5000,4,"N/A",-2,0,"Race Mode"));
+			games.Add(new Game("activity_press_up","Press-ups","activity_press_up","all","Learn the proper technique for press ups.","Locked",3,5000,4,"N/A",-2,1,"Race Mode"));
+			games.Add(new Game("activity_train","The train game","activity_train","all","There's a damsel in distress on the tracks - save her!","Locked",0,10000,5,"Snack",-2,-1,"TrainSnack"));
+			games.Add(new Game("activity_bike","Race Yourself","activity_bike","cycle","Cycle against your own avatar for points","Locked",0,500,0,"N/A",-1,-1,"Race Mode"));
+			games.Add(new Game("activity_boulder","Boulder Dash","activity_boulder","run","Run away from the boulder!","Locked",1,1000,1,"Snack",-1,0,"BoulderSnack"));
+			games.Add(new Game("activity_versus","Challenges","activity_versus","all","Race against your friends!","Unlocked",1,5000,3,"Challenge",-1,1,"Race Mode"));
+			games.Add(new Game("activity_race_yourself","Race Yourself","activity_run","run","Race against your own avatar","Unlocked",0,0,0,"Race",0,-1,"Race Mode"));
+			games.Add(new Game("activity_achievement","Achievements","activity_achievement","run","View your achievements and progress","Locked",2,5000,3,"N/A",0,1,"Race Mode"));
+			games.Add(new Game("activity_bolt_level1","Beat Bolt","activity_bolt_level1","run","Try to beat Bolt's 100m time","Locked",2,5000,3,"Snack",1,1,"UsainSnack"));
+			games.Add(new Game("activity_zombie","Zombie mode","activity_zombie","all","How long can you survive against zombies?","Locked",1,0,0,"Snack",1,-1,"ZombieSnack"));
+			games.Add(new Game("activity_heart","Heart-rate monitor","activity_heart","all","Connect to a heart-rate monitor","Locked",3,5000,4,"N/A",2,0,"Race Mode"));
+			games.Add(new Game("activity_food_burn","Snack Run","activity_food_burn","all","Go on a fun run packed with mini games!","Unlocked",1,0,0,"Race",1,0,"SnackRun"));	
+			
+			if (!initialised) {
 		playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
 		
-		initialised = true;
+				initialised = true;
+			} else {
+				UnityEngine.Debug.Log("Race condition in PlatformDummy!");
+			}
+	    } catch (Exception e) {
+            UnityEngine.Debug.LogWarning("Platform: Error in constructor " + e.Message);
+            UnityEngine.Debug.LogException(e);
+			Application.Quit();
+	    }
+		UnityEngine.Debug.Log("PlatformDummy:StartTrack");
+	}
+	
+	protected override void PostInit() {
+		base.PostInit();
 		
+		if (Application.isPlaying) {
+			db = DatabaseFactory.GetInstance();
+			api = new API(db);
+			sessionId = Sequence.Next("session", db);
+		}
 	}
 	
     public override Device Device()
     {
-        return null;
+		return db.Cast<Device>().Where(d => d.self == true).First();
     }
-
-	public override void StartTrack() {
-		UnityEngine.Debug.Log("PlatformDummy:StartTrack");
-		timer.Start();
-	}
-	
-	public override void SetIndoor(bool indoor) {
-		//nothing to do in dummy.
-		return;	
-	}
-	
-	public override bool IsIndoor() {
-		//always indoor in editor
-		return true;
-	}
 
 	
 	public override void ResetTargets() {
@@ -277,37 +264,17 @@ public class PlatformDummy : Platform
 		return null;	
 	}
 
-	public override Boolean HasLock() {
-		//always report that we have gps lock in editor
-		return true;
-	}
-	
-	public override Track StopTrack() {
-		timer.Stop();
-		return null;
-	}
-
 	public override void Authorize(string provider, string permissions) {
-		//ignore in dummy
-		return;
+		StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
 	}
 	
 	public override bool HasPermissions(string provider, string permissions) {
-		//assume always have permissions in dummy
-		return true;
+		return authenticated;
 	}
 	
 	public override void SyncToServer() {
-		//do nothing for dummy
-		return;	
-	}
-
-	public override void Reset() {
-		timer.Stop();
-		timer.Reset();
-		distance = 0;
-		update = 0;
-		target = 1;
+		lastSync = DateTime.Now;
+		StartCoroutine(api.Sync());
 	}
 	
 	public void SetTargetSpeed(float speed)
@@ -325,15 +292,29 @@ public class PlatformDummy : Platform
 	}
 	
 	public override Challenge FetchChallenge(string id) {
-		//don't need any challenges in the dummy
-		return null;	
+		Challenge challenge = null;
+		IEnumerator e = api.get("challenges/" + id, (body) => {
+			challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+		});
+		while(e.MoveNext()) {}; // block until finished
+		return challenge;
 	}
 
-	public override Track FetchTrack(int deviceID, int trackID) {
-		//don't need any tracks in the dummy.
-		return null;	
+	public override Track FetchTrack(int deviceId, int trackId) {
+		// Check db
+		Track track = db.Cast<Track>().Where<Track>(t => t.deviceId == deviceId && t.trackId == trackId).FirstOrDefault();
+		if (track != null) {
+			IncludePositions(track);
+			return track;
+		}
+		// or fetch from API
+		IEnumerator e = api.get("tracks/" + deviceId + "-" + trackId, (body) => {
+			track = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Track>>(body).response;
+		});
+		while(e.MoveNext()) {}; // block until finished
+		return track;
 	}
-	
+		
 //	public void SetTargetSpeed(float speed)
 //	{
 //		throw new NotImplementedException();
@@ -343,20 +324,14 @@ public class PlatformDummy : Platform
 //	{
 //		throw new NotImplementedException();
 //	}
-	
+		
 	public override List<Track> GetTracks() {
-		//don't need any tracks in the dummy
-		return null;
-	}
-	
-	/// <summary>
-	/// Not too sure how TempGames differs from Games. AH
-	/// </summary>
-	/// <returns>
-	/// This function will simply return the games list for Platform Dummy, for now.
-	/// </returns>
-	public override List<Game> GetTempGames() {
-		return games;	
+		// TODO: Change signature to IList<Track>
+		var tracks = new List<Track>(db.LoadAll<Track>());
+		foreach (var track in tracks) {
+			IncludePositions(track);
+		}
+		return tracks;
 	}
 	
 	public override List<Game> GetGames() {
@@ -364,37 +339,30 @@ public class PlatformDummy : Platform
 	}
 	
 	public override void QueueAction(string json) {
-		//do nothing
-		return;
+		var action = new RaceYourself.Models.Action(json);
+		db.StoreObject(action);
 	}
 	
 	public override List<Friend> Friends() {
-		var friend = @"{
-	        ""_id"": ""gplus107650962788507404146"",
-	        ""has_glass"": false,
-	        ""image"": ""https://lh6.googleusercontent.com/-c89V0_0E6tM/AAAAAAAAAAI/AAAAAAAAAFE/9oLaR0rjbog/photo.jpg?sz=50"",
-	        ""name"": ""Aaron Aycock"",
-	        ""photo"": null,
-	        ""uid"": ""107650962788507404146"",
-	        ""user_id"": null
-	      }";
-		List<Friend> friends = new List<Friend>(1);
-		friends[0] = new Friend(friend);
-		return friends;
+		// TODO: Change signature to IList<Friend>
+		return new List<Friend>(db.LoadAll<Friend>());
 	}
 
-	public override Notification[] Notifications ()
-	{
-		return null;
+	public override Notification[] Notifications () {
+		// TODO: Change signature to IList<Notification>
+		var list = db.LoadAll<Notification>();
+		var array = new Notification[list.Count];
+		list.CopyTo(array, 0);
+		return array;
 	}
 	
 	public override void ReadNotification(string id) {
-		return;	
+		throw new NotImplementedException();
 	}
 	
 	public override byte[] LoadBlob(string id) {
 		try {
-			UnityEngine.Debug.Log("PlatformDummy: Trying id: " + id);
+			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);
 			
 			return File.ReadAllBytes(Path.Combine(blobassets, id));
 			
@@ -406,6 +374,7 @@ public class PlatformDummy : Platform
     public override void StoreBlob(string id, byte[] blob)
     {
         File.WriteAllBytes(Path.Combine(blobassets, id), blob);
+		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id);
     }
 
 	public override void ResetBlobs ()
@@ -416,25 +385,47 @@ public class PlatformDummy : Platform
 	
 	public override void Poll() {
 		if (!timer.IsRunning) return;
-		//if (Time() - update > 1000) { 
 
-		//move forward
-		distance += targetSpeed * UnityEngine.Time.deltaTime;
+		LocalPlayerPosition.Update();
 
-
-		update = Time();
-		position = new Position((float)(51.400+Math.Cos(bearing*Math.PI/180)*distance/111229d), (float)(-0.15+Math.Sin(bearing*Math.PI/180)*distance/111229d));
+		target += targetSpeed * UnityEngine.Time.deltaTime;
+		if (random.Next() % 5 == 0) target += 1 * UnityEngine.Time.deltaTime;
+		if (random.Next() % 5 == 4) {
+				target -= 1 * UnityEngine.Time.deltaTime;
+		}
 
 	}
 	
 	public override User User() {
-		return null;	
+		if (api == null) return null;
+		return api.user;
 	}
 	
-	public override User GetUser(int userID) {
-		return null;	
+	public override User GetUser(int userId) {
+		User user = null;
+		IEnumerator e = api.get("users/" + userId, (body) => {
+			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+		});
+		while(e.MoveNext()) {}; // block until finished
+		return user;
 	}
 	
+	public override List<Track> GetTracks (double distance, double minDistance)
+	{
+		var tracks = new List<Track>(db.Cast<Track>().Where<Track>(t => t.distance > minDistance && t.distance <= distance));		 
+		foreach (var track in tracks) {
+			IncludePositions(track);
+		}
+		return tracks;
+	}
+	
+	private void IncludePositions(Track track)
+	{
+		if (track == null) return;
+		if (track.positions != null) return;
+		track.positions = new List<Position>(db.Cast<Position>().Where<Position>(p => p.deviceId == track.deviceId && p.trackId == track.trackId));
+	}	
+		
 	//specific to the platform dummy (ideally this would be provided by a TargetTracker dummy object)
 	public override float GetTargetSpeed() {
 		return targetSpeed;
@@ -451,67 +442,34 @@ public class PlatformDummy : Platform
 	}
 	
 	public override double DistanceBehindTarget() {
-		return target - distance;
-	}
-	
-	public override long Time() {
-		return timer.ElapsedMilliseconds;
-	}
-	
-	public override double Distance() {
-		return distance;
-	}
-	
-	public override int Calories() {
-		return (int)(factor * weight * distance/1000);
-	}
-	
-	public override float Pace() {
-		return 1.0f;
-	}
-	
-	public Position Position() {
-		return position;
-	}	
-	
-	public float Bearing() {
-		return bearing;
-	}
-
-	public int GetCurrentGemBalance ()
-	{
-		//give lots of gems for testing in editor
-		return 100;
-	}
-	
-	public override float GetCurrentMetabolism ()
-	{
-		//return a default value
-		return 1.0f;
-	}
-	
-	public override void SetBasePointsSpeed (float speed)
-	{
-		//do nothing
-		return;
-	}
-	
-	public override void AwardPoints (string reason, string gameId, long points)
-	{
-		//do nothing
-		return;
-	}
-	
-	public override void AwardGems (string reason, string gameId, int gems)
-	{
-		//do nothing
-		return;
+		return target - LocalPlayerPosition.Distance;
 	}
 
 	
 	public override void Update ()
+	{		
+	}
+	
+	public override void BluetoothClient ()
 	{
-		//fake head movement
+	}
+	
+	public override void BluetoothServer ()
+	{
+	}
+	
+	public override string[] BluetoothPeers ()
+	{
+		return new string[0];
+	}
+	
+	public override void LogAnalytics (JSONObject json) {
+		var e = new RaceYourself.Models.Event(json.ToString(), sessionId);
+		db.StoreObject(e);
+	}
+	
+	public override void Update ()
+	{		
 		if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
 		{
 			//check for input and update player orientation as appropriate

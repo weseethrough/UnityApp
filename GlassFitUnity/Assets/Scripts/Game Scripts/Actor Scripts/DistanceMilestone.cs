@@ -48,7 +48,7 @@ public class DistanceMilestone : MonoBehaviour {
 	void Update () 
 	{
 		// Get current distance travelled.
-		distance = Platform.Instance.Distance();
+		distance = Platform.Instance.LocalPlayerPosition.Distance;
 
 		// Reset markers.
 		transform.position = new Vector3(0, 0, 500000);

@@ -72,8 +72,8 @@ public class BoulderController : TargetController {
 		// Set the start time
 		currentTime = 0.0f;
 		// Set the player's initial distance
-		playerDistance = Platform.Instance.Distance();
-		playerStartDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
+		playerStartDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		// Set the boulder's starting distance
 		distanceFromStart = (float)playerDistance - 10f;
 		
@@ -85,8 +85,9 @@ public class BoulderController : TargetController {
 	/// Update this instance + updates rotation
 	/// </summary>
 	void Update () {
-		if(!headstartComplete)
-		{
+		// Set the player distance 
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;	
+		if(!headstartComplete)		
 			headstartTime -= Time.deltaTime;
 			
 			if(headstartTime < 0.0f)
@@ -109,10 +110,7 @@ public class BoulderController : TargetController {
 			
 			}
 		}
-		
-		// Set the player distance 
-		playerDistance = Platform.Instance.Distance();
-		
+				
 		// Rotate the object based on speed.
 		xRot += (rotationSpeed * currentSpeed) * Time.deltaTime;
 		

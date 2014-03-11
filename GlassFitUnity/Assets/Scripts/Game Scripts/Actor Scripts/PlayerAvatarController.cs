@@ -14,7 +14,7 @@ public class PlayerAvatarController : MonoBehaviour {
 	void Update () {
 		//update anim to match
 		anim = GetComponent<Animator>();
-		float speed = Platform.Instance.Pace();
+		float speed = Platform.Instance.LocalPlayerPosition.Pace;
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f && speed < 4.0f) {
 			anim.speed = speed / 2.2f;

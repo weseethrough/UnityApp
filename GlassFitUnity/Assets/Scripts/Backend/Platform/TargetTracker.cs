@@ -36,7 +36,7 @@ public class TargetTracker : System.Object {
 	
 	public void PollTargetDistance() {
 		try {
-			targetDistance = target.Call<double>("getCumulativeDistanceAtTime", Platform.Instance.Time());
+			targetDistance = target.Call<double>("getCumulativeDistanceAtTime", Platform.Instance.LocalPlayerPosition.Time);
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("TargetTracker: getCumulativeDistanceAtTime() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
@@ -44,7 +44,7 @@ public class TargetTracker : System.Object {
 	}
 	
 	public float GetDistanceBehindTarget() {
-		return (float)(targetDistance - Platform.Instance.Distance());
+		return (float)(targetDistance - Platform.Instance.LocalPlayerPosition.Distance);
 	}
 	
 	public float PollCurrentSpeed() {

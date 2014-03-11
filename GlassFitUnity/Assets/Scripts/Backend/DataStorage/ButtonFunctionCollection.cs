@@ -7,6 +7,8 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Every function in collection have to accept FlowButton and panel variable and return boolean helping to decide if navigation should continue or stop
 /// </summary>
@@ -382,7 +384,7 @@ public class ButtonFunctionCollection
 						hex.buttonData[i].textSmall = "Off";
 						if(fb.name == "activity_indoor") {
 							UnityEngine.Debug.Log("ButtonFunc: GPS is off (indoor)");
-							Platform.Instance.SetIndoor(true);
+							Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 						}
 						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to false");
 						DataVault.Set(fb.name, false);
@@ -392,7 +394,7 @@ public class ButtonFunctionCollection
 						hex.buttonData[i].textSmall = "On";
 						if(fb.name == "activity_indoor") {
 							UnityEngine.Debug.Log("ButtonFunc: GPS is on (not indoor)");
-							Platform.Instance.SetIndoor(false);
+							Platform.Instance.LocalPlayerPosition.SetIndoor(false);
 						}
 						UnityEngine.Debug.Log("ButtonFunc: mode - " + fb.name + " set to true");
 						DataVault.Set(fb.name, true);
@@ -552,8 +554,8 @@ public class ButtonFunctionCollection
 //	{
 ////		PursuitGame ps = (PursuitGame) GameObject.FindObjectOfType(typeof(PursuitGame));
 ////		ps.SetIndoor();
-//		bool indoor = Platform.Instance.IsIndoor();
-//		Platform.Instance.SetIndoor(!indoor);
+//		bool indoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
+//		Platform.Instance.LocalPlayerPosition.SetIndoor(!indoor);
 //		return false;
 //	}
 
@@ -601,14 +603,14 @@ public class ButtonFunctionCollection
 	static public bool EndGame(FlowButton fb, Panel panel)
 	{
 		Debug.Log("EndGame called");
-		Track track = Platform.Instance.StopTrack();			
+		Track track = Platform.Instance.LocalPlayerPosition.StopTrack();			
 		if (track != null) DataVault.Set("track", track);
 		else DataVault.Remove("track");		
 		
-		DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+		DataVault.Set("total", Platform.Instance.PlayerPoints.CurrentActivityPoints + Platform.Instance.PlayerPoints.OpeningPointsBalance);
 		DataVault.Set("bonus", 0);
 		
-		//Platform.Instance.Reset();
+		//Platform.Instance.LocalPlayerPosition.Reset();
 		Platform.Instance.ResetTargets();
 		AutoFade.LoadLevel("Game End", 0f, 1.0f, Color.black);
 
@@ -621,7 +623,7 @@ public class ButtonFunctionCollection
 			long? time = DataVault.Get("rawtime") as long?;
 			Notification[] notifications = Platform.Instance.Notifications();
 			
-			if (track != null && track.trackPositions.Count > 0) {
+			if (track != null && track.positions.Count > 0) {
 				User me = Platform.Instance.User();
 				foreach (Challenge generic in challenges) {
 					if (generic is DistanceChallenge) {
@@ -637,8 +639,8 @@ public class ButtonFunctionCollection
 					// Mark challenge notification as handled and challenge back
 					foreach (Notification notification in notifications) {
 						if (notification.read) continue;
-						if (string.Equals(notification.node["type"], "challenge")) {
-							string challengeId = notification.node["challenge_id"].ToString();
+						if (string.Equals(notification.message.type, "challenge")) {
+							string challengeId = notification.message.challenge_id;
 							if (challengeId == null || challengeId.Length == 0) continue;
 //							if (challengeId.Contains("$oid")) challengeId = notification.node["challenge_id"]["$oid"].ToString();
 //							challengeId = challengeId.Replace("\"", "");
@@ -646,9 +648,9 @@ public class ButtonFunctionCollection
 							// TODO: Standardize oids
 							if (!challengeId.Equals(generic.id)) continue;
 							
-							notification.setRead(true);
+							Platform.Instance.ReadNotification(notification.id);
 							
-							int challengerId = notification.node["from"].AsInt;
+							int challengerId = notification.message.from;
 							if (challengerId == 0) continue;
 							if (me != null && me.id == challengerId) continue;
 							// Challenge challenger back
@@ -812,7 +814,7 @@ public class ButtonFunctionCollection
 			MessageWidget.AddMessage("ERROR", "Can't challenge with null track", "settings");
 			return false; // TODO: Allow solo rounds?
 		}
-		if (track.trackPositions.Count == 0) {
+		if (track.positions.Count == 0) {
 			MessageWidget.AddMessage("ERROR", "Can't challenge with empty track " + track.deviceId + "-" + track.trackId, "settings");
 			return false; // TODO: Remove track?		
 		}
