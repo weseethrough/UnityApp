@@ -321,25 +321,11 @@ public class GameBase : MonoBehaviour {
 				DataVault.Set("bonus", 0);
 			}
 			
-			
-			///Leaving this block out for now - it goes straight back to the menu if the 'tutorial' exit was returned for GetFinalConnection
-			///Probably best to instead have the FirstRun mode do that transition with its own customisation of the state transitions instead.
-			
-//			if(gConnect.Name == "TutorialExit") {
-//				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-//			} else {
-//				tapHandler = new GestureHelper.OnTap(() => {
-//					Continue();
-//				});
-//				GestureHelper.onTap += tapHandler;
-//			}
-			
-			
 			//follow the connector
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowConnection(gConnect);
 		} else {
-			UnityEngine.Debug.Log("GameBase: No connection found - FinishButton");
+			UnityEngine.Debug.Log("GameBase: No connection found for FinishGame()");
 		}
 	}
 	
@@ -359,7 +345,7 @@ public class GameBase : MonoBehaviour {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
 		if(gConnect != null) {
-			//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
 			SoundManager.PlaySound(SoundManager.Sounds.Tap);
 			fs.parentMachine.FollowConnection(gConnect);
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
@@ -392,7 +378,21 @@ public class GameBase : MonoBehaviour {
 				SetGameState(GAMESTATE_RUNNING);
 				break;
 			case GAMESTATE_QUIT_CONFIRMATION:
+				SetGameState(GAMESTATE_FINISHED);
 				FinishGame();
+				break;
+				
+			case GAMESTATE_FINISHED:
+				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+				GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+				if(gConnect != null) {
+					(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+					SoundManager.PlaySound(SoundManager.Sounds.Tap);
+					fs.parentMachine.FollowConnection(gConnect);
+					AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+				} else {
+					UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
+				}
 				break;
 			}
 		}
@@ -419,16 +419,6 @@ public class GameBase : MonoBehaviour {
 			break;
 		case GAMESTATE_FINISHED:
 			//continue
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
-			if(gConnect != null) {
-				//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-				SoundManager.PlaySound(SoundManager.Sounds.Tap);
-				fs.parentMachine.FollowConnection(gConnect);
-				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-			} else {
-				UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
-			}
 			//do nothing
 			break;
 		}
