@@ -41,7 +41,8 @@ public class PlatformDummy : Platform
 	private const float factor = 1.2f;
 		
 //	private const float speedIncremet = 0.5f;
-
+	
+	private string blobstore = "game-blob";
 	private string blobassets = "blob";
 
     public float[] sensoriaSockPressure = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
@@ -203,11 +204,18 @@ public class PlatformDummy : Platform
 	
 			UnityEngine.Debug.Log("Creating Platform Dummy instance");
 			
-			//blobstore = Path.Combine(Application.persistentDataPath, blobstore);
-			//Directory.CreateDirectory(blobstore);
+			blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 			blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+			var tag = "Player";
+			if (!Application.isPlaying) {
+				// Save to blob assets in editor
+				blobstore = blobassets;
+				tag = "Editor";
+			}
+			Directory.CreateDirectory(blobstore);
+			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
 			Directory.CreateDirectory(blobassets);
-			UnityEngine.Debug.Log("Editor blobassets: " + blobassets);
+			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 			
 			games = new List<Game>();
 			games.Add(new Game("activity_monster",		"Giant Monster Challenge",	"activity_monster",		"run",	"You have woken up a giant monster - and he's hungry",	"Locked",	3,5000,4,	"N/A",		-2,0,	"Race Mode"));
@@ -366,10 +374,17 @@ public class PlatformDummy : Platform
 	
 	public override byte[] LoadBlob(string id) {
 		try {
-			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);
-			
-			return File.ReadAllBytes(Path.Combine(blobassets, id));
-			
+			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);			
+			return File.ReadAllBytes(Path.Combine(blobstore, id));			
+		} catch (FileNotFoundException e) {
+			return LoadDefaultBlob(id);
+		}
+	}
+
+	public byte[] LoadDefaultBlob(string id) {
+		try {
+			UnityEngine.Debug.Log("PlatformDummy: Loading default blob id: " + id);			
+			return File.ReadAllBytes(Path.Combine(blobassets, id));			
 		} catch (FileNotFoundException e) {
 			return new byte[0];
 		}
@@ -377,7 +392,7 @@ public class PlatformDummy : Platform
 
     public override void StoreBlob(string id, byte[] blob)
     {
-        File.WriteAllBytes(Path.Combine(blobassets, id), blob);
+        File.WriteAllBytes(Path.Combine(blobstore, id), blob);
 		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id);
     }
 

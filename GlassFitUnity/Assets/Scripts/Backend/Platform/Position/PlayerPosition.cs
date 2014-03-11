@@ -7,6 +7,7 @@ using RaceYourself.Models;
 public abstract class PlayerPosition {
 
 	public abstract Position Position { get; }
+	public abstract Position PredictedPosition { get; }
 	public abstract long Time { get; }
 	public abstract double Distance { get; }
 	public int Calories { get { return (int)(76.0 / 1000.0 * Distance); } }
@@ -64,5 +65,8 @@ public abstract class PlayerPosition {
 	// Check if has GPS lock
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public abstract Boolean HasLock();
+
+	[MethodImpl(MethodImplOptions.Synchronized)]
+	public abstract void NotifyAutoBearing();
 
 }
