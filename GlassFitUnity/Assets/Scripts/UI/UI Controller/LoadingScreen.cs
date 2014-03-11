@@ -125,48 +125,57 @@ public class LoadingScreen : MonoBehaviour {
 			UnityEngine.Debug.Log("LoadingScreen: Loading - " + progress.ToString("f0") + "%");
 			
 			if(async.isDone) {
-			    FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			    //doing the test against the race type rather than level name allows us to use the same level for different race types
-			    //	e.g. FirstRun for tutorial, or using a new track			-AH
-			    if(raceType == "tutorial")
-			    {
-			    	GConnector gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
-			    	if(gConnect != null)
-			    	{
-			       		fs.parentMachine.FollowConnection(gConnect);
-				    }
-			    	else 
-
-					{
-						UnityEngine.Debug.LogWarning("LoadingScreen: error finding tutorial exit");
-					}
-				}
-
-			    else if(raceType == "trainRescue")
-			    {
-				    GConnector gConnect = fs.Outputs.Find(r => r.Name == "TrainExit");
-				    if(gConnect != null)
-					{
-						fs.parentMachine.FollowConnection(gConnect);	
-					}
-					else
-					{
-						UnityEngine.Debug.LogWarning("LoadingScreen: error finding train exit");
-					}
+			    
+				if(!Platform.Instance.OnGlass())
+				{
+					GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+       			 	gc.GoToFlow("GameplayFlow");
+        	
 				}
 				else
 				{
-					GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceExit");
-					if(gConnect != null)
+					FlowState fs = FlowStateMachine.GetCurrentFlowState();
+				    //doing the test against the race type rather than level name allows us to use the same level for different race types
+				    //	e.g. FirstRun for tutorial, or using a new track			-AH
+				    if(raceType == "tutorial")
+				    {
+				    	GConnector gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
+				    	if(gConnect != null)
+				    	{
+				       		fs.parentMachine.FollowConnection(gConnect);
+					    }
+				    	else 
+	
+						{
+							UnityEngine.Debug.LogWarning("LoadingScreen: error finding tutorial exit");
+						}
+					}
+	
+				    else if(raceType == "trainRescue")
+				    {
+					    GConnector gConnect = fs.Outputs.Find(r => r.Name == "TrainExit");
+					    if(gConnect != null)
+						{
+							fs.parentMachine.FollowConnection(gConnect);	
+						}
+						else
+						{
+							UnityEngine.Debug.LogWarning("LoadingScreen: error finding train exit");
+						}
+					}
+					else
 					{
-						fs.parentMachine.FollowConnection(gConnect);
-					} 
-					else 
-					{
-						UnityEngine.Debug.LogWarning("LoadingScreen: error finding race exit");	
+						GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceExit");
+						if(gConnect != null)
+						{
+							fs.parentMachine.FollowConnection(gConnect);
+						} 
+						else 
+						{
+							UnityEngine.Debug.LogWarning("LoadingScreen: error finding race exit");	
+						}
 					}
 				}
-	
 			} 
             else 
 			{
