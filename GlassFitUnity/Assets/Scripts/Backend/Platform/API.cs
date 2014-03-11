@@ -19,7 +19,7 @@ namespace RaceYourself
 		private const string SCHEME = "https://";
 		private const string AUTH_HOST = "auth.raceyourself.com";
 		private const string AUTH_TOKEN_URL = SCHEME + AUTH_HOST + "/oauth/token";
-		private string apiHost = "api.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
+		private string apiHost = "auth.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
 			
 		private const string CLIENT_ID = "8c8f56a8f119a2074be04c247c3d35ebed42ab0dcc653eb4387cff97722bb968";
 		private const string CLIENT_SECRET = "892977fbc0d31799dfc52e2d59b3cba88b18a8e0080da79a025e1a06f56aa8b2";
@@ -85,6 +85,8 @@ namespace RaceYourself
 				var post = new WWW(ApiUrl("devices"), encoding.GetBytes(body), headers);
 				yield return post;
 							
+				if (!post.isDone) {}
+				
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
 					ret = "Network error";
@@ -121,8 +123,10 @@ namespace RaceYourself
 	            form.AddField("username", username);
 	            form.AddField("password", password);
 				
-				var post = new WWW(AUTH_TOKEN_URL, form);
+				var post = new WWW(AUTH_TOKEN_URL, form);				
 				yield return post;
+						
+				if (!post.isDone) {}
 				
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: Login(" + username + ",<password>) threw error: " + post.error);
@@ -177,6 +181,8 @@ namespace RaceYourself
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			var request = new WWW(ApiUrl("me"), null, headers);
 			yield return request;
+					
+			if (!request.isDone) {}
 			
 			if (!String.IsNullOrEmpty(request.error)) {
 				Debug.LogError("API: UpdateAuthentications(): threw error: " + request.error);
@@ -253,6 +259,8 @@ namespace RaceYourself
 				var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
 				yield return post;
 							
+				if (!post.isDone) {}
+						
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
 					if (post.error.ToLower().Contains("401 unauthorized")) {
@@ -360,6 +368,8 @@ namespace RaceYourself
 			
 			var www = new WWW(ApiUrl(route), null, headers);
 			yield return www;
+			
+			while (!www.isDone) {}
 				
 			if (!String.IsNullOrEmpty(www.error)) {
 				Debug.LogError("API: get(" + route + ") threw error: " + www.error);
@@ -643,10 +653,10 @@ namespace RaceYourself
 					foreach (Models.Track track in tracks) {
 						track.GenerateCompositeId();
 						if (track.deleted_at != null) {
-							db.DeleteObjectBy("_id", track);
+							db.DeleteObjectBy("id", track);
 							continue;
 						}
-						if (!db.UpdateObjectBy("_id", track)) {
+						if (!db.UpdateObjectBy("id", track)) {
 							db.StoreObject(track);
 							inserts++;
 						} else updates++;
@@ -659,10 +669,10 @@ namespace RaceYourself
 					foreach (Models.Position position in positions) {
 						position.GenerateCompositeId();
 						if (position.deleted_at != null) {
-							if (db.DeleteObjectBy("_id", position)) deletes++;
+							if (db.DeleteObjectBy("id", position)) deletes++;
 							continue;
 						}
-						if (!db.UpdateObjectBy("_id", position)) {
+						if (!db.UpdateObjectBy("id", position)) {
 							db.StoreObject(position);
 							inserts++;
 						} else updates++;
@@ -675,10 +685,10 @@ namespace RaceYourself
 					foreach (Models.Orientation orientation in orientations) {
 						orientation.GenerateCompositeId();
 						if (orientation.deleted_at != null) {
-							if (db.DeleteObjectBy("_id", orientation)) deletes++;
+							if (db.DeleteObjectBy("id", orientation)) deletes++;
 							continue;
 						}							
-						if (!db.UpdateObjectBy("_id", orientation)) {
+						if (!db.UpdateObjectBy("id", orientation)) {
 							db.StoreObject(orientation);
 							inserts++;
 						} else updates++;
