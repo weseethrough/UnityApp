@@ -94,6 +94,8 @@ public abstract class Platform : MonoBehaviour {
 			// work out which type of platform we need
 			#if UNITY_EDITOR
         	    platformType = typeof(PlatformDummy);
+			#elif UNITY_ANDROID && RACEYOURSELF_MOBILE
+				platformType = typeof(PlatformDummy);
 			#elif UNITY_ANDROID
 				platformType = typeof(AndroidPlatform);
 			#elif UNITY_IPHONE
@@ -145,7 +147,7 @@ public abstract class Platform : MonoBehaviour {
 		applicationIsQuitting = true;
 	}
 	
-	void Awake()
+	public virtual void Awake()
     {
 		if (initialised == false)
         {
@@ -669,7 +671,7 @@ public abstract class Platform : MonoBehaviour {
 	
 	public virtual Device DeviceInformation() 
 	{
-		return new Device("Unknown", "Computer");
+		throw new NotImplementedException();
 	}	
 	
 	public void OnApplicationQuit ()
