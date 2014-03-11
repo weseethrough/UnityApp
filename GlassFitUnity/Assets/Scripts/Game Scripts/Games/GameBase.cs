@@ -198,18 +198,7 @@ public class GameBase : MonoBehaviour {
 		FlowState.FollowFlowLinkNamed("QuitExit");	
 				Platform.Instance.LocalPlayerPosition.StopTrack();
 	}
-	
-	//UNUSED?
-//	public virtual void QuitGame() {
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-//		if(gConnect != null) {
-//			fs.parentMachine.FollowConnection(gConnect);
-//			CleanUp();
-//			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-//		}
-//	}
-	
+
 	public void ReturnGame() {
 		FlowState.FollowFlowLinkNamed("GameExit");
 	}
