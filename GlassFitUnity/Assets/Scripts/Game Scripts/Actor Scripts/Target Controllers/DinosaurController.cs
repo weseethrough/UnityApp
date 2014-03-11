@@ -89,8 +89,8 @@ public class DinosaurController : TargetController {
 		// Set the start time
 		currentTime = 0.0f;
 		// Set the player's initial distance
-		playerDistance = Platform.Instance.Distance();
-		playerStartDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
+		playerStartDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		// Set the boulder's starting distance
 		distanceFromStart = (float)playerDistance - 25f;
 	}
@@ -130,7 +130,7 @@ public class DinosaurController : TargetController {
 		}
 		
 		// Set the player distance 
-		playerDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		
 		// Increase the time
 		currentTime += Time.deltaTime;

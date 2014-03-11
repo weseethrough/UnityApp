@@ -446,10 +446,6 @@ public class PlatformDummy : Platform
 	}
 
 	
-	public override void Update ()
-	{		
-	}
-	
 	public override void BluetoothClient ()
 	{
 	}

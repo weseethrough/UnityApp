@@ -87,7 +87,7 @@ public class BoulderController : TargetController {
 	void Update () {
 		// Set the player distance 
 		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;	
-		if(!headstartComplete)		
+		if(!headstartComplete) {
 			headstartTime -= Time.deltaTime;
 			
 			if(headstartTime < 0.0f)

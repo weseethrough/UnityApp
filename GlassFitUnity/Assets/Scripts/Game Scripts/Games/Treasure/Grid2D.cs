@@ -20,7 +20,7 @@ public class Grid2D : MonoBehaviour {
 		
 		Vector2 uvOffset = renderer.material.mainTextureOffset;
 		
-		uvOffset += forward * (Platform.Instance.Pace() * Time.deltaTime);
+		uvOffset += forward * (Platform.Instance.LocalPlayerPosition.Pace * Time.deltaTime);
 		
 		renderer.material.mainTextureOffset = uvOffset;
 	}

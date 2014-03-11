@@ -291,7 +291,7 @@ public class GameBase : MonoBehaviour {
 	protected void FinishGame()
 	{
 		//stop tracking
-		Platform.Instance.StopTrack();
+		Platform.Instance.LocalPlayerPosition.StopTrack();
 		
 		//invoke any game-specific behaviour
 		OnFinishedGame();
@@ -443,7 +443,7 @@ public class GameBase : MonoBehaviour {
 			Time.timeScale = 0.0f;
 			
 			//stop tracking
-			Platform.Instance.StopTrack();
+			Platform.Instance.LocalPlayerPosition.StopTrack();
 		} else
 		{
 			UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
@@ -536,7 +536,7 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.Poll();
 			
 			//check for auto-pause
-			if(!Platform.Instance.IsIndoor() && Platform.Instance.playerState == "STOPPED")
+			if(!Platform.Instance.LocalPlayerPosition.IsIndoor() && Platform.Instance.playerState == "STOPPED")
 			{
 				//state is applicable, check timer
 				if(UnityEngine.Time.time - Platform.Instance.playerStateEntryTime > 1.0f)
@@ -552,14 +552,14 @@ public class GameBase : MonoBehaviour {
 			UpdateIndoorPrompts();
 				
 			//check for finished
-			if(Platform.Instance.Distance() >= finish)
+			if(Platform.Instance.LocalPlayerPosition.Distance >= finish)
 			{
 				
 				SetGameState(GAMESTATE_FINISHED);
 			}
 			
 			// Award the player points for running certain milestones
-			if(Platform.Instance.Distance() >= bonusTarget)
+			if(Platform.Instance.LocalPlayerPosition.Distance >= bonusTarget)
 			{
 				int targetToKm = bonusTarget / 1000;
 				if(bonusTarget < finish) 
@@ -691,7 +691,7 @@ public class GameBase : MonoBehaviour {
 	protected void CleanUp()
 	{
 		//stop tracking
-		Platform.Instance.StopTrack();
+		Platform.Instance.LocalPlayerPosition.StopTrack();
 			
 		//release handlers
 		GestureHelper.onBack -= backHandler;

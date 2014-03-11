@@ -139,7 +139,7 @@ public class Treasure : MonoBehaviour {
 				GetComponent<MeshRenderer>().enabled = false;
 			}		
 			
-			double bearing = CalcBearing(Platform.Instance.Position(), worldCoordinate);
+			double bearing = CalcBearing(Platform.Instance.LocalPlayerPosition.Position, worldCoordinate);
 			
 			UnityEngine.Debug.Log("Treasure: bearing is " + bearing.ToString("f2"));
 			
