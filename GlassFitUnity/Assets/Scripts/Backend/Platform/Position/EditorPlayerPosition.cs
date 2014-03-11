@@ -19,6 +19,8 @@ public class EditorPlayerPosition : PlayerPosition {
 	private float _pace = 1.0f;
 	public override float Pace { get { return _pace; } }
 
+	private const float speedIncremet = 0.5f;
+
 	protected float _bearing = -999.0f;
 	public override float Bearing { get { return _bearing; } }
 
@@ -32,6 +34,16 @@ public class EditorPlayerPosition : PlayerPosition {
 	}
 
 	public override void Update() {
+
+		//fake speed up/ slow down
+		if(Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.KeypadPlus))
+		{
+			_pace += speedIncremet;
+		}
+		if(Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus))
+		{
+			_pace -= speedIncremet;
+		}
 
 		if (!timer.IsRunning) return;
 

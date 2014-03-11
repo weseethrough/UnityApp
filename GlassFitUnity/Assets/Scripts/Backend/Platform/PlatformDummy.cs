@@ -40,7 +40,7 @@ public class PlatformDummy : Platform
 	private const float weight = 75.0f;
 	private const float factor = 1.2f;
 		
-	private const float speedIncremet = 0.5f;
+//	private const float speedIncremet = 0.5f;
 
 	private string blobassets = "blob";
 
@@ -210,18 +210,18 @@ public class PlatformDummy : Platform
 			UnityEngine.Debug.Log("Editor blobassets: " + blobassets);
 			
 			games = new List<Game>();
-			games.Add(new Game("activity_monster","Giant Monster Challenge","activity_monster","run","You have woken up a giant monster - and he's hungry","Locked",3,5000,4,"N/A",-2,0,"Race Mode"));
-			games.Add(new Game("activity_press_up","Press-ups","activity_press_up","all","Learn the proper technique for press ups.","Locked",3,5000,4,"N/A",-2,1,"Race Mode"));
-			games.Add(new Game("activity_train","The train game","activity_train","all","There's a damsel in distress on the tracks - save her!","Locked",0,10000,5,"Snack",-2,-1,"TrainSnack"));
-			games.Add(new Game("activity_bike","Race Yourself","activity_bike","cycle","Cycle against your own avatar for points","Locked",0,500,0,"N/A",-1,-1,"Race Mode"));
-			games.Add(new Game("activity_boulder","Boulder Dash","activity_boulder","run","Run away from the boulder!","Locked",1,1000,1,"Snack",-1,0,"BoulderSnack"));
-			games.Add(new Game("activity_versus","Challenges","activity_versus","all","Race against your friends!","Unlocked",1,5000,3,"Challenge",-1,1,"Race Mode"));
-			games.Add(new Game("activity_race_yourself","Race Yourself","activity_run","run","Race against your own avatar","Unlocked",0,0,0,"Race",0,-1,"Race Mode"));
-			games.Add(new Game("activity_achievement","Achievements","activity_achievement","run","View your achievements and progress","Locked",2,5000,3,"N/A",0,1,"Race Mode"));
-			games.Add(new Game("activity_bolt_level1","Beat Bolt","activity_bolt_level1","run","Try to beat Bolt's 100m time","Locked",2,5000,3,"Snack",1,1,"UsainSnack"));
-			games.Add(new Game("activity_zombie","Zombie mode","activity_zombie","all","How long can you survive against zombies?","Locked",1,0,0,"Snack",1,-1,"ZombieSnack"));
-			games.Add(new Game("activity_heart","Heart-rate monitor","activity_heart","all","Connect to a heart-rate monitor","Locked",3,5000,4,"N/A",2,0,"Race Mode"));
-			games.Add(new Game("activity_food_burn","Snack Run","activity_food_burn","all","Go on a fun run packed with mini games!","Unlocked",1,0,0,"Race",1,0,"SnackRun"));	
+			games.Add(new Game("activity_monster",		"Giant Monster Challenge",	"activity_monster",		"run",	"You have woken up a giant monster - and he's hungry",	"Locked",	3,5000,4,	"N/A",		-2,0,	"Race Mode"));
+			games.Add(new Game("activity_press_up",		"Press-ups",				"activity_press_up",	"all",	"Learn the proper technique for press ups.",			"Locked",	3,5000,4,	"N/A",		-2,1,	"Race Mode"));
+			games.Add(new Game("activity_train",		"The train game",			"activity_train",		"all",	"There's a damsel in distress on the tracks - save her!","Locked",	0,10000,5,	"Snack",	-2,-1,	"TrainSnack"));
+			games.Add(new Game("activity_bike",			"Race Yourself",			"activity_bike",		"cycle","Cycle against your own avatar for points",				"Locked",	0,500,0,	"N/A",		-1,-1,	"Race Mode"));
+			games.Add(new Game("activity_boulder",		"Boulder Dash",				"activity_boulder",		"run",	"Run away from the boulder!",							"Locked",	1,1000,1,	"Snack",	-1,0,	"BoulderSnack"));
+			games.Add(new Game("activity_versus",		"Challenges",				"activity_versus",		"all",	"Race against your friends!",							"Unlocked",	1,5000,3,	"Challenge",-1,1,	"Race Mode"));
+			games.Add(new Game("activity_race_yourself","Race Yourself",			"activity_run",			"run",	"Race against your own avatar",							"Unlocked",	0,0,0,		"Race",		0,-1,	"Race Mode"));
+			games.Add(new Game("activity_achievement",	"Achievements",				"activity_achievement",	"run",	"View your achievements and progress",					"Locked",	2,5000,3,	"N/A",		0,1,	"Race Mode"));
+			games.Add(new Game("activity_bolt_level1",	"Beat Bolt",				"activity_bolt_level1",	"run",	"Try to beat Bolt's 100m time",							"Locked",	2,5000,3,	"Snack",	1,1,	"UsainSnack"));
+			games.Add(new Game("activity_zombie",		"Zombie mode",				"activity_zombie",		"all",	"How long can you survive against zombies?",			"Locked",	1,0,0,		"Snack",	1,-1,	"ZombieSnack"));
+			games.Add(new Game("activity_heart",		"Heart-rate monitor",		"activity_heart",		"all",	"Connect to a heart-rate monitor",						"Locked",	3,5000,4,	"N/A",		2,0,	"Race Mode"));
+			games.Add(new Game("activity_food_burn",	"Snack Run",				"activity_food_burn",	"all",	"Go on a fun run packed with mini games!",				"Unlocked",	1,0,0,		"Race",		1,0,	"SnackRun"));	
 			
 			if (!initialised) {
 		playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
@@ -235,7 +235,6 @@ public class PlatformDummy : Platform
             UnityEngine.Debug.LogException(e);
 			Application.Quit();
 	    }
-		UnityEngine.Debug.Log("PlatformDummy:StartTrack");
 	}
 	
 	protected override void PostInit() {
@@ -389,15 +388,14 @@ public class PlatformDummy : Platform
 	}
 	
 	public override void Poll() {
-		if (!timer.IsRunning) return;
 
 		LocalPlayerPosition.Update();
 
-		target += targetSpeed * UnityEngine.Time.deltaTime;
-		if (random.Next() % 5 == 0) target += 1 * UnityEngine.Time.deltaTime;
-		if (random.Next() % 5 == 4) {
-				target -= 1 * UnityEngine.Time.deltaTime;
-		}
+//		target += targetSpeed * UnityEngine.Time.deltaTime;
+//		if (random.Next() % 5 == 0) target += 1 * UnityEngine.Time.deltaTime;
+//		if (random.Next() % 5 == 4) {
+//				target -= 1 * UnityEngine.Time.deltaTime;
+//		}
 
 	}
 	
@@ -475,7 +473,7 @@ public class PlatformDummy : Platform
 	}
 	
 	public override void Update ()
-	{		
+	{	
 		if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
 		{
 			//check for input and update player orientation as appropriate
@@ -491,17 +489,6 @@ public class PlatformDummy : Platform
 			
 			playerOrientation.Update(fromDown);
 		}
-
-		//fake speed up/ slow down
-		if(Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.KeypadPlus))
-		{
-			targetSpeed += speedIncremet;
-		}
-		if(Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus))
-		{
-			targetSpeed -= speedIncremet;
-		}
-
 	}
 	
 	public override Vector2? GetTouchInput ()

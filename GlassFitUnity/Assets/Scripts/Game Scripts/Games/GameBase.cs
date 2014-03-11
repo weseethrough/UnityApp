@@ -125,7 +125,7 @@ public class GameBase : MonoBehaviour {
 	
 		
 #if RY_INDOOR
-		SetReadyToStart(true);
+//		SetReadyToStart(true);
 		SetVirtualTrackVisible(true);
 #endif
 		//set distance with units for the menu cards

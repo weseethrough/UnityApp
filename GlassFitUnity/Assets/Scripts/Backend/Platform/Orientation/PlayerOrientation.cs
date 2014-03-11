@@ -169,7 +169,7 @@ public class PlayerOrientation
 				autoResetLerpTime = 0;
 				autoResetYaw = null;
 				// notify platform
-				Platform.Instance.NotifyAutoBearing();
+				//Platform.Instance.NotifyAutoBearing();
 			}
 		}
 		else if (Mathf.Abs(AsYaw()) > AUTO_RESET_THRESHOLD  // facing more than AUTO_RESET_THRESHOLD away from current forward reference
