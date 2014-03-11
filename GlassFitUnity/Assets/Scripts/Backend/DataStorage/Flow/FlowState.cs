@@ -365,5 +365,14 @@ public abstract class FlowState : GNode
         }
     }
 
+    /// <summary>
+    /// refreshes connections lists
+    /// </summary>
+    /// <returns></returns>
+    public override void RebuildConnections()
+    {
+        base.RebuildConnections();
+        UpdateSize();
+    }
 
 }

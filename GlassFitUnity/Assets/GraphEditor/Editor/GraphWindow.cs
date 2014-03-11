@@ -1146,9 +1146,9 @@ public class GraphWindow : EditorWindow, IDraw
                     Graph.Data.Disconnect(conector);
 
                     m_selection.Outputs.RemoveAt(i);                    
-                    if (m_selection is Panel)
+                    if (m_selection is FlowState)
                     {
-                        (m_selection as Panel).UpdateSize();
+                        (m_selection as FlowState).UpdateSize();
                     }
 
                     i--;
@@ -1167,9 +1167,9 @@ public class GraphWindow : EditorWindow, IDraw
             if (GUILayout.Button("Add", GUILayout.MaxWidth(40)) && m_newExitName.Length > 0)
             {
                 m_selection.NewOutput(m_newExitName, "Flow");
-                if (m_selection is Panel)
+                if (m_selection is FlowState)
                 {
-                    (m_selection as Panel).UpdateSize();
+                    (m_selection as FlowState).UpdateSize();
                 }
 
                 m_dirtySave = true;

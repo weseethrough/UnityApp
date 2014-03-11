@@ -185,7 +185,7 @@ public class GraphUtil
 		Texture2D txm = highlight ? graph.Style.HighlightTexture : graph.Style.EmptyTexture;
 		if (selected) txm = graph.Style.SelectedTexture;
 		
-		if (txm != null)
+		if (false && txm != null)
 		{
 			mat.SetTexture("_MainTex",txm);
 			mat.SetPass(0);
@@ -206,13 +206,49 @@ public class GraphUtil
 		}
 		else // draw colored shapes if style does not have custom textures
 		{
+
+            bool haveFunctionAttached = false;
+            if (con != null && con.EventFunction != null)
+            {
+                haveFunctionAttached = con.EventFunction.Length > 0 && con.EventFunction != "None";
+            }
+
+
+            if (haveFunctionAttached)
+            {
+                GL.Begin(GL.QUADS);
+                int Z = 3;
+                float x0 = cx - Z;
+                float x1 = cx + R / 2;
+                float x2 = cx + R + Z;
+                float y0 = cy - Z;
+                float y1 = cy + R / 2;
+                float y2 = cy + R + Z;
+                GL.Color(Color.magenta);
+                /*GL.Vertex3(x0, y1, 0);
+                GL.Vertex3(x1, y0, 0);
+                GL.Vertex3(x1, y0, 0);
+                GL.Vertex3(x2, y1, 0);
+                GL.Vertex3(x2, y1, 0);
+                GL.Vertex3(x1, y2, 0);
+                GL.Vertex3(x1, y2, 0);
+                GL.Vertex3(x0, y1, 0);*/
+
+                GL.Vertex3(x0, y1, 0);
+                GL.Vertex3(x1, y0, 0);
+                GL.Vertex3(x2, y1, 0);
+                GL.Vertex3(x1, y2, 0);
+
+                GL.End();
+            }
+
 			GL.Begin(GL.QUADS);
-				GL.Color(Color.white);
+                GL.Color(Color.white);
 				GL.Vertex3(cx,cy,0);
 				GL.Vertex3(cx+R,cy,0);
 				GL.Vertex3(cx+R,cy+R,0);
 				GL.Vertex3(cx,cy+R,0);
-				GL.Color(selected ? Color.green : Color.gray);
+                GL.Color(selected ? Color.white : Color.gray);
 				GL.Vertex3(cx+1,cy+1,0);
 				GL.Vertex3(cx+R-1,cy+1,0);
 				GL.Vertex3(cx+R-1,cy+R-1,0);
@@ -225,6 +261,8 @@ public class GraphUtil
 				GL.Vertex3(cx,cy,0);
 				GL.Vertex3(cx+R,cy,0);
 			GL.End();
+
+
 			if (highlight)
 			{
 				GL.Begin(GL.LINES);

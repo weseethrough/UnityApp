@@ -96,8 +96,7 @@ public class Panel : FlowState
     /// </summary>
     /// <returns></returns>
     public override void RebuildConnections()
-    {
-        base.RebuildConnections();
+    {        
 
         //Inputs.Clear();
         if (Outputs != null) Outputs.Clear();        
@@ -107,12 +106,10 @@ public class Panel : FlowState
         SerializedNode node = GetPanelSerializationNode(gType.Value);
         LookForInteractiveItems(node);
 
-        int count = Mathf.Max(Inputs.Count, Outputs.Count);
-
-        UpdateSize();
+        int count = Mathf.Max(Inputs.Count, Outputs.Count);        
 
         RefreshNodeData();
-        
+        base.RebuildConnections();   
     }
 
     /// <summary>
