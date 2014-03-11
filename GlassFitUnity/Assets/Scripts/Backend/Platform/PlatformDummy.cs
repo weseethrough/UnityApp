@@ -19,7 +19,7 @@ public class PlatformDummy : Platform
 {
 
 	// Helper class for accessing the player's current position, speed and direction of movement
-	private EditorPlayerPosition _localPlayerPosition;
+	private PlayerPosition _localPlayerPosition;
     public override PlayerPosition LocalPlayerPosition {
         get { return _localPlayerPosition; }
     }
@@ -113,6 +113,10 @@ public class PlatformDummy : Platform
 	{
 		return true;
 	}
+	public override bool IsDisplayRemote ()
+	{
+		return false;
+	}
 	
 	public void OnDestroy() 
 	{
@@ -178,6 +182,7 @@ public class PlatformDummy : Platform
 	protected override void Initialize()
 	{
 		_localPlayerPosition = new EditorPlayerPosition();
+		_playerPoints = new EditorPlayerPoints();
 		try {
 			initialised = false;
 //		FlowState fs = FlowStateMachine.GetCurrentFlowState();
@@ -457,6 +462,11 @@ public class PlatformDummy : Platform
 	public override string[] BluetoothPeers ()
 	{
 		return new string[0];
+	}
+	
+	public override void BluetoothBroadcast (JSONObject json)
+	{
+		return;
 	}
 	
 	public override void LogAnalytics (JSONObject json) {
