@@ -10,6 +10,10 @@ public class EditorPlayerPosition : PlayerPosition {
 	private Position _position = null;
 	public override Position Position { get { return _position; } }
 
+
+	private Position _predictedPosition = null;
+	public override Position PredictedPosition { get { return _predictedPosition; } }
+
 	private Stopwatch timer = new Stopwatch();
 	public override long Time { get { return timer.ElapsedMilliseconds; } }
 
@@ -40,6 +44,7 @@ public class EditorPlayerPosition : PlayerPosition {
 			_bearing += 10;
         }
 		_position = new Position((float)(51.400+Math.Cos(Bearing*Math.PI/180)*Distance/111229d), (float)(-0.15+Math.Sin(Bearing*Math.PI/180)*Distance/111229d));
+		_predictedPosition = _position;
 	}
 
 	public override void StartTrack() {
@@ -65,4 +70,5 @@ public class EditorPlayerPosition : PlayerPosition {
 		_distance = 0;
 	}
 
+	public override void NotifyAutoBearing() {}
 }

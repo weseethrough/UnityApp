@@ -10,6 +10,9 @@ public class AndroidPlayerPosition : PlayerPosition {
 	private Position _position = null;
 	public override Position Position { get { return _position; } }
 
+	private Position _predictedPosition = null;
+	public override Position PredictedPosition { get { return _predictedPosition; } }
+
 	private long _time = 0;
 	public override long Time { get { return _time; } }
 
@@ -23,6 +26,7 @@ public class AndroidPlayerPosition : PlayerPosition {
 	public override float Bearing { get { return _bearing; } }
 
 	private AndroidJavaObject currentActivity;
+	private AndroidJavaObject helper;
 	private AndroidJavaObject androidGpsTracker;
 
 
@@ -36,7 +40,7 @@ public class AndroidPlayerPosition : PlayerPosition {
 
             currentActivity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
 				AndroidJavaClass helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
-                AndroidJavaObject helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+                helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
                 androidGpsTracker = helper.Call<AndroidJavaObject>("getGPSTracker");
                 log.info("Connected to Android GPS");
 	    	}));
@@ -168,8 +172,10 @@ public class AndroidPlayerPosition : PlayerPosition {
 		try {
 			if (HasLock()) {
 				AndroidJavaObject ajo = androidGpsTracker.Call<AndroidJavaObject>("getCurrentPosition");
-				//log.info("poll position");
 				_position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+
+				ajo = androidGpsTracker.Call<AndroidJavaObject>("getPredictedPosition");
+ 				_predictedPosition = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
 			}
 		} catch (Exception e) {
 			log.warning("Error getting position: " + e.Message);
@@ -188,5 +194,14 @@ public class AndroidPlayerPosition : PlayerPosition {
 		}
 
 	}
+
+	public override void NotifyAutoBearing() {
+ 		try {
+ 			helper.Call("notifyAutoBearing");
+ 		} catch (Exception e) {
+ 			log.error("Platform: Error notifying auto-bearing: " + e.Message);
+ 		}
+
+ 	}
 
 }
