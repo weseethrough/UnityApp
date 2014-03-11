@@ -463,21 +463,11 @@ public class GameBase : MonoBehaviour {
 		UnityEngine.Debug.Log("GameBase: Unpausing");
 
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ReturnExit");
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
-			
-			Time.timeScale = 1.0f;
-			
-			//resume tracking
-			Platform.Instance.StartTrack();
-		} else
-		{
-			UnityEngine.Debug.LogWarning("GameBase: Can't find exit - PauseExit");
-		}
-		
-		
+		fs.parentMachine.FollowBack();
+		Time.timeScale = 1.0f;
+	
+		//resume tracking
+		Platform.Instance.StartTrack();
 	}
 	
 	protected virtual void UpdateAhead() {

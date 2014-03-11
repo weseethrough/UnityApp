@@ -978,9 +978,11 @@ public class ButtonFunctionCollection
 
     static public bool UseCustomRedirection(FlowButton button, FlowState panel)
     {
+		UnityEngine.Debug.Log("BFC: about to get start string");
         string start = DataVault.Get("custom_redirection_point") as string;
         if (start != null && start.Length > 0)
         {
+			UnityEngine.Debug.Log("BFC: the direction point says " + start);
             GConnector newExit = panel.Outputs.Find(r => r.Name == start);
             if (newExit != null)
             {
@@ -1006,6 +1008,21 @@ public class ButtonFunctionCollection
 		else
 		{
 			gc.GoToFlow("MobileUX");
+		}
+		return true;
+	}
+	
+	static public bool SetHUD(FlowButton button, FlowState panel)
+	{
+		if(Platform.Instance.OnGlass())
+		{
+			UnityEngine.Debug.Log("BFC: exit being set to GlassExit");
+			DataVault.Set("custom_redirection_point", "GlassExit");
+		}
+		else
+		{
+			UnityEngine.Debug.Log("BFC: exit being set to MobileExit");
+			DataVault.Set("custom_redirection_point", "MobileExit");
 		}
 		return true;
 	}

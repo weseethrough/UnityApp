@@ -91,11 +91,7 @@ public class SnackController : MonoBehaviour {
 		//clear current snack offer
 		if(awaitingAcceptTap)
 		{
-			GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
-			if (gc != null)
-			{
-				fs.parentMachine.FollowConnection(gc);
-			}
+			fs.parentMachine.FollowBack();
 			
 			awaitingAcceptTap = false;
 		}
@@ -167,11 +163,7 @@ public class SnackController : MonoBehaviour {
 		{
 			//dismiss (transition flow back to HUD)
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
-			if (gc != null)
-			{
-				fs.parentMachine.FollowConnection(gc);
-			}
+			fs.parentMachine.FollowBack();
 			
 			awaitingAcceptTap = false;
 			UnityEngine.Debug.Log("SnackController: Snack declined");
@@ -303,11 +295,7 @@ public class SnackController : MonoBehaviour {
 		
 		//transition UI back to HUD
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gc = fs.Outputs.Find( r => r.Name == "Return" );
-		if (gc != null)
-		{
-			fs.parentMachine.FollowConnection(gc);
-		}
+		fs.parentMachine.FollowBack();
 		
 		//notify the game that the snack is over
 		SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));

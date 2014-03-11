@@ -313,6 +313,7 @@ public abstract class FlowState : GNode
     {
         if (gConect.EventFunction != null && gConect.EventFunction != "")
         {            
+			UnityEngine.Debug.Log("BFC: function is called " + gConect.EventFunction);
             if (CallStaticFunction(gConect.EventFunction, button))
             {
                 parentMachine.FollowConnection(gConect);         
