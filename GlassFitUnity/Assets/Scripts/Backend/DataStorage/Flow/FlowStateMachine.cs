@@ -330,14 +330,7 @@ public class FlowStateMachine : MonoBehaviour
             IsReady())
         {
             if (activeFlow.Count > 0 && activeFlow[activeFlow.Count - 1] == targetState)
-            {
-                if (targetStateConnector != null && targetStateConnector.EventFunction != null && targetStateConnector.EventFunction != "")
-                {
-                    if (targetState is FlowState)
-                    {
-                        (targetState as FlowState).CallStaticFunction(targetStateConnector.EventFunction, null);
-                    }
-                }
+            {                
                 targetStateConnector = null;
                 targetState = null;
                 return true;
@@ -364,13 +357,24 @@ public class FlowStateMachine : MonoBehaviour
                     return false;
                 }
             }
-            
-            
+                        
             //our next step is applied, we will navigate to the child
             if (nextStepChild != null)
             {
                 activeFlow.Add(nextStepChild);
                 nextStepChild.parentMachine = this;
+
+                if (nextStepChild == targetState &&                    
+                    targetStateConnector != null && 
+                    targetStateConnector.EventFunction != null && 
+                    targetStateConnector.EventFunction != "")
+                {
+                    if (targetState is FlowState)
+                    {
+                        (targetState as FlowState).CallStaticFunction(targetStateConnector.EventFunction, null);
+                    }
+                }
+
                 nextStepChild.EnterStart();
                 return false;
             }
