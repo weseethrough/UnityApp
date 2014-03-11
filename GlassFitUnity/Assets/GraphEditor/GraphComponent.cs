@@ -52,6 +52,9 @@ public class GraphComponent : MonoBehaviour
                     flowName = Platform.Instance.GetIntent();
                 }
 
+                //make forwarding state go to challenge screen instead of main menu
+                //DataVault.Set("custom_redirection_point", "Challenge");
+
                 SetSelectedFlowByName(flowName);
             }
             else
