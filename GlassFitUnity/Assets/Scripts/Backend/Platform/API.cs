@@ -85,6 +85,8 @@ namespace RaceYourself
 				var post = new WWW(ApiUrl("devices"), encoding.GetBytes(body), headers);
 				yield return post;
 							
+				if (!post.isDone) {}
+				
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
 					ret = "Network error";
@@ -121,8 +123,10 @@ namespace RaceYourself
 	            form.AddField("username", username);
 	            form.AddField("password", password);
 				
-				var post = new WWW(AUTH_TOKEN_URL, form);
+				var post = new WWW(AUTH_TOKEN_URL, form);				
 				yield return post;
+						
+				if (!post.isDone) {}
 				
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: Login(" + username + ",<password>) threw error: " + post.error);
@@ -177,6 +181,8 @@ namespace RaceYourself
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			var request = new WWW(ApiUrl("me"), null, headers);
 			yield return request;
+					
+			if (!request.isDone) {}
 			
 			if (!String.IsNullOrEmpty(request.error)) {
 				Debug.LogError("API: UpdateAuthentications(): threw error: " + request.error);
@@ -253,6 +259,8 @@ namespace RaceYourself
 				var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
 				yield return post;
 							
+				if (!post.isDone) {}
+						
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
 					if (post.error.ToLower().Contains("401 unauthorized")) {
@@ -360,6 +368,8 @@ namespace RaceYourself
 			
 			var www = new WWW(ApiUrl(route), null, headers);
 			yield return www;
+			
+			while (!www.isDone) {}
 				
 			if (!String.IsNullOrEmpty(www.error)) {
 				Debug.LogError("API: get(" + route + ") threw error: " + www.error);
