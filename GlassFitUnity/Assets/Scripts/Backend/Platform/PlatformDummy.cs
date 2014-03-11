@@ -369,6 +369,22 @@ public class PlatformDummy : Platform
 	{		
 	}
 	
+	public override void BluetoothClient ()
+	{
+	}
+	
+	public override void BluetoothServer ()
+	{
+	}
+	
+	public override string[] BluetoothPeers ()
+	{
+		return new string[0];
+	}
+	
+	public override void LogAnalytics (JSONObject json)
+	{
+	}
 	
 }
 #endif

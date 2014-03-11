@@ -270,12 +270,6 @@ public class AndroidPlatform : Platform
 		return null;
 	}
 	
-	// Get the device's orientation
-	public override PlayerOrientation GetPlayerOrientation() {
-		return playerOrientation;
-	}
-
-
 	public override Challenge FetchChallenge(string id) {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching challenge");

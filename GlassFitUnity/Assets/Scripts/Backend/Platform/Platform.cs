@@ -452,7 +452,7 @@ public abstract class Platform : MonoBehaviour {
 	
 	// Get the device's orientation
 	public virtual PlayerOrientation GetPlayerOrientation() {
-		throw new NotImplementedException();
+		return playerOrientation;
 	}
 
 	
