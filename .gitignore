@@ -40,6 +40,9 @@ Assembly-UnityScript.unityProj
 !Library/unity default resources
 !Library/unity editor resources
 
+Models/bin
+Models/obj
+
 *.svd
 *.userprefs
 *.suo
