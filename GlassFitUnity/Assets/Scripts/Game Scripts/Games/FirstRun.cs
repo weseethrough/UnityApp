@@ -121,8 +121,7 @@ public class FirstRun : GameBase {
 	IEnumerator GoBack()
 	{
 		yield return new WaitForSeconds(2.0f);
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		fs.parentMachine.FollowBack();
+		FlowState.FollowBackLink();
 	}
 	
 	// Update is called once per frame
@@ -216,24 +215,6 @@ public class FirstRun : GameBase {
 		}
 	}
 
-
-//	///UNUSED?
-//	/// <summary>
-//	/// Quits the game. This just seems to do the base behaviour with a different exit name. Should improve.
-//	/// </summary>
-//	public override void QuitGame ()
-//	{
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton"); 
-//		
-//		if(gConnect != null) {
-//			fs.parentMachine.FollowConnection(gConnect);
-//			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-//		} else {
-//			UnityEngine.Debug.Log("FirstRun: Error finding quit exit");
-//		}
-//	}
-	
 //	private void InstantiateActors() {
 //		//create an actor for each active target tracker
 //		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
