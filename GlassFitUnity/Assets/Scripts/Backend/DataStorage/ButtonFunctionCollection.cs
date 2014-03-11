@@ -85,7 +85,7 @@ public class ButtonFunctionCollection
 	{
 		DataVault.Set("type", "Runner");
 		DataVault.Set("race_type", "tutorial");
-		DataVault.Set("finish", "1000");
+		DataVault.Set("finish", 1000);
 		
 		return true;
 	}
@@ -994,4 +994,19 @@ public class ButtonFunctionCollection
         }
         return true;
     }
+	
+	static public bool GoToEndGameFlow(FlowButton button, FlowState panel)
+	{
+		GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+		DataVault.Set("custom_redirection_point", "MenuPoint");
+		if(Platform.Instance.OnGlass())
+		{
+			gc.GoToFlow("MainFlow");
+		}
+		else
+		{
+			gc.GoToFlow("MobileUX");
+		}
+		return true;
+	}
 }

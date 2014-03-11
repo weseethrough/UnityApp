@@ -24,12 +24,7 @@ public class PurchaseListener : MonoBehaviour {
 	
 	void GoBack() 
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		
-		GConnector gConect = fs.Outputs.Find(r => r.Name == "MenuButton");
-		if(gConect != null) {
-			fs.parentMachine.FollowConnection(gConect);
-		}
+		//FlowState.FollowBackLink();
 	}
 	
 	void PurchaseGame() {

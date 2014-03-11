@@ -20,22 +20,25 @@ public class LoadingScreen : MonoBehaviour {
 		switch(raceType) {
 		case "race":
 			//if we have a track, load Race Mode, otherwise, load FirstRun. N.B. the menu flow will be different, so it isn't exactly the same FirstRun experience
+			DataVault.Set("custom_redirection_point", "GameIntroExit");
 			if(track != null)
 			{
 				levelName = "Race Mode";
 			}
 			else
 			{
-				levelName = "TrainRescue";
+				levelName = "FirstRun";
 			}
 			break;
 		
 		case "snack":
 			levelName = "SnackRun";
+			DataVault.Set("custom_redirection_point", "GameIntroExit");
 			break;
 			
 		case "challenge":
 			levelName = "Challenge Mode";
+			DataVault.Set("custom_redirection_point", "GameIntroExit");
 			break;
 			
 		case "pursuit":
@@ -44,10 +47,12 @@ public class LoadingScreen : MonoBehaviour {
 			
 		case "tutorial":
 			levelName = "FirstRun";
+			DataVault.Set("custom_redirection_point", "TutorialIntroExit");
 			break;
 			
 		case "trainRescue":
 			levelName = "TrainRescue";
+			DataVault.Set("custom_redirection_point", "TrainIntroExit");
 			break;
 			
 		default:
