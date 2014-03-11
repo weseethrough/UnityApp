@@ -55,7 +55,7 @@ namespace RaceYourself
 				Debug.Log("API: No stored account");
 			}
 			Directory.CreateDirectory(CACHE_PATH);
-			Device self = db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
+			Device self = db.Query<Device>().Where(d => d.self == true).FirstOrDefault();
 			if (self == null) {
 				self = Platform.Instance.DeviceInformation();
 				db.StoreObject(self);

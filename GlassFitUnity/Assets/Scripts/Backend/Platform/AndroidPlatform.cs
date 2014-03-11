@@ -5,13 +5,13 @@ using RaceYourself.Models;
 using UnityEngine;
 using Newtonsoft.Json;
 
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !RACEYOURSELF_MOBILE
 /// <summary>
 /// Android platform. Overrides platform functionality with android-specific functionality where necessary. Usually this means JNI calls to the GlassfitPlatform libr
 /// </summary>
 public class AndroidPlatform : Platform
 {
-	private readonly AndroidJavaClass build_class = new AndroidJavaClass("android.os.Build");	
+	private AndroidJavaClass build_class;	
 	private AndroidJavaObject helper;
 	private AndroidJavaClass helper_class;
 	private AndroidJavaObject activity;
@@ -35,6 +35,7 @@ public class AndroidPlatform : Platform
     		activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             context = activity.Call<AndroidJavaObject>("getApplicationContext");
             helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
+			build_class = new AndroidJavaClass("android.os.Build");
 
             UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
 	                        
