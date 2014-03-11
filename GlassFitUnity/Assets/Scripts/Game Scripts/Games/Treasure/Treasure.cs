@@ -8,7 +8,7 @@ using System;
 public class Treasure : MonoBehaviour {
 	
 	// Real world position in lat and long.
-	private Position worldCoordinate;
+	private Position worldCoordinate = null;
 	
 	// Game world position from lat and long.
 	private Vector3 gameCoordinate;
@@ -51,9 +51,10 @@ public class Treasure : MonoBehaviour {
 		
 		// Set real world position near Camden for testing purposes.
 		// Final game will be based on user's position. 		
-		worldCoordinate = new Position(UnityEngine.Random.Range(51.530479f, 51.539075f), UnityEngine.Random.Range(-0.142651f, -0.134411f));
+		/*worldCoordinate = new Position(UnityEngine.Random.Range(52.355007f, 52.355107f), 
+			UnityEngine.Random.Range(5.000872f,  5.000942f));
 		UnityEngine.Debug.Log("Chest position is: " + worldCoordinate.latitude + ", " + worldCoordinate.longitude);
-	
+		*/
 		// Set the box to display distance.
 		distance = new Rect((originalWidth/2.0f) - 100, MARGIN, 200, 100);
 		distanceText = "Distance\n";
@@ -75,6 +76,7 @@ public class Treasure : MonoBehaviour {
 		Platform.Instance.SetIndoor(false);
 	}
 	
+	
 	void OnGUI()
 	{
 				// Scale for devices.
@@ -94,7 +96,7 @@ public class Treasure : MonoBehaviour {
 		GUI.skin.box.normal.textColor = Color.black;
 		
 		// Add a box for the treasure distance.
-		GUI.Box(distance, distanceText + treasureDist);
+		GUI.Box(distance, distanceText + treasureDist.ToString("f1"));
 		
 		// If there is no GPS lock, tell the player.
 		if(!Platform.Instance.HasLock())
@@ -113,21 +115,23 @@ public class Treasure : MonoBehaviour {
 		
 		if(Platform.Instance.HasLock()) {
 			
+			SetChestPosition();
 			// Initiate the countdown.
 			if(!started)
 			{
 				Platform.Instance.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
 				started = true;
+
 			}
 			
-			UnityEngine.Debug.Log("Current Position is: " + Platform.Instance.Position().latitude + ", " + Platform.Instance.Position().longitude);
+			UnityEngine.Debug.Log("Current Position is: " + Platform.Instance.PredictedPosition().latitude + ", " + Platform.Instance.PredictedPosition().longitude);
 			
 			// Get the current position of the treasure based on distance between the player and its real world position.
 			//Vector2 currentPos = MercatorToPixel(worldCoordinate) - MercatorToPixel(Platform.Instance.Position());
 			
 			// Get the magnitude of the distance.
-			treasureDist = LatLongToMetre(Platform.Instance.Position(), worldCoordinate);
+			treasureDist = LatLongToMetre(Platform.Instance.PredictedPosition(), worldCoordinate);
 			
 			gameCoordinate = new Vector3(0, 0, (float)treasureDist);
 			
@@ -137,7 +141,7 @@ public class Treasure : MonoBehaviour {
 				GetComponent<MeshRenderer>().enabled = false;
 			}		
 			
-			double bearing = CalcBearing(Platform.Instance.Position(), worldCoordinate);
+			double bearing = CalcBearing(Platform.Instance.PredictedPosition(), worldCoordinate);
 			
 			UnityEngine.Debug.Log("Treasure: bearing is " + bearing.ToString("f2"));
 			
@@ -154,6 +158,7 @@ public class Treasure : MonoBehaviour {
 			
 			// Set the position based on the game coordinate.
 			transform.localPosition  = gameCoordinate;
+			
 		} 
 		else
 		{
@@ -186,6 +191,24 @@ public class Treasure : MonoBehaviour {
 		}
 	}
 	
+	private void SetChestPosition() 
+	{
+		float lat = Platform.Instance.Position().latitude;
+		float lng = Platform.Instance.Position().longitude;
+		if (lat == 0.0f && lng == 0.0f)
+			return;
+		
+		
+		if (worldCoordinate == null) {
+			UnityEngine.Debug.Log("Initial position is: " + lat + ", " + lng);
+
+			float range = 0.01f;
+			worldCoordinate = new Position(UnityEngine.Random.Range(lat-range, lat+range), 
+									  		UnityEngine.Random.Range(lng-range, lng+range));
+		}
+		UnityEngine.Debug.Log("Chest position is: " + worldCoordinate.latitude + ", " + worldCoordinate.longitude);
+	}
+
 	/// <summary>
 	/// Returns true if the treasure has been obtained
 	/// </summary>
@@ -220,6 +243,7 @@ public class Treasure : MonoBehaviour {
 		);
 		return world * 100000;
 	}
+	
 	
 	private double LatLongToMetre(Position start, Position end)
 	{

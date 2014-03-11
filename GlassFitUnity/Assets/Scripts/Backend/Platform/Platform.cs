@@ -21,6 +21,8 @@ public abstract class Platform : MonoBehaviour {
 	internal string playerState = "";
 
 	protected Position position = null;
+	protected Position predictedPosition = null;
+
 	private PlayerOrientation playerOrientation = new PlayerOrientation();
 	protected float bearing = -999.0f;
 	protected float yaw = -999.0f;
@@ -1117,6 +1119,15 @@ public abstract class Platform : MonoBehaviour {
 
 	}	
 	
+	public virtual void NotifyAutoBearing() {
+		try {
+			helper.Call("notifyAutoBearing");
+		} catch (Exception e) {
+			UnityEngine.Debug.Log("Platform: Error notifying auto-bearing: " + e.Message);
+		}
+
+	}
+	
 	public virtual void Poll() {
 		//UnityEngine.Debug.Log("Platform: poll now");
 		
@@ -1153,6 +1164,11 @@ public abstract class Platform : MonoBehaviour {
 				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
 				//UnityEngine.Debug.Log("Platform: poll position");
 				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+				
+				ajo = gps.Call<AndroidJavaObject>("getPredictedPosition");
+				//UnityEngine.Debug.Log("Platform: poll position");
+				predictedPosition = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+				
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting position: " + e.Message);
@@ -1231,6 +1247,10 @@ public abstract class Platform : MonoBehaviour {
 	}
 	
 	public virtual Position Position() {
+		return position;
+	}
+	
+	public virtual Position PredictedPosition() {
 		return position;
 	}
 	
