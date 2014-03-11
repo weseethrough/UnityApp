@@ -104,6 +104,9 @@ public class TrainRescueSnack : SnackBase {
 			{
 				mainCamera.SetActive(false);
 			}
+
+			//transition flow to blank screen
+			FollowConnectorNamed("ToBlank");
 		}
 		else
 		{
@@ -119,6 +122,11 @@ public class TrainRescueSnack : SnackBase {
 	
 	public override void Begin ()
 	{
+#if RY_INDOOR
+		//disable auto-centre for investor demo
+		Platform.Instance.GetPlayerOrientation().SetAutoReset(false);
+#endif
+
 		SetTrack(false);
 		SetReadyToStart(true);
 		//transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
