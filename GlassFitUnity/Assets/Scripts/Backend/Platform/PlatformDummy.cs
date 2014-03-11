@@ -113,6 +113,10 @@ public class PlatformDummy : Platform
 	{
 		return true;
 	}
+	public override bool IsDisplayRemote ()
+	{
+		return false;
+	}
 	
 	public void OnDestroy() 
 	{
