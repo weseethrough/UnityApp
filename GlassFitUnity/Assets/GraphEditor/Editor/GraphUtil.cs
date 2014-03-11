@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEditor;
 
 public class GraphUtil
 {
@@ -441,4 +442,16 @@ public class GraphUtil
 			GL.End();
 		}
 	}
+
+    /*static public void DrawArrow(Vector3 start, Vector3 end, Vector3 startTangent, Vector3 endTangent, Color rgb)
+    {
+        float width  = HandleUtility.GetHandleSize(Vector3.zero) * 1f;
+        Handles.DrawBezier(start, 
+    					end,
+                        startTangent,
+                        endTangent,
+                        rgb, 
+    					null,
+    					5.0f);
+    }*/
 }

@@ -8,6 +8,9 @@ using System.Collections.Generic;
 [Serializable]
 public class MobileSelectTrack : MobilePanel 
 {
+
+    private List<Track> trackList;
+
     public MobileSelectTrack() { }
     public MobileSelectTrack(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
@@ -43,7 +46,7 @@ public class MobileSelectTrack : MobilePanel
         int finish = 10000;
         int lowerFinish = 100;
 
-        List<Track> trackList = Platform.Instance.GetTracks(finish, lowerFinish);
+        trackList = Platform.Instance.GetTracks(finish, lowerFinish);
         if (trackList != null && trackList.Count > 0)
         {
             GConnector baseConnection = GetBaseButtonConnection();
@@ -61,6 +64,26 @@ public class MobileSelectTrack : MobilePanel
                 list.RebuildList();
             }
         }
+    }
+
+    public override void OnClick(FlowButton button)
+    {        
+        if (button != null && trackList != null)
+        {
+            string prefix = "button";
+            string index = button.name.Substring(prefix.Length);
+            int i = Convert.ToInt32(index);
+
+            DataVault.Set("current_track", trackList[i]);
+        }
+        else
+        {
+            return;
+        }
+
+        
+
+        base.OnClick(button);
     }
 
 }

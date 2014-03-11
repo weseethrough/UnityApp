@@ -8,6 +8,9 @@ using System.Collections.Generic;
 [Serializable]
 public class MobileSelectFriend : MobilePanel 
 {
+
+    List<Friend> friendsData;
+
     public MobileSelectFriend() { }
     public MobileSelectFriend(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
@@ -46,8 +49,8 @@ public class MobileSelectFriend : MobilePanel
 
         GConnector baseConnection = GetBaseButtonConnection();
         //AddBackButtonData();
-        
-        List<Friend> friendsData = Platform.Instance.Friends();
+
+        friendsData = Platform.Instance.Friends();
         if (friendsData != null)
         {            
 
@@ -62,6 +65,24 @@ public class MobileSelectFriend : MobilePanel
                 list.RebuildList();
             }
         }
+    }
+
+    public override void OnClick(FlowButton button)
+    {
+        if (button != null && friendsData != null)
+        {
+            string prefix = "button";
+            string index = button.name.Substring(prefix.Length);
+            int i = Convert.ToInt32(index);
+
+            DataVault.Set("current_track", friendsData[i]);
+        }
+        else
+        {
+            return;
+        }
+        
+        base.OnClick(button);
     }
 
 }

@@ -333,9 +333,9 @@ public class FlowStateMachine : MonoBehaviour
             {
                 if (targetStateConnector != null && targetStateConnector.EventFunction != null && targetStateConnector.EventFunction != "")
                 {
-                    if (targetState is Panel)
+                    if (targetState is FlowState)
                     {
-                        (targetState as Panel).CallStaticFunction(targetStateConnector.EventFunction, null);
+                        (targetState as FlowState).CallStaticFunction(targetStateConnector.EventFunction, null);
                     }
                 }
                 targetStateConnector = null;
