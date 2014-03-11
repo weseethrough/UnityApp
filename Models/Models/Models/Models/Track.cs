@@ -15,7 +15,7 @@ namespace RaceYourself.Models
 
 		[JsonProperty("device_id")]		
 		public int deviceId;
-		[JsonProperty("device_id")]		
+		[JsonProperty("track_id")]		
 		public int trackId;
 
 		[JsonProperty("track_name")]		

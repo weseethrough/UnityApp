@@ -342,6 +342,15 @@ public abstract class Platform : MonoBehaviour {
 		playerState = message;
 		playerStateEntryTime = UnityEngine.Time.time;
 	}
+
+	// Called by native platform with a push notification id
+	public void OnPushId(string id) {
+		if (db != null && api != null) {
+			Device self = Device();
+			self.push_id = id;
+			db.StoreObject(self);
+		}
+	}	
 	
 	protected void DataVaultFromJson(JSONNode json) {
 		JSONNode track = json["current_track"];

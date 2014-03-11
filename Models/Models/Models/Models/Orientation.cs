@@ -18,7 +18,8 @@ namespace RaceYourself.Models
 		[JsonProperty("orientation_id")]
 		public int orientationId;
 
-		public int track_id;
+		[JsonProperty("track_id")]
+		public int trackId;
 		public long ts;
 
 		public float roll;

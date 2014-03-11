@@ -19,7 +19,8 @@ namespace RaceYourself.Models
 		[JsonProperty("position_id")]
 		public int positionId;
 
-		public int track_id;
+		[JsonProperty("track_id")]
+		public int trackId;
 		public int state_id;
 		public long gps_ts;
 		public long device_ts;

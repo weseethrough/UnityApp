@@ -61,7 +61,8 @@ namespace RaceYourself
 				db.StoreObject(self);
 				Debug.Log("API: Unregistered device");
 			} else {
-				Debug.Log("API: Device registered as " + self.id);
+				if (self.id != 0) Debug.Log("API: Device registered as " + self.id);
+				else Debug.Log("API: Device waiting to be registered");
 			}
 		}
 		
