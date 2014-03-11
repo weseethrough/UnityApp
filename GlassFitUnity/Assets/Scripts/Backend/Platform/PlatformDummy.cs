@@ -11,10 +11,14 @@ using Sqo;
 using SiaqodbDemo;
 using RaceYourself;
 
+#if (UNITY_EDITOR || RACEYOURSELF_MOBILE)
 #if UNITY_EDITOR
 using UnityEditor;
+#endif
 
+#if UNITY_EDITOR
 [ExecuteInEditMode()] 
+#endif
 public class PlatformDummy : Platform
 {
 
@@ -128,15 +132,8 @@ public class PlatformDummy : Platform
     {
         return false;
     }
-
-	//if there is a platform dummy about on the device, kill it.
-#if !UNITY_EDITOR
-	void Awake()
-	{
-		Destroy(gameObject);			
-	}
-#endif
 	
+#if UNITY_EDITOR
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
     {
@@ -154,7 +151,7 @@ public class PlatformDummy : Platform
 	{
 		PlayWithSceneFlowExit("Assets/Scenes/SnackRun.unity", "Game Intro");
 	}
-
+	
 	protected static void PlayWithSceneFlowExit(string scene, string exit)
 	{
 		//set the string for the exit we want to follow from the start node
@@ -179,6 +176,7 @@ public class PlatformDummy : Platform
 		}
 
 	}
+#endif
 	
 	protected override void Initialize()
 	{
@@ -214,7 +212,7 @@ public class PlatformDummy : Platform
 			}
 			Directory.CreateDirectory(blobstore);
 			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
-			Directory.CreateDirectory(blobassets);
+			if (Application.isEditor) Directory.CreateDirectory(blobassets);
 			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 			
 			games = new List<Game>();
@@ -383,8 +381,14 @@ public class PlatformDummy : Platform
 
 	public byte[] LoadDefaultBlob(string id) {
 		try {
-			UnityEngine.Debug.Log("PlatformDummy: Loading default blob id: " + id);			
-			return File.ReadAllBytes(Path.Combine(blobassets, id));			
+			UnityEngine.Debug.Log("PlatformDummy: Loading default blob id: " + id);
+			if (blobassets.Contains("://")) {
+				var www = new WWW(Path.Combine(blobassets, id));
+				while(!www.isDone) {}; // block until finished
+				return www.bytes;
+			} else {
+				return File.ReadAllBytes(Path.Combine(blobassets, id));			
+			}
 		} catch (FileNotFoundException e) {
 			return new byte[0];
 		}
@@ -527,6 +531,11 @@ public class PlatformDummy : Platform
 		if(Input.GetKey(KeyCode.RightCommand)) { touchCount++;}
 		return touchCount;
 	}
+	
+	public override Device DeviceInformation() 
+	{
+		return new Device("Unknown", "Device");
+	}	
 
 }
 #endif
