@@ -81,6 +81,15 @@ public class ButtonFunctionCollection
 		return true;
 	}
 	
+	static public bool SetQuickRace(FlowButton fb, Panel panel)
+	{
+		DataVault.Set("type", "Runner");
+		DataVault.Set("race_type", "tutorial");
+		DataVault.Set("finish", "1000");
+		
+		return true;
+	}
+	
 	static public bool SetChallenge(FlowButton fb, Panel panel)
 	{
 		List<ChallengeNotification> challenges = (List<ChallengeNotification>)DataVault.Get("challenge_notifications");
