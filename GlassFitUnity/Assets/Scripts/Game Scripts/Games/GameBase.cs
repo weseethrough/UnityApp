@@ -170,6 +170,7 @@ public class GameBase : MonoBehaviour {
 		GConnector gc = fs.Outputs.Find( r => r.Name == "QuitImmediately");
 		if(gc != null)
 		{
+			(gc.Parent as Panel).CallStaticFunction(gc.EventFunction, null);
 			fs.parentMachine.FollowConnection(gc);
 		}
 		
