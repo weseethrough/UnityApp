@@ -464,6 +464,11 @@ public class PlatformDummy : Platform
 		return new string[0];
 	}
 	
+	public override void BluetoothBroadcast (JSONObject json)
+	{
+		return;
+	}
+	
 	public override void LogAnalytics (JSONObject json) {
 		var e = new RaceYourself.Models.Event(json.ToString(), sessionId);
 		db.StoreObject(e);
