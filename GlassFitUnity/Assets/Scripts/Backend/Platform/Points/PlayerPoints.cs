@@ -1,6 +1,7 @@
 using System;
+using UnityEngine;
 
-public abstract class PlayerPoints
+public abstract class PlayerPoints : MonoBehaviour
 {
 	protected Log log = new Log("PlayerPoints");  // for use by subclasses
 

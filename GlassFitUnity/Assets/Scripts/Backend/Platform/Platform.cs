@@ -439,6 +439,10 @@ public abstract class Platform : MonoBehaviour {
 		throw new NotImplementedException();
 	}
 	
+	public virtual bool HasGpsProvider() {
+		throw new NotImplementedException();
+	}
+	
 
 	
 	// Authentication 

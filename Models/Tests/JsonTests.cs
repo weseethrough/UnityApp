@@ -13,17 +13,18 @@ namespace RaceYourself.Models
 			string rawAction = "{}";
 			Action action = new Action(rawAction);
 			string json = JsonConvert.SerializeObject(action);
-			Assert.True(json == rawAction);
+			Assert.IsTrue(json == rawAction);
 			Action deaction = JsonConvert.DeserializeObject<Action>(json);
-			Assert.True(rawAction == deaction.json);
+			Assert.IsTrue(rawAction == deaction.json);
 		}
+
 		[Test ()]
 		public void TestChallenge ()
 		{
 			Challenge challenge = new DistanceChallenge(1000, 60);
 			string json = JsonConvert.SerializeObject(challenge);
 			challenge = JsonConvert.DeserializeObject<Challenge>(json);
-			Assert.True(challenge.GetType() == typeof(DistanceChallenge));
+			Assert.IsTrue(challenge.GetType() == typeof(DistanceChallenge));
 		}
 	}
 }
