@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BluetoothControl : MonoBehaviour {
+public class WifiIcon : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
@@ -10,7 +10,7 @@ public class BluetoothControl : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(Platform.Instance.BluetoothPeers().Length != 0)
+		if(Platform.Instance.HasWifi())
 		{
 			if(!renderer.enabled)
 			{
@@ -24,7 +24,6 @@ public class BluetoothControl : MonoBehaviour {
 			{
 				renderer.material.color = Color.white;
 			}
-			
 		}
 		else
 		{
