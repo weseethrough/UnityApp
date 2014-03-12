@@ -9,7 +9,7 @@ using System.Collections.Generic;
 public class MobileSelectFriend : MobilePanel 
 {
 
-    List<Friend> friendsData;
+    List<RaceYourself.Models.Friend> friendsData;
 
     public MobileSelectFriend() { }
     public MobileSelectFriend(SerializationInfo info, StreamingContext ctxt)
