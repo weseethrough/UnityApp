@@ -112,14 +112,13 @@ public class TrainRescueSnack : SnackBase {
 		{
 			UnityEngine.Debug.LogError("Train: Don't have camera path set!");	
 		}
-		
-		
+
 		//start the music
 		GameObject musicPlayer = GameObject.Find("MusicPlayer");
 		AudioSource musicSource = (AudioSource)musicPlayer.GetComponent(typeof(AudioSource));
 		musicSource.Play();
 	}
-	
+	 
 	public override void Begin ()
 	{
 #if RY_INDOOR
@@ -130,8 +129,17 @@ public class TrainRescueSnack : SnackBase {
 		SetTrack(false);
 		SetReadyToStart(true);
 		//transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
+		StartCoroutine(GoToBlank());
 	}
-	
+
+	IEnumerator GoToBlank()
+	{
+		while(!FollowConnectorNamed("ToBlank"))
+		{
+			yield return new WaitForSeconds(0.1f);
+		}
+	}
+
 	// Update is called once per frame
 	void Update () {
 		if(!finish && started)
@@ -146,6 +154,7 @@ public class TrainRescueSnack : SnackBase {
 				DataVault.Set("snack_result_desc", "the damsel is dead!");
 				StartCoroutine(ShowBanner());
 				finish = true;
+				Platform.Instance.GetPlayerOrientation().SetAutoReset(true);
 			}
 			else if(GetPlayerDistanceTravelled() > finishDistance && !finish)
 			{
@@ -155,6 +164,7 @@ public class TrainRescueSnack : SnackBase {
 				DataVault.Set("snack_result_desc", "you saved her life!");
 				StartCoroutine(ShowBanner());
 				finish = true;
+				Platform.Instance.GetPlayerOrientation().SetAutoReset(true);
 			}
 			
 		}
@@ -238,17 +248,19 @@ public class TrainRescueSnack : SnackBase {
 		
 	}
 	
-	public void FollowConnectorNamed(string name)
+	public bool FollowConnectorNamed(string name)
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector gConnect = fs.Outputs.Find( r => r.Name == name );
 		if(gConnect != null)
 		{
 			fs.parentMachine.FollowConnection(gConnect);
+			return true;
 		}	
 		else
 		{
 			UnityEngine.Debug.LogWarning("TrainGame: couldn't find flow connector - " + name);	
+			return false;
 		}
 	}
 	
