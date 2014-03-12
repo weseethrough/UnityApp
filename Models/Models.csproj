@@ -73,7 +73,7 @@
       <HintPath>..\GlassFitUnity\Assets\Siaqodb\siaqodb.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\..\Program Files %28x86%29\Unity\Editor\Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>..\Common\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
