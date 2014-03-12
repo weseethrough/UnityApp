@@ -215,6 +215,15 @@ public class AndroidPlatform : Platform
 		return false;
 	}
 	
+	public override bool HasGpsProvider() {
+		try {
+			return helper.Call<bool>("hasGps");
+		} catch (Exception e) {
+			log.error("Error calling hasGps over JNI " + e.Message);
+			return false;
+		}
+	}
+	
 
 	
 	// Authentication 
