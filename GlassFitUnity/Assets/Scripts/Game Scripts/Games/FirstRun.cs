@@ -208,11 +208,8 @@ public class FirstRun : GameBase {
 	public override GConnector GetFinalConnection ()
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		if((string)DataVault.Get("race_type") == "race") {
-			return fs.Outputs.Find(r => r.Name == "FinishButton");
-		} else {
-			return fs.Outputs.Find(r => r.Name == "TutorialExit");
-		}
+		return fs.Outputs.Find(r => r.Name == "FinishButton");
+		
 	}
 
 //	private void InstantiateActors() {

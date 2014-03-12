@@ -8,12 +8,12 @@ using System.Runtime.Serialization;
 /// start state which is simply forwarder to first node in the flow
 /// </summary>
 [Serializable]
-public class Start : FlowState 
+public class ForwardingState : FlowState 
 {
     /// <summary>
     /// default constructor
     /// </summary>
-	public Start() : base() {}
+	public ForwardingState() : base() {}
 
     /// <summary>
     /// deserialziation constructor
@@ -21,7 +21,7 @@ public class Start : FlowState
     /// <param name="info">seirilization info conataining class data</param>
     /// <param name="ctxt">serialization context </param>
     /// <returns></returns>
-    public Start(SerializationInfo info, StreamingContext ctxt)
+    public ForwardingState(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
 	{
     }
@@ -44,8 +44,8 @@ public class Start : FlowState
     public override string GetDisplayName()
     {
         base.GetDisplayName();
-        
-        return "Start";
+
+        return "Forwarding State";
     }
 
     /// <summary>
@@ -56,9 +56,10 @@ public class Start : FlowState
     {
         base.Initialize();
 
-        Size = new Vector2(175, 80);        
-        NewOutput("Start Point", "Flow");
-        NewParameter("Name", GraphValueType.String, "Start");
+        Size = new Vector2(175, 80);
+        NewInput("Enter", "Flow");
+        NewOutput("Exit", "Flow");
+        NewParameter("Name", GraphValueType.String, "Forwarding State");
     }
 
     /// <summary>
@@ -70,25 +71,10 @@ public class Start : FlowState
     public override void Entered()
     {
         base.Entered();
-        GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-        if (gc != null)
-        {
-            if (gc.GoToFlowStage2())
-            {
-                //flow is switching so we will not interfere with it and skip any build in progress
-                return;
-            }
-        }
-
+        
         if (Outputs.Count > 0 && parentMachine != null)
         {
-			//in the editor, go straight to in-game HUD
-#if UNITY_EDITOR
-			string playerExit = PlayerPrefs.GetString("playerStartExit");
-			FollowOutput(playerExit);	
-#else
-            FollowOutput("Start Point");
-#endif
+            FollowOutput("Exit");
         }
         else
         {

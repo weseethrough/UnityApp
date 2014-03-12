@@ -155,11 +155,6 @@ public class FlowStateMachine : MonoBehaviour
     /// <returns>returns true if follow connection is possible (connection is valid)</returns>
     public bool FollowConnection(GConnector connection)
     {
-
-        Debug.LogWarning("FollowConnection " + (connection != null));
-        Debug.LogWarning("FollowConnection " + (connection.Link != null));
-        Debug.LogWarning("FollowConnection " + (connection.Link.Count > 0));
-        Debug.LogWarning("FollowConnection " + (connection.Link[0].Parent != null));
         
         if (connection != null && 
             connection.Link != null && 
@@ -301,13 +296,14 @@ public class FlowStateMachine : MonoBehaviour
     /// </summary>
     /// <returns>returns false if navigation history was invalid/empty</returns>
     public bool FollowBack()
-    {
+    {        
         if (navigationHistory != null && navigationHistory.Count > 0)
         {
             FlowState fs = navigationHistory[navigationHistory.Count - 1];
             navigationHistory.RemoveAt(navigationHistory.Count - 1);
 			SoundManager.PlaySound(SoundManager.Sounds.HidePopup);
             targetState = fs;
+            Debug.Log("'Back' to flow state: " + fs.GetDisplayName());
             return true;
         }
         return false;
@@ -334,14 +330,7 @@ public class FlowStateMachine : MonoBehaviour
             IsReady())
         {
             if (activeFlow.Count > 0 && activeFlow[activeFlow.Count - 1] == targetState)
-            {
-                if (targetStateConnector != null && targetStateConnector.EventFunction != null && targetStateConnector.EventFunction != "")
-                {
-                    if (targetState is Panel)
-                    {
-                        (targetState as Panel).CallStaticFunction(targetStateConnector.EventFunction, null);
-                    }
-                }
+            {                
                 targetStateConnector = null;
                 targetState = null;
                 return true;
@@ -368,13 +357,24 @@ public class FlowStateMachine : MonoBehaviour
                     return false;
                 }
             }
-            
-            
+                        
             //our next step is applied, we will navigate to the child
             if (nextStepChild != null)
             {
                 activeFlow.Add(nextStepChild);
                 nextStepChild.parentMachine = this;
+
+                if (nextStepChild == targetState &&                    
+                    targetStateConnector != null && 
+                    targetStateConnector.EventFunction != null && 
+                    targetStateConnector.EventFunction != "")
+                {
+                    if (targetState is FlowState)
+                    {
+                        (targetState as FlowState).CallStaticFunction(targetStateConnector.EventFunction, null);
+                    }
+                }
+
                 nextStepChild.EnterStart();
                 return false;
             }
