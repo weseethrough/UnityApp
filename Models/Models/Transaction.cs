@@ -1,6 +1,7 @@
 ﻿using System;
 using Sqo.Attributes;
 using Newtonsoft.Json;
+using Sqo;
 
 namespace RaceYourself.Models
 {
@@ -8,10 +9,15 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
+		[JsonIgnore]
+		public long id;
+
 		public string _id;
 
-		public int device_id;
-		public int transaction_id;
+		[JsonProperty("device_id")]		
+		public int deviceId;
+		[JsonProperty("transaction_id")]		
+		public int transactionId;
 		public int user_id;
 
 		public int points_delta;
@@ -23,6 +29,7 @@ namespace RaceYourself.Models
 		public string transaction_type;
 		public string transaction_calc;
 		public string source_id;
+		[Index]
 		public long ts;
 
 		public DateTime updated_at;
@@ -30,6 +37,24 @@ namespace RaceYourself.Models
 
 		[JsonIgnore]
 		public bool dirty = false;
+
+		public long GenerateCompositeId() {
+			uint high = (uint)deviceId;
+			uint low = (uint)transactionId;
+
+			ulong composite = (((ulong) high) << 32) | low;
+			this.id = (long)composite;
+			return this.id;
+		}
+
+		public void save(Siaqodb db) {
+			if (this.id <= 0)
+				GenerateCompositeId ();
+
+			if (!db.UpdateObjectBy("id", this)) {
+				db.StoreObject(this);
+			}
+		}
 	}
 }
 

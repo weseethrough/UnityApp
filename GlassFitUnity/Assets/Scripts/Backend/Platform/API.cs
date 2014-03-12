@@ -85,6 +85,8 @@ namespace RaceYourself
 				var post = new WWW(ApiUrl("devices"), encoding.GetBytes(body), headers);
 				yield return post;
 							
+				if (!post.isDone) {}
+				
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
 					ret = "Network error";
@@ -121,8 +123,10 @@ namespace RaceYourself
 	            form.AddField("username", username);
 	            form.AddField("password", password);
 				
-				var post = new WWW(AUTH_TOKEN_URL, form);
+				var post = new WWW(AUTH_TOKEN_URL, form);				
 				yield return post;
+						
+				if (!post.isDone) {}
 				
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: Login(" + username + ",<password>) threw error: " + post.error);
@@ -177,6 +181,8 @@ namespace RaceYourself
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			var request = new WWW(ApiUrl("me"), null, headers);
 			yield return request;
+					
+			if (!request.isDone) {}
 			
 			if (!String.IsNullOrEmpty(request.error)) {
 				Debug.LogError("API: UpdateAuthentications(): threw error: " + request.error);
@@ -211,6 +217,7 @@ namespace RaceYourself
 		public IEnumerator Sync() {
 			if (token == null || token.HasExpired) {
 				Debug.LogError("API: UpdateAuthentications() called with expired or missing token");
+				Platform.Instance.OnSynchronization("Failure");
 				yield break;
 			}
 			Debug.Log("API: Sync()");
@@ -253,6 +260,8 @@ namespace RaceYourself
 				var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
 				yield return post;
 							
+				if (!post.isDone) {}
+						
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
 					if (post.error.ToLower().Contains("401 unauthorized")) {
@@ -360,6 +369,8 @@ namespace RaceYourself
 			
 			var www = new WWW(ApiUrl(route), null, headers);
 			yield return www;
+			
+			while (!www.isDone) {}
 				
 			if (!String.IsNullOrEmpty(www.error)) {
 				Debug.LogError("API: get(" + route + ") threw error: " + www.error);
@@ -471,6 +482,7 @@ namespace RaceYourself
 				foreach (Models.Event e in events) {
 					e.deviceId = self.id;
 				}
+				// Objects are stored by OID in flush
 			}
 			
 			public void flush(Siaqodb db) {
@@ -485,6 +497,7 @@ namespace RaceYourself
 						continue;
 					}
 					track.dirty = false;
+					track.GenerateCompositeId(); 
 					db.StoreObject(track); // Store non-transient object by OID
 					updates++;
 				}
@@ -495,6 +508,7 @@ namespace RaceYourself
 						continue;
 					}
 					p.dirty = false;
+					p.GenerateCompositeId(); 
 					db.StoreObject(p); // Store non-transient object by OID
 					updates++;
 				}
@@ -505,6 +519,7 @@ namespace RaceYourself
 						continue;
 					}
 					o.dirty = false;
+					o.GenerateCompositeId(); 
 					db.StoreObject(o); // Store non-transient object by OID
 					updates++;
 				}
@@ -520,6 +535,7 @@ namespace RaceYourself
 						continue;
 					}
 					t.dirty = false;
+					t.GenerateCompositeId(); 
 					db.StoreObject(t); // Store non-transient object by OID
 					updates++;
 				}
@@ -700,11 +716,12 @@ namespace RaceYourself
 				if (transactions != null) {
 					db.StartBulkInsert(typeof(Models.Transaction));
 					foreach (Models.Transaction gtransaction in transactions) {
+						gtransaction.GenerateCompositeId();
 						if (gtransaction.deleted_at != null) {
-							if (db.DeleteObjectBy("_id", gtransaction)) deletes++;
+							if (db.DeleteObjectBy("id", gtransaction)) deletes++;
 							continue;
 						}
-						if (!db.UpdateObjectBy("_id", gtransaction)) {
+						if (!db.UpdateObjectBy("id", gtransaction)) {
 							db.StoreObject(gtransaction);
 							inserts++;
 						} else updates++;
