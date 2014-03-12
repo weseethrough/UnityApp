@@ -266,8 +266,7 @@ public class Panel : FlowState
     /// <param name="button">button which send this event</param>
     /// <returns></returns>
     public virtual void OnClick(FlowButton button)
-    {
-        Debug.LogWarning("CLICK test -1-");
+    {        
         if (Outputs.Count > 0 && parentMachine != null)
         {
             GConnector gConect = Outputs.Find(r => r.Name == button.name);

@@ -75,14 +75,13 @@ public class MobileSelectTrack : MobilePanel
             int i = Convert.ToInt32(index);
 
             DataVault.Set("current_track", trackList[i]);
+            Debug.Log("current_track set to " + trackList[i].trackName);
         }
         else
         {
             return;
         }
-
         
-
         base.OnClick(button);
     }
 

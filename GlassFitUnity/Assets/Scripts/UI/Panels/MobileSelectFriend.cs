@@ -75,7 +75,8 @@ public class MobileSelectFriend : MobilePanel
             string index = button.name.Substring(prefix.Length);
             int i = Convert.ToInt32(index);
 
-            DataVault.Set("current_track", friendsData[i]);
+            DataVault.Set("chosen_friend", friendsData[i]);
+            Debug.Log("chosen_friend set to " + friendsData[i].name);
         }
         else
         {

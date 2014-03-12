@@ -64,6 +64,8 @@ public class MobileCurrentChallenges : MobilePanel
      
         if (threadComplete)
         {
+            Debug.Log("challengeNotifications contains " + challengeNotifications.Count + " challenge(-s)");
+
             GConnector baseConnection = GetBaseButtonConnection();
 
             //AddBackButtonData();
@@ -188,7 +190,7 @@ public class MobileCurrentChallenges : MobilePanel
 						UnityEngine.Debug.Log("ChallengePanel: detaching thread");
 						AndroidJNI.DetachCurrentThread();
 #endif
-                        UnityEngine.Debug.Log("ChallengePanel: Adding hexes");
+                        UnityEngine.Debug.Log("ChallengePanel: Setting data to notification list");
 
                         DataVault.Set("challenge_notifications", challengeNotifications);
                     }
@@ -199,6 +201,31 @@ public class MobileCurrentChallenges : MobilePanel
         });
         Platform.Instance.onSync += shandler;
         Platform.Instance.SyncToServer();
+    }
+
+    public override void OnClick(FlowButton button)
+    {
+
+        if (button != null && challengeNotifications != null)
+        {
+            string prefix = "button";
+            string index = button.name.Substring(prefix.Length);
+            int i = Convert.ToInt32(index);
+            
+            Track track = challengeNotifications[i].GetTrack();
+            UnityEngine.Debug.Log("ButtonFunc: setting track");
+            DataVault.Set("current_track", track);
+            DataVault.Set("race_type", "challenge");
+            DataVault.Set("challenger", challengeNotifications[i].GetName());
+            DataVault.Set("current_challenge_notification", challengeNotifications[i]);
+
+        }
+        else
+        {
+            return;
+        }
+
+        base.OnClick(button);
     }
 
 }

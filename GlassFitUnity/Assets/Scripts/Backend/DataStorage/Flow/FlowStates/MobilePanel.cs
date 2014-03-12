@@ -134,7 +134,11 @@ public class MobilePanel : Panel
         gc.Name = buttonName;
         if (GraphComponent.GetInstance() != null && cloneFirstLinkage != null)
         {
-            GraphComponent.GetInstance().Data.Connect(gc, cloneFirstLinkage.Link[0]);
+            if (cloneFirstLinkage.Link.Count > 0)
+            {
+                GraphComponent.GetInstance().Data.Connect(gc, cloneFirstLinkage.Link[0]);
+            }
+            gc.EventFunction = cloneFirstLinkage.EventFunction;
         }        
     }   
 

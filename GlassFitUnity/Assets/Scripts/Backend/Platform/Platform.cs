@@ -102,13 +102,13 @@ public abstract class Platform : MonoBehaviour {
 			#endif
 
 			// find, or create, an instance of the right type
-            if(_instance == null || !_instance.GetType().Equals(platformType))
+                if (ReferenceEquals(_instance, null) || !_instance.GetType().Equals(platformType))
             {
 				// if an instance exists, use it
 				var instance = (Platform) FindObjectOfType(platformType);
 
 				// otherwise initialise a new one
-				if(instance == null)
+				if(ReferenceEquals(instance, null))
                 {
 					UnityEngine.Debug.Log("Creating new " + platformType.Name);
 					GameObject singleton = new GameObject();
