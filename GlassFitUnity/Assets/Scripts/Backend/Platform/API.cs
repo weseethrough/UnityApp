@@ -217,6 +217,7 @@ namespace RaceYourself
 		public IEnumerator Sync() {
 			if (token == null || token.HasExpired) {
 				Debug.LogError("API: UpdateAuthentications() called with expired or missing token");
+				Platform.Instance.OnSynchronization("Failure");
 				yield break;
 			}
 			Debug.Log("API: Sync()");
@@ -481,6 +482,7 @@ namespace RaceYourself
 				foreach (Models.Event e in events) {
 					e.deviceId = self.id;
 				}
+				// Objects are stored by OID in flush
 			}
 			
 			public void flush(Siaqodb db) {
@@ -495,6 +497,7 @@ namespace RaceYourself
 						continue;
 					}
 					track.dirty = false;
+					track.GenerateCompositeId(); 
 					db.StoreObject(track); // Store non-transient object by OID
 					updates++;
 				}
@@ -505,6 +508,7 @@ namespace RaceYourself
 						continue;
 					}
 					p.dirty = false;
+					p.GenerateCompositeId(); 
 					db.StoreObject(p); // Store non-transient object by OID
 					updates++;
 				}
@@ -515,6 +519,7 @@ namespace RaceYourself
 						continue;
 					}
 					o.dirty = false;
+					o.GenerateCompositeId(); 
 					db.StoreObject(o); // Store non-transient object by OID
 					updates++;
 				}
@@ -530,6 +535,7 @@ namespace RaceYourself
 						continue;
 					}
 					t.dirty = false;
+					t.GenerateCompositeId(); 
 					db.StoreObject(t); // Store non-transient object by OID
 					updates++;
 				}
@@ -710,11 +716,12 @@ namespace RaceYourself
 				if (transactions != null) {
 					db.StartBulkInsert(typeof(Models.Transaction));
 					foreach (Models.Transaction gtransaction in transactions) {
+						gtransaction.GenerateCompositeId();
 						if (gtransaction.deleted_at != null) {
-							if (db.DeleteObjectBy("_id", gtransaction)) deletes++;
+							if (db.DeleteObjectBy("id", gtransaction)) deletes++;
 							continue;
 						}
-						if (!db.UpdateObjectBy("_id", gtransaction)) {
+						if (!db.UpdateObjectBy("id", gtransaction)) {
 							db.StoreObject(gtransaction);
 							inserts++;
 						} else updates++;
