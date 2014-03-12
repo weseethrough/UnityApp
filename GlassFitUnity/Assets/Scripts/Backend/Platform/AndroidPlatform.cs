@@ -187,7 +187,6 @@ public class AndroidPlatform : Platform
 	
 	public override bool HasInternet() {
 		try {
-			UnityEngine.Debug.Log("Platform: checking internet");
 			return helper.Call<bool>("hasInternet");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: hasInternet() failed: " + e.Message);
@@ -198,7 +197,6 @@ public class AndroidPlatform : Platform
 	
 	public override bool HasWifi() {
 		try {
-			UnityEngine.Debug.Log("Platform: checking wifi");
 			return helper.Call<bool>("hasWifi");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: hasWifi() failed: " + e.Message);
