@@ -2,6 +2,9 @@
 using System.Collections;
 using SimpleJSON;
 
+using RaceYourself.Models;
+using Newtonsoft.Json;
+
 public class LoadingScreen : MonoBehaviour {
 	
 	private float rotation = 0f;
@@ -20,7 +23,6 @@ public class LoadingScreen : MonoBehaviour {
 		switch(raceType) {
 		case "race":
 			//if we have a track, load Race Mode, otherwise, load FirstRun. N.B. the menu flow will be different, so it isn't exactly the same FirstRun experience
-			DataVault.Set("custom_redirection_point", "GameIntroExit");
 			if(track != null)
 			{
 				levelName = "Race Mode";
@@ -33,12 +35,10 @@ public class LoadingScreen : MonoBehaviour {
 		
 		case "snack":
 			levelName = "SnackRun";
-			DataVault.Set("custom_redirection_point", "GameIntroExit");
 			break;
 			
 		case "challenge":
 			levelName = "Challenge Mode";
-			DataVault.Set("custom_redirection_point", "GameIntroExit");
 			break;
 			
 		case "pursuit":
@@ -47,12 +47,10 @@ public class LoadingScreen : MonoBehaviour {
 			
 		case "tutorial":
 			levelName = "FirstRun";
-			DataVault.Set("custom_redirection_point", "TutorialIntroExit");
 			break;
 			
 		case "trainRescue":
 			levelName = "TrainRescue";
-			DataVault.Set("custom_redirection_point", "TrainIntroExit");
 			break;
 			
 		default:
@@ -66,7 +64,7 @@ public class LoadingScreen : MonoBehaviour {
 			json.AddField("action", "LoadLevelAsync");
 			
 			JSONObject data = new JSONObject();
-			if (track != null) data.AddField("current_track", track.AsJson);
+			if (track != null) data.AddField("current_track", JsonConvert.SerializeObject(track));
 			else data.AddField("current_track", (JSONObject)null);
 			data.AddField("race_type", raceType);
 			if (DataVault.Get("type") != null) data.AddField("type", DataVault.Get("type") as string);
@@ -85,19 +83,14 @@ public class LoadingScreen : MonoBehaviour {
 			
 			UnityEngine.Debug.Log("Loading game: " + raceType);
 			// Return to menu
-		    FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			
+
 			string exitName = "MenuExit";
 			//for snack run, go to the snack remote control meu
 			if(raceType == "snack")
 			{
 				exitName = "SnackRemote";
 			}
-		    GConnector gConnect = fs.Outputs.Find(r => r.Name == exitName);
-			if (gConnect != null) {
-				fs.parentMachine.FollowConnection(gConnect);
-				return;
-			}
+			FlowState.FollowFlowLinkNamed(exitName);
 		}
 		
 		slider = GetComponentInChildren<UISlider>();
@@ -107,7 +100,9 @@ public class LoadingScreen : MonoBehaviour {
 			slider.Set(0, false);
 		}
 		
+
 		StartCoroutine("LoadLevel");
+
 	}
 	
 	IEnumerator LoadLevel() {
@@ -130,62 +125,23 @@ public class LoadingScreen : MonoBehaviour {
 			UnityEngine.Debug.Log("LoadingScreen: Loading - " + progress.ToString("f0") + "%");
 			
 			if(async.isDone) {
-			    
-				if(!Platform.Instance.OnGlass())
-				{
-					GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-       			 	gc.GoToFlow("GameplayFlow");
-        	
+			    FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			    //doing the test against the race type rather than level name allows us to use the same level for different race types
+			    //	e.g. FirstRun for tutorial, or using a new track			-AH
+			    if(raceType == "tutorial")
+			    {
+			    	FlowState.FollowFlowLinkNamed("TutorialExit");
+				}
+
+			    else if(raceType == "trainRescue")
+			    {
+				    FlowState.FollowFlowLinkNamed("TrainExit");
 				}
 				else
 				{
-					FlowState fs = FlowStateMachine.GetCurrentFlowState();
-				    //doing the test against the race type rather than level name allows us to use the same level for different race types
-				    //	e.g. FirstRun for tutorial, or using a new track			-AH
-				    if(raceType == "tutorial")
-				    {
-				    	GConnector gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
-				    	if(gConnect != null)
-				    	{
-				       		fs.parentMachine.FollowConnection(gConnect);
-					    }
-				    	else 
-	
-						{
-							UnityEngine.Debug.LogWarning("LoadingScreen: error finding tutorial exit");
-						}
-					}
-	
-				    else if(raceType == "trainRescue")
-				    {
-					    GConnector gConnect = fs.Outputs.Find(r => r.Name == "TrainExit");
-					    if(gConnect != null)
-						{
-							fs.parentMachine.FollowConnection(gConnect);	
-						}
-						else
-						{
-							UnityEngine.Debug.LogWarning("LoadingScreen: error finding train exit");
-						}
-					}
-					else
-					{
-						GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceExit");
-						if(gConnect != null)
-						{
-							fs.parentMachine.FollowConnection(gConnect);
-						} 
-						else 
-						{
-							UnityEngine.Debug.LogWarning("LoadingScreen: error finding race exit");	
-						}
-					}
+					FlowState.FollowFlowLinkNamed("RaceExit");
 				}
 			} 
-            else 
-			{
-				
-			}
 		}
 		
 	}

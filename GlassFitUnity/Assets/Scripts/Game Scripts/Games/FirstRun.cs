@@ -92,7 +92,7 @@ public class FirstRun : GameBase {
 			//substitute the opponent according to whether we are indoors or outdoors
 			runReadyToStart = true;
 			
-			if(Platform.Instance.IsIndoor())
+		if(Platform.Instance.LocalPlayerPosition.IsIndoor())
 			{
 				runner = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
 				UnityEngine.Debug.Log("FirstRun: runner is indoor opponent");
@@ -121,8 +121,7 @@ public class FirstRun : GameBase {
 	IEnumerator GoBack()
 	{
 		yield return new WaitForSeconds(2.0f);
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		fs.parentMachine.FollowBack();
+		FlowState.FollowBackLink();
 	}
 	
 	// Update is called once per frame
@@ -133,7 +132,7 @@ public class FirstRun : GameBase {
 		if(runReadyToStart)
 		{
 			if(runner is FirstRaceIndoorOpponent) {
-				double distance = Platform.Instance.Distance();
+				double distance = Platform.Instance.LocalPlayerPosition.Distance;
 				
 				if(distance > 50 && distance < 100)
 				{
@@ -155,7 +154,7 @@ public class FirstRun : GameBase {
 						{
 							UnityEngine.Debug.Log("FirstRun: couldn't find " + gConnect.Name);
 						}
-						runner.SetHeadstart((float)Platform.Instance.Distance());
+						runner.SetHeadstart((float)Platform.Instance.LocalPlayerPosition.Distance);
 						//(runner as FirstRaceIndoorOpponent).SetRunnerSpeed();
 					}
 				}
@@ -213,24 +212,6 @@ public class FirstRun : GameBase {
 		
 	}
 
-
-//	///UNUSED?
-//	/// <summary>
-//	/// Quits the game. This just seems to do the base behaviour with a different exit name. Should improve.
-//	/// </summary>
-//	public override void QuitGame ()
-//	{
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "FinishButton"); 
-//		
-//		if(gConnect != null) {
-//			fs.parentMachine.FollowConnection(gConnect);
-//			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-//		} else {
-//			UnityEngine.Debug.Log("FirstRun: Error finding quit exit");
-//		}
-//	}
-	
 //	private void InstantiateActors() {
 //		//create an actor for each active target tracker
 //		List<TargetTracker> trackers = Platform.Instance.targetTrackers;

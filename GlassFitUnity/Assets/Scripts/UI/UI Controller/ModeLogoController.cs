@@ -29,14 +29,16 @@ public class ModeLogoController : UIComponentSettings {
 		List<Game> games = Platform.Instance.GetGames();
 		
 		Game currentGame = games.Find( r => r.gameId == sName );
-		
-		//set correct sprite
-		UISprite sprite = gameObject.GetComponent<UISprite>();
-		sprite.spriteName = currentGame.iconName;
-		
-		//set title and description
-		DataVault.Set("game_type_title", currentGame.name);
-		DataVault.Set("game_type_subtitle", currentGame.description);
+		if(currentGame != null)
+		{
+			//set correct sprite
+			UISprite sprite = gameObject.GetComponent<UISprite>();
+			sprite.spriteName = currentGame.iconName;
+			
+			//set title and description
+			DataVault.Set("game_type_title", currentGame.name);
+			DataVault.Set("game_type_subtitle", currentGame.description);
+		}
 		
 	}
 

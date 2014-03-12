@@ -4,6 +4,8 @@ using System.Collections;
 using System.Threading;
 using System;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Game base. Base Game class which will handle aspects common to all games. Including
 /// 	Indoor/Outer management
@@ -123,14 +125,15 @@ public class GameBase : MonoBehaviour {
 	
 		
 #if RY_INDOOR
-		SetReadyToStart(true);
+//		SetReadyToStart(true);
 		SetVirtualTrackVisible(true);
 #endif
 		//set distance with units for the menu cards
 		DataVault.Set("finish_km", UnitsHelper.SiDistanceUnitless(finish, string.Empty) );
 	
 		UnityEngine.Debug.Log("GameBase: resetting platform");
-		Platform.Instance.Reset();
+		//Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
+		Platform.Instance.LocalPlayerPosition.Reset();
 		
 		//initialise units for HUD
 		DataVault.Set("distance_units", "M");
@@ -166,18 +169,13 @@ public class GameBase : MonoBehaviour {
 	protected void QuitImmediately()
 	{
 		//Flow to main hex menu
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gc = fs.Outputs.Find( r => r.Name == "QuitImmediately");
-		if(gc != null)
+		if(FlowState.FollowFlowLinkNamed("QuitImmediately"))
 		{
-			(gc.Parent as Panel).CallStaticFunction(gc.EventFunction, null);
-			fs.parentMachine.FollowConnection(gc);
+			CleanUp();
+			//load env
+			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		}
 		
-		CleanUp();
-		
-		//load env
-		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 	}
 	
 	public void SetVirtualTrackVisible(bool visible)
@@ -197,32 +195,12 @@ public class GameBase : MonoBehaviour {
 	}
 
 	public void ConsiderQuit() {
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs.Find(r => r.Name == "QuitExit");
-			if(gConnect != null) {
-				fs.parentMachine.FollowConnection(gConnect);
-				Platform.Instance.StopTrack();
-			}
+		FlowState.FollowFlowLinkNamed("QuitExit");	
+				Platform.Instance.LocalPlayerPosition.StopTrack();
 	}
-	
-	//UNUSED?
-//	public virtual void QuitGame() {
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-//		if(gConnect != null) {
-//			fs.parentMachine.FollowConnection(gConnect);
-//			CleanUp();
-//			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-//		}
-//	}
-	
+
 	public void ReturnGame() {
-		
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
-		if(gConnect != null) {
-			fs.parentMachine.FollowConnection(gConnect);
-		}
+		FlowState.FollowFlowLinkNamed("GameExit");
 	}
 	
 	public virtual GConnector GetFinalConnection() {
@@ -302,7 +280,7 @@ public class GameBase : MonoBehaviour {
 	protected void FinishGame()
 	{
 		//stop tracking
-		Platform.Instance.StopTrack();
+		Platform.Instance.LocalPlayerPosition.StopTrack();
 		
 		//invoke any game-specific behaviour
 		OnFinishedGame();
@@ -312,9 +290,14 @@ public class GameBase : MonoBehaviour {
 		//follow the flow link to the results page
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
+			//follow the connector
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			fs.parentMachine.FollowConnection(gConnect);
+
+
 			UnityEngine.Debug.Log("GameBase: final connection found");
-			DataVault.Set("total", (Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance() + finalBonus).ToString("n0"));
-			DataVault.Set("distance_with_units", UnitsHelper.SiDistance(Platform.Instance.GetDistance()));
+			DataVault.Set("total", (Platform.Instance.PlayerPoints.CurrentActivityPoints + Platform.Instance.PlayerPoints.OpeningPointsBalance + finalBonus).ToString("n0"));
+			DataVault.Set("distance_with_units", UnitsHelper.SiDistance(Platform.Instance.LocalPlayerPosition.Distance));
 			UnityEngine.Debug.Log("GameBase: setting points");
 			if(finish >= 1000) {
 				DataVault.Set("bonus", finalBonus.ToString("n0")); 
@@ -322,11 +305,21 @@ public class GameBase : MonoBehaviour {
 				DataVault.Set("bonus", 0);
 			}
 			
-			//follow the connector
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			fs.parentMachine.FollowConnection(gConnect);
+			///Leaving this block out for now - it goes straight back to the menu if the 'tutorial' exit was returned for GetFinalConnection
+			///Probably best to instead have the FirstRun mode do that transition with its own customisation of the state transitions instead.
+			
+//			if(gConnect.Name == "TutorialExit") {
+//				AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+//			} else {
+//				tapHandler = new GestureHelper.OnTap(() => {
+//					Continue();
+//				});
+//				GestureHelper.onTap += tapHandler;
+//			}
+			
+			
 		} else {
-			UnityEngine.Debug.Log("GameBase: No connection found for FinishGame()");
+			UnityEngine.Debug.Log("GameBase: No connection found - FinishButton");
 		}
 	}
 	
@@ -340,21 +333,14 @@ public class GameBase : MonoBehaviour {
 	}
 	
 	/// <summary>
-	/// Part of the delegate function for Glass. When the user taps the screen it presses the continue button.
+	/// Continue, once we h
 	/// </summary>
 	void Continue() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
-		if(gConnect != null) {
-			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-			SoundManager.PlaySound(SoundManager.Sounds.Tap);
-			fs.parentMachine.FollowConnection(gConnect);
-			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-		} else {
-			UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
-		}
-		
+		FlowState.FollowFlowLinkNamed("ContinueButton");
+		//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+		SoundManager.PlaySound(SoundManager.Sounds.Tap);
 		CleanUp();
+		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 	}
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
@@ -380,20 +366,10 @@ public class GameBase : MonoBehaviour {
 				break;
 			case GAMESTATE_QUIT_CONFIRMATION:
 				SetGameState(GAMESTATE_FINISHED);
-				FinishGame();
 				break;
-				
 			case GAMESTATE_FINISHED:
-				FlowState fs = FlowStateMachine.GetCurrentFlowState();
-				GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
-				if(gConnect != null) {
-					(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-					SoundManager.PlaySound(SoundManager.Sounds.Tap);
-					fs.parentMachine.FollowConnection(gConnect);
-					AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-				} else {
-					UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
-				}
+				//continue back to hex menu
+				Continue();
 				break;
 			}
 		}
@@ -418,10 +394,6 @@ public class GameBase : MonoBehaviour {
 			//cancel quit
 			SetGameState(GAMESTATE_RUNNING);
 			break;
-		case GAMESTATE_FINISHED:
-			//continue
-			//do nothing
-			break;
 		}
 	}
 	
@@ -430,28 +402,37 @@ public class GameBase : MonoBehaviour {
 	}
 	
 	public virtual void GameHandleLeftSwipe() {
-		//do nothing
+		switch(gameState)
+		{
+		case GAMESTATE_QUIT_CONFIRMATION:
+			//cancel quit
+			SetGameState(GAMESTATE_RUNNING);
+			break;
+		}
 	}
 	
 	public virtual void GameHandleRightSwipe() {
-		//do nothing
+		switch(gameState)
+		{
+		case GAMESTATE_QUIT_CONFIRMATION:
+			//cancel quit
+			SetGameState(GAMESTATE_RUNNING);
+			break;
+		}
 	}
 	
 	protected void EnterPause()
 	{
 		//transition to pause screen
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "PauseExit");
-		if(gConnect != null)
+		if(FlowState.FollowFlowLinkNamed("PauseExit"))
 		{
-			fs.parentMachine.FollowConnection(gConnect);
 			//set string for GUI
 			DataVault.Set("paused", "Paused");
 			
 			Time.timeScale = 0.0f;
 			
 			//stop tracking
-			Platform.Instance.StopTrack();
+			Platform.Instance.LocalPlayerPosition.StopTrack();
 		} else
 		{
 			UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
@@ -462,13 +443,17 @@ public class GameBase : MonoBehaviour {
 	protected virtual void ExitPause()
 	{
 		UnityEngine.Debug.Log("GameBase: Unpausing");
-
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		fs.parentMachine.FollowBack();
-		Time.timeScale = 1.0f;
-	
-		//resume tracking
-		Platform.Instance.StartTrack();
+		if(FlowState.FollowFlowLinkNamed("ReturnExit"))
+		{
+			Time.timeScale = 1.0f;	
+			//resume tracking
+			Platform.Instance.LocalPlayerPosition.StartTrack();
+		} else
+		{
+			UnityEngine.Debug.LogWarning("GameBase: Can't find exit - PauseExit");
+		}
+		
+		
 	}
 	
 	protected virtual void UpdateAhead() {
@@ -540,7 +525,7 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.Poll();
 			
 			//check for auto-pause
-			if(!Platform.Instance.IsIndoor() && Platform.Instance.playerState == "STOPPED")
+			if(!Platform.Instance.LocalPlayerPosition.IsIndoor() && Platform.Instance.playerState == "STOPPED")
 			{
 				//state is applicable, check timer
 				if(UnityEngine.Time.time - Platform.Instance.playerStateEntryTime > 1.0f)
@@ -556,14 +541,14 @@ public class GameBase : MonoBehaviour {
 			UpdateIndoorPrompts();
 				
 			//check for finished
-			if(Platform.Instance.Distance() >= finish)
+			if(Platform.Instance.LocalPlayerPosition.Distance >= finish)
 			{
 				
 				SetGameState(GAMESTATE_FINISHED);
 			}
 			
 			// Award the player points for running certain milestones
-			if(Platform.Instance.Distance() >= bonusTarget)
+			if(Platform.Instance.LocalPlayerPosition.Distance >= bonusTarget)
 			{
 				int targetToKm = bonusTarget / 1000;
 				if(bonusTarget < finish) 
@@ -580,7 +565,7 @@ public class GameBase : MonoBehaviour {
 			
 		case GAMESTATE_PAUSED:
 			//check for auto-resume
-			if( bAutoPaused && !Platform.Instance.IsIndoor() && Platform.Instance.playerState != "STOPPED" )
+			if( bAutoPaused && !Platform.Instance.LocalPlayerPosition.IsIndoor() && Platform.Instance.playerState != "STOPPED" )
 			{
 				//can unpause - check for min time in this state
 				if(UnityEngine.Time.time-Platform.Instance.playerStateEntryTime > 0.5f)
@@ -610,8 +595,8 @@ public class GameBase : MonoBehaviour {
 	protected void UpdateIndoorPrompts()
 	{
 		//Show prompt to run on spot indoor
-		if(Platform.Instance.IsIndoor()) {
-			if((int)Platform.Instance.Distance() == lastDistance) 
+		if(Platform.Instance.LocalPlayerPosition.IsIndoor()) {
+			if((int)Platform.Instance.LocalPlayerPosition.Distance == lastDistance) 
 			{
 				//UnityEngine.Debug.Log("GameBase: distance is the same, increasing time");
 				if(started)
@@ -625,7 +610,7 @@ public class GameBase : MonoBehaviour {
 			} else {
 				//UnityEngine.Debug.Log("GameBase: distance not the same, resetting");
 				DataVault.Set("indoor_move", " ");
-				lastDistance = (int)Platform.Instance.Distance();
+				lastDistance = (int)Platform.Instance.LocalPlayerPosition.Distance;
 				indoorTime = 0f;
 			}
 		} else {
@@ -640,7 +625,7 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	protected void StartRace()
 	{
-		Platform.Instance.StartTrack();
+		Platform.Instance.LocalPlayerPosition.StartTrack();
 		UnityEngine.Debug.Log("Tracking Started");
 		started = true;
 	}
@@ -694,9 +679,11 @@ public class GameBase : MonoBehaviour {
 	
 	protected void CleanUp()
 	{
+		UnityEngine.Debug.Log("GameBase: Cleaning Up - stopping tracking");
 		//stop tracking
-		Platform.Instance.StopTrack();
+		Platform.Instance.LocalPlayerPosition.StopTrack();
 			
+		UnityEngine.Debug.Log("GameBase: Cleaning Up - releasing handlers");
 		//release handlers
 		GestureHelper.onBack -= backHandler;
 		GestureHelper.onTap -= tapHandler;

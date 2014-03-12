@@ -28,34 +28,6 @@ public class PathPoint : MonoBehaviour {
 		UnityEngine.Debug.Log("CamPath: Arrived at point: " + gameObject.name);
 		//to be implemented by subclasses which want to do something specific on arrival
 	}
-
-	/// <summary>
-	/// Utility function to follow a named link from the current flow state.
-	/// For use by sub-classes.
-	/// </summary>
-	/// <param name='linkName'>
-	/// Link name.
-	/// </param>
-	protected void FollowFlowLinkNamed(string linkName)
-	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		if(fs != null) {
-			GConnector gConnect = fs.Outputs.Find( r => r.Name == linkName );
-			if(gConnect != null)
-			{
-				fs.parentMachine.FollowConnection(gConnect);
-			}
-			else
-			{
-				UnityEngine.Debug.LogWarning("Train, CameraFlythrough: Couldn't fine flow exit named " + linkName);
-			}
-		}
-		else
-		{
-			UnityEngine.Debug.Log("PathPoint: flowstate is null");
-		}
-	}
-
 	
 	/// <summary>
 	/// Gets the node orientation.

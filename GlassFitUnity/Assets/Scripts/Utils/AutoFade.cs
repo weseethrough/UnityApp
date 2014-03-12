@@ -1,6 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
+using RaceYourself.Models;
+using Newtonsoft.Json;
+
 /// <summary>
 /// Fades the level to a specified colour and loads the new level before fading in again.
 /// </summary>
@@ -91,11 +94,16 @@ public class AutoFade : MonoBehaviour {
             DrawQuad(aColor,t);
         }
 		
+#if !UNITY_EDITOR
 		// The level is then loaded based on the name or number given
         if (mLevelName != "")
             Application.LoadLevel(mLevelName);
         else
             Application.LoadLevel(mLevelIndex);
+#else
+		bool bResult = UnityEditor.EditorApplication.OpenScene("Assets/Scenes/"+mLevelName);
+		if(!bResult) { UnityEngine.Debug.LogError("Couldn't load scene: " + mLevelName); };
+#endif
        
 		// Now the level is loaded we fade back in based on the time specified.
 		while (t>0.0f)
@@ -153,7 +161,7 @@ public class AutoFade : MonoBehaviour {
 			
 			JSONObject data = new JSONObject();
 			Track track = (Track)DataVault.Get("current_track");
-			if (track != null) data.AddField("current_track", track.AsJson);
+			if (track != null) data.AddField("current_track", JsonConvert.SerializeObject(track));
 			else data.AddField("current_track", (JSONObject)null);
 			data.AddField("race_type", DataVault.Get("race_type") as string);
 			data.AddField("type", DataVault.Get("type") as string);
@@ -166,12 +174,8 @@ public class AutoFade : MonoBehaviour {
 			Platform.Instance.BluetoothBroadcast(json);
 			MessageWidget.AddMessage("Bluetooth", "Started game on Glass", "settings");
 			// Return to menu
-		    FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		    GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-			if (gConnect != null) {
-				fs.parentMachine.FollowConnection(gConnect);
-				return;
-			}
+		    FlowState.FollowFlowLinkNamed("MenuExit");
+			return;
 		}		
 		
 		
@@ -205,7 +209,7 @@ public class AutoFade : MonoBehaviour {
 			
 			JSONObject data = new JSONObject();
 			Track track = (Track)DataVault.Get("current_track");
-			if (track != null) data.AddField("current_track", track.AsJson);
+			if (track != null) data.AddField("current_track", JsonConvert.SerializeObject(track));
 			else data.AddField("current_track", (JSONObject)null);
 			data.AddField("race_type", DataVault.Get("race_type") as string);
 			data.AddField("type", DataVault.Get("type") as string);

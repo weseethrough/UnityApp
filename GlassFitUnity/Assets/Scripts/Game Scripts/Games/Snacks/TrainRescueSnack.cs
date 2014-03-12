@@ -27,7 +27,6 @@ public class TrainRescueSnack : SnackBase {
 	
 	double playerStartDistance = 0;
 	
-	private GameObject mainCamera;
 	public GameObject flyCamera;
 
 	// Use this for initialization
@@ -107,11 +106,7 @@ public class TrainRescueSnack : SnackBase {
 		if(openingFlythroughPath != null)
 		{
 			openingFlythroughPath.StartFollowingPath();	
-			mainCamera = GameObject.Find("MainGameCamera");
-			if(mainCamera != null)
-			{
-				mainCamera.SetActive(false);
-			}
+			SetMainCamera(false);
 		}
 		else
 		{
@@ -127,9 +122,11 @@ public class TrainRescueSnack : SnackBase {
 	
 	public override void Begin ()
 	{
+		base.Begin();
+		
 		SetTrack(false);
 		SetReadyToStart(true);
-		//transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
+		//transform.position = new Vector3(0, 0, (float)Platform.Instance.LocalPlayerPosition.Distance);
 	}
 	
 	// Update is called once per frame
@@ -168,12 +165,10 @@ public class TrainRescueSnack : SnackBase {
 			//UnityEngine.Debug.Log("TrainRescueSnack: checking to see if flythrough finished");
 			if(openingFlythroughPath.IsFinished())
 			{
-				if(mainCamera != null)
-				{
-					mainCamera.SetActive(true);
-					flyCamera.GetComponentInChildren<Camera>().enabled = false;
-				}
-				transform.position = new Vector3(0, 0, (float)Platform.Instance.Distance());
+				SetMainCamera(true);
+				flyCamera.GetComponentInChildren<Camera>().enabled = false;
+				
+				transform.position = new Vector3(0, 0, (float)Platform.Instance.LocalPlayerPosition.Distance);
 				StartCountdown();
 			}
 		}
@@ -206,7 +201,7 @@ public class TrainRescueSnack : SnackBase {
 			train = trainObject.GetComponent<TrainController_Rescue>();
 		}
 		train.BeginRace();
-		playerStartDistance = Platform.Instance.Distance();
+		playerStartDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		//progress flow to the normal HUD
 		StartCoroutine(DoCountDown());
 	}
@@ -218,7 +213,7 @@ public class TrainRescueSnack : SnackBase {
 		{
 			//go to subtitle card
 			UnityEngine.Debug.Log("Train: Following 'subtitle' connector");
-			FollowConnectorNamed("Subtitle");
+			FlowState.FollowFlowLinkNamed("Subtitle");
 			//set value for subtitle. 0 = GO
 			string displayString = (i==0) ? "GO !" : i.ToString();
 			DataVault.Set("train_subtitle", displayString);
@@ -228,7 +223,7 @@ public class TrainRescueSnack : SnackBase {
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
-			FollowConnectorNamed("ToBlank");
+			FlowState.FollowFlowLinkNamed("ToBlank");
 			
 			//wait a second more, except after GO!
 			if(i!=0)
@@ -241,7 +236,7 @@ public class TrainRescueSnack : SnackBase {
 		yield return new WaitForSeconds(0.1f);
 		
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
-		FollowConnectorNamed("Begin");
+		FlowState.FollowFlowLinkNamed("Begin");
 		
 		
 		started = true;
@@ -250,22 +245,8 @@ public class TrainRescueSnack : SnackBase {
 		
 	}
 	
-	public void FollowConnectorNamed(string name)
-	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == name );
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
-		}	
-		else
-		{
-			UnityEngine.Debug.LogWarning("TrainGame: couldn't find flow connector - " + name);	
-		}
-	}
-	
 	public double GetPlayerDistanceTravelled()
 	{
-		return Platform.Instance.Distance() - playerStartDistance;
+		return Platform.Instance.LocalPlayerPosition.Distance - playerStartDistance;
 	}
 }

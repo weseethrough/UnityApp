@@ -21,6 +21,37 @@ public abstract class FlowState : GNode
     
     public FlowStateMachine parentMachine;
 
+	/// <summary>
+	/// Follows the named flow link.
+	/// </summary>
+	/// <returns><c>true</c>, if named flow link was followed, <c>false</c> otherwise.</returns>
+	/// <param name="linkName">Link name.</param>
+	public static bool FollowFlowLinkNamed(string linkName)
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		GConnector gc = fs.Outputs.Find( r => r.Name == linkName);
+		if(gc != null)
+		{
+			fs.parentMachine.FollowConnection(gc);
+			return true;
+		}
+		else
+		{
+			UnityEngine.Debug.LogWarning("FlowState: Didn't find flow link named " + linkName);
+			return false;
+		}
+	}
+
+	/// <summary>
+	/// Follows the back link.
+	/// </summary>
+	public static void FollowBackLink()
+	{
+		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		fs.parentMachine.FollowBack();
+	}
+
+
     // do not let state switch outside of order. It might cause some states get unplugged from order list and result with unpredictable results    
     protected State m_state;
     protected FlowState m_parent;    

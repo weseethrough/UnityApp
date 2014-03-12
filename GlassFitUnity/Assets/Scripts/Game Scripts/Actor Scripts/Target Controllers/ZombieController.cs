@@ -84,7 +84,7 @@ public class ZombieController : MonoBehaviour {
 			float distanceFromTarget = transform.position.magnitude;
 			if(distanceFromTarget > 2.0f)
 			{
-				float pace = Platform.Instance.Pace();
+				float pace = Platform.Instance.LocalPlayerPosition.Pace;
 				transform.position += ((direction * speed) * Time.deltaTime) - ((new Vector3(0, 0, 1) * pace) * Time.deltaTime);
 				
 				direction = Vector3.zero - transform.position;

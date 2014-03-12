@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3DBF27EA-A683-4B50-BFBA-32A2B012863B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>RaceYourself.Models</RootNamespace>
+    <AssemblyName>Models</AssemblyName>
+    <UseMSBuildEngine>False</UseMSBuildEngine>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Tests\JsonTests.cs" />
+    <Compile Include="Models\Action.cs" />
+    <Compile Include="Models\Cache.cs" />
+    <Compile Include="Models\Challenge.cs" />
+    <Compile Include="Models\DistanceChallenge.cs" />
+    <Compile Include="Models\Device.cs" />
+    <Compile Include="Models\Event.cs" />
+    <Compile Include="Models\Message.cs" />
+    <Compile Include="Models\Notification.cs" />
+    <Compile Include="Models\OauthToken.cs" />
+    <Compile Include="Models\DurationChallenge.cs" />
+    <Compile Include="Models\Friend.cs" />
+    <Compile Include="Models\Friendship.cs" />
+    <Compile Include="Models\Orientation.cs" />
+    <Compile Include="Models\Position.cs" />
+    <Compile Include="Models\Sequence.cs" />
+    <Compile Include="Models\SyncState.cs" />
+    <Compile Include="Models\Track.cs" />
+    <Compile Include="Models\Transaction.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="CustomConverter.cs" />
+    <Compile Include="Date.cs" />
+    <Compile Include="DefaultConverter.cs" />
+    <Compile Include="Jsonable.cs" />
+    <Compile Include="JsonStringConverter.cs" />
+    <Compile Include="ObjectIdConverter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="JsonDotNet">
+      <HintPath>..\GlassFitUnity\Assets\JsonDotNet\JsonDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="siaqodb">
+      <HintPath>..\GlassFitUnity\Assets\Siaqodb\siaqodb.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\Common\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="nunit.framework, Version=2.4.8.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

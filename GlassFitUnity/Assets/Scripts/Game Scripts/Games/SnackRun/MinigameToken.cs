@@ -25,7 +25,7 @@ public class MinigameToken : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		//set position in scene based on player distance and our distance
-		float zRel = zDist - Platform.Instance.GetDistance();
+		float zRel = zDist - (float)Platform.Instance.LocalPlayerPosition.Distance;
 		transform.position = new Vector3(xOffset, yOffset, zOffset + zRel);
 		
 		//spin

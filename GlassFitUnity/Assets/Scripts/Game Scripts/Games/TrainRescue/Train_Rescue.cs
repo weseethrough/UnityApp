@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+using RaceYourself.Models;
+
 public class Train_Rescue : GameBase {
 	
 	public const string GAMESTATE_FLYTHROUGH = "flythrough";
@@ -128,7 +130,7 @@ public class Train_Rescue : GameBase {
 			UnityEngine.Debug.Log("TrainRescue: Entering Flythrough state");
 			if(openingFlythroughPath != null)
 			{
-				FollowConnectorNamed("ToBlank");
+				FlowState.FollowFlowLinkNamed("ToBlank");
 				openingFlythroughPath.StartFollowingPath();
 			}
 			else
@@ -169,8 +171,9 @@ public class Train_Rescue : GameBase {
 	
 	// Update is called once per frame
 	void Update () {
+
 		
-		if(Platform.Instance.IsIndoor())
+		if(Platform.Instance.LocalPlayerPosition.IsIndoor())
 		{
 			DataVault.Set("calories", "INDOOR");
 		}
@@ -251,7 +254,7 @@ public class Train_Rescue : GameBase {
 		UnityEngine.Debug.Log("Train:Starting Countdown Coroutine");
 		
 		//get to the HUD since all flow stems from here
-		FollowConnectorNamed("Begin");
+		FlowState.FollowFlowLinkNamed("Begin");
 		
 		//small pause to allow flow to catch up
 		yield return new WaitForSeconds(0.1f);
@@ -260,7 +263,7 @@ public class Train_Rescue : GameBase {
 		{
 			//go to subtitle card
 			UnityEngine.Debug.Log("Train: Following 'subtitle' connector");
-			FollowConnectorNamed("Subtitle");
+			FlowState.FollowFlowLinkNamed("Subtitle");
 			//set value for subtitle. 0 = GO
 			string displayString = (i==0) ? "GO !" : i.ToString();
 			DataVault.Set("train_subtitle", displayString);
@@ -270,7 +273,7 @@ public class Train_Rescue : GameBase {
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
-			FollowConnectorNamed("ToBlank");
+			FlowState.FollowFlowLinkNamed("ToBlank");
 			
 			//wait a second more, except after GO!
 			if(i!=0)
@@ -283,7 +286,7 @@ public class Train_Rescue : GameBase {
 		yield return new WaitForSeconds(0.1f);
 		
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
-		FollowConnectorNamed("Begin");
+		FlowState.FollowFlowLinkNamed("Begin");
 		
 		//play the train's bell sound effect
 		train.soundBell();	
@@ -291,32 +294,17 @@ public class Train_Rescue : GameBase {
 		//start the game
 		SetGameState(GAMESTATE_RUNNING);;
 	}
-	
-	public void FollowConnectorNamed(string name)
-	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == name );
-		if(gConnect != null)
-		{
-			fs.parentMachine.FollowConnection(gConnect);
-		}	
-		else
-		{
-			UnityEngine.Debug.LogWarning("TrainGame: couldn't find flow connector - " + name);	
-		}
-	}
+
 	
 	IEnumerator ProgressToFinish()
 	{
 		UnityEngine.Debug.Log("TrainGame: Progressing to finish in 5 seconds");
 		
 		//go to subtitle card
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Subtitle" );
-		fs.parentMachine.FollowConnection(gConnect);
+		FlowState.FollowFlowLinkNamed("Subtitle");
 		
 		//set appropriate link subtitle
-		if(bFailed || Platform.Instance.GetDistance() < finish)
+		if(bFailed || Platform.Instance.LocalPlayerPosition.Distance < finish)
 		{
 			DataVault.Set("train_subtitle", "\"Aaaaargh!\"");
 		}

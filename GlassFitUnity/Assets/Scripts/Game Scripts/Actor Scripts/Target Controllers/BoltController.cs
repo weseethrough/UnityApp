@@ -52,7 +52,7 @@ public class BoltController : TargetController {
 	void OnEnable()
 	{
 		// Set the start distance
-		startDistance = (float)Platform.Instance.Distance();
+		startDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		distanceFromStart = startDistance;
 		// Get the animator and set the speed
 		anim = GetComponent<Animator>();
@@ -74,7 +74,7 @@ public class BoltController : TargetController {
 	void Update () 
 	{
 		// Get the player's distance
-		playerDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		// Calculate the distance travelled for Bolt
 		distanceFromStart += Time.deltaTime * speed;
 		

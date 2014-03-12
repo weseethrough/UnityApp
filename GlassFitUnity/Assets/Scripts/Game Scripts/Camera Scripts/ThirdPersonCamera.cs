@@ -67,20 +67,27 @@ public class ThirdPersonCamera : MonoBehaviour {
 	
 	void SetZoomFromPitch()
 	{
+		const float baseHeight = -0.3f;
+		const float baseDist = -5.0f;
+
 		float pitch = Platform.Instance.GetPlayerOrientation().AsPitch();
 		if(pitch > 0.0f)
 		{
 			lookingUp = false;
 			//UnityEngine.Debug.Log("ThirdPersonCamera: pitch is " + pitch.ToString("f2"));
-			height = Mathf.Clamp(0.3f - (3.0f * pitch), -5.0f, 0.3f);
-			zoom = Mathf.Clamp(-5.0f + (-5.0f * (pitch * 2)), -8.0f, -5.0f);
+			height = Mathf.Clamp(baseHeight - (3.0f * pitch), -5.0f, baseHeight);
+			zoom = Mathf.Clamp(baseDist + (-5.0f * (pitch * 2)), -8.0f, baseDist);
 		}
 		else
 		{
 			lookingUp = true;
-			height = 0.3f;
-			zoom = -5.0f;
+			height = baseHeight;
+			zoom = baseDist;
 		}
+
+		float camPosScale = 0.4f;
+		height *= camPosScale;
+		zoom *= camPosScale;
 	}
 	
 	IEnumerator MoveTo(Vector3 start, Vector3 end, float time)
@@ -155,5 +162,13 @@ public class ThirdPersonCamera : MonoBehaviour {
 	void OnDestroy() {
 		GestureHelper.onSwipeRight -= rightHandler;
 		GestureHelper.onSwipeLeft -= leftHandler;
+	}
+	
+	public void ForceFirst() {
+		height = 0.0f;
+		zoom = 0.0f;
+		third = false;
+		
+		transform.localPosition = new Vector3(0,0,0);
 	}
 }

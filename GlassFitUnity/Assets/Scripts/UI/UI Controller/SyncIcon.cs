@@ -65,21 +65,14 @@ public class SyncIcon : MonoBehaviour {
 		bool tutorial = Convert.ToBoolean(DataVault.Get("tutorial_complete"));
 		
 		if(tutorial) {
-			UnityEngine.Debug.Log("SyncIcon: tutorial is complete, going to game");
-			gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
+			FlowState.FollowFlowLinkNamed("GameExit");
 		}
 		else
 		{
-			UnityEngine.Debug.Log("SyncIcon: tutorial is not complete, going to tutorial");
-			gConnect = fs.Outputs.Find(r => r.Name == "TutorialExit");
+			FlowState.FollowFlowLinkNamed("TutorialExit");
 		}
-		
-		if(gConnect != null) {
-			fs.parentMachine.FollowConnection(gConnect);
-			Platform.Instance.onSync -= syncHandler;
-		} else {
-			UnityEngine.Debug.Log("SyncIcon: " + gConnect.Name + " not found");
-		}
+
+		Platform.Instance.onSync -= syncHandler;
 	}
 	
 	// Update is called once per frame

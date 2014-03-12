@@ -32,7 +32,7 @@ public class UISensorCamera : MonoBehaviour {
 		
 #if RY_INDOOR
 		UnityEngine.Debug.LogError("UISensorCamera: we are indoor, using indoor flow");
-		Platform.Instance.SetIndoor(true);
+		Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
     	gc.GoToFlow("IndoorFlow");	
 #endif
@@ -42,12 +42,7 @@ public class UISensorCamera : MonoBehaviour {
 	
 	void GoBack() 
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		
-		GConnector gConect = fs.Outputs.Find(r => r.Name == "MenuButton");
-		if(gConect != null) {
-			fs.parentMachine.FollowConnection(gConect);
-		}
+		FlowState.FollowFlowLinkNamed("MenuButton");
 	}
 	
 	/// <summary>

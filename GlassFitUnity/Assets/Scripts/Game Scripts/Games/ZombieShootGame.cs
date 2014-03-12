@@ -34,7 +34,7 @@ public class ZombieShootGame : GameBase {
 		
 		DataVault.Set("countdown_subtitle", " ");
 		
-		Platform.Instance.SetIndoor(true);
+		Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		TriggerUserReady();
 		
 		finish = 10000;

@@ -11,8 +11,8 @@ public class SensoriaGame : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		Platform.Instance.SetIndoor(true);
-		Platform.Instance.Reset();
+		Platform.Instance.LocalPlayerPosition.SetIndoor(true);
+		Platform.Instance.LocalPlayerPosition.Reset();
 		
 		Platform.Instance.ResetTargets();
 		
@@ -22,7 +22,7 @@ public class SensoriaGame : MonoBehaviour {
 		controller.SetTracker(tracker);
 		controller.SetLane(1);
 		
-		Platform.Instance.StartTrack();
+		Platform.Instance.LocalPlayerPosition.StartTrack();
 	}
 	
 	// Update is called once per frame
@@ -30,14 +30,14 @@ public class SensoriaGame : MonoBehaviour {
 		//Update variables for GUI	
 		Platform.Instance.Poll();
 		
-		DataVault.Set("calories", Platform.Instance.Calories().ToString() + "kcal");
-		DataVault.Set("pace", SpeedToKmPace(Platform.Instance.Pace()).ToString("f1") + "min/km");
-		DataVault.Set("distance", SiDistance(Platform.Instance.Distance()));
-		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.Time()));
+		DataVault.Set("calories", Platform.Instance.LocalPlayerPosition.Calories.ToString() + "kcal");
+		DataVault.Set("pace", SpeedToKmPace(Platform.Instance.LocalPlayerPosition.Pace).ToString("f1") + "min/km");
+		DataVault.Set("distance", SiDistance(Platform.Instance.LocalPlayerPosition.Distance));
+		DataVault.Set("time", TimestampMMSSdd( Platform.Instance.LocalPlayerPosition.Time));
 		//DataVault.Set("indoor_text", indoorText);
 		
-		DataVault.Set("rawdistance", Platform.Instance.Distance());
-		DataVault.Set("rawtime", Platform.Instance.Time());
+		DataVault.Set("rawdistance", Platform.Instance.LocalPlayerPosition.Distance);
+		DataVault.Set("rawtime", Platform.Instance.LocalPlayerPosition.Time);
 		
 		double targetDistance = Platform.Instance.GetHighestDistBehind();
 

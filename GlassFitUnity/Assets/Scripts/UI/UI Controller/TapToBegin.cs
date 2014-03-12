@@ -7,13 +7,8 @@ public class TapToBegin : MPChildGestureHandler {
 	{
 		//progress to next screen
 		//follow the 'begin' link
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find( r => r.Name == "Begin" );
-		if(gConnect != null)
-		{
-			SoundManager.PlaySound(SoundManager.Sounds.Tap);
-			fs.parentMachine.FollowConnection(gConnect);
-		}
+		FlowState.FollowFlowLinkNamed("Begin" );
+		SoundManager.PlaySound(SoundManager.Sounds.Tap);
 	
 		//start game, and ensure track is visible
 		GameBase game = GameObject.FindObjectOfType(typeof(GameBase)) as GameBase;

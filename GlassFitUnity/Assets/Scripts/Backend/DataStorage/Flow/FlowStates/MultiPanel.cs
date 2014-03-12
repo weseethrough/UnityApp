@@ -87,8 +87,8 @@ public class MultiPanel : Panel
 	
 //	public void HandleTap() {
 //		//toggle indoor mode
-//		bool bIndoor = Platform.Instance.IsIndoor();
-//		Platform.Instance.SetIndoor(!bIndoor);
+//		bool bIndoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
+//		Platform.Instance.LocalPlayerPosition.SetIndoor(!bIndoor);
 //	}
 
     /// <summary>
@@ -219,7 +219,7 @@ public class MultiPanel : Panel
 //			if(focusedChildPanel.GetDisplayName() == "MultiPanelChild: GPS") {				
 //				UnityEngine.Debug.Log("MultiPanel: turning taphandler off");
 //				GestureHelper.onTap -= tapHandler;
-//				if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor()) {
+//				if(Platform.Instance.LocalPlayerPosition.HasLock() || Platform.Instance.LocalPlayerPosition.IsIndoor()) {
 //					UnityEngine.Debug.Log("MultiPanel: it is ok to progress");
 //				} 
 //				else

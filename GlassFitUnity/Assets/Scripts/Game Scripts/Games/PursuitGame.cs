@@ -124,7 +124,7 @@ public class PursuitGame : GameBase {
 		//check if we're dead, and remove a life and show 'game over' menu if so.
 		if(Platform.Instance.GetLowestDistBehind() - offset >= 0)
 		{
-			Platform.Instance.StopTrack();
+			Platform.Instance.LocalPlayerPosition.StopTrack();
 			
 			if(lives > 0) {
 				lives -= 1;
@@ -136,7 +136,7 @@ public class PursuitGame : GameBase {
 				started = false;
 			} else if(!finished) {
 				//restart - should consolidate this with the 'back' function
-				DataVault.Set("total", Platform.Instance.GetCurrentPoints() + Platform.Instance.GetOpeningPointsBalance());
+				DataVault.Set("total", Platform.Instance.PlayerPoints.CurrentActivityPoints + Platform.Instance.PlayerPoints.OpeningPointsBalance);
 				DataVault.Set("ahead_col_header", UIColour.red);
 				DataVault.Set("ahead_col_box", UIColour.red);
 				DataVault.Set("finish_header", "You died!");
@@ -157,7 +157,7 @@ public class PursuitGame : GameBase {
 		}
 		
 		// Awards the player points for running certain milestones
-		if(Platform.Instance.Distance() >= bonusTarget)
+		if(Platform.Instance.LocalPlayerPosition.Distance >= bonusTarget)
 		{
 			int targetToKm = bonusTarget / 1000;
 			if(bonusTarget < finish) 
@@ -168,7 +168,7 @@ public class PursuitGame : GameBase {
 			
 		}
 		
-		if(Platform.Instance.Distance() >= finish - 100)
+		if(Platform.Instance.LocalPlayerPosition.Distance >= finish - 100)
 		{
 			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
 			finalBonus -= 50f * Time.deltaTime;

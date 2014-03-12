@@ -6,7 +6,11 @@ using System;
 /// Rotates the camera in-game and sets the grid
 /// </summary>
 public class MinimalSensorCamera : MonoBehaviour {
-	
+
+	public AnimationCurve cameraResponseCurve;		//mapping of head rotation to camera yaw
+	public AnimationCurve constrainedWeightVsPace;	//how far constrained the camera is based on movement speed
+	public float maxSpeedForCameraConstraint = 4f;
+
 	public const Boolean DEBUG_ORIENTATION = false;
 	const float pitchSensitivity = 2.3f;
 	
@@ -15,6 +19,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 	                                                        // applied to camera in each update() call.
 	private Quaternion? initialBearing = null;  // first valid bearing we receive. Updated on 2-tap (along with gyros)
 	                                            // null iff no valid bearing has been calculated yet
+
+	protected float pitchOffset = 0.0f;
+
 	private bool started;
 	public GameObject grid;
 	private bool gridOn = false;
@@ -101,7 +108,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		if (DEBUG_ORIENTATION)
 		{
 			// print bearing debug data
-		    GUI.Label(new Rect(200, 050, 400, 50), "Bearing: " + ((int)Platform.Instance.Bearing()).ToString(), labelStyle);
+		    GUI.Label(new Rect(200, 050, 400, 50), "Bearing: " + ((int)Platform.Instance.LocalPlayerPosition.Bearing).ToString(), labelStyle);
 			GUI.Label(new Rect(200, 100, 400, 50), "Yaw from north: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYawFromNorth()*Mathf.Rad2Deg)).ToString(), labelStyle);
 			GUI.Label(new Rect(200, 150, 400, 50), "Yaw from forward: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
 			GUI.Label(new Rect(200, 2000, 400, 50), "Cum-yaw from fwd: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsCumulativeYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
@@ -171,10 +178,10 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 		// check to see if indoor has been changed, e.g. at the beginning
 		// of the game but after start() runs
-		indoor = Platform.Instance.IsIndoor();
+		indoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
 
-		if (Platform.Instance.Bearing() != -999.0f) {
-			initialBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+		if (Platform.Instance.LocalPlayerPosition.Bearing != -999.0f) {
+			initialBearing = Quaternion.Euler (0.0f, Platform.Instance.LocalPlayerPosition.Bearing, 0.0f);
 			bearingOffset = Quaternion.identity;
 		} else {
 			initialBearing = null;
@@ -187,8 +194,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 	/// </summary>
 	void Update () {
 
-#if !UNITY_EDITOR	
-		// Set the offset if it hasn't been set already, doesn't work in Start() function
 		if(!started)
 		{
 
@@ -198,8 +203,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 		
 		// Check for changes in the player's bearing
-		if (Platform.Instance.Bearing() != -999.0f) {
-			Quaternion currentBearing = Quaternion.Euler (0.0f, Platform.Instance.Bearing(), 0.0f);
+		if (Platform.Instance.LocalPlayerPosition.Bearing != -999.0f) {
+			Quaternion currentBearing = Quaternion.Euler (0.0f, Platform.Instance.LocalPlayerPosition.Bearing, 0.0f);
 			if (initialBearing.HasValue == false) {
 				// if this is the first valid bearing we've had, use it as the reference point and return identity
 				initialBearing = currentBearing;
@@ -215,13 +220,31 @@ public class MinimalSensorCamera : MonoBehaviour {
 		// Double the pitch
 		Vector3 eulerAngles = headOffset.eulerAngles;
 		eulerAngles.x *= 2.0f;
+
+		//TEST - zero out the yaw
+		//eulerAngles.y = 0f;
+
+		//TEST 2 - non-linear yaw curve
+		float yaw = eulerAngles.y;
+		if(yaw > 180) { yaw -= 360; }
+		float sign = yaw > 0 ? 1:-1;
+		float parametricYaw = Mathf.Abs(yaw) / 180f;
+		float adjustedYaw = sign * 180f * cameraResponseCurve.Evaluate(parametricYaw);
+
+		//TEST 3 - apply varying weighting of real vs adjusted according to speed
+		float adjustedWeight = constrainedWeightVsPace.Evaluate(Platform.Instance.LocalPlayerPosition.Pace / maxSpeedForCameraConstraint);
+
+		//To see tests, uncomment this line.
+		//eulerAngles.y = Mathf.Lerp(yaw, adjustedYaw, adjustedWeight);
+
+
 		//tilt down a little too
-		eulerAngles.x -= 15.0f;
+		//eulerAngles.x -= 15.0f;
 		headOffset = Quaternion.Euler(eulerAngles);
 		
 		// Check for rearview
 		Quaternion rearviewOffset = Quaternion.Euler(0, (rearview ? 180 : 0), 0);
-				
+			
 		if(!sensorRotationPaused)
 		{
 			// Rotate the camera
@@ -231,7 +254,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 				transform.rotation = rearviewOffset * headOffset;
 			}
 		}
-#else
+
+		///EDITOR-Specific keyboard controls
 		if(Input.GetKeyDown(KeyCode.B)) {
 			yRotate += 180f;
 			if(yRotate >= 360f) {
@@ -242,16 +266,11 @@ public class MinimalSensorCamera : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.G))
 		{
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConect = fs.Outputs.Find(r => r.Name == "straightPursuitExit");
-			if(gConect != null) {
-				fs.parentMachine.FollowConnection(gConect);
-			} else {
-				UnityEngine.Debug.Log("Game: No connection found!");
-			}
+			FlowState.FollowFlowLinkNamed("straightPursuitExit");
 		}
-#endif
 		
+		
+		///special camera controls
 		if(fovActive) {
 			if(Platform.Instance.GetTouchCount() == 1)
 			{
@@ -262,7 +281,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 						float addedValue = xChange.Value.x - previousZoom;
 						float newFOV = Camera.main.fieldOfView;
 						newFOV += addedValue * 60f;
-						UnityEngine.Debug.Log("MinimalSensorCamera: current FOV is " + newFOV.ToString("f2"));
+						//UnityEngine.Debug.Log("MinimalSensorCamera: current FOV is " + newFOV.ToString("f2"));
 						Camera.main.fieldOfView = Mathf.Clamp(newFOV, 10f, 60f);
 					} 
 					else {
@@ -289,8 +308,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 						float addedValue = xChange.Value.x - previousPitch;
 						float newPitch = Platform.Instance.GetPlayerOrientation().GetPitchOffset();
 						newPitch += addedValue * 40f;
-						UnityEngine.Debug.Log("MinimalSensorCamera: pitch is set to " + Mathf.Clamp(newPitch, -20f, 20f).ToString("f2"));
-						Platform.Instance.GetPlayerOrientation().SetPitchOffset(Mathf.Clamp(newPitch, -20f, 20f));
+						pitchOffset = Mathf.Clamp(newPitch, -40f, 40f);
+						UnityEngine.Debug.Log("MinimalSensorCamera: pitch is set to " + pitchOffset.ToString("f2"));
+						Platform.Instance.GetPlayerOrientation().SetPitchOffset(pitchOffset);
 					}
 					else
 					{

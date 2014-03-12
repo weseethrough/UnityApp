@@ -12,10 +12,10 @@ public class GUICamera : MonoBehaviour {
 	float camera_sensitivity_x_outer = 2.5f;
 	float camera_sensitivity_x_inner_angle = 25.0f * Mathf.Deg2Rad;
 	float camera_sensitivity_x_hex = 5.5f;
-    float camera_sensitivity_y = 3.5f;
+    float camera_sensitivity_y = 3f;
 	float camera_sensitivity_y_hex = 4.5f;
 	
-	const float camera_default_yPos = 0.3f;
+	const float camera_default_yPos = 0.1f;
 	
 	public float zoomLevel = -1.0f;        
 
@@ -49,7 +49,11 @@ public class GUICamera : MonoBehaviour {
     /// <return>the input quaternion</return>
     private Quaternion ConvertOrientation(PlayerOrientation p, out Vector2 dynamicCamPos)
     {
-        
+        if (p == null) {
+			dynamicCamPos = Vector2.zero;
+			return Quaternion.identity;
+		}
+		
         dynamicCamPos = new Vector2(p.AsCumulativeYaw(), -p.AsPitch());
         dynamicCamPos.x *= IsHexTypeMenu() ? camera_sensitivity_x_hex : camera_sensitivity_x;
 	    dynamicCamPos.y *= IsHexTypeMenu() ? camera_sensitivity_y_hex : camera_sensitivity_y;

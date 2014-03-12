@@ -37,7 +37,7 @@ public class ChallengeGame : GameBase {
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		ChallengeNotification current = (ChallengeNotification)DataVault.Get("current_challenge_notification");
-		if(Platform.Instance.Time() < current.GetTime()) { 
+		if(Platform.Instance.LocalPlayerPosition.Time < current.GetTime()) { 
 			DataVault.Set("challenge_result", "You beat " + (string)DataVault.Get("challenger"));
 		} else {
 			DataVault.Set("challenge_result", (string)DataVault.Get("challenger") + " beat you!");
