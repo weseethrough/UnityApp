@@ -25,7 +25,7 @@ public class ZombieController : MonoBehaviour {
 	
 	GameObject marker;
 	
-	CapsuleCollider collider;
+	new CapsuleCollider collider;
 	
 	float nearPlayerTime = 0.0f;
 	

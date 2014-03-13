@@ -7,7 +7,7 @@ public class ChallengeGame : GameBase {
 	public GameObject runnerHolder;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		base.Start();
 		
 		if(finish == 0) 
@@ -47,7 +47,7 @@ public class ChallengeGame : GameBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		base.Update();
 	}
 }

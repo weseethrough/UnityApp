@@ -14,7 +14,7 @@ public class FirstRun : GameBase {
 	public GameObject runnerObj;
 	private float runnerHeadStartDist = 20.0f;
 	
-	public Camera camera;
+	public new Camera camera;
 	//const float paceLabelYOffsetScreen = 0.0f;
 	//const float paceLabelYOffsetWorld = 300.0f;
 	
@@ -33,7 +33,7 @@ public class FirstRun : GameBase {
 	bool hasResetGyros = false;  // possibly not needed? remove?
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 
 		if(runnerObj != null)
 		{
@@ -125,7 +125,7 @@ public class FirstRun : GameBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		
 		base.Update();
 		

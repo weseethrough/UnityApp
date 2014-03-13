@@ -24,7 +24,7 @@ public class Train_Rescue : GameBase {
 	
 	bool bWaitedForSubtitleTimeOut = false;
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		base.Start();
 		
 		train = trainObject.GetComponent<TrainController_Rescue>();
@@ -170,7 +170,7 @@ public class Train_Rescue : GameBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 
 		
 		if(Platform.Instance.LocalPlayerPosition.IsIndoor())

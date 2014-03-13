@@ -98,7 +98,7 @@ public class DataStore : MonoBehaviour
 #if UNITY_EDITOR
             if (!LoadStorageFromCollection(bName))
             {
-                storageBank[name.ToString()] = InitializeBlob(PlatformDummy.Instance.LoadBlob(name));
+                storageBank[name.ToString()] = InitializeBlob(Platform.Instance.LoadBlob(name));
             }            
 #else
 			storageBank[name] = InitializeBlob(Platform.Instance.LoadBlob(name));
@@ -250,7 +250,7 @@ public class DataStore : MonoBehaviour
                         break;
                     }
 		        }
-                catch (Exception e)
+                catch (Exception)
 		        {
                     break;
 		        }

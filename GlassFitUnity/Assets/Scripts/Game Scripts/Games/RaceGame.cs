@@ -47,7 +47,7 @@ public class RaceGame : GameBase {
 	public GameObject chrisHolder;
 	public GameObject bradleyHolder;
 		
-	void Start () {
+	public override void Start () {
 		base.Start();
 		
 		//instantiate teh appropriate actor
@@ -183,7 +183,7 @@ public class RaceGame : GameBase {
 	
 
 	
-	void Update () {
+	public override void Update () {
 
 		base.Update ();
 	

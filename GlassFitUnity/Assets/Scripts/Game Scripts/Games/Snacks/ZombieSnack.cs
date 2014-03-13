@@ -68,7 +68,7 @@ public class ZombieSnack : SnackBase {
 //	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		base.Update();
 		
 		currentTime += Time.deltaTime;

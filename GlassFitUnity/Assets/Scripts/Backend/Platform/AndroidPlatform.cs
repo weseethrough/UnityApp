@@ -109,7 +109,7 @@ public class AndroidPlatform : Platform
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("fetchUser", userId);
 			if(ajo.GetRawObject().ToInt32() == 0) return null;
 			return new User{id = ajo.Get<int>("guid"), username = ajo.Get<string>("username"), name = ajo.Get<string>("name")};
-		} catch (Exception e) {
+		} catch (Exception) {
 			UnityEngine.Debug.LogWarning("Platform: error getting user");
 			return null;
 		}
@@ -119,7 +119,7 @@ public class AndroidPlatform : Platform
 		try {
 			helper.Call("resetTargets");
 			targetTrackers.Clear();
-		} catch (Exception e) {
+		} catch (Exception) {
 			UnityEngine.Debug.LogWarning("Platform: Error clearing targets");
 		}
 	}
@@ -222,7 +222,7 @@ public class AndroidPlatform : Platform
 		}
 	}
 
-    public virtual bool IsBluetoothBonded()
+    public override bool IsBluetoothBonded()
     {
         try {
             return helper.Call<bool>("isBluetoothBonded");
