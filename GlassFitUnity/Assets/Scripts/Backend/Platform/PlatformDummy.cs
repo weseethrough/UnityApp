@@ -192,7 +192,7 @@ public class PlatformDummy : Platform
 	protected override void Initialize()
 	{
 		_localPlayerPosition = new EditorPlayerPosition();
-		_playerPoints = new EditorPlayerPoints();
+		_playerPoints = new LocalDbPlayerPoints();
 		try {
 			initialised = false;
 //		FlowState fs = FlowStateMachine.GetCurrentFlowState();

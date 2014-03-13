@@ -71,7 +71,7 @@ public class AndroidPlatform : Platform
 			log.info("Initializing AndroidPlayerPosition");
 			_localPlayerPosition = new AndroidPlayerPosition();
 			log.info("Initializing AndroidPlayerPoints");
-			_playerPoints = new AndroidPlayerPoints();
+			_playerPoints = new LocalDbPlayerPoints();
 	    } catch (Exception e) {
             log.error("Error in initialisation " + e.Message);
 			Application.Quit();
