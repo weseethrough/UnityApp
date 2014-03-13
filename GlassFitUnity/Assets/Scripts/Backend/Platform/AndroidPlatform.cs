@@ -109,7 +109,7 @@ public class AndroidPlatform : Platform
 			AndroidJavaObject ajo = helper_class.CallStatic<AndroidJavaObject>("fetchUser", userId);
 			if(ajo.GetRawObject().ToInt32() == 0) return null;
 			return new User{id = ajo.Get<int>("guid"), username = ajo.Get<string>("username"), name = ajo.Get<string>("name")};
-		} catch (Exception e) {
+		} catch (Exception) {
 			UnityEngine.Debug.LogWarning("Platform: error getting user");
 			return null;
 		}
@@ -119,7 +119,7 @@ public class AndroidPlatform : Platform
 		try {
 			helper.Call("resetTargets");
 			targetTrackers.Clear();
-		} catch (Exception e) {
+		} catch (Exception) {
 			UnityEngine.Debug.LogWarning("Platform: Error clearing targets");
 		}
 	}
@@ -221,6 +221,16 @@ public class AndroidPlatform : Platform
 			return false;
 		}
 	}
+
+    public override bool IsBluetoothBonded()
+    {
+        try {
+            return helper.Call<bool>("isBluetoothBonded");
+        } catch (Exception e) {
+            log.error("Error calling isBluetoothBonded over JNI " + e.Message);
+            return false;
+        }
+    }
 	
 
 	
@@ -407,7 +417,7 @@ public class AndroidPlatform : Platform
 				for(int i=0; i<size; i++)
 				{
 					AndroidJavaObject javaGame = javaGameList.Call<AndroidJavaObject>("get", i);
-					Game csGame = new Game();
+					AndroidGame csGame = new AndroidGame();
 					csGame.Initialise(javaGame);
 					gameList.Add(csGame);
 				}
@@ -562,9 +572,8 @@ public class AndroidPlatform : Platform
 	}
 	
 	public override void Update() {
+		base.Update();
 		//UnityEngine.Debug.Log("Platform: updating");
-		if (device == null) device = Device();
-		if (user == null) user = User();
 		//UnityEngine.Debug.Log("Platform: about to sync");
 //		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval && IsPluggedIn()) {
 //			//UnityEngine.Debug.Log("Platform: about to sync properly");

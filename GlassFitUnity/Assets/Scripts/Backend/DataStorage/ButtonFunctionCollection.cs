@@ -184,7 +184,6 @@ public class ButtonFunctionCollection
 			
 		default:
 			return false;
-			break;
 		}
 		
 		return true;
@@ -254,12 +253,7 @@ public class ButtonFunctionCollection
 
     static public bool SetModeDesc(FlowButton fb, FlowState panel) 
 	{
-		#if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
-#else
-        List<Game> games = Platform.Instance.GetGames();
-		return false;
-#endif
 		for(int i=0; i < games.Count; i++)
 		{
 			if(games[i].iconName == fb.name)

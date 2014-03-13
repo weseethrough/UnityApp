@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using RaceYourself.Models;
+
 public class SnackController : MonoBehaviour {
 	
 	//list of available games

@@ -250,7 +250,7 @@ public class DataStore : MonoBehaviour
                         break;
                     }
 		        }
-                catch (Exception e)
+                catch (Exception)
 		        {
                     break;
 		        }

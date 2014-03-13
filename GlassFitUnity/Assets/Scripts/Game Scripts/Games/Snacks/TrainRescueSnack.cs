@@ -30,7 +30,7 @@ public class TrainRescueSnack : SnackBase {
 	public GameObject flyCamera;
 
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		train = trainObject.GetComponent<TrainController_Rescue>();
 		
 		//clear strings
@@ -130,7 +130,7 @@ public class TrainRescueSnack : SnackBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		if(!finish && started)
 		{
 			//UnityEngine.Debug.Log("TrainRescueSnack: in finish loop");

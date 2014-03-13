@@ -43,7 +43,7 @@ public class SoundController : TargetController {
 	/// <summary>
 	/// Initialises the music tracks
 	/// </summary>
-	void Start () {
+	public override void Start () {
 		
 		// Get all audio tracks.
 		stevies = GetComponents<AudioSource>();
@@ -56,7 +56,7 @@ public class SoundController : TargetController {
 	/// <summary>
 	/// Raises the GUI event. Sets the buttons - needs updating
 	/// </summary>
-	void OnGUI() {
+	public override void OnGUI() {
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		
 		// Button for Indoor mode.
@@ -122,7 +122,7 @@ public class SoundController : TargetController {
 	/// <summary>
 	/// Update this instance. Updates the playing track
 	/// </summary>
-	void Update () {
+	public override void Update () {
 		
 		// Update platform values.
 		Platform.Instance.Poll();

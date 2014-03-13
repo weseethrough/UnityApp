@@ -21,6 +21,9 @@ using UnityEditor;
 #endif
 public class PlatformDummy : Platform
 {
+	const string STARTHEX_SCENE_NAME = "Assets/Scenes/Start Hex.unity";
+	const string SNACKRUN_SCENE_NAME = "Assets/Scenes/SnackRun.unity";
+
 
 	// Helper class for accessing the player's current position, speed and direction of movement
 	private PlayerPosition _localPlayerPosition;
@@ -48,96 +51,47 @@ public class PlatformDummy : Platform
 	
 	private string blobstore = "game-blob";
 	private string blobassets = "blob";
-
-    public float[] sensoriaSockPressure = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
 	
-	private PlayerOrientation playerOrientation = new PlayerOrientation();
 	private float oriYaw = 0.0f;
 	private float oriPitch = 0.0f;
 	const float lookSensitivity = 10.0f;
-	
-	private static PlatformDummy _instance;
-	
+		
 	private int sessionId = 0;
 	
-//	private bool initialised = false;	
-	private List<Game> games;
-	
-	/*
-	public static PlatformDummy Instance {
-		get 
-        {
-            if (_instance == null)
-            {
-                PlatformDummy[] pDummies = FindObjectsOfType(typeof(PlatformDummy)) as PlatformDummy[];
-                int count = pDummies.Length;
-                if (count >= 1)
-                {
-                    if (count > 1)
-                    {
-                        UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-                    }
-
-                    for (int i = 1; i < count; i++)
-                    {
-                        GameObject plat = GameObject.Find("PlatformDummy");
-                        Destroy(plat);
-                    }
-
-                    _instance = FindObjectOfType(typeof(PlatformDummy)) as PlatformDummy;
-                }
-
-                if (_instance == null)
-                {
-                    GameObject singleton = new GameObject();
-                    _instance = singleton.AddComponent<PlatformDummy>();
-                    singleton.name = "PlatformDummy"; // Used as target for messages
-
-                    DontDestroyOnLoad(singleton);
-                }                
-            }
-			
-			if (_instance != null)
-			{
-				if (_instance.initialised == false)
-				{
-					_instance.Initialize();
-				}
-			}
-            return _instance;
-		}
-	}
-	*/
-	private static bool applicationIsQuitting = false;
-
     public override bool OnGlass()
     {
-        return false;
+        return true;
     }
 	public override bool IsRemoteDisplay()
 	{
 		return true;
 	}
-	public override bool IsDisplayRemote ()
-	{
+    public override bool IsPluggedIn() {
 		return false;
-	}
-	
-	public void OnDestroy() 
-	{
-		applicationIsQuitting = true;
-	}
-
-    public override bool IsPluggedIn()
+	}	
+	public override bool HasInternet() {
+		return true;
+	}	
+	public override bool HasWifi() {
+		return false;
+	}	
+	public override bool IsDisplayRemote() {
+		return false;
+	}	
+	public override bool HasGpsProvider() {
+		return false;
+	}	
+    public override bool IsBluetoothBonded()
     {
         return false;
     }
+				
 	
 #if UNITY_EDITOR
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
     {
-		PlayWithSceneFlowExit("Assets/Scenes/Start Hex.unity", "Start Point");
+		PlayWithSceneFlowExit(STARTHEX_SCENE_NAME, "Start Point");
 	}
 
 	[MenuItem("Race Yourself/Play from current Scene, with flow at Game Intro %[")]
@@ -149,7 +103,7 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from SnackRun Scene, with flow at Game Intro %]")]
 	public static void PlayFromSnackRunscene()
 	{
-		PlayWithSceneFlowExit("Assets/Scenes/SnackRun.unity", "Game Intro");
+		PlayWithSceneFlowExit(SNACKRUN_SCENE_NAME, "Game Intro");
 	}
 	
 	protected static void PlayWithSceneFlowExit(string scene, string exit)
@@ -164,15 +118,19 @@ public class PlatformDummy : Platform
 		}
 		//play
 		EditorApplication.isPlaying = true;
-		//initialise objects for datastorage etc
-		InitForPreview playModePreparer = (InitForPreview)GameObject.FindObjectOfType(typeof(InitForPreview));
-		if(playModePreparer != null)
+
+		//initialise objects for flow, datastorage, UIScene etc, if this isn't startHex
+		if(scene != STARTHEX_SCENE_NAME)
 		{
-			playModePreparer.PrepareForPlayMode();
-		}
-		else
-		{
-			UnityEngine.Debug.LogError("PlatformDummy: Unable to initialise correctly for Play mode in editor. Ensure that a correctly configured InitForPreview component is present in the scene");
+			InitForPreview playModePreparer = (InitForPreview)GameObject.FindObjectOfType(typeof(InitForPreview));
+			if(playModePreparer != null)
+			{
+				playModePreparer.PrepareForPlayMode();
+			}
+			else
+			{
+				UnityEngine.Debug.LogError("PlatformDummy: Unable to initialise correctly for Play mode in editor. Ensure that a correctly configured InitForPreview component is present in the scene");
+			}
 		}
 
 	}
@@ -214,23 +172,17 @@ public class PlatformDummy : Platform
 			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
 			if (Application.isEditor) Directory.CreateDirectory(blobassets);
 			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
-			
-			games = new List<Game>();
-			games.Add(new Game("activity_monster",		"Giant Monster Challenge",	"activity_monster",		"run",	"You have woken up a giant monster - and he's hungry",	"Locked",	3,5000,4,	"N/A",		-2,0,	"Race Mode"));
-			games.Add(new Game("activity_press_up",		"Press-ups",				"activity_press_up",	"all",	"Learn the proper technique for press ups.",			"Locked",	3,5000,4,	"N/A",		-2,1,	"Race Mode"));
-			games.Add(new Game("activity_train",		"The train game",			"activity_train",		"all",	"There's a damsel in distress on the tracks - save her!","Locked",	0,10000,5,	"Snack",	-2,-1,	"TrainSnack"));
-			games.Add(new Game("activity_bike",			"Race Yourself",			"activity_bike",		"cycle","Cycle against your own avatar for points",				"Locked",	0,500,0,	"N/A",		-1,-1,	"Race Mode"));
-			games.Add(new Game("activity_boulder",		"Boulder Dash",				"activity_boulder",		"run",	"Run away from the boulder!",							"Locked",	1,1000,1,	"Snack",	-1,0,	"BoulderSnack"));
-			games.Add(new Game("activity_versus",		"Challenges",				"activity_versus",		"all",	"Race against your friends!",							"Unlocked",	1,5000,3,	"Challenge",-1,1,	"Race Mode"));
-			games.Add(new Game("activity_race_yourself","Race Yourself",			"activity_run",			"run",	"Race against your own avatar",							"Unlocked",	0,0,0,		"Race",		0,-1,	"Race Mode"));
-			games.Add(new Game("activity_achievement",	"Achievements",				"activity_achievement",	"run",	"View your achievements and progress",					"Locked",	2,5000,3,	"N/A",		0,1,	"Race Mode"));
-			games.Add(new Game("activity_bolt_level1",	"Beat Bolt",				"activity_bolt_level1",	"run",	"Try to beat Bolt's 100m time",							"Locked",	2,5000,3,	"Snack",	1,1,	"UsainSnack"));
-			games.Add(new Game("activity_zombie",		"Zombie mode",				"activity_zombie",		"all",	"How long can you survive against zombies?",			"Locked",	1,0,0,		"Snack",	1,-1,	"ZombieSnack"));
-			games.Add(new Game("activity_heart",		"Heart-rate monitor",		"activity_heart",		"all",	"Connect to a heart-rate monitor",						"Locked",	3,5000,4,	"N/A",		2,0,	"Race Mode"));
-			games.Add(new Game("activity_food_burn",	"Snack Run",				"activity_food_burn",	"all",	"Go on a fun run packed with mini games!",				"Unlocked",	1,0,0,		"Race",		1,0,	"SnackRun"));	
+				
+		
+			if (Application.isPlaying) {
+				db = DatabaseFactory.GetInstance();
+				api = new API(db);
+				sessionId = Sequence.Next("session", db);
+				MergeGamesList();
+			}
 			
 			if (!initialised) {
-		playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
+				playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
 		
 				initialised = true;
 			} else {
@@ -245,17 +197,43 @@ public class PlatformDummy : Platform
 	
 	protected override void PostInit() {
 		base.PostInit();
+	}
+	
+	private void MergeGamesList() {
+		var defaultGames = new List<Game>();
+		defaultGames.Add(new Game("activity_monster",		"Giant Monster Challenge",	"activity_monster",		"run",	"You have woken up a giant monster - and he's hungry",	"Locked",	3,5000,4,	"N/A",		-2,0,	"Race Mode"));
+		defaultGames.Add(new Game("activity_press_up",		"Press-ups",				"activity_press_up",	"all",	"Learn the proper technique for press ups.",			"Locked",	3,5000,4,	"N/A",		-2,1,	"Race Mode"));
+		defaultGames.Add(new Game("activity_train",			"The train game",			"activity_train",		"all",	"There's a damsel in distress on the tracks - save her!","Locked",	0,10000,5,	"Snack",	-2,-1,	"TrainSnack"));
+		defaultGames.Add(new Game("activity_bike",			"Race Yourself",			"activity_bike",		"cycle","Cycle against your own avatar for points",				"Locked",	0,500,0,	"N/A",		-1,-1,	"Race Mode"));
+		defaultGames.Add(new Game("activity_boulder",		"Boulder Dash",				"activity_boulder",		"run",	"Run away from the boulder!",							"Locked",	1,1000,1,	"Snack",	-1,0,	"BoulderSnack"));
+		defaultGames.Add(new Game("activity_versus",		"Challenges",				"activity_versus",		"all",	"Race against your friends!",							"Unlocked",	1,5000,3,	"Challenge",-1,1,	"Race Mode"));
+		defaultGames.Add(new Game("activity_race_yourself",	"Race Yourself",			"activity_run",			"run",	"Race against your own avatar",							"Unlocked",	0,0,0,		"Race",		0,-1,	"Race Mode"));
+		defaultGames.Add(new Game("activity_achievement",	"Achievements",				"activity_achievement",	"run",	"View your achievements and progress",					"Locked",	2,5000,3,	"N/A",		0,1,	"Race Mode"));
+		defaultGames.Add(new Game("activity_bolt_level1",	"Beat Bolt",				"activity_bolt_level1",	"run",	"Try to beat Bolt's 100m time",							"Locked",	2,5000,3,	"Snack",	1,1,	"UsainSnack"));
+		defaultGames.Add(new Game("activity_zombie",		"Zombie mode",				"activity_zombie",		"all",	"How long can you survive against zombies?",			"Locked",	1,0,0,		"Snack",	1,-1,	"ZombieSnack"));
+		defaultGames.Add(new Game("activity_heart",			"Heart-rate monitor",		"activity_heart",		"all",	"Connect to a heart-rate monitor",						"Locked",	3,5000,4,	"N/A",		2,0,	"Race Mode"));
+		defaultGames.Add(new Game("activity_food_burn",		"Snack Run",				"activity_food_burn",	"all",	"Go on a fun run packed with mini games!",				"Unlocked",	1,0,0,		"Race",		1,0,	"SnackRun"));	
 		
-		if (Application.isPlaying) {
-			db = DatabaseFactory.GetInstance();
-			api = new API(db);
-			sessionId = Sequence.Next("session", db);
+		var games = GetGames();
+		// Add default games
+		foreach (var game in defaultGames) {
+			if (!games.Exists(g => g.gameId == game.gameId)) {
+				games.Add(game);
+				db.StoreObject(game);
+			}
+		}
+		// Remove non-default games
+		foreach (var game in games) {
+			if (!defaultGames.Exists(g => g.gameId == game.gameId)) {
+				games.Remove(game);
+				db.Delete(game);
+			}
 		}
 	}
 	
     public override Device Device()
     {
-		return db.Cast<Device>().Where(d => d.self == true).First();
+		return db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
     }
 
 	
@@ -345,6 +323,8 @@ public class PlatformDummy : Platform
 	}
 	
 	public override List<Game> GetGames() {
+		// TODO: Change signature to IList<Game>
+		var games = new List<Game>(db.LoadAll<Game>());
 		return games;
 	}
 	
@@ -493,6 +473,7 @@ public class PlatformDummy : Platform
 	
 	public override void Update ()
 	{	
+		base.Update();		
 		if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
 		{
 			//check for input and update player orientation as appropriate

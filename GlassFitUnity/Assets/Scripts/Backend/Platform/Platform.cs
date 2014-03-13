@@ -27,7 +27,7 @@ public abstract class Platform : MonoBehaviour {
 
 	// Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via Unity Messages.
 	// This should probably move into PlayerPosition at some point..
-	internal float playerStateEntryTime = UnityEngine.Time.time;
+	internal float playerStateEntryTime;
 	internal string playerState = "";
 
 	protected float yaw = -999.0f;
@@ -61,10 +61,6 @@ public abstract class Platform : MonoBehaviour {
 	public OnRegistered onDeviceRegistered = null;
 	public delegate void OnGroupCreated(int groupId);
 	public OnGroupCreated onGroupCreated = null;
-	
-	// The current user and device
-	protected User user = null;
-	protected Device device = null;
 	
 	protected static Platform _instance;
 	protected static Type platformType;
@@ -143,7 +139,8 @@ public abstract class Platform : MonoBehaviour {
 	
 	protected static bool applicationIsQuitting = false;
 	
-	public void OnDestroy() {
+	public virtual void OnDestroy() {
+		log.info("OnDestroy");
 		applicationIsQuitting = true;
 	}
 	
@@ -362,20 +359,20 @@ public abstract class Platform : MonoBehaviour {
 			else track = null;
 		} 
 		if (track == null) DataVault.Remove("current_track");
-		if (json["race_type"] != null) DataVault.Set("race_type", json["race_type"] as string);
+		if (json["race_type"] != null) DataVault.Set("race_type", json["race_type"].Value);
 		else DataVault.Remove("race_type");
-		if (json["type"] != null) DataVault.Set("type", json["type"] as string);
+		if (json["type"] != null) DataVault.Set("type", json["type"].Value);
 		else DataVault.Remove("type");
 		if (json["finish"] != null) DataVault.Set("finish", json["finish"].AsInt);
 		else DataVault.Remove("finish");
 		if (json["lower_finish"] != null) DataVault.Set("lower_finish", json["lower_finish"].AsInt);
 		else DataVault.Remove("lower_finish");
-		if (json["challenger"] != null) DataVault.Set("challenger", json["challenger"] as string);
+		if (json["challenger"] != null) DataVault.Set("challenger", json["challenger"].Value);
 		else DataVault.Remove("challenger");
 		if (json["current_game_id"] != null)
 		{
 			UnityEngine.Debug.Log("Bluetooth: Current Game ID received: " + json["current_game_id"]);
-			DataVault.Set("current_game_id", json["current_game_id"] as string);
+			DataVault.Set("current_game_id", json["current_game_id"].Value);
 		}
 		else DataVault.Remove("current_game_id");
 		JSONNode challengeNotification = json["current_challenge_notification"];
@@ -442,6 +439,10 @@ public abstract class Platform : MonoBehaviour {
 	public virtual bool HasGpsProvider() {
 		throw new NotImplementedException();
 	}
+
+	public virtual bool IsBluetoothBonded() {
+		throw new NotImplementedException();
+	}
 	
 
 	
@@ -475,11 +476,6 @@ public abstract class Platform : MonoBehaviour {
 		throw new NotImplementedException();
 	}
 	
-	protected void ExportCSV() {
-		throw new NotImplementedException();
-	}
-	
-
 	public virtual Track FetchTrack(int deviceId, int trackId) {
 		throw new NotImplementedException();
 	}
@@ -546,7 +542,7 @@ public abstract class Platform : MonoBehaviour {
 	}
 	
 	public virtual void Update() {
-		throw new NotImplementedException();
+		if (PlayerPoints != null) PlayerPoints.Update();
 	}	
 	
 	public virtual void Poll() {

@@ -18,7 +18,7 @@ public class PlayerController : MonoBehaviour {
 	
 	private bool jump = false;
 	
-	private Collider collider;
+	private new Collider collider;
 	
 	// Use this for initialization
 	void Start () {

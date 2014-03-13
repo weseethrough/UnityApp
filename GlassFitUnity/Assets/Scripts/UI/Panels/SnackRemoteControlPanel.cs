@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System;
 
+using RaceYourself.Models;
+
 [Serializable]
 public class SnackRemoteControlPanel : HexPanel {
 	

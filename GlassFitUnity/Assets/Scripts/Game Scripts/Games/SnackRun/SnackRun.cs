@@ -21,7 +21,7 @@ public class SnackRun : GameBase {
 	protected AudioSource whooshOutSound = null;
 	
 	// Use this for initialization
-	void Start() {
+	public override void Start() {
 		
 		if( !Platform.Instance.LocalPlayerPosition.IsIndoor() )
 		{
@@ -55,7 +55,7 @@ public class SnackRun : GameBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		float playerDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		if( !snackActive && playerDistance > nextSnackDistance )
 		{

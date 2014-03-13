@@ -44,7 +44,7 @@ public class Log
 	}
 
 	private long tic() {
-		return (int)(timer.ElapsedMilliseconds * 1000);
+		return timer.ElapsedMilliseconds;
 	}
 }
 

@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using RaceYourself.Models;
+
 public class ModeLogoController : UIComponentSettings {
 	
 	public string gameIDKey = "current_game_id";

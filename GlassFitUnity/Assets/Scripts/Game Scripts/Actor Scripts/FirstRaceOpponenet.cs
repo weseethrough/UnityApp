@@ -35,7 +35,7 @@ public class FirstRaceOpponenet : TargetController {
 	protected float totalDistance = 1.0f;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		anim = GetComponent<Animator>();
 		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
 		lane = 1;
@@ -72,7 +72,7 @@ public class FirstRaceOpponenet : TargetController {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		//set the animation speed
 		SetAnimSpeed(currentMovementSpeed);
 		

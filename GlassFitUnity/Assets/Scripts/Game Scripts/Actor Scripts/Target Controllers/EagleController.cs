@@ -25,7 +25,7 @@ public class EagleController : TargetController {
 	/// <summary>
 	/// Start this instance. Initialises attributes and animation
 	/// </summary>
-	void Start () {
+	public override void Start () {
 		// Start the base and get the animator.
 		base.Start();
 		anim = GetComponent<Animator>();
@@ -41,7 +41,7 @@ public class EagleController : TargetController {
 	/// <summary>
 	/// Raises the enable event. Sets the attributes
 	/// </summary>
-	void OnEnable() {
+	public override void OnEnable() {
 		// Enable the base and set the attributes
 		base.OnEnable();
 		//StartCoroutine(FlyingMovement(20));
@@ -51,7 +51,7 @@ public class EagleController : TargetController {
 	/// <summary>
 	/// Controls the movement
 	/// </summary>
-	void Update () {
+	public override void Update () {
 		// Update the base.
 		base.Update();
 		

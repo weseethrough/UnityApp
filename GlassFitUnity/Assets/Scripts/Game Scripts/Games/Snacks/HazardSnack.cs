@@ -6,7 +6,7 @@ public class HazardSnack : SnackBase {
 	GestureHelper.ThreeFingerTap threeHandler = null;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 	
 	}
 	
@@ -27,7 +27,7 @@ public class HazardSnack : SnackBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 	
 	}
 	

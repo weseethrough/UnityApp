@@ -374,65 +374,45 @@ public class HexPanel : Panel
 		{
 		case 0:
 			return new Vector2i(0,0);
-			break;
 		case 1:
 			return new Vector2i(0,-1);
-			break;
 		case 2:
 			return new Vector2i(1,0);
-			break;
 		case 3:
 			return new Vector2i(0,1);
-			break;
 		case 4:
 			return new Vector2i(-1,1);
-			break;
 		case 5:
 			return new Vector2i(-1,0);
-			break;
 		case 6:
 			return new Vector2i(-1,0);
-			break;
 		case 7:
 			return new Vector2i(0,-2);
-			break;
 		case 8:
 			return new Vector2i(1,-2);
-			break;
 		case 9:
 			return new Vector2i(1,-1);
-			break;
 		case 10:
 			return new Vector2i(2,0);
-			break;
 		case 11:
 			return new Vector2i(1,1);
-			break;
 		case 12:
 			return new Vector2i(1,2);
-			break;
 		case 13:
 			return new Vector2i(0,2);
-			break;
 		case 14:
 			return new Vector2i(-1,2);
-			break;
 		case 15:
 			return new Vector2i(-2,1);
-			break;
 		case 16:
 			return new Vector2i(-2,0);
-			break;
 		case 17:
 			return new Vector2i(-2,-1);
-			break;			
 		case 18:
 			return new Vector2i(-1,-2);
-			break;			
 		default:
 			UnityEngine.Debug.LogError("HexPanel: Spiral index not yet defined for index " + i);
 			return new Vector2i(-1,-3);
-			break;
 		}
 	}
 }
