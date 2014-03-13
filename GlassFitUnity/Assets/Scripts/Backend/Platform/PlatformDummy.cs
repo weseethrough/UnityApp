@@ -253,7 +253,9 @@ public class PlatformDummy : Platform
 	}
 
 	public override void Authorize(string provider, string permissions) {
-		StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
+		if (Application.isPlaying) {
+			StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
+		}
 	}
 	
 	public override bool HasPermissions(string provider, string permissions) {
@@ -461,13 +463,19 @@ public class PlatformDummy : Platform
 		return new string[0];
 	}
 	
-	public override void BluetoothBroadcast (JSONObject json)
+	public override void BluetoothBroadcast (string json)
 	{
+		try {
+			SimpleJSON.JSON.Parse(json);
+			log.info("BluetoothBroadcast: " + json);		
+		} catch (Exception) {
+			log.error("BluetoothBroadcast: could not parse json!");
+		}
 		return;
 	}
 	
-	public override void LogAnalytics (JSONObject json) {
-		var e = new RaceYourself.Models.Event(json.ToString(), sessionId);
+	public override void LogAnalytics (string json) {
+		var e = new RaceYourself.Models.Event(json, sessionId);
 		db.StoreObject(e);
 	}
 	

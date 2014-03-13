@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System;
 
+using SimpleJSON;
 using RaceYourself.Models;
 
 [Serializable]
@@ -71,10 +72,10 @@ public class SnackRemoteControlPanel : HexPanel {
 		//send a bluetooth message to start the game
 		string gameID = button.name;
 		
-        JSONObject json = new JSONObject();
-		json.AddField("action", "InitiateSnack");
-		json.AddField("snack_gameID", button.name);
-		Platform.Instance.BluetoothBroadcast(json);
+        JSONClass json = new JSONClass();
+		json.Add("action", "InitiateSnack");
+		json.Add("snack_gameID", button.name);
+		Platform.Instance.BluetoothBroadcast(json.ToString());
 		MessageWidget.AddMessage("Bluetooth", "Launching Snack on Glass", "settings");
 		
 		UnityEngine.Debug.Log("SnackRemote: Launching snack " + button.name);

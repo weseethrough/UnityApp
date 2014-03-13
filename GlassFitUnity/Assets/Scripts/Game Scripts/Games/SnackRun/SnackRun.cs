@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using SimpleJSON;
+
 public class SnackRun : GameBase {
 	
 	protected SnackController snackController = null;
@@ -169,9 +171,9 @@ public class SnackRun : GameBase {
 		if(Platform.Instance.IsRemoteDisplay())
 		{
 			UnityEngine.Debug.Log("SnackRun: Sending Bluetooth message that snack has ended");
-			JSONObject json = new JSONObject();
-			json.AddField("action", "OnSnackFinished");
-			Platform.Instance.BluetoothBroadcast(json);		
+			JSONClass json = new JSONClass();
+			json.Add("action", "OnSnackFinished");
+			Platform.Instance.BluetoothBroadcast(json.ToString());		
 		}
 	}
 	
@@ -180,9 +182,9 @@ public class SnackRun : GameBase {
 		//send Bluetooth message to Remote, if applicable
 		if(Platform.Instance.IsRemoteDisplay())
 		{
-	        JSONObject json = new JSONObject();
-			json.AddField("action", "ReturnToMainMenu");
-			Platform.Instance.BluetoothBroadcast(json);		
+	        JSONClass json = new JSONClass();
+			json.Add("action", "ReturnToMainMenu");
+			Platform.Instance.BluetoothBroadcast(json.ToString());		
 		}
 			
 		base.OnFinishedGame ();

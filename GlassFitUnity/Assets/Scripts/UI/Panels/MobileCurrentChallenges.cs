@@ -259,7 +259,6 @@ public class MobileCurrentChallenges : MobilePanel
                             if (string.Equals(notification.message.type, "challenge"))
                             {
                                 int challengerId = notification.message.from;
-                                if (challengerId == null) continue;
                                 string challengeId = notification.message.challenge_id;
                                 if (challengeId == null || challengeId.Length == 0) continue;
                                 Challenge potential = Platform.Instance.FetchChallenge(challengeId);

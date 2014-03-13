@@ -125,6 +125,7 @@ public abstract class Platform : MonoBehaviour {
 				// make sure the instance is initialized before returning
 				while (instance.initialised == false)
                 {
+					if (applicationIsQuitting) return null;
                     //yield return null;
 					continue;
                 }
@@ -146,6 +147,16 @@ public abstract class Platform : MonoBehaviour {
 	
 	public virtual void Awake()
     {
+		if (gameObject != null && gameObject.name != "New Game Object") 
+		{
+			log.error("Scene " + Application.loadedLevelName + " contains a platform gameobject called " + gameObject.name + ", quitting..");
+//			DestroyImmediate(gameObject); // Doesn't always work, force developer to manually fix scene
+			Application.Quit();
+#if UNITY_EDITOR
+    		UnityEditor.EditorApplication.isPlaying = false;
+#endif			
+			return;
+		}
 		if (initialised == false)
         {
 			playerStateEntryTime = UnityEngine.Time.time;
@@ -582,7 +593,7 @@ public abstract class Platform : MonoBehaviour {
 	/// <param name='json'>
 	/// Json-encoded event values such as current game state, what the user action was etc
 	/// </param>
-	public virtual void LogAnalytics(JSONObject json)
+	public virtual void LogAnalytics(string json)
 	{
 		throw new NotImplementedException();
 	}
@@ -622,7 +633,7 @@ public abstract class Platform : MonoBehaviour {
 		throw new NotImplementedException();
 	}
 	
-	public virtual void BluetoothBroadcast(JSONObject json) {
+	public virtual void BluetoothBroadcast(string json) {
 		throw new NotImplementedException();
 	}
 

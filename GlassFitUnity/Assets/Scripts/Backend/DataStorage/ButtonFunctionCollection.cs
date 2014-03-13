@@ -282,11 +282,7 @@ public class ButtonFunctionCollection
 	/// </param>
     static public bool SetGameDesc(FlowButton fb, FlowState panel)
 	{
-#if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
-#else
-        List<Game> games = Platform.Instance.GetGames();
-#endif
 		
 		for(int i=0; i < games.Count; i++)
 		{
