@@ -138,6 +138,12 @@ public class PlatformDummy : Platform
 		applicationIsQuitting = true;
 	}
 	
+    public override bool IsBluetoothBonded()
+    {
+        return false;
+    }
+				
+	
 #if UNITY_EDITOR
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()

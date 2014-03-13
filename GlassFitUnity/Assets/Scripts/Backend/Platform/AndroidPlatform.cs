@@ -221,6 +221,16 @@ public class AndroidPlatform : Platform
 			return false;
 		}
 	}
+
+    public virtual bool IsBluetoothBonded()
+    {
+        try {
+            return helper.Call<bool>("isBluetoothBonded");
+        } catch (Exception e) {
+            log.error("Error calling isBluetoothBonded over JNI " + e.Message);
+            return false;
+        }
+    }
 	
 
 	

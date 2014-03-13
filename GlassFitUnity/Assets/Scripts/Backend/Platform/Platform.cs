@@ -438,6 +438,10 @@ public abstract class Platform : MonoBehaviour {
 	public virtual bool HasGpsProvider() {
 		throw new NotImplementedException();
 	}
+
+	public virtual bool IsBluetoothBonded() {
+		throw new NotImplementedException();
+	}
 	
 
 	
