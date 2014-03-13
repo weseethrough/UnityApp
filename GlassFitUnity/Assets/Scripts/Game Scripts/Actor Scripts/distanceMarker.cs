@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// Sets the distance markers
 /// </summary>
-public class DistanceMarker : MonoBehaviour {
+public class distanceMarker : MonoBehaviour {
 	
 	private int target = 500;
 	

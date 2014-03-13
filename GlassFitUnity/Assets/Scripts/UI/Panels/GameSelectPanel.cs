@@ -5,6 +5,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
+using RaceYourself.Models;
+
 [Serializable]
 public class GameSelectPanel : HexPanel 
 {

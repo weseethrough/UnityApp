@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using RaceYourself.Models;
+
 public class PurchaseListener : MonoBehaviour {
 	
 	private GestureHelper.OnTap tapHandler = null;
