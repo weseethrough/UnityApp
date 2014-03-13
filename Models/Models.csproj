@@ -63,6 +63,7 @@
     <Compile Include="Jsonable.cs" />
     <Compile Include="JsonStringConverter.cs" />
     <Compile Include="ObjectIdConverter.cs" />
+    <Compile Include="Models\Game.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="JsonDotNet">

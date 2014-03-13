@@ -417,7 +417,7 @@ public class AndroidPlatform : Platform
 				for(int i=0; i<size; i++)
 				{
 					AndroidJavaObject javaGame = javaGameList.Call<AndroidJavaObject>("get", i);
-					Game csGame = new Game();
+					AndroidGame csGame = new AndroidGame();
 					csGame.Initialise(javaGame);
 					gameList.Add(csGame);
 				}
@@ -572,9 +572,8 @@ public class AndroidPlatform : Platform
 	}
 	
 	public override void Update() {
+		base.Update();
 		//UnityEngine.Debug.Log("Platform: updating");
-		if (device == null) device = Device();
-		if (user == null) user = User();
 		//UnityEngine.Debug.Log("Platform: about to sync");
 //		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval && IsPluggedIn()) {
 //			//UnityEngine.Debug.Log("Platform: about to sync properly");

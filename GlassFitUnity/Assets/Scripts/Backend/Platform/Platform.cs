@@ -27,7 +27,7 @@ public abstract class Platform : MonoBehaviour {
 
 	// Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via Unity Messages.
 	// This should probably move into PlayerPosition at some point..
-	internal float playerStateEntryTime = UnityEngine.Time.time;
+	internal float playerStateEntryTime;
 	internal string playerState = "";
 
 	protected float yaw = -999.0f;
@@ -61,10 +61,6 @@ public abstract class Platform : MonoBehaviour {
 	public OnRegistered onDeviceRegistered = null;
 	public delegate void OnGroupCreated(int groupId);
 	public OnGroupCreated onGroupCreated = null;
-	
-	// The current user and device
-	protected User user = null;
-	protected Device device = null;
 	
 	protected static Platform _instance;
 	protected static Type platformType;
@@ -550,7 +546,7 @@ public abstract class Platform : MonoBehaviour {
 	}
 	
 	public virtual void Update() {
-		throw new NotImplementedException();
+		if (PlayerPoints != null) PlayerPoints.Update();
 	}	
 	
 	public virtual void Poll() {
