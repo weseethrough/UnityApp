@@ -257,7 +257,7 @@ public class ButtonFunctionCollection
 		#if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
 #else
-		List<Game> games = PlatformDummy.Instance.GetGames();
+        List<Game> games = Platform.Instance.GetGames();
 		return false;
 #endif
 		for(int i=0; i < games.Count; i++)
@@ -291,7 +291,7 @@ public class ButtonFunctionCollection
 #if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
 #else
-		List<Game> games = PlatformDummy.Instance.GetGames();
+        List<Game> games = Platform.Instance.GetGames();
 #endif
 		
 		for(int i=0; i < games.Count; i++)

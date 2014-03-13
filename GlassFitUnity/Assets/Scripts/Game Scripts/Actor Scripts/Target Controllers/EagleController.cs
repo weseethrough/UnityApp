@@ -59,7 +59,7 @@ public class EagleController : TargetController {
 #if !UNITY_EDITOR
 		float realDist = (float)target.GetDistanceBehindTarget() - (float)distanceOffset;
 #else
-		float realDist = (float)PlatformDummy.Instance.DistanceBehindTarget() - (float)distanceOffset;
+        float realDist = (float)Platform.Instance.DistanceBehindTarget() - (float)distanceOffset;
 #endif
 		if(realDist < -49)
 		{
@@ -92,7 +92,7 @@ public class EagleController : TargetController {
 #if !UNITY_EDITOR
 			float time = -realDist / target.PollCurrentSpeed();
 #else
-			float time = -realDist / PlatformDummy.Instance.GetTargetSpeed();
+            float time = -realDist / Platform.Instance.GetTargetSpeed();
 #endif
 			// Then calculate the speed of descent.
 			speed = height / time;
