@@ -54,7 +54,8 @@ public class PlatformDummy : Platform
 	private PlayerOrientation playerOrientation = new PlayerOrientation();
 	private float oriYaw = 0.0f;
 	private float oriPitch = 0.0f;
-	const float lookSensitivity = 10.0f;
+	private float oriRoll = 0.0f;
+	const float lookSensitivity = 5.0f;
 	
 	private static PlatformDummy _instance;
 	
@@ -493,21 +494,29 @@ public class PlatformDummy : Platform
 	
 	public override void Update ()
 	{	
+		float x = Input.GetAxis("Mouse X");
+		float y = Input.GetAxis("Mouse Y");
+
+		//check for input and update player orientation as appropriate
+		if(Input.GetKey(KeyCode.Z))
+	    {
+			//pitch/roll camera for z
+			oriRoll -= x * lookSensitivity;
+			oriPitch += y * lookSensitivity;
+		}
 		if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
 		{
-			//check for input and update player orientation as appropriate
-			float x = Input.GetAxis("Mouse X");
-			float y = Input.GetAxis("Mouse Y");
-			
+			//pitch/yaw camera for shift
 			oriYaw -= x * lookSensitivity;
 			oriPitch += y * lookSensitivity;
 			
-			//construct quaternion and update player ori
-			Quaternion fromForward = Quaternion.Euler(oriPitch, oriYaw, 0.0f);
-			Quaternion fromDown = Quaternion.FromToRotation(Vector3.down,Vector3.forward) * fromForward;
-			
-			playerOrientation.Update(fromDown);
 		}
+
+		//construct quaternion and update player ori
+		Quaternion fromForward = Quaternion.Euler(oriPitch, oriYaw, oriRoll);
+		Quaternion fromDown = Quaternion.FromToRotation(Vector3.down,Vector3.forward) * fromForward;
+		playerOrientation.Update(fromDown);
+		
 	}
 	
 	public override Vector2? GetTouchInput ()
