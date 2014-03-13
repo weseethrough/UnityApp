@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using SimpleJSON;
 
@@ -65,24 +66,26 @@ public class LoadingScreen : MonoBehaviour {
 		
 		if (Platform.Instance.IsDisplayRemote()) {
 			//send bluetooth message to load the mode.
-            JSONObject json = new JSONObject();
-			json.AddField("action", "LoadLevelAsync");
+            JSONClass json = new JSONClass();
+			json.Add("action", "LoadLevelAsync");
 			
-			JSONObject data = new JSONObject();
-			if (track != null) data.AddField("current_track", JsonConvert.SerializeObject(track));
-			else data.AddField("current_track", (JSONObject)null);
-			data.AddField("race_type", raceType);
-			if (DataVault.Get("type") != null) data.AddField("type", DataVault.Get("type") as string);
-			if (DataVault.Get("finish") != null) data.AddField("finish", (int)DataVault.Get("finish"));
-			if (DataVault.Get("lower_finish") != null) data.AddField("lower_finish", (int)DataVault.Get("lower_finish"));
-			if (DataVault.Get("challenger") != null) data.AddField("challenger", DataVault.Get("challenger") as string);
-			if (DataVault.Get("current_challenge_notification") != null) data.AddField("current_challenge_notification", (DataVault.Get("current_challenge_notification") as ChallengeNotification).AsJson);
+			JSONClass data = new JSONClass();
+			if (track != null) data.Add("current_track", JsonConvert.SerializeObject(track));
+			else data.Add("current_track", null);
+			data.Add("race_type", raceType);
+			if (DataVault.Get("type") != null) data.Add("type", DataVault.Get("type") as string);
+			if (DataVault.Get("finish") != null) data.Add("finish", (int)DataVault.Get("finish"));
+			if (DataVault.Get("lower_finish") != null) data.Add("lower_finish", (int)DataVault.Get("lower_finish"));
+			if (DataVault.Get("challenger") != null) data.Add("challenger", DataVault.Get("challenger") as string);
+			if (DataVault.Get("current_challenge_notification") != null) {
+				data.Add("current_challenge_notification", JsonConvert.SerializeObject(DataVault.Get("current_challenge_notification") as ChallengeNotification));
+			}
 			string currentGame = (string)DataVault.Get("current_game_id");
 			UnityEngine.Debug.Log("Triggering load: game id = " + currentGame);
-			if (DataVault.Get("current_game_id") != null) data.AddField("current_game_id", DataVault.Get("current_game_id") as string);
+			if (DataVault.Get("current_game_id") != null) data.Add("current_game_id", DataVault.Get("current_game_id") as string);
 			
-			json.AddField("data", data);
-			Platform.Instance.BluetoothBroadcast(json);
+			json.Add("data", data);
+			Platform.Instance.BluetoothBroadcast(json.ToString());
 			MessageWidget.AddMessage("Bluetooth", "Started game on Glass", "settings");
 			
 			

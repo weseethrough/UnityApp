@@ -32,7 +32,7 @@ public abstract class FlowState : GNode
 		GConnector gc = fs.Outputs.Find( r => r.Name == linkName);
 		if(gc != null)
 		{
-			if(gc.EventFunction.Length > 0 && gc.EventFunction != "") {
+			if(gc.EventFunction != null && gc.EventFunction.Length > 0 && gc.EventFunction != "") {
 				(gc.Parent as Panel).CallStaticFunction(gc.EventFunction, null);
 			}
 			

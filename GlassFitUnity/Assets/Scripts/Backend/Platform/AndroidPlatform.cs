@@ -656,11 +656,11 @@ public class AndroidPlatform : Platform
 	/// <param name='json'>
 	/// Json-encoded event values such as current game state, what the user action was etc
 	/// </param>
-	public override void LogAnalytics(JSONObject json)
+	public override void LogAnalytics(string json)
 	{
 		try
 		{
-			helper.CallStatic("logEvent", json.ToString());
+			helper.CallStatic("logEvent", json);
 			UnityEngine.Debug.Log("Platform: logged analytic event " + json.ToString());
 		}
 		catch (Exception e)
@@ -755,10 +755,10 @@ public class AndroidPlatform : Platform
 		}
 	}
 	
-	public override void BluetoothBroadcast(JSONObject json) {
+	public override void BluetoothBroadcast(string json) {
 		try
 		{
-			activity.Call("broadcast", json.ToString());
+			activity.Call("broadcast", json);
 			UnityEngine.Debug.Log("Platform: broadcasted Bluetooth message: " + json.ToString());
 		}
 		catch (Exception e)

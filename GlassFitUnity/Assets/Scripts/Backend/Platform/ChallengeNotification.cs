@@ -91,11 +91,5 @@ public class ChallengeNotification {
 		{
 			return null;
 		}
-	}
-	
-	public virtual JSONObject AsJson {
-		get {
-			return new JSONObject();
-		}
-	}
+	}	
 }
