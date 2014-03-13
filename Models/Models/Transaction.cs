@@ -20,8 +20,8 @@ namespace RaceYourself.Models
 		public int transactionId;
 		public int user_id;
 
-		public int points_delta;
-		public int points_balance;
+		public long points_delta;
+		public long points_balance;
 		public int gems_delta;
 		public int gems_balance;
 		public float metabolism_delta;
