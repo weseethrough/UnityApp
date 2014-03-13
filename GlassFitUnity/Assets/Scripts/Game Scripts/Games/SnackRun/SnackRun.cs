@@ -25,7 +25,7 @@ public class SnackRun : GameBase {
 		
 		if( !Platform.Instance.LocalPlayerPosition.IsIndoor() )
 		{
-			nextSnackDistance = Application.isEditor? 10f : 50.0f;
+			nextSnackDistance = Application.isEditor || Platform.Instance.LocalPlayerPosition.IsIndoor() ? 10f : 50.0f;
 			snackInterval = Application.isEditor? 20f : 100.0f;
 		}
 		

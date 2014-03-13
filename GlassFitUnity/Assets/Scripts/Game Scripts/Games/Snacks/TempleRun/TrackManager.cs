@@ -6,6 +6,8 @@ public class TrackManager : MonoBehaviour {
 
 	protected List<TrackPiece> trackPieces = new List<TrackPiece>();
 	protected List<TrackPiece> piecePrototypes;
+
+	public HazardSnack mainSnack;
 	public GameObject piecePrototypeRoot;
 	Log log;
 	const float GRID_SIZE = 10.0f;
@@ -14,6 +16,12 @@ public class TrackManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		log = new Log("TrackManager");
+
+		mainSnack = (HazardSnack)FindObjectOfType(typeof(HazardSnack));
+		if(mainSnack == null)
+		{
+			log.error("Couldn't find main snack");
+		}
 
 		if(piecePrototypeRoot == null)
 		{
@@ -77,7 +85,8 @@ public class TrackManager : MonoBehaviour {
 
 		//instantiate and initialise
 		TrackPiece newPiece = (TrackPiece)Instantiate(prototype);
-		float newPiecePos = 0.0f;
+		//place at player current distance
+		float newPiecePos = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		if(trackPieces.Count > 0)
 		{
 			TrackPiece lastTrackPiece = trackPieces[trackPieces.Count-1];
@@ -94,11 +103,13 @@ public class TrackManager : MonoBehaviour {
 	void Update () {
 		TrackPiece toRemove = null;
 
+		log.info("Player Distance: " + Platform.Instance.LocalPlayerPosition.Distance);
+
 		//find track piece behind the player
 		foreach(TrackPiece piece in trackPieces)
 		{
 			if(Platform.Instance.LocalPlayerPosition.Distance - piece.GetDistance() > GRID_SIZE)
-			{
+			{	
 				toRemove = piece;
 			}
 		}

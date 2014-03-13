@@ -217,14 +217,14 @@ public class PlatformDummy : Platform
 			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 			
 			games = new List<Game>();
-			games.Add(new Game("activity_monster",		"Giant Monster Challenge",	"activity_monster",		"run",	"You have woken up a giant monster - and he's hungry",	"Locked",	3,5000,4,	"N/A",		-2,0,	"Race Mode"));
-			games.Add(new Game("activity_diamond",		"Temple Run",				"activity_diamond",		"all",	"Escape with the idol!",								"Unlocked",	3,5000,4,	"Snack",	-2,1,	"HazardRun"));
+			games.Add(new Game("activity_monster",		"T-Rex",					"activity_monster",		"run",	"You have woken up a giant monster - and he's hungry",	"Locked",	3,5000,4,	"N/A",		-2,0,	"Race Mode"));
+			games.Add(new Game("activity_press_up",		"Press-ups",				"activity_press_up",	"all",	"Learn the proper technique for press ups.",			"Locked",	3,5000,5,	"N/A",		-2,1,	"Race Mode"));
 			games.Add(new Game("activity_train",		"The train game",			"activity_train",		"all",	"There's a damsel in distress on the tracks - save her!","Locked",	0,10000,5,	"Snack",	-2,-1,	"TrainSnack"));
 			games.Add(new Game("activity_bike",			"Race Yourself",			"activity_bike",		"cycle","Cycle against your own avatar for points",				"Locked",	0,500,0,	"N/A",		-1,-1,	"Race Mode"));
 			games.Add(new Game("activity_boulder",		"Boulder Dash",				"activity_boulder",		"run",	"Run away from the boulder!",							"Locked",	1,1000,1,	"Snack",	-1,0,	"BoulderSnack"));
 			games.Add(new Game("activity_versus",		"Challenges",				"activity_versus",		"all",	"Race against your friends!",							"Unlocked",	1,5000,3,	"Challenge",-1,1,	"Race Mode"));
 			games.Add(new Game("activity_race_yourself","Race Yourself",			"activity_run",			"run",	"Race against your own avatar",							"Unlocked",	0,0,0,		"Race",		0,-1,	"Race Mode"));
-			games.Add(new Game("activity_achievement",	"Achievements",				"activity_achievement",	"run",	"View your achievements and progress",					"Locked",	2,5000,3,	"N/A",		0,1,	"Race Mode"));
+			games.Add(new Game("activity_diamond",		"Temple Run",				"activity_diamond",		"all",	"Escape with the idol!",								"Unlocked",	3,5000,4,	"Snack",	0,1,	"HazardRun"));
 			games.Add(new Game("activity_bolt_level1",	"Beat Bolt",				"activity_bolt_level1",	"run",	"Try to beat Bolt's 100m time",							"Locked",	2,5000,3,	"Snack",	1,1,	"UsainSnack"));
 			games.Add(new Game("activity_zombie",		"Zombie mode",				"activity_zombie",		"all",	"How long can you survive against zombies?",			"Locked",	1,0,0,		"Snack",	1,-1,	"ZombieSnack"));
 			games.Add(new Game("activity_heart",		"Heart-rate monitor",		"activity_heart",		"all",	"Connect to a heart-rate monitor",						"Locked",	3,5000,4,	"N/A",		2,0,	"Race Mode"));
