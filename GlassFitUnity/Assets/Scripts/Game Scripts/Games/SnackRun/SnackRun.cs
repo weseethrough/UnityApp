@@ -59,7 +59,7 @@ public class SnackRun : GameBase {
 		float playerDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		if( !snackActive && playerDistance > nextSnackDistance )
 		{
-			OfferPlayerSnack("activity_diamond");
+			OfferPlayerSnack();
 		}
 		
 		base.Update();
@@ -84,6 +84,7 @@ public class SnackRun : GameBase {
 	public void OfferPlayerSnack(string gameID)
 	{
 		StartCoroutine(DoSpecificSnackOffer(gameID));
+		snackActive = true;
 	}
 	
 	IEnumerator DoSpecificSnackOffer(string gameID)

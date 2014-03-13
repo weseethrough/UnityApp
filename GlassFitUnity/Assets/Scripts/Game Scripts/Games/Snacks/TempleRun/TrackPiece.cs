@@ -4,7 +4,7 @@ using System.Collections;
 public class TrackPiece : MonoBehaviour {
 
 	public Vector3 worldPos;
-	//protected Vector3 initialPos;
+	protected Vector3 initialPos;
 
 	public float GetDistance()
 	{
@@ -12,13 +12,13 @@ public class TrackPiece : MonoBehaviour {
 	}
 	public void SetDistance(float dist)
 	{
-		worldPos = new Vector3(0, 0, dist);
+		worldPos = new Vector3(initialPos.x, initialPos.y, dist + initialPos.z);
 	}
 
 	// Use this for initialization
 	void Start () {
 		//store the initial position as placed in the editor.
-		//initialPos = transform.position;
+		initialPos = transform.position;
 	}
 
 	// Update is called once per frame

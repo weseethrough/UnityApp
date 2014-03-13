@@ -35,6 +35,7 @@ public class SnackController : MonoBehaviour {
 			{
 				if( game.type == "Snack")
 				{
+					if(game.gameId != "activity_diamond") { break; }
 					UnityEngine.Debug.Log("SnackController: Found a snack: " + game.gameId );
 					snackGames.Add( game );	
 				}

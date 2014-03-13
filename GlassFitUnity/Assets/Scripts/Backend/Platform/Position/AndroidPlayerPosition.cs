@@ -171,11 +171,11 @@ public class AndroidPlayerPosition : PlayerPosition {
 		}
 		try {
 			if (HasLock()) {
-				AndroidJavaObject ajo = androidGpsTracker.Call<AndroidJavaObject>("getCurrentPosition");
-				_position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
-
-				ajo = androidGpsTracker.Call<AndroidJavaObject>("getPredictedPosition");
- 				_predictedPosition = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+//				AndroidJavaObject ajo = androidGpsTracker.Call<AndroidJavaObject>("getCurrentPosition");
+//				_position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+//
+//				ajo = androidGpsTracker.Call<AndroidJavaObject>("getPredictedPosition");
+// 				_predictedPosition = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
 			}
 		} catch (Exception e) {
 			log.warning("Error getting position: " + e.Message);

@@ -13,6 +13,8 @@ public class TrackManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		log = new Log("TrackManager");
+
 		if(piecePrototypeRoot == null)
 		{
 			log.error("Couldn't find prototype root");
@@ -45,7 +47,6 @@ public class TrackManager : MonoBehaviour {
 			AddRandomTrackPiece();
 		}
 
-		log = new Log("TrackManager");
 	}
 
 	protected void AddClearTrackPiece()
