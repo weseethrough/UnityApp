@@ -29,7 +29,7 @@ public class TrainController_Rescue : TargetController {
 	private double playerStartDistance;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
 		lane = 1;
 		lanePitch = 1.0f;

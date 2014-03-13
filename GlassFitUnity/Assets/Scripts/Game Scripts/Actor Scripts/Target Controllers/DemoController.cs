@@ -8,19 +8,19 @@ public class DemoController : TargetController {
 	private bool started = false;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		//target = Platform.Instance.getTargetTracker();
 		base.SetAttribs(0, 135, -254.6f, 50);
 		anim = GetComponent<Animator>();
 		
 	}
 	
-	void OnEnable() {
+	public override void OnEnable() {
 		//base.OnEnable();
 		base.SetAttribs(0, 135, -254.6f, 50);
 	}
 	
-	void Update () {
+	public override void Update () {
 		if (target == null) return;
 				
 		if(!started) {

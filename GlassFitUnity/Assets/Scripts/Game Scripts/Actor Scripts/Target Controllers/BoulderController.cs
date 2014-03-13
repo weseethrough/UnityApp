@@ -45,7 +45,7 @@ public class BoulderController : TargetController {
 	/// <summary>
 	/// Sets the attributes
 	/// </summary>
-	void Start () {
+	public override void Start () {
 		// Set attributes and initial rotation.
 		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 		xRot = 0;
@@ -54,7 +54,7 @@ public class BoulderController : TargetController {
 	/// <summary>
 	/// Sets the attributes
 	/// </summary>
-	void OnEnable() 
+	public override void OnEnable() 
 	{
 		// Enable the object and set attributes.
 		base.OnEnable();
@@ -84,7 +84,7 @@ public class BoulderController : TargetController {
 	/// <summary>
 	/// Update this instance + updates rotation
 	/// </summary>
-	void Update () {
+	public override void Update () {
 		// Set the player distance 
 		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;	
 		if(!headstartComplete) {

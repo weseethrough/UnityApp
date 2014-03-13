@@ -57,7 +57,7 @@ public class TargetTracker : System.Object {
 		}
 	}
 			
-	public string ToString() {
+	public override string ToString() {
 		return "TargetTracker " + name;
 	}
 }

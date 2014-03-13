@@ -10,12 +10,12 @@ public class PBRunnerController : TargetController {
 	private float speed;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		base.Start();	
 		SetAttribs( 0, 3.0f, 0, 0.75f);
 	}
 	
-	void OnEnable() {
+	public override void OnEnable() {
 		base.OnEnable();
 		base.SetAttribs(0, 1, transform.position.y, transform.position.x);
 		
@@ -40,7 +40,7 @@ public class PBRunnerController : TargetController {
 #endif
 	}
 	
-	void Update () {	
+	public override void Update () {	
 		//UnityEngine.Debug.Log("PBRunnerController: This is a PB Runner");
 		base.Update();
 #if !UNITY_EDITOR

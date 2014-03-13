@@ -19,7 +19,7 @@ public class FlowButton : MonoBehaviour
             m_owner = value;          
         }
     }
-    public string name;
+    public new string name;
     public Dictionary<string, System.Object> userData = new Dictionary<string,object>();
 
 	/// <summary>

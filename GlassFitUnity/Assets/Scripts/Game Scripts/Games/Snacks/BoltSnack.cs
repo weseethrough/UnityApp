@@ -28,7 +28,7 @@ public class BoltSnack : SnackBase {
 	private int boltLevel = 0;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		base.Start();
 		
 		GameObject stadium = GameObject.Find("Stadium");
@@ -63,7 +63,7 @@ public class BoltSnack : SnackBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		base.Update();
 		
 		// Check if bolt is enabled

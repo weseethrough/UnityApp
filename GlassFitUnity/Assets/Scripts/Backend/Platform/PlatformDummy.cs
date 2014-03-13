@@ -21,6 +21,9 @@ using UnityEditor;
 #endif
 public class PlatformDummy : Platform
 {
+	const string STARTHEX_SCENE_NAME = "Assets/Scenes/Start Hex.unity";
+	const string SNACKRUN_SCENE_NAME = "Assets/Scenes/SnackRun.unity";
+
 
 	// Helper class for accessing the player's current position, speed and direction of movement
 	private PlayerPosition _localPlayerPosition;
@@ -48,67 +51,13 @@ public class PlatformDummy : Platform
 	
 	private string blobstore = "game-blob";
 	private string blobassets = "blob";
-
-    public float[] sensoriaSockPressure = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
 	
-	private PlayerOrientation playerOrientation = new PlayerOrientation();
 	private float oriYaw = 0.0f;
 	private float oriPitch = 0.0f;
 	const float lookSensitivity = 10.0f;
-	
-	private static PlatformDummy _instance;
-	
+		
 	private int sessionId = 0;
 	
-//	private bool initialised = false;	
-	
-	/*
-	public static PlatformDummy Instance {
-		get 
-        {
-            if (_instance == null)
-            {
-                PlatformDummy[] pDummies = FindObjectsOfType(typeof(PlatformDummy)) as PlatformDummy[];
-                int count = pDummies.Length;
-                if (count >= 1)
-                {
-                    if (count > 1)
-                    {
-                        UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-                    }
-
-                    for (int i = 1; i < count; i++)
-                    {
-                        GameObject plat = GameObject.Find("PlatformDummy");
-                        Destroy(plat);
-                    }
-
-                    _instance = FindObjectOfType(typeof(PlatformDummy)) as PlatformDummy;
-                }
-
-                if (_instance == null)
-                {
-                    GameObject singleton = new GameObject();
-                    _instance = singleton.AddComponent<PlatformDummy>();
-                    singleton.name = "PlatformDummy"; // Used as target for messages
-
-                    DontDestroyOnLoad(singleton);
-                }                
-            }
-			
-			if (_instance != null)
-			{
-				if (_instance.initialised == false)
-				{
-					_instance.Initialize();
-				}
-			}
-            return _instance;
-		}
-	}
-	*/
-	private static bool applicationIsQuitting = false;
-
     public override bool OnGlass()
     {
         return true;
@@ -131,13 +80,7 @@ public class PlatformDummy : Platform
 	}	
 	public override bool HasGpsProvider() {
 		return false;
-	}
-	
-	public void OnDestroy() 
-	{
-		applicationIsQuitting = true;
-	}
-	
+	}	
     public override bool IsBluetoothBonded()
     {
         return false;
@@ -148,7 +91,7 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
     {
-		PlayWithSceneFlowExit("Assets/Scenes/Start Hex.unity", "Start Point");
+		PlayWithSceneFlowExit(STARTHEX_SCENE_NAME, "Start Point");
 	}
 
 	[MenuItem("Race Yourself/Play from current Scene, with flow at Game Intro %[")]
@@ -160,7 +103,7 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from SnackRun Scene, with flow at Game Intro %]")]
 	public static void PlayFromSnackRunscene()
 	{
-		PlayWithSceneFlowExit("Assets/Scenes/SnackRun.unity", "Game Intro");
+		PlayWithSceneFlowExit(SNACKRUN_SCENE_NAME, "Game Intro");
 	}
 	
 	protected static void PlayWithSceneFlowExit(string scene, string exit)
@@ -175,15 +118,19 @@ public class PlatformDummy : Platform
 		}
 		//play
 		EditorApplication.isPlaying = true;
-		//initialise objects for datastorage etc
-		InitForPreview playModePreparer = (InitForPreview)GameObject.FindObjectOfType(typeof(InitForPreview));
-		if(playModePreparer != null)
+
+		//initialise objects for flow, datastorage, UIScene etc, if this isn't startHex
+		if(scene != STARTHEX_SCENE_NAME)
 		{
-			playModePreparer.PrepareForPlayMode();
-		}
-		else
-		{
-			UnityEngine.Debug.LogError("PlatformDummy: Unable to initialise correctly for Play mode in editor. Ensure that a correctly configured InitForPreview component is present in the scene");
+			InitForPreview playModePreparer = (InitForPreview)GameObject.FindObjectOfType(typeof(InitForPreview));
+			if(playModePreparer != null)
+			{
+				playModePreparer.PrepareForPlayMode();
+			}
+			else
+			{
+				UnityEngine.Debug.LogError("PlatformDummy: Unable to initialise correctly for Play mode in editor. Ensure that a correctly configured InitForPreview component is present in the scene");
+			}
 		}
 
 	}

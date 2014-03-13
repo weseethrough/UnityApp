@@ -23,7 +23,7 @@ public class ZombieShootGame : GameBase {
 	private int zombiesKilled = 0;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		AddZombie();
 		
 		backHandler = new GestureHelper.OnBack(() => {
@@ -47,7 +47,7 @@ public class ZombieShootGame : GameBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		base.Update();
 		
 		currentTime += Time.deltaTime;

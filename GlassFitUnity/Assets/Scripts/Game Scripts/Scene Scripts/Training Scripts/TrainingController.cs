@@ -16,20 +16,20 @@ public class TrainingController : TargetController {
 	private float zMove = 20.0f;
 	
 	
-	void Start () {
+	public override void Start () {
 		// Set the attributes and get the animator
 		SetAttribs(20, 135, -254.6f, 100);
 		anim = GetComponent<Animator>();
 	}
 	
-	void OnEnable() {
+	public override void OnEnable() {
 		// Set the attributes
 		SetAttribs(20, 135, -254.6f, 100);
 		anim.speed = 0.5f;
 		target = Platform.Instance.CreateTargetTracker(2.2f);
 	}
 	
-	public void SetSpeed(float speed) {
+	public override void SetSpeed(float speed) {
 		anim.speed = speed / 2.2f;
 		target = Platform.Instance.CreateTargetTracker(speed);
 	}
@@ -44,7 +44,7 @@ public class TrainingController : TargetController {
 		move = b;
 	}
 	
-	void Update () {		
+	public override void Update () {		
 		// If the avatar needs to move into position.
 		if(move) {
 			// Set the animation to "run".

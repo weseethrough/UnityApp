@@ -22,7 +22,7 @@ public class TargetController : MonoBehaviour {
 	protected float lanePitch = 3.0f;
 	
 	// Use this for initialization
-	protected void Start () {		
+	public virtual void Start () {		
 	}
 	
 	// TODO:
@@ -30,7 +30,7 @@ public class TargetController : MonoBehaviour {
 	// Set index/lane 
 	// Only poll once
 	
-	protected void OnEnable() {
+	public virtual void OnEnable() {
 		UnityEngine.Debug.Log("Target: Just been enabled");
 	}
 	
@@ -62,7 +62,7 @@ public class TargetController : MonoBehaviour {
 		xOffset = xDist*(lane*lanePitch); // TODO: parent.gameObject.width?
 	}
 	
-	public void SetSpeed(float f) {
+	public virtual void SetSpeed(float f) {
 		if(target is FauxTargetTracker) {
 			UnityEngine.Debug.Log("TargetController: Setting Target speed");
 			((FauxTargetTracker)target).SetTargetSpeed(f);
@@ -114,7 +114,7 @@ public class TargetController : MonoBehaviour {
 		return labelStyle;
 	}
 	
-	public void OnGUI() {
+	public virtual void OnGUI() {
 		if(shouldShowOverheadLabel)
 		{
 			renderLabel();
