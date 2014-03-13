@@ -42,10 +42,14 @@ Assembly-UnityScript.unityProj
 
 Models/bin
 Models/obj
+!Models/Models.sln
+!Models/Models.csproj
 
 *.svd
 *.userprefs
 *.suo
+*.sln
+*.csproj
 *.apk
 *.unityproj
 GlassFitUnity.zip

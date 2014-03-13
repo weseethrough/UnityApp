@@ -11,46 +11,74 @@ public class GraphComponent : MonoBehaviour
     private int selectedFlow = 0;
     private bool initialize = false;
 
-    private string nextStartNavigateTo = "";    
+    private string nextStartNavigateTo = ""; 
+   
+    static private GraphComponent instance;
 
+    public GraphData Data
+    {
+        get
+        {
+            MakeAwake();
+            return m_graph;
+        }
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     void Start()
     {       
         MakeAwake();        
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     void MakeAwake()
     {
         if (!initialize)
         {
-            DataStore.LoadStorage(DataStore.BlobNames.flow);
             initialize = true;
+            DataStore.LoadStorage(DataStore.BlobNames.flow);            
             //below is the example how to initialize game with specific flow
-            if (!Platform.Instance.OnGlass() && Platform.Instance.GetIntent().Length > 0 )
+            if (!Platform.Instance.OnGlass() )
             {
-                string flowName = Platform.Instance.GetIntent();
-                SetSelectedFlowByName("MobileUX");
+                string flowName = "MobileUX";
+                if (Platform.Instance.GetIntent().Length > 0)
+                {
+                    flowName = Platform.Instance.GetIntent();
+                }
+
+                //make forwarding state go to challenge screen instead of main menu
+                //DataVault.Set("custom_redirection_point", "Challenge");
+
+                SetSelectedFlowByName(flowName);
             }
             else
             {
                 SetSelectedFlowIndex(selectedFlow);
-            }            
-        }
-    }
+            }
 
-	public GraphData Data
-	{
-		get 
-        {
-            MakeAwake();
-            return m_graph; 
+            instance = this;
         }
-	}
+    }	
 	
+	/// <summary>
+	/// 
+	/// </summary>
+	/// <returns></returns>
 	public GraphComponent()
 	{
 		m_graph = new GraphData();
 	}    
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     public int GetSelectedFlowIndex()
     {
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
@@ -64,9 +92,13 @@ public class GraphComponent : MonoBehaviour
         return selectedFlow;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     public string GetSelectedFlowName()
-    {
-        DataStore.LoadStorage(DataStore.BlobNames.flow);
+    {        
+        //DataStore.LoadStorage(DataStore.BlobNames.flow);
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
         string name;
@@ -76,18 +108,27 @@ public class GraphComponent : MonoBehaviour
         return name;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     public void SetSelectedFlowIndex()
     {
         SetSelectedFlowIndex(selectedFlow);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="flowIndex"></param>
+    /// <returns></returns>
     public void SetSelectedFlowIndex(int flowIndex)
     {
         //we do not check if index is the same because data could change, flow cold have removed or be modified.
 
         selectedFlow = flowIndex;
 
-        DataStore.LoadStorage(DataStore.BlobNames.flow);
+        //DataStore.LoadStorage(DataStore.BlobNames.flow);
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
 
@@ -101,9 +142,14 @@ public class GraphComponent : MonoBehaviour
         m_graph = data;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="flowName"></param>
+    /// <returns></returns>
     public void SetSelectedFlowByName(string flowName)
     {
-        DataStore.LoadStorage(DataStore.BlobNames.flow);
+       // DataStore.LoadStorage(DataStore.BlobNames.flow);
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
         int index = flowDictionary.GetIndex(flowName);
@@ -114,9 +160,13 @@ public class GraphComponent : MonoBehaviour
         SetSelectedFlowIndex();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     public void SetSelectedFlowByLast()
     {
-        DataStore.LoadStorage(DataStore.BlobNames.flow);
+       // DataStore.LoadStorage(DataStore.BlobNames.flow);
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
         int index = flowDictionary.Length();
@@ -127,6 +177,11 @@ public class GraphComponent : MonoBehaviour
         SetSelectedFlowIndex();
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
     public bool GoToFlow(string name)
     {
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
@@ -147,6 +202,10 @@ public class GraphComponent : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
     public bool GoToFlowStage2()
     {        
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
@@ -165,5 +224,18 @@ public class GraphComponent : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <returns></returns>
+    static public GraphComponent GetInstance()
+    {
+        if (instance == null)
+        {
+            return GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+        }
+        return instance;
     }
 }

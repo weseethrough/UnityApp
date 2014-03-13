@@ -6,7 +6,11 @@ using System;
 /// Rotates the camera in-game and sets the grid
 /// </summary>
 public class MinimalSensorCamera : MonoBehaviour {
-	
+
+	public AnimationCurve cameraResponseCurve;		//mapping of head rotation to camera yaw
+	public AnimationCurve constrainedWeightVsPace;	//how far constrained the camera is based on movement speed
+	public float maxSpeedForCameraConstraint = 4f;
+
 	public const Boolean DEBUG_ORIENTATION = false;
 	const float pitchSensitivity = 2.3f;
 	
@@ -219,6 +223,20 @@ public class MinimalSensorCamera : MonoBehaviour {
 
 		//TEST - zero out the yaw
 		//eulerAngles.y = 0f;
+
+		//TEST 2 - non-linear yaw curve
+		float yaw = eulerAngles.y;
+		if(yaw > 180) { yaw -= 360; }
+		float sign = yaw > 0 ? 1:-1;
+		float parametricYaw = Mathf.Abs(yaw) / 180f;
+		float adjustedYaw = sign * 180f * cameraResponseCurve.Evaluate(parametricYaw);
+
+		//TEST 3 - apply varying weighting of real vs adjusted according to speed
+		float adjustedWeight = constrainedWeightVsPace.Evaluate(Platform.Instance.LocalPlayerPosition.Pace / maxSpeedForCameraConstraint);
+
+		//To see tests, uncomment this line.
+		//eulerAngles.y = Mathf.Lerp(yaw, adjustedYaw, adjustedWeight);
+
 
 		//tilt down a little too
 		//eulerAngles.x -= 15.0f;

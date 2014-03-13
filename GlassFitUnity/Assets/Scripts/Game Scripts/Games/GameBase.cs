@@ -290,6 +290,11 @@ public class GameBase : MonoBehaviour {
 		//follow the flow link to the results page
 		GConnector gConnect = GetFinalConnection();
 		if(gConnect != null) {
+			//follow the connector
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			fs.parentMachine.FollowConnection(gConnect);
+
+
 			UnityEngine.Debug.Log("GameBase: final connection found");
 			DataVault.Set("total", (Platform.Instance.PlayerPoints.CurrentActivityPoints + Platform.Instance.PlayerPoints.OpeningPointsBalance + finalBonus).ToString("n0"));
 			DataVault.Set("distance_with_units", UnitsHelper.SiDistance(Platform.Instance.LocalPlayerPosition.Distance));
@@ -299,7 +304,6 @@ public class GameBase : MonoBehaviour {
 			} else {
 				DataVault.Set("bonus", 0);
 			}
-			Platform.Instance.LocalPlayerPosition.StopTrack();
 			
 			///Leaving this block out for now - it goes straight back to the menu if the 'tutorial' exit was returned for GetFinalConnection
 			///Probably best to instead have the FirstRun mode do that transition with its own customisation of the state transitions instead.
@@ -314,9 +318,6 @@ public class GameBase : MonoBehaviour {
 //			}
 			
 			
-			//follow the connector
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			fs.parentMachine.FollowConnection(gConnect);
 		} else {
 			UnityEngine.Debug.Log("GameBase: No connection found - FinishButton");
 		}
@@ -331,23 +332,16 @@ public class GameBase : MonoBehaviour {
 		return;
 	}
 	
-//	/// <summary>
-//	/// Continue, once we h
-//	/// </summary>
-//	void Continue() {
-//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
-//		if(gConnect != null) {
-//			//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-//			SoundManager.PlaySound(SoundManager.Sounds.Tap);
-//			fs.parentMachine.FollowConnection(gConnect);
-//			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-//		} else {
-//			UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
-//		}
-//		
-//		CleanUp();
-//	}
+	/// <summary>
+	/// Continue, once we h
+	/// </summary>
+	void Continue() {
+		FlowState.FollowFlowLinkNamed("ContinueButton");
+		//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+		SoundManager.PlaySound(SoundManager.Sounds.Tap);
+		CleanUp();
+		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+	}
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
 	public virtual void GameHandleTap() {
@@ -371,7 +365,11 @@ public class GameBase : MonoBehaviour {
 				SetGameState(GAMESTATE_RUNNING);
 				break;
 			case GAMESTATE_QUIT_CONFIRMATION:
-				FinishGame();
+				SetGameState(GAMESTATE_FINISHED);
+				break;
+			case GAMESTATE_FINISHED:
+				//continue back to hex menu
+				Continue();
 				break;
 			}
 		}
@@ -396,16 +394,6 @@ public class GameBase : MonoBehaviour {
 			//cancel quit
 			SetGameState(GAMESTATE_RUNNING);
 			break;
-		case GAMESTATE_FINISHED:
-			//continue
-			if(!FlowState.FollowFlowLinkNamed("ContinueButton"))
-			{
-				UnityEngine.Debug.Log("GameBase: No connection found - ContinueButton");
-			}
-
-
-			//do nothing
-			break;
 		}
 	}
 	
@@ -414,11 +402,23 @@ public class GameBase : MonoBehaviour {
 	}
 	
 	public virtual void GameHandleLeftSwipe() {
-		//do nothing
+		switch(gameState)
+		{
+		case GAMESTATE_QUIT_CONFIRMATION:
+			//cancel quit
+			SetGameState(GAMESTATE_RUNNING);
+			break;
+		}
 	}
 	
 	public virtual void GameHandleRightSwipe() {
-		//do nothing
+		switch(gameState)
+		{
+		case GAMESTATE_QUIT_CONFIRMATION:
+			//cancel quit
+			SetGameState(GAMESTATE_RUNNING);
+			break;
+		}
 	}
 	
 	protected void EnterPause()
@@ -679,9 +679,11 @@ public class GameBase : MonoBehaviour {
 	
 	protected void CleanUp()
 	{
+		UnityEngine.Debug.Log("GameBase: Cleaning Up - stopping tracking");
 		//stop tracking
 		Platform.Instance.LocalPlayerPosition.StopTrack();
 			
+		UnityEngine.Debug.Log("GameBase: Cleaning Up - releasing handlers");
 		//release handlers
 		GestureHelper.onBack -= backHandler;
 		GestureHelper.onTap -= tapHandler;

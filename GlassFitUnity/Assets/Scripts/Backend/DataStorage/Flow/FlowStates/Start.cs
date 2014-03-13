@@ -61,7 +61,6 @@ public class Start : FlowState
         NewParameter("Name", GraphValueType.String, "Start");
     }
 
-
     /// <summary>
     /// function called as soon as state enters to navigate to next state along default connection out
     /// If GraphComponent is notified about flow switch Start will go idle and never recover. It is GraphComponent
@@ -86,15 +85,9 @@ public class Start : FlowState
 			//in the editor, go straight to in-game HUD
 #if UNITY_EDITOR
 			string playerExit = PlayerPrefs.GetString("playerStartExit");
-
-			GConnector editorGC = Outputs.Find( r => r.Name == playerExit );
-
-			if(editorGC != null)
-			{
-				parentMachine.FollowConnection(editorGC);
-			}
+			FollowOutput(playerExit);	
 #else
-            parentMachine.FollowConnection(Outputs[0]);
+            FollowOutput("Start Point");
 #endif
         }
         else
