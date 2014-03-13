@@ -132,6 +132,22 @@ public class PlatformDummy : Platform
     {
         return false;
     }
+
+    public override bool HasGpsProvider()
+    {
+        return false;
+    }
+
+    public override bool HasWifi()
+    {
+        return false;
+    }
+	
+    public override bool IsBluetoothBonded()
+    {
+        return false;
+    }
+
 	
 #if UNITY_EDITOR
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
