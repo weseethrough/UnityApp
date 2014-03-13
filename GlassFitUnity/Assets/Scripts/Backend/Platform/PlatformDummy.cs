@@ -51,67 +51,13 @@ public class PlatformDummy : Platform
 	
 	private string blobstore = "game-blob";
 	private string blobassets = "blob";
-
-    public float[] sensoriaSockPressure = { 0.0f, 0.2f, 0.4f, 0.6f, 0.8f, 1.0f };
 	
-	private PlayerOrientation playerOrientation = new PlayerOrientation();
 	private float oriYaw = 0.0f;
 	private float oriPitch = 0.0f;
 	const float lookSensitivity = 10.0f;
-	
-	private static PlatformDummy _instance;
-	
+		
 	private int sessionId = 0;
 	
-//	private bool initialised = false;	
-	
-	/*
-	public static PlatformDummy Instance {
-		get 
-        {
-            if (_instance == null)
-            {
-                PlatformDummy[] pDummies = FindObjectsOfType(typeof(PlatformDummy)) as PlatformDummy[];
-                int count = pDummies.Length;
-                if (count >= 1)
-                {
-                    if (count > 1)
-                    {
-                        UnityEngine.Debug.Log("Singleton: there is more than one singleton");
-                    }
-
-                    for (int i = 1; i < count; i++)
-                    {
-                        GameObject plat = GameObject.Find("PlatformDummy");
-                        Destroy(plat);
-                    }
-
-                    _instance = FindObjectOfType(typeof(PlatformDummy)) as PlatformDummy;
-                }
-
-                if (_instance == null)
-                {
-                    GameObject singleton = new GameObject();
-                    _instance = singleton.AddComponent<PlatformDummy>();
-                    singleton.name = "PlatformDummy"; // Used as target for messages
-
-                    DontDestroyOnLoad(singleton);
-                }                
-            }
-			
-			if (_instance != null)
-			{
-				if (_instance.initialised == false)
-				{
-					_instance.Initialize();
-				}
-			}
-            return _instance;
-		}
-	}
-	*/
-	private static bool applicationIsQuitting = false;
-
     public override bool OnGlass()
     {
         return true;
@@ -134,13 +80,7 @@ public class PlatformDummy : Platform
 	}	
 	public override bool HasGpsProvider() {
 		return false;
-	}
-	
-	public void OnDestroy() 
-	{
-		applicationIsQuitting = true;
-	}
-	
+	}	
     public override bool IsBluetoothBonded()
     {
         return false;

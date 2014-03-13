@@ -22,7 +22,7 @@ public class PursuitGame : GameBase {
 	private ActorType currentActorType;
     public List<GameObject> actors = new List<GameObject>();
 	
-	private GestureHelper.OnTap tapHandler;
+	private new GestureHelper.OnTap tapHandler;
 	
 	public GameObject eagleHolder;
 	public GameObject boulderHolder;
@@ -118,7 +118,7 @@ public class PursuitGame : GameBase {
 //
 //	}
 	
-	void Update () {
+	public override void Update () {
 		base.Update();		
 				
 		//check if we're dead, and remove a life and show 'game over' menu if so.

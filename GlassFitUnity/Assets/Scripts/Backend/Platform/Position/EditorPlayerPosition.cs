@@ -30,7 +30,7 @@ public class EditorPlayerPosition : PlayerPosition {
 
 
 	private System.Random random = new System.Random();
-	private Log log = new Log("EditorPlayerPosition");
+	private new Log log = new Log("EditorPlayerPosition");
 
 	public EditorPlayerPosition() {
 
