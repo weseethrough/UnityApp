@@ -21,6 +21,9 @@ using UnityEditor;
 #endif
 public class PlatformDummy : Platform
 {
+	const string STARTHEX_SCENE_NAME = "Assets/Scenes/Start Hex.unity";
+	const string SNACKRUN_SCENE_NAME = "Assets/Scenes/SnackRun.unity";
+
 
 	// Helper class for accessing the player's current position, speed and direction of movement
 	private PlayerPosition _localPlayerPosition;
@@ -88,7 +91,7 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
     {
-		PlayWithSceneFlowExit("Assets/Scenes/Start Hex.unity", "Start Point");
+		PlayWithSceneFlowExit(STARTHEX_SCENE_NAME, "Start Point");
 	}
 
 	[MenuItem("Race Yourself/Play from current Scene, with flow at Game Intro %[")]
@@ -100,7 +103,7 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from SnackRun Scene, with flow at Game Intro %]")]
 	public static void PlayFromSnackRunscene()
 	{
-		PlayWithSceneFlowExit("Assets/Scenes/SnackRun.unity", "Game Intro");
+		PlayWithSceneFlowExit(SNACKRUN_SCENE_NAME, "Game Intro");
 	}
 	
 	protected static void PlayWithSceneFlowExit(string scene, string exit)
@@ -115,15 +118,19 @@ public class PlatformDummy : Platform
 		}
 		//play
 		EditorApplication.isPlaying = true;
-		//initialise objects for datastorage etc
-		InitForPreview playModePreparer = (InitForPreview)GameObject.FindObjectOfType(typeof(InitForPreview));
-		if(playModePreparer != null)
+
+		//initialise objects for flow, datastorage, UIScene etc, if this isn't startHex
+		if(scene != STARTHEX_SCENE_NAME)
 		{
-			playModePreparer.PrepareForPlayMode();
-		}
-		else
-		{
-			UnityEngine.Debug.LogError("PlatformDummy: Unable to initialise correctly for Play mode in editor. Ensure that a correctly configured InitForPreview component is present in the scene");
+			InitForPreview playModePreparer = (InitForPreview)GameObject.FindObjectOfType(typeof(InitForPreview));
+			if(playModePreparer != null)
+			{
+				playModePreparer.PrepareForPlayMode();
+			}
+			else
+			{
+				UnityEngine.Debug.LogError("PlatformDummy: Unable to initialise correctly for Play mode in editor. Ensure that a correctly configured InitForPreview component is present in the scene");
+			}
 		}
 
 	}

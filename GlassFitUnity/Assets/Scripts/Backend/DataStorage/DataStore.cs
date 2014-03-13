@@ -177,11 +177,11 @@ public class DataStore : MonoBehaviour
     static public void LoadStorage(BlobNames name)
     {
 #if UNITY_EDITOR
-        if (instance != null && PlatformDummy.Instance != null)
+        if (instance != null && Platform.Instance != null)
         {
             if (!LoadStorageFromCollection(name))
-            {             
-                instance.storageBank[name.ToString()] = instance.InitializeBlob(PlatformDummy.Instance.LoadBlob(name.ToString()));
+            {
+                instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));
             }
         }
 #else
@@ -200,11 +200,11 @@ public class DataStore : MonoBehaviour
     static public bool LoadStorageFromCollection(BlobNames name)
     {
 #if UNITY_EDITOR
-        if (instance != null && PlatformDummy.Instance != null)
+        if (instance != null && Platform.Instance != null)
         {
             string blobName = name.ToString();
 
-            byte[] collectionData = PlatformDummy.Instance.LoadBlob(blobName + "_collection");
+            byte[] collectionData = Platform.Instance.LoadBlob(blobName + "_collection");
             if (collectionData == null || collectionData.Length < 2)
             {
                 return false;
@@ -226,7 +226,7 @@ public class DataStore : MonoBehaviour
 
                     if (instanceName == null) break;
 
-                    byte[] instanceData = PlatformDummy.Instance.LoadBlob("z_"+instanceName);
+                    byte[] instanceData = Platform.Instance.LoadBlob("z_" + instanceName);
 
                     if (instanceData.Length == 0) break;
                  		        
@@ -285,13 +285,13 @@ public class DataStore : MonoBehaviour
     static public void SaveStorage(BlobNames name, bool saveInCollection)
     {
 #if UNITY_EDITOR
-        if (instance != null && PlatformDummy.Instance != null)
+        if (instance != null && Platform.Instance != null)
         {
             MemoryStream ms = new MemoryStream();
             BinaryFormatter bformatter = new BinaryFormatter();
             bformatter.Serialize(ms, GetStorage(name));
 
-            PlatformDummy.Instance.StoreBlob(name.ToString(), ms.GetBuffer());
+            Platform.Instance.StoreBlob(name.ToString(), ms.GetBuffer());
             
             if (saveInCollection)
             {
@@ -320,7 +320,7 @@ public class DataStore : MonoBehaviour
     static public void SaveStorageAsCollection(BlobNames name)
     {
 #if UNITY_EDITOR
-        if (instance != null && PlatformDummy.Instance != null)
+        if (instance != null && Platform.Instance != null)
         {            
 
             string blobName = name.ToString();
@@ -353,13 +353,13 @@ public class DataStore : MonoBehaviour
 
                 MemoryStream ms = new MemoryStream();
                 bformatter.Serialize(ms, data);
-                PlatformDummy.Instance.StoreBlob("z_" + dataName, ms.GetBuffer());
+                Platform.Instance.StoreBlob("z_" + dataName, ms.GetBuffer());
 
                 writter.WriteLine(dataName);                
             }
             writter.Flush();
             //write collection record
-            PlatformDummy.Instance.StoreBlob(blobName + "_collection", blobRecord.GetBuffer());
+            Platform.Instance.StoreBlob(blobName + "_collection", blobRecord.GetBuffer());
         }
 #endif
 
