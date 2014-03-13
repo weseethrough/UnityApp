@@ -89,7 +89,7 @@ public class SnackController : MonoBehaviour {
 		//clear current snack offer
 		if(awaitingAcceptTap)
 		{
-			FlowState.FollowFlowLinkNamed("Return");			
+			FlowState.FollowBackLink();		
 			awaitingAcceptTap = false;
 		}
 		
@@ -151,7 +151,7 @@ public class SnackController : MonoBehaviour {
 		if(!acceptedGame)
 		{
 			//dismiss (transition flow back to HUD)
-			FlowState.FollowFlowLinkNamed("Return");
+			FlowState.FollowBackLink();	
 			
 			awaitingAcceptTap = false;
 			UnityEngine.Debug.Log("SnackController: Snack declined");
@@ -276,7 +276,7 @@ public class SnackController : MonoBehaviour {
 		currentSnackGameMainObj = null;
 		
 		//transition UI back to HUD
-		FlowState.FollowFlowLinkNamed("Return");
+		FlowState.FollowBackLink();	
 		
 		//notify the game that the snack is over
 		SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));

@@ -337,7 +337,6 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	void Continue() {
 		FlowState.FollowFlowLinkNamed("ContinueButton");
-		//(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
 		SoundManager.PlaySound(SoundManager.Sounds.Tap);
 		CleanUp();
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
@@ -443,17 +442,10 @@ public class GameBase : MonoBehaviour {
 	protected virtual void ExitPause()
 	{
 		UnityEngine.Debug.Log("GameBase: Unpausing");
-		if(FlowState.FollowFlowLinkNamed("ReturnExit"))
-		{
-			Time.timeScale = 1.0f;	
-			//resume tracking
-			Platform.Instance.LocalPlayerPosition.StartTrack();
-		} else
-		{
-			UnityEngine.Debug.LogWarning("GameBase: Can't find exit - PauseExit");
-		}
-		
-		
+		FlowState.FollowBackLink();
+		Time.timeScale = 1.0f;	
+		//resume tracking
+		Platform.Instance.LocalPlayerPosition.StartTrack();		
 	}
 	
 	protected virtual void UpdateAhead() {
