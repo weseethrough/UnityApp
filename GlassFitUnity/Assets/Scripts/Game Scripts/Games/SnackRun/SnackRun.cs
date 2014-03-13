@@ -8,7 +8,7 @@ public class SnackRun : GameBase {
 	public MinigameToken minigameToken = null;
 	
 	//snack every 250m
-	protected float nextSnackDistance = 20.0f;
+	protected float nextSnackDistance = 10.0f;
 	protected float snackInterval = 30.0f;
 	
 	protected float dbg_timer = 0.0f;
@@ -25,8 +25,8 @@ public class SnackRun : GameBase {
 		
 		if( !Platform.Instance.LocalPlayerPosition.IsIndoor() )
 		{
-			nextSnackDistance = 50.0f;
-			snackInterval = 100.0f;
+			nextSnackDistance = Application.isEditor? 10f : 50.0f;
+			snackInterval = Application.isEditor? 20f : 100.0f;
 		}
 		
 		base.Start();

@@ -235,7 +235,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		float adjustedWeight = constrainedWeightVsPace.Evaluate(Platform.Instance.LocalPlayerPosition.Pace / maxSpeedForCameraConstraint);
 
 		//To see tests, uncomment this line.
-		//eulerAngles.y = Mathf.Lerp(yaw, adjustedYaw, adjustedWeight);
+		eulerAngles.y = Mathf.Lerp(yaw, adjustedYaw, adjustedWeight);
 
 
 		//tilt down a little too
