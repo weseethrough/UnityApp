@@ -17,9 +17,9 @@ public class LocalDbPlayerPoints : PlayerPoints
 	private Siaqodb db = DatabaseFactory.GetInstance();
 	private Log log = new Log("PlayerPoints");
 	
-	private long _currentActivityPoints = 0;
+	private double _currentActivityPoints = 0;  // floating point to allow incrementing each frame
 	private long _lastTransactionPoints;
-	public override long CurrentActivityPoints { get { return _currentActivityPoints; } }
+	public override long CurrentActivityPoints { get { return (long)_currentActivityPoints; } }
 	
 	private long _openingPointsBalance = 0;
 	public override long OpeningPointsBalance { get { return _openingPointsBalance; } }
@@ -28,9 +28,9 @@ public class LocalDbPlayerPoints : PlayerPoints
 	public override int CurrentGemBalance { get { return _currentGemBalance; } }
 	
 	private float _currentMetabolism = 100.0f;
-	public override float CurrentMetabolism	{ get { return 100 + _currentMetabolism; } }
+	public override float CurrentMetabolism	{ get { return _currentMetabolism; } }
 	
-	private float basePointsSpeed = 0.0f;
+	private float basePointsSpeed = 2.0f;
 	
 	private Transaction lastTransaction;
 	
@@ -60,7 +60,7 @@ public class LocalDbPlayerPoints : PlayerPoints
 		_currentMetabolism *= Mathf.Exp(-(float)decayTime*0.00000001f);
 		TimeSpan decayTimeSpan = new TimeSpan(decayTime*100000);
 		String calc = String.Format("Metabolism decayed from " + lastTransaction.metabolism_balance + " to " +
-            _currentMetabolism + " since last workout. Time of inactivity is {0:N0} days, {1} hours, {2} minutes, {3} seconds", 
+            CurrentMetabolism + " since last workout. Time of inactivity is {0:N0} days, {1} hours, {2} minutes, {3} seconds", 
                 decayTimeSpan.Days, decayTimeSpan.Hours, decayTimeSpan.Minutes, decayTimeSpan.Seconds);
 		SaveToDatabase("BETWEEN-GAME METABOLISM DECAY", calc, "PlayerPoints");
 		log.info(calc);
@@ -68,7 +68,7 @@ public class LocalDbPlayerPoints : PlayerPoints
 
 	public override void Update()
 	{
-		if (!Platform.Instance.LocalPlayerPosition.IsTracking) return;  //TODO: should decay metabolism here
+		if (Platform.Instance.LocalPlayerPosition == null || Platform.Instance.LocalPlayerPosition.IsTracking) return;  //TODO: should decay metabolism here
         
 		double currentDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		long currentTime = Platform.Instance.LocalPlayerPosition.Time;
@@ -84,7 +84,7 @@ public class LocalDbPlayerPoints : PlayerPoints
 		
 		// increment base points
 		double awardDistance = currentDistance - lastCumulativeDistance;
-        long pointsDelta = (long)(awardDistance * lastBaseMultiplierPercent * BASE_POINTS_PER_METRE) / 100; //integer division floors to nearest whole point below
+        double pointsDelta = (awardDistance * lastBaseMultiplierPercent * BASE_POINTS_PER_METRE) / 100.0f;
 		_currentActivityPoints += pointsDelta;
 		
 		// increment metabolism
@@ -93,11 +93,11 @@ public class LocalDbPlayerPoints : PlayerPoints
 		_currentMetabolism += metabolismDelta;
             
         // check if we need to update the mutiplier
-		if (basePointsSpeed != 0.0f && currentTime > lastMultiplierCheckTime + BASE_MULTIPLIER_TIME_THRESH)
+		if (basePointsSpeed != 0.0f && currentTime > lastMultiplierCheckTime + BASE_MULTIPLIER_TIME_THRESH*1000)
 		{
-			long multiplierTime = currentTime - lastMultiplierCheckTime; //seconds
+			long multiplierTime = currentTime - lastMultiplierCheckTime; //ms
 			double multiplierDistance = currentDistance - lastMultiplierCheckDistance; //metres
-            float multiplierSpeed = (float)(multiplierDistance/multiplierTime);
+            float multiplierSpeed = (float)(multiplierDistance*1000/multiplierTime);
             if (multiplierSpeed > basePointsSpeed)
 			{
                 // bump up the multiplier (incremented by BASE_MULTIPLIER_PERCENT each time round this loop for BASE_MULTIPLIER_LEVELS)
@@ -123,6 +123,7 @@ public class LocalDbPlayerPoints : PlayerPoints
 		if (lastMultiplierCheckTime == currentTime && _currentActivityPoints > 0)
 		{
 			SaveToDatabase("BASE_POINTS","Period = 8s, Multiplier = " + lastBaseMultiplierPercent + "%", "PlayerPoints");
+			log.info ("Saving to database: " + CurrentActivityPoints + "activity-points, " + OpeningPointsBalance + "opening-points, " + CurrentGemBalance + "gems and metabolism of " + CurrentMetabolism);
 		}
 		
 		// update the reference points for the next loop
@@ -196,12 +197,12 @@ public class LocalDbPlayerPoints : PlayerPoints
 	private void SaveToDatabase(String transactionType, String transactionCalc, String sourceId)
 	{
 		Transaction t = new Transaction();
-		t.points_delta = _currentActivityPoints + _openingPointsBalance - (lastTransaction == null ? 0 : lastTransaction.points_balance);
-		t.points_balance = _currentActivityPoints + _openingPointsBalance;
-		t.gems_delta = _currentGemBalance - (lastTransaction == null ? 0 : lastTransaction.gems_balance);
-		t.gems_balance = _currentGemBalance;
-		t.metabolism_delta = _currentMetabolism - (lastTransaction == null ? 0 : lastTransaction.metabolism_balance);
-		t.metabolism_balance = _currentMetabolism;
+		t.points_delta = CurrentActivityPoints + OpeningPointsBalance - (lastTransaction == null ? 0 : lastTransaction.points_balance);
+		t.points_balance = CurrentActivityPoints + _openingPointsBalance;
+		t.gems_delta = CurrentGemBalance - (lastTransaction == null ? 0 : lastTransaction.gems_balance);
+		t.gems_balance = CurrentGemBalance;
+		t.metabolism_delta = CurrentMetabolism - (lastTransaction == null ? 0 : lastTransaction.metabolism_balance);
+		t.metabolism_balance = CurrentMetabolism;
 		t.transaction_type = transactionType;
 		t.transaction_calc = transactionCalc;
 		t.source_id = sourceId;
