@@ -22,6 +22,10 @@ public class PlayerController : MonoBehaviour {
 	
 	private bool notSliding = true;
 	
+	private HazardSnack snack;
+	
+	private bool dead = false;
+	
 	// Use this for initialization
 	void Start () {
 		//Platform.Instance.GetPlayerOrientation().Reset();
@@ -40,6 +44,20 @@ public class PlayerController : MonoBehaviour {
 		collider = GetComponentInChildren<Collider>();
 		
 		GestureHelper.onTwoTap += twoHandler;
+		
+		GameObject obj = GameObject.Find("HazardGUI");
+		
+		snack = obj.GetComponent<HazardSnack>();
+	}
+	
+	void OnCollisionEnter(Collision collision)
+	{
+		if(collision.gameObject.tag == "TempleHazard") 
+		{
+			UnityEngine.Debug.Log("PlayerController: collision detected");
+			SoundManager.PlaySound(SoundManager.Sounds.Tap);
+		}
+		
 	}
 	
 	// Update is called once per frame
@@ -113,6 +131,14 @@ public class PlayerController : MonoBehaviour {
 				UnityEngine.Debug.Log("PlayerController: stopping the countdown");
 				countingDown = false;
 				currentTime = 0.0f;
+			}
+		}
+		
+		if(transform.position.y < -1.5f && !dead) {
+			if(snack != null)
+			{
+				snack.EndGame();
+				dead = true;
 			}
 		}
 		
