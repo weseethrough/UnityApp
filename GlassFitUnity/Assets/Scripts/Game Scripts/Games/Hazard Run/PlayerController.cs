@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviour {
 	
 	private Collider collider;
 	
+	private bool notSliding = true;
+	
 	// Use this for initialization
 	void Start () {
 		//Platform.Instance.GetPlayerOrientation().Reset();
@@ -61,20 +63,23 @@ public class PlayerController : MonoBehaviour {
 		float pitch = Platform.Instance.GetPlayerOrientation().AsPitch();
 		pitch *= Mathf.Rad2Deg;
 		
-		if(startPitch - pitch > 10f && !lookingUp)
+		if(startPitch - pitch > 13f && !lookingUp)
 		{
 			UnityEngine.Debug.Log("PlayerController: possible jump...");
 			countingDown = true;
 			lookingUp = true;
 			jump = true;
 		}
-		else if(startPitch - pitch < -10f && !lookingDown)
+		else if(startPitch - pitch < -13f && !lookingDown)
 		{
 			UnityEngine.Debug.Log("PlayerController: possible slide...");
 			countingDown = true;
 			lookingDown = true;
 			
-			DoSlide();
+			if(notSliding) {
+				StartCoroutine(DoSlide());
+			}
+			
 		}
 		
 		if(countingDown)
@@ -123,7 +128,7 @@ public class PlayerController : MonoBehaviour {
 	
 	void FixedUpdate()
 	{
-		if(jump)
+		if(jump && notSliding)
 		{
 			jump = false;
 			//if(Physics.Raycast(transform.position, -Vector3.up, collider.bounds.extents.y + 0.1f))
@@ -145,9 +150,35 @@ public class PlayerController : MonoBehaviour {
 		//rigidbody.isKinematic = true;
 	}
 	
-	void DoSlide()
+	IEnumerator DoSlide()
 	{
+		notSliding = false;
 		
+		float xRot = 0;
+		
+		float time = 0.0f;
+		
+		while(time < 1f)
+		{
+			time += Time.deltaTime * 2;
+			xRot = Mathf.Lerp(0, -90, time);
+			transform.rotation = Quaternion.Euler(xRot,transform.rotation.eulerAngles.y, transform.root.eulerAngles.z);
+			yield return null;
+		}
+		
+		yield return new WaitForSeconds(1.0f);
+		
+		time = 0.0f;
+		
+		while(time < 1f)
+		{
+			time += Time.deltaTime * 2;
+			xRot = Mathf.Lerp(-90, 0, time);
+			transform.rotation = Quaternion.Euler(xRot,transform.rotation.eulerAngles.y, transform.root.eulerAngles.z);
+			yield return null;
+		}
+		
+		notSliding = true;
 	}
 	
 	void OnDestroy()

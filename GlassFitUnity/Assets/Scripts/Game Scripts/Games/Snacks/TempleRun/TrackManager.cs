@@ -75,7 +75,7 @@ public class TrackManager : MonoBehaviour {
 		}
 		//select random one to add
 		bool useClearPiece = Random.value < 0.2f;
-		int pieceIndex = useClearPiece ? 0: Random.Range(1, piecePrototypes.Count-1);
+		int pieceIndex = useClearPiece ? 0: Random.Range(1, piecePrototypes.Count);
 	
 		AddTrackPieceFromPrototype(piecePrototypes[pieceIndex]);
 	}
