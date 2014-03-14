@@ -65,7 +65,7 @@ public class MobileList : UIComponentSettings
 
         if (parent == null)
         {
-            Debug.LogError("panel not identified! ensure panel is set to one of MobilePanel types");
+            //Debug.LogError("panel not identified! ensure panel is set to one of MobilePanel types");
             return;
         }
 
