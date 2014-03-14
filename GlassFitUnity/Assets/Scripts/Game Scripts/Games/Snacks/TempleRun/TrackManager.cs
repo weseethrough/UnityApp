@@ -13,6 +13,8 @@ public class TrackManager : MonoBehaviour {
 	const float GRID_SIZE = 10.0f;
 	const int NUM_ACTIVE_TRACK_PIECES = 5;
 
+	private PlayerController player;
+	
 	// Use this for initialization
 	void Start () {
 		log = new Log("TrackManager");
@@ -27,7 +29,12 @@ public class TrackManager : MonoBehaviour {
 		{
 			log.error("Couldn't find prototype root");
 		}
-
+	
+		GameObject obj = GameObject.Find("David");
+		if(obj != null)
+		{
+			player = obj.GetComponent<PlayerController>();
+		}
 		//populate list of prototypes from the root node supplied in editor
 		piecePrototypeRoot.SetActive(true);
 		TrackPiece[] prototypesArray = piecePrototypeRoot.GetComponentsInChildren<TrackPiece>();
@@ -54,6 +61,9 @@ public class TrackManager : MonoBehaviour {
 		{
 			AddRandomTrackPiece();
 		}
+		
+		
+		
 
 	}
 
@@ -86,32 +96,40 @@ public class TrackManager : MonoBehaviour {
 		//instantiate and initialise
 		TrackPiece newPiece = (TrackPiece)Instantiate(prototype);
 		//place at player current distance
-		float newPiecePos = (float)Platform.Instance.LocalPlayerPosition.Distance;
-		if(trackPieces.Count > 0)
+		if(player != null)
 		{
-			TrackPiece lastTrackPiece = trackPieces[trackPieces.Count-1];
-			newPiecePos = lastTrackPiece.GetDistance() + GRID_SIZE;
-			log.info("Created new track piece of type: " + newPiece.name + " at " + newPiecePos);
+			float newPiecePos = (float)player.distanceTravelled;
+			if(trackPieces.Count > 0)
+			{
+				TrackPiece lastTrackPiece = trackPieces[trackPieces.Count-1];
+				newPiecePos = lastTrackPiece.GetDistance() + GRID_SIZE;
+				log.info("Created new track piece of type: " + newPiece.name + " at " + newPiecePos);
+			}
+			newPiece.SetDistance(newPiecePos);
+			newPiece.SetPlayer(player);
+	
+			//add to end of list
+			trackPieces.Add(newPiece);
 		}
-		newPiece.SetDistance(newPiecePos);
-
-		//add to end of list
-		trackPieces.Add(newPiece);
+		
 	}
 
 	// Update is called once per frame
 	void Update () {
 		TrackPiece toRemove = null;
 
-		log.info("Player Distance: " + Platform.Instance.LocalPlayerPosition.Distance);
+		//log.info("Player Distance: " + Platform.Instance.LocalPlayerPosition.Distance);
 
 		//find track piece behind the player
 		foreach(TrackPiece piece in trackPieces)
 		{
-			if(Platform.Instance.LocalPlayerPosition.Distance - piece.GetDistance() > GRID_SIZE)
-			{	
-				toRemove = piece;
+			if(player != null) {
+				if(player.distanceTravelled - piece.GetDistance() > GRID_SIZE)
+				{	
+					toRemove = piece;
+				}
 			}
+			
 		}
 
 		log.info("Removing track piece named: " + toRemove.gameObject.name);

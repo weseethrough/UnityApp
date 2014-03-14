@@ -26,9 +26,12 @@ public class PlayerController : MonoBehaviour {
 	
 	private bool dead = false;
 	
+	public float runningSpeed = 9f;
+	
+	public double distanceTravelled = 0;
+	
 	// Use this for initialization
 	void Start () {
-		//Platform.Instance.GetPlayerOrientation().Reset();
 		
 		startPitch = Platform.Instance.GetPlayerOrientation().AsPitch() * Mathf.Rad2Deg;
 		
@@ -62,6 +65,8 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		
+		distanceTravelled += runningSpeed * Time.deltaTime;
 		
 		if(Input.GetKeyDown(KeyCode.Space))
 		{
@@ -157,15 +162,8 @@ public class PlayerController : MonoBehaviour {
 		if(jump && notSliding)
 		{
 			jump = false;
-			//if(Physics.Raycast(transform.position, -Vector3.up, collider.bounds.extents.y + 0.1f))
-//			if(collider != null)
-//			{
-//				if(Physics.Raycast(transform.position, -Vector3.up, collider.bounds.extents.y))
-//				{
-					DoJump();
-//				}
-//			}
 			
+			DoJump();
 		}
 	}
 	

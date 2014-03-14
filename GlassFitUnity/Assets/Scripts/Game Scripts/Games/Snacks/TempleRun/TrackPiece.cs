@@ -5,6 +5,8 @@ public class TrackPiece : MonoBehaviour {
 
 	public Vector3 worldPos;
 	protected Vector3 initialPos;
+	
+	private PlayerController player;
 
 	public float GetDistance()
 	{
@@ -14,7 +16,11 @@ public class TrackPiece : MonoBehaviour {
 	{
 		worldPos = new Vector3(initialPos.x, initialPos.y, dist + initialPos.z);
 	}
-
+	
+	public void SetPlayer(PlayerController play)
+	{
+		player = play;
+	}
 	// Use this for initialization
 	void Start () {
 		//store the initial position as placed in the editor.
@@ -24,6 +30,9 @@ public class TrackPiece : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		//move into position based on real-world position and player distance
-		transform.position = worldPos - new Vector3(0,0,(float)Platform.Instance.LocalPlayerPosition.Distance);
+		if(player != null) {
+			transform.position = worldPos - new Vector3(0,0,(float)player.distanceTravelled);
+		}
+		
 	}
 }
