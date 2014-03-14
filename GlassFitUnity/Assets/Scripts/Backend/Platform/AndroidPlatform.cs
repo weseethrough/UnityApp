@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using RaceYourself.Models;
 using UnityEngine;
 using Newtonsoft.Json;
+using Sqo;
 
 #if UNITY_ANDROID && !RACEYOURSELF_MOBILE
 /// <summary>
@@ -907,7 +908,28 @@ public class AndroidPlatform : Platform
 	public override Device DeviceInformation() 
 	{
 		return new Device(build_class.GetStatic<string>("MANUFACTURER"), build_class.GetStatic<string>("MODEL"));
-	}	
+	}
+	
+	public void NewTrack(String json) {
+		log.info("Received track from java, saving to SiaqoDb..");
+		Track t = JsonConvert.DeserializeObject<Track>(json);
+		if (db.Cast<Track>().Where<Track>(tr => tr.id == t.id).FirstOrDefault() != null) {
+			db.UpdateObjectBy("id", t);
+		} else {
+			db.StoreObject(t);
+		}
+	}
+	
+	public void NewPosition(String json) {
+		log.info("Received position from java, saving to SiaqoDb..");
+		Position p = JsonConvert.DeserializeObject<Position>(json);
+		if (db.Cast<Position>().Where<Position>(po => po.id == p.id).FirstOrDefault() != null) {
+			db.UpdateObjectBy("id", p);
+		} else {
+			db.StoreObject(p);
+		}
+	}
+	
 }
 #endif
 
