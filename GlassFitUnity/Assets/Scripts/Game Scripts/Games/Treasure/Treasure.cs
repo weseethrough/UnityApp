@@ -19,6 +19,10 @@ public class Treasure : MonoBehaviour {
 	// Float for the distance to the treasure.
 	private double treasureDist = 0.0;
 	
+	// Maximal initial coordinate range for chest position
+	private float treasureInitialRange = 0.01f;
+
+	
 	// Variables for starting the game.
 	private bool started = false;
 	private bool countdown = false;
@@ -43,6 +47,8 @@ public class Treasure : MonoBehaviour {
 	
 	// Texture for the boxes for OnGUI - to be updated.
 	Texture2D normal;
+	
+	
 	
 	/// <summary>
 	/// Start this instance. Sets the initial values
@@ -202,9 +208,8 @@ public class Treasure : MonoBehaviour {
 		if (worldCoordinate == null) {
 			UnityEngine.Debug.Log("Initial position is: " + lat + ", " + lng);
 
-			float range = 0.01f;
-			worldCoordinate = new Position(UnityEngine.Random.Range(lat-range, lat+range), 
-									  		UnityEngine.Random.Range(lng-range, lng+range));
+			worldCoordinate = new Position(UnityEngine.Random.Range(lat-treasureInitialRange, lat+treasureInitialRange), 
+									  		UnityEngine.Random.Range(lng-treasureInitialRange, lng+treasureInitialRange));
 		}
 		UnityEngine.Debug.Log("Chest position is: " + worldCoordinate.latitude + ", " + worldCoordinate.longitude);
 	}

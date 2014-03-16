@@ -1251,7 +1251,7 @@ public abstract class Platform : MonoBehaviour {
 	}
 	
 	public virtual Position PredictedPosition() {
-		return position;
+		return predictedPosition;
 	}
 	
 	public virtual float Bearing() {
