@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviour {
 	
 	private bool jump = false;
 	
+	private new Collider collider;
+	
 	// Use this for initialization
 	void Start () {
 		//Platform.Instance.GetPlayerOrientation().Reset();
@@ -32,6 +34,8 @@ public class PlayerController : MonoBehaviour {
 		UnityEngine.Debug.Log("PlayerController: started");
 		
 		rigidbody.centerOfMass = new Vector3(0, 0, 0);
+		
+		collider = GetComponentInChildren<Collider>();
 		
 		GestureHelper.onTwoTap += twoHandler;
 	}
@@ -57,17 +61,20 @@ public class PlayerController : MonoBehaviour {
 		float pitch = Platform.Instance.GetPlayerOrientation().AsPitch();
 		pitch *= Mathf.Rad2Deg;
 		
-		if(startPitch - pitch > 15f && !lookingUp)
+		if(startPitch - pitch > 10f && !lookingUp)
 		{
 			UnityEngine.Debug.Log("PlayerController: possible jump...");
 			countingDown = true;
 			lookingUp = true;
+			jump = true;
 		}
-		else if(startPitch - pitch < -15f && !lookingDown)
+		else if(startPitch - pitch < -10f && !lookingDown)
 		{
 			UnityEngine.Debug.Log("PlayerController: possible slide...");
 			countingDown = true;
 			lookingDown = true;
+			
+			DoSlide();
 		}
 		
 		if(countingDown)
@@ -83,7 +90,6 @@ public class PlayerController : MonoBehaviour {
 						countingDown = false;
 						currentTime = 0.0f;
 						UnityEngine.Debug.Log("PlayerController: jump actually detected!");
-						jump = true;
 					}
 				}
 				else if(lookingDown)
@@ -94,7 +100,6 @@ public class PlayerController : MonoBehaviour {
 						countingDown = false;
 						currentTime = 0.0f;
 						UnityEngine.Debug.Log("PlayerController: slide actually detected!");
-						DoSlide();
 					}
 				}
 			}
@@ -121,7 +126,15 @@ public class PlayerController : MonoBehaviour {
 		if(jump)
 		{
 			jump = false;
-			DoJump();
+			//if(Physics.Raycast(transform.position, -Vector3.up, collider.bounds.extents.y + 0.1f))
+//			if(collider != null)
+//			{
+//				if(Physics.Raycast(transform.position, -Vector3.up, collider.bounds.extents.y))
+//				{
+					DoJump();
+//				}
+//			}
+			
 		}
 	}
 	

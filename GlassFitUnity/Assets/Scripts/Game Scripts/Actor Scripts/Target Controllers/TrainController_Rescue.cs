@@ -29,7 +29,7 @@ public class TrainController_Rescue : TargetController {
 	private double playerStartDistance;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
 		lane = 1;
 		lanePitch = 1.0f;
@@ -57,8 +57,8 @@ public class TrainController_Rescue : TargetController {
 		//sound the bell
 		hornSound.Play();
 		
-		//absolutePos.z += (float)Platform.Instance.Distance();
-		playerStartDistance = Platform.Instance.Distance();
+		//absolutePos.z += (float)Platform.Instance.LocalPlayerPosition.Distance;
+		playerStartDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		//enable the on-look-at audio
 		OnLookAtSound lookAtSound = GetComponent<OnLookAtSound>();
 		lookAtSound.enabled = true;
@@ -96,7 +96,7 @@ public class TrainController_Rescue : TargetController {
 		}
 		
 		//set position as relative to camera
-		playerDistance = Platform.Instance.GetDistance();
+		playerDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		Vector3 playerPos = new Vector3(0,0,playerDistance);
 		transform.localPosition = absolutePos - playerPos;
 	}

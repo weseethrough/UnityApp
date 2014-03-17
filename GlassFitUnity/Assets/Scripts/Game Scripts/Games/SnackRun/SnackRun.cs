@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using SimpleJSON;
+
 public class SnackRun : GameBase {
 	
 	protected SnackController snackController = null;
@@ -21,9 +23,9 @@ public class SnackRun : GameBase {
 	protected AudioSource whooshOutSound = null;
 	
 	// Use this for initialization
-	void Start() {
+	public override void Start() {
 		
-		if( !Platform.Instance.IsIndoor() )
+		if( !Platform.Instance.LocalPlayerPosition.IsIndoor() )
 		{
 			nextSnackDistance = 50.0f;
 			snackInterval = 100.0f;
@@ -55,8 +57,8 @@ public class SnackRun : GameBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		float playerDistance = Platform.Instance.GetDistance();
+	public override void Update () {
+		float playerDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		if( !snackActive && playerDistance > nextSnackDistance )
 		{
 			OfferPlayerSnack();
@@ -145,7 +147,7 @@ public class SnackRun : GameBase {
 		//whooshOutSound.Play();
 		
 		//queue up the next snack offer.
-		float currentDistance = Platform.Instance.GetDistance();
+		float currentDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		nextSnackDistance = currentDistance + snackInterval;
 		
 		//shift token along and unhide
@@ -169,9 +171,9 @@ public class SnackRun : GameBase {
 		if(Platform.Instance.IsRemoteDisplay())
 		{
 			UnityEngine.Debug.Log("SnackRun: Sending Bluetooth message that snack has ended");
-			JSONObject json = new JSONObject();
-			json.AddField("action", "OnSnackFinished");
-			Platform.Instance.BluetoothBroadcast(json);		
+			JSONClass json = new JSONClass();
+			json.Add("action", "OnSnackFinished");
+			Platform.Instance.BluetoothBroadcast(json.ToString());		
 		}
 	}
 	
@@ -180,9 +182,9 @@ public class SnackRun : GameBase {
 		//send Bluetooth message to Remote, if applicable
 		if(Platform.Instance.IsRemoteDisplay())
 		{
-	        JSONObject json = new JSONObject();
-			json.AddField("action", "ReturnToMainMenu");
-			Platform.Instance.BluetoothBroadcast(json);		
+	        JSONClass json = new JSONClass();
+			json.Add("action", "ReturnToMainMenu");
+			Platform.Instance.BluetoothBroadcast(json.ToString());		
 		}
 			
 		base.OnFinishedGame ();

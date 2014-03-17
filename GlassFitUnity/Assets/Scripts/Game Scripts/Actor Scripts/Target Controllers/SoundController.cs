@@ -43,7 +43,7 @@ public class SoundController : TargetController {
 	/// <summary>
 	/// Initialises the music tracks
 	/// </summary>
-	void Start () {
+	public override void Start () {
 		
 		// Get all audio tracks.
 		stevies = GetComponents<AudioSource>();
@@ -56,7 +56,7 @@ public class SoundController : TargetController {
 	/// <summary>
 	/// Raises the GUI event. Sets the buttons - needs updating
 	/// </summary>
-	void OnGUI() {
+	public override void OnGUI() {
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		
 		// Button for Indoor mode.
@@ -67,8 +67,8 @@ public class SoundController : TargetController {
 			{
 				indoor = false;
 				indoorText = "Outdoor Active";
-				Platform.Instance.Reset();
-				Platform.Instance.SetIndoor(indoor);
+				Platform.Instance.LocalPlayerPosition.Reset();
+				Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
 				
 				score = 0;
 				mult = 1;
@@ -86,8 +86,8 @@ public class SoundController : TargetController {
 			{
 				indoor = true;
 				indoorText = "Indoor Active";
-				Platform.Instance.Reset();
-				Platform.Instance.SetIndoor(indoor);
+				Platform.Instance.LocalPlayerPosition.Reset();
+				Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
 				//Platform.Instance.StartTrack(indoor);
 				score = 0;
 				mult = 1;
@@ -122,18 +122,18 @@ public class SoundController : TargetController {
 	/// <summary>
 	/// Update this instance. Updates the playing track
 	/// </summary>
-	void Update () {
+	public override void Update () {
 		
 		// Update platform values.
 		Platform.Instance.Poll();
 		
 		// If indoor mode or gps has a lock, start countdown.
-		if(Platform.Instance.HasLock() || indoor)
+		if(Platform.Instance.LocalPlayerPosition.HasLock() || indoor)
 		{
 			countdown = true;
 		 	if(countTime <= -1.0f && !started)
 			{
-				Platform.Instance.StartTrack();
+				Platform.Instance.LocalPlayerPosition.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
 				started = true;
 			}

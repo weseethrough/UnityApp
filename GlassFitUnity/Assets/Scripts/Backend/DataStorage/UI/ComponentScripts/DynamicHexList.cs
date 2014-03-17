@@ -233,7 +233,7 @@ public class DynamicHexList : MonoBehaviour
         {
             int ring = (int)(buttonNextEnterIndex / 8);
 
-            for (int i = 0; i <= ring; i++)
+            for (int i = 0; i <= ring && buttons.Count > buttonNextEnterIndex; i++)
             {
                 PlayButtonEnter(buttons[buttonNextEnterIndex], true);
                 buttonNextEnterIndex++;

@@ -40,11 +40,16 @@ Assembly-UnityScript.unityProj
 !Library/unity default resources
 !Library/unity editor resources
 
+Models/bin
+Models/obj
+!Models/Models.sln
+!Models/Models.csproj
+
 *.svd
 *.userprefs
 *.suo
 *.sln
-*.apk
 *.csproj
+*.apk
 *.unityproj
 GlassFitUnity.zip

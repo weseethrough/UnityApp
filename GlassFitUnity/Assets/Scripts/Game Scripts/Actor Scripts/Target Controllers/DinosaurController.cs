@@ -48,7 +48,7 @@ public class DinosaurController : TargetController {
 	/// <summary>
 	/// Start this instance. Sets the initial attributes
 	/// </summary>
-	void Start () {
+	public override void Start () {
 		
 		// Start the base and set the attributes
 		//base.Start();
@@ -69,7 +69,7 @@ public class DinosaurController : TargetController {
 	/// <summary>
 	/// Raises the enable event. Sets the attributes
 	/// </summary>
-	void OnEnable() {
+	public override void OnEnable() {
 		// Enable the base and set the attributes.
 		base.OnEnable();
 		
@@ -89,8 +89,8 @@ public class DinosaurController : TargetController {
 		// Set the start time
 		currentTime = 0.0f;
 		// Set the player's initial distance
-		playerDistance = Platform.Instance.Distance();
-		playerStartDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
+		playerStartDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		// Set the boulder's starting distance
 		distanceFromStart = (float)playerDistance - 25f;
 	}
@@ -98,7 +98,7 @@ public class DinosaurController : TargetController {
 	/// <summary>
 	/// Update this instance. Updates the position and plays the sound if it is time
 	/// </summary>
-	void Update () {
+	public override void Update () {
 		
 		// If it screamed previously, make the animator bool false
 		if(isScream)
@@ -130,7 +130,7 @@ public class DinosaurController : TargetController {
 		}
 		
 		// Set the player distance 
-		playerDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		
 		// Increase the time
 		currentTime += Time.deltaTime;

@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Controls the position of the treasure and draws the GUI - needs updating
 /// </summary>
@@ -79,7 +81,7 @@ public class Treasure : MonoBehaviour {
 		scale.y = (float)Screen.height / originalHeight;
     	scale.z = 1;
 		
-		Platform.Instance.SetIndoor(false);
+		Platform.Instance.LocalPlayerPosition.SetIndoor(false);
 	}
 	
 	
@@ -105,7 +107,7 @@ public class Treasure : MonoBehaviour {
 		GUI.Box(distance, distanceText + treasureDist.ToString("f1"));
 		
 		// If there is no GPS lock, tell the player.
-		if(!Platform.Instance.HasLock())
+		if(!Platform.Instance.LocalPlayerPosition.HasLock())
 		{
 			GUI.Label(gpsLock, "Waiting for GPS Lock...");
 		}
@@ -119,25 +121,25 @@ public class Treasure : MonoBehaviour {
 		
 		Platform.Instance.Poll();
 		
-		if(Platform.Instance.HasLock()) {
+		if(Platform.Instance.LocalPlayerPosition.HasLock()) {
 			
 			SetChestPosition();
 			// Initiate the countdown.
 			if(!started)
 			{
-				Platform.Instance.StartTrack();
+				Platform.Instance.LocalPlayerPosition.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
 				started = true;
 
 			}
 			
-			UnityEngine.Debug.Log("Current Position is: " + Platform.Instance.PredictedPosition().latitude + ", " + Platform.Instance.PredictedPosition().longitude);
+			UnityEngine.Debug.Log("Current Position is: " + Platform.Instance.LocalPlayerPosition.PredictedPosition.latitude + ", " + Platform.Instance.LocalPlayerPosition.PredictedPosition.longitude);
 			
 			// Get the current position of the treasure based on distance between the player and its real world position.
-			//Vector2 currentPos = MercatorToPixel(worldCoordinate) - MercatorToPixel(Platform.Instance.Position());
+			//Vector2 currentPos = MercatorToPixel(worldCoordinate) - MercatorToPixel(Platform.Instance.LocalPlayerPosition.Position);
 			
 			// Get the magnitude of the distance.
-			treasureDist = LatLongToMetre(Platform.Instance.PredictedPosition(), worldCoordinate);
+			treasureDist = LatLongToMetre(Platform.Instance.LocalPlayerPosition.PredictedPosition, worldCoordinate);
 			
 			gameCoordinate = new Vector3(0, 0, (float)treasureDist);
 			
@@ -147,7 +149,7 @@ public class Treasure : MonoBehaviour {
 				GetComponent<MeshRenderer>().enabled = false;
 			}		
 			
-			double bearing = CalcBearing(Platform.Instance.PredictedPosition(), worldCoordinate);
+			double bearing = CalcBearing(Platform.Instance.LocalPlayerPosition.PredictedPosition, worldCoordinate);
 			
 			UnityEngine.Debug.Log("Treasure: bearing is " + bearing.ToString("f2"));
 			
@@ -199,8 +201,8 @@ public class Treasure : MonoBehaviour {
 	
 	private void SetChestPosition() 
 	{
-		float lat = Platform.Instance.Position().latitude;
-		float lng = Platform.Instance.Position().longitude;
+		float lat = Platform.Instance.LocalPlayerPosition.Position.latitude;
+		float lng = Platform.Instance.LocalPlayerPosition.Position.longitude;
 		if (lat == 0.0f && lng == 0.0f)
 			return;
 		

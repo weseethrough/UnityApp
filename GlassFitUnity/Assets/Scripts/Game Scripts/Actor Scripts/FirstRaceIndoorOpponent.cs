@@ -20,13 +20,13 @@ public class FirstRaceIndoorOpponent : TargetController {
 	private double lastDistance = 0.0;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		anim = GetComponent<Animator>();
 		//renderer.enabled = false;
 		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 	}
 	
-	void OnEnable()
+	public override void OnEnable()
 	{
 		anim = GetComponent<Animator>();
 		//renderer.enabled = false;
@@ -34,9 +34,9 @@ public class FirstRaceIndoorOpponent : TargetController {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		//UnityEngine.Debug.Log("IndoorOpponent: we are in the update function");
-		playerDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		
 		if(playerDistance > distanceInterval)
 		{
@@ -71,8 +71,8 @@ public class FirstRaceIndoorOpponent : TargetController {
 	
 	public void SetRunnerSpeed()
 	{
-		double currentDistance = Platform.Instance.Distance();
-		float currentTime = Platform.Instance.Time() / 1000f;
+		double currentDistance = Platform.Instance.LocalPlayerPosition.Distance;
+		float currentTime = Platform.Instance.LocalPlayerPosition.Time / 1000f;
 		
 		float intervalTotalTime = currentTime - intervalStartTime;
 		

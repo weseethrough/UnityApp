@@ -13,7 +13,7 @@ public class HexInfoManager : MonoBehaviour
         Exiting,        
     }
 
-    Animation animation;
+    new Animation animation;
     string anmationName = "HexInfoEnter";
     
     GameObject buyNowGameObject;

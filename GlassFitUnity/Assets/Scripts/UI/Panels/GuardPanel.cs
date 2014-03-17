@@ -28,7 +28,7 @@ public class GuardPanel : Panel {
 		
         if (Outputs.Count > 0 && parentMachine != null)
         {
-            if (guard != null && guard == true) {
+            if (guard == true) {
 				parentMachine.FollowConnection(Outputs[0]);
 				base.EnterStart();
 				return;

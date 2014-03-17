@@ -25,7 +25,7 @@ public class BoltController : TargetController {
 	//private float movementSpeed = 2.4f;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		// Get the animator
 		anim = GetComponent<Animator>();
 	}
@@ -49,10 +49,10 @@ public class BoltController : TargetController {
 		}
 	}
 	
-	void OnEnable()
+	public override void OnEnable()
 	{
 		// Set the start distance
-		startDistance = (float)Platform.Instance.Distance();
+		startDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		distanceFromStart = startDistance;
 		// Get the animator and set the speed
 		anim = GetComponent<Animator>();
@@ -71,10 +71,10 @@ public class BoltController : TargetController {
 	}
 	
 	// Update is called once per frame
-	void Update () 
+	public override void Update () 
 	{
 		// Get the player's distance
-		playerDistance = Platform.Instance.Distance();
+		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		// Calculate the distance travelled for Bolt
 		distanceFromStart += Time.deltaTime * speed;
 		

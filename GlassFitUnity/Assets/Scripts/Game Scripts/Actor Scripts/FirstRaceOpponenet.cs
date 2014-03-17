@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
+using RaceYourself.Models;
+
 public class FirstRaceOpponenet : TargetController {
 	
 	protected float currentMovementSpeed = 0.0f;
@@ -33,7 +35,7 @@ public class FirstRaceOpponenet : TargetController {
 	protected float totalDistance = 1.0f;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		anim = GetComponent<Animator>();
 		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
 		lane = 1;
@@ -70,7 +72,7 @@ public class FirstRaceOpponenet : TargetController {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		//set the animation speed
 		SetAnimSpeed(currentMovementSpeed);
 		
@@ -80,8 +82,8 @@ public class FirstRaceOpponenet : TargetController {
 		
 		
 		//update player distance & speed cached value, and check if they've passed a 100m increment
-		playerDistance = Platform.Instance.GetDistance();
-		playerSpeed = Platform.Instance.Pace();
+		playerDistance = (float)Platform.Instance.LocalPlayerPosition.Distance;
+		playerSpeed = Platform.Instance.LocalPlayerPosition.Pace;
 
 		// update desired distance & adjust player speed to match
 		UpdateDesiredLead();

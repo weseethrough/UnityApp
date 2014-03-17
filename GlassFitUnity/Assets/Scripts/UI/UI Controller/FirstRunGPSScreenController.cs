@@ -17,7 +17,7 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 	
 		UnityEngine.Debug.Log("Starting FirstRun GPS screen controller");
 	
-		bool bIndoor = Platform.Instance.IsIndoor();
+		bool bIndoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
 		setStringsForIndoor(bIndoor);
 		
 		
@@ -75,7 +75,7 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 	// Update is called once per frame
 	void Update () {
 		//check gps
-		if(Platform.Instance.HasLock() || Platform.Instance.IsIndoor())
+		if(Platform.Instance.LocalPlayerPosition.HasLock() || Platform.Instance.LocalPlayerPosition.IsIndoor())
 		{
 			if(!canProceed)
 			{
@@ -86,7 +86,7 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 				SetBlockProgress(false);
 				
 				//update strings
-				setStringsForIndoor(Platform.Instance.IsIndoor());
+				setStringsForIndoor(Platform.Instance.LocalPlayerPosition.IsIndoor());
 			}
 		}
 		else
@@ -100,7 +100,7 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 				SetBlockProgress(true);
 				
 				//update strings
-				setStringsForIndoor(Platform.Instance.IsIndoor());
+				setStringsForIndoor(Platform.Instance.LocalPlayerPosition.IsIndoor());
 			}
 		}
 		
@@ -108,11 +108,11 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 	
 	protected override void HandleTap() {
 		//toggle indoor mode
-		bool bIndoor = Platform.Instance.IsIndoor();
-		Platform.Instance.SetIndoor(!bIndoor);
+		bool bIndoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
+		Platform.Instance.LocalPlayerPosition.SetIndoor(!bIndoor);
 
 		///get new state and set strings as appropriate
-		bIndoor = Platform.Instance.IsIndoor();
+		bIndoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
 		setStringsForIndoor(bIndoor);
 	}
 
@@ -133,7 +133,7 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 			DataVault.Set("FrGPS_ShowIcons", true);
 			
 			//don't show swipe to proceed if no gps lock
-			if(!Platform.Instance.HasLock())
+			if(!Platform.Instance.LocalPlayerPosition.HasLock())
 			{	
 				//please tether
 				DataVault.Set("FrGPS_tether", "Tether phone to proceed");

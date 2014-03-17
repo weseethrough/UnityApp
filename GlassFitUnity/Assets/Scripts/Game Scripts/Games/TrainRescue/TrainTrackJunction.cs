@@ -79,7 +79,7 @@ public class TrainTrackJunction : MonoBehaviour {
 		//check if player has reached us
 		if(!playerHasPassed)
 		{
-			if(Platform.Instance.GetDistance() + leverTriggerRange > distancePosition && !trainHasPassed)
+			if(Platform.Instance.LocalPlayerPosition.Distance + leverTriggerRange > distancePosition && !trainHasPassed)
 			{
 				SwitchOnDetour();
 			}
@@ -103,7 +103,7 @@ public class TrainTrackJunction : MonoBehaviour {
 		}
 		
 		//set position relative to player
-		transform.localPosition = new Vector3(xOffset, height, distancePosition - Platform.Instance.GetDistance());
+		transform.localPosition = new Vector3(xOffset, height, distancePosition - (float)Platform.Instance.LocalPlayerPosition.Distance);
 	}
 
 }

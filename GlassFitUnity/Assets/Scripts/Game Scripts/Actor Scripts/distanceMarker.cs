@@ -5,7 +5,7 @@ using System;
 /// <summary>
 /// Sets the distance markers
 /// </summary>
-public class DistanceMarker : MonoBehaviour {
+public class distanceMarker : MonoBehaviour {
 	
 	private int target = 500;
 	
@@ -35,7 +35,7 @@ public class DistanceMarker : MonoBehaviour {
 		textMesh.text = SiDistance(target);
 		try {
 			goal = (int)DataVault.Get("finish");
-		} catch (Exception e) {
+		} catch (Exception) {
 			UnityEngine.Debug.LogWarning("DistanceMarker: Couldn't retrieve finish distance. Setting locally to 10km");
 			goal = 10000;
 		}
@@ -51,11 +51,7 @@ public class DistanceMarker : MonoBehaviour {
 	void Update () 
 	{
 		// Get current distance travelled.
-#if !UNITY_EDITOR
-		distance = Platform.Instance.Distance();
-#else
-		distance = PlatformDummy.Instance.Distance();
-#endif
+		distance = Platform.Instance.LocalPlayerPosition.Distance;
 		// Reset markers.
 		transform.position = new Vector3(0, 0, 500000);
 		

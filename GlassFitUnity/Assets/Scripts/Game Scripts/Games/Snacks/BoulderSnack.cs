@@ -35,7 +35,7 @@ public class BoulderSnack : SnackBase {
 	}
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		// Call the base function
 		base.Start();
 		// Find the boulder
@@ -44,7 +44,7 @@ public class BoulderSnack : SnackBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		// Call the base function
 		base.Update();
 		

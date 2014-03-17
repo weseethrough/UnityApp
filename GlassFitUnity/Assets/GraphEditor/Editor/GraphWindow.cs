@@ -366,7 +366,7 @@ public class GraphWindow : EditorWindow, IDraw
 
                     if (m_storedCopy != null && Event.current.keyCode == KeyCode.V && Event.current.alt)
                     {
-                        CloneNode(m_storedCopy, null);
+                        CloneNode(m_storedCopy);
 
                         m_storedCopy = null;
                     }
@@ -1146,9 +1146,9 @@ public class GraphWindow : EditorWindow, IDraw
                     Graph.Data.Disconnect(conector);
 
                     m_selection.Outputs.RemoveAt(i);                    
-                    if (m_selection is Panel)
+                    if (m_selection is FlowState)
                     {
-                        (m_selection as Panel).UpdateSize();
+                        (m_selection as FlowState).UpdateSize();
                     }
 
                     i--;
@@ -1167,9 +1167,9 @@ public class GraphWindow : EditorWindow, IDraw
             if (GUILayout.Button("Add", GUILayout.MaxWidth(40)) && m_newExitName.Length > 0)
             {
                 m_selection.NewOutput(m_newExitName, "Flow");
-                if (m_selection is Panel)
+                if (m_selection is FlowState)
                 {
-                    (m_selection as Panel).UpdateSize();
+                    (m_selection as FlowState).UpdateSize();
                 }
 
                 m_dirtySave = true;
@@ -1392,18 +1392,28 @@ public class GraphWindow : EditorWindow, IDraw
         DataStore.SaveStorage(DataStore.BlobNames.flow);
     }
 
-    public void CloneNode(FlowState source, FlowState parent)
+    public void CloneNode(FlowState source)
+    {
+        CloneNode(source, null, null);
+    }
+
+    private void CloneNode(FlowState source, FlowState parent, Dictionary<uint, uint> oldToNewID)
     {
         FlowState node = Activator.CreateInstance(source.GetType()) as FlowState;
-
-        node.Id = Graph.Data.IdNext++;
+                
+        if (oldToNewID == null)
+        {
+            oldToNewID = new Dictionary<uint, uint>();
+        }
+        
         Graph.Data.Add(node);
+        oldToNewID.Add(source.Id, node.Id);
 
         if (parent == null)
         {
             node.Position = GetNewPosition(source.Size);
             node.Size = source.Size;
-            SelectNode(node);
+            SelectNode(node);            
         }
         else
         {
@@ -1432,12 +1442,67 @@ public class GraphWindow : EditorWindow, IDraw
 
         foreach (FlowState child in source.children)
         {
-            CloneNode(child, node);
+            CloneNode(child, node, oldToNewID);
         }
-        
+
+        ReconnectNode(source, node, oldToNewID);
+
         UnityEditor.EditorUtility.SetDirty(Graph.gameObject);
 
         dirtySave = true;
+    }
+
+    private void ReconnectNode(FlowState source, FlowState newState, Dictionary<uint, uint> oldToNewID)
+    {
+        foreach (GConnector conncector in source.Inputs)
+        {
+            foreach ( GConnector target in conncector.Link)
+            {
+                if (target != null)
+                {
+                    Reconnect(conncector, target, oldToNewID);
+                }
+            }
+        }
+
+        foreach (GConnector conncector in source.Outputs)
+        {
+            foreach (GConnector target in conncector.Link)
+            {
+                if (target != null)
+                {
+                    Reconnect(conncector, target, oldToNewID);
+                }
+            }
+        }
+    }
+
+    private void Reconnect(GConnector oldCon1, GConnector oldCon2, Dictionary<uint, uint> oldToNewID)
+    {
+        if (oldToNewID.ContainsKey(oldCon1.Parent.Id) && oldToNewID.ContainsKey(oldCon2.Parent.Id))
+        {
+            //find id of new nodes matching old nodes
+            uint id1 = oldToNewID[oldCon1.Parent.Id];
+            uint id2 = oldToNewID[oldCon2.Parent.Id];
+
+            //find new nodes which matches old connection
+            GNode node1 = GraphComponent.GetInstance().Data.Nodes.Find(r => r.Id == id1);
+            GNode node2 = GraphComponent.GetInstance().Data.Nodes.Find(r => r.Id == id2);
+            if (node1 == null || node2 == null) return;
+
+            //find connection sockets in new graph area
+            GConnector g1 = GetConnectorByOldConectionData(oldCon1, node1);
+            GConnector g2 = GetConnectorByOldConectionData(oldCon2, node2);
+
+            GraphComponent.GetInstance().Data.Connect(g1, g2);
+        }
+    }
+
+    private GConnector GetConnectorByOldConectionData(GConnector oldConection, GNode newNode)
+    {
+        List<GConnector> list = oldConection.IsInput ? newNode.Inputs : newNode.Outputs;
+
+        return list.Find(r => r.Name == oldConection.Name);
     }
 
     public bool DeleteNode(FlowState node)

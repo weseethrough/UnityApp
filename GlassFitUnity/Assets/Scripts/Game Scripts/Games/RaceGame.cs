@@ -47,7 +47,7 @@ public class RaceGame : GameBase {
 	public GameObject chrisHolder;
 	public GameObject bradleyHolder;
 		
-	void Start () {
+	public override void Start () {
 		base.Start();
 		
 		//instantiate teh appropriate actor
@@ -103,7 +103,7 @@ public class RaceGame : GameBase {
 		
 		InstantiateActors();
 		
-		//Platform.Instance.SetIndoor(true);
+		//Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		//SetReadyToStart(true);
 		SetVirtualTrackVisible(true);
 
@@ -122,7 +122,7 @@ public class RaceGame : GameBase {
 	
 	
 	protected void UpdateLeaderboard() {
-		double distance = Platform.Instance.Distance();
+		double distance = Platform.Instance.LocalPlayerPosition.Distance;
 		// TODO: Decide if we are allowed to sort in place or need to make a copy
 		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
 		int position = 1;
@@ -183,7 +183,7 @@ public class RaceGame : GameBase {
 	
 
 	
-	void Update () {
+	public override void Update () {
 
 		base.Update ();
 	

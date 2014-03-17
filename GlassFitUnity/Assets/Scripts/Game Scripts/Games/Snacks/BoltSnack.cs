@@ -28,7 +28,7 @@ public class BoltSnack : SnackBase {
 	private int boltLevel = 0;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		base.Start();
 		
 		GameObject stadium = GameObject.Find("Stadium");
@@ -63,7 +63,7 @@ public class BoltSnack : SnackBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		base.Update();
 		
 		// Check if bolt is enabled
@@ -108,7 +108,7 @@ public class BoltSnack : SnackBase {
 				// Set the player finished to true
 				playerFinished = true;
 				// Calculate the final time
-				finalTime = Platform.Instance.Time() - startTime;
+				finalTime = Platform.Instance.LocalPlayerPosition.Time - startTime;
 			}
 			
 			// If both finished, end the game
@@ -223,7 +223,7 @@ public class BoltSnack : SnackBase {
 			// Enable him and save the start time
 			bolt.enabled = true;
 			bolt.SetLevel(boltLevel);
-			startTime = Platform.Instance.Time();
+			startTime = Platform.Instance.LocalPlayerPosition.Time;
 		}
 		else
 		{

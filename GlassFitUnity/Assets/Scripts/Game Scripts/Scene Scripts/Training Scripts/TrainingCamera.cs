@@ -52,7 +52,7 @@ public class TrainingCamera : MonoBehaviour {
 			if(transform.rotation.eulerAngles.y < 200 && transform.rotation.eulerAngles.y > 160) {
 				// If the player looks at the avatar, set the reset the subtitle time and make the avatar go to the start position.
 				subtitleTime = 0.0f;
-				Platform.Instance.Reset();
+				Platform.Instance.LocalPlayerPosition.Reset();
 				runner.GetComponent<TrainingController>().SetMove(true);
 				avatarSet = true;
 			} else {
@@ -61,7 +61,7 @@ public class TrainingCamera : MonoBehaviour {
 			}
 		} else if(!Platform.Instance.HasStarted()) {
 			// Once the player has set the avatar, it checks for a GPS lock.
-			if(!Platform.Instance.HasLock()){
+			if(!Platform.Instance.LocalPlayerPosition.HasLock()){
 				// If there is no lock, tell the player.
 				GUI.Label(new Rect(300, 100, 200, 80), "There he is, he's just going to get into position and we can start once we have a lock on the GPS.");
 				subtitleTime = 0.0f;

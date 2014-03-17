@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using RaceYourself.Models;
+
 public class ChallengeNotification {
 	
 	private Notification notification;
@@ -76,7 +78,7 @@ public class ChallengeNotification {
 	{
 		if(notification != null)
 		{
-			notification.setRead(true);
+			Platform.Instance.ReadNotification(notification.id);
 		}
 	}
 	
@@ -89,11 +91,5 @@ public class ChallengeNotification {
 		{
 			return null;
 		}
-	}
-	
-	public virtual JSONObject AsJson {
-		get {
-			return new JSONObject();
-		}
-	}
+	}	
 }

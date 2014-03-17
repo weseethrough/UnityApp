@@ -24,12 +24,12 @@ public class SnackBase : MonoBehaviour {
 	}
 	
 	// Use this for initialization
-	protected virtual void Start () {
+	public virtual void Start () {
 		
 	}
 	
 	// Update is called once per frame
-	protected virtual void Update () {
+	public virtual void Update () {
 		
 	}
 	

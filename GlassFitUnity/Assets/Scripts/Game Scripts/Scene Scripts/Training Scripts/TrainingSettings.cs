@@ -30,8 +30,8 @@ public class TrainingSettings : MonoBehaviour {
 	
 	void Start () {
 		// Set indoor mode
-		//Platform.Instance.reset();
-		Platform.Instance.SetIndoor(false);
+		//Platform.Instance.LocalPlayerPosition.Reset();
+		Platform.Instance.LocalPlayerPosition.SetIndoor(false);
 		// Calculate and set scale
 		float x = (float)Screen.width/originalWidth;
 		float y = (float)Screen.height/originalHeight;
@@ -85,7 +85,7 @@ public class TrainingSettings : MonoBehaviour {
 				// If anything has changed
 				if(changed) {
 					// Reset platform, set new target speed and indoor/outdoor mode
-					Platform.Instance.Reset();
+					Platform.Instance.LocalPlayerPosition.Reset();
 					Platform.Instance.ResetTargets();
 					TrainingController controller = runner.GetComponent<TrainingController>();
 					// TODO: Ugly. Look into.
@@ -100,7 +100,7 @@ public class TrainingSettings : MonoBehaviour {
 					changed = false;
 				} else {
 					// Else restart tracking
-					Platform.Instance.StartTrack();
+					Platform.Instance.LocalPlayerPosition.StartTrack();
 				}
 			}
 		} 
@@ -110,7 +110,7 @@ public class TrainingSettings : MonoBehaviour {
 			if (GUI.Button(new Rect(10, ((originalHeight)/2)-50, 100, 50), "Options")){
 				// Open the menu and pause tracking
         		menuOpen = true;
-				Platform.Instance.StopTrack();
+				Platform.Instance.LocalPlayerPosition.StopTrack();
 			}
 		}
 		
@@ -134,7 +134,7 @@ public class TrainingSettings : MonoBehaviour {
 		
 		// If the game hasn't started, show the Start button.
 		if(!started) {
-			if(GUI.Button(new Rect(275, 400, 100, 100), "START") && !countdown && Platform.Instance.HasLock()) {
+			if(GUI.Button(new Rect(275, 400, 100, 100), "START") && !countdown && Platform.Instance.LocalPlayerPosition.HasLock()) {
 				countdown = true;
 			}
 		} else {
@@ -142,15 +142,15 @@ public class TrainingSettings : MonoBehaviour {
 			if(GUI.Button(new Rect(275, 400, 100, 100), "STOP")) {
 				stopTimer = 0.0f;
 				stopped = true;
-				Platform.Instance.StopTrack();
+				Platform.Instance.LocalPlayerPosition.StopTrack();
 			}
 		}
 		
 		// If the reset button is pressed, stop tracking and reset.
 		if(GUI.Button(new Rect(425, 400, 100, 100), "RESET")) {
 			countdown = false;
-			Platform.Instance.StopTrack();
-			Platform.Instance.Reset();
+			Platform.Instance.LocalPlayerPosition.StopTrack();
+			Platform.Instance.LocalPlayerPosition.Reset();
 			countTime = 3.0f;
 			started = false;
 		}
@@ -173,7 +173,7 @@ public class TrainingSettings : MonoBehaviour {
 		if(countdown) {
 		 	if(countTime <= -1.0f && !started)
 			{
-				Platform.Instance.StartTrack();
+				Platform.Instance.LocalPlayerPosition.StartTrack();
 				UnityEngine.Debug.LogWarning("Tracking Started");
 				started = true;
 			}
@@ -187,7 +187,7 @@ public class TrainingSettings : MonoBehaviour {
 		// If the game is stopped and the screen is tapped, save the progress and load the hex menu.
 		if(stopped && Input.touchCount > 0 && stopTimer > 0.0f) {
 			PlayerPrefs.SetInt("StartLevel", 2);
-			Platform.Instance.Reset();
+			Platform.Instance.LocalPlayerPosition.Reset();
 			AutoFade.LoadLevel(0, 1.0f, 1.0f, Color.black);
 		}
 		stopTimer += Time.deltaTime;

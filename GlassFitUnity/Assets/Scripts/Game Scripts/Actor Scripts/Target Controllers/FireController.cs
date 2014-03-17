@@ -10,7 +10,7 @@ public class FireController : TargetController {
 	/// <summary>
 	/// Start this instance. Sets the initial attributes.
 	/// </summary>
-	void Start () {
+	public override void Start () {
 	
 		//set initial position
 		base.Start();
@@ -20,7 +20,7 @@ public class FireController : TargetController {
 	/// <summary>
 	/// Raises the enable event. Sets the initial attributes
 	/// </summary>
-	void OnEnable() {
+	public override void OnEnable() {
 		base.OnEnable();
 		SetAttribs(100, 135, 0, 0);
 	}
@@ -28,7 +28,7 @@ public class FireController : TargetController {
 	/// Update this instance. Controls the movement of the fire.
 	/// </summary>
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		base.Update();
 		//move to new position
 	}

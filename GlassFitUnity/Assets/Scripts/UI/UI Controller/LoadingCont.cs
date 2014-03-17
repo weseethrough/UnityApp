@@ -3,6 +3,8 @@ using System.Collections;
 using System.Threading;
 using System.Collections.Generic;
 
+using RaceYourself.Models;
+
 public class LoadingCont : MonoBehaviour {
 	
 	private float rotate = 0;
@@ -58,13 +60,10 @@ public class LoadingCont : MonoBehaviour {
 						Notification[] notifications = Platform.Instance.Notifications();
 						foreach (Notification notification in notifications) {
 							if (notification.read) continue;
-							if (string.Equals(notification.node["type"], "challenge")) {
-								int challengerId = notification.node["from"].AsInt;
-								if (challengerId == null) continue;
-								string challengeId = notification.node["challenge_id"].ToString();
+							if (string.Equals(notification.message.type, "challenge")) {
+								int challengerId = notification.message.from;
+								string challengeId = notification.message.challenge_id;
 								if (challengeId == null || challengeId.Length == 0) continue;
-								if (challengeId.Contains("$oid")) challengeId = notification.node["challenge_id"]["$oid"].ToString();
-								challengeId = challengeId.Replace("\"", "");
 								
 								Debug.Log("AcceptChallenges: " + challengeId + " from " + challengerId);
 								
@@ -75,9 +74,9 @@ public class LoadingCont : MonoBehaviour {
 									DistanceChallenge challenge = potential as DistanceChallenge;					
 									
 									DataVault.Set("loading", "Please wait while we fetch a track");
-									Track track = challenge.UserTrack(challengerId);
-									if (track != null) {
-										Platform.Instance.FetchTrack(track.deviceId, track.trackId); // Make sure we have the track in the local db
+									var attempt = challenge.attempts.Find(a => a.user_id == challengerId);
+									if (attempt != null) {
+										var track = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id); // Make sure we have the track in the local db
 										TargetTracker tracker = Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
 										User challenger = Platform.Instance.GetUser(challengerId);
 										tracker.name = challenger.username;

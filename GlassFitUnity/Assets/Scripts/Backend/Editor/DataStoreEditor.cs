@@ -24,8 +24,8 @@ public class DataStoreEditor : Editor
         {
             for (int i = 0; i < max; i++)
             {
-                string name = ((DataStore.BlobNames)(i)).ToString();                
-                PlatformDummy.Instance.EraseBlob(name);                
+                string name = ((DataStore.BlobNames)(i)).ToString();
+                Platform.Instance.EraseBlob(name);                
             }
         }
     }

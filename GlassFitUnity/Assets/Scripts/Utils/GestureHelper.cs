@@ -148,9 +148,17 @@ public class GestureHelper : MonoBehaviour {
 	
 	void Update()
 	{
-		//Update keys for editor
-		if(Application.isEditor)
+		if(!Application.isEditor)
 		{
+			//check the escape key. This equates to the back button on Android, and the downswipe gesture on Glass
+			if( Input.GetKeyDown(KeyCode.Escape) )
+			{
+				if(onBack != null) onBack();
+			}
+		}
+		else
+		{
+			//Update keys for editor
 			// 1-tap
 			if( Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown(KeyCode.Alpha1) ) 
 			{
@@ -174,7 +182,7 @@ public class GestureHelper : MonoBehaviour {
 			}
 			
 			//back = down or backspace or escape
-			if(Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.Backspace) || Input.GetKeyDown(KeyCode.Escape) )
+			if(Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.Backspace) )
 			{
 				if(onBack != null) onBack();
 			}

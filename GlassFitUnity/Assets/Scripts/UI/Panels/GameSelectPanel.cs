@@ -5,6 +5,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
+using RaceYourself.Models;
+
 [Serializable]
 public class GameSelectPanel : HexPanel 
 {
@@ -24,7 +26,6 @@ public class GameSelectPanel : HexPanel
 	
 	private List<Gestures> lastGestures = new List<Gestures>();
 	private List<Gestures> pointsCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.TwoTap, Gestures.Tap};
-	private List<Gestures> screenCaptureCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.Tap, Gestures.TwoTap};
 
 	private List<Gestures> btServerCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.ThreeTap, Gestures.Tap};
 	private List<Gestures> btClientCheat = new List<Gestures> {Gestures.ThreeTap, Gestures.ThreeTap, Gestures.TwoTap};
@@ -64,16 +65,9 @@ public class GameSelectPanel : HexPanel
 		UnityEngine.Debug.Log ("GameSelectPanel: gestures: " + string.Join(", ", lastGestures.Select(i => i.ToString()).ToArray()));
 		if (lastGestures.SequenceEqual(pointsCheat)) {
 				UnityEngine.Debug.Log("GameSelectPanel: Final tap - points awarded");
-				Platform.Instance.AwardPoints("Dev Cheat", "Dev Cheat", 10000);
+				Platform.Instance.PlayerPoints.AwardPoints("Dev Cheat", "Dev Cheat", 10000);
 				UnityEngine.Debug.Log("GameSelectPanel: points awarded in platform");
 				MessageWidget.AddMessage("Points Cheat", "You got 10,000 points for nothing!", "trophy copy");
-				lastGestures.Clear();
-		}
-		if (lastGestures.SequenceEqual(screenCaptureCheat)) {
-				UnityEngine.Debug.Log("GameSelectPanel: Final tap - screen capture toggled");
-				Platform.Instance.ToggleScreenCapture();
-				// TODO: Toggle audio recording
-				MessageWidget.AddMessage("Debug", "Toggling screen capture", "settings");
 				lastGestures.Clear();
 		}
 		if (lastGestures.SequenceEqual(btServerCheat)) {
@@ -112,8 +106,8 @@ public class GameSelectPanel : HexPanel
 		GConnector trainExit = Outputs.Find (r => r.Name == "trainExit");
 			
 		
-		DataVault.Set("rp", (int)Platform.Instance.GetOpeningPointsBalance());
-		DataVault.Set("metabolism", (int)Platform.Instance.GetCurrentMetabolism());
+		DataVault.Set("rp", (int)Platform.Instance.PlayerPoints.OpeningPointsBalance);
+		DataVault.Set("metabolism", (int)Platform.Instance.PlayerPoints.CurrentMetabolism);
 		
         GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 
@@ -144,7 +138,7 @@ public class GameSelectPanel : HexPanel
 #if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
 #else
-		List<Game> games = PlatformDummy.Instance.GetGames();
+        List<Game> games = Platform.Instance.GetGames();
 #endif
 		UnityEngine.Debug.Log("Games: There are currently " + games.Count + " games");
 		
@@ -161,9 +155,9 @@ public class GameSelectPanel : HexPanel
 		hbd.buttonName = "current_balance";
 		hbd.displayInfoData = false;
 		hbd.backgroundTileColor = 0x00A30EFF;
-		long currentPoints = Platform.Instance.GetOpeningPointsBalance();
+		long currentPoints = Platform.Instance.PlayerPoints.OpeningPointsBalance;
 		hbd.textBold = string.Format("{0:#,###0}", currentPoints) + "RP";
-		hbd.textSmall = Platform.Instance.GetCurrentMetabolism().ToString("f0");
+		hbd.textSmall = Platform.Instance.PlayerPoints.CurrentMetabolism.ToString("f0");
 				
         //generate some buttons
         for(int i=0; i<games.Count; i++)
@@ -219,7 +213,7 @@ public class GameSelectPanel : HexPanel
 				{
 					hbd.textSmall = "On";
 					if(games[i].name == "GPS Mode") {
-						Platform.Instance.SetIndoor(false);
+						Platform.Instance.LocalPlayerPosition.SetIndoor(false);
 					}
 					UnityEngine.Debug.Log("GameSelectPanel: indoor set to true");
 				}
@@ -227,7 +221,7 @@ public class GameSelectPanel : HexPanel
 				{
 					hbd.textSmall = "Off";
 					if(games[i].name == "GPS Mode") {
-						Platform.Instance.SetIndoor(true);
+						Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 					}
 					UnityEngine.Debug.Log("GameSelectPanel: indoor set to false");
 				}

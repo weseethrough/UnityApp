@@ -23,7 +23,7 @@ public class ZombieShootGame : GameBase {
 	private int zombiesKilled = 0;
 	
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		AddZombie();
 		
 		backHandler = new GestureHelper.OnBack(() => {
@@ -34,7 +34,7 @@ public class ZombieShootGame : GameBase {
 		
 		DataVault.Set("countdown_subtitle", " ");
 		
-		Platform.Instance.SetIndoor(true);
+		Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		TriggerUserReady();
 		
 		finish = 10000;
@@ -47,7 +47,7 @@ public class ZombieShootGame : GameBase {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		base.Update();
 		
 		currentTime += Time.deltaTime;
