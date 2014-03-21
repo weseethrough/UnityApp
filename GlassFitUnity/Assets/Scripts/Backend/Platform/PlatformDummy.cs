@@ -138,10 +138,10 @@ public class PlatformDummy : Platform
 	
 	protected override void Initialize()
 	{
-		_localPlayerPosition = new EditorPlayerPosition();
-		_playerPoints = new LocalDbPlayerPoints();
 		try {
 			initialised = false;
+			_localPlayerPosition = new EditorPlayerPosition();
+			_playerPoints = new LocalDbPlayerPoints();
 //		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 //		if(fs == null)
 //		{
@@ -176,7 +176,6 @@ public class PlatformDummy : Platform
 		
 			if (Application.isPlaying) {
 				db = DatabaseFactory.GetInstance();
-				api = new API(db);
 				sessionId = Sequence.Next("session", db);
 				MergeGamesList();
 			}
@@ -195,7 +194,10 @@ public class PlatformDummy : Platform
 	    }
 	}
 	
-	protected override void PostInit() {
+	protected override void PostInit() {	
+		if (Application.isPlaying) {
+			api = new API(db);
+		}
 		base.PostInit();
 	}
 	
@@ -254,7 +256,7 @@ public class PlatformDummy : Platform
 
 	public override void Authorize(string provider, string permissions) {
 		if (Application.isPlaying) {
-            GetMonoBehavioursPartner().StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
+			StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
 		}
 	}
 	
@@ -264,7 +266,7 @@ public class PlatformDummy : Platform
 	
 	public override void SyncToServer() {
 		lastSync = DateTime.Now;
-        GetMonoBehavioursPartner().StartCoroutine(api.Sync());
+		StartCoroutine(api.Sync());
 	}
 	
 	public void SetTargetSpeed(float speed)
@@ -524,6 +526,7 @@ public class PlatformDummy : Platform
 	public override Device DeviceInformation() 
 	{
 		return new Device("Unknown", "Device");
-	}	    
+	}	
+
 }
 #endif

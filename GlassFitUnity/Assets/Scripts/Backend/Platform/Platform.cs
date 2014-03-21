@@ -12,8 +12,7 @@ using Sqo;
 using RaceYourself.Models;
 using Newtonsoft.Json;
 
-public abstract class Platform : SingletonBase
-{
+public abstract class Platform : MonoBehaviour {
 	protected double targetElapsedDistance = 0;
 
     protected string intent = "";
@@ -63,16 +62,13 @@ public abstract class Platform : SingletonBase
 	public delegate void OnGroupCreated(int groupId);
 	public OnGroupCreated onGroupCreated = null;
 	
-	//protected static Platform _instance;
+	protected static Platform _instance;
 	protected static Type platformType;
 
 	protected static Log log = new Log("Platform");  // for use by subclasses
 	
 	protected Siaqodb db;	
 	protected API api;
-
-
-    private PlatformPartner partner;
 
 	/// <summary>
 	/// Gets the single instance of the right kind of platform for the OS we're running on,
@@ -85,23 +81,6 @@ public abstract class Platform : SingletonBase
     {
 		get 
         {
-#if UNITY_EDITOR
-            //platformType = typeof(PlatformDummy);
-            return (Platform)GetInstance<PlatformDummy>();
-#elif UNITY_ANDROID && RACEYOURSELF_MOBILE
-			//	platformType = typeof(PlatformDummy);
-            return (Platform)GetInstance<PlatformDummy>();
-#elif UNITY_ANDROID
-			//	platformType = typeof(AndroidPlatform);
-            return (Platform)GetInstance<AndroidPlatform>();
-#elif UNITY_IPHONE
-			//	platformType = typeof(IosPlatform);
-            return (Platform)GetInstance<IosPlatform>();
-#endif
-
-        }
-    }
-    /*
             if(applicationIsQuitting) 
             {
             	log.info("Application is quitting - won't create a new instance of Platform");
@@ -109,7 +88,15 @@ public abstract class Platform : SingletonBase
             }
 
 			// work out which type of platform we need
-			
+			#if UNITY_EDITOR
+        	    platformType = typeof(PlatformDummy);
+			#elif UNITY_ANDROID && RACEYOURSELF_MOBILE
+				platformType = typeof(PlatformDummy);
+			#elif UNITY_ANDROID
+				platformType = typeof(AndroidPlatform);
+			#elif UNITY_IPHONE
+				platformType = typeof(IosPlatform);
+			#endif
 
 			// find, or create, an instance of the right type
             if(ReferenceEquals(null, _instance) || !_instance.GetType().Equals(platformType))
@@ -136,9 +123,18 @@ public abstract class Platform : SingletonBase
 				}
 
 				// make sure the instance is initialized before returning
+				Stopwatch timer = new Stopwatch();
+				timer.Start();
 				while (instance.initialised == false)
                 {
 					if (applicationIsQuitting) return null;
+					if (timer.ElapsedMilliseconds > 15000) {
+						Application.Quit();
+#if UNITY_EDITOR
+    					UnityEditor.EditorApplication.isPlaying = false;
+#endif			
+						throw new Exception("Platform took more than 15s to initialise");
+					}
                     //yield return null;
 					continue;
                 }
@@ -149,7 +145,7 @@ public abstract class Platform : SingletonBase
 
             return _instance;
      	}
-    }*/
+    }
 	
 	protected static bool applicationIsQuitting = false;
 	
@@ -158,11 +154,9 @@ public abstract class Platform : SingletonBase
 		applicationIsQuitting = true;
 	}
 	
-	public override void Awake()
+	public virtual void Awake()
     {
-        base.Awake();
-
-		/*if (gameObject != null && gameObject.name != "New Game Object") 
+		if (gameObject != null && gameObject.name != "New Game Object") 
 		{
 			log.error("Scene " + Application.loadedLevelName + " contains a platform gameobject called " + gameObject.name + ", quitting..");
 //			DestroyImmediate(gameObject); // Doesn't always work, force developer to manually fix scene
@@ -171,7 +165,7 @@ public abstract class Platform : SingletonBase
     		UnityEditor.EditorApplication.isPlaying = false;
 #endif			
 			return;
-		}*/
+		}
 		if (initialised == false)
         {
 			playerStateEntryTime = UnityEngine.Time.time;
@@ -318,7 +312,7 @@ public abstract class Platform : SingletonBase
 		case "InitiateSnack":
 			if (IsRemoteDisplay()) {
 				//find SnackRun Object
-                SnackRun snackRunGame = (SnackRun)GameObject.FindObjectOfType(typeof(SnackRun));
+				SnackRun snackRunGame = (SnackRun)FindObjectOfType(typeof(SnackRun));
 				string gameID = json["snack_gameID"];
 				if(snackRunGame != null)
 				{
@@ -705,17 +699,6 @@ public abstract class Platform : SingletonBase
 		if (db != null) {
 			DatabaseFactory.CloseDatabase();
 		}
-//		Destroy(gameObject);
-	}
-
-    public PlatformPartner GetMonoBehavioursPartner()
-    {
-        if (partner == null)
-        {
-            GameObject go = new GameObject();
-            partner = go.AddComponent<PlatformPartner>();
-        }
-
-        return partner;
-    }
+		Destroy(gameObject);
+	}	
 }

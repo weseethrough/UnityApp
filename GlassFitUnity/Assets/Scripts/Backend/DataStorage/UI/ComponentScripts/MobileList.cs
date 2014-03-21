@@ -16,7 +16,7 @@ public class MobileList : UIComponentSettings
 
     private bool initialized = false;
 
-    private Dictionary<string, GameObject> buttonPrototypes;
+    private GameObject buttonInstance;
     private GameObject listContent;
     private GameObject listHeader;
 
@@ -32,10 +32,11 @@ public class MobileList : UIComponentSettings
         Debug.Log("listHeader " + listHeader);
         Debug.Log("listContent " + listContent);
 
-        buttonPrototypes = GetPrototypes(listContent);
+        buttonInstance              = listContent.transform.GetChild(0).gameObject;
 
         SetTitle(title);
- 
+        buttonInstance.SetActive(false);
+
         initialized = true;
         RebuildList();             
     }
@@ -65,7 +66,7 @@ public class MobileList : UIComponentSettings
 
         if (parent == null)
         {
-            //Debug.LogError("panel not identified! ensure panel is set to one of MobilePanel types");
+            Debug.LogError("panel not identified! ensure panel is set to one of MobilePanel types");
             return;
         }
 
@@ -77,15 +78,19 @@ public class MobileList : UIComponentSettings
         {
             for (int i = 0; i < buttonData.Count; i++)
             {
-                GameObject prototype;
                 GameObject button;
+                if (i == 0)
+                {
+                    buttonInstance.SetActive(true);
+                    button = buttonInstance;
+                }
+                else
+                {
+                    button = GameObject.Instantiate(buttonInstance) as GameObject;
+                }
 
-                prototype = buttonPrototypes[buttonData[i].buttonFormat];
-                button = GameObject.Instantiate(prototype) as GameObject;
-                button.SetActive(true);
-
-                button.transform.parent = prototype.transform.parent;
-                button.transform.localScale = prototype.transform.localScale;
+                button.transform.parent = buttonInstance.transform.parent;
+                button.transform.localScale = buttonInstance.transform.localScale;
                 button.name = buttonData[i].buttonName;
 
                 buttons.Add(button);
@@ -93,11 +98,7 @@ public class MobileList : UIComponentSettings
                 UIButton buttonScript = button.GetComponentInChildren<UIButton>();
                 if (buttonScript != null)
                 {
-                    FlowButton fb = buttonScript.gameObject.GetComponent<FlowButton>();
-                    if (fb == null)
-                    {
-                        buttonScript.gameObject.AddComponent<FlowButton>();
-                    }
+                    FlowButton fb = buttonScript.gameObject.AddComponent<FlowButton>();
                     fb.owner = parent;
                     fb.name = buttonData[i].buttonName;
                 }
@@ -115,16 +116,4 @@ public class MobileList : UIComponentSettings
             }
         }
     }    
-
-    Dictionary<string, GameObject> GetPrototypes(GameObject root)
-    {
-        Dictionary<string, GameObject> collection = new Dictionary<string, GameObject>();
-        foreach(Transform t in root.transform)
-        {
-            collection[t.name] = t.gameObject;
-            t.gameObject.SetActive(false);
-        }
-
-        return collection;
-    }
 }

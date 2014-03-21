@@ -54,7 +54,7 @@ public class MobileSelectTrack : MobilePanel
 
             for (int i = 0; i < trackList.Count; i++)
             {
-                AddButtonData("button" + i, "D:" + trackList[i].distance + ",T:" + trackList[i].time, "", ListButtonData.ButtonFormat.ButtonNormalPrototype, baseConnection);
+                AddButtonData("button" + i, "D:" + trackList[i].distance + ",T:" + trackList[i].time, "", baseConnection);
             }
 
             
