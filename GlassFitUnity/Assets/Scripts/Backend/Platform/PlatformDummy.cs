@@ -138,10 +138,10 @@ public class PlatformDummy : Platform
 	
 	protected override void Initialize()
 	{
+		_localPlayerPosition = new EditorPlayerPosition();
+		_playerPoints = new LocalDbPlayerPoints();
 		try {
 			initialised = false;
-			_localPlayerPosition = new EditorPlayerPosition();
-			_playerPoints = new LocalDbPlayerPoints();
 //		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 //		if(fs == null)
 //		{
@@ -176,6 +176,7 @@ public class PlatformDummy : Platform
 		
 			if (Application.isPlaying) {
 				db = DatabaseFactory.GetInstance();
+				api = new API(db);
 				sessionId = Sequence.Next("session", db);
 				MergeGamesList();
 			}
@@ -194,10 +195,7 @@ public class PlatformDummy : Platform
 	    }
 	}
 	
-	protected override void PostInit() {	
-		if (Application.isPlaying) {
-			api = new API(db);
-		}
+	protected override void PostInit() {
 		base.PostInit();
 	}
 	

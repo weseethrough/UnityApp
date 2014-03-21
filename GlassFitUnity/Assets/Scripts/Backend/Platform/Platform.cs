@@ -136,18 +136,9 @@ public abstract class Platform : SingletonBase
 				}
 
 				// make sure the instance is initialized before returning
-				Stopwatch timer = new Stopwatch();
-				timer.Start();
 				while (instance.initialised == false)
                 {
 					if (applicationIsQuitting) return null;
-					if (timer.ElapsedMilliseconds > 15000) {
-						Application.Quit();
-#if UNITY_EDITOR
-    					UnityEditor.EditorApplication.isPlaying = false;
-#endif			
-						throw new Exception("Platform took more than 15s to initialise");
-					}
                     //yield return null;
 					continue;
                 }
