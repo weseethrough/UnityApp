@@ -45,10 +45,6 @@ namespace RaceYourself.Models
 
         public void save (Siaqodb db)
         {
-            if (this.transactionId <= 0) {
-                transactionId = Sequence.Next("transaction", db);
-            }
-
             if (this.id <= 0)
                 GenerateCompositeId ();
 

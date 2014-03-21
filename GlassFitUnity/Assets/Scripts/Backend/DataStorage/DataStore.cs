@@ -97,7 +97,7 @@ public class DataStore : MonoBehaviour
             string name = bName.ToString();
 #if UNITY_EDITOR
             if (!LoadStorageFromCollection(bName))
-            {
+            {                
                 storageBank[name.ToString()] = InitializeBlob(Platform.Instance.LoadBlob(name));
             }            
 #else
