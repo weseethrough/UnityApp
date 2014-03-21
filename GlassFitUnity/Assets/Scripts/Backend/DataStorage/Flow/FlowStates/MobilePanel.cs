@@ -106,11 +106,11 @@ public class MobilePanel : Panel
     /// </summary>
     /// <param name="buttonName"></param>
     /// <param name="title"></param>
-    /// <param name="function"></param>
+    /// <param name="function"></param>    
     /// <returns></returns>
     protected void AddButtonData(string buttonName, string title, string function)
     {
-        AddButtonData(buttonName, title, function, null);
+        AddButtonData(buttonName, title, function, ListButtonData.ButtonFormat.ButtonPrototype, null);
     }
 
     /// <summary>
@@ -119,14 +119,30 @@ public class MobilePanel : Panel
     /// <param name="buttonName"></param>
     /// <param name="title"></param>
     /// <param name="function"></param>
+    /// <param name="buttonFormat"></param>
+    /// <returns></returns>
+    protected void AddButtonData(string buttonName, string title, string function, ListButtonData.ButtonFormat buttonFormat)
+    {
+        AddButtonData(buttonName, title, function, buttonFormat, null);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="buttonName"></param>
+    /// <param name="title"></param>
+    /// <param name="function"></param>
+    /// <param name="buttonFormat"></param>
     /// <param name="cloneFirstLinkage"></param>
     /// <returns></returns>
-    protected void AddButtonData(string buttonName, string title, string function, GConnector cloneFirstLinkage)
+    protected void AddButtonData(string buttonName, string title, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
     {       
         ListButtonData data = new ListButtonData();
         data.textNormal = title;
         data.buttonName = buttonName;
         data.connectionFunction = function;
+        data.buttonFormat = buttonFormat.ToString();
+
         buttonData.Add(data);
 
         GConnector gc = NewOutput(buttonName, "Flow");
@@ -148,6 +164,13 @@ public class MobilePanel : Panel
     /// <returns></returns>
     protected GConnector GetBaseButtonConnection()
     {
-        return Outputs.Find(r => r.Name == "buttonHandler");
+         GConnector gc = Outputs.Find(r => r.Name == "buttonHandler");
+        if (gc == null)
+        {
+            gc = Outputs.Find(r => r.Name == ListButtonData.ButtonFormat.ButtonPrototype.ToString());
+        }
+
+
+        return gc;
     }
 }

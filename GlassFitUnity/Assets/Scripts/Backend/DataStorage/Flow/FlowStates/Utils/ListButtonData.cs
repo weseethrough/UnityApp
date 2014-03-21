@@ -10,9 +10,17 @@ using System.Runtime.Serialization;
 [Serializable]
 public class ListButtonData : ISerializable 
 {      
+    public enum ButtonFormat
+    {
+        ButtonNormalPrototype,
+        ButtonPrototype,
+        SliderPrototype
+    }
+
     public string   buttonName      = string.Empty;    
     public string   textNormal      = string.Empty;
     public string   connectionFunction = string.Empty;
+    public string   buttonFormat = ButtonFormat.ButtonNormalPrototype.ToString();
 
     /// <summary>
     /// default constructor
@@ -41,6 +49,9 @@ public class ListButtonData : ISerializable
                 case "connectionFunction":
                     this.connectionFunction = entry.Value as String;
                     break;
+                case "buttonFormat":
+                    this.buttonFormat = entry.Value as String;
+                    break;
                 
             }
         }
@@ -57,6 +68,7 @@ public class ListButtonData : ISerializable
         info.AddValue("buttonName", this.buttonName);                
         info.AddValue("textNormal", this.textNormal);
         info.AddValue("connectionFunction", this.connectionFunction);
+        info.AddValue("buttonFormat", this.buttonFormat);
     }
 
     /// <summary>
@@ -69,6 +81,7 @@ public class ListButtonData : ISerializable
         data.buttonName = buttonName;
         data.textNormal = textNormal;
         data.connectionFunction = connectionFunction;
+        data.buttonFormat = buttonFormat;
 
         return data;
     }
