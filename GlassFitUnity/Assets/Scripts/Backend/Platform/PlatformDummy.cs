@@ -256,7 +256,7 @@ public class PlatformDummy : Platform
 
 	public override void Authorize(string provider, string permissions) {
 		if (Application.isPlaying) {
-			StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
+            GetMonoBehavioursPartner().StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
 		}
 	}
 	
@@ -266,7 +266,7 @@ public class PlatformDummy : Platform
 	
 	public override void SyncToServer() {
 		lastSync = DateTime.Now;
-		StartCoroutine(api.Sync());
+        GetMonoBehavioursPartner().StartCoroutine(api.Sync());
 	}
 	
 	public void SetTargetSpeed(float speed)
@@ -526,7 +526,6 @@ public class PlatformDummy : Platform
 	public override Device DeviceInformation() 
 	{
 		return new Device("Unknown", "Device");
-	}	
-
+	}	    
 }
 #endif
