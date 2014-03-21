@@ -176,5 +176,9 @@ public class UnitsHelper {
 		}
 	}
 	
+	public static long MillisSince1970(DateTime datetime) {
+		return (long)((datetime.ToUniversalTime() - new DateTime (1970, 1, 1, 0, 0, 0, 0)).TotalMilliseconds);
+	}
+	
 	
 }
