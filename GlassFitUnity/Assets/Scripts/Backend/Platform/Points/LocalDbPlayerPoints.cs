@@ -104,7 +104,7 @@ public class LocalDbPlayerPoints : PlayerPoints
                 if (lastBaseMultiplierPercent <= (1+BASE_MULTIPLIER_LEVELS*BASE_MULTIPLIER_PERCENT))
 				{
                     lastBaseMultiplierPercent += BASE_MULTIPLIER_PERCENT;
-                    Platform.Instance.SendMessage("NewBaseMultiplier", lastBaseMultiplierPercent/100.0f);
+                    Platform.Instance.GetMonoBehavioursPartner().SendMessage("NewBaseMultiplier", lastBaseMultiplierPercent/100.0f);
                     log.info("New base multiplier: " + lastBaseMultiplierPercent + "%");
                 }
             } 
@@ -112,7 +112,7 @@ public class LocalDbPlayerPoints : PlayerPoints
 			{
                 // drop multiplier to 1
                 lastBaseMultiplierPercent = 100;
-                Platform.Instance.SendMessage("NewBaseMultiplier", lastBaseMultiplierPercent/100.0f);
+                Platform.Instance.GetMonoBehavioursPartner().SendMessage("NewBaseMultiplier", lastBaseMultiplierPercent / 100.0f);
                 log.info("New base multiplier: " + lastBaseMultiplierPercent + "%");
             }
 			lastMultiplierCheckTime = currentTime;

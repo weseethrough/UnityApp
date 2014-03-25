@@ -101,64 +101,7 @@ public abstract class Platform : SingletonBase
 
         }
     }
-    /*
-            if(applicationIsQuitting) 
-            {
-            	log.info("Application is quitting - won't create a new instance of Platform");
-                return null;
-            }
-
-			// work out which type of platform we need
-			
-
-			// find, or create, an instance of the right type
-            if(ReferenceEquals(null, _instance) || !_instance.GetType().Equals(platformType))
-            {
-				// if an instance exists, use it
-				var instance = (Platform) FindObjectOfType(platformType);
-				var owner = false;
-
-				// otherwise initialise a new one
-				if(ReferenceEquals(null, instance))
-                {
-					log.info("Creating new " + platformType.Name);
-					GameObject singleton = new GameObject();
-                	instance = (Platform)singleton.AddComponent(platformType);
-                	singleton.name = "Platform"; // Used as target for messages
-					instance.enabled = true;
-					singleton.SetActive(true);
-                    DontDestroyOnLoad(singleton);
-					owner = true;
-            	}
-				else
-				{
-					log.info("Found existing " + platformType.Name + ", won't create a new one. This is unlikely to happen..");
-				}
-
-				// make sure the instance is initialized before returning
-				Stopwatch timer = new Stopwatch();
-				timer.Start();
-				while (instance.initialised == false)
-                {
-					if (applicationIsQuitting) return null;
-					if (timer.ElapsedMilliseconds > 15000) {
-						Application.Quit();
-#if UNITY_EDITOR
-    					UnityEditor.EditorApplication.isPlaying = false;
-#endif			
-						throw new Exception("Platform took more than 15s to initialise");
-					}
-                    //yield return null;
-					continue;
-                }
-				_instance  = instance;
-				if (owner) _instance.PostInit();
-
-			}
-
-            return _instance;
-     	}
-    }*/
+   
 	
 	protected static bool applicationIsQuitting = false;
 	
@@ -721,8 +664,12 @@ public abstract class Platform : SingletonBase
     {
         if (partner == null)
         {
-            GameObject go = new GameObject();
+            //named object to identify platform game object reprezentation
+            GameObject go = new GameObject("Platform");
             partner = go.AddComponent<PlatformPartner>();
+
+            //post initialziation procedure
+            PostInit();
         }
 
         return partner;
