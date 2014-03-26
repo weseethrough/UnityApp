@@ -910,7 +910,7 @@ public class AndroidPlatform : Platform
 		return new Device(build_class.GetStatic<string>("MANUFACTURER"), build_class.GetStatic<string>("MODEL"));
 	}
 	
-	public void NewTrack(String json) {
+	/*public void NewTrack(String json) {
 		log.info("Received track from java, saving to SiaqoDb..");
 		Track t = JsonConvert.DeserializeObject<Track>(json);
 		if (db.Cast<Track>().Where<Track>(tr => tr.id == t.id).FirstOrDefault() != null) {
@@ -928,7 +928,7 @@ public class AndroidPlatform : Platform
 		} else {
 			db.StoreObject(p);
 		}
-	}
+	}*/
 	
 }
 #endif
