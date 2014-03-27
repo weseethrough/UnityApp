@@ -44,11 +44,12 @@ public class LoadingCont : MonoBehaviour {
 			
 			lock(DataVault.data) {
 				if (DataVault.Get("loaderthread") != null) return;
-				Thread loaderThread = new Thread(() => {
-#if !UNITY_EDITOR
+				Thread loaderThread = new Thread(() =>
+                                                       {
+#if UNITY_ANDROID
 					AndroidJNI.AttachCurrentThread();
-#endif				
-					try {
+#endif
+                                                           try {
 						// Reset world
 						Platform.Instance.ResetTargets();
 						DataVault.Remove("challenges");
@@ -105,10 +106,10 @@ public class LoadingCont : MonoBehaviour {
 						fs.parentMachine.FollowConnection(race);
 					} finally {
 						DataVault.Remove("loaderthread");
-#if !UNITY_EDITOR
+#if UNITY_ANDROID
 						AndroidJNI.DetachCurrentThread();
-#endif					
-					}
+#endif
+                    }
 				});
 				DataVault.Set("loaderthread", loaderThread);
 				loaderThread.Start();

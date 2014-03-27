@@ -2,7 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
-
+#if UNITY_ANDROID
 public class FauxTargetTracker : TargetTracker {
 	
 	public FauxTargetTracker() {}
@@ -20,3 +20,4 @@ public class FauxTargetTracker : TargetTracker {
 		}
 	}
 }
+#endif

@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 
 using RaceYourself.Models;
-
+#if UNITY_ANDROID
 public class AndroidPlayerPosition : PlayerPosition {
 
 	private Position _position = null;
@@ -205,3 +205,4 @@ public class AndroidPlayerPosition : PlayerPosition {
  	}
 
 }
+#endif

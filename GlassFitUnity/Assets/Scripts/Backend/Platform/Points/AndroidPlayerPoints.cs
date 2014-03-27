@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+#if UNITY_ANDROID
 /// <summary>
 /// Player points. All the logic currentlyimplemented in Java/Android. Should all be moved to Unity.
 /// </summary>
@@ -179,5 +179,5 @@ public class AndroidPlayerPoints : PlayerPoints
 
 
 }
-
+#endif
 

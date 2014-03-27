@@ -239,7 +239,7 @@ public class MobileCurrentChallenges : MobilePanel
                 UnityEngine.Debug.Log("ChallengePanel: starting thread");
                 Thread loaderThread = new Thread(() =>
                 {
-#if !UNITY_EDITOR
+#if UNITY_ANDROID
 					AndroidJNI.AttachCurrentThread();
 #endif
                     try
@@ -286,7 +286,7 @@ public class MobileCurrentChallenges : MobilePanel
 
                         UnityEngine.Debug.Log("ChallengePanel: thread complete true");
                         threadComplete = true;
-#if !UNITY_EDITOR
+#if UNITY_ANDROID
 						UnityEngine.Debug.Log("ChallengePanel: detaching thread");
 						AndroidJNI.DetachCurrentThread();
 #endif
