@@ -26,4 +26,20 @@ public class PlatformPartner : MonoBehaviour
         }
     }*/
 
+    public void OnApplicationPause(bool paused)
+    {
+        Debug.Log("Pause order received to set to "+paused);
+    }
+
+    public void OnApplicationFocus(bool paused)
+    {
+        Debug.Log("Focus change order received with "+paused);
+        Platform.Instance.OnApplicationFocus(paused);
+    }
+
+    public void OnApplicationQuit()
+    {
+        Debug.Log("Quit order received");
+        Platform.Instance.OnApplicationQuit();
+    }
 }

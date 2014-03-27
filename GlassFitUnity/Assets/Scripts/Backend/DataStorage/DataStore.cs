@@ -23,7 +23,9 @@ public class DataStore : MonoBehaviour
             DataStore ds = (DataStore)GameObject.FindObjectOfType(typeof(DataStore));
             if (ds != null)
             {
+                Profiler.BeginSample("_oOo_DataStore_oOo_");
                 ds.MakeAwake();
+                Profiler.EndSample();
             }
             return _instance;
         }        
@@ -97,8 +99,10 @@ public class DataStore : MonoBehaviour
             string name = bName.ToString();
 #if UNITY_EDITOR
             if (!LoadStorageFromCollection(bName))
-            {                
+            {
+                Profiler.BeginSample("Test profile");
                 storageBank[name.ToString()] = InitializeBlob(Platform.Instance.LoadBlob(name));
+                Profiler.EndSample();
             }            
 #else
 			storageBank[name] = InitializeBlob(Platform.Instance.LoadBlob(name));
@@ -139,10 +143,10 @@ public class DataStore : MonoBehaviour
                 return new Storage();
             }
 	        else
-            {
+            {                
                 BinaryFormatter bformatter = new BinaryFormatter();
                 System.Object o = bformatter.Deserialize(ms);
-                storage = (Storage)o;
+                storage = (Storage)o;                
             }	        
 		}
         catch (Exception e)
@@ -179,9 +183,10 @@ public class DataStore : MonoBehaviour
 #if UNITY_EDITOR
         if (instance != null && Platform.Instance != null)
         {
+            
             if (!LoadStorageFromCollection(name))
             {
-                instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));
+                instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));                
             }
         }
 #else

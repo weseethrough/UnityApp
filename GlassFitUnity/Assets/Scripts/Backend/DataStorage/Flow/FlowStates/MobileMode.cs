@@ -71,7 +71,7 @@ public class MobileMode : FlowState
     {
         base.Entered();
         defaultOrientation = Screen.orientation;
-        Screen.orientation = ScreenOrientation.Portrait;
+ //       Screen.orientation = ScreenOrientation.Portrait;
     }
 
     /// <summary>

@@ -59,11 +59,14 @@ public class UISensorCamera : MonoBehaviour {
 		
 		// Reset the Gyro at the start, didn't work in Start()
 		if(!started)
-		{
+		{            
 #if !UNITY_EDITOR
-			Platform.Instance.GetPlayerOrientation().Reset();
+			if (Platform.Instance.OnGlass())
+            { 
+                Platform.Instance.GetPlayerOrientation().Reset();
+            }
 #endif
-			started = true;
+            started = true;
 		}
 
 		
