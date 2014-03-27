@@ -98,7 +98,7 @@ public abstract class Platform : SingletonBase
 			//	platformType = typeof(IosPlatform);
             return (Platform)GetInstance<IosPlatform>();
 #endif
-
+            return null;
         }
     }
    

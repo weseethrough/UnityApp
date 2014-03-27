@@ -63,10 +63,12 @@ public class TargetController : MonoBehaviour {
 	}
 	
 	public virtual void SetSpeed(float f) {
+#if UNITY_ANDROID
 		if(target is FauxTargetTracker) {
 			UnityEngine.Debug.Log("TargetController: Setting Target speed");
 			((FauxTargetTracker)target).SetTargetSpeed(f);
 		}
+#endif
 	}
 	
 	// Update is called once per frame

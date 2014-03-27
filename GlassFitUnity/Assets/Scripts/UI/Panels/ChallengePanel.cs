@@ -110,11 +110,12 @@ public class ChallengePanel : HexPanel {
 			lock(DataVault.data) {
 				if (DataVault.Get("loaderthread") != null) return;
 				UnityEngine.Debug.Log("ChallengePanel: starting thread");
-				Thread loaderThread = new Thread(() => {
-#if !UNITY_EDITOR
+				Thread loaderThread = new Thread(() =>
+                                                       {
+#if UNITY_ANDROID
 					AndroidJNI.AttachCurrentThread();
-#endif				
-					try {
+#endif
+                                                           try {
 						UnityEngine.Debug.Log("ChallengePanel: getting notifications");
 						Notification[] notifications = Platform.Instance.Notifications();
 						UnityEngine.Debug.Log("ChallengePanel: notifications obtained");
@@ -153,11 +154,11 @@ public class ChallengePanel : HexPanel {
 						
 						UnityEngine.Debug.Log("ChallengePanel: thread complete true");
 						threadComplete = true;
-#if !UNITY_EDITOR
+#if UNITY_ANDROID
 						UnityEngine.Debug.Log("ChallengePanel: detaching thread");
 						AndroidJNI.DetachCurrentThread();
-#endif					
-						UnityEngine.Debug.Log("ChallengePanel: Adding hexes");
+#endif
+                        UnityEngine.Debug.Log("ChallengePanel: Adding hexes");
 						
 						DataVault.Set("challenge_notifications", challengeNotifications);
 					}
