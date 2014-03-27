@@ -23,9 +23,9 @@ public class DataStore : MonoBehaviour
             DataStore ds = (DataStore)GameObject.FindObjectOfType(typeof(DataStore));
             if (ds != null)
             {
-                Profiler.BeginSample("_oOo_DataStore_oOo_");
+              //  Profiler.BeginSample("_oOo_DataStore_oOo_");
                 ds.MakeAwake();
-                Profiler.EndSample();
+            //    Profiler.EndSample();
             }
             return _instance;
         }        
