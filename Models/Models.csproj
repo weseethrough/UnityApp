@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\GlassFitUnity\Assets\Scripts\Backend\Platform\Models\</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -34,7 +34,7 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Folder Include="Backend\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Tests\JsonTests.cs" />
@@ -68,16 +68,20 @@
   <ItemGroup>
     <Reference Include="JsonDotNet">
       <HintPath>..\GlassFitUnity\Assets\JsonDotNet\JsonDotNet.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="siaqodb">
       <HintPath>..\GlassFitUnity\Assets\Siaqodb\siaqodb.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\Common\UnityEngine.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="nunit.framework">
       <HintPath>..\Common\nunit.framework.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-
+#if UNITY_ANDROID
 /// <summary>
 /// Player points. All the logic currentlyimplemented in Java/Android. Should all be moved to Unity.
 /// </summary>
@@ -23,7 +23,7 @@ public class AndroidPlayerPoints : PlayerPoints
 		try {
 			return points_helper.Call<int>("getCurrentGemBalance");
 		} catch (Exception e) {
-			log.error("Error getting current gem balance: " + e.Message);
+			log.error(e, "Error getting current gem balance");
 			return 0;
 		}
 	}}
@@ -33,7 +33,7 @@ public class AndroidPlayerPoints : PlayerPoints
 		try {
 			return points_helper.Call<float>("getCurrentMetabolism");
 		} catch (Exception e) {
-			log.error("Error getting current metabolism: " + e.Message);
+			log.error(e, "Error getting current metabolism");
 			return 0;
 		}
 	}}
@@ -60,13 +60,13 @@ public class AndroidPlayerPoints : PlayerPoints
 				}
 				catch (Exception e)
 				{
-					log.error("Error connecting to Android points helper (UI thread): " + e.Message);
+					log.error(e, "Error connecting to Android points helper (UI thread)");
 				}
 			}));
 		}
 		catch (Exception e)
 		{
-			log.error("Error connecting to Android points helper: " + e.Message);
+			log.error(e, "Error connecting to Android points helper");
 		}
 		
 		while (!initialised) {}
@@ -90,7 +90,7 @@ public class AndroidPlayerPoints : PlayerPoints
 		}
 		catch (Exception e)
 		{
-			log.error(" Error getting current activity points: " + e.Message);
+			log.error(e, "Error getting current activity points");
 			DataVault.Set("points", -1);
 		}		
 		
@@ -100,7 +100,7 @@ public class AndroidPlayerPoints : PlayerPoints
 		}
 		catch (Exception e)
 		{
-			log.error("Error getting opening points balance: " + e.Message);
+			log.error(e, "Error getting opening points balance");
 		}
 	}
 
@@ -112,7 +112,7 @@ public class AndroidPlayerPoints : PlayerPoints
 		}
 		catch (Exception e)
 		{
-			log.error("Error resetting current activity points");
+			log.error(e, "Error resetting current activity points");
 		}
 	}
 	
@@ -123,7 +123,7 @@ public class AndroidPlayerPoints : PlayerPoints
 		}
 		catch (Exception e)
 		{
-			log.error("Error setting base speed: " + e.Message);
+			log.error(e, "Error setting base speed");
 		}
 	}
 
@@ -148,7 +148,7 @@ public class AndroidPlayerPoints : PlayerPoints
 		}
 		catch (Exception e)
 		{
-			log.error("Error awarding " + reason + " of " + points + " points in " + gameId);
+			log.error(e, "Error awarding " + reason + " of " + points + " points in " + gameId);
 		}
 	}
 	
@@ -173,11 +173,11 @@ public class AndroidPlayerPoints : PlayerPoints
 		}
 		catch (Exception e)
 		{
-			log.error("Error awarding " + reason + " of " + gems + " gems in " + gameId);
+			log.error(e, "Error awarding " + reason + " of " + gems + " gems in " + gameId);
 		}
 	}
 
 
 }
-
+#endif
 

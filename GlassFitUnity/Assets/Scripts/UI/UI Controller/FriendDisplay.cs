@@ -31,7 +31,7 @@ public class FriendDisplay : MonoBehaviour {
 	private int currentFriend = 0;
 	
 	// The synchronisation handler
-	Platform.OnSync handler = null;
+    NetworkMessageListener.OnSync handler = null;
 	
 	// Gesture to challenge friend
 	GestureHelper.OnTap tapHandler = null;
@@ -71,10 +71,10 @@ public class FriendDisplay : MonoBehaviour {
 		DataVault.Set("screen_name", "Loading Screen Name...");
 		
 		// Create a sync handler that updates the friends list
-		handler = new Platform.OnSync((message) => {
+        handler = new NetworkMessageListener.OnSync((message) => {
 			UpdateFriendsList();
 		});
-		Platform.Instance.onSync += handler;	
+        Platform.Instance.NetworkMessageListener.onSync += handler;	
 		
 		backHandler = new GestureHelper.OnBack(() => {
 			GoBack();
@@ -149,7 +149,7 @@ public class FriendDisplay : MonoBehaviour {
 	/// Destroy this instance. Removes its sync handler.
 	/// </summary>
 	void Destroy () {
-		Platform.Instance.onSync -= handler;
+        Platform.Instance.NetworkMessageListener.onSync -= handler;
 	}	
 	
 	/// <summary>

@@ -138,7 +138,7 @@ public class GameSelectPanel : HexPanel
 #if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
 #else
-        List<Game> games = Platform.Instance.GetGames();
+        List<Game> games = PlatformDummy.Instance.GetGames();
 #endif
 		UnityEngine.Debug.Log("Games: There are currently " + games.Count + " games");
 		

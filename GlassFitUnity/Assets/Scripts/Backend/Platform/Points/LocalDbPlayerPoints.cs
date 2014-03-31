@@ -15,7 +15,6 @@ public class LocalDbPlayerPoints : PlayerPoints
     private const long BASE_MULTIPLIER_TIME_THRESH = 8;  // seconds
 	
 	private Siaqodb db = DatabaseFactory.GetInstance();
-	private Log log = new Log("PlayerPoints");
 	
 	private double _currentActivityPoints = 0;  // floating point to allow incrementing each frame
 	private long _lastTransactionPoints;
@@ -43,27 +42,33 @@ public class LocalDbPlayerPoints : PlayerPoints
 	public LocalDbPlayerPoints()
 	{
 		// TODO: ensure last returns transaction with greatest  timestamp
-		lastTransaction = db.Cast<Transaction>().LastOrDefault<Transaction>();
+        log.info("Restoring user's points balance from database");
+        lastTransaction = db.Cast<Transaction>().Last<Transaction>();
+
 		if (lastTransaction == null) {
+            log.info("Set initial points and gems to zero, and metabolism to 100");
 			SaveToDatabase("INITIALISE","Everything set to zero", "PlayerPoints");  // first launch of game
-			log.info("Set initial points and gems to zero, and metabolism to 100");
+            lastTransaction = db.Cast<Transaction>().LastOrDefault<Transaction>();
 			return;
 		}
 		
+        log.info("Intialising local fields");
 		_openingPointsBalance = lastTransaction.points_balance;
 		_lastTransactionPoints = lastTransaction.points_balance;
 		_currentGemBalance = lastTransaction.gems_balance;
 		_currentMetabolism = lastTransaction.metabolism_balance;
 		
 		// Decay metabolism for inactiviy since last workout
+        log.info("Decaying metabolism");
 		long decayTime = (UnitsHelper.MillisSince1970(DateTime.Now) - lastTransaction.ts);
 		_currentMetabolism *= Mathf.Exp(-(float)decayTime*0.00000001f);
 		TimeSpan decayTimeSpan = new TimeSpan(decayTime*100000);
 		String calc = String.Format("Metabolism decayed from " + lastTransaction.metabolism_balance + " to " +
             CurrentMetabolism + " since last workout. Time of inactivity is {0:N0} days, {1} hours, {2} minutes, {3} seconds", 
                 decayTimeSpan.Days, decayTimeSpan.Hours, decayTimeSpan.Minutes, decayTimeSpan.Seconds);
-		SaveToDatabase("BETWEEN-GAME METABOLISM DECAY", calc, "PlayerPoints");
-		log.info(calc);
+        log.info(calc);
+        SaveToDatabase("BETWEEN-GAME METABOLISM DECAY", calc, "PlayerPoints");
+        log.info("initialised successfully");
 	}
 
 	public override void Update()
@@ -104,7 +109,7 @@ public class LocalDbPlayerPoints : PlayerPoints
                 if (lastBaseMultiplierPercent <= (1+BASE_MULTIPLIER_LEVELS*BASE_MULTIPLIER_PERCENT))
 				{
                     lastBaseMultiplierPercent += BASE_MULTIPLIER_PERCENT;
-                    Platform.Instance.SendMessage("NewBaseMultiplier", lastBaseMultiplierPercent/100.0f);
+                    Platform.Instance.GetMonoBehavioursPartner().SendMessage("NewBaseMultiplier", lastBaseMultiplierPercent/100.0f);
                     log.info("New base multiplier: " + lastBaseMultiplierPercent + "%");
                 }
             } 
@@ -112,7 +117,7 @@ public class LocalDbPlayerPoints : PlayerPoints
 			{
                 // drop multiplier to 1
                 lastBaseMultiplierPercent = 100;
-                Platform.Instance.SendMessage("NewBaseMultiplier", lastBaseMultiplierPercent/100.0f);
+                Platform.Instance.GetMonoBehavioursPartner().SendMessage("NewBaseMultiplier", lastBaseMultiplierPercent / 100.0f);
                 log.info("New base multiplier: " + lastBaseMultiplierPercent + "%");
             }
 			lastMultiplierCheckTime = currentTime;

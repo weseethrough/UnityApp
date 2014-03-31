@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 
 using RaceYourself.Models;
-
+#if UNITY_ANDROID
 /// <summary>
 /// Game model class. Contains all metadata about each game - title, description, cost, whether it is unlocked or not and so on.
 /// </summary>
@@ -69,3 +69,4 @@ public class AndroidGame : Game
 	}
 	
 }
+#endif

@@ -48,16 +48,16 @@ public class SettingsPanel : Panel {
 //				Debug.Log("SettingsPanel: ServerButton clicked");
 	            GConnector gConect = Outputs.Find(r => r.Name == button.name);
 				// Follow connection once authentication has returned asynchronously
-				Platform.OnAuthenticated handler = null;
-				handler = new Platform.OnAuthenticated((authenticated) => {
+                NetworkMessageListener.OnAuthenticated handler = null;
+                handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
 //					Debug.Log("SettingsPanel: ServerButton authenticated");
 					if (authenticated) {
 						Platform.Instance.SyncToServer();
 						parentMachine.FollowConnection(gConect);
 					}
-					Platform.Instance.onAuthenticated -= handler;
+                    Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
 				});
-				Platform.Instance.onAuthenticated += handler;	
+                Platform.Instance.NetworkMessageListener.onAuthenticated += handler;	
 				// Trigger authentication
 				Platform.Instance.Authorize("any", "login");				
 //				Debug.Log("SettingsPanel: ServerButton run");

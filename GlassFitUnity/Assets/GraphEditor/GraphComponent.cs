@@ -43,25 +43,32 @@ public class GraphComponent : MonoBehaviour
         {
             initialize = true;
             DataStore.LoadStorage(DataStore.BlobNames.flow);            
+            
+            //test area. Need to be removed after tests are done
+#if !UNITY_EDITOR
             //below is the example how to initialize game with specific flow
             if (!Platform.Instance.OnGlass() )
             {
                 string flowName = "MobileUX";
-                if (Platform.Instance.GetIntent().Length > 0)
+            if (Platform.Instance.NetworkMessageListener.GetIntent().Length > 0)
                 {
-                    flowName = Platform.Instance.GetIntent();
+            flowName = Platform.Instance.NetworkMessageListener.GetIntent();
                 }
 
                 //make forwarding state go to challenge screen instead of main menu
                 //DataVault.Set("custom_redirection_point", "Challenge");
-
+                DataVault.Set("custom_redirection_point", "MenuPoint");
                 SetSelectedFlowByName(flowName);
             }
             else
             {
                 SetSelectedFlowIndex(selectedFlow);
             }
-
+#else
+            DataVault.Set("custom_redirection_point", "MenuPoint");
+            string flowName = "MobileUX";
+            SetSelectedFlowByName(flowName);
+#endif
             instance = this;
         }
     }	

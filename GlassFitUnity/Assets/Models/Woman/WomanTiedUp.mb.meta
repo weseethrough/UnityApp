@@ -1,8 +1,234 @@
 fileFormatVersion: 2
 guid: f74d0bc399ba745fb8e00dd9ea0abbb6
 ModelImporter:
-  serializedVersion: 15
-  fileIDToRecycleName: {}
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: Head
+    100002: HeadTop_End
+    100004: Hips
+    100006: ikHandle1
+    100008: ikHandle2
+    100010: ikHandle3
+    100012: ikHandle4
+    100014: Jaw
+    100016: JawEND
+    100018: LeftArm
+    100020: LeftCheek
+    100022: LeftEye
+    100024: LeftEyelidLower
+    100026: LeftEyelidUpper
+    100028: LeftFoot
+    100030: LeftFootToeBase_End
+    100032: LeftForeArm
+    100034: LeftHand
+    100036: LeftHandIndex1
+    100038: LeftHandIndex2
+    100040: LeftHandIndex3
+    100042: LeftHandIndex4
+    100044: LeftHandMiddle1
+    100046: LeftHandMiddle2
+    100048: LeftHandMiddle3
+    100050: LeftHandMiddle4
+    100052: LeftHandPinky1
+    100054: LeftHandPinky2
+    100056: LeftHandPinky3
+    100058: LeftHandPinky4
+    100060: LeftHandRing1
+    100062: LeftHandRing2
+    100064: LeftHandRing3
+    100066: LeftHandRing4
+    100068: LeftHandThumb1
+    100070: LeftHandThumb2
+    100072: LeftHandThumb3
+    100074: LeftHandThumb4
+    100076: LeftInnerBrow
+    100078: LeftIOuterBrow
+    100080: LeftLeg
+    100082: LeftLipCorner
+    100084: LeftLipLower
+    100086: LeftLipUpper
+    100088: LeftNostril
+    100090: LeftShoulder
+    100092: LeftToeBase
+    100094: LeftUpLeg
+    100096: locator1
+    100098: locator2
+    100100: locator3
+    100102: locator4
+    100104: MiaB_HiRes_BodyGeo
+    100106: MiaB_HiRes_EyesGeo
+    100108: MiaB_HiRes_HairGeo
+    100110: MiaB_HiRes_TeethGeo
+    100112: Neck
+    100114: pHelix1
+    100116: pHelix2
+    100118: RightArm
+    100120: RightCheek
+    100122: RightEye
+    100124: RightEyelidLower
+    100126: RightEyelidUpper
+    100128: RightFoot
+    100130: RightFootToeBase_End
+    100132: RightForeArm
+    100134: RightHand
+    100136: RightHandIndex1
+    100138: RightHandIndex2
+    100140: RightHandIndex3
+    100142: RightHandIndex4
+    100144: RightHandMiddle1
+    100146: RightHandMiddle2
+    100148: RightHandMiddle3
+    100150: RightHandMiddle4
+    100152: RightHandPinky1
+    100154: RightHandPinky2
+    100156: RightHandPinky3
+    100158: RightHandPinky4
+    100160: RightHandRing1
+    100162: RightHandRing2
+    100164: RightHandRing3
+    100166: RightHandRing4
+    100168: RightHandThumb1
+    100170: RightHandThumb2
+    100172: RightHandThumb3
+    100174: RightHandThumb4
+    100176: RightInnerBrow
+    100178: RightIOuterBrow
+    100180: RightLeg
+    100182: RightLipCorner
+    100184: RightLipLower
+    100186: RightLipUpper
+    100188: RightNostril
+    100190: RightShoulder
+    100192: RightToeBase
+    100194: RightUpLeg
+    100196: Spine
+    100198: Spine1
+    100200: Spine2
+    100202: Spine3
+    100204: Spine4
+    100206: TongueBack
+    100208: TongueTip
+    100210: //RootNode
+    400000: Head
+    400002: HeadTop_End
+    400004: Hips
+    400006: ikHandle1
+    400008: ikHandle2
+    400010: ikHandle3
+    400012: ikHandle4
+    400014: Jaw
+    400016: JawEND
+    400018: LeftArm
+    400020: LeftCheek
+    400022: LeftEye
+    400024: LeftEyelidLower
+    400026: LeftEyelidUpper
+    400028: LeftFoot
+    400030: LeftFootToeBase_End
+    400032: LeftForeArm
+    400034: LeftHand
+    400036: LeftHandIndex1
+    400038: LeftHandIndex2
+    400040: LeftHandIndex3
+    400042: LeftHandIndex4
+    400044: LeftHandMiddle1
+    400046: LeftHandMiddle2
+    400048: LeftHandMiddle3
+    400050: LeftHandMiddle4
+    400052: LeftHandPinky1
+    400054: LeftHandPinky2
+    400056: LeftHandPinky3
+    400058: LeftHandPinky4
+    400060: LeftHandRing1
+    400062: LeftHandRing2
+    400064: LeftHandRing3
+    400066: LeftHandRing4
+    400068: LeftHandThumb1
+    400070: LeftHandThumb2
+    400072: LeftHandThumb3
+    400074: LeftHandThumb4
+    400076: LeftInnerBrow
+    400078: LeftIOuterBrow
+    400080: LeftLeg
+    400082: LeftLipCorner
+    400084: LeftLipLower
+    400086: LeftLipUpper
+    400088: LeftNostril
+    400090: LeftShoulder
+    400092: LeftToeBase
+    400094: LeftUpLeg
+    400096: locator1
+    400098: locator2
+    400100: locator3
+    400102: locator4
+    400104: MiaB_HiRes_BodyGeo
+    400106: MiaB_HiRes_EyesGeo
+    400108: MiaB_HiRes_HairGeo
+    400110: MiaB_HiRes_TeethGeo
+    400112: Neck
+    400114: pHelix1
+    400116: pHelix2
+    400118: RightArm
+    400120: RightCheek
+    400122: RightEye
+    400124: RightEyelidLower
+    400126: RightEyelidUpper
+    400128: RightFoot
+    400130: RightFootToeBase_End
+    400132: RightForeArm
+    400134: RightHand
+    400136: RightHandIndex1
+    400138: RightHandIndex2
+    400140: RightHandIndex3
+    400142: RightHandIndex4
+    400144: RightHandMiddle1
+    400146: RightHandMiddle2
+    400148: RightHandMiddle3
+    400150: RightHandMiddle4
+    400152: RightHandPinky1
+    400154: RightHandPinky2
+    400156: RightHandPinky3
+    400158: RightHandPinky4
+    400160: RightHandRing1
+    400162: RightHandRing2
+    400164: RightHandRing3
+    400166: RightHandRing4
+    400168: RightHandThumb1
+    400170: RightHandThumb2
+    400172: RightHandThumb3
+    400174: RightHandThumb4
+    400176: RightInnerBrow
+    400178: RightIOuterBrow
+    400180: RightLeg
+    400182: RightLipCorner
+    400184: RightLipLower
+    400186: RightLipUpper
+    400188: RightNostril
+    400190: RightShoulder
+    400192: RightToeBase
+    400194: RightUpLeg
+    400196: Spine
+    400198: Spine1
+    400200: Spine2
+    400202: Spine3
+    400204: Spine4
+    400206: TongueBack
+    400208: TongueTip
+    400210: //RootNode
+    4300000: MiaB_HiRes_EyesGeo
+    4300002: MiaB_HiRes_TeethGeo
+    4300004: MiaB_HiRes_HairGeo
+    4300006: MiaB_HiRes_BodyGeo
+    4300008: pHelix1
+    4300010: pHelix2
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: MiaB_HiRes_BodyGeo
+    13700002: MiaB_HiRes_EyesGeo
+    13700004: MiaB_HiRes_HairGeo
+    13700006: MiaB_HiRes_TeethGeo
+    13700008: pHelix1
+    13700010: pHelix2
   materials:
     importMaterials: 1
     materialName: 0
@@ -10,11 +236,13 @@ ModelImporter:
   animations:
     legacyGenerateAnimations: 4
     bakeSimulation: 0
+    optimizeGameObjects: 0
     animationCompression: 1
     animationRotationError: .5
     animationPositionError: .5
     animationScaleError: .5
     animationWrapMode: 0
+    extraExposedTransformPaths: []
     clipAnimations: []
     isReadable: 1
   meshes:
@@ -42,7 +270,6 @@ ModelImporter:
   humanDescription:
     human: []
     skeleton: []
-    handles: []
     armTwist: .5
     foreArmTwist: .5
     upperLegTwist: .5
@@ -52,6 +279,6 @@ ModelImporter:
     feetSpacing: 0
     rootMotionBoneName: 
   lastHumanDescriptionAvatarSource: {instanceID: 0}
-  additionalBone: 1
   animationType: 2
+  additionalBone: 1
   userData: 

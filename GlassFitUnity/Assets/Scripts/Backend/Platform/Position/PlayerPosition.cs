@@ -14,6 +14,9 @@ public abstract class PlayerPosition {
 	public abstract float Pace { get; }
 	public abstract float Bearing { get; }
 
+    internal string playerState = "";  // Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via PositionMessageListener;
+    internal float playerStateEntryTime = UnityEngine.Time.time;
+
 	private bool _tracking = false;
 	public bool IsTracking { get { return _tracking; } }
 
@@ -68,5 +71,10 @@ public abstract class PlayerPosition {
 
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public abstract void NotifyAutoBearing();
+
+    public void SetPlayerState(String state) {
+        playerState = state;
+        playerStateEntryTime = UnityEngine.Time.time;
+    }
 
 }

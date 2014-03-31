@@ -56,7 +56,7 @@ public class MobileSelectFriend : MobilePanel
 
             for (int i = 0; i < friendsData.Count; i++)
             {
-                AddButtonData("button" + i, friendsData[i].name, "", baseConnection);
+                AddButtonData("button" + i, friendsData[i].name, "", ListButtonData.ButtonFormat.ButtonNormalPrototype, baseConnection);
             }
             
             if (list != null)

@@ -12,15 +12,14 @@ using Sqo;
 /// </summary>
 public class AndroidPlatform : Platform
 {
-	private AndroidJavaClass build_class;	
+	private AndroidJavaClass build_class;
 	private AndroidJavaObject helper;
 	private AndroidJavaClass helper_class;
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
 	private AndroidJavaObject sensoriaSock;
-	
-	
-	private PlayerPosition _localPlayerPosition;
+
+    private PlayerPosition _localPlayerPosition;
     public override PlayerPosition LocalPlayerPosition {
         get { return _localPlayerPosition; }
     }
@@ -38,7 +37,7 @@ public class AndroidPlatform : Platform
             helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
 			build_class = new AndroidJavaClass("android.os.Build");
 
-            UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
+            UnityEngine.Debug.Log("Platform: helper_class created OK");
 	                        
             // call the following on the UI thread
             activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
@@ -47,14 +46,14 @@ public class AndroidPlatform : Platform
 	                // Get the singleton helper objects
                     helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
 
-                    UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
+                    UnityEngine.Debug.Log("Platform: unique helper instance returned OK");
 
 					// get reference to Sensoria Socks
 					log.info("Initializing Sensoria socks");
 					try {
 						sensoriaSock = new AndroidJavaObject("com.glassfitgames.glassfitplatform.sensors.SensoriaSock", context);
 					} catch (Exception e) {
-						log.error("Error attaching to Sensoria Socks: " + e.Message);
+						log.error(e, "Error attaching to Sensoria Socks");
 					}
 		                                        
 					//ExportCSV();
@@ -62,7 +61,7 @@ public class AndroidPlatform : Platform
 					// Log screen dimensions - for debug only, can be commented out
 					log.info("Screen dimensions are " + GetScreenDimensions().x.ToString() + "x" + GetScreenDimensions().y.ToString());
 			    } catch (Exception e) {
-		            log.error("Error in android initialisation thread " + e.Message);
+		            log.error(e, "Error in android initialisation UI thread");
 					Application.Quit();
 			    }
 				initialised = true;
@@ -71,10 +70,10 @@ public class AndroidPlatform : Platform
 	            
 			log.info("Initializing AndroidPlayerPosition");
 			_localPlayerPosition = new AndroidPlayerPosition();
-			log.info("Initializing AndroidPlayerPoints");
+			log.info("Initializing LocalDbPlayerPoints");
 			_playerPoints = new LocalDbPlayerPoints();
 	    } catch (Exception e) {
-            log.error("Error in initialisation " + e.Message);
+            log.error(e, "Error in android initialisation main thread");
 			Application.Quit();
 	    }		
 	}
@@ -218,7 +217,7 @@ public class AndroidPlatform : Platform
 		try {
 			return helper.Call<bool>("hasGps");
 		} catch (Exception e) {
-			log.error("Error calling hasGps over JNI " + e.Message);
+			log.error(e, "Error calling hasGps over JNI");
 			return false;
 		}
 	}
@@ -228,7 +227,7 @@ public class AndroidPlatform : Platform
         try {
             return helper.Call<bool>("isBluetoothBonded");
         } catch (Exception e) {
-            log.error("Error calling isBluetoothBonded over JNI " + e.Message);
+            log.error(e, "Error calling isBluetoothBonded over JNI");
             return false;
         }
     }
@@ -241,7 +240,7 @@ public class AndroidPlatform : Platform
 		try {
 			UnityEngine.Debug.Log("Platform: authorizing");
 			bool auth = helper.Call<bool>("authorize", activity, provider, permissions);
-			if (!authenticated && auth) authenticated = true;
+            if (!NetworkMessageListener.authenticated && auth) NetworkMessageListener.authenticated = true;
 			UnityEngine.Debug.Log("Platform: authorize end");
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
@@ -253,7 +252,7 @@ public class AndroidPlatform : Platform
 		try {
 			UnityEngine.Debug.Log("Platform: checking permissions");
 			bool auth = helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
-			if (!authenticated && auth) authenticated = true;
+            if (!NetworkMessageListener.authenticated && auth) NetworkMessageListener.authenticated = true;
 			UnityEngine.Debug.Log("Platform: permissions complete");
 			return auth;
 		} catch(Exception e) {
@@ -601,6 +600,7 @@ public class AndroidPlatform : Platform
 	
 	public override void Poll() {
 
+        log.info ("Polling for position etc");
 		this.LocalPlayerPosition.Update();  // update current position
 		this.PlayerPoints.Update(); // update current points
 
@@ -908,26 +908,6 @@ public class AndroidPlatform : Platform
 	public override Device DeviceInformation() 
 	{
 		return new Device(build_class.GetStatic<string>("MANUFACTURER"), build_class.GetStatic<string>("MODEL"));
-	}
-	
-	public void NewTrack(String json) {
-		log.info("Received track from java, saving to SiaqoDb..");
-		Track t = JsonConvert.DeserializeObject<Track>(json);
-		if (db.Cast<Track>().Where<Track>(tr => tr.id == t.id).FirstOrDefault() != null) {
-			db.UpdateObjectBy("id", t);
-		} else {
-			db.StoreObject(t);
-		}
-	}
-	
-	public void NewPosition(String json) {
-		log.info("Received position from java, saving to SiaqoDb..");
-		Position p = JsonConvert.DeserializeObject<Position>(json);
-		if (db.Cast<Position>().Where<Position>(po => po.id == p.id).FirstOrDefault() != null) {
-			db.UpdateObjectBy("id", p);
-		} else {
-			db.StoreObject(p);
-		}
 	}
 	
 }

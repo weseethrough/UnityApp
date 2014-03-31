@@ -256,17 +256,17 @@ public class PlatformDummy : Platform
 
 	public override void Authorize(string provider, string permissions) {
 		if (Application.isPlaying) {
-			StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
+            GetMonoBehavioursPartner().StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
 		}
 	}
 	
 	public override bool HasPermissions(string provider, string permissions) {
-		return authenticated;
+        return NetworkMessageListener.authenticated;
 	}
 	
 	public override void SyncToServer() {
 		lastSync = DateTime.Now;
-		StartCoroutine(api.Sync());
+        GetMonoBehavioursPartner().StartCoroutine(api.Sync());
 	}
 	
 	public void SetTargetSpeed(float speed)
@@ -470,8 +470,8 @@ public class PlatformDummy : Platform
 		try {
 			SimpleJSON.JSON.Parse(json);
 			log.info("BluetoothBroadcast: " + json);		
-		} catch (Exception) {
-			log.error("BluetoothBroadcast: could not parse json!");
+		} catch (Exception e) {
+			log.error(e, "BluetoothBroadcast: could not parse json!");
 		}
 		return;
 	}
@@ -526,7 +526,6 @@ public class PlatformDummy : Platform
 	public override Device DeviceInformation() 
 	{
 		return new Device("Unknown", "Device");
-	}	
-
+	}	    
 }
 #endif
