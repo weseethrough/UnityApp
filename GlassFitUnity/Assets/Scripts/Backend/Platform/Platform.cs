@@ -663,17 +663,20 @@ public abstract class Platform : SingletonBase
 //		Destroy(gameObject);
 	}
 
+    public void SetMonoBehavioursPartner(PlatformPartner obj)
+    {
+        if (partner == null)
+        {
+            partner = obj;
+            PostInit();
+        }
+    }
+
     public PlatformPartner GetMonoBehavioursPartner()
     {
         if (partner == null)
         {
-            //named object to identify platform game object reprezentation
-            GameObject go = new GameObject("Platform");
-            partner = go.AddComponent<PlatformPartner>();
-            go.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
-
-            //post initialziation procedure
-            PostInit();
+            UnityEngine.Debug.LogError("Partner is not set yet. scene not constructed, you cant refer scene objects. Do you try to do so from another thread?");
         }
 
         return partner;
