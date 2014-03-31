@@ -189,19 +189,7 @@ public class DataStore : MonoBehaviour
     /// <param name="name">blob enum name</param>
     /// <returns></returns>
     static public void LoadStorage(BlobNames name)
-    {
-        if (name == BlobNames.persistent)
-        {
-            Siaqodb db = DatabaseFactory.GetInstance();
-            string strName = name.ToString();
-
-            Storage storage = db.Query<Storage>().Where(d => d.name == strName).FirstOrDefault();
-            if (storage != null)
-            {
-                instance.storageBank[strName] = storage;
-                return;
-            }
-        }
+    {        
 
 #if UNITY_EDITOR
         if (instance != null && Platform.Instance != null)
@@ -302,18 +290,9 @@ public class DataStore : MonoBehaviour
     /// <returns></returns>
     static public void SaveStorage(BlobNames name)
     {
-        if (name == BlobNames.persistent)
-        {
-            GetStorage(name).name = name.ToString();
-
-            Siaqodb db = DatabaseFactory.GetInstance();
-            db.StoreObject(GetStorage(name));
-
-        }
-        else
-        {
-            SaveStorage(name, false);
-        }
+        
+        SaveStorage(name, false);
+        
     }
 
     /// <summary>

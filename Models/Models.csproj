@@ -33,11 +33,10 @@
     <ConsolePause>false</ConsolePause>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup />
   <ItemGroup>
-    <Compile Include="Backend\CustomDictionaries\Storage.cs" />
-    <Compile Include="Backend\CustomDictionaries\StorageDictionary.cs" />
-    <Compile Include="Backend\CustomDictionaries\StorageDictionaryBase.cs" />
+    <Folder Include="Backend\" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Tests\JsonTests.cs" />
     <Compile Include="Models\Action.cs" />
     <Compile Include="Models\Cache.cs" />

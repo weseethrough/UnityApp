@@ -7,6 +7,7 @@ public class PlatformPartner : MonoBehaviour
     void Awake()
     {
         DontDestroyOnLoad(gameObject);
+        Platform.Instance.SetMonoBehavioursPartner(this);        
     }
 
     void Update()

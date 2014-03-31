@@ -138,7 +138,7 @@ public abstract class Platform : SingletonBase
 	    targetTrackers = new List<TargetTracker>();	                
 		// Set initialised=true in overriden method
 	}
-	
+	    
 	protected virtual void PostInit() {
 		UnityEngine.Debug.Log("Platform: post init");
 
@@ -660,16 +660,20 @@ public abstract class Platform : SingletonBase
 //		Destroy(gameObject);
 	}
 
+    public void SetMonoBehavioursPartner(PlatformPartner obj )
+    {
+        if (partner == null)
+        {
+            partner = obj;
+            PostInit();
+        }
+    }
+
     public PlatformPartner GetMonoBehavioursPartner()
     {
         if (partner == null)
         {
-            //named object to identify platform game object reprezentation
-            GameObject go = new GameObject("Platform");
-            partner = go.AddComponent<PlatformPartner>();
-
-            //post initialziation procedure
-            PostInit();
+            UnityEngine.Debug.LogError("parter referenced but doesn't exist at this moment. Do you try to call it form another thread to early?");
         }
 
         return partner;
