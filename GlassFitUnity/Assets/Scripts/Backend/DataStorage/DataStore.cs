@@ -6,6 +6,9 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 
+using Sqo;
+using SiaqodbDemo;
+
 /// <summary>
 /// root data storage class. used for management of all backend and ui external static data
 /// </summary>
@@ -93,8 +96,10 @@ public class DataStore : MonoBehaviour
     public void Initialize()
     {
         //load data blobs from drive
+        
         for (int i = 0; i < (int)BlobNames.maxItem; i++ )
         {
+            float startTime = Time.realtimeSinceStartup;
             BlobNames bName = (BlobNames)i;
             string name = bName.ToString();
 #if UNITY_EDITOR
@@ -113,8 +118,13 @@ public class DataStore : MonoBehaviour
                 string n;
                 ISerializable d;                
                 sd.Get(k, out n, out d);            
-            }            
-        }        
+            }
+
+            float endTime = Time.realtimeSinceStartup;
+
+            Debug.Log("Loading time for " + name + " took " + (float)(endTime - startTime));
+        }
+        
 	}
 	
 	/// <summary>
@@ -180,14 +190,28 @@ public class DataStore : MonoBehaviour
     /// <returns></returns>
     static public void LoadStorage(BlobNames name)
     {
+        if (name == BlobNames.persistent)
+        {
+            Siaqodb db = DatabaseFactory.GetInstance();
+            string strName = name.ToString();
+
+            Storage storage = db.Query<Storage>().Where(d => d.name == strName).FirstOrDefault();
+            if (storage != null)
+            {
+                instance.storageBank[strName] = storage;
+                return;
+            }
+        }
+
 #if UNITY_EDITOR
         if (instance != null && Platform.Instance != null)
-        {
-            
+        {            
             if (!LoadStorageFromCollection(name))
             {
-                instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));                
-            }
+                
+                instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));
+                
+            }            
         }
 #else
 		if (instance != null)
@@ -278,7 +302,18 @@ public class DataStore : MonoBehaviour
     /// <returns></returns>
     static public void SaveStorage(BlobNames name)
     {
-        SaveStorage(name, false);
+        if (name == BlobNames.persistent)
+        {
+            GetStorage(name).name = name.ToString();
+
+            Siaqodb db = DatabaseFactory.GetInstance();
+            db.StoreObject(GetStorage(name));
+
+        }
+        else
+        {
+            SaveStorage(name, false);
+        }
     }
 
     /// <summary>
