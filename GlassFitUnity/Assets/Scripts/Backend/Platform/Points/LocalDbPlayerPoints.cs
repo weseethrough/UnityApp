@@ -43,32 +43,32 @@ public class LocalDbPlayerPoints : PlayerPoints
 	{
 		// TODO: ensure last returns transaction with greatest  timestamp
         log.info("Restoring user's points balance from database");
-        try {
-            lastTransaction = db.Cast<Transaction>().Last<Transaction>();
-        } catch (Exception e) {
-            log.error (e, "db.cast().last() crashed");
-        }
+        lastTransaction = db.Cast<Transaction>().Last<Transaction>();
+
 		if (lastTransaction == null) {
+            log.info("Set initial points and gems to zero, and metabolism to 100");
 			SaveToDatabase("INITIALISE","Everything set to zero", "PlayerPoints");  // first launch of game
             lastTransaction = db.Cast<Transaction>().LastOrDefault<Transaction>();
-			log.info("Set initial points and gems to zero, and metabolism to 100");
 			return;
 		}
 		
+        log.info("Intialising local fields");
 		_openingPointsBalance = lastTransaction.points_balance;
 		_lastTransactionPoints = lastTransaction.points_balance;
 		_currentGemBalance = lastTransaction.gems_balance;
 		_currentMetabolism = lastTransaction.metabolism_balance;
 		
 		// Decay metabolism for inactiviy since last workout
+        log.info("Decaying metabolism");
 		long decayTime = (UnitsHelper.MillisSince1970(DateTime.Now) - lastTransaction.ts);
 		_currentMetabolism *= Mathf.Exp(-(float)decayTime*0.00000001f);
 		TimeSpan decayTimeSpan = new TimeSpan(decayTime*100000);
 		String calc = String.Format("Metabolism decayed from " + lastTransaction.metabolism_balance + " to " +
             CurrentMetabolism + " since last workout. Time of inactivity is {0:N0} days, {1} hours, {2} minutes, {3} seconds", 
                 decayTimeSpan.Days, decayTimeSpan.Hours, decayTimeSpan.Minutes, decayTimeSpan.Seconds);
-		SaveToDatabase("BETWEEN-GAME METABOLISM DECAY", calc, "PlayerPoints");
-		log.info(calc);
+        log.info(calc);
+        SaveToDatabase("BETWEEN-GAME METABOLISM DECAY", calc, "PlayerPoints");
+        log.info("initialised successfully");
 	}
 
 	public override void Update()

@@ -716,15 +716,15 @@ public class ButtonFunctionCollection
 		
         GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
 		// Follow connection once authentication has returned asynchronously
-		Platform.OnAuthenticated handler = null;
-		handler = new Platform.OnAuthenticated((authenticated) => {
+        NetworkMessageListener.OnAuthenticated handler = null;
+        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
 			if (authenticated) {
 				Platform.Instance.SyncToServer();
 				panel.parentMachine.FollowConnection(gConect);
 			}
-			Platform.Instance.onAuthenticated -= handler;
+            Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
 		});
-		Platform.Instance.onAuthenticated += handler;	
+        Platform.Instance.NetworkMessageListener.onAuthenticated += handler;	
 		
 		Platform.Instance.Authorize(fb.name.ToLower(), "login");
 		
@@ -735,15 +735,15 @@ public class ButtonFunctionCollection
     {
 		GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
 		// Follow connection once authentication has returned asynchronously
-		Platform.OnAuthenticated handler = null;
-		handler = new Platform.OnAuthenticated((authenticated) => {
+        NetworkMessageListener.OnAuthenticated handler = null;
+        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
 			if (authenticated) {
 				//Platform.Instance.SyncToServer();
 				panel.parentMachine.FollowConnection(gConect);
 			}
-			Platform.Instance.onAuthenticated -= handler;
+            Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
 		});
-		Platform.Instance.onAuthenticated += handler;	
+        Platform.Instance.NetworkMessageListener.onAuthenticated += handler;	
 		
 		Platform.Instance.Authorize("any", "login");
 		
@@ -752,8 +752,8 @@ public class ButtonFunctionCollection
 
     static public bool ShareTrack(FlowButton button, FlowState panel)
 	{
-		Platform.OnAuthenticated handler = null;
-		handler = new Platform.OnAuthenticated((authenticated) => {
+        NetworkMessageListener.OnAuthenticated handler = null;
+        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
 			if (authenticated) {
 				Track track = DataVault.Get("track") as Track;
 				Platform.Instance.QueueAction(string.Format(@"{{
@@ -765,9 +765,9 @@ public class ButtonFunctionCollection
 				Debug.Log ("Track: [" + track.deviceId + "," + track.trackId + "] shared to Facebook");
 				MessageWidget.AddMessage("Share", "Track shared to Facebook", "settings");
 			}
-			Platform.Instance.onAuthenticated -= handler;
+            Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
 		});
-		Platform.Instance.onAuthenticated += handler;	
+        Platform.Instance.NetworkMessageListener.onAuthenticated += handler;	
 		Platform.Instance.Authorize("facebook", "share");
 		return false;
 	}

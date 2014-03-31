@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using System;
 using Sqo;
 using SiaqodbDemo;
 using RaceYourself.Models;
@@ -46,6 +45,12 @@ public class PositionMessageListener : MonoBehaviour
         } else {
             db.StoreObject(p);
         }
+    }
+
+    // Called by unity messages on each state change
+    void PlayerStateChange(string message) {
+        //UnityEngine.Debug.Log("Player state message received from Java: " + message);
+        Platform.Instance.LocalPlayerPosition.SetPlayerState(message);
     }
 
 

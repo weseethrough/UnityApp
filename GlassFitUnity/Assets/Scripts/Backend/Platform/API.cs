@@ -103,7 +103,7 @@ namespace RaceYourself
 				
 				ret = "Success";
 			} finally {
-				Platform.Instance.OnRegistration(ret);
+                Platform.Instance.NetworkMessageListener.OnRegistration(ret);
 			}
 		}
 		
@@ -162,7 +162,7 @@ namespace RaceYourself
 				
 				ret = "Success";				
 			} finally {
-				Platform.Instance.OnAuthentication(ret);
+                Platform.Instance.NetworkMessageListener.OnAuthentication(ret);
 			}
 		}
 		
@@ -217,7 +217,7 @@ namespace RaceYourself
 		public IEnumerator Sync() {
 			if (token == null || token.HasExpired) {
 				Debug.LogError("API: UpdateAuthentications() called with expired or missing token");
-				Platform.Instance.OnSynchronization("Failure");
+                Platform.Instance.NetworkMessageListener.OnSynchronization("Failure");
 				yield break;
 			}
 			Debug.Log("API: Sync()");
@@ -324,7 +324,7 @@ namespace RaceYourself
 				
 			} finally {
 				syncing = false;
-				Platform.Instance.OnSynchronization(ret);
+                Platform.Instance.NetworkMessageListener.OnSynchronization(ret);
 			}
 		}
 

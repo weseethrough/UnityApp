@@ -16,8 +16,6 @@ public abstract class Platform : SingletonBase
 {
 	protected double targetElapsedDistance = 0;
 
-    protected string intent = "";
-
 	protected PlayerOrientation playerOrientation = new PlayerOrientation();
 
 	// Holds the local player's position and bearing
@@ -26,10 +24,14 @@ public abstract class Platform : SingletonBase
 	// Helper class for accessing/awarding points
 	public abstract PlayerPoints PlayerPoints { get; }
 
-	// Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via Unity Messages.
-	// This should probably move into PlayerPosition at some point..
-	internal float playerStateEntryTime;
-	internal string playerState = "";
+    // Listeners for unity messages, attached to Platform game object in GetMonoBehavioursPartner
+    public PositionMessageListener _positionMessageListener;
+    public PositionMessageListener PositionMessageListener { get { return _positionMessageListener; } }
+    public NetworkMessageListener _networkMessageListener;
+    public NetworkMessageListener NetworkMessageListener { get { return _networkMessageListener; } }
+    public BluetoothMessageListener _bluetoothMessageListener;
+    public BluetoothMessageListener BluetoothMessageListener { get { return _bluetoothMessageListener; } }
+
 
 	protected float yaw = -999.0f;
 	protected bool started = false;
@@ -43,33 +45,16 @@ public abstract class Platform : SingletonBase
 	
 	public List<TargetTracker> targetTrackers { get; protected set; }
 	
-	// Are we authenticated? Note: we mark it false at init and true when any auth call passes
-	public bool authenticated { get; protected set; }	
 	public bool connected { get; protected set; } // ditto
 	
 	// Other components may change this to disable sync temporarily?
 	public int syncInterval = 10;
-	protected DateTime lastSync = new DateTime(0);
-	
-	// Events
-	public delegate void OnAuthenticated(bool success);
-	public OnAuthenticated onAuthenticated = null;
-	public delegate void OnSync(string message);
-	public OnSync onSync = null;
-	public delegate void OnSyncProgress(string message);
-	public OnSyncProgress onSyncProgress = null;
-	public delegate void OnRegistered(string message);
-	public OnRegistered onDeviceRegistered = null;
-	public delegate void OnGroupCreated(int groupId);
-	public OnGroupCreated onGroupCreated = null;
-	
-	//protected static Platform _instance;
-	protected static Type platformType;
+    public DateTime lastSync = new DateTime(0);
 
 	protected static Log log = new Log("Platform");  // for use by subclasses
 	
     protected Siaqodb db;
-	protected API api;
+    public API api;
 
 
     private PlatformPartner partner;
@@ -86,16 +71,12 @@ public abstract class Platform : SingletonBase
 		get 
         {
 #if UNITY_EDITOR
-            //platformType = typeof(PlatformDummy);
             return (Platform)GetInstance<PlatformDummy>();
 #elif UNITY_ANDROID && RACEYOURSELF_MOBILE
-			//	platformType = typeof(PlatformDummy);
             return (Platform)GetInstance<AndroidPlatform>();
 #elif UNITY_ANDROID
-			//	platformType = typeof(AndroidPlatform);
             return (Platform)GetInstance<AndroidPlatform>();
 #elif UNITY_IPHONE
-			//	platformType = typeof(IosPlatform);
             return (Platform)GetInstance<IosPlatform>();
 #endif
             return null;
@@ -126,7 +107,6 @@ public abstract class Platform : SingletonBase
 		}*/
 		if (initialised == false)
         {
-			playerStateEntryTime = UnityEngine.Time.time;
             Initialize();
         }
 
@@ -136,7 +116,6 @@ public abstract class Platform : SingletonBase
         
 	protected virtual void Initialize()
 	{        	                
-	    authenticated = false;
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();	                
 		// Set initialised=true in overriden method
@@ -183,185 +162,6 @@ public abstract class Platform : SingletonBase
 //			db = DatabaseFactory.GetInstance();
 //			api = new API(db);
 		}
-	}
-	
-	/// Message receivers
-	public void OnAuthentication(string message) {
-		UnityEngine.Debug.Log("Platform: starting to authenticate");
-		if (string.Equals(message, "Success")) {
-			if (authenticated == false) {
-				User me = User();
-				if (me != null) MessageWidget.AddMessage("Logged in", "Welcome " + me.name, "settings");
-			}
-			authenticated = true;
-			if (onAuthenticated != null) onAuthenticated(true);
-		}
-		if (string.Equals(message, "Failure")) {
-			if (onAuthenticated != null) onAuthenticated(false);
-		}
-		if (string.Equals(message, "OutOfBand")) {
-			if (onAuthenticated != null) onAuthenticated(false);
-			// TODO: Use confirmation dialog instead of message
-			MessageWidget.AddMessage("Notice", "Please use the web interface to link your account to this provider", "settings");
-		}
-		UnityEngine.Debug.Log("Platform: authentication " + message.ToLower()); 
-	}
-	
-	public void OnSynchronization(string message) {
-		UnityEngine.Debug.Log("Platform: synchronize finished with " + message);
-		lastSync = DateTime.Now;
-		if (onSync != null) onSync(message);
-	}
-
-	public void OnSynchronizationProgress(string message) {
-		if (onSyncProgress != null) onSyncProgress(message);
-	}
-	
-	public void OnRegistration(string message) {
-		if (onDeviceRegistered != null) onDeviceRegistered(message);
-	}	
-	
-	public void OnActionIntent(string message) {
-		UnityEngine.Debug.Log("Platform: action " + message); 
-		MessageWidget.AddMessage("Internal", "App opened with intent " + message, "settings");
-        intent = message;
-	}
-	
-	public void OnBluetoothConnect(string message) {
-		MessageWidget.AddMessage("Bluetooth", message, "settings");
-	}
-	
-	public void OnBluetoothMessage(string message) {
-//		MessageWidget.AddMessage("Bluetooth", message, "settings"); // DEBUG
-		UnityEngine.Debug.Log("Platform: OnBluetoothMessage " + message.Length + "B"); 
-		JSONNode json = JSON.Parse(message);
-		OnBluetoothJson(json);
-	}
-	
-	public void OnUserMessage(string message) {
-		JSONNode json = JSON.Parse(message);
-		MessageWidget.AddMessage("Network", "<" + json["from"] + "> " + json["data"], "settings"); // DEBUG
-	}
-	
-	public void OnGroupMessage(string message) {
-		JSONNode json = JSON.Parse(message);
-		MessageWidget.AddMessage("Network", "#" + json["group"] + " <" + json["from"] + "> " + json["data"], "settings"); // DEBUG
-	}
-	
-	public void OnGroupCreation(string message) {
-		if (onGroupCreated != null) onGroupCreated(int.Parse(message));
-		// TODO: Potential hanging deferral. What do we do if socket is disconnected before a group is created?
-	}
-	
-	
-	protected void OnBluetoothJson(JSONNode json) {
-		UnityEngine.Debug.Log("Platform: OnBluetoothJson"); 
-		switch(json["action"]) {
-		case "LoadLevelFade":
-			if (IsRemoteDisplay()) {
-//				DataVaultFromJson(json["data"]);
-//				if (json["levelName"] != null) AutoFade.LoadLevel(json["levelName"], 0f, 1.0f, Color.black); 			
-//				if (json["levelIndex"] != null) AutoFade.LoadLevel(json["levelIndex"].AsInt, 0f, 1.0f, Color.black); 			
-			}
-			break;
-		case "LoadLevelAsync":
-			if (IsRemoteDisplay()) {
-				DataVaultFromJson(json["data"]);
-				FlowStateMachine.Restart("Restart Point");
-			}
-			break;
-		case "InitiateSnack":
-			if (IsRemoteDisplay()) {
-				//find SnackRun Object
-                SnackRun snackRunGame = (SnackRun)GameObject.FindObjectOfType(typeof(SnackRun));
-				string gameID = json["snack_gameID"];
-				if(snackRunGame != null)
-				{
-					UnityEngine.Debug.Log("Platform: Received InitiateSnack message. Initiating game: " + gameID);
-					snackRunGame.OfferPlayerSnack(gameID);
-				}
-				else
-				{
-					UnityEngine.Debug.LogWarning("Platform: Received InitiateSnack message for " + gameID + " but not currently on a snack run");
-				}
-			}
-			break;
-		case "ReturnToMainMenu":
-			if(IsDisplayRemote()) {
-				FlowStateMachine.Restart("Start Point");	
-			}
-			break;
-		case "OnSnackFinished":
-			if(IsDisplayRemote()) {
-				UnityEngine.Debug.Log("Platform: Received bluetooth snack finished message");
-				//find SnackRemoteControlPanel
-				SnackRemoteControlPanel remotePanel = (SnackRemoteControlPanel)FlowStateMachine.GetCurrentFlowState();
-				if(remotePanel != null)
-				{
-					remotePanel.ClearCurrentSnackHex();
-				}
-				else
-				{
-					UnityEngine.Debug.LogWarning("Platform: Couldn't find Snack remote panel");
-				}
-			}
-			break;
-		default:
-			UnityEngine.Debug.Log("Platform: unknown Bluetooth message: " + json);
-			break;
-		}
-		
-		// TODO: Start challenge
-		// TODO: Toggle outdoor/indoor
-	}
-
-
-	// Called by unity messages on each state change
-	void PlayerStateChange(string message) {
-		//UnityEngine.Debug.Log("Player state message received from Java: " + message);
-		playerState = message;
-		playerStateEntryTime = UnityEngine.Time.time;
-	}
-
-	// Called by native platform with a push notification id
-	public void OnPushId(string id) {
-		if (db != null && api != null) {
-			Device self = Device();
-			self.push_id = id;
-			db.StoreObject(self);
-		}
-	}	
-	
-	protected void DataVaultFromJson(JSONNode json) {
-		JSONNode track = json["current_track"];
-		if (track != null) {
-			Track t = FetchTrack(track["device_id"].AsInt, track["track_id"].AsInt);
-			if (t != null) DataVault.Set("current_track", t);
-			else track = null;
-		} 
-		if (track == null) DataVault.Remove("current_track");
-		if (json["race_type"] != null) DataVault.Set("race_type", json["race_type"].Value);
-		else DataVault.Remove("race_type");
-		if (json["type"] != null) DataVault.Set("type", json["type"].Value);
-		else DataVault.Remove("type");
-		if (json["finish"] != null) DataVault.Set("finish", json["finish"].AsInt);
-		else DataVault.Remove("finish");
-		if (json["lower_finish"] != null) DataVault.Set("lower_finish", json["lower_finish"].AsInt);
-		else DataVault.Remove("lower_finish");
-		if (json["challenger"] != null) DataVault.Set("challenger", json["challenger"].Value);
-		else DataVault.Remove("challenger");
-		if (json["current_game_id"] != null)
-		{
-			UnityEngine.Debug.Log("Bluetooth: Current Game ID received: " + json["current_game_id"]);
-			DataVault.Set("current_game_id", json["current_game_id"].Value);
-		}
-		else DataVault.Remove("current_game_id");
-		JSONNode challengeNotification = json["current_challenge_notification"];
-		if (challengeNotification != null) {
-			// TODO: fetch challenge notification and store in datavault
-		} 
-		if (challengeNotification == null) DataVault.Remove("current_challenge_notification");
-		ResetTargets();
 	}
 	
 	public virtual bool HasStarted() {
@@ -644,11 +444,6 @@ public abstract class Platform : SingletonBase
 			Application.Quit();
 		}
 	}
-
-    public string GetIntent()
-    {
-        return intent;
-    }
 	
 	public virtual Device DeviceInformation() 
 	{
@@ -670,7 +465,9 @@ public abstract class Platform : SingletonBase
             //named object to identify platform game object reprezentation
             GameObject go = new GameObject("Platform");
             partner = go.AddComponent<PlatformPartner>();
-            go.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            _positionMessageListener = go.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            _networkMessageListener = go.AddComponent<NetworkMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            _bluetoothMessageListener = go.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
 
             //post initialziation procedure
             PostInit();
