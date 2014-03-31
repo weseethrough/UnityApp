@@ -12,5 +12,6 @@ public class IosPlatform : Platform
 		return new Device("Apple", "iUnknown");
 	}
 }
+
 #endif
 

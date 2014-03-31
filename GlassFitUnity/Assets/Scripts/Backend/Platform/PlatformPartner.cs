@@ -44,4 +44,5 @@ public class PlatformPartner : MonoBehaviour
         Debug.Log("Quit order received");
         Platform.Instance.OnApplicationQuit();
     }
+
 }

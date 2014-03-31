@@ -67,7 +67,7 @@ public class NetworkMessageListener : MonoBehaviour
 
     public void OnRegistration(string message) {
         if (onDeviceRegistered != null) onDeviceRegistered(message);
-    }   
+    }
 
     public void OnActionIntent(string message) {
         UnityEngine.Debug.Log("Platform: action " + message); 
