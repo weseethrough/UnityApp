@@ -46,7 +46,7 @@ public class AndroidPlayerPosition : PlayerPosition {
 	    	}));
 
 	    } catch (Exception e) {
-            log.error("Error connecting to Android GPS: " + e.Message);
+            log.error(e, "Error connecting to Android GPS");
             log.exception(e);
 			Application.Quit();
 	    }
@@ -199,7 +199,7 @@ public class AndroidPlayerPosition : PlayerPosition {
  		try {
  			helper.Call("notifyAutoBearing");
  		} catch (Exception e) {
- 			log.error("Platform: Error notifying auto-bearing: " + e.Message);
+ 			log.error(e, "Error notifying auto-bearing");
  		}
 
  	}

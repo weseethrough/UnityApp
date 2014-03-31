@@ -68,7 +68,7 @@ public abstract class Platform : SingletonBase
 
 	protected static Log log = new Log("Platform");  // for use by subclasses
 	
-	protected Siaqodb db;	
+    protected Siaqodb db;
 	protected API api;
 
 
@@ -90,7 +90,7 @@ public abstract class Platform : SingletonBase
             return (Platform)GetInstance<PlatformDummy>();
 #elif UNITY_ANDROID && RACEYOURSELF_MOBILE
 			//	platformType = typeof(PlatformDummy);
-            return (Platform)GetInstance<PlatformDummy>();
+            return (Platform)GetInstance<AndroidPlatform>();
 #elif UNITY_ANDROID
 			//	platformType = typeof(AndroidPlatform);
             return (Platform)GetInstance<AndroidPlatform>();
@@ -129,6 +129,9 @@ public abstract class Platform : SingletonBase
 			playerStateEntryTime = UnityEngine.Time.time;
             Initialize();
         }
+
+        log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");
+        GetMonoBehavioursPartner();
     }
         
 	protected virtual void Initialize()
@@ -667,6 +670,7 @@ public abstract class Platform : SingletonBase
             //named object to identify platform game object reprezentation
             GameObject go = new GameObject("Platform");
             partner = go.AddComponent<PlatformPartner>();
+            go.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
 
             //post initialziation procedure
             PostInit();
