@@ -24,7 +24,7 @@ public class UIEditorWindow : EditorWindow
 	public static void ShowWindow()
 	{
 		//Show existing window instance. If one doesn't exist, make one.
-        EditorWindow.GetWindow(typeof(UIEditorWindow));
+        EditorWindow window = EditorWindow.GetWindow(typeof(UIEditorWindow));        
 	}
 
 	/// <summary>

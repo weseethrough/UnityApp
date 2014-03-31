@@ -6,6 +6,9 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 
+using Sqo;
+using SiaqodbDemo;
+
 /// <summary>
 /// root data storage class. used for management of all backend and ui external static data
 /// </summary>
@@ -23,7 +26,9 @@ public class DataStore : MonoBehaviour
             DataStore ds = (DataStore)GameObject.FindObjectOfType(typeof(DataStore));
             if (ds != null)
             {
+              //  Profiler.BeginSample("_oOo_DataStore_oOo_");
                 ds.MakeAwake();
+            //    Profiler.EndSample();
             }
             return _instance;
         }        
@@ -91,14 +96,18 @@ public class DataStore : MonoBehaviour
     public void Initialize()
     {
         //load data blobs from drive
+        
         for (int i = 0; i < (int)BlobNames.maxItem; i++ )
         {
+            float startTime = Time.realtimeSinceStartup;
             BlobNames bName = (BlobNames)i;
             string name = bName.ToString();
 #if UNITY_EDITOR
             if (!LoadStorageFromCollection(bName))
-            {                
+            {
+                Profiler.BeginSample("Test profile");
                 storageBank[name.ToString()] = InitializeBlob(Platform.Instance.LoadBlob(name));
+                Profiler.EndSample();
             }            
 #else
 			storageBank[name] = InitializeBlob(Platform.Instance.LoadBlob(name));
@@ -109,8 +118,13 @@ public class DataStore : MonoBehaviour
                 string n;
                 ISerializable d;                
                 sd.Get(k, out n, out d);            
-            }            
-        }        
+            }
+
+            float endTime = Time.realtimeSinceStartup;
+
+            Debug.Log("Loading time for " + name + " took " + (float)(endTime - startTime));
+        }
+        
 	}
 	
 	/// <summary>
@@ -139,10 +153,10 @@ public class DataStore : MonoBehaviour
                 return new Storage();
             }
 	        else
-            {
+            {                
                 BinaryFormatter bformatter = new BinaryFormatter();
                 System.Object o = bformatter.Deserialize(ms);
-                storage = (Storage)o;
+                storage = (Storage)o;                
             }	        
 		}
         catch (Exception e)
@@ -175,14 +189,17 @@ public class DataStore : MonoBehaviour
     /// <param name="name">blob enum name</param>
     /// <returns></returns>
     static public void LoadStorage(BlobNames name)
-    {
+    {        
+
 #if UNITY_EDITOR
         if (instance != null && Platform.Instance != null)
-        {
+        {            
             if (!LoadStorageFromCollection(name))
             {
+                
                 instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));
-            }
+                
+            }            
         }
 #else
 		if (instance != null)
@@ -273,7 +290,9 @@ public class DataStore : MonoBehaviour
     /// <returns></returns>
     static public void SaveStorage(BlobNames name)
     {
+        
         SaveStorage(name, false);
+        
     }
 
     /// <summary>

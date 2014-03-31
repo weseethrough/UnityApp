@@ -11,13 +11,14 @@ public class DataEntry
 {        
     //warning some objects might not be serializable!
     //If you use this class for serialization process ensure it does check on stored value
-    public System.Object   storedValue;    
-    public bool            persistent;
+    public System.Object    storedValue;    
+    public bool             persistent;
+    public int              OID;
 
     public DataEntry(System.Object v, bool p)
     {
         storedValue = v;
-        persistent  = p;
+        persistent  = p;        
     }
 }
 

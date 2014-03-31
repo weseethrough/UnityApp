@@ -458,7 +458,7 @@ public abstract class Platform : SingletonBase
 //		Destroy(gameObject);
 	}
 
-    public PlatformPartner GetMonoBehavioursPartner()
+    public void SetMonoBehavioursPartner(PlatformPartner obj)
     {
         if (partner == null)
         {
@@ -470,7 +470,16 @@ public abstract class Platform : SingletonBase
             _bluetoothMessageListener = go.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
 
             //post initialziation procedure
+            partner = obj;
             PostInit();
+        }
+    }
+
+    public PlatformPartner GetMonoBehavioursPartner()
+    {
+        if (partner == null)
+        {
+            UnityEngine.Debug.LogError("Partner is not set yet. scene not constructed, you cant refer scene objects. Do you try to do so from another thread?");
         }
 
         return partner;
