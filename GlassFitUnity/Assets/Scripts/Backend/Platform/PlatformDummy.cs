@@ -470,8 +470,8 @@ public class PlatformDummy : Platform
 		try {
 			SimpleJSON.JSON.Parse(json);
 			log.info("BluetoothBroadcast: " + json);		
-		} catch (Exception) {
-			log.error("BluetoothBroadcast: could not parse json!");
+		} catch (Exception e) {
+			log.error(e, "BluetoothBroadcast: could not parse json!");
 		}
 		return;
 	}

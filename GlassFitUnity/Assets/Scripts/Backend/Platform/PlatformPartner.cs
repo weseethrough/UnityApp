@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 using System.Threading;
-using System;
 
 public class PlatformPartner : MonoBehaviour
 {
+
     void Awake()
     {
         DontDestroyOnLoad(gameObject);

@@ -15,7 +15,6 @@ public class LocalDbPlayerPoints : PlayerPoints
     private const long BASE_MULTIPLIER_TIME_THRESH = 8;  // seconds
 	
 	private Siaqodb db = DatabaseFactory.GetInstance();
-	private Log log = new Log("PlayerPoints");
 	
 	private double _currentActivityPoints = 0;  // floating point to allow incrementing each frame
 	private long _lastTransactionPoints;
@@ -43,9 +42,15 @@ public class LocalDbPlayerPoints : PlayerPoints
 	public LocalDbPlayerPoints()
 	{
 		// TODO: ensure last returns transaction with greatest  timestamp
-		lastTransaction = db.Cast<Transaction>().LastOrDefault<Transaction>();
+        log.info("Restoring user's points balance from database");
+        try {
+            lastTransaction = db.Cast<Transaction>().Last<Transaction>();
+        } catch (Exception e) {
+            log.error (e, "db.cast().last() crashed");
+        }
 		if (lastTransaction == null) {
 			SaveToDatabase("INITIALISE","Everything set to zero", "PlayerPoints");  // first launch of game
+            lastTransaction = db.Cast<Transaction>().LastOrDefault<Transaction>();
 			log.info("Set initial points and gems to zero, and metabolism to 100");
 			return;
 		}

@@ -57,6 +57,8 @@ public class EditorPlayerPosition : PlayerPosition {
         }
 		_position = new Position((float)(51.400+Math.Cos(Bearing*Math.PI/180)*Distance/111229d), (float)(-0.15+Math.Sin(Bearing*Math.PI/180)*Distance/111229d));
 		_predictedPosition = _position;
+
+        Platform.Instance.GetMonoBehavioursPartner ().SendMessage ("NewTrack", "json");
 	}
 
 	public override void StartTrack() {
