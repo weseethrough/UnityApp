@@ -7,7 +7,7 @@ using System;
 using System.Runtime.CompilerServices;
 using SimpleJSON;
 using RaceYourself;
-using SiaqodbDemo;
+using SiaqodbUtils;
 using Sqo;
 using RaceYourself.Models;
 using Newtonsoft.Json;
@@ -130,8 +130,7 @@ public abstract class Platform : SingletonBase
             Initialize();
         }
 
-        log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");
-        GetMonoBehavioursPartner();
+        log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");        
     }
         
 	protected virtual void Initialize()

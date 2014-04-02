@@ -7,7 +7,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
 
 using Sqo;
-using SiaqodbDemo;
+using SiaqodbUtils;
 
 /// <summary>
 /// root data storage class. used for management of all backend and ui external static data
@@ -94,7 +94,7 @@ public class DataStore : MonoBehaviour
     /// </summary>
     /// <returns></returns>
     public void Initialize()
-    {
+    {        
         //load data blobs from drive
         
         for (int i = 0; i < (int)BlobNames.maxItem; i++ )

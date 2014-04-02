@@ -8,7 +8,7 @@ using System.IO;
 using RaceYourself.Models;
 using Newtonsoft.Json;
 using Sqo;
-using SiaqodbDemo;
+using SiaqodbUtils;
 using RaceYourself;
 
 #if (UNITY_EDITOR || RACEYOURSELF_MOBILE)
