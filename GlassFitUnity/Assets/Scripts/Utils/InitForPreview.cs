@@ -15,6 +15,7 @@ public class InitForPreview : MonoBehaviour {
 	public GameObject dataStorage;
 	public GameObject flow;
 	public GameObject uiScene;
+	protected GameObject platformPartner = null;
 	
 	/// <summary>
 	/// Start this instance.
@@ -38,7 +39,8 @@ public class InitForPreview : MonoBehaviour {
 		dataStorage.SetActive(true);
 		flow.SetActive(true);
 		uiScene.SetActive(true);
-
+		platformPartner = new GameObject();
+		platformPartner.AddComponent<PlatformPartner>();
 		//mainCamera.clearFlags = CameraClearFlags.SolidColor;
 	}
 
@@ -47,6 +49,10 @@ public class InitForPreview : MonoBehaviour {
 		dataStorage.SetActive(false);
 		flow.SetActive(false);
 		uiScene.SetActive(false);
+		if(platformPartner != null)
+		{
+			Destroy(platformPartner);
+		}
 	}
 
 	// Update is called once per frame

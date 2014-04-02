@@ -65,8 +65,20 @@ public class GraphComponent : MonoBehaviour
                 SetSelectedFlowIndex(selectedFlow);
             }
 #else
-            DataVault.Set("custom_redirection_point", "MenuPoint");
-            string flowName = "MobileUX";
+			//to go in-game menu, or else to main menu point
+			int toGameInt = PlayerPrefs.GetInt("toGame");
+			bool toGame = toGameInt > 0;
+			string flowName = "MainFlow";
+			if(toGame)
+			{
+				DataVault.Set("custom_redirection_point", "GameIntroExit");
+				flowName = "GameplayFlow";
+			}
+			else
+			{
+	            DataVault.Set("custom_redirection_point", "MenuPoint");
+	            flowName = "MainFlow";//"MobileUX";
+			}
             SetSelectedFlowByName(flowName);
 #endif
             instance = this;
