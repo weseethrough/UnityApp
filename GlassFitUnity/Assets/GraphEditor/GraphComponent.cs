@@ -66,7 +66,7 @@ public class GraphComponent : MonoBehaviour
             }
 #else
             DataVault.Set("custom_redirection_point", "MenuPoint");
-            string flowName = "MobileUX";
+            string flowName = "MainFlow";//"MobileUX";
             SetSelectedFlowByName(flowName);
 #endif
             instance = this;
