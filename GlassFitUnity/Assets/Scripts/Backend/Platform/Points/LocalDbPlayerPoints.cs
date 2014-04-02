@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using Sqo;
-using SiaqodbDemo;
+using SiaqodbUtils;
 using RaceYourself.Models;
 using UnityEngine;
 
@@ -31,8 +31,8 @@ public class LocalDbPlayerPoints : PlayerPoints
 	
 	private float basePointsSpeed = 2.0f;
 	
-    private RaceYourself.Models.Transaction lastTransaction;
-	
+	private Transaction lastTransaction;
+
 	private long lastCumulativeTime = 0L;
     private double lastCumulativeDistance = 0.0;
     private int lastBaseMultiplierPercent = 100;
