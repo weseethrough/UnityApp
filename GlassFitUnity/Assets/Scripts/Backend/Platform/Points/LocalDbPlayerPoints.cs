@@ -31,7 +31,7 @@ public class LocalDbPlayerPoints : PlayerPoints
 	
 	private float basePointsSpeed = 2.0f;
 	
-	private Transaction lastTransaction;
+    private RaceYourself.Models.Transaction lastTransaction;
 	
 	private long lastCumulativeTime = 0L;
     private double lastCumulativeDistance = 0.0;
@@ -43,12 +43,12 @@ public class LocalDbPlayerPoints : PlayerPoints
 	{
 		// TODO: ensure last returns transaction with greatest  timestamp
         log.info("Restoring user's points balance from database");
-        lastTransaction = db.Cast<Transaction>().Last<Transaction>();
-
-		if (lastTransaction == null) {
+        try {
+            lastTransaction = db.Cast<RaceYourself.Models.Transaction>().Last<RaceYourself.Models.Transaction>();
+        } catch (InvalidOperationException e) {
             log.info("Set initial points and gems to zero, and metabolism to 100");
 			SaveToDatabase("INITIALISE","Everything set to zero", "PlayerPoints");  // first launch of game
-            lastTransaction = db.Cast<Transaction>().LastOrDefault<Transaction>();
+            lastTransaction = db.Cast<RaceYourself.Models.Transaction>().LastOrDefault<RaceYourself.Models.Transaction>();
 			return;
 		}
 		
@@ -211,6 +211,25 @@ public class LocalDbPlayerPoints : PlayerPoints
 		t.transaction_type = transactionType;
 		t.transaction_calc = transactionCalc;
 		t.source_id = sourceId;
+        log.info ("New transaction details:" +
+        "\nsource_id = " + t.source_id +
+        "\npoints_delta = " + t.points_delta +
+        "\npoints_balance = " + t.points_balance +
+        "\ngems_delta = " + t.gems_delta +
+        "\ngems_balance = " + t.gems_balance +
+        "\nmetabolism_delta = " + t.metabolism_delta +
+        "\nmetabolism_balance = " + t.metabolism_balance +
+        "\ntransaction_type = " + t.transaction_type +
+        "\ntransaction_calc = " + t.transaction_calc +
+        "\nsource_id = " + t.source_id +
+        "\nts = " + t.ts +
+        "\n_id = " + t._id +
+        "\ntransaction_id = " + t.transactionId +
+        "\nuser_id = " + t.user_id +
+        "\ndeleted_at = " + t.deleted_at +
+        "\ndeviceId = " + t.deviceId +
+        "\ndirty = " + t.dirty +
+        "\nid = " + t.id);
 		t.save(db);
 		lastTransaction = t;
 	}
