@@ -8,13 +8,13 @@ using RaceYourself.Models;
 public class LoadingCont : MonoBehaviour {
 	
 	private float rotate = 0;
-	private Platform.OnSyncProgress progressHandler = new Platform.OnSyncProgress((message) => {
+    private NetworkMessageListener.OnSyncProgress progressHandler = new NetworkMessageListener.OnSyncProgress((message) => {
 		DataVault.Set("loading", "Synchronizing with server: " + message);
 	});
 	
 	// Use this for initialization
 	void Start () {
-		Platform.Instance.onSyncProgress += progressHandler;
+        Platform.Instance.NetworkMessageListener.onSyncProgress += progressHandler;
 		AcceptChallenges();
 	}
 	
@@ -22,14 +22,14 @@ public class LoadingCont : MonoBehaviour {
 		Debug.Log("AcceptChallenges: click");
 		if (!Platform.Instance.HasPermissions("any", "login")) {			
 			// Restart function once authenticated
-			Platform.OnAuthenticated handler = null;
-			handler = new Platform.OnAuthenticated((authenticated) => {
-				Platform.Instance.onAuthenticated -= handler;
+            NetworkMessageListener.OnAuthenticated handler = null;
+            handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+                Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
 				if (authenticated) {
 					AcceptChallenges();
 				}
 			});
-			Platform.Instance.onAuthenticated += handler;	
+            Platform.Instance.NetworkMessageListener.onAuthenticated += handler;	
 			
 			Platform.Instance.Authorize("any", "login");
 			return;
@@ -38,9 +38,9 @@ public class LoadingCont : MonoBehaviour {
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		GConnector race = fs.Outputs.Find(r => r.Name == "completeExit");
 		GConnector back = fs.Outputs.Find(r => r.Name == "failedExit");
-		Platform.OnSync shandler = null;
-		shandler = new Platform.OnSync((message) => {
-			Platform.Instance.onSync -= shandler;
+        NetworkMessageListener.OnSync shandler = null;
+        shandler = new NetworkMessageListener.OnSync((message) => {
+            Platform.Instance.NetworkMessageListener.onSync -= shandler;
 			
 			lock(DataVault.data) {
 				if (DataVault.Get("loaderthread") != null) return;
@@ -115,7 +115,7 @@ public class LoadingCont : MonoBehaviour {
 				loaderThread.Start();
 			}
 		});
-		Platform.Instance.onSync += shandler;
+        Platform.Instance.NetworkMessageListener.onSync += shandler;
 		
 		DataVault.Set("loading", "Please wait while we sync the database");
 		Platform.Instance.SyncToServer();
@@ -131,10 +131,10 @@ public class LoadingCont : MonoBehaviour {
 	}
 	
 	void OnDisable () {
-		Platform.Instance.onSyncProgress -= progressHandler;
+        Platform.Instance.NetworkMessageListener.onSyncProgress -= progressHandler;
 	}
 	
 	void OnDestroy () {
-		Platform.Instance.onSyncProgress -= progressHandler;
+        Platform.Instance.NetworkMessageListener.onSyncProgress -= progressHandler;
 	}
 }

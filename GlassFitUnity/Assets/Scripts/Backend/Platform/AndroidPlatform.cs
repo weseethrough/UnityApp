@@ -240,7 +240,7 @@ public class AndroidPlatform : Platform
 		try {
 			UnityEngine.Debug.Log("Platform: authorizing");
 			bool auth = helper.Call<bool>("authorize", activity, provider, permissions);
-			if (!authenticated && auth) authenticated = true;
+            if (!NetworkMessageListener.authenticated && auth) NetworkMessageListener.authenticated = true;
 			UnityEngine.Debug.Log("Platform: authorize end");
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem authorizing provider: " + provider);
@@ -252,7 +252,7 @@ public class AndroidPlatform : Platform
 		try {
 			UnityEngine.Debug.Log("Platform: checking permissions");
 			bool auth = helper_class.CallStatic<bool>("hasPermissions", provider, permissions);
-			if (!authenticated && auth) authenticated = true;
+            if (!NetworkMessageListener.authenticated && auth) NetworkMessageListener.authenticated = true;
 			UnityEngine.Debug.Log("Platform: permissions complete");
 			return auth;
 		} catch(Exception e) {
@@ -908,26 +908,6 @@ public class AndroidPlatform : Platform
 	public override Device DeviceInformation() 
 	{
 		return new Device(build_class.GetStatic<string>("MANUFACTURER"), build_class.GetStatic<string>("MODEL"));
-	}
-	
-	public void NewTrack(String json) {
-		log.info("Received track from java, saving to SiaqoDb..");
-		Track t = JsonConvert.DeserializeObject<Track>(json);
-		if (db.Cast<Track>().Where<Track>(tr => tr.id == t.id).FirstOrDefault() != null) {
-			db.UpdateObjectBy("id", t);
-		} else {
-			db.StoreObject(t);
-		}
-	}
-	
-	public void NewPosition(String json) {
-		log.info("Received position from java, saving to SiaqoDb..");
-		Position p = JsonConvert.DeserializeObject<Position>(json);
-		if (db.Cast<Position>().Where<Position>(po => po.id == p.id).FirstOrDefault() != null) {
-			db.UpdateObjectBy("id", p);
-		} else {
-			db.StoreObject(p);
-		}
 	}
 	
 }

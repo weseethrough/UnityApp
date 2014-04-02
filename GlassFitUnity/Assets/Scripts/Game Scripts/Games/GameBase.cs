@@ -517,10 +517,10 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.Poll();
 			
 			//check for auto-pause
-			if(!Platform.Instance.LocalPlayerPosition.IsIndoor() && Platform.Instance.playerState == "STOPPED")
+            if(!Platform.Instance.LocalPlayerPosition.IsIndoor() && Platform.Instance.LocalPlayerPosition.playerState == "STOPPED")
 			{
 				//state is applicable, check timer
-				if(UnityEngine.Time.time - Platform.Instance.playerStateEntryTime > 1.0f)
+                if(UnityEngine.Time.time - Platform.Instance.LocalPlayerPosition.playerStateEntryTime > 1.0f)
 				{
 					bAutoPaused = true;
 					SetGameState(GAMESTATE_PAUSED);
@@ -557,10 +557,10 @@ public class GameBase : MonoBehaviour {
 			
 		case GAMESTATE_PAUSED:
 			//check for auto-resume
-			if( bAutoPaused && !Platform.Instance.LocalPlayerPosition.IsIndoor() && Platform.Instance.playerState != "STOPPED" )
+            if( bAutoPaused && !Platform.Instance.LocalPlayerPosition.IsIndoor() && Platform.Instance.LocalPlayerPosition.playerState != "STOPPED" )
 			{
 				//can unpause - check for min time in this state
-				if(UnityEngine.Time.time-Platform.Instance.playerStateEntryTime > 0.5f)
+                if(UnityEngine.Time.time-Platform.Instance.LocalPlayerPosition.playerStateEntryTime > 0.5f)
 				{
 					bAutoPaused = false;
 					SetGameState(GAMESTATE_RUNNING);

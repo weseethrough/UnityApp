@@ -261,7 +261,7 @@ public class PlatformDummy : Platform
 	}
 	
 	public override bool HasPermissions(string provider, string permissions) {
-		return authenticated;
+        return NetworkMessageListener.authenticated;
 	}
 	
 	public override void SyncToServer() {

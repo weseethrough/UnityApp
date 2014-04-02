@@ -50,9 +50,9 @@ public class GraphComponent : MonoBehaviour
             if (!Platform.Instance.OnGlass() )
             {
                 string flowName = "MobileUX";
-                if (Platform.Instance.GetIntent().Length > 0)
+            if (Platform.Instance.NetworkMessageListener.GetIntent().Length > 0)
                 {
-                    flowName = Platform.Instance.GetIntent();
+            flowName = Platform.Instance.NetworkMessageListener.GetIntent();
                 }
 
                 //make forwarding state go to challenge screen instead of main menu

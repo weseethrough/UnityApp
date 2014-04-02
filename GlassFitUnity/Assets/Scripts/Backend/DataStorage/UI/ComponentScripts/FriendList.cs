@@ -189,16 +189,16 @@ public class FriendList : UIComponentSettings
         if (!Platform.Instance.HasPermissions("any", "login"))
         {
             // Restart function once authenticated
-            Platform.OnAuthenticated handler = null;
-            handler = new Platform.OnAuthenticated((authenticated) =>
+            NetworkMessageListener.OnAuthenticated handler = null;
+            handler = new NetworkMessageListener.OnAuthenticated((authenticated) =>
             {
-                Platform.Instance.onAuthenticated -= handler;
+                    Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
                 if (authenticated)
                 {
                     GetChallenges();
                 }
             });
-            Platform.Instance.onAuthenticated += handler;
+            Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
 
             UnityEngine.Debug.Log("ChallengePanel: Need to authenticate");
             DataVault.Set("tutorial_hint", "Authenticating device");
@@ -207,10 +207,10 @@ public class FriendList : UIComponentSettings
             return;
         }
 
-        Platform.OnSync shandler = null;
-        shandler = new Platform.OnSync((message) =>
+        NetworkMessageListener.OnSync shandler = null;
+        shandler = new NetworkMessageListener.OnSync((message) =>
         {
-            Platform.Instance.onSync -= shandler;
+                Platform.Instance.NetworkMessageListener.onSync -= shandler;
             UnityEngine.Debug.Log("ChallengePanel: about to lock datavault");
             DataVault.Set("tutorial_hint", "Getting challenges and friends");
             lock (DataVault.data)
@@ -279,7 +279,7 @@ public class FriendList : UIComponentSettings
                 loaderThread.Start();
             }
         });
-        Platform.Instance.onSync += shandler;
+        Platform.Instance.NetworkMessageListener.onSync += shandler;
         Platform.Instance.SyncToServer();
     }
 }
