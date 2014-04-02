@@ -110,8 +110,7 @@ public abstract class Platform : SingletonBase
             Initialize();
         }
 
-        log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");
-        GetMonoBehavioursPartner();
+        log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");        
     }
         
 	protected virtual void Initialize()
@@ -463,11 +462,11 @@ public abstract class Platform : SingletonBase
         if (partner == null)
         {
             //named object to identify platform game object reprezentation
-            GameObject go = new GameObject("Platform");
-            partner = go.AddComponent<PlatformPartner>();
-            _positionMessageListener = go.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
-            _networkMessageListener = go.AddComponent<NetworkMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
-            _bluetoothMessageListener = go.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            //GameObject go = new GameObject("Platform");
+            //partner = go.AddComponent<PlatformPartner>();
+            _positionMessageListener = obj.gameObject.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            _networkMessageListener = obj.gameObject.AddComponent<NetworkMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            _bluetoothMessageListener = obj.gameObject.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
 
             //post initialziation procedure
             partner = obj;
