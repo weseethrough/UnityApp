@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Sqo.Attributes;
 using UnityEngine;
+using Sqo;
 
 namespace RaceYourself.Models
 {
@@ -9,7 +10,7 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-		public long id;
+        public long id = 0;
 
 		[JsonConverter(typeof(ObjectIdConverter))]
 		public string _id; // Server-side guid. TODO: Ignore in the future?
@@ -17,7 +18,7 @@ namespace RaceYourself.Models
 		[JsonProperty("device_id")]
 		public int deviceId;
 		[JsonProperty("position_id")]
-		public int positionId;
+        public int positionId;
 
 		[JsonProperty("track_id")]
 		public int trackId;
@@ -50,6 +51,19 @@ namespace RaceYourself.Models
 			this.latitude = lat;
 			this.longitude = lng;
 		}
+
+        public void save(Siaqodb db) {
+            if (this.positionId <= 0) {
+                positionId = Sequence.Next("position", db);
+            }
+
+            if (this.id <= 0)
+                GenerateCompositeId ();
+                
+            if (!db.UpdateObjectBy ("id", this)) {
+                db.StoreObject (this);
+            }
+        }
 
 		public long GenerateCompositeId() {
 			uint high = (uint)deviceId;

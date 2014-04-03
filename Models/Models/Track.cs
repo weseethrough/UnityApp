@@ -1,4 +1,5 @@
 ﻿using System;
+using Sqo;
 using Sqo.Attributes;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-		public long id;
+        public long id = 0;
 
 		public string _id; // Server-side guid. TODO: Ignore in the future?
 
@@ -33,9 +34,22 @@ namespace RaceYourself.Models
 		[JsonIgnore]
 		public bool dirty = false;
 
+        public void save(Siaqodb db) {
+            if (this.trackId <= 0) {
+                trackId = Sequence.Next("track", db);
+            }
+
+            if (this.id <= 0)
+                GenerateCompositeId ();
+
+            if (!db.UpdateObjectBy ("id", this)) {
+                db.StoreObject (this);
+            }
+        }
+
 		public long GenerateCompositeId() {
 			uint high = (uint)deviceId;
-			uint low = (uint)trackId;
+            uint low = (uint)trackId;
 
 			ulong composite = (((ulong) high) << 32) | low;
 			this.id = (long)composite;
