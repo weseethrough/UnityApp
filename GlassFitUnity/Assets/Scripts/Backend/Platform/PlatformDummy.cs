@@ -91,25 +91,25 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
     {
-		PlayWithSceneFlowExit(STARTHEX_SCENE_NAME, "Start Point");
+		PlayWithScene(STARTHEX_SCENE_NAME, false);
 	}
 
 	[MenuItem("Race Yourself/Play from current Scene, with flow at Game Intro %[")]
 	public static void PlayFromCurrentGameScene()
 	{
-		PlayWithSceneFlowExit(null, "Game Intro");
+		PlayWithScene(null, true);
 	}
 
 	[MenuItem("Race Yourself/Play from SnackRun Scene, with flow at Game Intro %]")]
 	public static void PlayFromSnackRunscene()
 	{
-		PlayWithSceneFlowExit(SNACKRUN_SCENE_NAME, "Game Intro");
+		PlayWithScene(SNACKRUN_SCENE_NAME, true);
 	}
 	
-	protected static void PlayWithSceneFlowExit(string scene, string exit)
+	protected static void PlayWithScene(string scene, bool toGame)
 	{
 		//set the string for the exit we want to follow from the start node
-		PlayerPrefs.SetString("playerStartExit", exit);
+		PlayerPrefs.SetInt("toGame", toGame? 1:0);
 		//load scene, then play
 		if(scene != null)
 		{
@@ -142,6 +142,7 @@ public class PlatformDummy : Platform
 			initialised = false;
 			_localPlayerPosition = new EditorPlayerPosition();
 			_playerPoints = new LocalDbPlayerPoints();
+
 //		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 //		if(fs == null)
 //		{
