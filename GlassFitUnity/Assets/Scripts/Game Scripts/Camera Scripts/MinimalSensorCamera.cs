@@ -11,7 +11,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	public AnimationCurve constrainedWeightVsPace;	//how far constrained the camera is based on movement speed
 	public float maxSpeedForCameraConstraint = 4f;
 
-	public const Boolean DEBUG_ORIENTATION = false;
+	public const Boolean DEBUG_ORIENTATION = true;
 	const float pitchSensitivity = 2.3f;
 	
 	public Quaternion offsetFromStart;
@@ -48,6 +48,8 @@ public class MinimalSensorCamera : MonoBehaviour {
 	static bool sensorRotationPaused = false;
 	
 	private bool fovActive = false;
+
+    private GameObject paceMaker;
 	
 	// Set the grid and scale values
 	void Start () {
@@ -74,6 +76,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 
 		fovActive = Convert.ToBoolean(DataVault.Get("activity_fov"));
 		pitchActive = Convert.ToBoolean(DataVault.Get("activity_pitch"));
+
 	}
 	
 	void SetRearview() {
@@ -99,13 +102,21 @@ public class MinimalSensorCamera : MonoBehaviour {
 		if (DEBUG_ORIENTATION)
 		{
 			// print bearing debug data
-		    GUI.Label(new Rect(200, 050, 400, 50), "Bearing: " + ((int)Platform.Instance.LocalPlayerPosition.Bearing).ToString(), labelStyle);
-			GUI.Label(new Rect(200, 100, 400, 50), "Yaw from north: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYawFromNorth()*Mathf.Rad2Deg)).ToString(), labelStyle);
-			GUI.Label(new Rect(200, 150, 400, 50), "Yaw from forward: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
-			GUI.Label(new Rect(200, 2000, 400, 50), "Cum-yaw from fwd: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsCumulativeYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
+//		    GUI.Label(new Rect(200, 050, 400, 50), "Bearing: " + ((int)Platform.Instance.LocalPlayerPosition.Bearing).ToString(), labelStyle);
+//			GUI.Label(new Rect(200, 100, 400, 50), "Yaw from north: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYawFromNorth()*Mathf.Rad2Deg)).ToString(), labelStyle);
+//			GUI.Label(new Rect(200, 150, 400, 50), "Yaw from forward: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
+//			GUI.Label(new Rect(200, 2000, 400, 50), "Cum-yaw from fwd: "  + ((int)(Platform.Instance.GetPlayerOrientation().AsCumulativeYaw()*Mathf.Rad2Deg)).ToString(), labelStyle);
 //		    GUI.Label(new Rect(200, 100, 400, 50), "Camera offset: " + ((int)bearingOffset.eulerAngles.y).ToString(), labelStyle);
 //		    GUI.Label(new Rect(200, 150, 400, 50), "Indoor mode: " + indoor.ToString(), labelStyle);
 
+            if (paceMaker == null)
+                paceMaker = GameObject.FindGameObjectWithTag("Pacemaker");
+            if (paceMaker != null) {
+                float pacemakerZ = paceMaker.transform.position.z;
+                GUI.Label(new Rect(200, 50, 400, 50), "Pacemaker distance: " + ((int)paceMaker.transform.position.z).ToString(), labelStyle);
+                float playerZ = (float) Platform.Instance.LocalPlayerPosition.Distance;
+                GUI.Label(new Rect(200, 100, 400, 50), "Player distance:    " + ((int)Platform.Instance.LocalPlayerPosition.Distance).ToString(), labelStyle);
+            }
 			// print orientation (yaw, pitch roll)
 			Quaternion rff = Platform.Instance.GetPlayerOrientation().AsQuaternion();
 			Quaternion rfn = Platform.Instance.GetPlayerOrientation().AsQuaternionFromNorth();
@@ -114,9 +125,9 @@ public class MinimalSensorCamera : MonoBehaviour {
 //			Debug.Log("QXD (x,y,z,w): (" + rfd.x + ", " + rfd.y + ", " + rfd.z + ", " +  rfd.w + ")");
 //
 			Vector3 YPR = OrientationUtils.QuaternionToYPR(rfn);
-			GUI.Label(new Rect(200, 250, 400, 50), "Quat yaw: "   + ((int)(YPR.x*Mathf.Rad2Deg)).ToString(), labelStyle);
-			GUI.Label(new Rect(200, 300, 400, 50), "Quat pitch: " + ((int)(YPR.y*Mathf.Rad2Deg)).ToString(), labelStyle);
-			GUI.Label(new Rect(200, 350, 400, 50), "Quat roll: "  + ((int)(YPR.z*Mathf.Rad2Deg)).ToString(), labelStyle);
+//			GUI.Label(new Rect(200, 250, 400, 50), "Quat yaw: "   + ((int)(YPR.x*Mathf.Rad2Deg)).ToString(), labelStyle);
+//			GUI.Label(new Rect(200, 300, 400, 50), "Quat pitch: " + ((int)(YPR.y*Mathf.Rad2Deg)).ToString(), labelStyle);
+//			GUI.Label(new Rect(200, 350, 400, 50), "Quat roll: "  + ((int)(YPR.z*Mathf.Rad2Deg)).ToString(), labelStyle);
 
 
 

@@ -1,4 +1,5 @@
 ID,Title,Icon name,Menu to display on,Description,Initial State,Tier,Price in Points,Price in Gems,Type,Column,Row,Scene Name
+activity_interval,Interval Snack,activity_interval,all,Watch a zombie-textured box fall on flames in an odd skybox!,Unlocked,1,0,0,Snack,2,1,IntervalSnack
 activity_monster,T-Rex Chase,activity_monster,run,A T-Rex is after you - run!,Locked,3,5000,4,Snack,-2,0,TRexSnack
 activity_press_up,Press-ups,activity_press_up,all,Learn the proper technique for press ups.,Locked,3,5000,4,N/A,-2,1,Race Mode
 activity_train,The train game,activity_train,all,There's a damsel in distress on the tracks - save her!,Locked,0,10000,5,Snack,-2,-1,TrainSnack

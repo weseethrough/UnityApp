@@ -24,6 +24,7 @@ public class PositionMessageListener : MonoBehaviour
     /// <param name="json">Json.</param>
     public void NewTrack(String json) {
         log.info("Received track from java, saving to SiaqoDb..");
+        log.info("JSON value: " + json);
         Track t = JsonConvert.DeserializeObject<Track>(json);
         if (db.Cast<Track>().Where<Track>(tr => tr.id == t.id).FirstOrDefault() != null) {
             db.UpdateObjectBy("id", t);

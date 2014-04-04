@@ -94,6 +94,23 @@ public class UnitsHelper {
 		// m/s -> mins/Km
 		return ((1/speed)/60) * 1000;
 	}
+    
+    /// <summary>
+    /// Converts minutes per km to raw speed.
+    /// </summary>
+    /// <returns>
+    /// the raw speed in metres per second
+    /// </returns>
+    /// <param name='speed'>
+    /// The pace in minutes per km
+    /// </param>
+    public static float KmPaceToSpeed(float kmPace) {
+        if (kmPace <= 0) {
+            return 0;
+        }
+        // mins/Km -> m/s
+        return 1f / ((kmPace/1000f) * 60f);
+    }
 	
 	/// <summary>
 	/// converts a time duration in milliseconds to a string in either hh:mm:ss:ds format or mm:ss:dd format. 'ds' representing 1/100ths of a second.
