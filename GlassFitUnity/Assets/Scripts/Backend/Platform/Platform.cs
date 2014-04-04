@@ -108,6 +108,12 @@ public abstract class Platform : SingletonBase
 	protected virtual void PostInit()
     {
         log.info("Starting PostInit");
+        
+        if (Application.isPlaying) {
+            db = DatabaseFactory.GetInstance();
+            api = new API(db);
+            sessionId = Sequence.Next("session", db);
+        }
 
 		if (OnGlass() && HasInternet()) {
 			log.info("Attempting authorize");
@@ -143,12 +149,6 @@ public abstract class Platform : SingletonBase
 
             }
 		});
-		
-		if (Application.isPlaying) {
-			db = DatabaseFactory.GetInstance();
-			api = new API(db);
-            sessionId = Sequence.Next("session", db);
-		}
 	}
 
     /// <summary>

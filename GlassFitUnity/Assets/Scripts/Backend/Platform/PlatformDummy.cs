@@ -173,10 +173,6 @@ public class PlatformDummy : Platform
 			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 				
 		
-			if (Application.isPlaying) {
-				MergeGamesList();
-			}
-			
 			if (!initialised) {
 				playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
 		
@@ -194,6 +190,11 @@ public class PlatformDummy : Platform
 	protected override void PostInit() {	
 		
 		base.PostInit();
+        
+        if (Application.isPlaying) {
+            MergeGamesList();
+        }
+
 	}
 	
 	private void MergeGamesList() {
