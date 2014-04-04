@@ -53,3 +53,6 @@ Models/obj
 *.apk
 *.unityproj
 GlassFitUnity.zip
+
+Doxygen/
+.sonar/
