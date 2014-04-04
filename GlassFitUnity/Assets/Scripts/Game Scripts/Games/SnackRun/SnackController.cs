@@ -205,7 +205,7 @@ public class SnackController : MonoBehaviour {
 			lastRotationGameIndex = 0;
 		}
 		
-        Game chosenGame = snackGames[4];
+        Game chosenGame = snackGames[0];
 		//Game chosenGame = snackGames[lastRotationGameIndex];
 		
 		UnityEngine.Debug.Log("SnackController: Chose game: " + chosenGame.gameId);
