@@ -199,6 +199,9 @@ public class PlatformDummy : Platform
 	
 	private void MergeGamesList() {
 		var defaultGames = new List<Game>();
+
+        defaultGames.Add(new Game("activity_interval",      "Interval mode",            "!none",                "all",  "Interval training!",                                   "Unlocked", 1,0,0,      "Snack",    2,1,    "IntervalRun"));
+
 		defaultGames.Add(new Game("activity_monster",		"Giant Monster Challenge",	"activity_monster",		"run",	"You have woken up a giant monster - and he's hungry",	"Locked",	3,5000,4,	"N/A",		-2,0,	"Race Mode"));
 		defaultGames.Add(new Game("activity_press_up",		"Press-ups",				"activity_press_up",	"all",	"Learn the proper technique for press ups.",			"Locked",	3,5000,4,	"N/A",		-2,1,	"Race Mode"));
 		defaultGames.Add(new Game("activity_train",			"The train game",			"activity_train",		"all",	"There's a damsel in distress on the tracks - save her!","Locked",	0,10000,5,	"Snack",	-2,-1,	"TrainSnack"));
