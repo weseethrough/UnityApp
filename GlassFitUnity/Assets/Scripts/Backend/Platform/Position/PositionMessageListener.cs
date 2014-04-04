@@ -4,6 +4,8 @@ using Sqo;
 using SiaqodbUtils;
 using RaceYourself.Models;
 using Newtonsoft.Json;
+using System.ComponentModel;
+using System.Reflection;
 
 public class PositionMessageListener : MonoBehaviour
 {
@@ -25,11 +27,22 @@ public class PositionMessageListener : MonoBehaviour
     public void NewTrack(String json) {
         log.info("Received track from java, saving to SiaqoDb..");
         Track t = JsonConvert.DeserializeObject<Track>(json);
-        if (db.Cast<Track>().Where<Track>(tr => tr.id == t.id).FirstOrDefault() != null) {
-            db.UpdateObjectBy("id", t);
-        } else {
-            db.StoreObject(t);
+        String desc = "Track before save:";
+        foreach(FieldInfo f in t.GetType().GetFields()) {
+            desc += ("\n" + f.Name + ": " + f.GetValue(t));
         }
+        log.info (desc);
+
+        // save the position
+        t.save (db);
+
+        // for testing, pull the track out and print its details
+        t = db.Cast<Track>().Where<Track>(to => to.id == t.id).FirstOrDefault();
+        desc = "Track after save:";
+        foreach(FieldInfo f in t.GetType().GetFields()) {
+            desc += ("\n" + f.Name + ": " + f.GetValue(t));
+        }
+        log.info (desc);
     }
 
     /// <summary>
@@ -40,11 +53,22 @@ public class PositionMessageListener : MonoBehaviour
     public void NewPosition(String json) {
         log.info("Received position from java, saving to SiaqoDb..");
         Position p = JsonConvert.DeserializeObject<Position>(json);
-        if (db.Cast<Position>().Where<Position>(po => po.id == p.id).FirstOrDefault() != null) {
-            db.UpdateObjectBy("id", p);
-        } else {
-            db.StoreObject(p);
+        String desc = "Position before save:";
+        foreach(FieldInfo f in p.GetType().GetFields()) {
+            desc += ("\n" + f.Name + ": " + f.GetValue(p));
         }
+        log.info (desc);
+
+        // save the position
+        p.save (db);
+
+        // for testing, pull the track out and print its details
+        p = db.Cast<Position> ().Where<Position> (po => po.id == p.id).FirstOrDefault ();
+        desc = "Position after save:";
+        foreach(FieldInfo f in p.GetType().GetFields()) {
+            desc += ("\n" + f.Name + ": " + f.GetValue(p));
+        }
+        log.info (desc);
     }
 
     // Called by unity messages on each state change
