@@ -11,18 +11,18 @@ using SiaqodbUtils;
 using Sqo;
 using RaceYourself.Models;
 using Newtonsoft.Json;
+using System.Collections;
 
 public abstract class Platform : SingletonBase
 {
 	protected double targetElapsedDistance = 0;
 
+    // Services that probably don't need platform-specific overrides
 	protected PlayerOrientation playerOrientation = new PlayerOrientation();
+    public abstract PlayerPoints PlayerPoints { get; }  // Helper class for accessing/awarding points
 
-	// Holds the local player's position and bearing
-	public abstract PlayerPosition LocalPlayerPosition { get; }
-
-	// Helper class for accessing/awarding points
-	public abstract PlayerPoints PlayerPoints { get; }
+    // Services that need platform-specific implementations
+    public abstract PlayerPosition LocalPlayerPosition { get; }  // Holds the local player's position and bearing
 
     // Listeners for unity messages, attached to Platform game object in GetMonoBehavioursPartner
     public PositionMessageListener _positionMessageListener;
@@ -32,32 +32,30 @@ public abstract class Platform : SingletonBase
     public BluetoothMessageListener _bluetoothMessageListener;
     public BluetoothMessageListener BluetoothMessageListener { get { return _bluetoothMessageListener; } }
 
-
-	protected float yaw = -999.0f;
-	protected bool started = false;
-	protected bool initialised = false;
-
-	public int currentTrack { get; set; }
-	public float[] sensoriaSockPressure { get; protected set;}
-	
-	protected List<Track> trackList;
-	protected List<Game> gameList;
-	
-	public List<TargetTracker> targetTrackers { get; protected set; }
-	
-	public bool connected { get; protected set; } // ditto
-	
-	// Other components may change this to disable sync temporarily?
-	public int syncInterval = 10;
-    public DateTime lastSync = new DateTime(0);
-
-	protected static Log log = new Log("Platform");  // for use by subclasses
-	
+    // internal platform tools
+    private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platfrom
+    protected static Log log = new Log("Platform");  // for use by subclasses
     protected Siaqodb db;
     public API api;
 
+    // internal platform state
+    protected static bool applicationIsQuitting = false;
+    protected bool initialised = false;
+    private int sessionId = 0;
+    public bool connected { get; protected set; }
+    public int syncInterval = 10;  // Other components may change this to disable sync temporarily?
+    public DateTime lastSync = new DateTime(0);
 
-    private PlatformPartner partner;
+    // TODO: fields that almost certainly want removing
+    protected float yaw = -999.0f;
+    protected bool started = false;
+	public int currentTrack { get; set; }
+	public float[] sensoriaSockPressure { get; protected set;}
+	protected List<Track> trackList;
+	protected List<Game> gameList;
+	public List<TargetTracker> targetTrackers { get; protected set; }
+	
+
 
 	/// <summary>
 	/// Gets the single instance of the right kind of platform for the OS we're running on,
@@ -83,9 +81,6 @@ public abstract class Platform : SingletonBase
         }
     }
    
-	
-	protected static bool applicationIsQuitting = false;
-	
 	public virtual void OnDestroy() {
 		log.info("OnDestroy");
 		applicationIsQuitting = true;
@@ -95,16 +90,6 @@ public abstract class Platform : SingletonBase
     {
         base.Awake();
 
-		/*if (gameObject != null && gameObject.name != "New Game Object") 
-		{
-			log.error("Scene " + Application.loadedLevelName + " contains a platform gameobject called " + gameObject.name + ", quitting..");
-//			DestroyImmediate(gameObject); // Doesn't always work, force developer to manually fix scene
-			Application.Quit();
-#if UNITY_EDITOR
-    		UnityEditor.EditorApplication.isPlaying = false;
-#endif			
-			return;
-		}*/
 		if (initialised == false)
         {
             Initialize();
@@ -120,8 +105,15 @@ public abstract class Platform : SingletonBase
 		// Set initialised=true in overriden method
 	}
 	
-	protected virtual void PostInit() {
-		UnityEngine.Debug.Log("Platform: post init");
+	protected virtual void PostInit()
+    {
+        log.info("Starting PostInit");
+        
+        if (Application.isPlaying) {
+            db = DatabaseFactory.GetInstance();
+            api = new API(db);
+            sessionId = Sequence.Next("session", db);
+        }
 
 		if (OnGlass() && HasInternet()) {
 			log.info("Attempting authorize");
@@ -135,6 +127,7 @@ public abstract class Platform : SingletonBase
 		} else {
 			BluetoothClient();
 		}
+
 		if (false && HasInternet() && HasPermissions("any", "login")) {
 			// TODO: Non-blocking connect?
 			ConnectSocket();
@@ -156,178 +149,273 @@ public abstract class Platform : SingletonBase
 
             }
 		});
-		
-		if (Application.isPlaying) {
-//			db = DatabaseFactory.GetInstance();
-//			api = new API(db);
-		}
 	}
-	
-	public virtual bool HasStarted() {
+
+    /// <summary>
+    /// Called every frame by PlatformPartner to update internal state
+    /// </summary>
+    public virtual void Update() {
+        // nothing, but overridden in subclasses to update orientation
+    }   
+
+    /// <summary>
+    /// Called every frame DURING A RACE by RaceGame to update position, speed etc
+    /// Not called outside races to save battery life
+    /// </summary>
+    public virtual void Poll() {
+        LocalPlayerPosition.Update();  // update current position
+        PlayerPoints.Update(); // update current points
+    }
+
+    public void OnApplicationFocus(bool paused) {
+        if (initialised && paused && OnGlass()) {
+            Application.Quit();
+        }
+    }
+
+    public void OnApplicationQuit ()
+    {
+        if (db != null) {
+            DatabaseFactory.CloseDatabase();
+        }
+        //      Destroy(gameObject);
+    }
+
+    public void SetMonoBehavioursPartner(PlatformPartner obj)
+    {
+        if (partner == null)
+        {
+            //named object to identify platform game object reprezentation
+            //GameObject go = new GameObject("Platform");
+            //partner = go.AddComponent<PlatformPartner>();
+            _positionMessageListener = obj.gameObject.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            _networkMessageListener = obj.gameObject.AddComponent<NetworkMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            _bluetoothMessageListener = obj.gameObject.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+
+            //post initialziation procedure
+            partner = obj;
+            PostInit();
+        }
+    }
+
+    public PlatformPartner GetMonoBehavioursPartner()
+    {
+        if (partner == null)
+        {
+            log.warning("Partner is not set yet. scene not constructed, you cant refer scene objects. Do you try to do so from another thread?");
+        }
+
+        return partner;
+    }
+
+
+
+
+
+    //***** Convenience methods that mostly return values from the database  ****
+
+    // Get the device's orientation
+    public virtual PlayerOrientation GetPlayerOrientation() {
+        return playerOrientation;
+    }
+
+    // TODO: kill this method, only used by training camera
+    public virtual bool HasStarted()
+    {
 		return started;
 	}
 
-	public virtual Device Device() {
-		throw new NotImplementedException();
-	}
+    public virtual Device Device()
+    {
+        return db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
+    }
 
-	public virtual User User() {
-		throw new NotImplementedException();
-	}
+    public virtual User User()
+    {
+        if (api == null) return null;
+        return api.user;
+    }
 
-	public virtual User GetUser(int userId) {
-		throw new NotImplementedException();
-	}
-	
-	public virtual void ResetTargets() {
-		throw new NotImplementedException();
-	}
+    public virtual User GetUser(int userId)
+    {
+        User user = null;
+        IEnumerator e = api.get("users/" + userId, (body) => {
+            user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+        });
+        while(e.MoveNext()) {}; // block until finished
+        return user;
+    }
 
-	// Returns the target tracker
-	public virtual TargetTracker CreateTargetTracker(float constantSpeed){
-		throw new NotImplementedException();
-	}
+    public virtual List<Track> GetTracks()
+    {
+        // TODO: Change signature to IList<Track>
+        var tracks = new List<Track>(db.LoadAll<Track>());
+        foreach (var track in tracks) {
+            IncludePositions(track);
+        }
+        return tracks;
+    }
 
-	public virtual TargetTracker CreateTargetTracker(int deviceId, int trackId){
-		throw new NotImplementedException();
-	}
-	
-	public virtual bool OnGlass() {
-		throw new NotImplementedException();
-	}
+    public virtual List<Track> GetTracks (double distance, double minDistance)
+    {
+        var tracks = new List<Track>(db.Cast<Track>().Where<Track>(t => t.distance > minDistance && t.distance <= distance));        
+        foreach (var track in tracks) {
+            IncludePositions(track);
+        }
+        return tracks;
+    }
 
-	public virtual bool IsRemoteDisplay() {
-		throw new NotImplementedException();
-	}
+    private void IncludePositions(Track track)
+    {
+        if (track == null) return;
+        if (track.positions != null) return;
+        track.positions = new List<Position>(db.Cast<Position>().Where<Position>(p => p.deviceId == track.deviceId && p.trackId == track.trackId));
+    }
 
-    public virtual bool IsPluggedIn() {
-		throw new NotImplementedException();
-	}
-	
-	public virtual bool HasInternet() {
-		throw new NotImplementedException();
-	}
-	
-	public virtual bool HasWifi() {
-		throw new NotImplementedException();
-	}
-	
-	public virtual bool IsDisplayRemote() {
-		throw new NotImplementedException();
-	}
-	
-	public virtual bool HasGpsProvider() {
-		throw new NotImplementedException();
-	}
+    /// <summary>
+    /// Load a list of games from the java database, together with lock state, cost, description etc.
+    /// Typically used when building the main hex menu
+    /// </summary>
+    public virtual List<Game> GetGames() {
+        // TODO: Change signature to IList<Game>
+        var games = new List<Game>(db.LoadAll<Game>());
+        return games;
+    }
 
-	public virtual bool IsBluetoothBonded() {
-		throw new NotImplementedException();
-	}
-	
+    public virtual void ResetGames() 
+    {
+        throw new NotImplementedException();
+    }
 
-	
-	// Authentication 
-	// result returned through onAuthenticated
-	public virtual void Authorize(string provider, string permissions) {
-		throw new NotImplementedException();
-	}
-	
-	public virtual bool HasPermissions(string provider, string permissions) {
-		throw new NotImplementedException();
-	}
-	
-	// Sync to server
-	public virtual void SyncToServer() {
-		throw new NotImplementedException();
-	}
-		
-	// Load the game blob
-	public virtual byte[] LoadBlob(string id) {
-		throw new NotImplementedException();
-	}
-	
-	// Get the device's orientation
-	public virtual PlayerOrientation GetPlayerOrientation() {
-		return playerOrientation;
-	}
+    public virtual void QueueAction(string json) {
+        var action = new RaceYourself.Models.Action(json);
+        db.StoreObject(action);
+    }
 
+    public virtual List<Friend> Friends() {
+        // TODO: Change signature to IList<Friend>
+        return new List<Friend>(db.LoadAll<Friend>());
+    }
+
+    public virtual Notification[] Notifications () {
+        // TODO: Change signature to IList<Notification>
+        var list = db.LoadAll<Notification>();
+        var array = new Notification[list.Count];
+        list.CopyTo(array, 0);
+        return array;
+    }
+
+    public virtual void ReadNotification (string id) {
+        var notifications = Notifications();
+        foreach (Notification note in notifications) {
+            if (note.id == id) {
+                note.read = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Use this method to record events for analytics, e.g. a user action.
+    /// </summary>
+    /// <param name='json'>
+    /// Json-encoded event values such as current game state, what the user action was etc
+    /// </param>
+    public virtual void LogAnalytics (string json) {
+        var e = new RaceYourself.Models.Event(json, sessionId);
+        db.StoreObject(e);
+    }
+
+    public virtual Challenge FetchChallenge(string id) {
+        Challenge challenge = null;
+        IEnumerator e = api.get("challenges/" + id, (body) => {
+            challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+        });
+        while(e.MoveNext()) {}; // block until finished
+        return challenge;
+    }
+
+    public virtual Track FetchTrack(int deviceId, int trackId) {
+        // Check db
+        Track track = db.Cast<Track>().Where<Track>(t => t.deviceId == deviceId && t.trackId == trackId).FirstOrDefault();
+        if (track != null) {
+            IncludePositions(track);
+            return track;
+        }
+        // or fetch from API
+        IEnumerator e = api.get("tracks/" + deviceId + "-" + trackId, (body) => {
+            track = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Track>>(body).response;
+        });
+        while(e.MoveNext()) {}; // block until finished
+        return track;
+    }
+
+
+    // *** Networking methods ***
+
+    public virtual void Authorize(string provider, string permissions) {
+        if (Application.isPlaying) {
+            GetMonoBehavioursPartner().StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
+        }
+    }
+
+    public virtual bool HasPermissions(string provider, string permissions) {
+        return NetworkMessageListener.authenticated;
+    }
+
+    public virtual void SyncToServer() {
+        lastSync = DateTime.Now;
+        GetMonoBehavioursPartner().StartCoroutine(api.Sync());
+    }
+
+
+    // *** Methods that need platform-specific overrides ***
 	
-	public virtual Challenge FetchChallenge(string id) {
-		throw new NotImplementedException();
-	}
+    public abstract bool OnGlass ();
+
+    public abstract bool IsRemoteDisplay ();
+
+    public abstract bool IsPluggedIn ();
 	
-	public virtual Track FetchTrack(int deviceId, int trackId) {
-		throw new NotImplementedException();
-	}
+    public abstract bool HasInternet ();
 	
-	// Obtain tracks based on distance
-	public virtual List<Track> GetTracks(double distance, double minDistance) {
-		throw new NotImplementedException();
-	}
+    public abstract bool HasWifi ();
 	
-	// Load a list of tracks
-	public virtual List<Track> GetTracks() {
-		throw new NotImplementedException();
-	}
-		
-	public virtual void ResetGames() 
-	{
-		throw new NotImplementedException();
-	}
+    public abstract bool IsDisplayRemote ();
 	
-	/// <summary>
-	/// Load a list of games from the java database, together with lock state, cost, description etc.
-	/// Typically used when building the main hex menu
-	/// </summary>
-	public virtual List<Game> GetGames()
-	{
-		throw new NotImplementedException();
-	}
+    public abstract bool HasGpsProvider ();
+
+    public abstract bool IsBluetoothBonded ();
 	
-	public virtual void QueueAction(string json) {
-		throw new NotImplementedException();
-	}
-		
-	public virtual List<Friend> Friends() {
-		throw new NotImplementedException();
-	}
+    public abstract byte[] LoadBlob (string id);
 	
-	public virtual Notification[] Notifications() {
-		throw new NotImplementedException();
-	}
-	
-	public virtual void ReadNotification(string id) {
-		throw new NotImplementedException("Platform: Iterate through notifications and setRead(true) or add setRead(id) helper method?");
-	}
-		
-	// Store the blob
-	public virtual void StoreBlob(string id, byte[] blob) {
-		throw new NotImplementedException();
-	}
-		
-	public virtual float GetHighestDistBehind() {
-		throw new NotImplementedException();
-	}	
-	
-	public virtual float GetLowestDistBehind() {
-		throw new NotImplementedException();
-	}
-	
-	public virtual void EraseBlob(string id) {
-		throw new NotImplementedException();
-	}
-	
-	public virtual void ResetBlobs() {
-		throw new NotImplementedException();
-	}
-	
-	public virtual void Update() {
-		if (PlayerPoints != null) PlayerPoints.Update();
-	}	
-	
-	public virtual void Poll() {
-		throw new NotImplementedException();
-	}
+    public abstract void StoreBlob (string id, byte[] blob);
+
+    public abstract void EraseBlob (string id);
+
+    public abstract void ResetBlobs ();
+
+    // Returns the int number of fingers touching glass's trackpad
+    public abstract int GetTouchCount ();
+
+    // Returns (x,y) as floats between 0 and 1
+    public abstract Vector2? GetTouchInput ();
+
+    public abstract float Yaw ();
+
+    public abstract void BluetoothServer ();
+
+    public abstract void BluetoothClient ();
+
+    public abstract void BluetoothBroadcast (string json);
+
+    public abstract string[] BluetoothPeers ();
+
+    public abstract Device DeviceInformation ();
+
+
+
+
+    // *** Target tracking - to be refactored out of platform ***
 	
 	// Return the distance behind target
 	public virtual double DistanceBehindTarget(TargetTracker tracker) {
@@ -339,76 +427,41 @@ public abstract class Platform : SingletonBase
 		return GetLowestDistBehind();
 	}
 
-	public virtual float Yaw() {
-		return yaw;
-	}
+    public virtual float GetHighestDistBehind() {
+        throw new NotImplementedException();
+    }   
+
+    public virtual float GetLowestDistBehind() {
+        throw new NotImplementedException();
+    }
+
+    public virtual void ResetTargets() {
+        throw new NotImplementedException();
+    }
+
+    // Returns the target tracker
+    public virtual TargetTracker CreateTargetTracker(float constantSpeed){
+        throw new NotImplementedException();
+    }
+
+    public virtual TargetTracker CreateTargetTracker(int deviceId, int trackId){
+        throw new NotImplementedException();
+    }
+        
+    /// Only used by Eagle? Will be better done by a dummy targetController.
+    public virtual float GetTargetSpeed() {
+        return 0.0f;
+    }
 	
 	
-	/// <summary>
-	/// Gets the target speed. Only used by Eagle? Will be better done by a dummy targetController.
-	/// </summary>
-	/// <returns>
-	/// The target speed.
-	/// </returns>
-	public virtual float GetTargetSpeed() {
-		return 0.0f;
-	}
 	
 
 
-	/// <summary>
-	/// Use this method to record events for analytics, e.g. a user action.
-	/// </summary>
-	/// <param name='json'>
-	/// Json-encoded event values such as current game state, what the user action was etc
-	/// </param>
-	public virtual void LogAnalytics(string json)
-	{
-		throw new NotImplementedException();
-	}
 
 
-	// Poll java for touch input
-	// Returns the int number of fingers touching the pad
-	public virtual int GetTouchCount()
-	{
-		throw new NotImplementedException();
-	}
 
-	// Poll java for touch input
-	// Returns (x,y) as floats between 0 and 1
-	public virtual Vector2? GetTouchInput()
-	{
-		throw new NotImplementedException();
-	}
-	
-	/// <summary>
-	/// Stores the BLOB. Called by 
-	/// </summary>
-	/// <param name='id'>
-	/// Identifier.
-	/// </param>
-	/// <param name='blob'>
-	/// BLOB.
-	/// </param>
 
-	public virtual void BluetoothServer()
-	{
-		throw new NotImplementedException();
-	}
-
-	public virtual void BluetoothClient()
-	{
-		throw new NotImplementedException();
-	}
-	
-	public virtual void BluetoothBroadcast(string json) {
-		throw new NotImplementedException();
-	}
-
-	public virtual string[] BluetoothPeers() {
-		throw new NotImplementedException();
-	}
+    // *** Networking methods, currently overridden for android but not other platforms ***
 	
 	public virtual bool ConnectSocket() {
 		throw new NotImplementedException();
@@ -437,50 +490,6 @@ public abstract class Platform : SingletonBase
 	public virtual bool LeaveGroup(int groupId) {
 		throw new NotImplementedException();
 	}
-
-	public void OnApplicationFocus(bool paused) {
-		if (initialised && paused && OnGlass()) {
-			Application.Quit();
-		}
-	}
 	
-	public virtual Device DeviceInformation() 
-	{
-		throw new NotImplementedException();
-	}	
 	
-	public void OnApplicationQuit ()
-	{
-		if (db != null) {
-			DatabaseFactory.CloseDatabase();
-		}
-//		Destroy(gameObject);
-	}
-
-    public void SetMonoBehavioursPartner(PlatformPartner obj)
-    {
-        if (partner == null)
-        {
-            //named object to identify platform game object reprezentation
-            //GameObject go = new GameObject("Platform");
-            //partner = go.AddComponent<PlatformPartner>();
-            _positionMessageListener = obj.gameObject.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
-            _networkMessageListener = obj.gameObject.AddComponent<NetworkMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
-            _bluetoothMessageListener = obj.gameObject.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
-
-            //post initialziation procedure
-            partner = obj;
-            PostInit();
-        }
-    }
-
-    public PlatformPartner GetMonoBehavioursPartner()
-    {
-        if (partner == null)
-        {
-            UnityEngine.Debug.LogError("Partner is not set yet. scene not constructed, you cant refer scene objects. Do you try to do so from another thread?");
-        }
-
-        return partner;
-    }
 }

@@ -55,8 +55,6 @@ public class PlatformDummy : Platform
 	private float oriYaw = 0.0f;
 	private float oriPitch = 0.0f;
 	const float lookSensitivity = 10.0f;
-		
-	private int sessionId = 0;
 	
     public override bool OnGlass()
     {
@@ -175,12 +173,6 @@ public class PlatformDummy : Platform
 			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 				
 		
-			if (Application.isPlaying) {
-				db = DatabaseFactory.GetInstance();
-				sessionId = Sequence.Next("session", db);
-				MergeGamesList();
-			}
-			
 			if (!initialised) {
 				playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
 		
@@ -196,10 +188,13 @@ public class PlatformDummy : Platform
 	}
 	
 	protected override void PostInit() {	
-		if (Application.isPlaying) {
-			api = new API(db);
-		}
+		
 		base.PostInit();
+        
+        if (Application.isPlaying) {
+            MergeGamesList();
+        }
+
 	}
 	
 	private void MergeGamesList() {
@@ -233,11 +228,6 @@ public class PlatformDummy : Platform
 			}
 		}
 	}
-	
-    public override Device Device()
-    {
-		return db.Cast<Device>().Where(d => d.self == true).FirstOrDefault();
-    }
 
 	
 	public override void ResetTargets() {
@@ -254,21 +244,6 @@ public class PlatformDummy : Platform
 		//don't want to create any target trackers in dummy.
 		return null;	
 	}
-
-	public override void Authorize(string provider, string permissions) {
-		if (Application.isPlaying) {
-            GetMonoBehavioursPartner().StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
-		}
-	}
-	
-	public override bool HasPermissions(string provider, string permissions) {
-        return NetworkMessageListener.authenticated;
-	}
-	
-	public override void SyncToServer() {
-		lastSync = DateTime.Now;
-        GetMonoBehavioursPartner().StartCoroutine(api.Sync());
-	}
 	
 	public void SetTargetSpeed(float speed)
 	{
@@ -284,29 +259,7 @@ public class PlatformDummy : Platform
 		return playerOrientation;
 	}
 	
-	public override Challenge FetchChallenge(string id) {
-		Challenge challenge = null;
-		IEnumerator e = api.get("challenges/" + id, (body) => {
-			challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
-		});
-		while(e.MoveNext()) {}; // block until finished
-		return challenge;
-	}
 
-	public override Track FetchTrack(int deviceId, int trackId) {
-		// Check db
-		Track track = db.Cast<Track>().Where<Track>(t => t.deviceId == deviceId && t.trackId == trackId).FirstOrDefault();
-		if (track != null) {
-			IncludePositions(track);
-			return track;
-		}
-		// or fetch from API
-		IEnumerator e = api.get("tracks/" + deviceId + "-" + trackId, (body) => {
-			track = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Track>>(body).response;
-		});
-		while(e.MoveNext()) {}; // block until finished
-		return track;
-	}
 		
 //	public void SetTargetSpeed(float speed)
 //	{
@@ -317,39 +270,8 @@ public class PlatformDummy : Platform
 //	{
 //		throw new NotImplementedException();
 //	}
-		
-	public override List<Track> GetTracks() {
-		// TODO: Change signature to IList<Track>
-		var tracks = new List<Track>(db.LoadAll<Track>());
-		foreach (var track in tracks) {
-			IncludePositions(track);
-		}
-		return tracks;
-	}
 	
-	public override List<Game> GetGames() {
-		// TODO: Change signature to IList<Game>
-		var games = new List<Game>(db.LoadAll<Game>());
-		return games;
-	}
-	
-	public override void QueueAction(string json) {
-		var action = new RaceYourself.Models.Action(json);
-		db.StoreObject(action);
-	}
-	
-	public override List<Friend> Friends() {
-		// TODO: Change signature to IList<Friend>
-		return new List<Friend>(db.LoadAll<Friend>());
-	}
 
-	public override Notification[] Notifications () {
-		// TODO: Change signature to IList<Notification>
-		var list = db.LoadAll<Notification>();
-		var array = new Notification[list.Count];
-		list.CopyTo(array, 0);
-		return array;
-	}
 	
 	public override void ReadNotification(string id) {
 		throw new NotImplementedException();
@@ -390,6 +312,11 @@ public class PlatformDummy : Platform
 		//Not entirely sure what this is supposed to do. Wil do nothing for now. AH
 		return;
 	}
+
+    public override void EraseBlob (String id)
+    {
+        throw new NotImplementedException ();
+    }
 	
 	public override void Poll() {
 
@@ -403,35 +330,7 @@ public class PlatformDummy : Platform
 
 	}
 	
-	public override User User() {
-		if (api == null) return null;
-		return api.user;
-	}
-	
-	public override User GetUser(int userId) {
-		User user = null;
-		IEnumerator e = api.get("users/" + userId, (body) => {
-			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
-		});
-		while(e.MoveNext()) {}; // block until finished
-		return user;
-	}
-	
-	public override List<Track> GetTracks (double distance, double minDistance)
-	{
-		var tracks = new List<Track>(db.Cast<Track>().Where<Track>(t => t.distance > minDistance && t.distance <= distance));		 
-		foreach (var track in tracks) {
-			IncludePositions(track);
-		}
-		return tracks;
-	}
-	
-	private void IncludePositions(Track track)
-	{
-		if (track == null) return;
-		if (track.positions != null) return;
-		track.positions = new List<Position>(db.Cast<Position>().Where<Position>(p => p.deviceId == track.deviceId && p.trackId == track.trackId));
-	}	
+
 		
 	//specific to the platform dummy (ideally this would be provided by a TargetTracker dummy object)
 	public override float GetTargetSpeed() {
@@ -477,10 +376,7 @@ public class PlatformDummy : Platform
 		return;
 	}
 	
-	public override void LogAnalytics (string json) {
-		var e = new RaceYourself.Models.Event(json, sessionId);
-		db.StoreObject(e);
-	}
+
 	
 	public override void Update ()
 	{	
@@ -527,6 +423,11 @@ public class PlatformDummy : Platform
 	public override Device DeviceInformation() 
 	{
 		return new Device("Unknown", "Device");
-	}	    
+	}	 
+
+    public override float Yaw()
+    {
+        return 0.0f;
+    }
 }
 #endif

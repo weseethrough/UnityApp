@@ -600,9 +600,7 @@ public class AndroidPlatform : Platform
 	
 	public override void Poll() {
 
-        log.info ("Polling for position etc");
-		this.LocalPlayerPosition.Update();  // update current position
-		this.PlayerPoints.Update(); // update current points
+        base.Update ();
 
 		//UnityEngine.Debug.Log("Platform: poll There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
@@ -889,7 +887,7 @@ public class AndroidPlatform : Platform
 		}
 	}
 
-	private Vector2i GetScreenDimensions()
+    private Vector2i GetScreenDimensions()
 	{
 		try
 		{
