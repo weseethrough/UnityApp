@@ -1,8 +1,8 @@
 using System;
 using RaceYourself.Models;
 
-namespace PositionPredictor
-{
+//namespace PositionPredictor
+//{
 	public class PositionUtils
 	{
 		private static double R = 6371000; // average earth's radius (meters)
@@ -110,5 +110,5 @@ namespace PositionPredictor
         	return (180 / Math.PI) * val;
     	}
 	}
-}
+//}
 
