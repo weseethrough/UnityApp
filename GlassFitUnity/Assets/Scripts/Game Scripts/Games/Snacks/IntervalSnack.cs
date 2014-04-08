@@ -42,7 +42,7 @@ public class IntervalSnack : SnackBase {
         UnityEngine.Debug.Log("Interval snack: feeling peckish.");
         yield return new WaitForSeconds(2);
 
-        for (uint cycle = 1; cycle <= 5; cycle++)
+        for (uint cycle = 1; cycle <= 2; cycle++)
         {
             if (audioSource.isPlaying)
                 audioSource.Stop ();
