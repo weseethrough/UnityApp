@@ -46,7 +46,10 @@ public class SnackRun : GameBase {
 		
 		//initialise minigame 
 		if(minigameToken != null)
-		{ minigameToken.SetDistance(nextSnackDistance); }
+		{ 
+			minigameToken.setRealWorldDist(nextSnackDistance); 
+			UnityEngine.Debug.LogError("set mini game token pos");
+		}
 	}
 
 	protected void ClearAheadBehind()
@@ -153,7 +156,7 @@ public class SnackRun : GameBase {
 		//shift token along and unhide
 		if(minigameToken != null)
 		{ 
-			minigameToken.SetDistance(nextSnackDistance);
+			minigameToken.setRealWorldDist(nextSnackDistance);
 			minigameToken.gameObject.SetActive(true);
 		}
 		

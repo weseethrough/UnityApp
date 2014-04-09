@@ -3,7 +3,7 @@ using System.Collections;
 
 public class RYWorldObject : MonoBehaviour {
 
-	protected Vector3 realWorldPos = Vector3.zero;
+	public Vector3 realWorldPos = Vector3.zero;
 
 	/// <summary>
 	/// The movement speed for use in calculating any speed-dependent behaviour. Not used in updating the position.
