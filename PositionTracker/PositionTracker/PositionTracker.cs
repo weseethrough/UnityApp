@@ -158,10 +158,7 @@ namespace PositionTracker
 		private void notifyPositionListeners(State newState) {
 			// TODO: notify listerens on new position
 		}
-		private State nextState(float rmsForwardAcc, float gpsSpeed) {
-        	return state; // TODO: implement state machine
-        }
-		
+
 	    /**
 	     * Starts / re-starts the methods that poll GPS and sensors.
 	     * This is NOT an override - needs calling manually by containing Activity on app. resume
@@ -397,7 +394,7 @@ namespace PositionTracker
 	            float meanTa = (float)taStats.Mean;
 	            float maxDta = (float)dTaStats.Maximum;
 	            float sdTotalAcc = (float)taStats.StandardDeviation;
-	            float gpsSpeed = positionTracker.GpsSpeed;
+	            gpsSpeed = positionTracker.GpsSpeed;
 	            
 	            // update state
 	            // gpsSpeed = -1.0 for indoorMode to prevent entry into
@@ -478,10 +475,123 @@ namespace PositionTracker
 	            lastTickTime = tickTime;
 	        }
     	}
-
 		
-	}
+		private State nextState(float rmsForwardAcc, float gpsSpeed) {
+        	return SpeedState.NextState(state, rmsForwardAcc, gpsSpeed);
+        }
+		
+		
+		private class SpeedState {
+			private static State currentState;
+        	private static float ACCELERATE_THRESHOLD = 0.45f;
+            private static float DECELERATE_THRESHOLD = 0.35f;
+
+			public static State NextState(State state, float rmsForwardAcc, float gpsSpeed) {
+				currentState = state; 
+				switch(currentState) {
+				case State.UNKNOWN:
+					return currentState; 
+					
+				case State.STOPPED:
+					return nextStateStopped(rmsForwardAcc, gpsSpeed);
 	
+				case State.SENSOR_ACC:
+					return nextStateSensorAcc(rmsForwardAcc, gpsSpeed);
+
+				case State.STEADY_GPS_SPEED:
+					return nextStateSteadyGpsSpeed(rmsForwardAcc, gpsSpeed);
+					
+				case State.COAST:
+					return nextStateCoast(rmsForwardAcc, gpsSpeed);
+					
+				case State.SENSOR_DEC:
+					return nextStateSensorDec(rmsForwardAcc, gpsSpeed);
+				}
+				return currentState;
+			}
+			
+			private static long EntryTime { get; set; }
+			
+			private static void SaveEntryTime() {
+				EntryTime = PositionTracker.currentTimeMillis();
+			}
+			
+			private static long GetTimeInState() {
+            	return (PositionTracker.currentTimeMillis() - EntryTime);
+        	}
+
+			private static State nextStateStopped(float rmsForwardAcc, float gpsSpeed) {
+				if (rmsForwardAcc > ACCELERATE_THRESHOLD) {
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","SENSOR_ACC");
+					SaveEntryTime();
+                    return State.SENSOR_ACC;
+				}
+        		return currentState;
+        	}
+
+			private static State nextStateSensorAcc(float rmsForwardAcc, float gpsSpeed) {
+				if (gpsSpeed > 0.0f) {
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","STEADY_GPS_SPEED");
+					SaveEntryTime();
+                    return State.STEADY_GPS_SPEED;
+                } else if (rmsForwardAcc < DECELERATE_THRESHOLD) {
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","SENSOR_DEC");
+					SaveEntryTime();
+                    return State.SENSOR_DEC;
+                } 
+        		return currentState;
+        	}		
+			
+			private static State nextStateSteadyGpsSpeed(float rmsForwardAcc, float gpsSpeed) {
+                if (rmsForwardAcc < DECELERATE_THRESHOLD) {
+                    // if the sensors suggest the device has stopped moving, decelerate
+                    // TODO: pick up when we're in a tunnel and need to coast
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","SENSOR_DEC");
+					SaveEntryTime();
+                    return State.SENSOR_DEC;
+				} else if (gpsSpeed == 0.0f) {
+                    // if we've picked up a dodgy GPS position, maintain const speed
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","COAST");
+					SaveEntryTime();
+                    return State.COAST;
+                }                
+        		return currentState;
+        	}			
+			
+			private static State nextStateCoast(float rmsForwardAcc, float gpsSpeed) {
+				if (rmsForwardAcc < DECELERATE_THRESHOLD) {
+                    // if sensors suggest the device has stopped moving, decelerate
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","SENSOR_DEC");
+					SaveEntryTime();
+                    return State.SENSOR_DEC;
+                } else if (gpsSpeed > 0.0f) {
+                    // we've picked up GPS again
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","STEADY_GPS_SPEED");
+					SaveEntryTime();
+                    return State.STEADY_GPS_SPEED;
+                }
+        		return currentState;
+        	}			
+			
+			private static State nextStateSensorDec(float rmsForwardAcc, float gpsSpeed) {
+                if (gpsSpeed == 0.0f) {
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","STOPPED");
+					SaveEntryTime();
+                    return State.STOPPED;
+                } else if (GetTimeInState() > 3000) {
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","STEADY_GPS_SPEED");
+					SaveEntryTime();
+                    return State.STEADY_GPS_SPEED;
+                } else if (rmsForwardAcc > ACCELERATE_THRESHOLD) {
+                    //UnityInterface.unitySendMessage("Platform", "PlayerStateChange","SENSOR_ACC");
+					SaveEntryTime();
+                    return State.SENSOR_ACC;
+                }				
+        		return currentState;
+        	}			
+			
+		}
+	}
 
 }
 
