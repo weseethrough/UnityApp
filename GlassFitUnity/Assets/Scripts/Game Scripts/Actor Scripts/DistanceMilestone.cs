@@ -2,7 +2,7 @@
 using System.Collections;
 using System;
 
-public class DistanceMilestone : MonoBehaviour {
+public class DistanceMilestone : RYWorldObject {
 
 	private int target = 500;
 	
@@ -12,16 +12,6 @@ public class DistanceMilestone : MonoBehaviour {
 	// Text Mesh for 3D Text.
 	private TextMesh textMesh;
 	
-	// Value for goal distance
-	private int goal;
-
-	// Variable for current distance travelled.
-	private double distance;
-	
-	// Height of the distance markers
-	protected float xOffset;
-	protected float height;
-	
 	/// <summary>
 	/// Obtains the text mesh
 	/// </summary>
@@ -29,17 +19,10 @@ public class DistanceMilestone : MonoBehaviour {
 	{	
 		// Get initial text mesh component.
 		textMesh = textObject.GetComponent<TextMesh>();
-		textMesh.text = SiDistance(target);
-		try {
-			goal = (int)DataVault.Get("finish");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("DistanceMarker: Couldn't retrieve finish distance. Setting locally to 10km");
-			goal = 10000;
-		}
-		
-		//get the height from the template object
-		xOffset = transform.position.x;
-		height = transform.position.y;
+		textMesh.text = UnitsHelper.SiDistance(target);
+
+		base.Start();
+		setRealWorldDist(target);
 	}
 	
 	/// <summary>
@@ -48,50 +31,18 @@ public class DistanceMilestone : MonoBehaviour {
 	void Update () 
 	{
 		// Get current distance travelled.
-		distance = Platform.Instance.LocalPlayerPosition.Distance;
-
-		// Reset markers.
-		transform.position = new Vector3(0, 0, 500000);
-		
-		// If markers within range, set new position.
-		if(distance > target - 50 && distance < target + 50 && target < goal)
-		{
-			double deltDist = target - distance;
-			//deltDist *= 135f;
-			transform.position = new Vector3(xOffset, height, (float)deltDist);
-		}
+		double distance = Platform.Instance.LocalPlayerPosition.Distance;
 		
 		// If current distance is higher than target set the new text and position.
 		if(distance > target + 50) 
 		{
 			target +=500;
-			textMesh.text = SiDistance(target);
+			setRealWorldDist(target);
+			textMesh.text = UnitsHelper.SiDistance(target);
 		}
+
+		base.Update();
 	}
-	
-	/// <summary>
-	/// Convert the distance text to the correct format.
-	/// </summary>
-	/// <returns>
-	/// The distance in either meters or kilometers
-	/// </returns>
-	/// <param name='meters'>
-	/// The start value in meters
-	/// </param>
-	string SiDistance(double meters) {
-		string postfix = "m";
-		string final;
-		float value = (float)meters;
-		if (value >= 1000) {
-			value = value/1000;
-			postfix = "km";
-			final = value.ToString("f1");
-		}
-		else
-		{
-			final = value.ToString("f0");
-		}
-		return final+postfix;
-	}
+
 }
 

@@ -4,25 +4,21 @@ using System.Collections;
 /// <summary>
 /// Base class for the targets. Controls the movement and the target tracker
 /// </summary>
-public class TargetController : MonoBehaviour {
-	protected double scaledDistance = 0.0f;
-	public TargetTracker target { get; protected set; }
+public class TargetController : RYWorldObject {
+
+	//public TargetTracker target { get; protected set; }
 	
 	public bool shouldShowOverheadLabel = false;
 	public float overheadLabelHeight = 300.0f;
 	public string overheadLabelString = "TEST";
 	public float overheadLabelScreenOffset = 20.0f;
 	
-	protected float distanceOffset = 0.0f;
-	protected float travelSpeed = 1.0f;
-	protected float height = 0.0f;
-	protected float xOffset = 0.0f;
-	
 	protected int lane = 1;
 	protected float lanePitch = 3.0f;
 	
 	// Use this for initialization
-	public virtual void Start () {		
+	public virtual void Start () {
+		base.Start();
 	}
 	
 	// TODO:
@@ -35,31 +31,33 @@ public class TargetController : MonoBehaviour {
 	}
 	
 	public void SetTracker(TargetTracker tracker) {
-		target = tracker;
-		if(target != null) {
-			UnityEngine.Debug.Log("Target: linked to tracker: " + target.ToString());
-		}	
+//		target = tracker;
+//		if(target != null) {
+//			UnityEngine.Debug.Log("Target: linked to tracker: " + target.ToString());
+//		}	
 	}
-	
+
 	public virtual void SetHeadstart(float dist)
 	{
 		
 	}
-	
+
 	public void SetLane(int lane) {
 		this.lane = lane;
 	}
 	
 	public void IncreaseOffset() 
 	{
-		distanceOffset += 50f;
+		UnityEngine.Debug.LogWarning("TargetController: call to deprecated method IncreaseOffset(). Use World Position instead");
+//		distanceOffset += 50f;
 	}
 	
 	public void SetAttribs(float offset, float speed, float yDist, float xDist) {
-		distanceOffset = offset;
-		travelSpeed = speed;
-		height = yDist;
-		xOffset = xDist*(lane*lanePitch); // TODO: parent.gameObject.width?
+//		distanceOffset = offset;
+//		travelSpeed = speed;
+//		height = yDist;
+//		xOffset = xDist*(lane*lanePitch); // TODO: parent.gameObject.width?
+		UnityEngine.Debug.LogWarning("TargetController: call to deprecated method SetAttribs(). Use SetWorldPos/Vel instead");
 	}
 	
 	public virtual void SetSpeed(float f) {
@@ -73,15 +71,7 @@ public class TargetController : MonoBehaviour {
 	
 	// Update is called once per frame
 	public virtual void Update () {
-		
-		//calculate scaled distance
-		scaledDistance = (GetDistanceBehindTarget() - distanceOffset) * travelSpeed;
-		
-		//UnityEngine.Debug.Log("TargetController: distance behind is: " + scaledDistance.ToString());
-		
-		//set position
-		Vector3 movement = new Vector3(xOffset, height, (float)scaledDistance);
-		transform.position = movement;
+		base.Update();
 	}
 	
 	/// <summary>
@@ -93,11 +83,11 @@ public class TargetController : MonoBehaviour {
 	/// </returns>
 	public virtual double GetDistanceBehindTarget()
 	{
-		if(target != null)
-		{
-			return target.GetDistanceBehindTarget();
-		}
-		else
+//		if(target != null)
+//		{
+//			return target.GetDistanceBehindTarget();
+//		}
+//		else
 		{
 			//probably means we're in the editor
 			return Platform.Instance.DistanceBehindTarget();

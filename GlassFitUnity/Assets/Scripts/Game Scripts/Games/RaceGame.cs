@@ -46,44 +46,58 @@ public class RaceGame : GameBase {
 	public GameObject paulaHolder;
 	public GameObject chrisHolder;
 	public GameObject bradleyHolder;
-		
+
+	public GameObject opponent;
+
 	public override void Start () {
 		base.Start();
 		
 		//instantiate teh appropriate actor
 		string tar = (string)DataVault.Get("type");
-		
+		if(tar == null)
+		{
+			tar = "Runner";
+		}
+
+		opponent = null;
+
 		switch(tar)
 		{
 		case "Runner":
 			currentActorType = ActorType.Runner;
+			opponent = runnerHolder;
 			targSpeed = 3.0f;
 			break;
 			
 		case "Cyclist":
 			currentActorType = ActorType.Cyclist;
+			opponent = cyclistHolder;
 			break;
 			
 		case "Mo":
 			currentActorType = ActorType.Mo;
+			opponent = moHolder;
 			DataVault.Set("slider_val", 0.525f);
 			targSpeed = 6.059f;
 			break;
 			
 		case "Paula":
 			currentActorType = ActorType.Paula;
+			opponent = paulaHolder;
 			DataVault.Set("slider_val", 0.4f);
 			targSpeed = 4.91f;
 			break;
 			
 		case "Chris":
 			currentActorType = ActorType.Chris;
+			opponent = chrisHolder;
 			DataVault.Set("slider_val", 0.4f);
 			targSpeed = 15.686f;			
 			break;
 			
 		case "Bradley":
 			currentActorType = ActorType.Bradley;
+			opponent = bradleyHolder;
 			DataVault.Set("slider_val", 0.4f);
 			targSpeed = 17.007f;	
 			break;
@@ -94,15 +108,24 @@ public class RaceGame : GameBase {
 		runnerHolder.SetActive(false);
 		
 		Platform.Instance.ResetTargets();
-		
+
+		//InstantiateActors();
+
+		opponent.SetActive(true);
+
+		TargetTracker tracker;
 		if(selectedTrack != null) {
-			Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
-		} else {
-			Platform.Instance.CreateTargetTracker(targSpeed);
+			//create a target tracker position controller component and add it to the runner
+			tracker = Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
+			TargetTrackerPositionController posController = opponent.AddComponent<TargetTrackerPositionController>();
+			posController.tracker = tracker;
+		} 
+		else {
+			//create a fixed velocity target tracker
+			ConstantVelocityPositionController posController = opponent.AddComponent<ConstantVelocityPositionController>();
+			posController.velocity = new Vector3(0,0,targSpeed);
 		}
-		
-		InstantiateActors();
-		
+
 		//Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		//SetReadyToStart(true);
 		SetVirtualTrackVisible(true);
@@ -160,7 +183,10 @@ public class RaceGame : GameBase {
 		TargetTracker upstream = null;
 		if (position > 1) upstream = trackers[position - 2]; // 1->0 indexing
 		TargetTracker downstream = null;
-		if (position < trackers.Count + 1) downstream = trackers[position - 1]; // 1->0 indexing
+		if (position < trackers.Count + 1) 
+		{
+			downstream = trackers[position - 1]; // 1->0 indexing
+		}
 			
 		if (upstream != null && downstream != null) {
 			if (Math.Abs(upstream.GetDistanceBehindTarget()) <= Math.Abs(downstream.GetDistanceBehindTarget())) nemesis = upstream;
@@ -187,7 +213,7 @@ public class RaceGame : GameBase {
 
 		base.Update ();
 	
-		UpdateLeaderboard();
+//		UpdateLeaderboard();
 	}
 	
 	
