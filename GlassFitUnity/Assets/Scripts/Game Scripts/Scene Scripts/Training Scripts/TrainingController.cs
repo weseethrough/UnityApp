@@ -26,12 +26,12 @@ public class TrainingController : TargetController {
 		// Set the attributes
 		SetAttribs(20, 135, -254.6f, 100);
 		anim.speed = 0.5f;
-		target = Platform.Instance.CreateTargetTracker(2.2f);
+//		target = Platform.Instance.CreateTargetTracker(2.2f);
 	}
 	
 	public override void SetSpeed(float speed) {
 		anim.speed = speed / 2.2f;
-		target = Platform.Instance.CreateTargetTracker(speed);
+//		target = Platform.Instance.CreateTargetTracker(speed);
 	}
 	
 	/// <summary>
@@ -57,8 +57,8 @@ public class TrainingController : TargetController {
 			}
 			
 			// Get the current target speed.
-			float newSpeed = target.PollCurrentSpeed();
-			
+//			float newSpeed = target.PollCurrentSpeed();
+			float newSpeed = 1;			
 			// If there is a new target speed.
 			if(speed != newSpeed)
 			{

@@ -22,7 +22,8 @@ public class ZombieAnimation : MonoBehaviour {
 		controller = transform.parent.gameObject.GetComponent<TargetController>();
 		
 		// Get the speed of the target.
-		speed = controller.target.PollCurrentSpeed();
+		//speed = controller.target.PollCurrentSpeed();
+		speed = 1;
 		// Set the animation speed based on the target speed and scale the value.
 		anim.SetFloat("Speed", speed);
 		if(speed > 2.2f) {
@@ -37,8 +38,8 @@ public class ZombieAnimation : MonoBehaviour {
 	/// </summary>
 	void Update () {
 		// Get the speed of the target.
-		float newSpeed = controller.target.PollCurrentSpeed();
-		
+//		float newSpeed = controller.target.PollCurrentSpeed();
+		float newSpeed = 1;		
 		// If the speed has changed.
 		if(newSpeed != speed)
 		{

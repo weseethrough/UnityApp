@@ -61,7 +61,7 @@ public class TrainSound : MonoBehaviour {
 				}
 				
 				// Set the position of the object based on distance behind object and offset.
-				transform.position = new Vector3(0, 0, (float)Platform.Instance.DistanceBehindTarget(controller.target)-50.0f);
+				//transform.position = new Vector3(0, 0, (float)Platform.Instance.DistanceBehindTarget(controller.target)-50.0f);
 			}
 			else {
 				// Stop the train move sound and set boolean to false.

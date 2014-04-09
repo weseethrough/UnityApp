@@ -131,22 +131,22 @@ public class BoulderController : TargetController {
 		
 		
 		// Increase distance
-		distanceFromStart += Time.deltaTime * currentSpeed;	
-		//UnityEngine.Debug.Log("BoulderController: distance is " + distanceFromStart.ToString("f2"));
-		
-		scaledDistance = GetDistanceBehindTarget();
-		
-		//UnityEngine.Debug.Log("TargetController: distance behind is: " + scaledDistance.ToString());
-		UnityEngine.Debug.Log("BoulderController: current z position is " + transform.position.z.ToString("f2"));
-		//set position
-		if(transform.childCount > 0) {
-			Vector3 movement = new Vector3(xOffset, transform.GetChild(0).localPosition.y, (float)scaledDistance);
-			transform.GetChild(0).localPosition = movement;
-		}
-		else
-		{
-			base.Update();
-		}
+//		distanceFromStart += Time.deltaTime * currentSpeed;	
+//		//UnityEngine.Debug.Log("BoulderController: distance is " + distanceFromStart.ToString("f2"));
+//		
+//		scaledDistance = GetDistanceBehindTarget();
+//		
+//		//UnityEngine.Debug.Log("TargetController: distance behind is: " + scaledDistance.ToString());
+//		UnityEngine.Debug.Log("BoulderController: current z position is " + transform.position.z.ToString("f2"));
+//		//set position
+//		if(transform.childCount > 0) {
+//			Vector3 movement = new Vector3(xOffset, transform.GetChild(0).localPosition.y, (float)scaledDistance);
+//			transform.GetChild(0).localPosition = movement;
+//		}
+//		else
+//		{
+//			base.Update();
+//		}
 		
 	}
 	

@@ -37,7 +37,6 @@ public class FirstRaceOpponenet : TargetController {
 	// Use this for initialization
 	public override void Start () {
 		anim = GetComponent<Animator>();
-		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
 		lane = 1;
 		lanePitch = 1.0f;
 		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);

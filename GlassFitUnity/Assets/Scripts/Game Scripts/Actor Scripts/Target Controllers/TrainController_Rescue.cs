@@ -30,13 +30,12 @@ public class TrainController_Rescue : TargetController {
 	
 	// Use this for initialization
 	public override void Start () {
-		travelSpeed = 1.0f;	//somewhat arbitrary scale factor for positioning distance
 		lane = 1;
 		lanePitch = 1.0f;
 		//SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 		
 		timeRunStarted = Time.time;
-		xOffset = transform.localPosition.x;
+		//xOffset = transform.localPosition.x;
 		absolutePos = transform.localPosition;
 		
 		Component[] sources = GetComponents(typeof(AudioSource));
@@ -91,7 +90,7 @@ public class TrainController_Rescue : TargetController {
 			{
 				isOnDetour = false;
 				//straighten us up to be exactly on the main track
-				absolutePos.x = xOffset;
+//				absolutePos.x = xOffset;
 			}
 		}
 		
