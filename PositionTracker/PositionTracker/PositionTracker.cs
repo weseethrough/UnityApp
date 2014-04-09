@@ -13,27 +13,24 @@ namespace PositionTracker
 		
 		private Track track;
 		private Position gpsPosition;
-		private bool isIndoorMode;
 		//private float bearing;
-		private float speed;
-		private double elapsedDistance;
-		private long elapsedTime;
 		private State state = State.STOPPED;
-		private bool isTracking;
 				
 		private Stopwatch trackStopwatch = new Stopwatch(); // time so far in milliseconds
 	    private Stopwatch interpolationStopwatch = new Stopwatch(); // time so far in milliseconds
 		
 		private Position lastImportantPosition;
-		
-		private double gpsDistance;
-		
+				
 		private PositionPredictor.PositionPredictor positionPredictor = new PositionPredictor.PositionPredictor();
 		
 		private static float MAX_TOLERATED_POSITION_ERROR = 21; // 21 metres
 	    private static float EPE_SCALING = 0.5f; // if predicted positions lie within 0.5*EPE circle
                                                    // of reported GPS position, no need to store GPS pos.
 		private static float INVALID_BEARING = -999.0f;
+		// time in milliseconds over which current position will converge with the
+    	// more accurate but non-continuous extrapolated GPS position
+    	private static long DISTANCE_CORRECTION_MILLISECONDS = 1500; 
+
 
 
 		
@@ -44,6 +41,10 @@ namespace PositionTracker
 			STEADY_GPS_SPEED,
 			COAST,
 			SENSOR_DEC
+		}
+		
+		PositionTracker() {
+			MinIndoorSpeed = 0.0f;
 		}
 		
 		public void OnPositionUpdate(Position position) { 
@@ -62,7 +63,7 @@ namespace PositionTracker
 	        gpsPosition = position;
 	        
 	        // stop here if we're not tracking
-	        if (!isTracking) {
+	        if (!Tracking) {
 	            //broadcastToUnity();
 	            return;
 	        }
@@ -71,7 +72,7 @@ namespace PositionTracker
 	        if (lastPosition != null && state != State.STOPPED) {
 	            // add dist between last and current position
 	            // don't add distance if we're stopped, it's probably just drift 
-	            gpsDistance += PositionUtils.distanceBetween(lastPosition, gpsPosition);
+	            GpsDistance += PositionUtils.distanceBetween(lastPosition, gpsPosition);
 	        }
 	        interpolationStopwatch.Reset();
 	
@@ -154,6 +155,12 @@ namespace PositionTracker
 		private void notifyPositionListeners(Position position) {
 			// TODO: notify listerens on new position
 		}
+		private void notifyPositionListeners(State newState) {
+			// TODO: notify listerens on new position
+		}
+		private State nextState(float rmsForwardAcc, float gpsSpeed) {
+        	return state; // TODO: implement state machine
+        }
 		
 	    /**
 	     * Starts / re-starts the methods that poll GPS and sensors.
@@ -176,10 +183,10 @@ namespace PositionTracker
 	        trackStopwatch.Reset();
 	        interpolationStopwatch.Stop();
 	        interpolationStopwatch.Reset();
-	        isTracking = false;
-	        elapsedDistance = 0.0;
-	        gpsDistance = 0.0;
-	        speed = 0.0f;
+	        Tracking = false;
+	        ElapsedDistance = 0.0;
+	        GpsDistance = 0.0;
+	        CurrentSpeed = 0.0f;
 	        state = State.STOPPED;
 	        recentPositions.Clear();
 	        
@@ -222,7 +229,7 @@ namespace PositionTracker
             	trackStopwatch.Start();
             	interpolationStopwatch.Start();
         	}
-	        isTracking = true;
+	        Tracking = true;
 
 		}
 	
@@ -234,11 +241,11 @@ namespace PositionTracker
 	     * we left off, or create a new GPSTracker object if a full reset is required.
 	     */
 	    public void StopTracking() {
-		    isTracking = false;
+		    Tracking = false;
 	        if (track != null) {
-	            track.distance = elapsedDistance;
+	            track.distance = ElapsedDistance;
 	            track.time = trackStopwatch.ElapsedMilliseconds;
-	            track.track_type_id = ((this.IndoorMode ? -1 : 1) * 2); //negative if indoor
+	            track.track_type_id = ((IndoorMode ? -1 : 1) * 2); //negative if indoor
 	            //track.save();
 	        }
 	        trackStopwatch.Stop();
@@ -256,7 +263,7 @@ namespace PositionTracker
 	     *         otherwise.
 	     */
 	    public bool Tracking {
-	        get { return isTracking; }
+	        get; set;
 	    }
 		
 	    /**
@@ -265,10 +272,9 @@ namespace PositionTracker
 	     * @return true if in indoor mode, false otherwise. Default is false.
 	     */
 	    public bool IndoorMode {
-	        get { return isIndoorMode;  }
-		    // indoorMode == false => Listen for real GPS positions
+			get; set;
+			// indoorMode == false => Listen for real GPS positions
 	        // indoorMode == true => Generate fake GPS positions
-			set { isIndoorMode = value; }
 	    }
 	
 	    
@@ -297,26 +303,40 @@ namespace PositionTracker
 	     * @return speed in m/s
 	     */
 	    public float CurrentSpeed {
-	        get { return speed; }
+	        get; set;
 	    }
 		
 		public float SampleSpeed {
-	        get { return 0.0f; }
+	        get; set;
 	    }
 		
+		public float GpsSpeed {
+	        get { return (gpsPosition == null) ? 0.0f :gpsPosition.speed ; }
+	    }
 		
+		public float MaxIndoorSpeed {
+	        get; set;
+	    }
+		public float MinIndoorSpeed {
+	        get; set;
+	    }
 	    /**
 	     * Returns the distance covered by the device (in metres) since startTracking was called
 	     * 
 	     * @return Distance covered, in metres
 	     */
 	    public double ElapsedDistance {
-	        get { return elapsedDistance; }
+	        get; set;
 	    }
 	    public double SampleDistance {
-	        get { return 0.0;}
+	        get; set;
 	    }
-
+		public double GpsDistance {
+	        get; set;
+	    }
+		public double ExtrapolatedGpsDistance {
+	        get; set;
+	    }
 	    
 		// TODO:
 	    public State CurrentState {
@@ -329,13 +349,137 @@ namespace PositionTracker
 	     * @return cumulative time in milliseconds
 	     */
 	    public long ElapsedTime {
-	        get { return this.elapsedTime; }
+	        get; set;
 	    }
 		
-		private long currentTimeMillis() {
+		private static long currentTimeMillis() {
 			return DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
 		}
+		
+		
+		public class Tick {
 
+	        private long tickTime;
+	        private long lastTickTime;
+	        private float gpsSpeed = 0.0f;
+	        private float lastForwardAcc = 0.0f;
+	        private float lastTotalAcc = 0.0f;
+	        private DescriptiveStatistics dFaStats = new DescriptiveStatistics(10);
+	        private DescriptiveStatistics dTaStats = new DescriptiveStatistics(10);
+	        private DescriptiveStatistics taStats = new DescriptiveStatistics(10);
+	
+			private ISensorProvider sensorProvider;
+			private PositionTracker positionTracker;
+			
+			public Tick(PositionTracker positionTracker, ISensorProvider sensorProvider) {
+				this.positionTracker = positionTracker;
+				this.sensorProvider = sensorProvider;
+			}
+			
+	        public void Run() {
+	            
+	            if (lastTickTime == 0) {
+	                lastTickTime = currentTimeMillis();
+	                return;
+	            }
+	            tickTime = currentTimeMillis();
+	
+	            // update buffers with most recent sensor sample
+	            dFaStats.AddValue(Math.Abs(sensorProvider.ForwardAcceleration-lastForwardAcc));
+	//            rmsForwardAcc = (float)Math.sqrt(0.95*Math.pow(rmsForwardAcc,2) + 0.05*Math.pow(getForwardAcceleration(),2));
+	            taStats.AddValue(sensorProvider.TotalAcceleration);
+	            dTaStats.AddValue(Math.Abs(sensorProvider.TotalAcceleration-lastTotalAcc));
+	            
+	            // compute some stats on the buffers
+	            // TODO: frequency analysis
+	            float meanDfa = (float)dFaStats.Mean;
+	            float meanDta = (float)dTaStats.Mean;
+	            float meanTa = (float)taStats.Mean;
+	            float maxDta = (float)dTaStats.Maximum;
+	            float sdTotalAcc = (float)taStats.StandardDeviation;
+	            float gpsSpeed = positionTracker.GpsSpeed;
+	            
+	            // update state
+	            // gpsSpeed = -1.0 for indoorMode to prevent entry into
+	            // STEADY_GPS_SPEED (just want sensor_acc/dec)
+	            State lastState = positionTracker.state;
+	            positionTracker.state = positionTracker.nextState(meanDta, (positionTracker.IndoorMode ? -1.0f : gpsSpeed));
+	            
+	            // save for next loop
+	            lastForwardAcc = sensorProvider.ForwardAcceleration;
+	            lastTotalAcc = sensorProvider.TotalAcceleration;
+	            
+				float outdoorSpeed = positionTracker.CurrentSpeed;
+	            // adjust speed
+	            switch (positionTracker.state) {
+	                case State.STOPPED:
+	                    // speed is zero!
+	                    outdoorSpeed = 0.0f;
+	                    break;
+	                case State.SENSOR_ACC:
+	                    // increase speed at 1.0m/s/s (typical walking acceleration)
+	                    float increment = 1.0f * (tickTime - lastTickTime) / 1000.0f;
+	
+	                    // cap speed at some sensor-driven speed, and up to maxIndoorSpeed indoors
+	                    // TODO: freq analysis to more accurately identify speed
+	                    float sensorSpeedCap = meanTa;
+	                    if (positionTracker.IndoorMode && sensorSpeedCap > positionTracker.MaxIndoorSpeed) sensorSpeedCap = positionTracker.MaxIndoorSpeed;
+	                    
+	                    if (outdoorSpeed < sensorSpeedCap) {
+	                        // accelerate
+	                        outdoorSpeed += increment;
+	                    } else if (outdoorSpeed > 0) {
+	                        // decelerate
+	                        outdoorSpeed -= increment;
+	                    }
+	                    break;
+	                case State.STEADY_GPS_SPEED:
+	                    // smoothly adjust speed toward the GPS speed
+	                    // TODO: maybe use acceleration sensor here to make this more responsive?
+	                    outdoorSpeed = 0.9f * outdoorSpeed + 0.1f * gpsSpeed;
+	                    break;
+	                case State.COAST:
+	                    // maintain constant speed
+	                    break;
+	                case State.SENSOR_DEC:
+	                    // decrease speed at 2.0 m/s/s till we are stopped (or 
+	                    // minIndoorSpeed in indoorMode)
+	                    float decrement = 2.0f * (tickTime - lastTickTime) / 1000.0f;
+	                    if (outdoorSpeed -decrement > (positionTracker.IndoorMode ? positionTracker.MinIndoorSpeed : 0.0f)) {
+	                        outdoorSpeed -= decrement;
+	                    } else {
+	                        outdoorSpeed = (positionTracker.IndoorMode ? positionTracker.MinIndoorSpeed : 0.0f);
+	                    }
+	                    break;
+	            }
+				positionTracker.CurrentSpeed = outdoorSpeed;
+	            // update distance travelled
+	            if (positionTracker.Tracking) {
+	                
+	                // extrapolate distance based on last known fix + outdoor speed
+	                // accurate and responsive, but not continuous (i.e. avatar would 
+	                // jump backwards/forwards each time a new fix came in)
+	                positionTracker.ExtrapolatedGpsDistance = positionTracker.GpsDistance
+	                        + outdoorSpeed * (positionTracker.interpolationStopwatch.ElapsedMilliseconds) / 1000.0;
+	                
+	                // calculate the speed we need to move at to make
+	                // distanceTravelled converge with extrapolatedGpsDistance over
+	                // a period of DISTANCE_CORRECTION_MILLISECONDS
+	                double correctiveSpeed = outdoorSpeed + 
+	                        (positionTracker.ExtrapolatedGpsDistance - positionTracker.ElapsedDistance) * 1000.0 / DISTANCE_CORRECTION_MILLISECONDS;
+	                
+	                // increment distance traveled by camera at this new speed
+	                positionTracker.ElapsedDistance += correctiveSpeed * (tickTime - lastTickTime) / 1000.0;
+	                
+	                if (positionTracker.state != lastState) positionTracker.notifyPositionListeners(positionTracker.state);
+	                
+	            }
+	            
+	            lastTickTime = tickTime;
+	        }
+    	}
+
+		
 	}
 	
 
