@@ -54,7 +54,7 @@ public class PlatformDummy : Platform
 	
 	private float oriYaw = 0.0f;
 	private float oriPitch = 0.0f;
-	const float lookSensitivity = 10.0f;
+	const float lookSensitivity = 1.0f;
 	
     public override bool OnGlass()
     {
