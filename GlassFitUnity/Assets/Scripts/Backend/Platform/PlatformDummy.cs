@@ -176,7 +176,7 @@ public class PlatformDummy : Platform
 				
 		
 			if (Application.isPlaying) {
-				db = DatabaseFactory.GetInstance();
+				db = DatabaseFactory.GetWritableInstance();
 				sessionId = Sequence.Next("session", db);
 				MergeGamesList();
 			}

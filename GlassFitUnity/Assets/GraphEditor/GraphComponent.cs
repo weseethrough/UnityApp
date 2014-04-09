@@ -3,26 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 //[ExecuteInEditMode]
-public class GraphComponent : MonoBehaviour
+public class GraphComponent : GraphComponentBase
 {
-    [System.NonSerialized]
-	public GraphData m_graph;
-    public UIAtlas m_defaultHexagonalAtlas;
-    private int selectedFlow = 0;
-    private bool initialize = false;
-
-    private string nextStartNavigateTo = ""; 
+    public UIAtlas m_defaultHexagonalAtlas;    
    
     static private GraphComponent instance;
 
-    public GraphData Data
-    {
-        get
-        {
-            MakeAwake();
-            return m_graph;
-        }
-    }
+    
 
     /// <summary>
     /// 
@@ -37,7 +24,7 @@ public class GraphComponent : MonoBehaviour
     /// 
     /// </summary>
     /// <returns></returns>
-    void MakeAwake()
+    public override void MakeAwake()
     {
         if (!initialize)
         {
@@ -225,7 +212,7 @@ public class GraphComponent : MonoBehaviour
     /// 
     /// </summary>
     /// <returns></returns>
-    public bool GoToFlowStage2()
+    public override bool GoToFlowStage2()
     {        
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;

@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Reflection;
 
 /// <summary>
 /// exit state which is simply blank end. It doesn't have any navigation out connections.
@@ -95,5 +96,25 @@ public class SwitchFlow : FlowState
             Debug.LogError("Dead end start");
         }
         
-    }    
+    }
+
+    public override bool CallStaticFunction(string functionName, FlowButton caller)
+    {
+        MemberInfo[] info = typeof(ButtonFunctionCollection).GetMember(functionName);
+
+        if (info.Length == 1)
+        {
+            System.Object[] newParams = new System.Object[2];
+            newParams[0] = caller;
+            newParams[1] = this;
+            bool ret = (bool)typeof(ButtonFunctionCollection).InvokeMember(functionName,
+                                    BindingFlags.InvokeMethod |
+                                    BindingFlags.Public |
+                                    BindingFlags.Static,
+                                    null, null, newParams);
+            return ret;
+        }
+
+        return true;
+    }
 }

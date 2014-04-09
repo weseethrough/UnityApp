@@ -9,7 +9,7 @@ using System.Reflection;
 /// basic panel which allows to show ui
 /// </summary>
 [Serializable]
-public class Panel : FlowState
+public class Panel : PanelBase
 {
     static public string[] InteractivePrefabs = { "UIComponents/Button",
 												  "MainGUIComponents/ResetGyroButton",
@@ -265,7 +265,7 @@ public class Panel : FlowState
     /// </summary>
     /// <param name="button">button which send this event</param>
     /// <returns></returns>
-    public virtual void OnClick(FlowButton button)
+    public override void OnClick(FlowButton button)
     {        
         if (Outputs.Count > 0 && parentMachine != null)
         {
@@ -288,7 +288,7 @@ public class Panel : FlowState
     /// <param name="button">button which send event</param>
     /// <param name="isDown">is it event on press down ? </param>
     /// <returns></returns>
-    public virtual void OnPress(FlowButton button, bool isDown)
+    public override void OnPress(FlowButton button, bool isDown)
     {
 
     }
@@ -353,7 +353,27 @@ public class Panel : FlowState
         {
             screensDictionary = s.dictionary;
         }
-
+        
         return screensDictionary;
+    }
+
+    public override bool CallStaticFunction(string functionName, FlowButton caller)
+    {
+        MemberInfo[] info = typeof(ButtonFunctionCollection).GetMember(functionName);
+
+        if (info.Length == 1)
+        {
+            System.Object[] newParams = new System.Object[2];
+            newParams[0] = caller;
+            newParams[1] = this;
+            bool ret = (bool)typeof(ButtonFunctionCollection).InvokeMember(functionName,
+                                    BindingFlags.InvokeMethod |
+                                    BindingFlags.Public |
+                                    BindingFlags.Static,
+                                    null, null, newParams);
+            return ret;
+        }
+
+        return true;
     }
 }

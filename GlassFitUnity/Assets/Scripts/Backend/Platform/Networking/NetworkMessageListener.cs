@@ -8,7 +8,7 @@ using SiaqodbUtils;
 public class NetworkMessageListener : MonoBehaviour
 {
     private Log log = new Log("NetworkMessageListener");
-    private Siaqodb db = DatabaseFactory.GetInstance();
+    private Siaqodb db = DatabaseFactory.GetWritableInstance();
 
     // Events
     public delegate void OnAuthenticated(bool success);

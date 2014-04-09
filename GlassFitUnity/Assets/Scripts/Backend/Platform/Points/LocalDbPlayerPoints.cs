@@ -14,7 +14,7 @@ public class LocalDbPlayerPoints : PlayerPoints
     private const int BASE_MULTIPLIER_PERCENT = 25;
     private const long BASE_MULTIPLIER_TIME_THRESH = 8;  // seconds
 	
-	private Siaqodb db = DatabaseFactory.GetInstance();
+	private Siaqodb db = DatabaseFactory.GetWritableInstance();
 	
 	private double _currentActivityPoints = 0;  // floating point to allow incrementing each frame
 	private long _lastTransactionPoints;

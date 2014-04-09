@@ -8,7 +8,7 @@ using SiaqodbUtils;
 public class BluetoothMessageListener : MonoBehaviour
 {
     private Log log = new Log("NetworkMessageListener");
-    private Siaqodb db = DatabaseFactory.GetInstance();
+    private Siaqodb db = DatabaseFactory.GetWritableInstance();
 
     protected void OnBluetoothJson(JSONNode json) {
         UnityEngine.Debug.Log("Platform: OnBluetoothJson"); 

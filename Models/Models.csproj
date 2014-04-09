@@ -35,6 +35,32 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="Blob\Dictionary.cs" />
+    <Compile Include="Blob\Flow\FlowState.cs" />
+    <Compile Include="Blob\Flow\FlowStateMachine.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Blob\Flow\Graph\GConnector.cs" />
+    <Compile Include="Blob\Flow\Graph\GNode.cs" />
+    <Compile Include="Blob\Flow\Graph\GParameter.cs" />
+    <Compile Include="Blob\Flow\Graph\GraphData.cs" />
+    <Compile Include="Blob\Flow\Graph\GStyle.cs" />
+    <Compile Include="Blob\Flow\Graph\UISerialization\SerializableSettings.cs" />
+    <Compile Include="Blob\Flow\Graph\UISerialization\SerializableTransform.cs" />
+    <Compile Include="Blob\Flow\Graph\UISerialization\SerializedNode.cs" />
+    <Compile Include="Blob\Flow\Graph\UISerialization\SingleComponent.cs" />
+    <Compile Include="Blob\Flow\Graph\UISerialization\UIComponentSettings.cs" />
+    <Compile Include="Blob\Flow\PanelBase.cs" />
+    <Compile Include="Blob\Flow\Utils\FlowPanelComponent.cs" />
+    <Compile Include="Blob\Flow\Utils\HexButtonData.cs" />
+    <Compile Include="Blob\Flow\Utils\ListButtonData.cs" />
+    <Compile Include="Blob\PersistentData.cs" />
+    <Compile Include="DBTools\DatabaseFactory.cs" />
+    <Compile Include="NonSerializable\DataVault.cs" />
+    <Compile Include="NonSerializable\FlowButton.cs" />
+    <Compile Include="NonSerializable\GraphComponentBase.cs" />
+    <Compile Include="NonSerializable\StartBase.cs" />
+    <Compile Include="NonSerializable\UISerializable.cs" />
     <Compile Include="Tests\JsonTests.cs" />
     <Compile Include="Models\Action.cs" />
     <Compile Include="Models\Cache.cs" />

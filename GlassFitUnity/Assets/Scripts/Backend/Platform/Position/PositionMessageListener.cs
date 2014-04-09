@@ -9,7 +9,7 @@ public class PositionMessageListener : MonoBehaviour
 {
 
     private Log log = new Log("PositionMessageListener");
-    private Siaqodb db = DatabaseFactory.GetInstance();
+    private Siaqodb db = DatabaseFactory.GetWritableInstance();
 
     void Awake()
     {
