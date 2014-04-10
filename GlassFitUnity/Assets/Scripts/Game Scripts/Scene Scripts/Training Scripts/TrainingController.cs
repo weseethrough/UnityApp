@@ -17,23 +17,9 @@ public class TrainingController : TargetController {
 	
 	
 	public override void Start () {
-		// Set the attributes and get the animator
-		SetAttribs(20, 135, -254.6f, 100);
-		anim = GetComponent<Animator>();
+		UnityEngine.Debug.LogError("Using deprecated class. Refactor required.");
 	}
-	
-	public override void OnEnable() {
-		// Set the attributes
-		SetAttribs(20, 135, -254.6f, 100);
-		anim.speed = 0.5f;
-//		target = Platform.Instance.CreateTargetTracker(2.2f);
-	}
-	
-	public override void SetSpeed(float speed) {
-		anim.speed = speed / 2.2f;
-//		target = Platform.Instance.CreateTargetTracker(speed);
-	}
-	
+
 	/// <summary>
 	/// Sets the move boolean so that the avatar gets in the correct position.
 	/// </summary>
@@ -53,7 +39,6 @@ public class TrainingController : TargetController {
 			// Make the avatar run to the starting line.
 			if(zMove > 0.0f) {
 				zMove -= Time.deltaTime * 5.0f;			
-				SetAttribs(zMove, 135, -254.6f, 100);
 			}
 			
 			// Get the current target speed.

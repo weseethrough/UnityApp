@@ -19,9 +19,7 @@ public class SensoriaGame : MonoBehaviour {
 		TargetTracker tracker = Platform.Instance.CreateTargetTracker(targSpeed);
 		
 		TargetController controller = runnerHolder.GetComponent<TargetController>();
-		controller.SetTracker(tracker);
-		controller.SetLane(1);
-		
+
 		Platform.Instance.LocalPlayerPosition.StartTrack();
 	}
 	

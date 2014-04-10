@@ -10,15 +10,10 @@ public class DemoController : TargetController {
 	// Use this for initialization
 	public override void Start () {
 		//target = Platform.Instance.getTargetTracker();
-		base.SetAttribs(0, 135, -254.6f, 50);
-		anim = GetComponent<Animator>();
-		
+		UnityEngine.Debug.LogError("Using deprecated class. Refactor required.");
+
 	}
-	
-	public override void OnEnable() {
-		//base.OnEnable();
-		base.SetAttribs(0, 135, -254.6f, 50);
-	}
+
 	
 	public override void Update () {
 //		if (target == null) return;

@@ -47,19 +47,16 @@ public class BoulderController : TargetController {
 	/// </summary>
 	public override void Start () {
 		// Set attributes and initial rotation.
-		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 		xRot = 0;
 	}
 	
 	/// <summary>
 	/// Sets the attributes
 	/// </summary>
-	public override void OnEnable() 
+	public void OnEnable() 
 	{
 		// Enable the object and set attributes.
-		base.OnEnable();
 		Reset();
-		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 	}
 	
 	/// <summary>

@@ -4,6 +4,8 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 
+// NOTE this class won't currently work. Refactor required to use position controller - AH
+
 /// <summary>
 /// Controls the eagle's movement and sound
 /// </summary>
@@ -26,6 +28,7 @@ public class EagleController : TargetController {
 	/// Start this instance. Initialises attributes and animation
 	/// </summary>
 	public override void Start () {
+		UnityEngine.Debug.LogError("Using deprecated class. Refactor required.");
 		// Start the base and get the animator.
 		base.Start();
 		anim = GetComponent<Animator>();
@@ -36,16 +39,6 @@ public class EagleController : TargetController {
 		// Get the audiosource.
 		screech = GetComponent<AudioSource>();
 		//StartCoroutine(FlyingMovement(20));
-	}
-	
-	/// <summary>
-	/// Raises the enable event. Sets the attributes
-	/// </summary>
-	public override void OnEnable() {
-		// Enable the base and set the attributes
-		base.OnEnable();
-		//StartCoroutine(FlyingMovement(20));
-		SetAttribs(50, 135, 2092, 0);
 	}
 	
 	/// <summary>

@@ -20,55 +20,11 @@ public class TargetController : RYWorldObject {
 	public virtual void Start () {
 		base.Start();
 	}
-	
-	// TODO:
-	// Set tracker on Instantiate
-	// Set index/lane 
-	// Only poll once
-	
-	public virtual void OnEnable() {
-		UnityEngine.Debug.Log("Target: Just been enabled");
-	}
-	
-	public void SetTracker(TargetTracker tracker) {
-//		target = tracker;
-//		if(target != null) {
-//			UnityEngine.Debug.Log("Target: linked to tracker: " + target.ToString());
-//		}	
-	}
-
-	public virtual void SetHeadstart(float dist)
-	{
-		
-	}
 
 	public void SetLane(int lane) {
 		this.lane = lane;
 	}
-	
-	public void IncreaseOffset() 
-	{
-		UnityEngine.Debug.LogWarning("TargetController: call to deprecated method IncreaseOffset(). Use World Position instead");
-//		distanceOffset += 50f;
-	}
-	
-	public void SetAttribs(float offset, float speed, float yDist, float xDist) {
-//		distanceOffset = offset;
-//		travelSpeed = speed;
-//		height = yDist;
-//		xOffset = xDist*(lane*lanePitch); // TODO: parent.gameObject.width?
-		UnityEngine.Debug.LogWarning("TargetController: call to deprecated method SetAttribs(). Use SetWorldPos/Vel instead");
-	}
-	
-	public virtual void SetSpeed(float f) {
-#if UNITY_ANDROID
-		if(target is FauxTargetTracker) {
-			UnityEngine.Debug.Log("TargetController: Setting Target speed");
-			((FauxTargetTracker)target).SetTargetSpeed(f);
-		}
-#endif
-	}
-	
+
 	// Update is called once per frame
 	public virtual void Update () {
 		base.Update();
@@ -81,20 +37,7 @@ public class TargetController : RYWorldObject {
 	/// <returns>
 	/// The distance behind target.
 	/// </returns>
-	public virtual double GetDistanceBehindTarget()
-	{
-//		if(target != null)
-//		{
-//			return target.GetDistanceBehindTarget();
-//		}
-//		else
-//		{
-//			//probably means we're in the editor
-//			return Platform.Instance.DistanceBehindTarget();
-//		}
 
-		return realWorldPos.z - Platform.Instance.LocalPlayerPosition.Distance;
-	}
 	
 	protected GUIStyle getLabelStylePace()
 	{

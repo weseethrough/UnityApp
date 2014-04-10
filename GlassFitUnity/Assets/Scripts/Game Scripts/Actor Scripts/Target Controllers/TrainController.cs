@@ -16,17 +16,8 @@ public class TrainController : TargetController {
 	public override void Start () {
 		// Set the base and initial attributes.
 		base.Start();
-		SetAttribs(50, 135, -300, 103.8f);
 	}
-	
-	/// <summary>
-	/// Raises the enable event. Sets the attributes
-	/// </summary>
-	public override void OnEnable() {
-		// Enable the base and set the attributes.
-		base.OnEnable();
-		SetAttribs(50, 135, -300, 103.8f);
-	}
+
 	
 	/// <summary>
 	/// Update this instance.

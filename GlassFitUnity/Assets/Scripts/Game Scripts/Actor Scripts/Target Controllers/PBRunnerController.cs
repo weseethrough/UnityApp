@@ -11,11 +11,6 @@ public class PBRunnerController : TargetController {
 	// Use this for initialization
 	public override void Start () {
 		base.Start();	
-	}
-	
-	public override void OnEnable() {
-		base.OnEnable();
-
 		anim = GetComponent<Animator>();
 		anim.SetFloat("Speed", realWorldMovementSpeed);
 		if(realWorldMovementSpeed > 2.2f && realWorldMovementSpeed < 4.0f) {
@@ -26,7 +21,7 @@ public class PBRunnerController : TargetController {
 			anim.speed = realWorldMovementSpeed / 1.0f;
 		}
 	}
-	
+
 	public override void Update () {	
 		//UnityEngine.Debug.Log("PBRunnerController: This is a PB Runner");
 		base.Update();
