@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class ChallengeGame : GameBase {
 	
-	public GameObject runnerHolder;
+	public RYWorldObject runnerHolder;
 	
 	// Use this for initialization
 	public override void Start () {
@@ -23,10 +23,12 @@ public class ChallengeGame : GameBase {
 		
 		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
 		int lane = 1;
+		Vector3 newRunnerPos;
+
 		foreach (TargetTracker tracker in trackers) {
-			TargetController controller = runnerHolder.GetComponent<TargetController>();
-			controller.SetTracker(tracker);
-			controller.SetLane(lane++);
+			TargetTrackerPositionController controller = runnerHolder.GetComponent<TargetTrackerPositionController>();
+			controller.tracker = tracker;
+			//runnerHolder.SetLane(lane++);
 		}
 		
 		SetVirtualTrackVisible(true);

@@ -48,9 +48,6 @@ public class GameBase : MonoBehaviour {
 	// Selected Track
 	public Track selectedTrack = null;
 	
-	// Target speed
-	public float targSpeed = 1.8f;
-	
 	protected GestureHelper.OnTap tapHandler = null;
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
 	protected GestureHelper.OnBack backHandler = null;

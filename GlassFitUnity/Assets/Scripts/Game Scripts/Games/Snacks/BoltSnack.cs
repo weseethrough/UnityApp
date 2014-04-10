@@ -11,19 +11,15 @@ public class BoltSnack : SnackBase {
 	
 	// Boolean to check if the player has finished the race
 	private bool playerFinished = false;
-	
-	// Boolean to check if the banner is being displayed
-	private bool displayingBanner = false;
-	
+
 	// The start time for the player
 	private long startTime = 0;
 	
 	// The end time for the player
 	private long finalTime = 0;
 	
-	StadiumController stadiumController;
-	
-	StadiumController finishController;
+	RYWorldObject stadiumObject;
+	RYWorldObject finishLineObject;
 	
 	private int boltLevel = 0;
 	
@@ -31,34 +27,10 @@ public class BoltSnack : SnackBase {
 	public override void Start () {
 		base.Start();
 		
-		GameObject stadium = GameObject.Find("Stadium");
-		if(stadium != null)
-		{
-			stadiumController = stadium.GetComponent<StadiumController>();
-			if(stadiumController == null)
-			{
-				UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController");
-			}
-		}
-		else
-		{
-			UnityEngine.Debug.Log("BoltSnack: couldn't find Stadium object");
-		}
-		
-		stadium = GameObject.Find("Finish Line");
-		if(stadium != null)
-		{
-			finishController = stadium.GetComponent<StadiumController>();
-			if(finishController == null)
-			{
-				UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController");
-			}
-		}
-		else
-		{
-			UnityEngine.Debug.Log("BoltSnack: couldn't find Stadium object");
-		}
-		
+		stadiumObject = (RYWorldObject)GameObject.Find("Stadium").GetComponent<RYWorldObject>();
+		finishLineObject = (RYWorldObject)GameObject.Find("Finish Line").GetComponent<RYWorldObject>();
+		stadiumObject.setScenePositionFrozen(true);
+		finishLineObject.setScenePositionFrozen(true);
 		boltLevel = (int)DataVault.Get("bolt_level");
 	}
 	
@@ -70,7 +42,7 @@ public class BoltSnack : SnackBase {
 		if(bolt != null && bolt.enabled)
 		{
 			// Update the ahead/behind
-			UpdateAhead(bolt.GetDistanceBehindTarget());
+			UpdateAhead(bolt.getWorldObject().GetDistanceBehindTarget());
 			
 			// If bolt has finished the race
 			if(bolt.GetBoltDistanceTravelled() >= 100 && !boltFinished)
@@ -90,7 +62,7 @@ public class BoltSnack : SnackBase {
 			// If the player finishes the race
 			if(bolt.GetPlayerDistanceTravelled() >= 100 && !playerFinished)
 			{
-				// If they finish before Bolt (unlikely)
+				// If they finish before the opponent
 				if(!boltFinished) {
 					// Set the attributes and show the banner
 					DataVault.Set("death_colour", "12D400FF");
@@ -129,15 +101,17 @@ public class BoltSnack : SnackBase {
 	{
 		// Show the player's time for 5 seconds
 		DataVault.Set("countdown_subtitle", "100m time: " + finalTime / 1000 + " seconds");
-		if(stadiumController != null)
+		if(stadiumObject != null)
 		{
-			stadiumController.ShouldMove(false);
+			stadiumObject.setScenePositionFrozen(true);
 		}
 		
-		if(finishController != null)
+		if(finish != null)
 		{
-			finishController.ShouldMove(false);
+			finishLineObject.setScenePositionFrozen(true);
 		}
+
+		bolt.getWorldObject().setScenePositionFrozen(true);
 		
 		yield return new WaitForSeconds(5.0f);
 		DataVault.Set("countdown_subtitle", "");
@@ -189,25 +163,11 @@ public class BoltSnack : SnackBase {
 		}
 		//start the game
 		DataVault.Set("countdown_subtitle", " ");
-		
-		if(stadiumController != null)
-		{
-			stadiumController.ShouldMove(true);
-		}
-		else
-		{
-			UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController on stadium");
-		}
-		
-		if(finishController != null)
-		{
-			finishController.ShouldMove(true);
-		}
-		else
-		{
-			UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController on finish line");
-		}
-		
+
+		float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
+		stadiumObject.setScenePositionFrozen(false);
+		finishLineObject.setScenePositionFrozen(false);
+
 		StartRace();
 	}
 	

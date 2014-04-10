@@ -49,6 +49,8 @@ public class RaceGame : GameBase {
 
 	public GameObject opponent;
 
+	private float targSpeed;
+
 	public override void Start () {
 		base.Start();
 		

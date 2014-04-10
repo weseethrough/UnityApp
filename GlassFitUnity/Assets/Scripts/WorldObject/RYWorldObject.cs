@@ -9,6 +9,7 @@ public class RYWorldObject : MonoBehaviour {
 	/// The movement speed for use in calculating any speed-dependent behaviour. Not used in updating the position.
 	/// </summary>
 	protected float realWorldMovementSpeed = 0.0f;
+	protected bool scenePosIsFrozen = false;
 
 	// Use this for initialization
 	protected virtual void Start () {
@@ -18,9 +19,16 @@ public class RYWorldObject : MonoBehaviour {
 	
 	// Update is called once per frame
 	protected virtual void Update () {
-		//assume 1D for now, so just update distance
-		float sceneZ = realWorldPos.z - (float)Platform.Instance.LocalPlayerPosition.Distance;
-		transform.position = new Vector3(realWorldPos.x, realWorldPos.y, sceneZ);
+		if(!scenePosIsFrozen)
+		{
+			//assume 1D for now, so just update distance
+			float sceneZ = realWorldPos.z - (float)Platform.Instance.LocalPlayerPosition.Distance;
+			transform.position = new Vector3(realWorldPos.x, realWorldPos.y, sceneZ);
+		}
+		else
+		{
+			//update the real world pos
+		}
 	}
 
 	/// <summary>
@@ -54,5 +62,26 @@ public class RYWorldObject : MonoBehaviour {
 	public void setRealWorldSpeed(float speed)
 	{
 		realWorldMovementSpeed = speed;
+	}
+
+	public virtual double GetDistanceBehindTarget()
+	{
+		return realWorldPos.z - Platform.Instance.LocalPlayerPosition.Distance;
+	}
+
+	/// <summary>
+	/// Sets whether the object's position should be updated.
+	/// </summary>
+	/// <param name="frozen">If set to <c>true</c> the object will no longer update its scene position based on changes to its own world position, or the player's world position.</param>
+	public void setScenePositionFrozen(bool frozen)
+	{
+		//if we're unfreezing, then jump the world position to maintain current scene position
+		if(scenePosIsFrozen && !frozen)
+		{
+			realWorldPos.z = (float)Platform.Instance.LocalPlayerPosition.Distance + transform.position.z;
+		}
+
+		//set the flag
+		scenePosIsFrozen = frozen;
 	}
 }
