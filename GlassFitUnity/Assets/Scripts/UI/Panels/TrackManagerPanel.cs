@@ -57,7 +57,7 @@ public class TrackManagerPanel : MultiPanel {
 		tapHandler = new GestureHelper.OnTap(() => {
 			SetTrack();
 		});
-		//GestureHelper.onTap += tapHandler;
+		GestureHelper.onTap += tapHandler;
 
 		backHandler = new GestureHelper.OnBack(() => {
 			OnBack();
