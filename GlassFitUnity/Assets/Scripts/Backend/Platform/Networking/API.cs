@@ -453,7 +453,6 @@ namespace RaceYourself
 			public List<Models.Device> devices;
 			public List<Models.Track> tracks;
 			public List<Models.Position> positions;
-			public List<Models.Orientation> orientations;
 			public List<Models.Notification> notifications;
 			public List<Models.Transaction> transactions;
 			public List<Models.Action> actions;
@@ -463,7 +462,6 @@ namespace RaceYourself
 				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
 				tracks = new List<Models.Track>(db.Cast<Models.Track>().Where<Models.Track>(t => t.dirty == true));
 				positions = new List<Models.Position>(db.Cast<Models.Position>().Where<Models.Position>(p => p.dirty == true));
-				orientations = new List<Models.Orientation>(db.Cast<Models.Orientation>().Where<Models.Orientation>(o => o.dirty == true));
 				notifications = new List<Models.Notification>(db.Cast<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
 				transactions = new List<Models.Transaction>(db.Cast<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
 				actions = new List<Models.Action>(db.LoadAll<Models.Action>());
@@ -475,9 +473,6 @@ namespace RaceYourself
 				}
 				foreach (Models.Position pos in positions) {
 					pos.deviceId = self.id;
-				}
-				foreach (Models.Orientation o in orientations) {
-					o.deviceId = self.id;
 				}
 				foreach (Models.Event e in events) {
 					e.deviceId = self.id;
@@ -510,17 +505,6 @@ namespace RaceYourself
 					p.dirty = false;
 					p.GenerateCompositeId(); 
 					db.StoreObject(p); // Store non-transient object by OID
-					updates++;
-				}
-				foreach (Models.Orientation o in orientations) {
-					if (o.deleted_at.HasValue) {
-						db.Delete(o);
-						deletes++;
-						continue;
-					}
-					o.dirty = false;
-					o.GenerateCompositeId(); 
-					db.StoreObject(o); // Store non-transient object by OID
 					updates++;
 				}
 				foreach (Models.Notification n in notifications) {
@@ -557,7 +541,6 @@ namespace RaceYourself
 				return (LengthOrNull(devices) + " devices, "
 						+ LengthOrNull(tracks) + " tracks, "
 						+ LengthOrNull(positions) + " positions, "
-						+ LengthOrNull(orientations) + " orientations, "
 						+ LengthOrNull(notifications) + " notifications, "
 						+ LengthOrNull(transactions) + " transactions, "
 						+ LengthOrNull(actions) + " actions, "
@@ -581,7 +564,6 @@ namespace RaceYourself
 			public List<Models.Challenge> challenges;
 			public List<Models.Track> tracks;
 			public List<Models.Position> positions;
-			public List<Models.Orientation> orientations;
 			public List<Models.Notification> notifications;
 			public List<Models.Transaction> transactions;
 			
@@ -596,7 +578,6 @@ namespace RaceYourself
 						+ LengthOrNull(challenges) + " challenges, "
 						+ LengthOrNull(tracks) + " tracks, "
 						+ LengthOrNull(positions) + " positions, "
-						+ LengthOrNull(orientations) + " orientations, "
 						+ LengthOrNull(notifications) + " notifications, "
 						+ LengthOrNull(transactions) + " transactions, "
 						+ LengthOrNull(errors) + " errors");
@@ -684,22 +665,6 @@ namespace RaceYourself
 						} else updates++;
 					}
 					db.EndBulkInsert(typeof(Models.Position));
-				}
-				
-				if (orientations != null) {
-					db.StartBulkInsert(typeof(Models.Orientation));
-					foreach (Models.Orientation orientation in orientations) {
-						orientation.GenerateCompositeId();
-						if (orientation.deleted_at != null) {
-							if (db.DeleteObjectBy("id", orientation)) deletes++;
-							continue;
-						}							
-						if (!db.UpdateObjectBy("id", orientation)) {
-							db.StoreObject(orientation);
-							inserts++;
-						} else updates++;
-					}
-					db.EndBulkInsert(typeof(Models.Orientation));
 				}
 				
 				if (notifications != null) {
