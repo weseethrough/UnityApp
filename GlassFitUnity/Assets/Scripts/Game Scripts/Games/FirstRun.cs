@@ -12,26 +12,12 @@ public class FirstRun : GameBase {
 	private bool runReadyToStart = false;
 	private PositionController runnerController;
 	public TargetController runnerObj;
-	private float runnerHeadStartDist = 20.0f;
-	
-	public new Camera camera;
-	//const float paceLabelYOffsetScreen = 0.0f;
-	//const float paceLabelYOffsetWorld = 300.0f;
-	
-	bool shouldShowPaceLabels = false;
-	const float showLabelMinRange = 0.1f;
-	const float showLabelMaxRange = 500.0f;
-	
+
 	private bool indoorRaceYourself = false;
-	
 	private bool indoorComplete = false;
-	
 	private AudioSource chime;
-	
-	//public UINavProgressBar progressBar;
-	
-	bool hasResetGyros = false;  // possibly not needed? remove?
-	
+	private int numLaps = 0;
+
 	// Use this for initialization
 	public override void Start () {
 
@@ -39,38 +25,18 @@ public class FirstRun : GameBase {
 		{
 			runnerObj.GetComponent<FirstRaceOpponenet>().enabled = false;
 			runnerObj.GetComponent<FirstRaceIndoorOpponent>().enabled = false;
-			
+
 		}
 		
 		base.Start ();
 				
 		UnityEngine.Debug.Log("FirstRun: Start");
-		
-		//hide virtual track to begin with
-		//SetVirtualTrackVisible(false);
-		//SetRunnerVisible(true);
-		
-		//create target trackers for a few different paces
+
 		float fInterval = (MAX_PACE - MIN_PACE) / NUM_PACES;
 		
 		Platform.Instance.ResetTargets();
 				
 		chime = GetComponent<AudioSource>();
-//		for(float TotalTimePace = 2.0f; TotalTimePace <= 10.0f; TotalTimePace += 1.0f)
-//		{
-//			float TotalSeconds = TotalTimePace * 60;	
-//			
-//			float speed = finish/TotalSeconds;
-//			
-//			TargetTracker tracker = Platform.Instance.CreateTargetTracker(speed);
-//		}
-		
-		
-		
-		//create actors for each target tracker
-		//InstantiateActors();
-		
-		//SetReadyToStart(true);
 	}
 	
 	protected override void OnEnterState(string state)
@@ -88,7 +54,9 @@ public class FirstRun : GameBase {
 			
 		if(Platform.Instance.LocalPlayerPosition.IsIndoor())
 			{
-				runnerController = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
+				FirstRaceIndoorOpponent indoorOpponent = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
+				indoorOpponent.setGame(this);
+				runnerController = indoorOpponent;
 				UnityEngine.Debug.Log("FirstRun: runner is indoor opponent");
 				//runnerObj.GetComponent<FirstRaceOpponenet>().enabled = false;
 			}
@@ -114,72 +82,42 @@ public class FirstRun : GameBase {
 	
 	// Update is called once per frame
 	public override void Update () {
-		
 		base.Update();
-		
-		if(runReadyToStart)
+	}
+
+	public void onLapComplete()
+	{
+		numLaps++;
+		//show appropriate notification
+		if(numLaps == 1)
 		{
-			if(runnerController is FirstRaceIndoorOpponent) {
-				double distance = Platform.Instance.LocalPlayerPosition.Distance;
-				
-				if(distance > 50 && distance < 100)
-				{
-					if(!indoorRaceYourself)
-					{
-						indoorRaceYourself = true;
-						FlowState fs = FlowStateMachine.GetCurrentFlowState();
-						GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceIndoorExit");
-						if(gConnect != null)
-						{
-							if(chime != null)
-							{
-								chime.Play();
-							}
-							fs.parentMachine.FollowConnection(gConnect);
-							StartCoroutine(GoBack());
-						}
-						else
-						{
-							UnityEngine.Debug.Log("FirstRun: couldn't find " + gConnect.Name);
-						}
-						runnerObj.setRealWorldDist((float)Platform.Instance.LocalPlayerPosition.Distance);
-						//(runner as FirstRaceIndoorOpponent).SetRunnerSpeed();
-					}
-				}
-				else if(distance > 100)
-				{
-					if(!indoorComplete)
-					{
-						indoorComplete = true;
-						
-						FlowState fs = FlowStateMachine.GetCurrentFlowState();
-						GConnector gConnect = fs.Outputs.Find(r => r.Name == "IndoorCompleteExit");
-						if(gConnect != null)
-						{
-							if(runnerObj.GetDistanceBehindTarget() > 0)
-							{
-								DataVault.Set("first_result", "You Won!");
-							}
-							else
-							{
-								DataVault.Set("first_result", "You Lost");
-							}
-							DataVault.Set("first_desc", "Now try again!");
-							if(chime != null)
-							{
-								chime.Play();
-							}
-							fs.parentMachine.FollowConnection(gConnect);
-							StartCoroutine(GoBack());
-						}
-						else
-						{
-							UnityEngine.Debug.Log("FirstRun: couldn't find " + gConnect.Name);
-						}
-					}
-				}
-			}
+			FlowState.FollowFlowLinkNamed("RaceIndoorExit");
+			StartCoroutine(GoBack());
 		}
+		else
+		{
+			FlowState.FollowFlowLinkNamed("IndoorCompleteExit");
+			if(runnerObj.GetDistanceBehindTarget() < 0)
+			{
+				DataVault.Set("first_result", "You Won!");
+			}
+			else
+			{
+				DataVault.Set("first_result", "You Lost");
+			}
+			DataVault.Set("first_desc", "Now try again!");
+			StartCoroutine(GoBack());
+		}
+
+		//chime
+		if(chime != null)
+		{
+			chime.Play();
+		}
+
+		//reset runner position to player's current pos
+		runnerObj.setRealWorldDist((float)Platform.Instance.LocalPlayerPosition.Distance);
+
 	}
 	
 	protected override double GetDistBehindForHud ()
@@ -197,34 +135,6 @@ public class FirstRun : GameBase {
 	{
 		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 		return fs.Outputs.Find(r => r.Name == "FinishButton");
-		
 	}
-
-//	private void InstantiateActors() {
-//		//create an actor for each active target tracker
-//		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
-//		int lane = 1;
-//		foreach (TargetTracker tracker in trackers) {
-//			GameObject actor = Instantiate(runner) as GameObject;
-//			TargetController controller = actor.GetComponent<TargetController>();
-//			controller.SetLane(1);
-//			controller.SetTracker(tracker);
-//			controller.SetLane(lane++);
-//			//actor.SetActive(true);
-//			actors.Add(actor);
-//			
-//			//determine pace and set string
-//			float speed = tracker.PollCurrentSpeed();
-//			long totalTime = (long)((float)finish/speed)*1000;
-//			//UnityEngine.Debug.Log("FirstRun: Speed = " + speed);
-//			//UnityEngine.Debug.Log("FirstRun: totalTime = " + totalTime);
-//			string paceString = TimestampMMSSFromMS(totalTime) + "min/km";
-//			//UnityEngine.Debug.Log("FirstRun: pace = " + paceString);
-//			controller.overheadLabelString = paceString;
-//		}
-//		
-//	}
-	
-		
 		
 }

@@ -10,17 +10,13 @@ public class FirstRaceIndoorOpponent : ConstantVelocityPositionController {
 	private float intervalStartTime = 0.0f;
 	
 	private float distanceFromStart = 0;
-	
-	private bool notVisible = true;
-	
-	private Animator anim;
-	
-	private float currentSpeed = 0.0f;
-	
 	private double lastDistance = 0.0;
-	
+
+	protected FirstRun game = null;
+
 	// Use this for initialization
 	public override void Start () {
+		base.Start();
 	}
 	
 	// Update is called once per frame
@@ -32,11 +28,15 @@ public class FirstRaceIndoorOpponent : ConstantVelocityPositionController {
 		{
 			SetRunnerSpeed();
 			distanceInterval += 50f;
+
+			//notify main game
+			if(game != null)
+			{
+				game.onLapComplete();
+			}
 		}
-		
-		SetAnimSpeed(currentSpeed);
-		
-		distanceFromStart += Time.deltaTime * currentSpeed;
+
+		distanceFromStart += Time.deltaTime * velocity.z;
 		
 		base.Update();
 	}
@@ -52,30 +52,19 @@ public class FirstRaceIndoorOpponent : ConstantVelocityPositionController {
 		
 		float newSpeed = (float)newDistance/intervalTotalTime;
 		
-		if(newSpeed > currentSpeed)
+		if(newSpeed > velocity.z)
 		{
-			currentSpeed = newSpeed;
+			velocity.z = newSpeed;
 		}
 		
 		lastDistance = currentDistance;
 		intervalStartTime = currentTime;
 		
-		UnityEngine.Debug.Log("IndoorOpponent: speed is " + currentSpeed.ToString("f2"));
+		UnityEngine.Debug.Log("IndoorOpponent: speed is " + velocity.z.ToString("f2"));
 	}
 	
-	void SetAnimSpeed(float speed)
+	public void setGame(FirstRun mainGame)
 	{
-		//pick appropriate anim speed based on our movement speed.
-		//UnityEngine.Debug.Log("FirstRace: speed is " + speed.ToString("f2"));
-		anim.SetFloat("Speed", speed);
-		if(speed > 2.2f && speed < 4.0f) {
-			anim.speed = speed / 2.2f;
-		} else if(speed > 4.0f) {
-			anim.speed = Mathf.Clamp(speed / 4.0f, 1, 2);
-		} else if(speed > 0) {
-			anim.speed = speed / 1.25f;
-		} else {
-			anim.speed = 1f;
-		}
+		game = mainGame;
 	}
 }
