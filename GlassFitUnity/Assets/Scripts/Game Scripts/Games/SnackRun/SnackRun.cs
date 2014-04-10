@@ -48,7 +48,6 @@ public class SnackRun : GameBase {
 		if(minigameToken != null)
 		{ 
 			minigameToken.setRealWorldDist(nextSnackDistance); 
-			UnityEngine.Debug.LogError("set mini game token pos");
 		}
 	}
 

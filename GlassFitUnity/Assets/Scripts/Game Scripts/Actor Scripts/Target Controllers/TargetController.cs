@@ -88,10 +88,12 @@ public class TargetController : RYWorldObject {
 //			return target.GetDistanceBehindTarget();
 //		}
 //		else
-		{
-			//probably means we're in the editor
-			return Platform.Instance.DistanceBehindTarget();
-		}
+//		{
+//			//probably means we're in the editor
+//			return Platform.Instance.DistanceBehindTarget();
+//		}
+
+		return realWorldPos.z - Platform.Instance.LocalPlayerPosition.Distance;
 	}
 	
 	protected GUIStyle getLabelStylePace()

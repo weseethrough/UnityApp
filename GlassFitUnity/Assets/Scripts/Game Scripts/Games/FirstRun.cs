@@ -10,8 +10,8 @@ public class FirstRun : GameBase {
 	const int NUM_PACES = 6;
 	
 	private bool runReadyToStart = false;
-	private TargetController runner;		//a runner object. This will be cloned around for various benchmark paces.
-	public GameObject runnerObj;
+	private PositionController runnerController;
+	public TargetController runnerObj;
 	private float runnerHeadStartDist = 20.0f;
 	
 	public new Camera camera;
@@ -73,12 +73,6 @@ public class FirstRun : GameBase {
 		//SetReadyToStart(true);
 	}
 	
-	protected void SetRunnerVisible(bool visible)
-	{
-		runnerObj.SetActive(visible);	
-	}
-
-	
 	protected override void OnEnterState(string state)
 	{
 		base.OnEnterState(state);	
@@ -94,22 +88,16 @@ public class FirstRun : GameBase {
 			
 		if(Platform.Instance.LocalPlayerPosition.IsIndoor())
 			{
-				runner = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
+				runnerController = runnerObj.GetComponent<FirstRaceIndoorOpponent>();
 				UnityEngine.Debug.Log("FirstRun: runner is indoor opponent");
 				//runnerObj.GetComponent<FirstRaceOpponenet>().enabled = false;
 			}
 			else
 			{
-				runner = runnerObj.GetComponent<FirstRaceOpponenet>();
+				runnerController = runnerObj.gameObject.GetComponent<FirstRaceOpponenet>();
 				//runnerObj.GetComponent<FirstRaceIndoorOpponent>().enabled = false;
 			}
-			runner.enabled = true;
-			
-			if(runner is FirstRaceOpponenet) {
-				runner.SetHeadstart(20.0f);
-			}else if(runner is FirstRaceIndoorOpponent){
-				runner.SetHeadstart(50.0f);
-			}
+			runnerController.enabled = true;
 			
 			SetVirtualTrackVisible(true);
 			break;
@@ -131,7 +119,7 @@ public class FirstRun : GameBase {
 		
 		if(runReadyToStart)
 		{
-			if(runner is FirstRaceIndoorOpponent) {
+			if(runnerController is FirstRaceIndoorOpponent) {
 				double distance = Platform.Instance.LocalPlayerPosition.Distance;
 				
 				if(distance > 50 && distance < 100)
@@ -154,7 +142,7 @@ public class FirstRun : GameBase {
 						{
 							UnityEngine.Debug.Log("FirstRun: couldn't find " + gConnect.Name);
 						}
-						runner.SetHeadstart((float)Platform.Instance.LocalPlayerPosition.Distance);
+						runnerObj.setRealWorldDist((float)Platform.Instance.LocalPlayerPosition.Distance);
 						//(runner as FirstRaceIndoorOpponent).SetRunnerSpeed();
 					}
 				}
@@ -168,7 +156,7 @@ public class FirstRun : GameBase {
 						GConnector gConnect = fs.Outputs.Find(r => r.Name == "IndoorCompleteExit");
 						if(gConnect != null)
 						{
-							if(runner.GetDistanceBehindTarget() < 0)
+							if(runnerObj.GetDistanceBehindTarget() > 0)
 							{
 								DataVault.Set("first_result", "You Won!");
 							}
@@ -196,8 +184,8 @@ public class FirstRun : GameBase {
 	
 	protected override double GetDistBehindForHud ()
 	{
-		if(runner != null) {
-			return runner.GetDistanceBehindTarget();
+		if(runnerController != null) {
+			return runnerObj.GetDistanceBehindTarget();
 		}
 		else
 		{

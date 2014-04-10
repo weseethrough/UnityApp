@@ -8,7 +8,6 @@ public class MinigameToken : RYWorldObject {
 	// Use this for initialization
 	void Start () {
 		base.Start();
-		UnityEngine.Debug.LogError("minigame token start");
 	}
 	
 	// Update is called once per frame

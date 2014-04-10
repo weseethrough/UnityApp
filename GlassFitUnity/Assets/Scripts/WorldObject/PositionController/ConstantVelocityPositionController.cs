@@ -6,12 +6,12 @@ public class ConstantVelocityPositionController : PositionController {
 	public Vector3 velocity;
 
 	// Use this for initialization
-	void Start () {
+	public override void Start () {
 		base.Start();
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	public override void Update () {
 		//only update positions if we're currently tracking
 		if(!Platform.Instance.LocalPlayerPosition.IsTracking)
 		{ return; }

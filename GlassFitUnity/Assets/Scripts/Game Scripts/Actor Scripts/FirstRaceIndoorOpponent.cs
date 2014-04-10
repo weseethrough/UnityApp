@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class FirstRaceIndoorOpponent : TargetController {
+public class FirstRaceIndoorOpponent : ConstantVelocityPositionController {
 	
 	private double playerDistance = 0f;
 	private float playerSpeed = 0f;
@@ -21,16 +21,6 @@ public class FirstRaceIndoorOpponent : TargetController {
 	
 	// Use this for initialization
 	public override void Start () {
-		anim = GetComponent<Animator>();
-		//renderer.enabled = false;
-		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
-	}
-	
-	public override void OnEnable()
-	{
-		anim = GetComponent<Animator>();
-		//renderer.enabled = false;
-		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
 	}
 	
 	// Update is called once per frame
@@ -49,24 +39,6 @@ public class FirstRaceIndoorOpponent : TargetController {
 		distanceFromStart += Time.deltaTime * currentSpeed;
 		
 		base.Update();
-	}
-	
-	/// <summary>
-	/// Override base implementation, which queries target tracker.
-	/// </summary>
-	/// <returns>
-	/// The distance behind this target.
-	/// </returns>
-	public override double GetDistanceBehindTarget ()
-	{
-		float relativeDist = distanceFromStart - (float)playerDistance;
-		//UnityEngine.Debug.Log("IndoorOpponent: distance from start is " + distanceFromStart.ToString("f0") + " and player distance is " + playerDistance.ToString("f0"));
-		return relativeDist;
-	}
-	
-	public override void SetHeadstart(float dist) {
-		//headStartDistance = dist;
-		distanceFromStart = dist;	
 	}
 	
 	public void SetRunnerSpeed()
