@@ -14,12 +14,7 @@ public class TrackSelect : MonoBehaviour {
 	
 	// Texture for the line drawing
 	public static Texture2D lineTex;
-	
-	// Tracklist
-	private List<Track> trackList;
-	
-	// Current track to display
-	private int currentTrack = 0;
+
 	Texture2D normal;
 	
 	// Map attributes
@@ -46,101 +41,67 @@ public class TrackSelect : MonoBehaviour {
 	
 	// Texture for the map
 	private UITexture tex;
-	
-	private GestureHelper.OnTap tapHandler = null;
-	
-	private GestureHelper.OnSwipeLeft leftHandler = null;
-	
-	private GestureHelper.OnSwipeRight rightHandler = null;
-	
-	private GestureHelper.OnBack backHandler = null;
-	
+
+	// Textboxes for distance, time and date of track
+	private UIBasiclabel textboxDistance;
+	private UIBasiclabel textboxTime;
+	private UIBasiclabel textboxDate;
+
 	/// <summary>
 	/// Start this instance. Gets the tracklist
 	/// </summary>
 	void Start () {
-		trackList = (List<Track>)DataVault.Get("track_list");
-		UnityEngine.Debug.Log("TrackSelect: There are " + trackList.Count + " tracks");
-		
 		tex = GetComponent<UITexture>();
-		
-		LoadTrack();
-		
-		tapHandler = new GestureHelper.OnTap(() => {
-			UnityEngine.Debug.Log("TrackSelect: setting track");
-			SetTrack();
-		});
-		
-		GestureHelper.onTap += tapHandler;
-		
-		leftHandler = new GestureHelper.OnSwipeLeft(() => {
-			UnityEngine.Debug.Log("TrackSelect: getting previous track");
-			PreviousTrack();
-		});
-		
-		GestureHelper.onSwipeLeft += leftHandler;
-		
-		rightHandler = new GestureHelper.OnSwipeRight(() => {
-			UnityEngine.Debug.Log("TrackSelect: getting next track");
-			NextTrack();
-		});
-		
-		GestureHelper.onSwipeRight += rightHandler;
-		
-		backHandler = new GestureHelper.OnBack(() => {
-			GoBack();
-		});
-		
-		GestureHelper.onBack += backHandler;
 	}
-	
-	public void GoBack() 
-	{
-		FlowState.FollowBackLink();
-		GestureHelper.onTap -= tapHandler;
-		GestureHelper.onSwipeLeft -= leftHandler;
-		GestureHelper.onSwipeRight -= rightHandler;
-		GestureHelper.onBack -= backHandler;
-	}
-	
-	public void NextTrack() 
-	{
-		currentTrack++;
-		if(currentTrack >= trackList.Count)
-		{
-			currentTrack = 0;
+
+	public void SetTestTrack() {
+		if(textboxDistance == null) {
+			UnityEngine.Debug.LogError("TrackSelect: textbox distance is null!");
+			textboxDistance = transform.FindChild("DistanceLabel").GetComponent<UIBasiclabel>();
 		}
+		textboxDistance.SetLabel(UnitsHelper.SiDistanceFull(50));
 		
-		LoadTrack();
-	}
-	
-	public void PreviousTrack()
-	{
-		currentTrack--;
-		if(currentTrack < 0) 
-		{
-			currentTrack = trackList.Count - 1;
+		if(textboxTime == null) {
+			UnityEngine.Debug.LogError("TrackSelect: textbox time is null!");
+			textboxTime = transform.FindChild("TimeLabel").GetComponent<UIBasiclabel>();
 		}
+		textboxTime.SetLabel(UnitsHelper.TimestampMMSS(4050));
 		
-		LoadTrack();
-	}
-	
-	public void LoadTrack()
-	{
-		GetLimits();
-			
-		DataVault.Set("track_distance", SiDistanceUnitless(trackList[currentTrack].distance));
-		DataVault.Set("track_time", TimestampMMSS(trackList[currentTrack].time));
-		DataVault.Set("track_date", trackList[currentTrack].date);
+		if(textboxDate == null) {
+			UnityEngine.Debug.LogError("TrackSelect: textbox date is null!");
+			textboxDate = transform.FindChild("DateLabel").GetComponent<UIBasiclabel>();
+		}
+		textboxDate.SetLabel("14/03/2014");
 		
-		// Remove the old texture
 		mapTexture = null;
-			
-		// The next section calculates the zoom for the static maps. 
+	}
+
+	public void SetTrack(Track track) {
+		GetLimits(track);
+
+		if(textboxDistance == null) {
+			UnityEngine.Debug.LogError("TrackSelect: textbox distance is null!");
+			textboxDistance = transform.FindChild("DistanceLabel").GetComponent<UIBasiclabel>();
+		}
+		textboxDistance.SetLabel(UnitsHelper.SiDistanceFull(track.distance));
+
+		if(textboxTime == null) {
+			UnityEngine.Debug.LogError("TrackSelect: textbox time is null!");
+			textboxTime = transform.FindChild("TimeLabel").GetComponent<UIBasiclabel>();
+		}
+		textboxTime.SetLabel(UnitsHelper.TimestampMMSS(track.time));
+
+		if(textboxDate == null) {
+			UnityEngine.Debug.LogError("TrackSelect: textbox date is null!");
+			textboxDate = transform.FindChild("DateLabel").GetComponent<UIBasiclabel>();
+		}
+		textboxDate.SetLabel(track.date.ToShortDateString());
+
+		mapTexture = null;
+
 		CalculateMapZoom();
-		
+
 		StartCoroutine(GetMap());
-		
 	}
 	
 	IEnumerator GetMap() {
@@ -168,7 +129,10 @@ public class TrackSelect : MonoBehaviour {
 			// The link is then nulled.
 			mapWWW = null;
 		}
-		
+
+		if(tex == null) {
+			tex = GetComponent<UITexture>();
+		}
 		tex.mainTexture = mapTexture;
 	}
 	
@@ -178,23 +142,23 @@ public class TrackSelect : MonoBehaviour {
 		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}
 	
-	public void SetTrack() {
-		DataVault.Set("current_track", trackList[currentTrack]);
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
-		if(gConnect != null)
-		{
-			GestureHelper.onTap -= tapHandler;
-			GestureHelper.onSwipeLeft -= leftHandler;
-			GestureHelper.onSwipeRight -= rightHandler;
-			GestureHelper.onBack -= backHandler;
-			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
-			fs.parentMachine.FollowConnection(gConnect);
-		} else 
-		{
-			UnityEngine.Debug.Log("TrackSelect: Connection not found");
-		}
-	}
+//	public void SetTrack() {
+//		DataVault.Set("current_track", trackList[currentTrack]);
+//		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+//		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
+//		if(gConnect != null)
+//		{
+//			GestureHelper.onTap -= tapHandler;
+//			GestureHelper.onSwipeLeft -= leftHandler;
+//			GestureHelper.onSwipeRight -= rightHandler;
+//			GestureHelper.onBack -= backHandler;
+//			(gConnect.Parent as Panel).CallStaticFunction(gConnect.EventFunction, null);
+//			fs.parentMachine.FollowConnection(gConnect);
+//		} else 
+//		{
+//			UnityEngine.Debug.Log("TrackSelect: Connection not found");
+//		}
+//	}
 	
 	public void CalculateMapZoom() 
 	{
@@ -237,7 +201,7 @@ public class TrackSelect : MonoBehaviour {
 	/// <summary>
 	/// Gets the limits of latitude and logitude as well as the center.
 	/// </summary>
-	void GetLimits() {
+	void GetLimits(Track track) {
 		// Set to impossible values so will straight away be overtaken
 		float newlatLow = 360;
 		float newlongLow = 360;
@@ -245,10 +209,14 @@ public class TrackSelect : MonoBehaviour {
 		float newlongHigh = -360;
 		float totalLat = 0;
 		float totalLong = 0;
-		
+
+		UnityEngine.Debug.Log("TrackSelect: getting positions for limits");
+
 		// Get the list of positions for the current track
-		List<Position> curTrackPositions = trackList[currentTrack].positions;
-		
+		List<Position> curTrackPositions = track.positions;
+
+		UnityEngine.Debug.Log("TrackSelect: starting loop");
+
 		// Loop through all positions and test for limits
 		for(int i=0; i<curTrackPositions.Count; i++)
 		{
@@ -276,7 +244,9 @@ public class TrackSelect : MonoBehaviour {
 			totalLat += curTrackPositions[i].latitude;
 			totalLong += curTrackPositions[i].longitude;
 		}
-		
+
+		UnityEngine.Debug.Log("TrackSelect: loop finished, getting center");
+
 		// Calculate the average lat and long for the center
 		float newcenterLat = totalLat / curTrackPositions.Count;
 		float newcenterLong = totalLong / curTrackPositions.Count;
@@ -298,9 +268,9 @@ public class TrackSelect : MonoBehaviour {
 		Position cent = new Position(centerLat, centerLong);
 		Position ne = new Position(latHigh, longHigh);
 		Position  sw = new Position(latLow, longLow);
-		UnityEngine.Debug.Log("Track: Center lat + long are: " + cent.latitude + ", " + cent.longitude);
-		UnityEngine.Debug.Log("Track: NE lat + long are: " + ne.latitude + ", " + ne.longitude);
-		UnityEngine.Debug.Log("Track: SW lat + long are: " + sw.latitude + ", " + sw.longitude);
+		UnityEngine.Debug.Log("TrackSelect: Center lat + long are: " + cent.latitude + ", " + cent.longitude);
+		UnityEngine.Debug.Log("TrackSelect: NE lat + long are: " + ne.latitude + ", " + ne.longitude);
+		UnityEngine.Debug.Log("TrackSelect: SW lat + long are: " + sw.latitude + ", " + sw.longitude);
 		
 	}
 	
@@ -313,23 +283,23 @@ public class TrackSelect : MonoBehaviour {
 	/// <param name='mercator'>
 	/// The coordinate in lat and long.
 	/// </param>
-	Vector2 MercatorToPixel(Position mercator) {
-		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
-		int mapScale = (int)Math.Pow(2, mapZoom);
-		
-		// Mercator to google world cooordinates
-		Vector2 world = new Vector2(
-			(float)(mercator.longitude+180)/360*256,
-			(float)(
-				(1 - Math.Log(
-						Math.Tan(mercator.latitude * Math.PI / 180) +  
-						1 / Math.Cos(mercator.latitude * Math.PI / 180)
-					) / Math.PI
-				) / 2
-			) * 256
-		);
-		return world * mapScale;
-	}
+//	Vector2 MercatorToPixel(Position mercator) {
+//		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
+//		int mapScale = (int)Math.Pow(2, mapZoom);
+//		
+//		// Mercator to google world cooordinates
+//		Vector2 world = new Vector2(
+//			(float)(mercator.longitude+180)/360*256,
+//			(float)(
+//				(1 - Math.Log(
+//						Math.Tan(mercator.latitude * Math.PI / 180) +  
+//						1 / Math.Cos(mercator.latitude * Math.PI / 180)
+//					) / Math.PI
+//				) / 2
+//			) * 256
+//		);
+//		return world * mapScale;
+//	}
 	
 	/// <summary>
 	/// Draws a 2D line.
@@ -382,25 +352,25 @@ public class TrackSelect : MonoBehaviour {
         GUI.matrix = matrix;
 	}
 	
-	protected string SiDistanceUnitless(double meters) {
-		string postfix = "m";
-		string final;
-		float value = (float)meters;
-		if (value > 1000) {
-			value = value/1000;
-			postfix = "km";
-			if(value >= 10) {
-				final = value.ToString("f1");
-			} else {
-				final = value.ToString("f2");
-			}
-		}
-		else
-		{
-			final = value.ToString("f0");
-		}
-		//set the units string for the HUD
-		
-		return final + postfix;
-	}
+//	protected string SiDistanceUnitless(double meters) {
+//		string postfix = "m";
+//		string final;
+//		float value = (float)meters;
+//		if (value > 1000) {
+//			value = value/1000;
+//			postfix = "km";
+//			if(value >= 10) {
+//				final = value.ToString("f1");
+//			} else {
+//				final = value.ToString("f2");
+//			}
+//		}
+//		else
+//		{
+//			final = value.ToString("f0");
+//		}
+//		//set the units string for the HUD
+//		
+//		return final + postfix;
+//	}
 }
