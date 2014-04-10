@@ -15,7 +15,7 @@ public class InitForPreview : MonoBehaviour {
 	public GameObject dataStorage;
 	public GameObject flow;
 	public GameObject uiScene;
-	protected GameObject platformPartner = null;
+	protected bool currentlyInPlayMode = false;
 	
 	/// <summary>
 	/// Start this instance.
@@ -28,9 +28,24 @@ public class InitForPreview : MonoBehaviour {
 	public void PlayStateChanged()
 	{
 		//if we stopped playing, deactivate the relevant objects
-		if(!UnityEditor.EditorApplication.isPlaying && !UnityEditor.EditorApplication.isPaused)
+		if(currentlyInPlayMode)
 		{
-			ExitedPlayMode();
+			if(!UnityEditor.EditorApplication.isPlaying)
+			{
+				currentlyInPlayMode = false;
+				if(!UnityEditor.EditorApplication.isPaused)
+				{
+					ExitedPlayMode();
+				}
+			}
+		}
+		else
+		{
+			if(UnityEditor.EditorApplication.isPlaying)
+			{
+				currentlyInPlayMode = true;
+				//PrepareForPlayMode ();
+			}
 		}
 	}
 
@@ -39,8 +54,11 @@ public class InitForPreview : MonoBehaviour {
 		dataStorage.SetActive(true);
 		flow.SetActive(true);
 		uiScene.SetActive(true);
-		platformPartner = new GameObject();
+
+		//create a platform partner
+		GameObject platformPartner = new GameObject();
 		platformPartner.AddComponent<PlatformPartner>();
+		platformPartner.name = "Platform Partner";
 		//mainCamera.clearFlags = CameraClearFlags.SolidColor;
 	}
 
@@ -49,9 +67,16 @@ public class InitForPreview : MonoBehaviour {
 		dataStorage.SetActive(false);
 		flow.SetActive(false);
 		uiScene.SetActive(false);
-		if(platformPartner != null)
+
+		//find and remove temporary platform partner
+		GameObject pp = GameObject.Find("Platform Partner");
+		if(pp != null)
 		{
-			Destroy(platformPartner);
+			DestroyImmediate(pp);
+		}
+		else
+		{
+			UnityEngine.Debug.LogError("InitForPreview: Couldn't find platform partner to destroy on returning to edit mode");
 		}
 	}
 
