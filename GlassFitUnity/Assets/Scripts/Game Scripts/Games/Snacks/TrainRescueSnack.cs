@@ -6,10 +6,15 @@ using System;
 public class TrainRescueSnack : SnackBase {
 	
 	protected TrainController_Rescue train;
+	protected ConstantVelocityPositionController trainPositionController;
+	
 	private int trainLevel = 0;
-	public GameObject trainObject = null;
-	public GameObject damsel = null;
+	public RYWorldObject trainObject = null;
+	public RYWorldObject damsel = null;
 	public CameraPath openingFlythroughPath = null;
+
+	protected virtualTrack leftTrack = null;
+	protected virtualTrack rightTrack = null;
 	
 	float junctionSpacing = 250.0f;
 	bool bFailed = false;
@@ -31,8 +36,11 @@ public class TrainRescueSnack : SnackBase {
 
 	// Use this for initialization
 	public override void Start () {
-		train = trainObject.GetComponent<TrainController_Rescue>();
-		
+		train = trainObject.gameObject.GetComponent<TrainController_Rescue>();
+		trainPositionController = trainObject.gameObject.GetComponent<ConstantVelocityPositionController>();
+
+		damsel.setScenePositionFrozen(true);
+
 		//clear strings
 		DataVault.Set("train_subtitle", " ");
 		DataVault.Set("game_message", " ");
@@ -40,40 +48,40 @@ public class TrainRescueSnack : SnackBase {
 		//set flag so that trophy is shown if we win
 		DataVault.Set("showFinishTrophy", true);
 		
-		float junctionDist = 75.0f;
-		
 		UnityEngine.Debug.Log("Train: finish = " + finishDistance);
-		
-		bool bDoneFirstOne = false;
 		
 		//create some additional tracks to put on the flythrough
 		extraTrackPieces = new List<GameObject>();
 		float totalTrackDistCovered = 500.0f;	//half of one track obj
 		float trackPiecePosition = 0.0f;
 		
-		GameObject rightTrack = GameObject.Find("VirtualTrack");
+		GameObject rightTrackObj = GameObject.Find("rightTrack");
 		if(rightTrack == null)
 		{
 			UnityEngine.Debug.Log("Train: couldn't find right hand track");
 		}
-		
-		GameObject leftTrack = GameObject.Find("VirtualTrainTrack");
+		rightTrack = rightTrackObj.GetComponent<virtualTrack>();
+		rightTrack.frozen = true;
+
+		GameObject leftTrackObj = GameObject.Find("leftTrack");
 		if(leftTrack == null)
 		{
 			UnityEngine.Debug.Log("Train: couldn't find left hand track");
 		}
-		
+		leftTrack = leftTrackObj.GetComponent<virtualTrack>();
+		leftTrack.frozen = true;
+
 		while(totalTrackDistCovered <= finishDistance + 500.0f)
 		{
 			//create another one, 1km further on
 			trackPiecePosition += 1000.0f;
 			
 			//duplicate existing track
-			GameObject newTrackPiece = GameObject.Instantiate(rightTrack) as GameObject;
+			GameObject newTrackPiece = GameObject.Instantiate(rightTrackObj) as GameObject;
 			newTrackPiece.transform.localPosition = newTrackPiece.transform.localPosition + new Vector3(0,0,trackPiecePosition);
 			extraTrackPieces.Add(newTrackPiece);
 			
-			GameObject newTrackPieceLeft = GameObject.Instantiate(leftTrack) as GameObject;
+			GameObject newTrackPieceLeft = GameObject.Instantiate(leftTrackObj) as GameObject;
 			newTrackPieceLeft.transform.localPosition = newTrackPieceLeft.transform.localPosition + new Vector3(0,0,trackPiecePosition);
 			extraTrackPieces.Add(newTrackPieceLeft);
 			
@@ -85,26 +93,26 @@ public class TrainRescueSnack : SnackBase {
 		
 		trainLevel = (int)DataVault.Get("train_level");
 		
-		train.SetLevel(trainLevel);
+		SetLevel(trainLevel);
 	}
-	
+
+	public void SetLevel(int level)
+	{
+		trainLevel = level;
+		trainPositionController.velocity.z = 2.4f + (trainLevel * 0.5f);
+		UnityEngine.Debug.Log("TrainController: level is " + trainLevel.ToString());
+	}
+
 	protected double GetDistanceBehind ()
 	{
-		if(train != null) 
-		{
-			return train.GetDistanceBehindTarget();
-		} 
-		else 
-		{
-			UnityEngine.Debug.Log("TrainRescueSnack: train is null!");
-			return 0;
-		}
+		return train.GetDistanceBehindTarget();
 	}
 	
 	public void SetReadyToStart (bool ready)
 	{		
 		if(openingFlythroughPath != null)
 		{
+			//freeze the damsel position
 			openingFlythroughPath.StartFollowingPath();	
 			SetMainCamera(false);
 		}
@@ -112,8 +120,7 @@ public class TrainRescueSnack : SnackBase {
 		{
 			UnityEngine.Debug.LogError("Train: Don't have camera path set!");	
 		}
-		
-		
+
 		//start the music
 		GameObject musicPlayer = GameObject.Find("MusicPlayer");
 		AudioSource musicSource = (AudioSource)musicPlayer.GetComponent(typeof(AudioSource));
@@ -167,7 +174,10 @@ public class TrainRescueSnack : SnackBase {
 			{
 				SetMainCamera(true);
 				flyCamera.GetComponentInChildren<Camera>().enabled = false;
-				
+
+				//unfreeze damsel
+				damsel.setScenePositionFrozen(false);
+
 				transform.position = new Vector3(0, 0, (float)Platform.Instance.LocalPlayerPosition.Distance);
 				StartCountdown();
 			}
@@ -237,7 +247,10 @@ public class TrainRescueSnack : SnackBase {
 		
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
 		FlowState.FollowFlowLinkNamed("Begin");
-		
+
+		//unfreeze the track
+		leftTrack.frozen = false;
+		rightTrack.frozen = false;
 		
 		started = true;
 		//play the train's bell sound effect

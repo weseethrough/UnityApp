@@ -131,7 +131,6 @@ public class CameraPath : MonoBehaviour {
 			StartCoroutine(CutCamera());
 		}
 		
-		UnityEngine.Debug.LogError("CamPath: Started following path");
 	}
 	
 	IEnumerator CutCamera()

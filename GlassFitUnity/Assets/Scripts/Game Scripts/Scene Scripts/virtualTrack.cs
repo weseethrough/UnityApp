@@ -9,7 +9,9 @@ public class virtualTrack : MonoBehaviour {
 	private const float TrackLength = 1000;
 	public float TrackWidth = 4.0f;
 	public float scrollFactor = 1.0f;	//world is not 1:1, need this fudge factor
-	
+	public bool frozen = false;
+	private float Phase = 0;
+
 	// Use this for initialization
 	void Start () {
 		//plane in scene is 10m x 10m
@@ -23,10 +25,13 @@ public class virtualTrack : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		//calculate the UV phase
-		
-		float Repeats = renderer.material.mainTextureScale.y;
-		float Phase = ((float)Platform.Instance.LocalPlayerPosition.Distance * scrollFactor) % (TrackLength/Repeats);
+
+		if(!frozen)
+		{
+			//calculate the UV phase
+			float Repeats = renderer.material.mainTextureScale.y;
+			Phase = ((float)Platform.Instance.LocalPlayerPosition.Distance * scrollFactor) % (TrackLength/Repeats);
+		}
 				
 		//apply to the material to pass to the shader
 		renderer.material.SetFloat("_Phase", Phase);

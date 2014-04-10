@@ -97,7 +97,6 @@ public class TrainTrackJunction : MonoBehaviour {
 					{
 						bell.Play();
 					}
-					trainComponent.BeginDetour();
 				}
 			}
 		}
