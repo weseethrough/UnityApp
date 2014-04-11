@@ -40,6 +40,13 @@ public class BoulderSnack : SnackBase {
 		base.Start();
 		// Find the boulder
 		boulder = GetComponent<BoulderController>();
+
+		//need to shift it backward in the scene to give the player the headstart
+		//it's positioned above the origin within the scene to align its height correctly
+		Vector3 boulderPos = boulder.transform.position;
+		boulderPos.z -= 40;
+		boulder.transform.position = boulderPos;
+
 		UnityEngine.Debug.Log("BoulderSnack: Start");
 	}
 	

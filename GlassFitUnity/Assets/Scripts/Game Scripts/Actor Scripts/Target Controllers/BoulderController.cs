@@ -18,9 +18,6 @@ public class BoulderController : TargetController {
 	// Value to increase speed by
 	private float speedIncrease = 0.5f;
 	
-	// Starting distance
-	private float distanceFromStart = -50f;
-	
 	// Players current distance
 	private double playerDistance = 0.0;
 	
@@ -54,6 +51,8 @@ public class BoulderController : TargetController {
 		// Enable the object and set attributes.
 		posController = gameObject.GetComponent<ConstantVelocityPositionController>();
 
+		posController.enabled = true;
+
 		//set velocity magnitude
 		posController.setSpeed( 1.25f );
 
@@ -73,12 +72,18 @@ public class BoulderController : TargetController {
 		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		playerStartDistance = Platform.Instance.LocalPlayerPosition.Distance;
 		// Set the boulder's starting distance
-		distanceFromStart = (float)playerDistance - 10f;
-		
+
 		headstartComplete = false;
 		headstartTime = 5.0f;
 	}
-	
+
+	public void Awake()
+	{
+		int i =0;
+		i++;
+		return;
+	}
+
 	/// <summary>
 	/// Update this instance + updates rotation
 	/// </summary>

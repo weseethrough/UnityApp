@@ -29,7 +29,7 @@ public class RYWorldObject : MonoBehaviour {
 		}
 	}
 
-	public void updateScenePos()
+	private void updateScenePos()
 	{
 		//assume 1D for now, so just update distance
 		float sceneZ = realWorldPos.z - (float)Platform.Instance.LocalPlayerPosition.Distance;
