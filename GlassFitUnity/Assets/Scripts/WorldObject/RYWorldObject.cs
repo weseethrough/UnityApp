@@ -14,16 +14,14 @@ public class RYWorldObject : MonoBehaviour {
 	// Use this for initialization
 	protected virtual void Start () {
 		//by default, set the real world pos as the scene pos
-		realWorldPos = transform.position;
+		realWorldPos = new Vector3( 0,0,(float)Platform.Instance.LocalPlayerPosition.Distance) + transform.position;
 	}
 	
 	// Update is called once per frame
 	protected virtual void Update () {
 		if(!scenePosIsFrozen)
 		{
-			//assume 1D for now, so just update distance
-			float sceneZ = realWorldPos.z - (float)Platform.Instance.LocalPlayerPosition.Distance;
-			transform.position = new Vector3(realWorldPos.x, realWorldPos.y, sceneZ);
+			updateScenePos();
 		}
 		else
 		{
@@ -31,6 +29,13 @@ public class RYWorldObject : MonoBehaviour {
 		}
 	}
 
+	public void updateScenePos()
+	{
+		//assume 1D for now, so just update distance
+		float sceneZ = realWorldPos.z - (float)Platform.Instance.LocalPlayerPosition.Distance;
+		transform.position = new Vector3(realWorldPos.x, realWorldPos.y, sceneZ);
+	}
+	
 	/// <summary>
 	/// Sets the real world position
 	/// </summary>
@@ -39,6 +44,7 @@ public class RYWorldObject : MonoBehaviour {
 	public void setRealWorldPos(Vector3 posW)
 	{
 		realWorldPos = posW;
+		updateScenePos();
 	}
 
 	public Vector3 getRealWorldPos()
@@ -53,6 +59,7 @@ public class RYWorldObject : MonoBehaviour {
 	public void setRealWorldDist(float dist)
 	{
 		realWorldPos.z = dist;
+		updateScenePos();
 	}
 
 	/// <summary>

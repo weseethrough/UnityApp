@@ -10,6 +10,20 @@ public class ConstantVelocityPositionController : PositionController {
 		return velocity.magnitude;
 	}
 
+	/// <summary>
+	/// Set a new direction for the velocity, retaining same speed.
+	/// </summary>
+	/// <param name="dir">direction</param>
+	public void setDir(Vector3 dir)
+	{
+		dir.Normalize();
+		velocity = velocity.magnitude * dir;
+	}
+
+	/// <summary>
+	/// Set a new speed for the velocity, retaining same direction.
+	/// </summary>
+	/// <param name="speed">Speed.</param>
 	public void setSpeed(float speed)
 	{
 		if(velocity.magnitude != 0)
@@ -25,7 +39,6 @@ public class ConstantVelocityPositionController : PositionController {
 
 	// Use this for initialization
 	public override void Start () {
-		velocity = Vector3.zero;
 		base.Start();
 	}
 	
