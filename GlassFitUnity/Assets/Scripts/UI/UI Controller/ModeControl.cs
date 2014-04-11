@@ -6,13 +6,7 @@ public class ModeControl : MonoBehaviour {
 
 	private UIAtlas atlas;
 	private UISprite sprite;
-//	
-//	private bool rearview = false;
-//	
-//	private bool indoor = false;
-//	
-//	private bool camera = false;
-	
+
 	private bool setting = false;
 	
 	GestureHelper.OnTap tapHandler = null;
@@ -58,43 +52,7 @@ public class ModeControl : MonoBehaviour {
 		UnityEngine.Debug.Log("Mode: Name is: " + currentMode.ToLower());
 		
 		setting = Convert.ToBoolean(DataVault.Get(currentMode.ToLower()));
-		
-//		if(currentMode == "Rear-view mirror") 
-//		{
-//			rearview = (bool)DataVault.Get("rearview");
-//			UnityEngine.Debug.Log("Mode: rearview is set to: " + rearview.ToString());
-//			if(rearview) {
-//				DataVault.Set("active_mode", "Tap to turn off");
-//				rearview = true;
-//			} else {
-//				DataVault.Set("active_mode", "Tap to turn on");
-//				rearview = false;
-//			}
-//			
-//		} else if(currentMode == "Settings")
-//		{
-//			indoor = (bool)DataVault.Get("indoor");
-//			UnityEngine.Debug.Log("Mode: indoor is set to: " + indoor.ToString());
-//			if(indoor) {
-//				DataVault.Set("active_mode", "Tap to turn off");
-//				indoor = true;
-//			} else {
-//				DataVault.Set("active_mode", "Tap to turn on");
-//				indoor = false;
-//			}
-//		} else if(currentMode == "Camera")
-//		{
-//			camera = (bool)DataVault.Get("camera");
-//			UnityEngine.Debug.Log("Mode: camera is set to: " + camera.ToString());
-//			if(camera)
-//			{
-//				DataVault.Set("active_mode", "Tap to turn off");
-//			} else {
-//				DataVault.Set("active_mode", "Tap to turn on");
-//				camera = false;
-//			}
-//		}
-		
+
 		if(setting) {
 			DataVault.Set("active_mode", "Tap to turn off");
 		} else {
@@ -120,30 +78,7 @@ public class ModeControl : MonoBehaviour {
 	
 	void SetMode() {
 		UnityEngine.Debug.Log("Mode: screen tapped");
-//		if(currentMode == "Rearview") 
-//		{
-//			if(rearview) {
-//				DataVault.Set("active_mode", "Tap to turn on");
-//				rearview = false;
-//				DataVault.Set("rearview", rearview);
-//			} else {
-//				DataVault.Set("active_mode", "Tap to turn off");
-//				rearview = true;
-//				DataVault.Set("rearview", rearview);
-//			}
-//		} else if(currentMode == "Settings") 
-//		{
-//			if(indoor) {
-//				DataVault.Set("active_mode", "Tap to turn on");
-//				indoor = false;
-//				DataVault.Set("indoor", indoor);
-//			} else 
-//			{
-//				DataVault.Set("active_mode", "Tap to turn off");
-//				indoor = true;
-//				DataVault.Set("indoor", indoor);
-//			}
-//		}
+
 		if(setting) {
 			DataVault.Set("active_mode", "Tap to turn on");
 			setting = false;
