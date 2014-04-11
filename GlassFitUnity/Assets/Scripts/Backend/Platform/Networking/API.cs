@@ -16,13 +16,13 @@ namespace RaceYourself
 	/// </summary>
 	public class API
 	{
-		private const string SCHEME = "https://";
-		private const string AUTH_HOST = "auth.raceyourself.com";
+		private const string SCHEME = "http://";
+		private const string AUTH_HOST = "a.staging.raceyourself.com";
 		private const string AUTH_TOKEN_URL = SCHEME + AUTH_HOST + "/oauth/token";
-		private string apiHost = "auth.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
-			
-		private const string CLIENT_ID = "8c8f56a8f119a2074be04c247c3d35ebed42ab0dcc653eb4387cff97722bb968";
-		private const string CLIENT_SECRET = "892977fbc0d31799dfc52e2d59b3cba88b18a8e0080da79a025e1a06f56aa8b2";
+        private string apiHost = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
+		
+        private const string CLIENT_ID = "c9842247411621e35dbaf21ad0e15c263364778bf9a46b5e93f64ff2b6e0e17c";
+        private const string CLIENT_SECRET = "75f3e999c01942219bea1e9c0a1f76fd24c3d55df6b1c351106cc686f7fcd819";
 		
 		private readonly Regex CACHE_REGEXP = new Regex(".*max-age=(?<maxage>[0-9]*).*");
 		private readonly string CACHE_PATH = Path.Combine(Application.persistentDataPath, "www-cache");
@@ -38,8 +38,8 @@ namespace RaceYourself
 		{
 			Debug.Log("API: created");
 			db = database;
-			user = db.Cast<User>().SingleOrDefault();
-			token = db.Cast<OauthToken>().SingleOrDefault();
+			user = db.Cast<User>().LastOrDefault();
+			token = db.Cast<OauthToken>().LastOrDefault();
 			if (user != null && token != null) {
 				if (user.id != token.userId) {
 					Debug.LogError("API: Token in database does not belong to user in database!");
@@ -231,7 +231,7 @@ namespace RaceYourself
 				}
 				syncing = true;
 				
-				SyncState state = db.Cast<SyncState>().FirstOrDefault();
+				SyncState state = db.Cast<SyncState>().LastOrDefault();
 				if (state == null) state = new SyncState(0);
 				Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
 						+ " tail: " + state.tail_timestamp + "#" + state.tail_skip);
@@ -251,7 +251,7 @@ namespace RaceYourself
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
 				headers.Add("Accept-Charset", "utf-8");
-				headers.Add("Accept-Encoding", "gzip");
+				//headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
 				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
@@ -333,7 +333,7 @@ namespace RaceYourself
 		/// Returns cached data or null if missing
 		/// </summary>
 		public string getCached(string route) {
-			var cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).FirstOrDefault();
+			var cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).LastOrDefault();
 			if (cache == null || cache.Expired) return null;
 			try {
 				return File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
@@ -588,7 +588,7 @@ namespace RaceYourself
 				uint inserts, updates, deletes;
 				inserts = updates = deletes = 0;
 				
-				SyncState state = db.Cast<SyncState>().FirstOrDefault();
+				SyncState state = db.Cast<SyncState>().LastOrDefault();
 				if (state == null) {
 					state = new SyncState(sync_timestamp, tail_timestamp, tail_skip);
 				} else {
