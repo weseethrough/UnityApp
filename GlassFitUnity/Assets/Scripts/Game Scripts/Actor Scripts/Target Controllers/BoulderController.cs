@@ -6,14 +6,8 @@ using System.Collections;
 /// </summary>
 public class BoulderController : TargetController {
 	
-	// Rotation in the x-axis.
-	private float xRot;
-	
 	// Rotation speed
-	private float rotationSpeed = 20;
-	
-	// Rotation limit
-	private static float rotationLimit = 360f;
+	private float rotationSpeed = -20;
 	
 	// Time passed for speed up
 	private float currentTime = 0;
@@ -23,9 +17,6 @@ public class BoulderController : TargetController {
 	
 	// Value to increase speed by
 	private float speedIncrease = 0.5f;
-	
-	// Current speed
-	private float currentSpeed = 2.5f;
 	
 	// Starting distance
 	private float distanceFromStart = -50f;
@@ -41,13 +32,17 @@ public class BoulderController : TargetController {
 	
 	// Boolean to check if headstart is over
 	private bool headstartComplete = false;
-	
+
+	//position controller for the boulder
+	private ConstantVelocityPositionController posController;
+
+	private float gradient = 1;
+
 	/// <summary>
 	/// Sets the attributes
 	/// </summary>
 	public override void Start () {
-		// Set attributes and initial rotation.
-		xRot = 0;
+		base.Start();
 	}
 	
 	/// <summary>
@@ -55,7 +50,13 @@ public class BoulderController : TargetController {
 	/// </summary>
 	public void OnEnable() 
 	{
+		gradient = Mathf.Tan( -transform.rotation.eulerAngles.x * Mathf.Deg2Rad );
 		// Enable the object and set attributes.
+		posController = gameObject.GetComponent<ConstantVelocityPositionController>();
+
+		//set velocity magnitude
+		posController.setSpeed( 1.25f );
+
 		Reset();
 	}
 	
@@ -65,7 +66,7 @@ public class BoulderController : TargetController {
 	public void Reset()
 	{
 		// Set the starting speed
-		currentSpeed = 0f;
+		posController.setSpeed(0);
 		// Set the start time
 		currentTime = 0.0f;
 		// Set the player's initial distance
@@ -90,7 +91,7 @@ public class BoulderController : TargetController {
 			if(headstartTime < 0.0f)
 			{
 				headstartComplete = true;
-				currentSpeed = 1.25f;
+				posController.setSpeed(1.25f);
 			}
 		}
 		else
@@ -103,30 +104,33 @@ public class BoulderController : TargetController {
 			{
 				currentTime -= updateTime;
 				
-				currentSpeed += speedIncrease;
+				posController.setSpeed( posController.getSpeed() + speedIncrease );
 			
 			}
 		}
 				
-		// Rotate the object based on speed.
-		xRot += (rotationSpeed * currentSpeed) * Time.deltaTime;
-		
-		// If greater than 360, reset.
-		if(xRot > rotationLimit)
-		{
-			xRot -= rotationLimit;
-		}
-			
-		// Make a new quaternion based on the rotation and apply
-		Quaternion rot = Quaternion.Euler(new Vector3(xRot,0,0));
+//		// Rotate the object based on speed.
+//		xRot += (rotationSpeed * currentSpeed) * Time.deltaTime;
+//		
+//		// If greater than 360, reset.
+//		if(xRot > rotationLimit)
+//		{
+//			xRot -= rotationLimit;
+//		}
+//			
+//		// Make a new quaternion based on the rotation and apply
+//		Quaternion rot = Quaternion.Euler(new Vector3(xRot,0,0));
 		if(transform.childCount > 0) {
-			transform.GetChild(0).rotation = rot;
+			transform.GetChild(0).Rotate(rotationSpeed * Time.deltaTime, 0, 0);
 		}
-		else {
-			transform.rotation = rot;
-		}
-		
-		
+
+		base.Update();
+
+		//now move upwards to account for the slope
+		Vector3 shiftedPosition = transform.position;
+		shiftedPosition.y += (float)GetDistanceBehindTarget() * gradient;
+		transform.position = shiftedPosition;
+
 		// Increase distance
 //		distanceFromStart += Time.deltaTime * currentSpeed;	
 //		//UnityEngine.Debug.Log("BoulderController: distance is " + distanceFromStart.ToString("f2"));
@@ -147,17 +151,17 @@ public class BoulderController : TargetController {
 		
 	}
 	
-	/// <summary>
-	/// Override base implementation, which queries target tracker.
-	/// </summary>
-	/// <returns>
-	/// The distance behind this target.
-	/// </returns>
-	public override double GetDistanceBehindTarget ()
-	{
-		float relativeDist = distanceFromStart - (float)playerDistance;
-		return relativeDist;
-	}
+//	/// <summary>
+//	/// Override base implementation, which queries target tracker.
+//	/// </summary>
+//	/// <returns>
+//	/// The distance behind this target.
+//	/// </returns>
+//	public override double GetDistanceBehindTarget ()
+//	{
+//		float relativeDist = distanceFromStart - (float)playerDistance;
+//		return relativeDist;
+//	}
 	
 	/// <summary>
 	/// Gets the distance the player has travelled in the minigame.

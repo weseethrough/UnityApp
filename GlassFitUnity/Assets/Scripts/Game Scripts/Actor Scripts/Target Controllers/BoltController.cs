@@ -20,7 +20,7 @@ public class BoltController : ConstantVelocityPositionController {
 	public void SetLevel(int l)
 	{
 		currentLevel = l;
-		velocity.z = 3.0f + (currentLevel * 0.5f);
+		setSpeed( 3.0f + (currentLevel * 0.5f) );
 	}
 	
 	public void OnEnable()

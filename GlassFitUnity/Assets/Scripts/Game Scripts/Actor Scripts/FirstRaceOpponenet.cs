@@ -100,22 +100,22 @@ public class FirstRaceOpponenet : ConstantVelocityPositionController {
 		if (convergenceTime < 0)
 		{
 			// moving the wrong way
-			velocity.z += acceleration;
+			setSpeed( getSpeed() + acceleration );
 		}
 		else
 		{
 			// moving the right way, speed proportional to deltaLead up to a max cap (slightly slower than the player can run)
-			if (velocity.z < Mathf.Min(deltaLead, 3.0f))
+			if (getSpeed() < Mathf.Min(deltaLead, 3.0f))
 			{
-				velocity.z += acceleration;
+				setSpeed( getSpeed() + acceleration );
 			}
 			else
 			{
-				velocity.z = Mathf.Min(deltaLead, 3.0f);
+				setSpeed( Mathf.Min(deltaLead, 3.0f) );
 			}
 		}
 
-		velocity.z = Mathf.Clamp(velocity.z, 0.0f, playerSpeed + 2.5f);
+		setSpeed( Mathf.Clamp(getSpeed(), 0.0f, playerSpeed + 2.5f) );
 		//UnityEngine.Debug.Log("FirstRace: Set opponent speed to " + currentMovementSpeed);			
 	}
 }

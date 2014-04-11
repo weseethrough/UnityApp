@@ -3,10 +3,29 @@ using System.Collections;
 
 public class ConstantVelocityPositionController : PositionController {
 
-	public Vector3 velocity;
+	public Vector3 velocity = Vector3.zero;
+
+	public float getSpeed()
+	{
+		return velocity.magnitude;
+	}
+
+	public void setSpeed(float speed)
+	{
+		if(velocity.magnitude != 0)
+		{
+			float scale = speed / velocity.magnitude;
+			velocity *= scale;
+		}	
+		else
+		{
+			velocity = new Vector3(0,0,speed);
+		}
+	}
 
 	// Use this for initialization
 	public override void Start () {
+		velocity = Vector3.zero;
 		base.Start();
 	}
 	
