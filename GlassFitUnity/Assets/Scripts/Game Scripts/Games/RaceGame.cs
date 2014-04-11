@@ -94,8 +94,6 @@ public class RaceGame : GameBase {
 		
 		Platform.Instance.ResetTargets();
 
-		//InstantiateActors();
-
 		opponent.SetActive(true);
 
 		TargetTracker tracker;
@@ -120,14 +118,6 @@ public class RaceGame : GameBase {
 	public void SetActorType(ActorType targ) {
 		currentActorType = targ;
 	}
-	
-//	public void OnGUI()
-//	{
-//		base.OnGUI();
-//	}
-		
-
-	
 	
 	protected void UpdateLeaderboard() {
 		double distance = Platform.Instance.LocalPlayerPosition.Distance;
@@ -195,82 +185,7 @@ public class RaceGame : GameBase {
 
 	
 	public override void Update () {
-
 		base.Update ();
-	
-//		UpdateLeaderboard();
 	}
-	
-	
-	// Instantiate target actors based on actor type
-	void InstantiateActors() 
-	{				
-		// Remove current actors
-		foreach (GameObject actor in actors) {
-			Destroy(actor);
-		}
-		actors.Clear();
-		
-		GameObject template;
-		switch(currentActorType) {
-		case ActorType.Runner:
-			template = runnerHolder;
-			targSpeed = 3.0f;
-			break;
-		case ActorType.Cyclist:
-			template = cyclistHolder;
-			break;
-		case ActorType.Mo:
-			template = moHolder;
-			targSpeed = 6.059f;
-			DataVault.Set("slider_val", 0.525f);
-			finish = 10000;
-			break;
-		case ActorType.Paula:
-			template = paulaHolder;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 4.91f;
-			finish = 42195;
-			break;
-		case ActorType.Chris:
-			template = chrisHolder;
-			finish = 1000;
-			targSpeed = 17.007f;
-			break;
-		case ActorType.Bradley:
-			template = bradleyHolder;
-			finish = 4000;
-			targSpeed = 15.686f;			
-			break;
-		default:
-			throw new NotImplementedException("Unknown actor type: " + currentActorType);
-			break;
-		}
-		
-		
-//Don't create target trackers in the editor, since these rely on the real Platform being around, for now.
-#if !UNITY_EDITOR
-		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
-		int lane = 1;
-		foreach (TargetTracker tracker in trackers) {
-			GameObject actor = Instantiate(template) as GameObject;
-			TargetController controller = actor.GetComponent<TargetController>();
-			controller.SetTracker(tracker);
-			controller.SetLane(lane++);
-			actor.SetActive(true);
-			actors.Add(actor);
-		}
-#else
-		GameObject actorDummy = Instantiate(template) as GameObject;
-		actorDummy.SetActive(true);
-		actors.Add(actorDummy);
-		UnityEngine.Debug.Log("RaceGame: instantiated actors");
-#endif
-	}
-	
-	// Listen for UnitySendMessage with multiplier updates
-	// Display the ner multiplier on screen for a second or so
-
-	
 }
 

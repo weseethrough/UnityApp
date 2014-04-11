@@ -74,10 +74,11 @@ public class GUICamera : MonoBehaviour {
 	void Update () 
     {
 		bool bShouldDoSensorNavigation = Platform.Instance.IsRemoteDisplay();
-#if UNITY_EDITOR
-		bShouldDoSensorNavigation = true;
-#endif
-		
+		if(Application.isEditor)
+		{
+			bShouldDoSensorNavigation = true;
+		}
+
         if (!bShouldDoSensorNavigation)
         {
             NonSensorNavigation();

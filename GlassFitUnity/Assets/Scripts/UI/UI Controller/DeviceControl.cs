@@ -71,12 +71,12 @@ public class DeviceControl : MonoBehaviour {
 		
 		if(pollTime > 5.0f) 
 		{
-#if UNITY_EDITOR
-
-            pollTime -= 500.0f; //simply shouldn't have to happen again
-            FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			FlowState.FollowFlowLinkNamed("MenuExit");
-#else
+			if(Application.isEditor)
+			{
+	            pollTime -= 500.0f; //simply shouldn't have to happen again
+	            FlowState fs = FlowStateMachine.GetCurrentFlowState();
+				FlowState.FollowFlowLinkNamed("MenuExit");
+			}
 			pollTime -= 5.0f;
 			
 			UpdateStatus();
@@ -97,7 +97,7 @@ public class DeviceControl : MonoBehaviour {
 //			{
 //				UnityEngine.Debug.Log("DeviceControl: device null");
 //			}
-#endif
+
         }
 	}
 }

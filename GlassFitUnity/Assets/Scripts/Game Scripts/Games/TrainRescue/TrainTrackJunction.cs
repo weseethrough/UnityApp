@@ -39,10 +39,7 @@ public class TrainTrackJunction : MonoBehaviour {
 		bell = aSources[0];
 		leverClunk = aSources[1];
 
-		
-#if UNITY_EDITOR
-	switched = true;
-#endif
+
 		
 	}
 	

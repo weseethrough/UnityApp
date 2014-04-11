@@ -93,11 +93,14 @@ public class PursuitGame : GameBase {
 		currentOpponent.gameObject.SetActive(true);
 
 		//if we've gone straight to game, pick a 5km run
-#if !UNITY_EDITOR
-		finish = (int)DataVault.Get("finish");		
-#else
-		finish = 5000;
-#endif
+		if(!Application.isEditor)
+		{
+			finish = (int)DataVault.Get("finish");		
+		}
+		else
+		{
+			finish = 5000;
+		}
 
 	}
 	

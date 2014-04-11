@@ -28,9 +28,10 @@ public class CameraPath : MonoBehaviour {
 				return a.time.CompareTo(b.time);
 			});
 			
-#if UNITY_EDITOR
-			StartFollowingPath();
-#endif
+//			if(Application.isEditor)
+//			{
+//				StartFollowingPath();
+//			}
 		}
 	}
 	
