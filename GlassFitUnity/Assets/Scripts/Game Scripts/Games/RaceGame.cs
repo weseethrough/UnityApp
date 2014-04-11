@@ -22,23 +22,6 @@ public class RaceGame : GameBase {
 	private ActorType currentActorType = ActorType.Runner;
     public List<GameObject> actors = new List<GameObject>();
 
-	
-//	// Minimap attributes
-//	private GameObject minimap;
-//	private const int MAP_RADIUS = 1;
-//	Texture2D selfIcon;
-//	Texture2D targetIcon;
-//	Texture2D mapTexture = null;
-//	Material mapStencil;
-//	const int mapAtlasRadius = 315; // API max width/height is 640
-//	const int mapZoom = 18;
-//	Position mapOrigo = new Position(0, 0);
-//	WWW mapWWW = null;
-//	Position fetchOrigo = new Position(0, 0);
-	
-//	private Rect debug;
-	//private const int MARGIN = 15;
-	
 	// Holds actor templates
 	public GameObject cyclistHolder;
 	public GameObject runnerHolder;
@@ -54,7 +37,7 @@ public class RaceGame : GameBase {
 	public override void Start () {
 		base.Start();
 		
-		//instantiate teh appropriate actor
+		//instantiate the appropriate actor
 		string tar = (string)DataVault.Get("type");
 		if(tar == null)
 		{
