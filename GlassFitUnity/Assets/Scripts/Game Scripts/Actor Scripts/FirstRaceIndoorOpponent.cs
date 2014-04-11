@@ -52,9 +52,9 @@ public class FirstRaceIndoorOpponent : ConstantVelocityPositionController {
 		
 		float newSpeed = (float)newDistance/intervalTotalTime;
 		
-		if(newSpeed > velocity.z)
+		if(newSpeed > getSpeed())
 		{
-			velocity.z = newSpeed;
+			setSpeed(newSpeed);
 		}
 		
 		lastDistance = currentDistance;

@@ -99,7 +99,7 @@ public class TrainRescueSnack : SnackBase {
 	public void SetLevel(int level)
 	{
 		trainLevel = level;
-		trainPositionController.velocity.z = 2.4f + (trainLevel * 0.5f);
+		trainPositionController.setSpeed( 2.4f + (trainLevel * 0.5f) );
 		UnityEngine.Debug.Log("TrainController: level is " + trainLevel.ToString());
 	}
 
