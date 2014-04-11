@@ -354,7 +354,7 @@ public abstract class Platform : SingletonBase
 
     public virtual void Authorize(string provider, string permissions) {
         if (Application.isPlaying) {
-            GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.staging@mailinator.com", "exerciseIsChanging1234"));
+            GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.staging@mailinator.com", "exerciseIsChanging123!"));
         }
     }
 
