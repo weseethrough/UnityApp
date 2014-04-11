@@ -992,7 +992,12 @@ public class ButtonFunctionCollection
 	static public bool GoToEndGameFlow(FlowButton button, FlowState panel)
 	{
 		GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-		DataVault.Set("custom_redirection_point", "MenuPoint");
+		if(Convert.ToBoolean(DataVault.Get("is_testing"))) {
+			DataVault.Set("custom_redirection_point", "ChallengePoint");
+		} else {
+			DataVault.Set("custom_redirection_point", "MenuPoint");
+		}
+
 		if(Platform.Instance.OnGlass())
 		{
 			gc.GoToFlow("MainFlow");

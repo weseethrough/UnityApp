@@ -76,7 +76,11 @@ public class ChallengePanel : HexPanel {
 		threadComplete = false;
 		
 		GetChallenges();		
-		
+
+		if(Convert.ToBoolean(DataVault.Get("is_testing"))) {
+			parentMachine.ForbidBack();
+		}
+
 		Platform.Instance.SyncToServer();
 		
 		DataVault.Set("tutorial_hint", "Syncing with the server");
