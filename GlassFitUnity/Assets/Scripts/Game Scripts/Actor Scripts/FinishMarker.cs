@@ -20,15 +20,7 @@ public class FinishMarker : RYWorldObject {
 	/// </summary>
 	protected override void Start () {
 		// Get the player's target.
-		if(Application.isEditor)
-		{
-			target = 5000;
-		}
-		else
-		{
-			target = (int)DataVault.Get("finish");
-		}
-		// Set the initial position out of view.
+		target = GameBase.getTargetDistance();
 
 		base.Start();
 

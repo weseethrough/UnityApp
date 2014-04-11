@@ -36,26 +36,10 @@ public class FirstRaceOpponenet : ConstantVelocityPositionController {
 		UnityEngine.Debug.Log("FirstRace: started");
 
 		timeRunStarted = Time.time;
-		totalDistance = getTrackLength();
+		totalDistance = GameBase.getTargetDistance();
 
 		worldObject.setRealWorldDist(headStartDistance);
 
-	}
-
-	protected int getTrackLength()
-	{
-		try {
-			Track selectedTrack = (Track)DataVault.Get("current_track");
-			if(selectedTrack != null) {
-				return (int)selectedTrack.distance;
-			} else {
-				return (int)DataVault.Get("finish");
-			}
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("FirstRace: Couldn't obtain goal distance for race");
-		}
-
-		return 5000;
 	}
 
 	// Update is called once per frame
