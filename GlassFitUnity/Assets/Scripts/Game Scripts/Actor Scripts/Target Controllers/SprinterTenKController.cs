@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MoFarahController : TargetController {
+public class SprinterTenKController : TargetController {
 
 	// Use this for initialization
 	public override void Start () {

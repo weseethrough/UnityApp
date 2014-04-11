@@ -1,15 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BoltController : TargetController {
+public class SprinterController : TargetController {
 	
-	// Bolt's world record speed
+	// Sprinter's speed
 	private float speed = 10.44f;
 	
-	// Distance where Bolt and the player started running
+	// Distance where sprinter and the player started running
 	private float startDistance = 0.0f;
 	
-	// Distance Bolt has travelled
+	// Distance Sprinter has travelled
 	public float distanceFromStart = 0.0f;
 	
 	// Distance the player has travelled
@@ -75,10 +75,10 @@ public class BoltController : TargetController {
 	{
 		// Get the player's distance
 		playerDistance = Platform.Instance.LocalPlayerPosition.Distance;
-		// Calculate the distance travelled for Bolt
+		// Calculate the distance travelled for Sprinter
 		distanceFromStart += Time.deltaTime * speed;
 		
-		if(GetBoltDistanceTravelled() > 100)
+		if(GetSprinterDistanceTravelled() > 100)
 		{
 			speed = 0.0f;
 			if(anim != null) 
@@ -105,12 +105,12 @@ public class BoltController : TargetController {
 	}
 	
 	/// <summary>
-	/// Gets the distance travelled for Bolt
+	/// Gets the distance travelled for Sprinter
 	/// </summary>
 	/// <returns>
 	/// The distance in meters
 	/// </returns>
-	public float GetBoltDistanceTravelled()
+	public float GetSprinterDistanceTravelled()
 	{
 		return distanceFromStart - startDistance;
 	}

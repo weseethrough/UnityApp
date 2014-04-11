@@ -13,10 +13,6 @@ public class RaceGame : GameBase {
 	{
 		Runner			= 1,
 		Cyclist			= 2,
-		Mo				= 3,
-		Paula 			= 4,
-		Chris			= 5,
-		Bradley 		= 6
 	}
 	
 	private ActorType currentActorType = ActorType.Runner;
@@ -42,10 +38,6 @@ public class RaceGame : GameBase {
 	// Holds actor templates
 	public GameObject cyclistHolder;
 	public GameObject runnerHolder;
-	public GameObject moHolder;
-	public GameObject paulaHolder;
-	public GameObject chrisHolder;
-	public GameObject bradleyHolder;
 		
 	public override void Start () {
 		base.Start();
@@ -62,30 +54,6 @@ public class RaceGame : GameBase {
 			
 		case "Cyclist":
 			currentActorType = ActorType.Cyclist;
-			break;
-			
-		case "Mo":
-			currentActorType = ActorType.Mo;
-			DataVault.Set("slider_val", 0.525f);
-			targSpeed = 6.059f;
-			break;
-			
-		case "Paula":
-			currentActorType = ActorType.Paula;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 4.91f;
-			break;
-			
-		case "Chris":
-			currentActorType = ActorType.Chris;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 15.686f;			
-			break;
-			
-		case "Bradley":
-			currentActorType = ActorType.Bradley;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 17.007f;	
 			break;
 		}
 		
@@ -208,28 +176,6 @@ public class RaceGame : GameBase {
 			break;
 		case ActorType.Cyclist:
 			template = cyclistHolder;
-			break;
-		case ActorType.Mo:
-			template = moHolder;
-			targSpeed = 6.059f;
-			DataVault.Set("slider_val", 0.525f);
-			finish = 10000;
-			break;
-		case ActorType.Paula:
-			template = paulaHolder;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 4.91f;
-			finish = 42195;
-			break;
-		case ActorType.Chris:
-			template = chrisHolder;
-			finish = 1000;
-			targSpeed = 17.007f;
-			break;
-		case ActorType.Bradley:
-			template = bradleyHolder;
-			finish = 4000;
-			targSpeed = 15.686f;			
 			break;
 		default:
 			throw new NotImplementedException("Unknown actor type: " + currentActorType);
