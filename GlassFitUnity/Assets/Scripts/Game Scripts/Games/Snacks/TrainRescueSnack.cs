@@ -142,7 +142,7 @@ public class TrainRescueSnack : SnackBase {
 		{
 			//UnityEngine.Debug.Log("TrainRescueSnack: in finish loop");
 			//check if the train has reached the end
-			if(train.GetForwardDistance() > finishDistance && !finish)
+			if(train.GetForwardDistance() - playerStartDistance > finishDistance && !finish)
 			{
 				//UnityEngine.Debug.Log("TrainRescueSnack: train has killed that woman");
 				DataVault.Set("death_colour", "EA0000FF");

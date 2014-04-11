@@ -8,8 +8,6 @@ public class TrainController_Rescue : TargetController {
 	protected float timeRunStarted;
 	protected float playerDistance = 0.0f;
 	
-	protected Vector3 absolutePos = Vector2.zero;
-
 	protected bool hasBegunRace = false;
 
 	protected bool bSoundedHorn = false;
@@ -28,8 +26,6 @@ public class TrainController_Rescue : TargetController {
 
 		timeRunStarted = Time.time;
 
-		absolutePos = transform.localPosition;
-		
 		Component[] sources = GetComponents(typeof(AudioSource));
 		wheelSound = (AudioSource)sources[0];
 		hornSound = (AudioSource)sources[1];
