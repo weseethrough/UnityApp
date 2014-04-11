@@ -108,20 +108,10 @@ public class BoulderController : TargetController {
 			
 			}
 		}
-				
-//		// Rotate the object based on speed.
-//		xRot += (rotationSpeed * currentSpeed) * Time.deltaTime;
-//		
-//		// If greater than 360, reset.
-//		if(xRot > rotationLimit)
-//		{
-//			xRot -= rotationLimit;
-//		}
-//			
-//		// Make a new quaternion based on the rotation and apply
-//		Quaternion rot = Quaternion.Euler(new Vector3(xRot,0,0));
+	
+		//rotate based on speed
 		if(transform.childCount > 0) {
-			transform.GetChild(0).Rotate(rotationSpeed * Time.deltaTime, 0, 0);
+			transform.GetChild(0).Rotate(rotationSpeed * posController.getSpeed() * Time.deltaTime, 0, 0);
 		}
 
 		base.Update();
@@ -131,37 +121,7 @@ public class BoulderController : TargetController {
 		shiftedPosition.y += (float)GetDistanceBehindTarget() * gradient;
 		transform.position = shiftedPosition;
 
-		// Increase distance
-//		distanceFromStart += Time.deltaTime * currentSpeed;	
-//		//UnityEngine.Debug.Log("BoulderController: distance is " + distanceFromStart.ToString("f2"));
-//		
-//		scaledDistance = GetDistanceBehindTarget();
-//		
-//		//UnityEngine.Debug.Log("TargetController: distance behind is: " + scaledDistance.ToString());
-//		UnityEngine.Debug.Log("BoulderController: current z position is " + transform.position.z.ToString("f2"));
-//		//set position
-//		if(transform.childCount > 0) {
-//			Vector3 movement = new Vector3(xOffset, transform.GetChild(0).localPosition.y, (float)scaledDistance);
-//			transform.GetChild(0).localPosition = movement;
-//		}
-//		else
-//		{
-//			base.Update();
-//		}
-		
 	}
-	
-//	/// <summary>
-//	/// Override base implementation, which queries target tracker.
-//	/// </summary>
-//	/// <returns>
-//	/// The distance behind this target.
-//	/// </returns>
-//	public override double GetDistanceBehindTarget ()
-//	{
-//		float relativeDist = distanceFromStart - (float)playerDistance;
-//		return relativeDist;
-//	}
 	
 	/// <summary>
 	/// Gets the distance the player has travelled in the minigame.
