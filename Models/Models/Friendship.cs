@@ -8,13 +8,19 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-		public string _id;
-
-		public string identity_id;
+		public string id;
+        public string identity_type;
+        public string identity_uid;
 		public Friend friend;
 
 		public DateTime updated_at;
-		public DateTime? deleted_at;
+        public DateTime? deleted_at;
+        
+        public string GenerateCompositeId ()
+        {
+            id = identity_type + "_" + identity_uid;
+            return id;
+        }
 	}
 }
 

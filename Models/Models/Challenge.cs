@@ -11,9 +11,7 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-		[JsonConverter(typeof(ObjectIdConverter))]
-		[JsonProperty("_id")]		
-		public string id;
+		public int id;
 
 		public int? creator_id;
 		public List<Attempt> attempts;
