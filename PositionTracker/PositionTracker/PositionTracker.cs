@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.Collections;
+using System.Threading;
+
 
 using RaceYourself.Models;
 //using PositionPredictor;
@@ -27,6 +29,10 @@ namespace PositionTracker
 		private IPositionProvider positionProvider;
 		private ISensorProvider sensorProvider;
 		
+		// Callback class for recurrent sensor polling
+		SensorPollTick sensorPollTick;
+		// Sensor poll timer
+		Timer sensorPollTimer;
 		
 		private static float MAX_TOLERATED_POSITION_ERROR = 21; // 21 metres
 	    private static float EPE_SCALING = 0.5f; // if predicted positions lie within 0.5*EPE circle
@@ -166,37 +172,7 @@ namespace PositionTracker
 			// TODO: notify listerens on new position
 		}
 
-	    /**
-	     * Starts / re-starts the methods that poll GPS and sensors.
-	     * This is NOT an override - needs calling manually by containing Activity on app. resume
-	     * Safe to call repeatedly
-	     * 
-	     */
-	    public void OnResume() { 
-			if (IndoorMode) {
-				positionProvider.UnregisterPositionListener(this);
-				// TODO: fake GPS update
-			} else {
-				// Try registering listener. If failed, fallback to indoor mode
-				if(!positionProvider.RegisterPositionListener(this)) {
-					IndoorMode = true;
-					OnResume();
-				}
-			}
-			
-		}
-	
-	    /**
-	     * Stops the methods that poll GPS and sensors
-	     * This is NOT an override - needs calling manually by containing Activity on app. resume
-	     * Safe to call repeatedly
-	     */
-	    public void OnPause() {
-			positionProvider.UnregisterPositionListener(this);
-			// TODO: stop polling services
-
-		}
-	    
+    
 	    
 	    public void StartNewTrack() {		
 		    trackStopwatch.Stop();
@@ -376,8 +352,45 @@ namespace PositionTracker
 			return DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
 		}
 		
+	    /**
+	     * Starts / re-starts the methods that poll GPS and sensors.
+	     * This is NOT an override - needs calling manually by containing Activity on app. resume
+	     * Safe to call repeatedly
+	     * 
+	     */
+	    public void OnResume() { 
+			if (IndoorMode) {
+				positionProvider.UnregisterPositionListener(this);
+				// TODO: fake GPS update
+			} else {
+				// Try registering listener. If failed, fallback to indoor mode
+				if(!positionProvider.RegisterPositionListener(this)) {
+					IndoorMode = true;
+					OnResume();
+				}
+			}
+			
+			if (sensorPollTick == null) {
+				sensorPollTick = new SensorPollTick(this);
+				// Create an inferred delegate that invokes methods for the timer.
+        		TimerCallback tcb = sensorPollTick.Run;			
+				sensorPollTimer = new Timer(tcb, null, 0, 30); // every 30 ms
+			}
+		}
+	
+	    /**
+	     * Stops the methods that poll GPS and sensors
+	     * This is NOT an override - needs calling manually by containing Activity on app. resume
+	     * Safe to call repeatedly
+	     */
+	    public void OnPause() {
+			positionProvider.UnregisterPositionListener(this);
+			// Stop polling services
+			sensorPollTimer.Dispose();
+
+		}		
 		
-		public class Tick {
+		public class SensorPollTick {
 
 	        private long tickTime;
 	        private long lastTickTime;
@@ -391,12 +404,13 @@ namespace PositionTracker
 			private ISensorProvider sensorProvider;
 			private PositionTracker positionTracker;
 			
-			public Tick(PositionTracker positionTracker, ISensorProvider sensorProvider) {
+			public SensorPollTick(PositionTracker positionTracker) {
 				this.positionTracker = positionTracker;
-				this.sensorProvider = sensorProvider;
+				this.sensorProvider = positionTracker.sensorProvider;
 			}
 			
-	        public void Run() {
+			// This method is called by the timer delegate. 
+	        public void Run(Object stateInfo) {
 	            
 	            if (lastTickTime == 0) {
 	                lastTickTime = currentTimeMillis();
