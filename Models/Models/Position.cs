@@ -10,7 +10,7 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-        public ulong id = 0;
+        public long id = 0;
 
 		[JsonProperty("device_id")]
 		public int deviceId;
@@ -62,12 +62,12 @@ namespace RaceYourself.Models
             }
         }
         
-        public ulong GenerateCompositeId ()
+        public long GenerateCompositeId ()
         {
-            ulong high = deviceId;
-            uint low = (uint)positionId;
+            long high = deviceId;
+            uint low = (uint) positionId;
             
-            ulong composite = (high << 32) | low;
+            long composite = (high << 32) | low;
             this.id = composite;
             return this.id;
         }

@@ -23,7 +23,7 @@ namespace RaceYourself.Models
 		[JsonProperty("screen_name")]
         public string username;
         
-        public guid GenerateCompositeId ()
+        public string GenerateCompositeId ()
         {
             this.guid = uid + "_" + provider;
             return this.guid;
