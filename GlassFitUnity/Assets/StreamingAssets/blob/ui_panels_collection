@@ -2,22 +2,13 @@ HexMenu
 HUD
 Track Select
 Complete
-Dead
-Challenge Game
-Floating HUD
-Locked Screen
-Loading
 HexInfo
 RegisterDevice
 Master
-Mode Screen
 Pause Screen
-HUD_challenge
-HUD_ingame
 Quit Screen
 IndoorText
 GyroText
-Delete Screen
 FeetManager
 FirstRace_Page1
 FirstRace_Page2
@@ -36,9 +27,6 @@ TrainGame_Intro
 BlankPage
 ChallengeInfo
 HUD2
-Crosshair
-Zombie Death
-GameIntro
 EULA
 Warning
 TapToBegin
@@ -51,6 +39,6 @@ SnackDead
 OfferSnackGame
 MobileMainMenu
 MobileList
-ImagePreivew
 2DHUD
 screen1
+Retry

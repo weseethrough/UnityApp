@@ -22,6 +22,7 @@ public class GameBase : MonoBehaviour {
 	public const string GAMESTATE_RUNNING = "running";
 	public const string GAMESTATE_FINISHED = "finished";
 	public const string GAMESTATE_QUIT_CONFIRMATION = "quit_confirmation";
+	public const string GAMESTATE_RETRY_PROMPT = "retry_prompt";
 	
 	//string to track the current state. Should ONLY use the const values defined above or in a subclass
 	protected string gameState = GAMESTATE_AWAITING_USER_READY;
@@ -336,10 +337,16 @@ public class GameBase : MonoBehaviour {
 	/// Continue, once we h
 	/// </summary>
 	void Continue() {
-		FlowState.FollowFlowLinkNamed("ContinueButton");
 		SoundManager.PlaySound(SoundManager.Sounds.Tap);
-		CleanUp();
-		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+
+		if(!Convert.ToBoolean(DataVault.Get("is_testing"))) {
+			FlowState.FollowFlowLinkNamed("ContinueButton");
+			CleanUp();
+			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+		} else {
+			FlowState.FollowFlowLinkNamed("RetryPromptExit");
+			SetGameState(GAMESTATE_RETRY_PROMPT);
+		}	
 	}
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
@@ -370,6 +377,11 @@ public class GameBase : MonoBehaviour {
 				//continue back to hex menu
 				Continue();
 				break;
+			case GAMESTATE_RETRY_PROMPT:
+				//TODO: add reset function
+				FlowState.FollowFlowLinkNamed("RetryExit");
+				Application.LoadLevel(Application.loadedLevel);
+				break;
 			}
 		}
 	}
@@ -392,6 +404,9 @@ public class GameBase : MonoBehaviour {
 		case GAMESTATE_QUIT_CONFIRMATION:
 			//cancel quit
 			SetGameState(GAMESTATE_RUNNING);
+			break;
+		case GAMESTATE_RETRY_PROMPT:
+			Application.Quit();
 			break;
 		}
 	}
@@ -434,6 +449,10 @@ public class GameBase : MonoBehaviour {
 			Platform.Instance.LocalPlayerPosition.StopTrack();
 		} else
 		{
+			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			fs.parentMachine.ForbidBack();
+			SetGameState (GAMESTATE_RUNNING);
+
 			UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
 		}
 		

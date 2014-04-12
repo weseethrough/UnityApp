@@ -6,8 +6,9 @@ namespace RaceYourself.Models
 {
 	public class Device
 	{
-		[JsonProperty("_id")]		
-		public int id;
+        [Index]
+        [UniqueConstraint]
+        public int id;
 		public string manufacturer;
 		public string model;
 		public string glassfit_version;

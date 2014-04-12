@@ -38,7 +38,7 @@ public class UIBasiclabel : UIComponentSettings
 	/// </summary>
 	/// <param name="s">string to be set on label</param>
 	/// <returns></returns>
-	void SetLabel(string s)
+	public void SetLabel(string s)
 	{
 		if ( labelInstance != null && 
 			(labelInstance.text != s))
