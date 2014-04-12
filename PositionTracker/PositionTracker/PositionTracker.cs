@@ -23,6 +23,11 @@ namespace PositionTracker
 				
 		private PositionPredictor.PositionPredictor positionPredictor = new PositionPredictor.PositionPredictor();
 		
+		// Platform-dependent providers of position and sensors
+		private IPositionProvider positionProvider;
+		private ISensorProvider sensorProvider;
+		
+		
 		private static float MAX_TOLERATED_POSITION_ERROR = 21; // 21 metres
 	    private static float EPE_SCALING = 0.5f; // if predicted positions lie within 0.5*EPE circle
                                                    // of reported GPS position, no need to store GPS pos.
@@ -32,8 +37,6 @@ namespace PositionTracker
     	private static long DISTANCE_CORRECTION_MILLISECONDS = 1500; 
 
 
-
-		
 		public enum State {
 			UNKNOWN,
 			STOPPED,
@@ -43,8 +46,12 @@ namespace PositionTracker
 			SENSOR_DEC
 		}
 		
-		PositionTracker() {
+		PositionTracker(IPositionProvider positionProvider, ISensorProvider sensorProvider) {
+			this.positionProvider = positionProvider;
+			this.sensorProvider = sensorProvider;
 			MinIndoorSpeed = 0.0f;
+			
+			OnResume();
 		}
 		
 		public void OnPositionUpdate(Position position) { 
@@ -165,14 +172,30 @@ namespace PositionTracker
 	     * Safe to call repeatedly
 	     * 
 	     */
-	    public void OnResume() { }
+	    public void OnResume() { 
+			if (IndoorMode) {
+				positionProvider.UnregisterPositionListener(this);
+				// TODO: fake GPS update
+			} else {
+				// Try registering listener. If failed, fallback to indoor mode
+				if(!positionProvider.RegisterPositionListener(this)) {
+					IndoorMode = true;
+					OnResume();
+				}
+			}
+			
+		}
 	
 	    /**
 	     * Stops the methods that poll GPS and sensors
 	     * This is NOT an override - needs calling manually by containing Activity on app. resume
 	     * Safe to call repeatedly
 	     */
-	    public void OnPause() {}
+	    public void OnPause() {
+			positionProvider.UnregisterPositionListener(this);
+			// TODO: stop polling services
+
+		}
 	    
 	    
 	    public void StartNewTrack() {		
