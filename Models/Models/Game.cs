@@ -5,20 +5,29 @@ namespace RaceYourself.Models
 {
 	public class Game
 	{
-		public string gameId;// Unique identifier of the game (e.g. "Zombies 2")
-		public string name; // Pretty name to display to users
-		public string iconName;
-		public string activity;
-		public string description; // Pretty description to display to users
-		public string state; // "Locked" or "Unlocked"
-		public int tier; // which tier the game sits in (1,2,3,4 etc)
+		// Game state
+
+        public string state; // "Locked" or "Unlocked"
+        public bool enabled; // Can the user access
+
+        // Game
+
+        public string gameId;// Unique identifier of the game (e.g. "Zombies 2")
+        public string name; // Pretty name to display to users
+        public string activity;
+        public string description; // Pretty description to display to users
+        public int tier; // which tier the game sits in (1,2,3,4 etc)
 		public long priceInPoints;
 		public long priceInGems;
-		public string type;
-		public int column;
-		public int row;
-		public string sceneName;
+		public string type; // N/A, Race, Challenge, Snack
+        public string sceneName;
 
+        // Menu-specific
+
+        public string iconName;
+        public int column;
+		public int row;
+		
 		public Game () {}
 		public Game(string gameID, string name, string iconName, string activity, string description, 
 			        string state, int tier, long priceInPoints, long priceInGems, string type, int column, 

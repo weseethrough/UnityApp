@@ -38,4 +38,3 @@ namespace RaceYourself.Models
 		public string permissions;
 	}
 }
-

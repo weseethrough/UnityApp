@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace RaceYourself.Models
 {
+    // A saved run - coordinates of each moment of your run.
 	public class Track
 	{
 		[Index]
