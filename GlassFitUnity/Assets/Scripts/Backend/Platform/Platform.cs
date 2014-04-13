@@ -33,7 +33,7 @@ public abstract class Platform : SingletonBase
     public BluetoothMessageListener BluetoothMessageListener { get { return _bluetoothMessageListener; } }
 
     // internal platform tools
-    private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platfrom
+    private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
     protected static Log log = new Log("Platform");  // for use by subclasses
     protected Siaqodb db;
     public API api;
@@ -97,9 +97,9 @@ public abstract class Platform : SingletonBase
 
         log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");        
     }
-        
+
 	protected virtual void Initialize()
-	{        	                
+	{
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();	                
 		// Set initialised=true in overriden method
@@ -113,6 +113,9 @@ public abstract class Platform : SingletonBase
             db = DatabaseFactory.GetInstance();
             api = new API(db);
             sessionId = Sequence.Next("session", db);
+
+            //DataVault.Set("loading", "Please wait while we sync the database");
+            //SyncToServer();
         }
 
 		if (OnGlass() && HasInternet()) {
@@ -372,7 +375,6 @@ public abstract class Platform : SingletonBase
         lastSync = DateTime.Now;
         GetMonoBehavioursPartner().StartCoroutine(api.Sync());
     }
-
 
     // *** Methods that need platform-specific overrides ***
 	

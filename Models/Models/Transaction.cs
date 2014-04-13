@@ -9,7 +9,7 @@ namespace RaceYourself.Models
     {
         [Index]
         [UniqueConstraint]
-        [JsonIgnore]
+//        [JsonIgnore]
         public long id;
         [JsonProperty ("device_id")]		
         public int deviceId;

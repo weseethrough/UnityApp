@@ -9,7 +9,8 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-		public int id;
+        [JsonConverter(typeof(ObjectIdConverter))]
+		public string id;
 
 		public bool read;
 		public Message message;
