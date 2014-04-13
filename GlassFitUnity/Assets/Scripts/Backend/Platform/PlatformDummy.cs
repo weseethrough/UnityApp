@@ -216,15 +216,11 @@ public class PlatformDummy : Platform
 		return playerOrientation;
 	}
 	
-    
-    protected override void PostInit() {    
-        
+    protected override void PostInit() {
         base.PostInit();
-        
         if (Application.isPlaying) {
             MergeGamesList();
         }
-        
     }
     
     private void MergeGamesList() {
