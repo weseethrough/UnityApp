@@ -50,7 +50,7 @@ namespace PositionTracker
 			SENSOR_DEC
 		}
 		
-		PositionTracker(IPositionProvider positionProvider, ISensorProvider sensorProvider) {
+		public PositionTracker(IPositionProvider positionProvider, ISensorProvider sensorProvider) {
 			this.positionProvider = positionProvider;
 			this.sensorProvider = sensorProvider;
 			SpeedState.CurrentState = State.STOPPED;
