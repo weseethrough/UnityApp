@@ -96,6 +96,6 @@ class LockedConverter : JsonConverter
     
     public override bool CanConvert(Type objectType)
     {
-        return objectType == typeof(bool);
+        return objectType == typeof(bool) || objectType == typeof(string);
     }
 }

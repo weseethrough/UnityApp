@@ -583,7 +583,7 @@ namespace RaceYourself
 			public List<Models.Notification> notifications;
             public List<Models.Transaction> transactions;
             //public List<Models.PlayerConfig> playerConfig;
-            //public List<Models.Game> games;
+            public List<Models.Game> games;
 			
 			public List<string> errors = new List<string>();
 			
@@ -593,7 +593,7 @@ namespace RaceYourself
 						+ " tail: " + tail_timestamp + "#" + tail_skip + "; "
 					    + LengthOrNull(devices) + " devices, "
                         + LengthOrNull(friends) + " friends, "
-                    //    + LengthOrNull(games) + " games, "
+                        + LengthOrNull(games) + " games, "
 						+ LengthOrNull(challenges) + " challenges, "
 						+ LengthOrNull(tracks) + " tracks, "
 						+ LengthOrNull(positions) + " positions, "
@@ -654,20 +654,20 @@ namespace RaceYourself
 					db.EndBulkInsert(typeof(Models.Challenge));
 				}
                 
-//                if (games != null) {
-//                    db.StartBulkInsert(typeof(Models.Game));
-//                    foreach (Models.Game game in games) {
-//                        if (game.deleted_at != null) {
-//                            if (db.DeleteObjectBy("id", game)) deletes++;
-//                            continue;
-//                        }
-//                        if (!db.UpdateObjectBy("id", game)) {
-//                            db.StoreObject(game);
-//                            inserts++;
-//                        } else updates++;
-//                    }
-//                    db.EndBulkInsert(typeof(Models.Game));
-//                }
+                if (games != null) {
+                    db.StartBulkInsert(typeof(Models.Game));
+                    foreach (Models.Game game in games) {
+                        if (game.deleted_at != null) {
+                            if (db.DeleteObjectBy("id", game)) deletes++;
+                            continue;
+                        }
+                        if (!db.UpdateObjectBy("id", game)) {
+                            db.StoreObject(game);
+                            inserts++;
+                        } else updates++;
+                    }
+                    db.EndBulkInsert(typeof(Models.Game));
+                }
 
                 if (tracks != null) {
 					db.StartBulkInsert(typeof(Models.Device));
