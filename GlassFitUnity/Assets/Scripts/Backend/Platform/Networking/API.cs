@@ -22,22 +22,19 @@ namespace RaceYourself
 #if PRODUCTION
         private const string SCHEME = "https://";
         private const string AUTH_HOST = "api.raceyourself.com";
-        private string apiHost = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
-        
+        private const string apiHost = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
         private const string CLIENT_ID = "98f985cd4fca00aefda3f31c10b3d994eaa496d882fdf3db936fad76e4dae236";
         private const string CLIENT_SECRET = "9ca4b4f56b518deca0c2200b92a3435f05cb4e0b3d52b0a5a1608f39d004750e";
 #elif LOCALHOST
         private const string SCHEME = "http://";
         private const string AUTH_HOST = "localhost:3000";
-        private string apiHost = "localhost:3000"; // Note: might be supplied through auth load-balancer in future
-        
-        private const string CLIENT_ID = "c9842247411621e35dbaf21ad0e15c263364778bf9a46b5e93f64ff2b6e0e17c";
-        private const string CLIENT_SECRET = "75f3e999c01942219bea1e9c0a1f76fd24c3d55df6b1c351106cc686f7fcd819";
+        private const string apiHost = "localhost:3000"; // Note: might be supplied through auth load-balancer in future
+        private const string CLIENT_ID = "e4585379c3f6627e5510c21f21af999da38c0bfff82066be1b3bca34efe6092f";
+        private const string CLIENT_SECRET = "89ac25d58a314eca793b1597b477f4e38a2c470a5a1f45830043bab912d4bdd9";
 #else
         private const string SCHEME = "http://";
         private const string AUTH_HOST = "a.staging.raceyourself.com";
-        private string apiHost = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
-        
+        private const string apiHost = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
         private const string CLIENT_ID = "c9842247411621e35dbaf21ad0e15c263364778bf9a46b5e93f64ff2b6e0e17c";
         private const string CLIENT_SECRET = "75f3e999c01942219bea1e9c0a1f76fd24c3d55df6b1c351106cc686f7fcd819";
 #endif
@@ -51,7 +48,7 @@ namespace RaceYourself
 		
 		private OauthToken token = null;
 		public User user { get; private set; }
-		
+
 		private bool syncing = false;
 		
 		public API(Siaqodb database) 

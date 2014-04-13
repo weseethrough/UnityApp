@@ -208,10 +208,6 @@ public abstract class Platform : SingletonBase
         return partner;
     }
 
-
-
-
-
     //***** Convenience methods that mostly return values from the database  ****
 
     // Get the device's orientation
@@ -234,6 +230,16 @@ public abstract class Platform : SingletonBase
     {
         if (api == null) return null;
         return api.user;
+    }
+    
+    public virtual User GetPlayerConfig()
+    {
+        User user = null;
+        IEnumerator e = api.get("configurations/unity", (body) => {
+            user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+        });
+        while(e.MoveNext()) {}; // block until finished
+        return user;
     }
 
     public virtual User GetUser(int userId)
@@ -349,12 +355,12 @@ public abstract class Platform : SingletonBase
         return track;
     }
 
-
     // *** Networking methods ***
 
     public virtual void Authorize(string provider, string permissions) {
         if (Application.isPlaying) {
-            GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.staging@mailinator.com", "exerciseIsChanging123!"));
+            // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no?
+            GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
         }
     }
 
