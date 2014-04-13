@@ -16,7 +16,6 @@ namespace PositionTracker
 		private Track track;
 		private Position gpsPosition;
 		//private float bearing;
-		private State state = State.STOPPED;
 				
 		private Stopwatch trackStopwatch = new Stopwatch(); // time so far in milliseconds
 	    private Stopwatch interpolationStopwatch = new Stopwatch(); // time so far in milliseconds
@@ -42,7 +41,6 @@ namespace PositionTracker
     	// more accurate but non-continuous extrapolated GPS position
     	private static long DISTANCE_CORRECTION_MILLISECONDS = 1500; 
 
-
 		public enum State {
 			UNKNOWN,
 			STOPPED,
@@ -55,6 +53,7 @@ namespace PositionTracker
 		PositionTracker(IPositionProvider positionProvider, ISensorProvider sensorProvider) {
 			this.positionProvider = positionProvider;
 			this.sensorProvider = sensorProvider;
+			SpeedState.CurrentState = State.STOPPED;
 			MinIndoorSpeed = 0.0f;
 			
 			OnResume();
@@ -82,7 +81,7 @@ namespace PositionTracker
 	        }
 	        
 	        // keep track of the pure GPS distance moved
-	        if (lastPosition != null && state != State.STOPPED) {
+	        if (lastPosition != null && SpeedState.CurrentState != State.STOPPED) {
 	            // add dist between last and current position
 	            // don't add distance if we're stopped, it's probably just drift 
 	            GpsDistance += PositionUtils.distanceBetween(lastPosition, gpsPosition);
@@ -131,12 +130,12 @@ namespace PositionTracker
 		private void detectPositionImportance(Position position, Position lastPosition) {
 	        if (lastImportantPosition == null) {
 	            // important position - first in track
-	            position.state_id = (Int32)state;
+	            position.state_id = (Int32)SpeedState.CurrentState;
 	            lastImportantPosition = position;
-	        } else if (Math.Abs(lastPosition.state_id) != (Int32)state) {
+	        } else if (Math.Abs(lastPosition.state_id) != (Int32)SpeedState.CurrentState) {
 	            // change in state, positions either side of change are important
 	            if (lastPosition.state_id < 0) lastPosition.state_id = (-1*lastPosition.state_id);
-	            position.state_id = (Int32)state;
+	            position.state_id = (Int32)SpeedState.CurrentState;
 	            lastImportantPosition = position;
 	        } else {
 	            // no change in state, see if we could have predicted current position
@@ -154,12 +153,12 @@ namespace PositionTracker
 	                if (predictedPosition == null || 
 	                        PositionUtils.distanceBetween(position, predictedPosition) > ((position.epe + 1) * EPE_SCALING)) {
 	                    // error still too big (must be sharp corner, not gradual curve) so mark this one as important too
-	                    position.state_id = (Int32)state;
+	                    position.state_id = (Int32)SpeedState.CurrentState;
 	                    lastImportantPosition = position;
 	                }
 	            } else {
 	                // not important, we could have predicted it
-	                position.state_id = (-1*(Int32)state);
+	                position.state_id = (-1*(Int32)SpeedState.CurrentState);
 	            }
 	        }
 			
@@ -183,7 +182,7 @@ namespace PositionTracker
 	        ElapsedDistance = 0.0;
 	        GpsDistance = 0.0;
 	        CurrentSpeed = 0.0f;
-	        state = State.STOPPED;
+	        SpeedState.CurrentState = State.STOPPED;
 	        recentPositions.Clear();
 	        
 	        track = null;
@@ -387,7 +386,7 @@ namespace PositionTracker
 			positionProvider.UnregisterPositionListener(this);
 			// Stop polling services
 			sensorPollTimer.Dispose();
-
+			sensorPollTick = null;
 		}		
 		
 		public class SensorPollTick {
@@ -436,8 +435,8 @@ namespace PositionTracker
 	            // update state
 	            // gpsSpeed = -1.0 for indoorMode to prevent entry into
 	            // STEADY_GPS_SPEED (just want sensor_acc/dec)
-	            State lastState = positionTracker.state;
-	            positionTracker.state = positionTracker.nextState(meanDta, (positionTracker.IndoorMode ? -1.0f : gpsSpeed));
+	            State lastState = SpeedState.CurrentState;
+	            SpeedState.NextState(meanDta, (positionTracker.IndoorMode ? -1.0f : gpsSpeed));
 	            
 	            // save for next loop
 	            lastForwardAcc = sensorProvider.ForwardAcceleration;
@@ -445,7 +444,7 @@ namespace PositionTracker
 	            
 				float outdoorSpeed = positionTracker.CurrentSpeed;
 	            // adjust speed
-	            switch (positionTracker.state) {
+	            switch (SpeedState.CurrentState) {
 	                case State.STOPPED:
 	                    // speed is zero!
 	                    outdoorSpeed = 0.0f;
@@ -505,7 +504,7 @@ namespace PositionTracker
 	                // increment distance traveled by camera at this new speed
 	                positionTracker.ElapsedDistance += correctiveSpeed * (tickTime - lastTickTime) / 1000.0;
 	                
-	                if (positionTracker.state != lastState) positionTracker.notifyPositionListeners(positionTracker.state);
+	                if (PositionTracker.SpeedState.CurrentState != lastState) positionTracker.notifyPositionListeners(PositionTracker.SpeedState.CurrentState);
 	                
 	            }
 	            
@@ -513,41 +512,48 @@ namespace PositionTracker
 	        }
     	}
 		
-		private State nextState(float rmsForwardAcc, float gpsSpeed) {
-        	return SpeedState.NextState(state, rmsForwardAcc, gpsSpeed);
-        }
 		
-		
-		private class SpeedState {
-			private static State currentState;
+		public class SpeedState {
         	private static float ACCELERATE_THRESHOLD = 0.45f;
             private static float DECELERATE_THRESHOLD = 0.35f;
-
-			public static State NextState(State state, float rmsForwardAcc, float gpsSpeed) {
-				currentState = state; 
-				switch(currentState) {
-				case State.UNKNOWN:
-					return currentState; 
-					
-				case State.STOPPED:
-					return nextStateStopped(rmsForwardAcc, gpsSpeed);
-	
-				case State.SENSOR_ACC:
-					return nextStateSensorAcc(rmsForwardAcc, gpsSpeed);
-
-				case State.STEADY_GPS_SPEED:
-					return nextStateSteadyGpsSpeed(rmsForwardAcc, gpsSpeed);
-					
-				case State.COAST:
-					return nextStateCoast(rmsForwardAcc, gpsSpeed);
-					
-				case State.SENSOR_DEC:
-					return nextStateSensorDec(rmsForwardAcc, gpsSpeed);
-				}
-				return currentState;
+			
+			private static State currentState;
+			
+			public static State CurrentState { 
+				get { return currentState; }
+				set { currentState = value; SaveEntryTime(); }
 			}
 			
-			private static long EntryTime { get; set; }
+			public static State NextState(float rmsForwardAcc, float gpsSpeed) {
+				switch(CurrentState) {
+				case State.UNKNOWN:
+					return CurrentState; 
+					
+				case State.STOPPED:
+					CurrentState = nextStateStopped(rmsForwardAcc, gpsSpeed);
+					break;
+					
+				case State.SENSOR_ACC:
+					CurrentState =  nextStateSensorAcc(rmsForwardAcc, gpsSpeed);
+					break;
+
+				case State.STEADY_GPS_SPEED:
+					CurrentState =  nextStateSteadyGpsSpeed(rmsForwardAcc, gpsSpeed);
+					break;
+
+				case State.COAST:
+					CurrentState =  nextStateCoast(rmsForwardAcc, gpsSpeed);
+					break;
+
+				case State.SENSOR_DEC:
+					CurrentState =  nextStateSensorDec(rmsForwardAcc, gpsSpeed);
+					break;
+
+				}
+				return CurrentState;
+			}
+			
+			public static long EntryTime { get; set; }
 			
 			private static void SaveEntryTime() {
 				EntryTime = PositionTracker.currentTimeMillis();
@@ -563,7 +569,7 @@ namespace PositionTracker
 					SaveEntryTime();
                     return State.SENSOR_ACC;
 				}
-        		return currentState;
+        		return CurrentState;
         	}
 
 			private static State nextStateSensorAcc(float rmsForwardAcc, float gpsSpeed) {
@@ -576,7 +582,7 @@ namespace PositionTracker
 					SaveEntryTime();
                     return State.SENSOR_DEC;
                 } 
-        		return currentState;
+        		return CurrentState;
         	}		
 			
 			private static State nextStateSteadyGpsSpeed(float rmsForwardAcc, float gpsSpeed) {
@@ -592,7 +598,7 @@ namespace PositionTracker
 					SaveEntryTime();
                     return State.COAST;
                 }                
-        		return currentState;
+        		return CurrentState;
         	}			
 			
 			private static State nextStateCoast(float rmsForwardAcc, float gpsSpeed) {
@@ -607,7 +613,7 @@ namespace PositionTracker
 					SaveEntryTime();
                     return State.STEADY_GPS_SPEED;
                 }
-        		return currentState;
+        		return CurrentState;
         	}			
 			
 			private static State nextStateSensorDec(float rmsForwardAcc, float gpsSpeed) {
@@ -624,7 +630,7 @@ namespace PositionTracker
 					SaveEntryTime();
                     return State.SENSOR_ACC;
                 }				
-        		return currentState;
+        		return CurrentState;
         	}			
 			
 		}
