@@ -10,16 +10,30 @@ namespace RaceYourself.Models
     public class PlayerConfig
     {
         /// Is the player a beta tester? Used to determine whether we should prompt them for feedback.
-        public bool test;
+        public string configuration;
+
+        [JsonIgnore]
+        public ConfigurationPayload payload;
 
         public PlayerConfig ()
         {
-            test = false;
+
         }
 
-        public PlayerConfig(bool test)
+        public PlayerConfig(string configuration)
         {
-            this.test = test;
+            this.configuration = configuration;
         }
+
+        public bool Test()
+        {
+            return payload.test;
+        }
+    }
+
+    [JsonConverter(typeof(CustomConverter))]
+    public class ConfigurationPayload
+    {
+        public bool test;
     }
 }

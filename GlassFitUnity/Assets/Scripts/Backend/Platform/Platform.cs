@@ -235,14 +235,16 @@ public abstract class Platform : SingletonBase
         return api.user;
     }
     
-    public virtual User GetPlayerConfig()
+    public virtual PlayerConfig GetPlayerConfig()
     {
-        User user = null;
+        PlayerConfig cfg = null;
         IEnumerator e = api.get("configurations/unity", (body) => {
-            user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+            cfg = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.PlayerConfig>>(body).response;
+            var payload = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.ConfigurationPayload>>(cfg.configuration).response;
+            cfg.payload = payload;
         });
         while(e.MoveNext()) {}; // block until finished
-        return user;
+        return cfg;
     }
 
     public virtual User GetUser(int userId)
