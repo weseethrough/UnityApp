@@ -35,7 +35,7 @@ public class ZombieController : RYWorldObject {
 	/// <summary>
 	/// Start this instance. Sets the attributes
 	/// </summary>
-	void Start () {
+	public override void Start () {
 
 		base.Start();
 
@@ -81,7 +81,7 @@ public class ZombieController : RYWorldObject {
 	/// <summary>
 	/// Update this instance.
 	/// </summary>
-	void Update () {
+	public override void Update () {
 		//call base update, which sets scene position based on world position
 		base.Update();
 		// Calculate the position based on the player's position.

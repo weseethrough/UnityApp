@@ -31,7 +31,7 @@ public class FinishMarker : RYWorldObject {
 	/// <summary>
 	/// Updates the position
 	/// </summary>
-	void Update () {
+	public override void Update () {
 		// Get the current distance travelled.
 		distance = Platform.Instance.LocalPlayerPosition.Distance;
 

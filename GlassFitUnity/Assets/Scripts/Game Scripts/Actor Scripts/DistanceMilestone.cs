@@ -15,7 +15,7 @@ public class DistanceMilestone : RYWorldObject {
 	/// <summary>
 	/// Obtains the text mesh
 	/// </summary>
-	void Start () 
+	public override void Start () 
 	{	
 		// Get initial text mesh component.
 		textMesh = textObject.GetComponent<TextMesh>();
@@ -28,7 +28,7 @@ public class DistanceMilestone : RYWorldObject {
 	/// <summary>
 	/// Updates the position of the markers
 	/// </summary>
-	void Update () 
+	public override void Update () 
 	{
 		// Get current distance travelled.
 		double distance = Platform.Instance.LocalPlayerPosition.Distance;
