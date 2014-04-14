@@ -48,9 +48,6 @@ public class GameBase : MonoBehaviour {
 	// Selected Track
 	public Track selectedTrack = null;
 	
-	// Target speed
-	public float targSpeed = 1.8f;
-	
 	protected GestureHelper.OnTap tapHandler = null;
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
 	protected GestureHelper.OnBack backHandler = null;
@@ -64,7 +61,38 @@ public class GameBase : MonoBehaviour {
 	private float indoorTime;
 	
 	public bool showFps = false;
-	
+
+	public static int getTargetDistance()
+	{
+		if(Application.isEditor) 
+			return 5000;
+
+		Track selectedTrack = (Track)DataVault.Get("current_track");
+
+
+		if(selectedTrack != null)
+		{
+			return (int)selectedTrack.distance;
+		}
+		else
+		{
+			int dist = (int)DataVault.Get("finish");
+			if(dist > 0)
+			{
+				return dist;
+			}
+			else
+			{
+				if(!Application.isEditor)
+				{
+					UnityEngine.Debug.LogError("GameBase: Don't have distance stored for this run");
+				}
+				return 5000;
+			}
+		}
+	}
+
+
 	/// <summary>
 	/// Start this instance.
 	/// </summary>
@@ -108,20 +136,7 @@ public class GameBase : MonoBehaviour {
 		UnityEngine.Debug.Log("GameBase: getting track");
 		selectedTrack = (Track)DataVault.Get("current_track");
 		
-		UnityEngine.Debug.Log("GameBase: checking if track is null");
-		if(selectedTrack != null) {
-			finish = (int)selectedTrack.distance;
-			UnityEngine.Debug.Log("GameBase: track distance is: " + finish.ToString());
-		} else {
-			if(Application.isEditor)
-			{
-				finish = 1000;
-			}
-			else
-			{
-				finish = (int)DataVault.Get("finish");
-			}
-		}
+		finish = GameBase.getTargetDistance();
 	
 		
 #if RY_INDOOR
@@ -177,7 +192,9 @@ public class GameBase : MonoBehaviour {
 		}
 		
 	}
-	
+
+
+
 	public void SetVirtualTrackVisible(bool visible)
 	{
 		if(theVirtualTrack == null)

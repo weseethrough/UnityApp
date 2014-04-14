@@ -89,8 +89,7 @@ public class TrainingSettings : MonoBehaviour {
 					Platform.Instance.ResetTargets();
 					TrainingController controller = runner.GetComponent<TrainingController>();
 					// TODO: Ugly. Look into.
-					controller.SetSpeed(targSpeed);
-										
+															
 					// Start countdown again
 					started = false;
 					countdown = false;

@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Controls the position of the Dinosaur and sounds.
 /// </summary>
-public class DinosaurController : TargetController {
+public class DinosaurController : RYWorldObject {
 	
 	// Time until next scream
 	private float screamTime = 0.0f;
@@ -51,9 +51,8 @@ public class DinosaurController : TargetController {
 	public override void Start () {
 		
 		// Start the base and set the attributes
-		//base.Start();
-		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
-		
+		base.Start();
+
 		// Get the animator
 		anim = GetComponentInChildren<Animator>();
 				
@@ -69,12 +68,8 @@ public class DinosaurController : TargetController {
 	/// <summary>
 	/// Raises the enable event. Sets the attributes
 	/// </summary>
-	public override void OnEnable() {
+	public void OnEnable() {
 		// Enable the base and set the attributes.
-		base.OnEnable();
-		
-		SetAttribs(0.0f, 1.0f, transform.position.y, transform.position.x);
-		
 		Reset();
 		//SetAttribs(50, 135, -240, 0f);
 	}

@@ -7,7 +7,7 @@ using System;
 /// <summary>
 /// Controls the position of the zombies
 /// </summary> 
-public class ZombieController : MonoBehaviour {
+public class ZombieController : RYWorldObject {
 	
 	int health = 3;
 	
@@ -30,16 +30,21 @@ public class ZombieController : MonoBehaviour {
 	float nearPlayerTime = 0.0f;
 	
 	bool nearPlayer = false;
+	ConstantVelocityPositionController posController = null;
 	
 	/// <summary>
 	/// Start this instance. Sets the attributes
 	/// </summary>
-	void Start () {
-		
+	public override void Start () {
+
+		base.Start();
+
 		animator = GetComponent<Animator>();
-		
+		posController = GetComponent<ConstantVelocityPositionController>();
+
+		//init sounds
 		AudioSource[] sounds = GetComponents<AudioSource>();
-		
+
 		if(sounds != null) {
 			int sound = UnityEngine.Random.Range(0, 3);
 			
@@ -61,39 +66,48 @@ public class ZombieController : MonoBehaviour {
 				UnityEngine.Debug.Log("Zombie: not enough sounds for death");
 			}
 		}
-		float yRotation = UnityEngine.Random.Range(150f, 210f);
-		
-		transform.rotation = Quaternion.Euler(0, yRotation, 0);
-		
-		transform.position = transform.rotation * new Vector3(0, 0, -30);
-		
+
 		direction = Vector3.zero - transform.position;
 		direction.Normalize();
-		
+
+		posController.setDir(direction);
+
 		marker = transform.Find("Pointer").gameObject;
 		
 		collider = GetComponentInChildren<CapsuleCollider>();
+
 	}
 	
 	/// <summary>
 	/// Update this instance.
 	/// </summary>
-	void Update () {
+	public override void Update () {
+		//call base update, which sets scene position based on world position
+		base.Update();
 		// Calculate the position based on the player's position.
 		if(!dead) {
 			float distanceFromTarget = transform.position.magnitude;
 			if(distanceFromTarget > 2.0f)
 			{
-				float pace = Platform.Instance.LocalPlayerPosition.Pace;
-				transform.position += ((direction * speed) * Time.deltaTime) - ((new Vector3(0, 0, 1) * pace) * Time.deltaTime);
-				
+				//unfreeze
+				setScenePositionFrozen(false);
+
+				//face the player
 				direction = Vector3.zero - transform.position;
 				direction.Normalize();
 				transform.rotation = Quaternion.LookRotation(direction);
-				nearPlayerTime = 0.0f;;
+				//move towards the player
+				posController.setDir(direction);
+
+				//reset timer
+				nearPlayerTime = 0.0f;
 			}
 			else
 			{
+				//within range. Freeze position
+				setScenePositionFrozen(true);
+
+				//increment fail timer and check for fail
 				nearPlayerTime += Time.deltaTime;
 				if(nearPlayerTime > 2.0f)
 				{
@@ -108,7 +122,8 @@ public class ZombieController : MonoBehaviour {
 					}
 				}
 			}
-			
+
+			//scale target collider based on distance
 			if(distanceFromTarget > 10.0f)
 			{
 				if(marker != null)
@@ -171,6 +186,7 @@ public class ZombieController : MonoBehaviour {
 			StartCoroutine(RemoveDead());
 			dead = true;
 			speed = 0.0f;
+			posController.setSpeed(0);
 		}
 	
 	}
@@ -193,10 +209,5 @@ public class ZombieController : MonoBehaviour {
 	public bool IsDead()
 	{
 		return dead;
-	}
-	
-	public void SetSpeed(float s)
-	{
-		speed = s;
 	}
 }

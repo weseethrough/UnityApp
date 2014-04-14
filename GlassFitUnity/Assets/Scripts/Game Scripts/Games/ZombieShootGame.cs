@@ -82,9 +82,10 @@ public class ZombieShootGame : GameBase {
 		{
 			GameObject zombie = (GameObject)Instantiate(zombiePrefab);
 			ZombieController controller = zombie.GetComponent<ZombieController>();
-			if(controller != null)
+			ConstantVelocityPositionController posController = zombie.GetComponent<ConstantVelocityPositionController>();
+			if(posController != null)
 			{
-				controller.SetSpeed(speed);
+				posController.setSpeed(speed);
 			}
 			numberOfZombies++;
 			UnityEngine.Debug.Log("Zombie: new zombie added, total is now " + numberOfZombies.ToString());

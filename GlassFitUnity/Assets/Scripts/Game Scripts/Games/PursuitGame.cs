@@ -20,23 +20,21 @@ public class PursuitGame : GameBase {
 	//private int bonusTarget = 1000;
 	
 	private ActorType currentActorType;
-    public List<GameObject> actors = new List<GameObject>();
+    
+	private RYWorldObject currentOpponent = null;
 	
 	private new GestureHelper.OnTap tapHandler;
 	
-	public GameObject eagleHolder;
-	public GameObject boulderHolder;
-	public GameObject zombieHolder;
-	public GameObject trainHolder;
-	public GameObject dinoHolder;
-	public GameObject fireHolder;
+	public RYWorldObject eagleHolder;
+	public RYWorldObject boulderHolder;
+	public RYWorldObject zombieHolder;
+	public RYWorldObject trainHolder;
+	public RYWorldObject dinoHolder;
+	public RYWorldObject fireHolder;
 	
 	private bool finished = false;
 	
-	private double offset = 0;
-	
 	private int lives = 1;
-	
 
 	private bool authenticated = false;
 	
@@ -48,94 +46,81 @@ public class PursuitGame : GameBase {
 		
 		UnityEngine.Debug.Log("PursuitGame: started");
 		
-		string tar = (string)DataVault.Get("type");		
+		// Set templates' active status
+		eagleHolder.gameObject.SetActive(false);
+		boulderHolder.gameObject.SetActive(false);
+		zombieHolder.gameObject.SetActive(false);
+		trainHolder.gameObject.SetActive(false);
+		dinoHolder.gameObject.SetActive(false);
+		fireHolder.gameObject.SetActive(false);
 		
+		string tar = (string)DataVault.Get("type");		
+
 		switch(tar)
 		{
 		case "Boulder":
 			currentActorType = ActorType.Boulder;
+			currentOpponent = boulderHolder;
 			break;
-			
 		case "Eagle":
 			currentActorType = ActorType.Eagle;
+			currentOpponent = eagleHolder;
 			break;
 			
 		case "Zombie":
 			currentActorType = ActorType.Zombie;
+			currentOpponent = zombieHolder;
 			break;
-			
 		case "Train":
 			currentActorType = ActorType.Train;
+			currentOpponent = trainHolder;
 			break;
-			
 		case "Dinosaur":
 			currentActorType = ActorType.Dinosaur;
+			currentOpponent = dinoHolder;
 			break;
-			
 		case "Fire":
 			currentActorType = ActorType.Fire;
+			currentOpponent = fireHolder;
 			break;
-			
 		default:
 			UnityEngine.Debug.Log("PursuitGame: ERROR! No type specified");
 			currentActorType = ActorType.Train;
-			break;			
+			currentOpponent = trainHolder;
+			break;
 		}
 
-		//if we've gone straight to game, pick a 5km run
-#if !UNITY_EDITOR
-		finish = (int)DataVault.Get("finish");		
-#else
-		finish = 5000;
-#endif
-		
-		DataVault.Set("slider_val", 0.8f);
-		
-		// Set templates' active status
-		eagleHolder.SetActive(false);
-		boulderHolder.SetActive(false);
-		zombieHolder.SetActive(false);
-		trainHolder.SetActive(false);
-		dinoHolder.SetActive(false);
-		fireHolder.SetActive(false);
-		
-		Platform.Instance.ResetTargets();
-		Platform.Instance.CreateTargetTracker(targSpeed);
-		
-		InstantiateActors();
-	}
-	
+		currentOpponent.gameObject.SetActive(true);
 
-//	public override void OnGUI() {
-//		base.OnGUI();
-//		
-//		//update the lives readout
-//		if(isDead) 
-//		{
-//			GUI.Label(new Rect(300, 0, 200, 200), "Lives left: " + lives.ToString(), getLabelStyle() );
-//		}
-//		
-//
-//	}
+		//if we've gone straight to game, pick a 5km run
+		if(!Application.isEditor)
+		{
+			finish = (int)DataVault.Get("finish");		
+		}
+		else
+		{
+			finish = 5000;
+		}
+
+	}
 	
 	public override void Update () {
 		base.Update();		
 				
 		//check if we're dead, and remove a life and show 'game over' menu if so.
-		if(Platform.Instance.GetLowestDistBehind() - offset >= 0)
+		if(Platform.Instance.GetLowestDistBehind() >= 0)
 		{
 			Platform.Instance.LocalPlayerPosition.StopTrack();
 			
 			if(lives > 0) {
 				lives -= 1;
 				isDead = true;
-				offset += 50;
-				foreach (GameObject actor in actors) {
-					actor.GetComponent<TargetController>().IncreaseOffset();
-				}
+				//move the target actor back to original offset distance
+				currentOpponent.setRealWorldDist((float)Platform.Instance.LocalPlayerPosition.Distance - 50);
+
 				started = false;
 			} else if(!finished) {
-				//restart - should consolidate this with the 'back' function
+
 				DataVault.Set("total", Platform.Instance.PlayerPoints.CurrentActivityPoints + Platform.Instance.PlayerPoints.OpeningPointsBalance);
 				DataVault.Set("ahead_col_header", UIColour.red);
 				DataVault.Set("ahead_col_box", UIColour.red);
@@ -195,60 +180,6 @@ public class PursuitGame : GameBase {
 		{
 			UnityEngine.Debug.Log("FinishListener: Couldn't find connection - continue button");
 		}
-	}
-
-	
-	// Instantiate target actors based on actor type
-	void InstantiateActors() {				
-		UnityEngine.Debug.Log("PursuitGame: instantiating actors");
-		// Remove current actors
-		foreach (GameObject actor in actors) {
-			Destroy(actor);
-		}
-		actors.Clear();
-		
-		GameObject template;
-		switch(currentActorType) {
-		case ActorType.Eagle:
-			template = eagleHolder;
-			break;
-		case ActorType.Boulder:
-			template = boulderHolder;
-			break;
-		case ActorType.Train:
-			template = trainHolder;
-			break;
-		case ActorType.Zombie:
-			template = zombieHolder;
-			break;
-		case ActorType.Dinosaur:
-			template = dinoHolder;
-			break;
-		case ActorType.Fire:
-			template = fireHolder;
-			break;
-		default:
-			throw new NotImplementedException("PursuitGame: Unknown actor type: " + currentActorType);
-			break;
-		}
-		
-#if !UNITY_EDITOR
-		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
-		foreach (TargetTracker tracker in trackers) {
-			GameObject actor = Instantiate(template) as GameObject;
-			TargetController controller = actor.GetComponent<TargetController>();
-			if (controller == null) Debug.Log("PursuitGame: ERROR! Null controller for " + actor.ToString());
-			controller.SetTracker(tracker);
-			controller.IncreaseOffset(); // TODO: Change. This is not clean
-			actor.SetActive(true);
-			actors.Add(actor);
-		}
-#else
-		GameObject actorDummy = Instantiate(template) as GameObject;
-		actorDummy.SetActive(true);
-		actors.Add(actorDummy);
-#endif
-		offset = 50;
 	}
 		
 	public void OnDestroy() {

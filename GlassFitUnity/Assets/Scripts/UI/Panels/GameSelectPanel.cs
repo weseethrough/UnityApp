@@ -135,11 +135,8 @@ public class GameSelectPanel : HexPanel
 		
 		GestureHelper.onThreeTap += threeHandler;
 		
-#if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
-#else
-        List<Game> games = PlatformDummy.Instance.GetGames();
-#endif
+
 		UnityEngine.Debug.Log("Games: There are currently " + games.Count + " games");
 		
 		HexButtonData hbd = GetButtonAt(0, 0);
