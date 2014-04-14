@@ -25,7 +25,7 @@ public class MobileSelectTrack : MobilePanel
     {
         base.GetDisplayName();
 
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "MobileSelectTrack: " + gName.Value;
@@ -49,7 +49,7 @@ public class MobileSelectTrack : MobilePanel
         trackList = Platform.Instance.GetTracks(finish, lowerFinish);
         if (trackList != null && trackList.Count > 0)
         {
-            GConnector baseConnection = GetBaseButtonConnection();
+            GConnectorBase baseConnection = GetBaseButtonConnection();
             //AddBackButtonData();
 
             for (int i = 0; i < trackList.Count; i++)

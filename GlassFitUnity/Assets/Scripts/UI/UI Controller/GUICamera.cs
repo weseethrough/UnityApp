@@ -186,7 +186,7 @@ public class GUICamera : MonoBehaviour {
 
     public bool IsHexTypeMenu()
     {
-        FlowState fs = FlowStateMachine.GetCurrentFlowState();
+        FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
         while(fs != null)
         {
             if (fs is HexPanel)

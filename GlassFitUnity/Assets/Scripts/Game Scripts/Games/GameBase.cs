@@ -5,6 +5,7 @@ using System.Threading;
 using System;
 
 using RaceYourself.Models;
+using RaceYourself.Models.Blob;
 
 /// <summary>
 /// Game base. Base Game class which will handle aspects common to all games. Including
@@ -169,7 +170,7 @@ public class GameBase : MonoBehaviour {
 	protected void QuitImmediately()
 	{
 		//Flow to main hex menu
-		if(FlowState.FollowFlowLinkNamed("QuitImmediately"))
+		if(FlowStateBase.FollowFlowLinkNamed("QuitImmediately"))
 		{
 			CleanUp();
 			//load env
@@ -195,16 +196,16 @@ public class GameBase : MonoBehaviour {
 	}
 
 	public void ConsiderQuit() {
-		FlowState.FollowFlowLinkNamed("QuitExit");	
+		FlowStateBase.FollowFlowLinkNamed("QuitExit");	
 				Platform.Instance.LocalPlayerPosition.StopTrack();
 	}
 
 	public void ReturnGame() {
-		FlowState.FollowFlowLinkNamed("GameExit");
+		FlowStateBase.FollowFlowLinkNamed("GameExit");
 	}
 	
-	public virtual GConnector GetFinalConnection() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+	public virtual GConnectorBase GetFinalConnection() {
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
 		return fs.Outputs.Find(r => r.Name == "FinishButton");
 	}
 	
@@ -288,10 +289,10 @@ public class GameBase : MonoBehaviour {
 		UnityEngine.Debug.Log("GameBase: Ending game");
 		
 		//follow the flow link to the results page
-		GConnector gConnect = GetFinalConnection();
+		GConnectorBase gConnect = GetFinalConnection();
 		if(gConnect != null) {
 			//follow the connector
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
 			fs.parentMachine.FollowConnection(gConnect);
 
 
@@ -336,7 +337,7 @@ public class GameBase : MonoBehaviour {
 	/// Continue, once we h
 	/// </summary>
 	void Continue() {
-		FlowState.FollowFlowLinkNamed("ContinueButton");
+		FlowStateBase.FollowFlowLinkNamed("ContinueButton");
 		SoundManager.PlaySound(SoundManager.Sounds.Tap);
 		CleanUp();
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
@@ -423,7 +424,7 @@ public class GameBase : MonoBehaviour {
 	protected void EnterPause()
 	{
 		//transition to pause screen
-		if(FlowState.FollowFlowLinkNamed("PauseExit"))
+		if(FlowStateBase.FollowFlowLinkNamed("PauseExit"))
 		{
 			//set string for GUI
 			DataVault.Set("paused", "Paused");
@@ -442,7 +443,7 @@ public class GameBase : MonoBehaviour {
 	protected virtual void ExitPause()
 	{
 		UnityEngine.Debug.Log("GameBase: Unpausing");
-		FlowState.FollowBackLink();
+		FlowStateBase.FollowBackLink();
 		Time.timeScale = 1.0f;	
 		//resume tracking
 		Platform.Instance.LocalPlayerPosition.StartTrack();		

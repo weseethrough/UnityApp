@@ -12,20 +12,20 @@ using UnityEditor;
 /// single node of serialization tree structure. It manages local components using serializable settings and transform
 /// </summary>
 [System.Serializable]
-public class SerializedNode : ISerializable 
+public class SerializedNodeBase : ISerializable 
 {
-    public List<SerializedNode> subBranches;
-    private SerializableTransform transform;        
-    private SerializableSettings settings;
+    public  List<SerializedNodeBase> subBranches; //this is list, simply allowing to cast form List<SerializedNode> to this format
+    private SerializableTransformBase transform;        
+    private SerializableSettingsBase settings;
     private string name;
     private string prefabName;
 
     /// <summary>
     /// default construction initializator
     /// </summary>    
-    public SerializedNode()
+    public SerializedNodeBase()
     {
-        this.subBranches = new List<SerializedNode>();
+        this.subBranches = new List<SerializedNodeBase>();
         this.transform = null;
         this.settings = null;
         this.name = string.Empty;
@@ -36,7 +36,7 @@ public class SerializedNode : ISerializable
 	/// constructor which builds node based on the provided game object and do required processing of its components trying to serialize them as well
 	/// </summary>
 	/// <param name="source">target gameobejct to eb prepared for serialziation</param>	
-	public SerializedNode(GameObject source)
+	public SerializedNodeBase(GameObject source)
 	{
         string path = string.Empty;
         
@@ -57,8 +57,8 @@ public class SerializedNode : ISerializable
         
         if (resourcePath.Length > 0)
         {        
-            this.transform = new SerializableTransform(source.transform);            
-            this.settings = new SerializableSettings(source);
+            this.transform = new SerializableTransformBase(source.transform);            
+            this.settings = new SerializableSettingsBase(source);
             this.prefabName = resourcePath;
         }
         else
@@ -68,7 +68,7 @@ public class SerializedNode : ISerializable
             this.prefabName = string.Empty;
         }
 
-        this.subBranches = new List<SerializedNode>();
+        this.subBranches = new List<SerializedNodeBase>();
         this.name = source != null ? source.name : string.Empty;
 	}
 
@@ -77,11 +77,11 @@ public class SerializedNode : ISerializable
     /// </summary>
     /// <param name="info">serialziation infor which stores all configuration data</param>
     /// <param name="ctxt">serialziation context</param>    
-    public SerializedNode(SerializationInfo info, StreamingContext ctxt)
+    public SerializedNodeBase(SerializationInfo info, StreamingContext ctxt)
 	{
-        this.subBranches    = (List<SerializedNode>)info.GetValue("SubBranches", typeof(List<SerializedNode>));
-        this.transform      = (SerializableTransform)info.GetValue("Transform", typeof(SerializableTransform));
-        this.settings       = (SerializableSettings)info.GetValue("Settings", typeof(SerializableSettings));
+       // this.subBranches    = (IEnumerable<SerializedNodeBase>)info.GetValue("SubBranches", typeof(IEnumerable<SerializedNodeBase>));
+        this.transform      = (SerializableTransformBase)info.GetValue("Transform", typeof(SerializableTransformBase));
+        this.settings       = (SerializableSettingsBase)info.GetValue("Settings", typeof(SerializableSettingsBase));
         this.name           = (string)info.GetValue("Name", typeof(string));
         this.prefabName     = (string)info.GetValue("PrefabName", typeof(string));	        
 	}
@@ -108,7 +108,7 @@ public class SerializedNode : ISerializable
     /// <returns></returns>
     public void UpdateFromObject(Transform source)
     {
-        this.transform = (source == null) ? null : new SerializableTransform(source);       
+        this.transform = (source == null) ? null : new SerializableTransformBase(source);       
     }
 
     /// <summary>
@@ -238,7 +238,7 @@ public class SerializedNode : ISerializable
     /// finds associated serializable setting data
     /// </summary>
     /// <returns>serializable setting containing configuration of all component linked to the target gameobject</returns>
-    public SerializableSettings GetSerializableSettings()
+    public SerializableSettingsBase GetSerializableSettings()
     {
         return settings;
     }

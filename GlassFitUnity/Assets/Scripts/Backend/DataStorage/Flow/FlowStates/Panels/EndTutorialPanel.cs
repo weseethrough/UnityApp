@@ -27,7 +27,7 @@ public class EndTutorialPanel : HexPanel {
     /// <returns>name of the node</returns>
     public override string GetDisplayName()
     {
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "End Tutorial Panel: " + gName.Value;
@@ -53,11 +53,11 @@ public class EndTutorialPanel : HexPanel {
                             buttonData[i].locked = false;
 							buttonData[i].markedForVisualRefresh = true;
 							
-                            GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
+                            GConnectorBase gameExit = Outputs.Find(r => r.Name == "GameExit");
 
                             GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 
-                            GConnector gc = NewOutput(buttonData[i].buttonName, "Flow");
+                            GConnectorBase gc = NewOutput(buttonData[i].buttonName, "Flow");
 
                             if (gameExit.Link.Count > 0)
                             {

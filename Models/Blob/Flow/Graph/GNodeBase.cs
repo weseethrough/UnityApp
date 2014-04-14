@@ -4,20 +4,21 @@ using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using RaceYourself.Models.Blob;
 
 #if UNITY_EDITOR
 //using UnityEditor;
 #endif
 
 [Serializable]
-public class GNode : ISerializable
+public abstract class GNodeBase : ISerializable
 {
 	//[System.NonSerialized]
 	//IGData m_graph; // owner
 	
 	public uint Id; // unique identifier within graph
-	public Vector2 Position;
-	public Vector2 Size;
+	public GVector2 Position = new GVector2();
+    public GVector2 Size = new GVector2();
 	
 	// Transient variable to safely evaluate all the nodes in the tree once.
 	private int Evaluated; // 0=unknown, 1=ready, -1=false
@@ -37,35 +38,35 @@ public class GNode : ISerializable
 	}
 	
 	[SerializeField]
-	List<GConnector> m_inputs;
+	List<GConnectorBase> m_inputs;
 	[SerializeField]
-	List<GConnector> m_outputs;
+	List<GConnectorBase> m_outputs;
 	[SerializeField]
-	List<GParameter> m_parameters;
+	List<GParameterBase> m_parameters;
 	
 	//public void OnEnable() { hideFlags = HideFlags.HideAndDontSave; }
 	
-	public List<GConnector> Inputs
+	public List<GConnectorBase> Inputs
 	{
         get
         {
-            if (m_inputs == null) m_inputs = new List<GConnector>();
+            if (m_inputs == null) m_inputs = new List<GConnectorBase>();
             return m_inputs; 
         }
 	}
-	public List<GConnector> Outputs
+	public List<GConnectorBase> Outputs
 	{
 		get 
         {
-            if (m_outputs == null) m_outputs = new List<GConnector>();
+            if (m_outputs == null) m_outputs = new List<GConnectorBase>();
             return m_outputs; 
         }
 	}
-	public List<GParameter> Parameters
+	public List<GParameterBase> Parameters
 	{
 		get 
         {
-            if (m_parameters == null) m_parameters = new List<GParameter>();
+            if (m_parameters == null) m_parameters = new List<GParameterBase>();
             return m_parameters;            
         }
 	}
@@ -83,19 +84,19 @@ public class GNode : ISerializable
 		get { return (Parameters != null) ? Parameters.Count : 0; }
 	}
 	
-	public GNode()
+	public GNodeBase()
 	{
 		Id = 0;
 
-        OnEnable();
+        OnEnable();       
 	}
 	
 	public bool Initialized
 	{
-		get { return (Size != Vector2.zero); }
+		get { return (Size.GetVector2() != Vector2.zero); }
 	}
 
-    public GNode(SerializationInfo info, StreamingContext ctxt)
+    public GNodeBase(SerializationInfo info, StreamingContext ctxt)
 	{              
         this.Id = (uint)info.GetValue("Id", typeof(uint));
         this.Position.x = (float)info.GetValue("PosX", typeof(float));
@@ -103,9 +104,9 @@ public class GNode : ISerializable
         this.Size.x = (float)info.GetValue("SizeX", typeof(float));
         this.Size.y = (float)info.GetValue("SizeY", typeof(float));
 
-        this.m_inputs = (List<GConnector>)info.GetValue("Inputs", typeof(List<GConnector>));
-        this.m_outputs = (List<GConnector>)info.GetValue("Outputs", typeof(List<GConnector>));
-        this.m_parameters = (List<GParameter>)info.GetValue("Params", typeof(List<GParameter>));
+        this.m_inputs = (List<GConnectorBase>)info.GetValue("Inputs", typeof(List<GConnectorBase>));
+        this.m_outputs = (List<GConnectorBase>)info.GetValue("Outputs", typeof(List<GConnectorBase>));
+        this.m_parameters = (List<GParameterBase>)info.GetValue("Params", typeof(List<GParameterBase>));
 	}
 
     public virtual void GetObjectData(SerializationInfo info, StreamingContext ctxt)
@@ -157,7 +158,7 @@ public class GNode : ISerializable
 
     
 	
-	public void AddInput(GConnector c)
+	public void AddInput(GConnectorBase c)
 	{
 		if (c != null)
 		{
@@ -165,7 +166,7 @@ public class GNode : ISerializable
 			{
 				if (m_inputs == null)
 				{
-					m_inputs = new List<GConnector>();
+					m_inputs = new List<GConnectorBase>();
 				}
 				c.IsInput = true;
 				m_inputs.Add(c);
@@ -174,7 +175,7 @@ public class GNode : ISerializable
 		}
 	}
 
-	private void AddOutput(GConnector c)
+	private void AddOutput(GConnectorBase c)
 	{
 		if (c != null)
 		{
@@ -182,7 +183,7 @@ public class GNode : ISerializable
 			{
 				if (m_outputs == null)
 				{
-					m_outputs = new List<GConnector>();
+					m_outputs = new List<GConnectorBase>();
 				}
 				c.IsInput = false;
 				m_outputs.Add(c);
@@ -191,33 +192,33 @@ public class GNode : ISerializable
 		}
 	}
 	
-	public GConnector NewInput(string name, string type)
+	public GConnectorBase NewInput(string name, string type)
 	{
-        GConnector c = new GConnector();
+        GConnectorBase c = new GConnectorBase();
 		c.Name = name;
 		c.Type = type;
 		AddInput(c);
 		return c;
 	}
 	
-	public GConnector NewOutput(string name, string type)
+	public GConnectorBase NewOutput(string name, string type)
 	{
-        GConnector c = new GConnector();
+        GConnectorBase c = new GConnectorBase();
 		c.Name = name;
 		c.Type = type;
 		AddOutput(c);
 		return c;
 	}
 	
-	public GParameter NewParameter(string key, GraphValueType type, string value)
+	public GParameterBase NewParameter(string key, GraphValueType type, string value)
 	{
-		GParameter p = new GParameter();
+		GParameterBase p = new GParameterBase();
 		p.Key = key;
 		p.Value = value;
 		p.Type = type;
 		if (m_parameters == null)
 		{
-			m_parameters = new List<GParameter>();
+			m_parameters = new List<GParameterBase>();
 		}
 		m_parameters.Add(p);
 		return p;
@@ -239,33 +240,33 @@ public class GNode : ISerializable
 		return new Rect(0,0,0,0);
 	}
 	
-	public Rect GetInputRect(GraphData graph, int index)
+	public Rect GetInputRect(GraphDataBase graph, int index)
 	{
 		if (Inputs != null)
 		{
 			if (index >= 0 && index < Inputs.Count)
 			{
-				bool isLeft = (graph.Style.RightToLeft == false);
+                bool isLeft = (GraphDataBase.Style.RightToLeft == false);
 				return GetRect(isLeft,index);
 			}
 		}
 		return new Rect(0,0,0,0);
 	}
 
-	public Rect GetOutputRect(GraphData graph, int index)
+	public Rect GetOutputRect(GraphDataBase graph, int index)
 	{
 		if (Outputs != null)
 		{
 			if (index >= 0 && index < Outputs.Count)
-			{
-				bool isLeft = (graph.Style.RightToLeft == true);
+			{                
+                bool isLeft = (GraphDataBase.Style.RightToLeft == true);
 				return GetRect(isLeft,index);
 			}
 		}
 		return new Rect(0,0,0,0);
 	}
 	
-	public GConnector PickConnector(GraphData graph, Vector2 pos)
+	public GConnectorBase PickConnector(GraphDataBase graph, Vector2 pos)
 	{
 		//Debug.Log("PickConnector = "+pos.ToString());
 		if (Inputs != null)
@@ -300,7 +301,7 @@ public class GNode : ISerializable
 		// Override for custom drawing on node panel.
 	}
 
-	public GConnector GetOutputConnector(int index)
+	public GConnectorBase GetOutputConnector(int index)
 	{
 		if (Outputs != null)
 		{
@@ -324,7 +325,7 @@ public class GNode : ISerializable
     {
         if (Inputs != null)
         {
-            foreach (GConnector c in Inputs)
+            foreach (GConnectorBase c in Inputs)
             {
                 if (c.Link != null && c.Link.Count > 0)
                     return true;
@@ -332,7 +333,7 @@ public class GNode : ISerializable
         }
         if (Outputs != null)
         {
-            foreach (GConnector c in Outputs)
+            foreach (GConnectorBase c in Outputs)
             {
                 if (c.Link != null && c.Link.Count > 0)
                     return true;

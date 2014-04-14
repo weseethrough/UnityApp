@@ -67,7 +67,7 @@ public class Panel : PanelBase
     {
         base.GetDisplayName();
         
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "Panel: " + gName.Value;
@@ -101,9 +101,9 @@ public class Panel : PanelBase
         //Inputs.Clear();
         if (Outputs != null) Outputs.Clear();        
 
-        GParameter gType = Parameters.Find(r => r.Key == "Type");
+        GParameterBase gType = Parameters.Find(r => r.Key == "Type");
 
-        SerializedNode node = GetPanelSerializationNode(gType.Value);
+        SerializedNodeBase node = GetPanelSerializationNode(gType.Value);
         LookForInteractiveItems(node);
 
         int count = Mathf.Max(Inputs.Count, Outputs.Count);        
@@ -118,7 +118,7 @@ public class Panel : PanelBase
     /// <returns></returns>
     public void RefreshNodeData()
     {
-        GParameter gType = Parameters.Find(r => r.Key == "Type");
+        GParameterBase gType = Parameters.Find(r => r.Key == "Type");
 
         panelNodeData = new FlowPanelComponent(GetPanelSerializationNode(gType.Value));
     }
@@ -128,7 +128,7 @@ public class Panel : PanelBase
     /// </summary>
     /// <param name="node">root node</param>
     /// <returns></returns>
-    private void LookForInteractiveItems(SerializedNode node)
+    private void LookForInteractiveItems(SerializedNodeBase node)
     {
         if (node == null) return;
 
@@ -156,10 +156,10 @@ public class Panel : PanelBase
             }
         }
 
-
-        for (int i = 0; i < node.subBranches.Count; i++)
+        List<SerializedNodeBase> list = (List<SerializedNodeBase>)node.subBranches;
+        for (int i = 0; i < list.Count; i++)
         {
-            LookForInteractiveItems(node.subBranches[i]);
+            LookForInteractiveItems(list[i]);
         }
     }
 
@@ -168,9 +168,9 @@ public class Panel : PanelBase
     /// </summary>
     /// <param name="sn">serialziable node source to be analized for serialziable components</param>
     /// <returns></returns>
-    private void CreateCustomizationParams(SerializedNode sn)
+    private void CreateCustomizationParams(SerializedNodeBase sn)
     {
-        SerializableSettings ss = sn != null ? sn.GetSerializableSettings() : null;        
+        SerializableSettingsBase ss = sn != null ? sn.GetSerializableSettings() : null;        
     }
 
     /// <summary>
@@ -178,7 +178,7 @@ public class Panel : PanelBase
     /// </summary>
     /// <param name="selectedName">lookup name of the screen</param>
     /// <returns>screen serialized root</returns>
-    public SerializedNode GetPanelSerializationNode(string selectedName)
+    public SerializedNodeBase GetPanelSerializationNode(string selectedName)
     {
         Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
         if (s == null || s.dictionary == null)
@@ -187,7 +187,7 @@ public class Panel : PanelBase
         }
 
         StorageDictionary screens = Panel.GetPanelDictionary();
-        return screens != null ? screens.Get(selectedName) as SerializedNode : null;
+        return screens != null ? screens.Get(selectedName) as SerializedNodeBase : null;
     }
 
     /// <summary>
@@ -211,12 +211,12 @@ public class Panel : PanelBase
         }
         else
         {
-            GParameter gType = Parameters.Find(r => r.Key == "Type");
+            GParameterBase gType = Parameters.Find(r => r.Key == "Type");
             ISerializable data = screensDictionary.Get(gType.Value);
             if (data != null)
             {                
-                GParameter gName = Parameters.Find(r => r.Key == "Name");
-                physicalWidgetRoot = script.LoadScene((SerializedNode)data, GetWidgetRootName(), panelNodeData);
+                GParameterBase gName = Parameters.Find(r => r.Key == "Name");
+                physicalWidgetRoot = script.LoadScene((SerializedNodeBase)data, GetWidgetRootName(), panelNodeData);
                 if (physicalWidgetRoot != null)
                 {
                     physicalWidgetRoot.name = GetWidgetRootName() + "_" + gType.Value + "_" + gName.Value;
@@ -269,7 +269,7 @@ public class Panel : PanelBase
     {        
         if (Outputs.Count > 0 && parentMachine != null)
         {
-            GConnector gConect = Outputs.Find(r => r.Name == button.name);
+            GConnectorBase gConect = Outputs.Find(r => r.Name == button.name);
             
             if (gConect != null)
             {            
@@ -310,7 +310,7 @@ public class Panel : PanelBase
     /// <returns></returns>
     public override bool IsValid()
     {
-        GParameter gType = Parameters.Find(r => r.Key == "Type");
+        GParameterBase gType = Parameters.Find(r => r.Key == "Type");
 
         return base.IsValid() && gType != null && gType.Value != null && gType.Value != "Null";
     }

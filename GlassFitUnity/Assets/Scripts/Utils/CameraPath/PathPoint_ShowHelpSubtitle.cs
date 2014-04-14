@@ -36,7 +36,7 @@ public class PathPoint_ShowHelpSubtitle : PathPoint {
 		}
 		
 		//progress flow to subtitle message
-		FlowState.FollowFlowLinkNamed("Subtitle");
+		FlowStateBase.FollowFlowLinkNamed("Subtitle");
 		
 		//wait 2s
 		//yield return new WaitForSeconds(subTime);
@@ -48,7 +48,7 @@ public class PathPoint_ShowHelpSubtitle : PathPoint {
 		}
 		
 		//progress flow back to Empty screen
-		FlowState.FollowFlowLinkNamed("ToBlank");
+		FlowStateBase.FollowFlowLinkNamed("ToBlank");
 		
 		//unpause
 		Time.timeScale = 1.0f;

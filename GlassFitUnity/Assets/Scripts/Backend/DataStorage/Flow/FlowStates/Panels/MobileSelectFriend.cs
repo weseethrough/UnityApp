@@ -25,7 +25,7 @@ public class MobileSelectFriend : MobilePanel
     {
         base.GetDisplayName();
 
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "MobileSelectFriend: " + gName.Value;
@@ -47,7 +47,7 @@ public class MobileSelectFriend : MobilePanel
             list.SetTitle("Select Friend");
         }
 
-        GConnector baseConnection = GetBaseButtonConnection();
+        GConnectorBase baseConnection = GetBaseButtonConnection();
         //AddBackButtonData();
 
         friendsData = Platform.Instance.Friends();

@@ -130,7 +130,7 @@ public class Train_Rescue : GameBase {
 			UnityEngine.Debug.Log("TrainRescue: Entering Flythrough state");
 			if(openingFlythroughPath != null)
 			{
-				FlowState.FollowFlowLinkNamed("ToBlank");
+				FlowStateBase.FollowFlowLinkNamed("ToBlank");
 				openingFlythroughPath.StartFollowingPath();
 			}
 			else
@@ -254,7 +254,7 @@ public class Train_Rescue : GameBase {
 		UnityEngine.Debug.Log("Train:Starting Countdown Coroutine");
 		
 		//get to the HUD since all flow stems from here
-		FlowState.FollowFlowLinkNamed("Begin");
+		FlowStateBase.FollowFlowLinkNamed("Begin");
 		
 		//small pause to allow flow to catch up
 		yield return new WaitForSeconds(0.1f);
@@ -263,7 +263,7 @@ public class Train_Rescue : GameBase {
 		{
 			//go to subtitle card
 			UnityEngine.Debug.Log("Train: Following 'subtitle' connector");
-			FlowState.FollowFlowLinkNamed("Subtitle");
+			FlowStateBase.FollowFlowLinkNamed("Subtitle");
 			//set value for subtitle. 0 = GO
 			string displayString = (i==0) ? "GO !" : i.ToString();
 			DataVault.Set("train_subtitle", displayString);
@@ -273,7 +273,7 @@ public class Train_Rescue : GameBase {
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
-			FlowState.FollowFlowLinkNamed("ToBlank");
+			FlowStateBase.FollowFlowLinkNamed("ToBlank");
 			
 			//wait a second more, except after GO!
 			if(i!=0)
@@ -286,7 +286,7 @@ public class Train_Rescue : GameBase {
 		yield return new WaitForSeconds(0.1f);
 		
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
-		FlowState.FollowFlowLinkNamed("Begin");
+		FlowStateBase.FollowFlowLinkNamed("Begin");
 		
 		//play the train's bell sound effect
 		train.soundBell();	
@@ -301,7 +301,7 @@ public class Train_Rescue : GameBase {
 		UnityEngine.Debug.Log("TrainGame: Progressing to finish in 5 seconds");
 		
 		//go to subtitle card
-		FlowState.FollowFlowLinkNamed("Subtitle");
+		FlowStateBase.FollowFlowLinkNamed("Subtitle");
 		
 		//set appropriate link subtitle
 		if(bFailed || Platform.Instance.LocalPlayerPosition.Distance < finish)

@@ -9,7 +9,7 @@ using System.Reflection;
 /// Point which tries to restore latest save
 /// </summary>
 [Serializable]
-public class SaveRestorationPoint : FlowState 
+public class SaveRestorationPoint : FlowStateBase 
 {
 	/// <summary>
 	/// default constructor

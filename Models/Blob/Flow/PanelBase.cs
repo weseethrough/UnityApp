@@ -9,7 +9,7 @@ using System.Reflection;
 /// basic panel which allows to show ui
 /// </summary>
 [Serializable]
-public abstract class PanelBase : FlowState
+public abstract class PanelBase : FlowStateBase
 {
     static public string[] InteractivePrefabs = { "UIComponents/Button",
 												  "MainGUIComponents/ResetGyroButton",

@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 /// <summary>
 /// start state which is simply forwarder to first node in the flow
 /// </summary>
-public abstract class StartBase : FlowState 
+public abstract class StartBase : FlowStateBase 
 {
     /// <summary>
     /// default constructor

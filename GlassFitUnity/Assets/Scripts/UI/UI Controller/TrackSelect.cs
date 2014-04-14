@@ -96,7 +96,7 @@ public class TrackSelect : MonoBehaviour {
 	
 	public void GoBack() 
 	{
-		FlowState.FollowBackLink();
+		FlowStateBase.FollowBackLink();
 		GestureHelper.onTap -= tapHandler;
 		GestureHelper.onSwipeLeft -= leftHandler;
 		GestureHelper.onSwipeRight -= rightHandler;
@@ -180,8 +180,8 @@ public class TrackSelect : MonoBehaviour {
 	
 	public void SetTrack() {
 		DataVault.Set("current_track", trackList[currentTrack]);
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+		GConnectorBase gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
 		if(gConnect != null)
 		{
 			GestureHelper.onTap -= tapHandler;

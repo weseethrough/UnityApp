@@ -184,9 +184,9 @@ public class CameraPath : MonoBehaviour {
 	
 	protected void FollowFlowLinkNamed(string linkName)
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
 		if(fs != null) {
-			GConnector gConnect = fs.Outputs.Find( r => r.Name == linkName );
+			GConnectorBase gConnect = fs.Outputs.Find( r => r.Name == linkName );
 			if(gConnect != null)
 			{
 				fs.parentMachine.FollowConnection(gConnect);

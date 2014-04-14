@@ -29,9 +29,9 @@ public class GraphUtil
 		GL.End();
 	}
 
-    static public void DrawPanel(IDraw g, GStyle style, Vector2 pos, GNode node, GNode selectedNode, string title, bool related)
+    static public void DrawPanel(IDraw g, GStyle style, Vector2 pos, GNodeBase node, GNodeBase selectedNode, string title, bool related)
 	{
-        Vector2 size = node.Size;
+        Vector2 size = node.Size.GetVector2();
         bool valid = node.IsValid();
         bool selected = selectedNode == node;        
 
@@ -58,21 +58,21 @@ public class GraphUtil
 
         if (selected)
         {
-            titleColor = style.HighlightColor;
-            nodeColor = style.HighlightNodeColor;
-            lineColor = style.HighlightLineColor;
+            titleColor = style.HighlightColor.GetColor();
+            nodeColor = style.HighlightNodeColor.GetColor();
+            lineColor = style.HighlightLineColor.GetColor();
         }
         else if (related || selectedNode == null)
         {
-            titleColor = style.TitleColor;
-            nodeColor = style.NodeColor;
-            lineColor = style.LineColor;
+            titleColor = style.TitleColor.GetColor();
+            nodeColor = style.NodeColor.GetColor();
+            lineColor = style.LineColor.GetColor();
         }
         else
         {
-            titleColor = style.UnrelatedColor;
-            nodeColor = style.UnrelatedNodeColor;
-            lineColor = style.UnrelatedLineColor;
+            titleColor = style.UnrelatedColor.GetColor();
+            nodeColor = style.UnrelatedNodeColor.GetColor();
+            lineColor = style.UnrelatedLineColor.GetColor();
         }
 
 		GL.Begin(GL.QUADS);
@@ -128,7 +128,7 @@ public class GraphUtil
 		GUI.color = Color.white;
 		GUI.contentColor = Color.white;
 		GUIStyle gstyle = new GUIStyle();
-		gstyle.normal.textColor = valid? style.TitleTextColor : style.TitleTextIvalidColor; 
+        gstyle.normal.textColor = valid ? style.TitleTextColor.GetColor() : style.TitleTextIvalidColor.GetColor(); 
 		gstyle.fontStyle = FontStyle.Bold;
 		g.GuiLabel(new Rect(pos.x+16,pos.y+3,128,128),title,gstyle);
 	}
@@ -173,18 +173,18 @@ public class GraphUtil
 		return LineMat;
 	}
 
-    static void DrawConnector(GraphData graph, GNode node, GConnector con, float cx, float cy, bool selected, bool highlight)
+    static void DrawConnector(GraphDataBase graph, GNodeBase node, GConnectorBase con, float cx, float cy, bool selected, bool highlight)
 	{
-		if (graph.Style == null)
+		if (GraphData.Style == null)
 		{
 			Debug.LogWarning("Graph.Style is null?");
 			return;
 		}
 		
 		Material mat = GetTextureMaterial();
-		
-		Texture2D txm = highlight ? graph.Style.HighlightTexture : graph.Style.EmptyTexture;
-		if (selected) txm = graph.Style.SelectedTexture;
+
+        Texture2D txm = highlight ? GraphData.Style.HighlightTexture : GraphData.Style.EmptyTexture;
+        if (selected) txm = GraphData.Style.SelectedTexture;
 		
 		if (false && txm != null)
 		{
@@ -288,11 +288,11 @@ public class GraphUtil
 		}
 	}
 	
-	static void DrawLabel(IDraw g, bool isLeft, Rect r, GraphData graph, string text)
+	static void DrawLabel(IDraw g, bool isLeft, Rect r, GraphDataBase graph, string text)
 	{
 		GUI.color = Color.white;
 		GUIStyle style = new GUIStyle();
-		style.normal.textColor = graph.Style.TextColor;
+        style.normal.textColor = GraphData.Style.TextColor.GetColor();
 		style.fontStyle = FontStyle.Bold;
 		if (isLeft)
 		{
@@ -305,9 +305,9 @@ public class GraphUtil
 		}
 	}
 	
-	static void DrawInputConnector(IDraw g, GraphData graph, GNode node, int index, GConnector con, bool selected, bool highlight, bool related)
+	static void DrawInputConnector(IDraw g, GraphDataBase graph, GNodeBase node, int index, GConnectorBase con, bool selected, bool highlight, bool related)
 	{
-		bool isLeft = (graph.Style.RightToLeft == false);
+        bool isLeft = (GraphData.Style.RightToLeft == false);
 		
 		Rect r = node.GetInputRect(graph,index);
         DrawConnector(graph, node, con, r.x, r.y, selected, highlight);
@@ -315,9 +315,9 @@ public class GraphUtil
 		DrawLabel (g,isLeft,r,graph,con.Name);
 	}
 
-    static void DrawOutputConnector(IDraw g, GraphData graph, GNode node, int index, GConnector con, bool selected, bool highlight, bool related)
+    static void DrawOutputConnector(IDraw g, GraphDataBase graph, GNodeBase node, int index, GConnectorBase con, bool selected, bool highlight, bool related)
 	{
-		bool isLeft = (graph.Style.RightToLeft == true);
+        bool isLeft = (GraphData.Style.RightToLeft == true);
 		
 		Rect r = node.GetOutputRect(graph,index);
         DrawConnector(graph, node, con, r.x, r.y, selected, highlight);
@@ -325,7 +325,7 @@ public class GraphUtil
 		DrawLabel (g,isLeft,r,graph,con.Name);
 	}
 	
-	static public bool IsCompatible(GConnector a, GConnector b)
+	static public bool IsCompatible(GConnectorBase a, GConnectorBase b)
 	{
 		if (a != null && b != null)
 		{
@@ -341,7 +341,7 @@ public class GraphUtil
 		return false;
 	}
 
-    static public void DrawPanel(IDraw g, GraphData graph, Material lineMaterial, GNode node, GNode nodeSelected, GConnector hover, GConnector connector)
+    static public void DrawPanel(IDraw g, GraphDataBase graph, Material lineMaterial, GNodeBase node, GNodeBase nodeSelected, GConnectorBase hover, GConnectorBase connector)
 	{
 		lineMaterial.SetPass(0);
 		
@@ -349,25 +349,25 @@ public class GraphUtil
 		{
 			Debug.LogWarning("DrawPanel graph is null?");
 			return;
-		}
-		if (graph.Style == null)
-		{
-			Debug.LogWarning("DrawPanel style is null?");
-			return;
-		}
+		}        
 		if (node == null)
 		{
 			Debug.LogWarning("DrawPanel node is null?");
 			return;
 		}
 
+        if (GraphData.Style == null)
+        {
+            GraphData.Style = new GStyle();
+        }
+
         bool related = false;
-        GNode walker = node;
+        GNodeBase walker = node;
         while (walker != null && walker != nodeSelected)
         {
-            if (walker is FlowState)
+            if (walker is FlowStateBase)
             {
-                walker = (walker as FlowState).parent;
+                walker = (walker as FlowStateBase).parent;
             }
             else
             {
@@ -382,15 +382,15 @@ public class GraphUtil
 
 
 		string title = node.GetDisplayName();
-		GStyle style = graph.Style;
-		Vector3 pos = node.Position;
+        GStyle style = GraphData.Style;
+        Vector3 pos = node.Position.GetVector2();
         DrawPanel(g, style, pos, node, nodeSelected, title, related);
 
 		if (node.HasInputs)
 		{
 			for (int i=0; i<node.Inputs.Count; ++i)
 			{
-				GConnector c = node.Inputs[i];
+				GConnectorBase c = node.Inputs[i];
 				lineMaterial.SetPass(0);
 				bool selected = (c == hover) || (c == connector);
 				bool highlight = IsCompatible(connector,c);
@@ -402,7 +402,7 @@ public class GraphUtil
 		{
 			for (int i=0; i<node.Outputs.Count; ++i)
 			{
-				GConnector c = node.Outputs[i];
+				GConnectorBase c = node.Outputs[i];
 				lineMaterial.SetPass(0);
 				bool selected = (c == hover) || (c == connector);
 				bool highlight = IsCompatible(connector,c);

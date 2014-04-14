@@ -91,14 +91,14 @@ public class SnackController : MonoBehaviour {
 		//clear current snack offer
 		if(awaitingAcceptTap)
 		{
-			FlowState.FollowBackLink();		
+			FlowStateBase.FollowBackLink();		
 			awaitingAcceptTap = false;
 		}
 		
 		UnityEngine.Debug.Log("SnackController: offering snack");
 
 		//transition flow to panel to offer game
-		FlowState.FollowFlowLinkNamed("BeginSnack");
+		FlowStateBase.FollowFlowLinkNamed("BeginSnack");
 		
 		//set strings in datavault for ui panel
 		DataVault.Set("snack_game_title", currentGame.name);
@@ -153,7 +153,7 @@ public class SnackController : MonoBehaviour {
 		if(!acceptedGame)
 		{
 			//dismiss (transition flow back to HUD)
-			FlowState.FollowBackLink();	
+			FlowStateBase.FollowBackLink();	
 			
 			awaitingAcceptTap = false;
 			UnityEngine.Debug.Log("SnackController: Snack declined");
@@ -262,7 +262,7 @@ public class SnackController : MonoBehaviour {
 		UnityEngine.Debug.Log("SnackController: looking for return exit");
 		//transition UI back to HUD
 
-		FlowState.FollowBackLink();
+		FlowStateBase.FollowBackLink();
 		
 		if(currentSnackGameMainObj != null)
 		{
@@ -278,7 +278,7 @@ public class SnackController : MonoBehaviour {
 		currentSnackGameMainObj = null;
 		
 		//transition UI back to HUD
-		FlowState.FollowBackLink();	
+		FlowStateBase.FollowBackLink();	
 		
 		//notify the game that the snack is over
 		SnackRun run = (SnackRun)FindObjectOfType(typeof(SnackRun));

@@ -6,13 +6,14 @@ using System;
 using System.Collections.Generic;
 
 using RaceYourself.Models;
+using RaceYourself.Models.Blob;
 
 [Serializable]
 public class ChallengePanel : HexPanel {
 	
-	private GConnector challengeExit;
-	private GConnector previousExit;
-	private GConnector sendExit;
+	private GConnectorBase challengeExit;
+	private GConnectorBase previousExit;
+	private GConnectorBase sendExit;
 		
 	private GraphComponent gComponent;
 	
@@ -200,7 +201,7 @@ public class ChallengePanel : HexPanel {
 			hbd.buttonName = friendList[0].guid;
 			hbd.textNormal = friendList[0].name;
 			
-			GConnector gc = NewOutput(hbd.buttonName, "Flow");
+			GConnectorBase gc = NewOutput(hbd.buttonName, "Flow");
 		    gc.EventFunction = "SetFriend";
 				
 			if(sendExit.Link.Count > 0) {
@@ -288,7 +289,7 @@ public class ChallengePanel : HexPanel {
 			
 			UnityEngine.Debug.Log("ChallengePanel: First button obtained, position is " + currentPosition.ToString());
 			
-			GConnector gc = NewOutput(hbd.buttonName, "Flow");
+			GConnectorBase gc = NewOutput(hbd.buttonName, "Flow");
 		    gc.EventFunction = "SetChallenge";
 				
 			if(challengeExit.Link.Count > 0) {

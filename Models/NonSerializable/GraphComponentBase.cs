@@ -4,13 +4,13 @@ using System.Collections.Generic;
 
 public abstract class GraphComponentBase : MonoBehaviour
 {    
-	protected GraphData m_graph;    
+	protected GraphDataBase m_graph;    
     protected int selectedFlow = 0;
     protected bool initialize = false;
 
     protected string nextStartNavigateTo = "";
 
-    public GraphData Data
+    public GraphDataBase Data
     {
         get
         {

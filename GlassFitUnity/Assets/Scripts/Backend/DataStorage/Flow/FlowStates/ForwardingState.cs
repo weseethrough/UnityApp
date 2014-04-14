@@ -9,7 +9,7 @@ using System.Reflection;
 /// start state which is simply forwarder to first node in the flow
 /// </summary>
 [Serializable]
-public class ForwardingState : FlowState 
+public class ForwardingState : FlowStateBase 
 {
     /// <summary>
     /// default constructor

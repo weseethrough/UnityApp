@@ -102,11 +102,21 @@ public class DataStore : MonoBehaviour
             float startTime = Time.realtimeSinceStartup;
             BlobNames bName = (BlobNames)i;
             string name = bName.ToString();
+
+            if (i == (int)BlobNames.persistent) continue;
+            if (i == (int)BlobNames.flow)
+            {
+                if (!storageBank.ContainsKey(name.ToString()))
+                {
+                    storageBank[name.ToString()] = new Storage();
+                }
+                continue;
+            }            
 #if UNITY_EDITOR
             if (!LoadStorageFromCollection(bName))
             {
-                Profiler.BeginSample("Test profile");
-                storageBank[name.ToString()] = InitializeBlob(Platform.Instance.LoadBlob(name));
+                Profiler.BeginSample("Test profile");                
+                storageBank[name.ToString()] = InitializeBlob(Platform.Instance.LoadBlob(name));                
                 Profiler.EndSample();
             }            
 #else
@@ -189,8 +199,10 @@ public class DataStore : MonoBehaviour
     /// <param name="name">blob enum name</param>
     /// <returns></returns>
     static public void LoadStorage(BlobNames name)
-    {        
+    {
 
+        if (name == BlobNames.persistent) return;
+        if (name == BlobNames.flow) return;
 #if UNITY_EDITOR
         if (instance != null && Platform.Instance != null)
         {            
@@ -290,7 +302,8 @@ public class DataStore : MonoBehaviour
     /// <returns></returns>
     static public void SaveStorage(BlobNames name)
     {
-        
+        if (name == BlobNames.persistent) return;
+        if (name == BlobNames.flow) return;
         SaveStorage(name, false);
         
     }

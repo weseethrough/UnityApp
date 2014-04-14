@@ -18,7 +18,7 @@ public class GuardPanel : Panel {
 	public override void EnterStart()
     {		
 		if (guardKey == null) {
-        	GParameter gName = Parameters.Find(r => r.Key == "Name");
+        	GParameterBase gName = Parameters.Find(r => r.Key == "Name");
 			if (gName != null) guardKey = "guarded_"+gName.Value.ToLower().Replace(" ", "_");
 			else guardKey = "guarded_default";
 		}
@@ -84,7 +84,7 @@ public class GuardPanel : Panel {
     {
         base.GetDisplayName();
         
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "GuardPanel: " + gName.Value;

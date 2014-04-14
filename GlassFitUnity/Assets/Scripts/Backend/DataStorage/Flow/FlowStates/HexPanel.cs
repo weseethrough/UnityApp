@@ -81,7 +81,7 @@ public class HexPanel : Panel
     {
         //base.GetDisplayName();
 
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "HEX Panel: " + gName.Value;
@@ -231,7 +231,7 @@ public class HexPanel : Panel
 
         if (Outputs.Count > 0 && parentMachine != null)
         {
-            GConnector gConect = Outputs.Find(r => r.Name == button.name);
+            GConnectorBase gConect = Outputs.Find(r => r.Name == button.name);
             if (gConect != null)
             {
 				SoundManager.PlaySound(SoundManager.Sounds.Tap);

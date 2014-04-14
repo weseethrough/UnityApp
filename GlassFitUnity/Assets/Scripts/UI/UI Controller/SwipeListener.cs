@@ -27,7 +27,7 @@ public class SwipeListener : MonoBehaviour {
 		
 	protected virtual void handleLeft()
 	{
-		if(FlowState.FollowFlowLinkNamed("Back"))
+		if(FlowStateBase.FollowFlowLinkNamed("Back"))
 		{
 			int currentPage = 1;
 			//increment page
@@ -49,7 +49,7 @@ public class SwipeListener : MonoBehaviour {
 	
 	protected virtual void handleRight()
 	{
-		if(FlowState.FollowFlowLinkNamed("Swipe"))
+		if(FlowStateBase.FollowFlowLinkNamed("Swipe"))
 		{
 			int currentPage = 1;
 			//decrement page

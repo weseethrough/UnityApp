@@ -250,7 +250,7 @@ public class DynamicHexList : MonoBehaviour
         //		}
         
         //if button enter delay is below 0 at this stage then screen has finished loading
-        if (parent.state == FlowState.State.Idle && guiCamera != null)
+        if (parent.state == FlowStateBase.State.Idle && guiCamera != null)
         {
 
             Vector3 forward = guiCamera.transform.forward;

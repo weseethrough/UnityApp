@@ -30,7 +30,7 @@ public class MobileCurrentChallenges : MobilePanel
     {
         base.GetDisplayName();
 
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "MobileCurrentChallenges: " + gName.Value;
@@ -67,7 +67,7 @@ public class MobileCurrentChallenges : MobilePanel
         {
             Debug.Log("challengeNotifications contains " + challengeNotifications.Count + " challenge(-s)");
 
-            GConnector baseConnection = GetBaseButtonConnection();
+            GConnectorBase baseConnection = GetBaseButtonConnection();
 
             //AddBackButtonData();
             

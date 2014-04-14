@@ -23,7 +23,7 @@ public class MobileSettings : MobilePanel
     {
         base.GetDisplayName();
 
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "MobileSettings: " + gName.Value;

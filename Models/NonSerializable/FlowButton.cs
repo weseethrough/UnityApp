@@ -7,8 +7,8 @@ using System.Collections.Generic;
 /// </summary>
 public class FlowButton : MonoBehaviour 
 {
-    private FlowState m_owner;
-    public FlowState owner
+    private FlowStateBase m_owner;
+    public FlowStateBase owner
     {
         get 
         {             

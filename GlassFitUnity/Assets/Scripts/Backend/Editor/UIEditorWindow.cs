@@ -166,7 +166,7 @@ public class UIEditorWindow : EditorWindow
             if (data != null)
             {
                 ClearCurrentStage(script.transform);
-                script.LoadScene((SerializedNode)data);
+                script.LoadScene((SerializedNodeBase)data);
             }
         }
     }

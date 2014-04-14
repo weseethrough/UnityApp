@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+using Sqo;
+
 //[ExecuteInEditMode]
 public class GraphComponent : GraphComponentBase
 {
@@ -9,7 +11,7 @@ public class GraphComponent : GraphComponentBase
    
     static private GraphComponent instance;
 
-    
+    static private string[] avaliableFlows = null;
 
     /// <summary>
     /// 
@@ -29,8 +31,17 @@ public class GraphComponent : GraphComponentBase
         if (!initialize)
         {
             initialize = true;
-            DataStore.LoadStorage(DataStore.BlobNames.flow);            
-            
+            instance = this;
+
+
+            GraphDataBase.Style = new GStyle();
+
+            DataStore.LoadStorage(DataStore.BlobNames.flow);
+
+            nextStartNavigateTo = "MasterFlow";
+
+            LoadFlow(nextStartNavigateTo);
+            return;
             //test area. Need to be removed after tests are done
 #if !UNITY_EDITOR
             //below is the example how to initialize game with specific flow
@@ -68,7 +79,7 @@ public class GraphComponent : GraphComponentBase
 			}
             SetSelectedFlowByName(flowName);
 #endif
-            instance = this;
+            
         }
     }	
 	
@@ -87,6 +98,10 @@ public class GraphComponent : GraphComponentBase
     /// <returns></returns>
     public int GetSelectedFlowIndex()
     {
+        //TODO: we dont want to use indexes now, I'm not sure how well they work for database yet
+        return 0;//
+
+
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
 
@@ -97,22 +112,7 @@ public class GraphComponent : GraphComponentBase
 
         return selectedFlow;
     }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
-    public string GetSelectedFlowName()
-    {        
-        //DataStore.LoadStorage(DataStore.BlobNames.flow);
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
-        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
-        string name;
-        System.Runtime.Serialization.ISerializable data;
-        flowDictionary.Get(selectedFlow, out name, out data);
-
-        return name;
-    }
+   
 
     /// <summary>
     /// 
@@ -133,7 +133,7 @@ public class GraphComponent : GraphComponentBase
         //we do not check if index is the same because data could change, flow cold have removed or be modified.
 
         selectedFlow = flowIndex;
-
+        /*
         //DataStore.LoadStorage(DataStore.BlobNames.flow);
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
@@ -144,8 +144,13 @@ public class GraphComponent : GraphComponentBase
         }
 
         GraphData data = flowDictionary.Get(selectedFlow) as GraphData;
-        data.Style = m_graph.Style;
-        m_graph = data;
+        if (data == null)
+        {
+            data = new GraphData();
+        }
+        data.Style = new GStyle();//m_graph.Style;
+        
+        m_graph = data;*/
     }
 
     /// <summary>
@@ -155,6 +160,9 @@ public class GraphComponent : GraphComponentBase
     /// <returns></returns>
     public void SetSelectedFlowByName(string flowName)
     {
+        LoadFlow(flowName);
+        return;
+
        // DataStore.LoadStorage(DataStore.BlobNames.flow);
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
@@ -172,6 +180,8 @@ public class GraphComponent : GraphComponentBase
     /// <returns></returns>
     public void SetSelectedFlowByLast()
     {
+        return;
+
        // DataStore.LoadStorage(DataStore.BlobNames.flow);
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
@@ -190,6 +200,8 @@ public class GraphComponent : GraphComponentBase
     /// <returns></returns>
     public bool GoToFlow(string name)
     {
+        return false;
+
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
         int nextIndex = flowDictionary.GetIndex(name);
@@ -213,7 +225,9 @@ public class GraphComponent : GraphComponentBase
     /// </summary>
     /// <returns></returns>
     public override bool GoToFlowStage2()
-    {        
+    {
+        return false;
+
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
         int index = flowDictionary.GetIndex(nextStartNavigateTo);
@@ -243,5 +257,89 @@ public class GraphComponent : GraphComponentBase
             return GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
         }
         return instance;
+    }
+
+    //New functionality
+
+    public string[] GetFlowArray()
+    {
+        if (avaliableFlows != null) return avaliableFlows;
+
+        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
+        ISqoQuery<GraphDataBase> q = db.Query<GraphDataBase>();
+
+        int count = q.Count();
+        string[] ret;
+        if (count > 0)
+        {
+            ret = new string[count];
+            int i =0;
+
+            foreach(GraphDataBase d in q)
+            {
+                ret[i] = d.Name;
+                i++;
+            }
+        }
+        else
+        {
+            ret = new string[1];
+            ret[0] = "NONE";        
+        }
+
+        avaliableFlows = ret;
+
+        return ret;
+    }
+
+    public void SaveFlow()
+    {
+        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
+        
+        if (m_graph != null)
+        {
+            GStyle s = GraphDataBase.Style;
+            GraphDataBase.Style = null;
+
+            db.StoreObject(m_graph);
+
+            GraphDataBase.Style = s;
+            avaliableFlows = null;
+        }        
+    }
+
+    public void SaveFlow(GraphDataBase data)
+    {
+        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
+
+        if (data != null)
+        {
+            GStyle s = GraphDataBase.Style;
+            GraphDataBase.Style = null;
+
+            db.StoreObject(data);
+
+            GraphDataBase.Style = s;
+            avaliableFlows = null;
+        }
+    }
+
+    public void LoadFlow(string name)
+    {
+        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
+        ISqoQuery<GraphDataBase> q = db.Query<GraphDataBase>();
+
+        GraphDataBase data = q.Where(d => d.Name == name).FirstOrDefault();
+
+        if (data == null)
+        {
+            m_graph = new GraphDataBase();
+            m_graph.Name = name;
+        }
+        else
+        {
+            m_graph = data;
+        }
+        GraphDataBase.Style = new GStyle();
     }
 }

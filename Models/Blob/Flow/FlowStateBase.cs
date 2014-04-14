@@ -5,11 +5,12 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection;
+using RaceYourself.Models.Blob;
 
 /// <summary>
 /// single generic state of the flow
 /// </summary>
-public abstract class FlowState : GNode
+public abstract class FlowStateBase : GNodeBase
 {
     public enum State
     {
@@ -28,12 +29,12 @@ public abstract class FlowState : GNode
 	/// <param name="linkName">Link name.</param>
 	public static bool FollowFlowLinkNamed(string linkName)
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gc = fs.Outputs.Find( r => r.Name == linkName);
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+		GConnectorBase gc = fs.Outputs.Find( r => r.Name == linkName);
 		if(gc != null)
 		{
 			if(gc.EventFunction != null && gc.EventFunction.Length > 0 && gc.EventFunction != "") {
-				(gc.Parent as FlowState).CallStaticFunction(gc.EventFunction, null);
+				(gc.Parent as FlowStateBase).CallStaticFunction(gc.EventFunction, null);
 			}
 			
 			fs.parentMachine.FollowConnection(gc);
@@ -51,38 +52,38 @@ public abstract class FlowState : GNode
 	/// </summary>
 	public static void FollowBackLink()
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
 		fs.parentMachine.FollowBack();
 	}
 
 
     // do not let state switch outside of order. It might cause some states get unplugged from order list and result with unpredictable results    
     protected State m_state;
-    protected FlowState m_parent;    
-    protected List<FlowState> m_children;
-    protected Vector2 m_minimumChildBorder = new Vector2(100, 40);
-    protected Vector2 m_toParentOffest;
+    protected FlowStateBase m_parent;    
+    protected List<FlowStateBase> m_children;
+    protected GVector2 m_minimumChildBorder = new GVector2(100, 40);
+    protected GVector2 m_toParentOffest;
     protected float m_enterTimeStamp;
 
     public UnityEngine.Vector2 ParentOffest
     {
-        get { return m_toParentOffest; }
+        get { return m_toParentOffest.GetVector2(); }
         set { m_toParentOffest = value; }
     }
 
-    public FlowState.State state
+    public FlowStateBase.State state
     {
         get { return m_state; }        
     }
-    public List<FlowState> children
+    public List<FlowStateBase> children
     {
         get
         {
-            if (m_children == null) m_children = new List<FlowState>();
+            if (m_children == null) m_children = new List<FlowStateBase>();
             return m_children;
         }
     }
-    public FlowState parent
+    public FlowStateBase parent
     {
         get { return m_parent; }
         set { m_parent = value; }
@@ -91,7 +92,7 @@ public abstract class FlowState : GNode
     /// <summary>
     /// default constructor
     /// </summary>
-    public FlowState() : base() { }
+    public FlowStateBase() : base() { }
 
     /// <summary>
     /// deserialization constructor
@@ -99,17 +100,17 @@ public abstract class FlowState : GNode
     /// <param name="info">seirilization info conataining class data</param>
     /// <param name="ctxt">serialization context </param>
     /// <returns></returns>
-    public FlowState(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt)
+    public FlowStateBase(SerializationInfo info, StreamingContext ctxt) : base(info, ctxt)
 	{        
         foreach (SerializationEntry entry in info)
         {
             switch (entry.Name)
             {
                 case "parent":
-                    this.m_parent = entry.Value as FlowState;
+                    this.m_parent = entry.Value as FlowStateBase;
                     break;
                 case "children":
-                    this.m_children = entry.Value as List<FlowState>;
+                    this.m_children = entry.Value as List<FlowStateBase>;
                     break;
                 case "ParentOffsetX":
                     this.m_toParentOffest.x = (float)entry.Value;
@@ -203,18 +204,18 @@ public abstract class FlowState : GNode
     /// </summary>
     /// <param name="child">state to be linked as a child to this one</param>
     /// <returns></returns>
-    public void AddChild(FlowState child)
+    public void AddChild(FlowStateBase child)
     {
         if (child.parent != null)
         {
-            FlowState p = child.parent;
+            FlowStateBase p = child.parent;
             p.RemoveChild(child);
             p.UpdateSize();
         }
 
         child.parent = this;
         children.Add(child);
-        child.ParentOffest = child.Position - Position;
+        child.ParentOffest = child.Position.GetVector2() - Position.GetVector2();
         UpdateSize();
     }
 
@@ -223,7 +224,7 @@ public abstract class FlowState : GNode
     /// </summary>
     /// <param name="child">child to get removed from children list</param>
     /// <returns></returns>
-    public void RemoveChild(FlowState child)
+    public void RemoveChild(FlowStateBase child)
     {
         if (children.Contains(child))
         {
@@ -250,10 +251,10 @@ public abstract class FlowState : GNode
         Size.y = height;
         Size.x = 175 + ((Inputs.Count > 0 && Outputs.Count > 0) ? 75 : 0);
 
-        Vector2 oldPos = Position;
-        Vector2 oldSize = Size;
+        Vector2 oldPos = Position.GetVector2();
+        Vector2 oldSize = Size.GetVector2();
 
-        foreach (FlowState child in children)
+        foreach (FlowStateBase child in children)
         {
             Position.x = Mathf.Min(child.Position.x - m_minimumChildBorder.x, Position.x);
             Position.y = Mathf.Min(child.Position.y - m_minimumChildBorder.y, Position.y);
@@ -261,11 +262,11 @@ public abstract class FlowState : GNode
             Size.y = Mathf.Max(child.Position.y - Position.y + child.Size.y + m_minimumChildBorder.y, Size.y);
         }
 
-        if (oldPos != Position )
+        if (oldPos != Position.GetVector2())
         {
-            Vector2 offset = Position - oldPos;
+            Vector2 offset = Position.GetVector2() - oldPos;
 
-            foreach (FlowState child in children)
+            foreach (FlowStateBase child in children)
             {
                 child.ParentOffest -= offset;
                 child.UpdateSize();
@@ -276,7 +277,7 @@ public abstract class FlowState : GNode
         if (updateParent && parent != null)
         {
             parent.UpdateSize();
-            ParentOffest = Position - parent.Position;
+            ParentOffest = Position.GetVector2() - parent.Position.GetVector2();
         }
         		
     }
@@ -292,15 +293,15 @@ public abstract class FlowState : GNode
         {
             if (fromOffset)
             {
-                Position = parent.Position + ParentOffest;
+                Position = parent.Position.GetVector2() + ParentOffest;
             }
             else
             {
-                ParentOffest = Position - parent.Position;
+                ParentOffest = Position.GetVector2() - parent.Position.GetVector2();
             }
         }
 
-        foreach (FlowState child in children)
+        foreach (FlowStateBase child in children)
         {            
             child.UpdatePosition(true);
         }                                
@@ -311,9 +312,9 @@ public abstract class FlowState : GNode
     /// </summary>
     /// <param name="fs">searched state</param>
     /// <returns>true if state is found</returns>
-    public bool InChildSubtree(FlowState fs)
+    public bool InChildSubtree(FlowStateBase fs)
     {
-        foreach (FlowState child in children)
+        foreach (FlowStateBase child in children)
         {
             if (child == fs || child.InChildSubtree(fs)) return true;            
         }
@@ -331,9 +332,11 @@ public abstract class FlowState : GNode
 
     public virtual void FollowOutput(string name)
     {
-        GConnector gc = Outputs.Find(r => r.Name == name);
+        GConnectorBase gc = Outputs.Find(r => r.Name == name);
         if (gc != null)
         {
+            Debug.Log(GetDisplayName() + " want to follow: " + name);
+
             ConnectionWithCall(gc, null);
         }
     }
@@ -344,7 +347,7 @@ public abstract class FlowState : GNode
     /// <param name="gConect">connector to follow</param>
     /// <param name="button">button which triggered event</param>
     /// <returns></returns>
-    public void ConnectionWithCall(GConnector gConect, FlowButton button)
+    public void ConnectionWithCall(GConnectorBase gConect, FlowButton button)
     {
         if (gConect.EventFunction != null && gConect.EventFunction != "")
         {            
@@ -368,8 +371,8 @@ public abstract class FlowState : GNode
 
     static void FollowNamedLinkInCurrentFlowstate(string name)
     {
-        FlowState fs = FlowStateMachine.GetCurrentFlowState();
-        GConnector gc = fs.Outputs.Find(r => r.Name == name);
+        FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+        GConnectorBase gc = fs.Outputs.Find(r => r.Name == name);
 
         if (gc != null)
         {

@@ -140,8 +140,8 @@ public class PursuitGame : GameBase {
 				DataVault.Set("ahead_col_header", UIColour.red);
 				DataVault.Set("ahead_col_box", UIColour.red);
 				DataVault.Set("finish_header", "You died!");
-				FlowState fs = FlowStateMachine.GetCurrentFlowState();
-				GConnector gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
+				FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+				GConnectorBase gConect = fs.Outputs.Find(r => r.Name == "FinishButton");
 				if(gConect != null) {
 					finished = true;
 					tapHandler = new GestureHelper.OnTap(() => {
@@ -182,8 +182,8 @@ public class PursuitGame : GameBase {
 	}
 	
 	void ContinueGame() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+		GConnectorBase gConnect = fs.Outputs.Find(r => r.Name == "ContinueButton");
 		UnityEngine.Debug.Log("FinishListener: Finding output");
 		if(gConnect != null)
 		{

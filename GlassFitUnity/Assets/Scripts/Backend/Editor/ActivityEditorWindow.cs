@@ -91,7 +91,7 @@ public class ActivityEditorWindow : EditorWindow
         s.dictionary = new StorageDictionary();
         foreach (GameObject activity in activitis)
         {
-            SerializableSettings ss = new SerializableSettings(activity);
+            SerializableSettingsBase ss = new SerializableSettingsBase(activity);
             s.dictionary.Add(activity.name, ss);
         }
     }

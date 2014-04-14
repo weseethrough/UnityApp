@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Reflection;
 
+using RaceYourself.Models.Blob;
+
 /// <summary>
 /// basic panel which allows to show ui
 /// </summary>
@@ -52,7 +54,7 @@ public class MobilePanel : Panel
     {
         base.GetDisplayName();
         
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "MobilePanel: " + gName.Value;
@@ -135,7 +137,7 @@ public class MobilePanel : Panel
     /// <param name="buttonFormat"></param>
     /// <param name="cloneFirstLinkage"></param>
     /// <returns></returns>
-    protected void AddButtonData(string buttonName, string title, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+    protected void AddButtonData(string buttonName, string title, string function, ListButtonData.ButtonFormat buttonFormat, GConnectorBase cloneFirstLinkage)
     {       
         ListButtonData data = new ListButtonData();
         data.textNormal = title;
@@ -145,7 +147,7 @@ public class MobilePanel : Panel
 
         buttonData.Add(data);
 
-        GConnector gc = NewOutput(buttonName, "Flow");
+        GConnectorBase gc = NewOutput(buttonName, "Flow");
         gc.EventFunction = function;
         gc.Name = buttonName;
         if (GraphComponent.GetInstance() != null && cloneFirstLinkage != null)
@@ -162,9 +164,9 @@ public class MobilePanel : Panel
     /// 
     /// </summary>
     /// <returns></returns>
-    protected GConnector GetBaseButtonConnection()
+    protected GConnectorBase GetBaseButtonConnection()
     {
-         GConnector gc = Outputs.Find(r => r.Name == "buttonHandler");
+         GConnectorBase gc = Outputs.Find(r => r.Name == "buttonHandler");
         if (gc == null)
         {
             gc = Outputs.Find(r => r.Name == ListButtonData.ButtonFormat.ButtonPrototype.ToString());

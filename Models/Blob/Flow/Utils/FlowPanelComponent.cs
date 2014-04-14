@@ -16,7 +16,7 @@ using UnityEditor;
 [Serializable]
 public class FlowPanelComponent
 {   
-    public List<SerializableSettings> settings;
+    public List<SerializableSettingsBase> settings;
     public List<string> names;
 
     [NonSerialized()] private bool[][] foldout;
@@ -27,7 +27,7 @@ public class FlowPanelComponent
     /// constructor - class initializator
     /// </summary>
     /// <param name="panelNode">serialziation node which needs to be deconstructed to serialiable sturcture</param>    
-    public FlowPanelComponent(SerializedNode panelNode)
+    public FlowPanelComponent(SerializedNodeBase panelNode)
     {        
         RefreshData(panelNode);
     }
@@ -49,7 +49,7 @@ public class FlowPanelComponent
             foldoutRoot[i] = EditorGUILayout.Foldout(foldoutRoot[i], names[i]);            
             if (foldoutRoot[i])
             {
-                List<SingleComponent> componentList = settings[i].GetComponents();
+                List<SingleComponentBase> componentList = settings[i].GetComponents();
                 if (foldout[i] == null || foldout[i].Length < componentList.Count)
                 {
                     foldout[i] = new bool[componentList.Count];
@@ -136,13 +136,13 @@ public class FlowPanelComponent
     /// </summary>
     /// <param name="panelNode">panel node to be serialzied</param>
     /// <returns></returns>
-    public void RefreshData(SerializedNode panelNode)
+    public void RefreshData(SerializedNodeBase panelNode)
     {
         if (panelNode == null) return;
 
-        List<SerializedNode> list = LookForCustomizableItems(panelNode);
+        List<SerializedNodeBase> list = LookForCustomizableItems(panelNode);
         if (list == null || list.Count < 1) return;
-        settings = new List<SerializableSettings>(list.Count);
+        settings = new List<SerializableSettingsBase>(list.Count);
         names = new List<string>(list.Count);
         foldout = new bool[list.Count][];
         foldoutRoot = new bool[list.Count];
@@ -177,14 +177,14 @@ public class FlowPanelComponent
     /// </summary>
     /// <param name="node"></param>
     /// <returns>list of the node and its children which were red to serializable nodes</returns>
-    private List<SerializedNode> LookForCustomizableItems(SerializedNode node)
+    private List<SerializedNodeBase> LookForCustomizableItems(SerializedNodeBase node)
     {
         if (node == null) return null;
 
-        List<SerializedNode> retList = null;
+        List<SerializedNodeBase> retList = null;
 
-        SerializableSettings ss = node.GetSerializableSettings();
-        SingleComponent sc = ss != null ? ss.GetComponent("UISerializable") : null;
+        SerializableSettingsBase ss = node.GetSerializableSettings();
+        SingleComponentBase sc = ss != null ? ss.GetComponent("UISerializable") : null;
 
         //booleans are stored as integers which decreases number of list types we need to have
         int exposed = sc != null ? sc.GetInitializedIntDict().Get("exposeInFlow") : 0;
@@ -192,20 +192,20 @@ public class FlowPanelComponent
         {
             if (retList == null)
             {
-                retList = new List<SerializedNode>();
+                retList = new List<SerializedNodeBase>();
             }
             retList.Add(node);
         }
 
-
-        for (int i = 0; i < node.subBranches.Count; i++)
+        List<SerializedNodeBase> list = (List<SerializedNodeBase>)node.subBranches;
+        for (int i = 0; i < list.Count; i++)
         {
-            List<SerializedNode> l = LookForCustomizableItems(node.subBranches[i]);
+            List<SerializedNodeBase> l = LookForCustomizableItems(list[i]);
             if (l != null)
             {
                 if (retList == null)
                 {
-                    retList = new List<SerializedNode>();
+                    retList = new List<SerializedNodeBase>();
                 }
                 retList.AddRange(l);
             }

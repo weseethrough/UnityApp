@@ -39,15 +39,15 @@ public class GraphWindow : EditorWindow, IDraw
     Vector2 m_dragStart;
     Vector2 m_nodeStart; // Node.Postion at beginning of drag
     Vector2 m_viewStart; // ViewPostion at beginning of drag
-    GNode m_selection;
+    GNodeBase m_selection;
 
     Vector2 m_scrolableMenuPosition;
 
-    GConnector m_hoverConnector;
-    GConnector m_selectionConnector;
+    GConnectorBase m_hoverConnector;
+    GConnectorBase m_selectionConnector;
     Vector2 m_dragPosition;
 
-    FlowState m_storedCopy;
+    FlowStateBase m_storedCopy;
 	
 	[MenuItem("Window/Image Graph Editor")]
 	public static void Init ()
@@ -77,18 +77,14 @@ public class GraphWindow : EditorWindow, IDraw
 	GraphComponent Graph
 	{
 		get
-		{
-			if (UnityEditor.Selection.activeGameObject != null)
-			{
-				return UnityEditor.Selection.activeGameObject.GetComponent<GraphComponent>();
-			}
-			return null;
+		{            
+            return GraphComponent.GetInstance();
 		}
 	}
 	
 	
 		
-	GNode PickNode(Vector2 pos)
+	GNodeBase PickNode(Vector2 pos)
 	{
 		GraphComponent g = Graph;
 		if (g != null)
@@ -98,7 +94,7 @@ public class GraphWindow : EditorWindow, IDraw
 		return null;
 	}
 
-    FlowState PickDeepestChildNode(Vector2 pos, GNode ignore)
+    FlowStateBase PickDeepestChildNode(Vector2 pos, GNodeBase ignore)
     {
         GraphComponent g = Graph;
         if (g != null)
@@ -108,7 +104,7 @@ public class GraphWindow : EditorWindow, IDraw
         return null;
     }
 
-	private void SelectNode(GNode node)
+	private void SelectNode(GNodeBase node)
 	{
 		if (node != m_selection)
 		{
@@ -143,7 +139,7 @@ public class GraphWindow : EditorWindow, IDraw
 		m_dragMain = true;
 		m_dragStart = Event.current.mousePosition;
 		m_viewStart = ViewPosition;
-		GNode sel = PickDeepestChildNode(pos, null);
+		GNodeBase sel = PickDeepestChildNode(pos, null);
 		SelectNode( sel );
 		if (m_selection != null)
 		{
@@ -155,7 +151,7 @@ public class GraphWindow : EditorWindow, IDraw
 
             m_selectionChanges = true;
 
-			m_nodeStart = m_selection.Position;
+            m_nodeStart = m_selection.Position.GetVector2();
 			m_dragPosition = Event.current.mousePosition;
             GUIUtility.keyboardControl = 0;            
 		}
@@ -168,16 +164,16 @@ public class GraphWindow : EditorWindow, IDraw
 		{
             if (m_dragConnector && m_selectionConnector != null)
 			{
-				GraphData graph = (Graph != null) ? Graph.Data : null;
+				GraphDataBase graph = (Graph != null) ? Graph.Data : null;
 				if (graph == null)
 				{
 					return;
 				}
 				
-				GNode over = PickDeepestChildNode(pos, null);
+				GNodeBase over = PickDeepestChildNode(pos, null);
 				if (over != null)
 				{
-					GConnector target = over.PickConnector(graph,pos);
+					GConnectorBase target = over.PickConnector(graph,pos);
 					if (GraphUtil.IsCompatible(m_selectionConnector,target))
 					{
 						if (!graph.IsConnected(m_selectionConnector,target))
@@ -192,12 +188,12 @@ public class GraphWindow : EditorWindow, IDraw
 				}
                 dirtySave = true;
 			}
-			else if (m_nodeStart != m_selection.Position)
+            else if (m_nodeStart != m_selection.Position.GetVector2())
 			{
-                FlowState currentSelection = m_selection as FlowState;
+                FlowStateBase currentSelection = m_selection as FlowStateBase;
                 if (currentSelection != null)
                 {
-                    FlowState over = PickDeepestChildNode(pos, currentSelection);
+                    FlowStateBase over = PickDeepestChildNode(pos, currentSelection);
 
                     if (over != null )
                     {
@@ -244,9 +240,9 @@ public class GraphWindow : EditorWindow, IDraw
 					// Drag selected node(s)
                     Vector2 delta = Event.current.mousePosition- m_dragStart;
                     m_selection.Position = m_nodeStart + delta * 1.0f / m_zoomScale;
-                    if (m_selection is FlowState)
+                    if (m_selection is FlowStateBase)
                     {                        
-                        (m_selection as FlowState).UpdatePosition(false);
+                        (m_selection as FlowStateBase).UpdatePosition(false);
                     }
 				}
 				else
@@ -264,13 +260,13 @@ public class GraphWindow : EditorWindow, IDraw
 		}
 	}
 
-	GConnector PickConnector()
+	GConnectorBase PickConnector()
 	{
 		if (IsMainPoint(Event.current.mousePosition))
 		{
             Vector2 mouse = Event.current.mousePosition * 1.0f / m_zoomScale;
             Vector2 pos = MouseToWorld(mouse);
-			GNode node = PickNode(pos);
+			GNodeBase node = PickNode(pos);
 			if (node != null)
 			{
 				return node.PickConnector(Graph.Data,pos);
@@ -281,7 +277,7 @@ public class GraphWindow : EditorWindow, IDraw
 
 	void MainMouseMove()
 	{
-		GConnector h = PickConnector();
+		GConnectorBase h = PickConnector();
 		if (h != m_hoverConnector)
 		{
 			m_hoverConnector = h;
@@ -361,7 +357,7 @@ public class GraphWindow : EditorWindow, IDraw
 
                     if (Event.current.keyCode == KeyCode.C && Event.current.alt)// && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)))
                     {                        
-                        m_storedCopy = m_selection as FlowState;
+                        m_storedCopy = m_selection as FlowStateBase;
                     }
 
                     if (m_storedCopy != null && Event.current.keyCode == KeyCode.V && Event.current.alt)
@@ -404,7 +400,7 @@ public class GraphWindow : EditorWindow, IDraw
 	const int GridSize = 512;
 	const int GridBlocks = 3;
 
-    void DrawNode(IDraw g, GraphData graph, Material lineMaterial, GNode node, bool drawSelection)
+    void DrawNode(IDraw g, GraphDataBase graph, Material lineMaterial, GNodeBase node, bool drawSelection)
     {
         if (!drawSelection && node == m_selection) return;
         
@@ -417,10 +413,10 @@ public class GraphWindow : EditorWindow, IDraw
         //node.TryEvaluate();
         node.OnDraw(new Rect(0, 0, 0, 0));
 
-        FlowState fs = node as FlowState;
+        FlowStateBase fs = node as FlowStateBase;
         if (fs != null)
         {
-            foreach (FlowState child in fs.children)
+            foreach (FlowStateBase child in fs.children)
             {
                 DrawNode(g, graph, lineMaterial, child, drawSelection);
             }
@@ -461,10 +457,10 @@ public class GraphWindow : EditorWindow, IDraw
 			GraphUtil.DrawLine(new Vector2(0,i*GridSize), new Vector2(full,i*GridSize),grid,1);
 		}
         */
-		GraphData data = (Graph != null) ? Graph.Data : null;
+		GraphDataBase data = (Graph != null) ? Graph.Data : null;
 		if (data != null)
 		{
-			foreach(GNode node in data.Nodes)
+			foreach(GNodeBase node in data.Nodes)
 			{
 				if (node != null)
 				{
@@ -472,11 +468,11 @@ public class GraphWindow : EditorWindow, IDraw
 				}
 			}
 			
-			foreach(GNode node in data.Nodes)
+			foreach(GNodeBase node in data.Nodes)
 			{
 				if (node != null)
 				{
-                    FlowState fs = node as FlowState;
+                    FlowStateBase fs = node as FlowStateBase;
 
                     if (fs != null)
                     {
@@ -499,15 +495,15 @@ public class GraphWindow : EditorWindow, IDraw
             }
 
 			lineMaterial.SetPass( 0 );
-			foreach (GConnector c in data.Connections)
+			foreach (GConnectorBase c in data.Connections)
 			{                
 				if (c.Link != null)
 				{
-                    foreach (GConnector dest in c.Link)
+                    foreach (GConnectorBase dest in c.Link)
                     {
                         Vector2 p1 = c.GetPosition(data);
                         Vector2 p2 = dest.GetPosition(data);
-                        bool swap = c.IsInput ? (data.Style.RightToLeft == false) : (data.Style.RightToLeft == true);
+                        bool swap = c.IsInput ? (GraphData.Style.RightToLeft == false) : (GraphData.Style.RightToLeft == true);
                         if (swap)
                         {
                             Vector2 tmp = p1;
@@ -529,11 +525,11 @@ public class GraphWindow : EditorWindow, IDraw
 
                         if (m_selection == null || c.Parent == m_selection || dest.Parent == m_selection)
                         {
-                            lineColor = data.Style.HighlightConnectionLineColor;
+                            lineColor = GraphData.Style.HighlightConnectionLineColor.GetColor();
                         }
                         else
                         {
-                            lineColor = data.Style.UnrelatedLineColor;
+                            lineColor = GraphData.Style.UnrelatedLineColor.GetColor();
                         }
 
                         GraphUtil.DrawLineStrip2(strip, lineColor);
@@ -544,10 +540,12 @@ public class GraphWindow : EditorWindow, IDraw
 		
 		if (m_selectionConnector != null)
 		{
+
+            //temporary trick to hide static parameter which for some reason gets sotred on db
 			Vector2 p1 = m_selectionConnector.GetPosition(data);
 			lineMaterial.SetPass( 0 );
             Vector2 p2 = MouseToWorld(m_dragPosition * 1.0f / m_zoomScale);
-			GraphUtil.DrawLine(p1, p2+new Vector2(2,0), data.Style.HighlightConnectionLineColor, 2);
+            GraphUtil.DrawLine(p1, p2 + new Vector2(2, 0), GraphData.Style.HighlightConnectionLineColor.GetColor(), 2);
 		}
 		
 		GL.PopMatrix();
@@ -699,7 +697,7 @@ public class GraphWindow : EditorWindow, IDraw
 		GL.PopMatrix();
 	}
 	
-	// Cached list of types that descend from GNode class
+	// Cached list of types that descend from GNodeBase class
 	List<System.Type> m_types;
 	
 	// Returns top-right corner of screen for creating new un-attached nodes.
@@ -741,7 +739,7 @@ public class GraphWindow : EditorWindow, IDraw
 	//const int ParmGap = 2;
 	//const int ButtonHeight = 24;
 	
-	void DrawParameter(GParameter parm, float width)
+	void DrawParameter(GParameterBase parm, float width)
 	{
 		bool changed = false;     
 		switch (parm.Type)
@@ -883,7 +881,7 @@ public class GraphWindow : EditorWindow, IDraw
                     GUI.color = Color.white;
                     if (GUILayout.Button("+", GUILayout.Width(width * 0.2f)))
                     {
-                        GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
+                        GConnectorBase connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
                         if (connector == null)
                         {
                             hexPanel.NewOutput(hexData.buttonName, "Flow");
@@ -896,7 +894,7 @@ public class GraphWindow : EditorWindow, IDraw
 
                     if (name != hexData.buttonName)
                     {                        
-                            GConnector connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
+                            GConnectorBase connector = hexPanel.Outputs.Find(r => r.Name == hexData.buttonName);
                             if (connector != null)
                             {                                
                                 connector.Name = name;
@@ -980,7 +978,7 @@ public class GraphWindow : EditorWindow, IDraw
 		}
 	}
 
-    void DrawConnectorConfiguration(GNode node, GConnector connector, float width)
+    void DrawConnectorConfiguration(GNodeBase node, GConnectorBase connector, float width)
 	{
         EditorGUILayout.LabelField("Selected Connector: " + connector.Name);
         if (GUILayout.Button("Disconnect Connector"))
@@ -1012,7 +1010,7 @@ public class GraphWindow : EditorWindow, IDraw
         EditorGUILayout.EndHorizontal();
     }
     
-	void DrawNodeConfiguration(GNode node, float width)
+	void DrawNodeConfiguration(GNodeBase node, float width)
 	{        
         EditorGUILayout.LabelField("Selected: " + node.GetDisplayName());     
 
@@ -1021,7 +1019,7 @@ public class GraphWindow : EditorWindow, IDraw
 		{                       
             for (int i = 0; i < node.Parameters.Count; ++i)
             {
-                GParameter p = node.Parameters[i];
+                GParameterBase p = node.Parameters[i];
                 DrawParameter(p, width);
             }                       
 		}
@@ -1041,7 +1039,7 @@ public class GraphWindow : EditorWindow, IDraw
 		GUI.color = Color.red;
         if (GUILayout.Button("Delete Node"))
         {
-            if (DeleteNode(node as FlowState))
+            if (DeleteNode(node as FlowStateBase))
             {
                 SelectNode(null);
                 dirtySave = true;
@@ -1050,12 +1048,12 @@ public class GraphWindow : EditorWindow, IDraw
         }
         if (GUILayout.Button("Cleanup Unconnected"))
         {
-            GConnector c;
+            GConnectorBase c;
             for (int i = 0; i < Graph.Data.Connections.Count; i++ )
             {
                 c = Graph.Data.Connections[i];
                 bool forDeletion = true;
-                foreach(GConnector target in c.Link)
+                foreach(GConnectorBase target in c.Link)
                 {
                     if ( target.Parent != null)
                     {
@@ -1076,15 +1074,15 @@ public class GraphWindow : EditorWindow, IDraw
                 i--;                
             }
            
-            FlowState start = Graph.Data.Nodes.Find(r => r is Start) as FlowState;
-            List<GNode> connectedNodes = new List<GNode>();
-            List<GNode> connectedNodeParents = new List<GNode>();
+            FlowStateBase start = Graph.Data.Nodes.Find(r => r is Start) as FlowStateBase;
+            List<GNodeBase> connectedNodes = new List<GNodeBase>();
+            List<GNodeBase> connectedNodeParents = new List<GNodeBase>();
             ConnectionTraweler(start, connectedNodes);
             
             //all connected nodes will add their parents
-            foreach (FlowState fs in connectedNodes)
+            foreach (FlowStateBase fs in connectedNodes)
             {
-                FlowState walker = fs.parent;
+                FlowStateBase walker = fs.parent;
                 while (walker != null)
                 {
                     if (connectedNodes.Find(r => r == walker) != null) return;
@@ -1101,18 +1099,18 @@ public class GraphWindow : EditorWindow, IDraw
         }
 	}
 
-    void ConnectionTraweler(FlowState currentPoint, List<GNode> visitedLocations)
+    void ConnectionTraweler(FlowStateBase currentPoint, List<GNodeBase> visitedLocations)
     {
         if (currentPoint == null) return;
         if (visitedLocations.Find(r => r == currentPoint) != null) return;
 
         visitedLocations.Add(currentPoint);
 
-        foreach(GConnector c in currentPoint.Outputs)
+        foreach(GConnectorBase c in currentPoint.Outputs)
         {
-            foreach (GConnector target in c.Link)
+            foreach (GConnectorBase target in c.Link)
             {
-                ConnectionTraweler(target.Parent as FlowState, visitedLocations);
+                ConnectionTraweler(target.Parent as FlowStateBase, visitedLocations);
             }
         }
     }
@@ -1125,7 +1123,7 @@ public class GraphWindow : EditorWindow, IDraw
         {
             if (GUILayout.Button("Reset exits to panel default"))
             {
-                Graph.Data.Disconnect(m_selection, GraphData.ConnectorDirection.Out);
+                Graph.Data.Disconnect(m_selection, GraphDataBase.ConnectorDirection.Out);
                 m_selection.RebuildConnections();
                 dirtySave = true;
             }
@@ -1135,20 +1133,20 @@ public class GraphWindow : EditorWindow, IDraw
 
             for (int i=0; i< m_selection.Outputs.Count; i++)
             {
-                GConnector output = m_selection.Outputs[i];
+                GConnectorBase output = m_selection.Outputs[i];
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField(output.Name);
                 if (GUILayout.Button("X", GUILayout.MaxWidth(30)))
                 {
                     
 
-                    GConnector conector = m_selection.Outputs[i];
+                    GConnectorBase conector = m_selection.Outputs[i];
                     Graph.Data.Disconnect(conector);
 
                     m_selection.Outputs.RemoveAt(i);                    
-                    if (m_selection is FlowState)
+                    if (m_selection is FlowStateBase)
                     {
-                        (m_selection as FlowState).UpdateSize();
+                        (m_selection as FlowStateBase).UpdateSize();
                     }
 
                     i--;
@@ -1167,9 +1165,9 @@ public class GraphWindow : EditorWindow, IDraw
             if (GUILayout.Button("Add", GUILayout.MaxWidth(40)) && m_newExitName.Length > 0)
             {
                 m_selection.NewOutput(m_newExitName, "Flow");
-                if (m_selection is FlowState)
+                if (m_selection is FlowStateBase)
                 {
-                    (m_selection as FlowState).UpdateSize();
+                    (m_selection as FlowStateBase).UpdateSize();
                 }
 
                 m_dirtySave = true;
@@ -1185,13 +1183,22 @@ public class GraphWindow : EditorWindow, IDraw
 	void FindNodeTypes()
 	{
 		m_types = new List<System.Type>();
-		foreach (System.Type t in typeof(GNode).Assembly.GetTypes())
+        //search wherever GNodeBase is stored
+		foreach (System.Type t in typeof(GNodeBase).Assembly.GetTypes())
 		{
-			if (t.IsSubclassOf(typeof(GNode)))
+			if (t.IsSubclassOf(typeof(GNodeBase)))
 			{
 				m_types.Add(t);
 			}
 		}
+        //search in unity project
+        foreach (System.Type t in typeof(GNode).Assembly.GetTypes())
+        {
+            if (t.IsSubclassOf(typeof(GNodeBase)))
+            {
+                m_types.Add(t);
+            }
+        }
 	}
 	
 	void DrawSideArea(int x, int y, int w, int h)
@@ -1228,9 +1235,9 @@ public class GraphWindow : EditorWindow, IDraw
 				if (gc != null)
 				{
                     System.Object o = Activator.CreateInstance(it);
-                    GNode newNode = (GNode)o;// ScriptableObject.CreateInstance(it.Name);
+                    GNodeBase newNode = (GNodeBase)o;// ScriptableObject.CreateInstance(it.Name);
 					newNode.Id = gc.Data.IdNext++;
-					newNode.Position = GetNewPosition(newNode.Size);
+                    newNode.Position = GetNewPosition(newNode.Size.GetVector2());
 					SelectNode(newNode);
 					//Debug.Log("Pos = "+newNode.Position.ToString());
 					Graph.Data.Add(newNode);
@@ -1295,6 +1302,7 @@ public class GraphWindow : EditorWindow, IDraw
 		
 		if (Graph == null)
 		{
+            return;
 			m_selection = null;
             m_selectionChanges = true;
 			m_hoverConnector = null;
@@ -1389,17 +1397,18 @@ public class GraphWindow : EditorWindow, IDraw
 
     public void SaveGraph()
     {
-        DataStore.SaveStorage(DataStore.BlobNames.flow);
+        GraphComponent.GetInstance().SaveFlow();
+        //DataStore.SaveStorage(DataStore.BlobNames.flow);
     }
 
-    public void CloneNode(FlowState source)
+    public void CloneNode(FlowStateBase source)
     {
         CloneNode(source, null, null);
     }
 
-    private void CloneNode(FlowState source, FlowState parent, Dictionary<uint, uint> oldToNewID)
+    private void CloneNode(FlowStateBase source, FlowStateBase parent, Dictionary<uint, uint> oldToNewID)
     {
-        FlowState node = Activator.CreateInstance(source.GetType()) as FlowState;
+        FlowStateBase node = Activator.CreateInstance(source.GetType()) as FlowStateBase;
                 
         if (oldToNewID == null)
         {
@@ -1411,36 +1420,36 @@ public class GraphWindow : EditorWindow, IDraw
 
         if (parent == null)
         {
-            node.Position = GetNewPosition(source.Size);
+            node.Position = GetNewPosition(source.Size.GetVector2());
             node.Size = source.Size;
             SelectNode(node);            
         }
         else
         {
-            node.Position = parent.Position + (source.Position - source.parent.Position);
+            node.Position = parent.Position.GetVector2() + (source.Position.GetVector2() - source.parent.Position.GetVector2());
             node.Size = source.Size;
             parent.AddChild(node);
         }
 
         node.Parameters.Clear();
-        foreach(GParameter param in source.Parameters)
+        foreach(GParameterBase param in source.Parameters)
         {            
             node.NewParameter(param.Key, param.Type, param.Value);
         }
 
         node.Inputs.Clear();
-        foreach (GConnector entry in source.Inputs)
+        foreach (GConnectorBase entry in source.Inputs)
         {
             node.NewInput(entry.Name, entry.Type);
         }
 
         node.Outputs.Clear();
-        foreach (GConnector exit in source.Outputs)
+        foreach (GConnectorBase exit in source.Outputs)
         {
             node.NewOutput(exit.Name, exit.Type);
         }
 
-        foreach (FlowState child in source.children)
+        foreach (FlowStateBase child in source.children)
         {
             CloneNode(child, node, oldToNewID);
         }
@@ -1452,11 +1461,11 @@ public class GraphWindow : EditorWindow, IDraw
         dirtySave = true;
     }
 
-    private void ReconnectNode(FlowState source, FlowState newState, Dictionary<uint, uint> oldToNewID)
+    private void ReconnectNode(FlowStateBase source, FlowStateBase newState, Dictionary<uint, uint> oldToNewID)
     {
-        foreach (GConnector conncector in source.Inputs)
+        foreach (GConnectorBase conncector in source.Inputs)
         {
-            foreach ( GConnector target in conncector.Link)
+            foreach ( GConnectorBase target in conncector.Link)
             {
                 if (target != null)
                 {
@@ -1465,9 +1474,9 @@ public class GraphWindow : EditorWindow, IDraw
             }
         }
 
-        foreach (GConnector conncector in source.Outputs)
+        foreach (GConnectorBase conncector in source.Outputs)
         {
-            foreach (GConnector target in conncector.Link)
+            foreach (GConnectorBase target in conncector.Link)
             {
                 if (target != null)
                 {
@@ -1477,7 +1486,7 @@ public class GraphWindow : EditorWindow, IDraw
         }
     }
 
-    private void Reconnect(GConnector oldCon1, GConnector oldCon2, Dictionary<uint, uint> oldToNewID)
+    private void Reconnect(GConnectorBase oldCon1, GConnectorBase oldCon2, Dictionary<uint, uint> oldToNewID)
     {
         if (oldToNewID.ContainsKey(oldCon1.Parent.Id) && oldToNewID.ContainsKey(oldCon2.Parent.Id))
         {
@@ -1486,26 +1495,26 @@ public class GraphWindow : EditorWindow, IDraw
             uint id2 = oldToNewID[oldCon2.Parent.Id];
 
             //find new nodes which matches old connection
-            GNode node1 = GraphComponent.GetInstance().Data.Nodes.Find(r => r.Id == id1);
-            GNode node2 = GraphComponent.GetInstance().Data.Nodes.Find(r => r.Id == id2);
+            GNodeBase node1 = GraphComponent.GetInstance().Data.Nodes.Find(r => r.Id == id1);
+            GNodeBase node2 = GraphComponent.GetInstance().Data.Nodes.Find(r => r.Id == id2);
             if (node1 == null || node2 == null) return;
 
             //find connection sockets in new graph area
-            GConnector g1 = GetConnectorByOldConectionData(oldCon1, node1);
-            GConnector g2 = GetConnectorByOldConectionData(oldCon2, node2);
+            GConnectorBase g1 = GetConnectorByOldConectionData(oldCon1, node1);
+            GConnectorBase g2 = GetConnectorByOldConectionData(oldCon2, node2);
 
             GraphComponent.GetInstance().Data.Connect(g1, g2);
         }
     }
 
-    private GConnector GetConnectorByOldConectionData(GConnector oldConection, GNode newNode)
+    private GConnectorBase GetConnectorByOldConectionData(GConnectorBase oldConection, GNodeBase newNode)
     {
-        List<GConnector> list = oldConection.IsInput ? newNode.Inputs : newNode.Outputs;
+        List<GConnectorBase> list = oldConection.IsInput ? newNode.Inputs : newNode.Outputs;
 
         return list.Find(r => r.Name == oldConection.Name);
     }
 
-    public bool DeleteNode(FlowState node)
+    public bool DeleteNode(FlowStateBase node)
     {        
         while(node.children.Count > 0)
         {

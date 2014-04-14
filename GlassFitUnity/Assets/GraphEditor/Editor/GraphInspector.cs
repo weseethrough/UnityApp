@@ -78,11 +78,18 @@ public class GraphInspector : Editor
             newFlowName = EditorGUILayout.TextField(newFlowName);
             if (GUILayout.Button(new GUIContent("Create flow", "Creates new flow if desired name is not used by another flow at this moment")))
             {
+                gc.SaveFlow();
+
+                GraphDataBase gd = new GraphDataBase();
+                gd.Name = newFlowName;
+
+                gc.SaveFlow(gd);
+
                 if (newFlowName.Length > 0 && !flowDictionary.Contains(newFlowName))
                 {
-                    GraphData gd = new GraphData();
+                    
                     flowDictionary.Add(newFlowName, gd);
-                    DataStore.SaveStorage(DataStore.BlobNames.flow);
+                    //DataStore.SaveStorage(DataStore.BlobNames.flow);
 
                     componentSource.SetSelectedFlowByLast();                    
                 }
@@ -99,14 +106,22 @@ public class GraphInspector : Editor
 	
     private string[] GetFlowList()
     {
+
+        return GraphComponent.GetInstance().GetFlowArray();
+
+
         Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
         StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
+        string[] ret;
+
         if (flowDictionary.Length() < 1)
         {
-            return null;
+            ret = new string[1];
+            ret[0] = "none";
+            return ret;
         }
 
-        string[] ret = new string[flowDictionary.Length()];
+        ret = new string[flowDictionary.Length()];
         for(int i=0; i<flowDictionary.Length(); i++)
         {
             string name;

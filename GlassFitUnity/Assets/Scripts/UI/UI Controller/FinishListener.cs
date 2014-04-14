@@ -22,7 +22,7 @@ public class FinishListener : MonoBehaviour {
 	
 	void ContinueGame() {
 		UnityEngine.Debug.Log("FinishListener: Finding output");
-		FlowState.FollowFlowLinkNamed("ContinueButton");
+		FlowStateBase.FollowFlowLinkNamed("ContinueButton");
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		started = false;
 	}

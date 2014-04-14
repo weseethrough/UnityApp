@@ -77,8 +77,8 @@ public class SnackBase : MonoBehaviour {
 	protected IEnumerator ShowBanner(float waitTime)
 	{
 		// Try to find the exit for the banner
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect = fs.Outputs.Find(r => r.Name == "DeathExit");
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+		GConnectorBase gConnect = fs.Outputs.Find(r => r.Name == "DeathExit");
 		if(gConnect != null)
 		{
 			// Follow the connection

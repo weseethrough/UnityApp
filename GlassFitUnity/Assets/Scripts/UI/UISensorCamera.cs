@@ -42,7 +42,7 @@ public class UISensorCamera : MonoBehaviour {
 	
 	void GoBack() 
 	{
-		FlowState.FollowFlowLinkNamed("MenuButton");
+		FlowStateBase.FollowFlowLinkNamed("MenuButton");
 	}
 	
 	/// <summary>

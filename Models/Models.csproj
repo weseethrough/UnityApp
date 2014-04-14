@@ -22,6 +22,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <ConsolePause>false</ConsolePause>
+    <RegisterForComInterop>false</RegisterForComInterop>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
@@ -36,24 +37,27 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Blob\Dictionary.cs" />
-    <Compile Include="Blob\Flow\FlowState.cs" />
+    <Compile Include="Blob\Flow\FlowStateBase.cs" />
     <Compile Include="Blob\Flow\FlowStateMachine.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Blob\Flow\Graph\GConnector.cs" />
-    <Compile Include="Blob\Flow\Graph\GNode.cs" />
-    <Compile Include="Blob\Flow\Graph\GParameter.cs" />
-    <Compile Include="Blob\Flow\Graph\GraphData.cs" />
+    <Compile Include="Blob\Flow\Graph\GConnectorBase.cs" />
+    <Compile Include="Blob\Flow\Graph\GNodeBase.cs" />
+    <Compile Include="Blob\Flow\Graph\GParameterBase.cs" />
+    <Compile Include="Blob\Flow\Graph\GraphDataBase.cs" />
+    <Compile Include="Blob\Flow\Utils\GStyleColor.cs" />
+    <Compile Include="Blob\Flow\Utils\GVector2.cs" />
     <Compile Include="Blob\Flow\Graph\GStyle.cs" />
-    <Compile Include="Blob\Flow\Graph\UISerialization\SerializableSettings.cs" />
-    <Compile Include="Blob\Flow\Graph\UISerialization\SerializableTransform.cs" />
-    <Compile Include="Blob\Flow\Graph\UISerialization\SerializedNode.cs" />
-    <Compile Include="Blob\Flow\Graph\UISerialization\SingleComponent.cs" />
+    <Compile Include="Blob\Flow\Graph\UISerialization\SerializableSettingsBase.cs" />
+    <Compile Include="Blob\Flow\Graph\UISerialization\SerializableTransformBase.cs" />
+    <Compile Include="Blob\Flow\Graph\UISerialization\SerializedNodeBase.cs" />
+    <Compile Include="Blob\Flow\Graph\UISerialization\SingleComponentBase.cs" />
     <Compile Include="Blob\Flow\Graph\UISerialization\UIComponentSettings.cs" />
     <Compile Include="Blob\Flow\PanelBase.cs" />
     <Compile Include="Blob\Flow\Utils\FlowPanelComponent.cs" />
     <Compile Include="Blob\Flow\Utils\HexButtonData.cs" />
     <Compile Include="Blob\Flow\Utils\ListButtonData.cs" />
+    <Compile Include="Blob\OldDictionary\SDBase.cs" />
     <Compile Include="Blob\PersistentData.cs" />
     <Compile Include="DBTools\DatabaseFactory.cs" />
     <Compile Include="NonSerializable\DataVault.cs" />
@@ -107,4 +111,7 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /y "$(TargetDir)$(TargetName).pdb" "$(TargetDir)GlassFitUnity\Assets\Scripts\Backend\Platform\Models\"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

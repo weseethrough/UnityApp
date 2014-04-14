@@ -7,7 +7,7 @@ public class TapToBegin : MPChildGestureHandler {
 	{
 		//progress to next screen
 		//follow the 'begin' link
-		FlowState.FollowFlowLinkNamed("Begin" );
+		FlowStateBase.FollowFlowLinkNamed("Begin" );
 		SoundManager.PlaySound(SoundManager.Sounds.Tap);
 	
 		//start game, and ensure track is visible

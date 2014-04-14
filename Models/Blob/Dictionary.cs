@@ -13,7 +13,7 @@ namespace RaceYourself.Models.Blob
         public int index;
     }
 
-
+    [Serializable]
     public class Dictionary<T> : System.Collections.IEnumerable
     {
         public List<T> data = null;
@@ -24,6 +24,15 @@ namespace RaceYourself.Models.Blob
             this.data = new List<T>();
 		    this.names = new List<string>();
 	    }
+
+        public static implicit operator Dictionary<T>(SDBase<T> sdb)
+        {
+            Dictionary<T> dict = new Dictionary<T>();
+            dict.data = sdb.data;
+            dict.names = sdb.name;
+
+            return dict;
+        }
 
         /// <summary>
         /// Enumerator for "foreach" loops, also returns bundled data of name and data

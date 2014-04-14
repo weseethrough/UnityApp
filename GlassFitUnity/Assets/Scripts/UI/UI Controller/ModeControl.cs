@@ -115,7 +115,7 @@ public class ModeControl : MonoBehaviour {
 	}
 	
 	void BackToMenu() {
-		FlowState.FollowFlowLinkNamed("MenuButton");
+		FlowStateBase.FollowFlowLinkNamed("MenuButton");
 	}
 	
 	void SetMode() {

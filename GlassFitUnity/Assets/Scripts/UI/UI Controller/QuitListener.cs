@@ -20,11 +20,11 @@ public class QuitListener : MonoBehaviour {
 	}
 	
 	void ReturnGame() {
-		FlowState.FollowFlowLinkNamed("GameExit");
+		FlowStateBase.FollowFlowLinkNamed("GameExit");
 	}
 	
 	void QuitGame() {
-		FlowState.FollowFlowLinkNamed("MenuExit");
+		FlowStateBase.FollowFlowLinkNamed("MenuExit");
 		GestureHelper.onTap -= tapHandler;
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 	}

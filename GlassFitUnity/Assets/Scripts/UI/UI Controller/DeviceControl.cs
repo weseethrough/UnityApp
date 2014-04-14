@@ -25,8 +25,8 @@ public class DeviceControl : MonoBehaviour {
 		if(Platform.Instance.Device() != null)
 		{
 			UnityEngine.Debug.Log("DeviceControl: device obtained");
-			FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			GConnector gConnect = fs.Outputs[0];
+			FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+			GConnectorBase gConnect = fs.Outputs[0];
 			if(gConnect != null)
 			{
 				UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
@@ -74,8 +74,8 @@ public class DeviceControl : MonoBehaviour {
 #if UNITY_EDITOR
 
             pollTime -= 500.0f; //simply shouldn't have to happen again
-            FlowState fs = FlowStateMachine.GetCurrentFlowState();
-			FlowState.FollowFlowLinkNamed("MenuExit");
+            FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+			FlowStateBase.FollowFlowLinkNamed("MenuExit");
 #else
 			pollTime -= 5.0f;
 			

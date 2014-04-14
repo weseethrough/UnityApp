@@ -138,6 +138,9 @@ public class DataVault : MonoBehaviour
 
         if (data != null) return;
 
+        registeredListeners = new Dictionary<string, List<UIComponentSettings>>();
+        registrationRecord = new Dictionary<UIComponentSettings, List<string>>();
+
         data = new Dictionary<string, DataEntry>();
 
         Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
@@ -172,8 +175,7 @@ public class DataVault : MonoBehaviour
             return;
         }
 
-        /*registeredListeners = new Dictionary<string, List<UIComponentSettings>>();
-        registrationRecord = new Dictionary<UIComponentSettings, List<string>>();
+        /*
 
         Storage s = DataStore.GetStorage(DataStore.BlobNames.persistent);
         if (s == null) return;

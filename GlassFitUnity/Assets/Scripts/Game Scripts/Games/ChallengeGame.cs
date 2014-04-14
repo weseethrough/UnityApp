@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using RaceYourself.Models.Blob;
+
 public class ChallengeGame : GameBase {
 	
 	public GameObject runnerHolder;
@@ -33,9 +35,9 @@ public class ChallengeGame : GameBase {
 		//SetReadyToStart(true);
 	}
 	
-	public override GConnector GetFinalConnection()
+	public override GConnectorBase GetFinalConnection()
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
 		ChallengeNotification current = (ChallengeNotification)DataVault.Get("current_challenge_notification");
 		if(Platform.Instance.LocalPlayerPosition.Time < current.GetTime()) { 
 			DataVault.Set("challenge_result", "You beat " + (string)DataVault.Get("challenger"));

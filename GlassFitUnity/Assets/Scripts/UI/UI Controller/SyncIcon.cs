@@ -57,19 +57,19 @@ public class SyncIcon : MonoBehaviour {
 //	}
 	
 	void GoToGame() {
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector gConnect;
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+		GConnectorBase gConnect;
 		
 		//UnityEngine.Debug.Log("SyncIcon - Datavault value is " + DataVault.Get("test_string").ToString());
 		
 		bool tutorial = Convert.ToBoolean(DataVault.Get("tutorial_complete"));
 		
 		if(tutorial) {
-			FlowState.FollowFlowLinkNamed("GameExit");
+			FlowStateBase.FollowFlowLinkNamed("GameExit");
 		}
 		else
 		{
-			FlowState.FollowFlowLinkNamed("TutorialExit");
+			FlowStateBase.FollowFlowLinkNamed("TutorialExit");
 		}
 
         Platform.Instance.NetworkMessageListener.onSync -= syncHandler;

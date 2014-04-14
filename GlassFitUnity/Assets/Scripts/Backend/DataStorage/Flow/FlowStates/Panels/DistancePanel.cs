@@ -4,12 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
+using RaceYourself.Models.Blob;
+
 [Serializable]
 public class DistancePanel : HexPanel {
 	
-	GConnector gameExit;
-	GConnector tutorialExit;
-	GConnector snackExit;
+	GConnectorBase gameExit;
+	GConnectorBase tutorialExit;
+	GConnectorBase snackExit;
 	string raceType;
 	
 	public DistancePanel() { }
@@ -47,7 +49,7 @@ public class DistancePanel : HexPanel {
 		hbd.buttonName = "ChooseHex";
 		hbd.textNormal = "Choose distance";
 		
-		GConnector gc = NewOutput(hbd.buttonName, "Flow");
+		GConnectorBase gc = NewOutput(hbd.buttonName, "Flow");
         gc.EventFunction = "SetFinish";
 
 		if(raceType == "trainRescue")
@@ -63,7 +65,7 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                GConnectorBase oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
                 if (oldConnection != null)
                 {
                     gComponent.Data.Disconnect(oldConnection);
@@ -126,7 +128,7 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == "1km");
+                GConnectorBase oldConnection =  Outputs.Find(r => r.Name == "1km");
                 if (oldConnection != null)
                 {
 					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
@@ -155,7 +157,7 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == "2km");
+                GConnectorBase oldConnection =  Outputs.Find(r => r.Name == "2km");
                 if (oldConnection != null)
                 {
 					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
@@ -184,7 +186,7 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == "3km");
+                GConnectorBase oldConnection =  Outputs.Find(r => r.Name == "3km");
                 if (oldConnection != null)
                 {
 					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
@@ -213,7 +215,7 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == "4km");
+                GConnectorBase oldConnection =  Outputs.Find(r => r.Name == "4km");
                 if (oldConnection != null)
                 {
 					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
@@ -242,7 +244,7 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == "5km");
+                GConnectorBase oldConnection =  Outputs.Find(r => r.Name == "5km");
                 if (oldConnection != null)
                 {
 					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
@@ -271,7 +273,7 @@ public class DistancePanel : HexPanel {
 			else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == "10km");
+                GConnectorBase oldConnection =  Outputs.Find(r => r.Name == "10km");
                 if (oldConnection != null)
                 {
 					UnityEngine.Debug.Log("DistancePanel: old connection has been removed, called " + oldConnection.Name);
@@ -312,7 +314,7 @@ public class DistancePanel : HexPanel {
 		hbd.locked = true;
 	}
 	
-	public void SetGConnector(GConnector gc, GraphComponent gComponent) {
+	public void SetGConnector(GConnectorBase gc, GraphComponent gComponent) {
 		if(raceType == "tutorial" || raceType == "trainRescue") {
 			if(tutorialExit.Link.Count > 0) {
 				UnityEngine.Debug.Log("DistancePanel: Tutorial exit set");

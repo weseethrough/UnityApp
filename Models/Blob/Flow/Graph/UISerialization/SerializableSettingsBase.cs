@@ -10,17 +10,17 @@ using System.Reflection;
 /// Class collecting data about game object building serializable structure of its behaviors
 /// </summary>
 [Serializable]
-public class SerializableSettings : ISerializable 
+public class SerializableSettingsBase : ISerializable 
 {
-    private List<SingleComponent> components;    
+    protected List<SingleComponentBase> components;    
 
     /// <summary>
     /// default constructor initialization
     /// </summary>
     /// <returns></returns>
-    public SerializableSettings()
+    public SerializableSettingsBase()
     {
-        this.components = new List<SingleComponent>();
+        this.components = new List<SingleComponentBase>();
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ public class SerializableSettings : ISerializable
     /// </summary>
     /// <param name="go">gameobject containing components which can be processed by serialziator(simle clasess and basic type variables only, no pointers!)</param>
     /// <returns></returns>
-    public SerializableSettings(GameObject go)
+    public SerializableSettingsBase(GameObject go)
     {        
         ReadGameObjectComponents(go);
     }
@@ -39,9 +39,9 @@ public class SerializableSettings : ISerializable
     /// <param name="info">serialization info containing parameters details</param>
     /// <param name="ctxt">serialziation context</param>
     /// <returns></returns>
-    public SerializableSettings(SerializationInfo info, StreamingContext ctxt)
+    public SerializableSettingsBase(SerializationInfo info, StreamingContext ctxt)
 	{
-        this.components = (List<SingleComponent>)info.GetValue("Components", typeof(List<SingleComponent>));        
+       // this.components = (List<SingleComponentBase>)info.GetValue("Components", typeof(List<SingleComponentBase>));        
 	}
 	
 	/// <summary>
@@ -66,7 +66,7 @@ public class SerializableSettings : ISerializable
                            BindingFlags.Public |
                            BindingFlags.FlattenHierarchy;
 
-        foreach (SingleComponent sc in components)
+        foreach (SingleComponentBase sc in components)
         {
             Component c = go.GetComponent(sc.name);
             if (c == null)
@@ -118,7 +118,7 @@ public class SerializableSettings : ISerializable
     /// <returns></returns>
     private void ReadGameObjectComponents(GameObject go)
     {
-        this.components = new List<SingleComponent>();
+        this.components = new List<SingleComponentBase>();
 
         if (go.GetComponent<UISerializable>() == null) return;
 
@@ -135,7 +135,7 @@ public class SerializableSettings : ISerializable
             {
                 try
                 {
-                    SingleComponent sc = new SingleComponent();
+                    SingleComponentBase sc = new SingleComponentBase();
                     sc.name = myType.ToString();
 
                     FieldInfo[] fields = attachedComponents[i].GetType().GetFields(bindingFlags);
@@ -183,7 +183,7 @@ public class SerializableSettings : ISerializable
     /// </summary>
     /// <param name="name">name of the component in question</param>
     /// <returns>serialization-ready structure requested usually for rebuild</returns>
-    public SingleComponent GetComponent(string name)
+    public SingleComponentBase GetComponent(string name)
     {
         return components.Find(r => r.name == name);
     }
@@ -192,7 +192,7 @@ public class SerializableSettings : ISerializable
     /// get all single components related to creator's game object
     /// </summary>
     /// <returns>list of all single components created during preparation for serialization</returns>
-    public List<SingleComponent> GetComponents()
+    public List<SingleComponentBase> GetComponents()
     {
         return components;
     }
@@ -201,9 +201,9 @@ public class SerializableSettings : ISerializable
     /// makes copy of the serializable setting and all its stored components
     /// </summary>
     /// <returns>copy of the serializable setting and all its stored components</returns>
-    public SerializableSettings Clone()
+    public SerializableSettingsBase Clone()
     {
-        SerializableSettings ss = new SerializableSettings();
+        SerializableSettingsBase ss = new SerializableSettingsBase();
         for(int i=0; i < components.Count; i++)
         {
             ss.components.Add( components[i].Clone());

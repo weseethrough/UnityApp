@@ -35,9 +35,9 @@ public class LoadingCont : MonoBehaviour {
 			return;
 		}
 		
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
-		GConnector race = fs.Outputs.Find(r => r.Name == "completeExit");
-		GConnector back = fs.Outputs.Find(r => r.Name == "failedExit");
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+		GConnectorBase race = fs.Outputs.Find(r => r.Name == "completeExit");
+		GConnectorBase back = fs.Outputs.Find(r => r.Name == "failedExit");
         NetworkMessageListener.OnSync shandler = null;
         shandler = new NetworkMessageListener.OnSync((message) => {
             Platform.Instance.NetworkMessageListener.onSync -= shandler;
@@ -91,7 +91,7 @@ public class LoadingCont : MonoBehaviour {
 						}		
 						if (!finish.HasValue || relevant.Count == 0) {
 							MessageWidget.AddMessage("Challenges", "No relevant challenges", "settings");
-							FlowState.FollowBackLink();
+							FlowStateBase.FollowBackLink();
 							return;
 						}
 						

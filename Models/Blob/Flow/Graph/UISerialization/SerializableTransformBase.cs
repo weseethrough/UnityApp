@@ -8,7 +8,7 @@ using System.Collections.Generic;
 /// special prepared for .net serialization transform data wrapper.
 /// </summary>
 [System.Serializable]
-public class SerializableTransform : ISerializable 
+public class SerializableTransformBase : ISerializable 
 {
     private float positionX;
     private float positionY;
@@ -27,7 +27,7 @@ public class SerializableTransform : ISerializable
 	/// constructor reading all required parameters from original transform
 	/// </summary>
 	/// <param name="source">transform source to be preared for serialziation</param>	
-	public SerializableTransform(Transform source)
+	public SerializableTransformBase(Transform source)
 	{
         if (source != null)
         {
@@ -54,7 +54,7 @@ public class SerializableTransform : ISerializable
     /// </summary>
     /// <param name="info">serialization info storing all configuration parameters</param>
     /// <param name="ctxt">serialziation context</param>    
-    public SerializableTransform(SerializationInfo info, StreamingContext ctxt)
+    public SerializableTransformBase(SerializationInfo info, StreamingContext ctxt)
 	{
         this.rotationX  = (float)info.GetValue("RotationX", typeof(float));
         this.rotationY  = (float)info.GetValue("RotationY", typeof(float));

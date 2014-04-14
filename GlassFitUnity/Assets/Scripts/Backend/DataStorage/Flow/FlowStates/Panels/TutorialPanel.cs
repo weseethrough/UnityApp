@@ -39,7 +39,7 @@ public class TutorialPanel : HexPanel
     {
         //base.GetDisplayName();
 
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "Tutorial Panel: " + gName.Value;
@@ -126,7 +126,7 @@ public class TutorialPanel : HexPanel
     }
 	
 	public void StraightToMenu() {
-		GConnector gConnect = Outputs.Find(r => r.Name == "MenuExit");
+		GConnectorBase gConnect = Outputs.Find(r => r.Name == "MenuExit");
 		if(gConnect != null) 
 		{
 			GestureHelper.onThreeTap -= threeHandler;
@@ -264,11 +264,11 @@ public class TutorialPanel : HexPanel
 			shouldAdd = false;
 			buttonData.Add(hbd);
 			
-			GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
+			GConnectorBase gameExit = Outputs.Find(r => r.Name == "GameExit");
 			
 			GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 			
-			GConnector gc = NewOutput(hbd.buttonName, "Flow");
+			GConnectorBase gc = NewOutput(hbd.buttonName, "Flow");
             gc.EventFunction = "SetTutorial";
 			
 			if(gameExit.Link.Count > 0) {
@@ -368,11 +368,11 @@ public class TutorialPanel : HexPanel
 				shouldAdd = false;
 				buttonData.Add(hbd);
 				
-				GConnector gameExit = Outputs.Find(r => r.Name == "GameExit");
+				GConnectorBase gameExit = Outputs.Find(r => r.Name == "GameExit");
 				
 				GraphComponent gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 				
-				GConnector gc = NewOutput(hbd.buttonName, "Flow");
+				GConnectorBase gc = NewOutput(hbd.buttonName, "Flow");
 	            gc.EventFunction = "SetTutorial";
 				
 				if(gameExit.Link.Count > 0) {

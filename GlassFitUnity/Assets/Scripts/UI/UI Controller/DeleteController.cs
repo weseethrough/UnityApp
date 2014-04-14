@@ -10,7 +10,7 @@ public class DeleteController : MonoBehaviour {
 	void Start () {
 		tapHandler = new GestureHelper.OnTap(() => {
 			Platform.Instance.ResetGames();
-			FlowState.FollowFlowLinkNamed("gameExit");
+			FlowStateBase.FollowFlowLinkNamed("gameExit");
 		});
 		
 		GestureHelper.onTap += tapHandler;
@@ -23,7 +23,7 @@ public class DeleteController : MonoBehaviour {
 	}
 	
 	void ReturnGame() {
-		FlowState.FollowFlowLinkNamed("returnExit");
+		FlowStateBase.FollowFlowLinkNamed("returnExit");
 	}
 	
 	// Update is called once per frame

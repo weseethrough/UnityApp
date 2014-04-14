@@ -98,7 +98,7 @@ public class LoadingScreen : MonoBehaviour {
 			{
 				exitName = "SnackRemote";
 			}
-			FlowState.FollowFlowLinkNamed(exitName);
+			FlowStateBase.FollowFlowLinkNamed(exitName);
 		}
 		
 		slider = GetComponentInChildren<UISlider>();
@@ -133,21 +133,21 @@ public class LoadingScreen : MonoBehaviour {
 			UnityEngine.Debug.Log("LoadingScreen: Loading - " + progress.ToString("f0") + "%");
 			
 			if(async.isDone) {
-			    FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			    FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
 			    //doing the test against the race type rather than level name allows us to use the same level for different race types
 			    //	e.g. FirstRun for tutorial, or using a new track			-AH
 			    if(raceType == "tutorial")
 			    {
-			    	FlowState.FollowFlowLinkNamed("TutorialExit");
+			    	FlowStateBase.FollowFlowLinkNamed("TutorialExit");
 				}
 
 			    else if(raceType == "trainRescue")
 			    {
-				    FlowState.FollowFlowLinkNamed("TrainExit");
+				    FlowStateBase.FollowFlowLinkNamed("TrainExit");
 				}
 				else
 				{
-					FlowState.FollowFlowLinkNamed("RaceExit");
+					FlowStateBase.FollowFlowLinkNamed("RaceExit");
 				}
 			} 
 		}

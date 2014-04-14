@@ -24,9 +24,11 @@ public class UIManager : MonoBehaviour
 	/// serializes currently open ui scene
 	/// </summary>
 	/// <returns>root serialzization node</returns>
-	public SerializedNode SaveScene()
+	public SerializedNodeBase SaveScene()
 	{
-        SerializedNode node = null;
+        
+
+        SerializedNodeBase node = null;
         if (gameObject.transform.childCount > 0)
         {
             GameObject go = gameObject.transform.GetChild(0).gameObject;
@@ -40,7 +42,7 @@ public class UIManager : MonoBehaviour
     /// </summary>
     /// <param name="source">serialized root source to get into reconstruction pipeline</param>
     /// <returns>result cloned widget root object</returns>
-    public GameObject LoadScene(SerializedNode source)
+    public GameObject LoadScene(SerializedNodeBase source)
     {
         return RebuildStructure(gameObject.transform, source, "", null);
     }
@@ -52,7 +54,7 @@ public class UIManager : MonoBehaviour
     /// <param name="source">serialized root source to get into reconstruction pipeline</param>    
     /// <param name="cloneInstanceName">name of the widget root for be cloned</param>
     /// <returns>result cloned widget root object</returns>
-    public GameObject LoadScene(SerializedNode source, string cloneInstanceName)
+    public GameObject LoadScene(SerializedNodeBase source, string cloneInstanceName)
     {
         return RebuildStructure(gameObject.transform, source, cloneInstanceName, null);             
     }
@@ -64,7 +66,7 @@ public class UIManager : MonoBehaviour
     /// <param name="cloneInstanceName">name of the widget root for be cloned</param>    
     /// <param name="overrideCollection">collection of data to override elements within reconstruction process into some custom settings</param>
     /// <returns>result cloned widget root object</returns>
-    public GameObject LoadScene(SerializedNode source, string cloneInstanceName, FlowPanelComponent overrideCollection)
+    public GameObject LoadScene(SerializedNodeBase source, string cloneInstanceName, FlowPanelComponent overrideCollection)
     {
         return RebuildStructure(gameObject.transform, source, cloneInstanceName, overrideCollection);             
     }
@@ -74,9 +76,9 @@ public class UIManager : MonoBehaviour
 	/// </summary>
 	/// <param name="go">root point to start processing from</param>
 	/// <returns>tree of children processed into serializable nodes</returns>
-	SerializedNode ProcessBranch(GameObject go)
+	SerializedNodeBase ProcessBranch(GameObject go)
     {
-        SerializedNode structureParent = new SerializedNode(go);
+        SerializedNodeBase structureParent = new SerializedNodeBase(go);
 		
         foreach (Transform child in go.transform)
         {
@@ -87,7 +89,8 @@ public class UIManager : MonoBehaviour
             script = script != null? script : child.gameObject.GetComponentInChildren<UISerializable>();            
             if (script)
             {
-                structureParent.subBranches.Add(ProcessBranch(child.gameObject));
+                List<SerializedNodeBase> list = (List<SerializedNodeBase>)structureParent.subBranches;
+                list.Add(ProcessBranch(child.gameObject));
             }            
         }
 
@@ -101,7 +104,7 @@ public class UIManager : MonoBehaviour
     /// <param name="node">serialziable node data</param>
     /// <param name="cloneInstanceName">name of the widget root to be cloned, can be empty</param>
     /// <returns>cloned widget root, can be null </returns>
-    GameObject RebuildStructure(Transform parent, SerializedNode node, string cloneInstanceName)
+    GameObject RebuildStructure(Transform parent, SerializedNodeBase node, string cloneInstanceName)
     {
         return RebuildStructure(parent, node, cloneInstanceName, null);
     }
@@ -114,7 +117,7 @@ public class UIManager : MonoBehaviour
     /// <param name="cloneInstanceName">name of the widget root to be cloned, can be empty</param>
     /// <param name="overrideCollection">collection of the data to override setting and values in reconstructed trees' components</param>
     /// <returns>cloned widget root, can be null </returns>
-    GameObject RebuildStructure(Transform parent, SerializedNode node, string cloneInstanceName, FlowPanelComponent overrideCollection)
+    GameObject RebuildStructure(Transform parent, SerializedNodeBase node, string cloneInstanceName, FlowPanelComponent overrideCollection)
     {
 		if (parent == null || node == null) return null;
 
@@ -129,11 +132,12 @@ public class UIManager : MonoBehaviour
             cloneInstanceName = "";
         }
 
-        for (int i = 0; i < node.subBranches.Count; i++)
+        List<SerializedNodeBase> list = (List<SerializedNodeBase>)node.subBranches;
+        for (int i = 0; i < list.Count; i++)
         {
-			if (t != null && node.subBranches[i] != null)
+            if (t != null && list[i] != null)
 			{
-                GameObject go = RebuildStructure(t, node.subBranches[i], cloneInstanceName, overrideCollection);
+                GameObject go = RebuildStructure(t, list[i], cloneInstanceName, overrideCollection);
                 if (searchedInstance == null)
                 {
                     searchedInstance = go;

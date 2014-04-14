@@ -46,7 +46,7 @@ public class SettingsPanel : Panel {
 			// Syncs to the server to authenticate the user.
 			case "ServerButton":
 //				Debug.Log("SettingsPanel: ServerButton clicked");
-	            GConnector gConect = Outputs.Find(r => r.Name == button.name);
+	            GConnectorBase gConect = Outputs.Find(r => r.Name == button.name);
 				// Follow connection once authentication has returned asynchronously
                 NetworkMessageListener.OnAuthenticated handler = null;
                 handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {

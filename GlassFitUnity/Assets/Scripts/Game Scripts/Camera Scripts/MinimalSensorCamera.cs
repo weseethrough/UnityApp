@@ -257,7 +257,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 		
 		if(Input.GetKeyDown(KeyCode.G))
 		{
-			FlowState.FollowFlowLinkNamed("straightPursuitExit");
+			FlowStateBase.FollowFlowLinkNamed("straightPursuitExit");
 		}
 		
 		

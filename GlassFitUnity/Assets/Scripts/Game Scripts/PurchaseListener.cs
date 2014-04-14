@@ -26,11 +26,11 @@ public class PurchaseListener : MonoBehaviour {
 	
 	void GoBack() 
 	{
-		FlowState.FollowFlowLinkNamed("MenuButton");
+		FlowStateBase.FollowFlowLinkNamed("MenuButton");
 	}
 	
 	void PurchaseGame() {
-		if(FlowState.FollowFlowLinkNamed("MenuButton")) {
+		if(FlowStateBase.FollowFlowLinkNamed("MenuButton")) {
 			Game current = (Game)DataVault.Get("actual_game");
 			UnityEngine.Debug.Log("Purchase: Game bought");
 			current.Unlock();
@@ -39,7 +39,7 @@ public class PurchaseListener : MonoBehaviour {
 	
 	void Update() {
 		if(Input.GetKeyDown(KeyCode.Escape)) {
-			FlowState.FollowFlowLinkNamed("MenuButton");
+			FlowStateBase.FollowFlowLinkNamed("MenuButton");
 		}
 	}
 	

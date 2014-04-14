@@ -3,7 +3,7 @@ using System.Collections;
 
 // Graph nodes can have parameters which can be manipulated distinct from input connectors.
 [System.Serializable]
-public class GParameter
+public class GParameterBase
 {
 	public string Key;
 	public string Value;
@@ -21,9 +21,9 @@ public class GParameter
 		FloatMax = max;
 	}
 
-    public GParameter Clone()
+    public GParameterBase Clone()
     {
-        GParameter param = new GParameter();
+        GParameterBase param = new GParameterBase();
         param.Key = Key;
         param.Value = Value;
         param.Type = Type;

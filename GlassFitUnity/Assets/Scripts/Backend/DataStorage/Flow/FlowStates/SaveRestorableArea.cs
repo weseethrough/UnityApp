@@ -9,7 +9,7 @@ using System.Reflection;
 /// exit state which is simply blank end. It doesn't have any navigation out connections.
 /// </summary>
 [Serializable]
-public class SaveRestorableArea : FlowState 
+public class SaveRestorableArea : FlowStateBase 
 {
     static public bool allowGameStateAutoSave = false;
 

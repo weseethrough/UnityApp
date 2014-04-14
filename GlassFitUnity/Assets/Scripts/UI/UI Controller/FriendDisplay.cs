@@ -97,11 +97,11 @@ public class FriendDisplay : MonoBehaviour {
 	}
 	
 	void ChallengeFriend() {
-		FlowState.FollowFlowLinkNamed("ChallengeButton");
+		FlowStateBase.FollowFlowLinkNamed("ChallengeButton");
 	}
 	
 	void GoBack() {
-		FlowState.FollowFlowLinkNamed("BackSettingsButton");
+		FlowStateBase.FollowFlowLinkNamed("BackSettingsButton");
 	}
 	
 	void PreviousFriend() {

@@ -213,7 +213,7 @@ public class TrainRescueSnack : SnackBase {
 		{
 			//go to subtitle card
 			UnityEngine.Debug.Log("Train: Following 'subtitle' connector");
-			FlowState.FollowFlowLinkNamed("Subtitle");
+			FlowStateBase.FollowFlowLinkNamed("Subtitle");
 			//set value for subtitle. 0 = GO
 			string displayString = (i==0) ? "GO !" : i.ToString();
 			DataVault.Set("train_subtitle", displayString);
@@ -223,7 +223,7 @@ public class TrainRescueSnack : SnackBase {
 			
 			//return to cam
 			UnityEngine.Debug.Log("Train: Following 'toblank' connector");
-			FlowState.FollowFlowLinkNamed("ToBlank");
+			FlowStateBase.FollowFlowLinkNamed("ToBlank");
 			
 			//wait a second more, except after GO!
 			if(i!=0)
@@ -236,7 +236,7 @@ public class TrainRescueSnack : SnackBase {
 		yield return new WaitForSeconds(0.1f);
 		
 		UnityEngine.Debug.Log("Train: Following 'begin' connector");
-		FlowState.FollowFlowLinkNamed("Begin");
+		FlowStateBase.FollowFlowLinkNamed("Begin");
 		
 		
 		started = true;

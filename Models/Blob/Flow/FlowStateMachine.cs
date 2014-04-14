@@ -2,16 +2,17 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using RaceYourself.Models.Blob;
 
 /// <summary>
 /// component which is flow manager embedded in prefab. Manages state progression, flowstate stack and many more important flow behaviors and data 
 /// </summary>
 public class FlowStateMachine : MonoBehaviour 
 {
-    private List<FlowState> activeFlow;
-    private List<FlowState> navigationHistory;
-    private FlowState targetState;
-    private GConnector targetStateConnector;
+    private List<FlowStateBase> activeFlow;
+    private List<FlowStateBase> navigationHistory;
+    private FlowStateBase targetState;
+    private GConnectorBase targetStateConnector;
 
     /// <summary>
     /// default unity initialization call, used to stop this structure from destruction when navigation between scenes
@@ -28,16 +29,17 @@ public class FlowStateMachine : MonoBehaviour
     /// <returns></returns>
     void Start()
     {                     
-        activeFlow = new List<FlowState>();
+        activeFlow = new List<FlowStateBase>();
         targetState = null;
 
 
         GraphComponentBase gc = GetComponent<GraphComponentBase>();
         if (gc != null)
         {                        
-            foreach(GNode node in gc.Data.Nodes)
+            foreach(GNodeBase node in gc.Data.Nodes)
             {
-                if (node is StartBase)
+                Debug.LogWarning("Nodes Found: " + node.GetType().ToString() + " is startBaseSubclass "+node.GetType().IsSubclassOf(typeof(StartBase)));
+                if (node.GetType().IsSubclassOf(typeof(StartBase)))
                 {
                     targetState = node as StartBase;
                     break;
@@ -59,11 +61,11 @@ public class FlowStateMachine : MonoBehaviour
         GraphComponentBase gc = fsm.GetComponent<GraphComponentBase>();
         if (gc != null)
         {                        
-            foreach(GNode node in gc.Data.Nodes)
+            foreach(GNodeBase node in gc.Data.Nodes)
             {
-                if (node is StartBase)
+                if (node != null && node.GetType().IsSubclassOf(typeof(StartBase)))
                 {
-					GConnector gConnect = node.Outputs.Find(r => r.Name == output);
+					GConnectorBase gConnect = node.Outputs.Find(r => r.Name == output);
 					if (gConnect != null) return fsm.FollowConnection(gConnect);
                 }
             }
@@ -75,7 +77,7 @@ public class FlowStateMachine : MonoBehaviour
 	/// static function allowing to take current flow state if one exists. Might be useful for some arbitrary calls in static locations which needs to know what panel is currently on or force navigation in/out
 	/// </summary>
 	/// <returns>returns current active flow state</returns>
-	static public FlowState GetCurrentFlowState()
+	static public FlowStateBase GetCurrentFlowState()
     {
         FlowStateMachine fsm = GameObject.FindObjectOfType(typeof(FlowStateMachine)) as FlowStateMachine;
         if (fsm == null) return null;
@@ -98,7 +100,7 @@ public class FlowStateMachine : MonoBehaviour
 	        {
 	            bool specialProgress = UpdateState(activeFlow[i]);
 	
-	            if (activeFlow[i].state == FlowState.State.Dead)
+	            if (activeFlow[i].state == FlowStateBase.State.Dead)
 	            {
 	                activeFlow.RemoveAt(i);
 	                i--;
@@ -118,23 +120,23 @@ public class FlowStateMachine : MonoBehaviour
     /// </summary>
     /// <param name="fs"></param>
     /// <returns>if true is returned another update would eb called, for example if we are leaving from stack of the states we need to close one after another but all in same frame if none of them stuck for their own exitUpdate function</returns>
-    public bool UpdateState(FlowState fs)
+    public bool UpdateState(FlowStateBase fs)
     {
         bool requiresAnotherPass = false;
 
         switch (fs.state)
         {
-            case FlowState.State.Entering:
+            case FlowStateBase.State.Entering:
                 if (fs.EnterUpdate())
                 {
                     fs.Entered();
                     requiresAnotherPass = true;
                 }
                 break;
-            case FlowState.State.Idle:
+            case FlowStateBase.State.Idle:
                 fs.StateUpdate();
                 break;
-            case FlowState.State.Exiting:
+            case FlowStateBase.State.Exiting:
                 if (fs.ExitUpdate())
                 {
                     fs.Exited();
@@ -151,53 +153,36 @@ public class FlowStateMachine : MonoBehaviour
     /// </summary>
     /// <param name="connection">connection you want this flow to follow</param>
     /// <returns>returns true if follow connection is possible (connection is valid)</returns>
-    public bool FollowConnection(GConnector connection)
+    public bool FollowConnection(GConnectorBase connection)
     {
-        
+        if (connection != null)
+        {
+            Debug.Log("FollowConnection: " + connection.Name);
+            if (connection.Link != null)
+            {                
+                Debug.Log("connection.Link.Count: " + connection.Link.Count);
+                if (connection.Link.Count > 0 && connection.Link[0].Parent != null)
+                {
+                    Debug.Log("connection.Link: " + connection.Link[0].Name);                
+                    Debug.Log("connection.Link[0].Parent: " + connection.Link[0].Parent.GetDisplayName());                    
+                }   
+            }
+        }
+
         if (connection != null && 
             connection.Link != null && 
             connection.Link.Count > 0 &&
             connection.Link[0].Parent != null)
         {
-//            if (!grabAnalyticsInitialized)
-//            {
-//                //use this to enable debug output
-//                //GrabBridge.ToggleLog(true);
-//
-//                //GrabBridge.Start("pxeqexpldwfcwdp:faef0c81e352b38894b8df87:R7mg9jl2t4UOOWGxHTDh2Ys3KRHH/NOs0QAy9osBUEE=");
-//
-//                string userid = "tester";
-//                //GrabBridge.FirstLogin(userid);
-//
-//                //grabAnalyticsInitialized = true;                
-//            }
-            
-
-            //JSONObject gameDetails = new JSONObject();
-            //object type = DataVault.Get("type");
-            //object log = DataVault.Get("warning_log");
-            //DataVault.Set("warning_log", "");
-
-//            gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
-//            gameDetails.AddField("Game type", (string)type);
-//            gameDetails.AddField("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
-//            gameDetails.AddField("State live", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
-//            gameDetails.AddField("Custom Log", (string)log );
-
-            //GrabBridge.CustomEvent("Flow state changed", gameDetails);
-
-            // Our own internal logging for analytics
-            //gameDetails.AddField("Event type", "Flow state changed");
-            //Platform.Instance.LogAnalytics(gameDetails);
-
             if (navigationHistory == null)
             {
-                navigationHistory = new List<FlowState>();
+                navigationHistory = new List<FlowStateBase>();
             }
 
             navigationHistory.Add(activeFlow[activeFlow.Count-1]);
-            targetState = connection.Link[0].Parent as FlowState;
-            targetStateConnector = connection.Link[0];            
+            targetState = connection.Link[0].Parent as FlowStateBase;
+            targetStateConnector = connection.Link[0];
+            Debug.Log("go to state: " + targetState.GetDisplayName());
             return true;
         }
         return false;
@@ -212,9 +197,9 @@ public class FlowStateMachine : MonoBehaviour
         GraphComponentBase gc = GetComponent<GraphComponentBase>();
         if (gc != null)
         {
-            foreach (GNode node in gc.Data.Nodes)
+            foreach (GNodeBase node in gc.Data.Nodes)
             {
-                if (node is StartBase)
+                if (node != null && node.GetType().IsSubclassOf(typeof(StartBase)))
                 {
                     GoToState(node as StartBase);
                     break;
@@ -233,11 +218,11 @@ public class FlowStateMachine : MonoBehaviour
         GraphComponentBase gc = GetComponent<GraphComponentBase>();
         if (gc != null)
         {
-            foreach (GNode node in gc.Data.Nodes)
+            foreach (GNodeBase node in gc.Data.Nodes)
             {
                 if (node.Id == id)
                 {
-                    GoToState(node as FlowState);
+                    GoToState(node as FlowStateBase);
                     break;
                 }
             }
@@ -249,7 +234,7 @@ public class FlowStateMachine : MonoBehaviour
     /// </summary>
     /// <param name="state">state instance which we want navigate to</param>
     /// <returns>returns always true</returns>
-    public bool GoToState(FlowState state)
+    public bool GoToState(FlowStateBase state)
     {
         
 //        if (!grabAnalyticsInitialized)
@@ -297,7 +282,7 @@ public class FlowStateMachine : MonoBehaviour
     {        
         if (navigationHistory != null && navigationHistory.Count > 0)
         {
-            FlowState fs = navigationHistory[navigationHistory.Count - 1];
+            FlowStateBase fs = navigationHistory[navigationHistory.Count - 1];
             navigationHistory.RemoveAt(navigationHistory.Count - 1);
 			//SoundManager.PlaySound(SoundManager.Sounds.HidePopup);
             targetState = fs;
@@ -313,7 +298,7 @@ public class FlowStateMachine : MonoBehaviour
     /// <returns></returns>
     public void ForbidBack()
     {
-        navigationHistory = new List<FlowState>();
+        navigationHistory = new List<FlowStateBase>();
     }
 
     /// <summary>
@@ -322,20 +307,23 @@ public class FlowStateMachine : MonoBehaviour
     /// <param name="fs">state destination</param>
     /// <returns>returns true when operation is finished. until then all calls return false</returns>
     private bool ProgressStateChanges()
-    {
+    {       
         //target state cant be null, machine must be ready and we cant be exactly in target state
         if (targetState != null && 
             IsReady())
         {
+
+            Debug.LogWarning("ProgressStateChanges go " + targetState.GetDisplayName());
             if (activeFlow.Count > 0 && activeFlow[activeFlow.Count - 1] == targetState)
-            {                
+            {
+                Debug.LogWarning("ProgressStateChanges target reached");
                 targetStateConnector = null;
                 targetState = null;
                 return true;
             }
 
-            FlowState nextStep = targetState;
-            FlowState nextStepChild = null;
+            FlowStateBase nextStep = targetState;
+            FlowStateBase nextStepChild = null;
             while (nextStep != null)
             {
                 if (activeFlow.Contains(nextStep))
@@ -367,9 +355,9 @@ public class FlowStateMachine : MonoBehaviour
                     targetStateConnector.EventFunction != null && 
                     targetStateConnector.EventFunction != "")
                 {
-                    if (targetState is FlowState)
+                    if (targetState is FlowStateBase)
                     {
-                        (targetState as FlowState).CallStaticFunction(targetStateConnector.EventFunction, null);
+                        (targetState as FlowStateBase).CallStaticFunction(targetStateConnector.EventFunction, null);
                     }
                 }
 
@@ -394,7 +382,7 @@ public class FlowStateMachine : MonoBehaviour
     {
         if (activeFlow.Count > 0)
         {
-            if (activeFlow[activeFlow.Count - 1].state == FlowState.State.Idle)
+            if (activeFlow[activeFlow.Count - 1].state == FlowStateBase.State.Idle)
             {
                 return true;
             }
@@ -449,7 +437,7 @@ public class FlowStateMachine : MonoBehaviour
     /// Retursn current target state, which is not null only during transition to new state
     /// </summary>
     /// <returns></returns>
-    public FlowState GetCurrentTargetState()
+    public FlowStateBase GetCurrentTargetState()
     {
         return targetState;
     }
@@ -475,7 +463,7 @@ public class FlowStateMachine : MonoBehaviour
     /// 
     /// </summary>
     /// <returns></returns>
-    public FlowState GetCurrentState()
+    public FlowStateBase GetCurrentState()
     {
         
         if (activeFlow == null || activeFlow.Count == 0) return null;
@@ -490,7 +478,7 @@ public class FlowStateMachine : MonoBehaviour
 	void OnApplicationQuit() 
     {
 
-        Debug.LogError("TODO: OnApplicationQuit commented out for time being");
+        Debug.LogWarning("TODO: OnApplicationQuit commented out for time being");
         /*if (SaveRestorableArea.allowGameStateAutoSave)
         {
             Debug.Log("-------SAVE ON EXIT by EXIT");
@@ -504,7 +492,7 @@ public class FlowStateMachine : MonoBehaviour
     /// <returns></returns>
     void OnApplicationPause() 
     {
-        Debug.LogError("TODO: OnApplicationPause commented out for time being");
+        Debug.LogWarning("TODO: OnApplicationPause commented out for time being");
         /*
         if (SaveRestorableArea.allowGameStateAutoSave)
         {

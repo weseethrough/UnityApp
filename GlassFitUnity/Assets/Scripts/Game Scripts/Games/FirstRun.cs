@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections;
 using System;
 
+using RaceYourself.Models.Blob;
+
 public class FirstRun : GameBase {
 	
 	const float MIN_PACE = 1.5f;
@@ -121,7 +123,7 @@ public class FirstRun : GameBase {
 	IEnumerator GoBack()
 	{
 		yield return new WaitForSeconds(2.0f);
-		FlowState.FollowBackLink();
+		FlowStateBase.FollowBackLink();
 	}
 	
 	// Update is called once per frame
@@ -139,8 +141,8 @@ public class FirstRun : GameBase {
 					if(!indoorRaceYourself)
 					{
 						indoorRaceYourself = true;
-						FlowState fs = FlowStateMachine.GetCurrentFlowState();
-						GConnector gConnect = fs.Outputs.Find(r => r.Name == "RaceIndoorExit");
+						FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+						GConnectorBase gConnect = fs.Outputs.Find(r => r.Name == "RaceIndoorExit");
 						if(gConnect != null)
 						{
 							if(chime != null)
@@ -164,8 +166,8 @@ public class FirstRun : GameBase {
 					{
 						indoorComplete = true;
 						
-						FlowState fs = FlowStateMachine.GetCurrentFlowState();
-						GConnector gConnect = fs.Outputs.Find(r => r.Name == "IndoorCompleteExit");
+						FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
+						GConnectorBase gConnect = fs.Outputs.Find(r => r.Name == "IndoorCompleteExit");
 						if(gConnect != null)
 						{
 							if(runner.GetDistanceBehindTarget() < 0)
@@ -205,9 +207,9 @@ public class FirstRun : GameBase {
 		}
 	}
 
-	public override GConnector GetFinalConnection ()
+	public override GConnectorBase GetFinalConnection ()
 	{
-		FlowState fs = FlowStateMachine.GetCurrentFlowState();
+		FlowStateBase fs = FlowStateMachine.GetCurrentFlowState();
 		return fs.Outputs.Find(r => r.Name == "FinishButton");
 		
 	}

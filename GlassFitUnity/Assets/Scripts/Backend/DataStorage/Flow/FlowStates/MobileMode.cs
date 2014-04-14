@@ -9,7 +9,7 @@ using System.Reflection;
 /// 
 /// </summary>
 [Serializable]
-public class MobileMode : FlowState 
+public class MobileMode : FlowStateBase 
 {
     ScreenOrientation defaultOrientation;
 

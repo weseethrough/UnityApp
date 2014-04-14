@@ -96,14 +96,14 @@ public class GameSelectPanel : HexPanel
     {		
 		DataVault.Set("first_menu", " ");
 		
-        GConnector raceExit = Outputs.Find(r => r.Name == "raceExit");
-        GConnector pursuitExit = Outputs.Find(r => r.Name == "pursuitExit");
-		GConnector challengeExit = Outputs.Find (r => r.Name == "challengeExit");
-		GConnector unlockExit = Outputs.Find (r => r.Name == "unlockExit");
-		GConnector celebExit = Outputs.Find (r => r.Name == "celebExit");
-		GConnector modeExit = Outputs.Find (r => r.Name == "modeExit");
-		GConnector deleteExit = Outputs.Find (r => r.Name == "deleteExit");
-		GConnector trainExit = Outputs.Find (r => r.Name == "trainExit");
+        GConnectorBase raceExit = Outputs.Find(r => r.Name == "raceExit");
+        GConnectorBase pursuitExit = Outputs.Find(r => r.Name == "pursuitExit");
+		GConnectorBase challengeExit = Outputs.Find (r => r.Name == "challengeExit");
+		GConnectorBase unlockExit = Outputs.Find (r => r.Name == "unlockExit");
+		GConnectorBase celebExit = Outputs.Find (r => r.Name == "celebExit");
+		GConnectorBase modeExit = Outputs.Find (r => r.Name == "modeExit");
+		GConnectorBase deleteExit = Outputs.Find (r => r.Name == "deleteExit");
+		GConnectorBase trainExit = Outputs.Find (r => r.Name == "trainExit");
 			
 		
 		DataVault.Set("rp", (int)Platform.Instance.PlayerPoints.OpeningPointsBalance);
@@ -173,7 +173,7 @@ public class GameSelectPanel : HexPanel
             else
             {
                 //disconnect old connection which could possibly change. Also we don't want to double it if it doesn't change
-                GConnector oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
+                GConnectorBase oldConnection =  Outputs.Find(r => r.Name == hbd.buttonName);
                 if (oldConnection != null)
                 {
                     gComponent.Data.Disconnect(oldConnection);
@@ -227,7 +227,7 @@ public class GameSelectPanel : HexPanel
 				}
 			}
 			
-			GConnector gc = NewOutput(hbd.buttonName, "Flow");
+			GConnectorBase gc = NewOutput(hbd.buttonName, "Flow");
             gc.EventFunction = "SetType";
 			
 			/*gComponent.Data.Disconnect(gc, unlockExit.Link[0]);

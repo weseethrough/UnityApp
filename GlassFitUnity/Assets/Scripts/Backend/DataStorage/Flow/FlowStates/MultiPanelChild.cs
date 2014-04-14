@@ -61,7 +61,7 @@ public class MultiPanelChild : Panel
     {
         base.GetDisplayName();
         
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "MultiPanelChild: " + gName.Value;
@@ -143,7 +143,7 @@ public class MultiPanelChild : Panel
     /// <returns></returns>
     public int GetOrder()
     {
-        GParameter gName = Parameters.Find(r => r.Key == "Order");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Order");
         if (gName != null)
         {
             return Convert.ToInt32(gName.Value);

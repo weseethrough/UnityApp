@@ -73,7 +73,7 @@ public class GameStateRestorable : ISerializable
         //get state ID
         if (fsm.GetCurrentTargetState() == null)
         {
-            FlowState fs = fsm.GetCurrentState();
+            FlowStateBase fs = fsm.GetCurrentState();
             id = fs.Id;
         }
         else

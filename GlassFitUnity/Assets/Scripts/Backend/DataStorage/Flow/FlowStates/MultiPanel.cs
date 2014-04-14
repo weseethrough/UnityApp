@@ -65,7 +65,7 @@ public class MultiPanel : Panel
     {
         base.GetDisplayName();
         
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        GParameterBase gName = Parameters.Find(r => r.Key == "Name");
         if (gName != null)
         {
             return "MultiPanel: " + gName.Value;
@@ -105,7 +105,7 @@ public class MultiPanel : Panel
 //			HandleTap();
 //		});
 		
-        foreach (FlowState fs in m_children)
+        foreach (FlowStateBase fs in m_children)
         {
             if ( fs is MultiPanelChild )
             {                
@@ -197,7 +197,7 @@ public class MultiPanel : Panel
                 maxIndex = managedChildren.Count - 1;
             }
 
-            GParameter allowSingleDragOnly = Parameters.Find(r => r.Key == "AllowSingleDragOnly");
+            GParameterBase allowSingleDragOnly = Parameters.Find(r => r.Key == "AllowSingleDragOnly");
             if (allowSingleDragOnly == null || allowSingleDragOnly.Value == "true")
             {
                 int oldIndex = managedChildren.IndexOf(focusedChildPanel);
