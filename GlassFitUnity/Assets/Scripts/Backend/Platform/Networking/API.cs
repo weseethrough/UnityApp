@@ -128,8 +128,8 @@ namespace RaceYourself
 		/// Coroutine to log in using Resource Owner Password Credentials flow.
 		/// Triggers Platform.OnAuthentication upon completion.
 		/// </summary>
-		public IEnumerator Login(string username, string password) 
-		{
+		public IEnumerator Login(string username, string password)
+        {
 			Debug.Log("API: Login(" + username + ",<password>)");
 			string ret = "Failure";
 			try {
@@ -214,7 +214,7 @@ namespace RaceYourself
 
 			user = account.response;
 			var transaction = db.BeginTransaction();
-			try {			
+			try {
 				if (!db.UpdateObjectBy("id", user)) {
 					db.StoreObject(user);
 				}
@@ -276,9 +276,9 @@ namespace RaceYourself
 				
 				var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
 				yield return post;
-							
+				
 				if (!post.isDone) {}
-						
+				
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
 					if (post.error.ToLower().Contains("401 unauthorized")) {
@@ -301,7 +301,7 @@ namespace RaceYourself
 				
 				// Run slow ops in a background thread
 				var bytes = post.bytes;				
-				Thread backgroundThread = new Thread(() => {				
+				Thread backgroundThread = new Thread(() => {
 					ResponseWrapper response = null;
 					var parseStart = DateTime.Now;
 					try {
@@ -338,7 +338,6 @@ namespace RaceYourself
 				while (backgroundThread.IsAlive) yield return null;
 				
 				if (ret.Equals("full") || ret.Equals("partial")) Debug.Log("API: Sync() completed successfully in " + (DateTime.Now - start));
-				
 			} finally {
 				syncing = false;
                 Platform.Instance.NetworkMessageListener.OnSynchronization(ret);
@@ -482,8 +481,8 @@ namespace RaceYourself
 				notifications = new List<Models.Notification>(db.Cast<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
 				transactions = new List<Models.Transaction>(db.Cast<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
 				actions = new List<Models.Action>(db.LoadAll<Models.Action>());
-				events = new List<Models.Event>(db.LoadAll<Models.Event>());
-				
+                events = new List<Models.Event>(db.LoadAll<Models.Event>());
+                
 				// Populate device_id
 				foreach (Models.Track track in tracks) {
 					track.deviceId = self.id;
@@ -556,7 +555,7 @@ namespace RaceYourself
 			public override string ToString()
 			{
 				return (LengthOrNull(devices) + " devices, "
-						+ LengthOrNull(tracks) + " tracks, "
+                        + LengthOrNull(tracks) + " tracks, "
 						+ LengthOrNull(positions) + " positions, "
 						+ LengthOrNull(notifications) + " notifications, "
 						+ LengthOrNull(transactions) + " transactions, "
@@ -582,7 +581,9 @@ namespace RaceYourself
 			public List<Models.Track> tracks;
 			public List<Models.Position> positions;
 			public List<Models.Notification> notifications;
-			public List<Models.Transaction> transactions;
+            public List<Models.Transaction> transactions;
+            //public List<Models.PlayerConfig> playerConfig;
+            public List<Models.Game> games;
 			
 			public List<string> errors = new List<string>();
 			
@@ -591,7 +592,8 @@ namespace RaceYourself
 				return ("head: " + sync_timestamp
 						+ " tail: " + tail_timestamp + "#" + tail_skip + "; "
 					    + LengthOrNull(devices) + " devices, "
-						+ LengthOrNull(friends) + " friends, "
+                        + LengthOrNull(friends) + " friends, "
+                        + LengthOrNull(games) + " games, "
 						+ LengthOrNull(challenges) + " challenges, "
 						+ LengthOrNull(tracks) + " tracks, "
 						+ LengthOrNull(positions) + " positions, "
@@ -651,13 +653,29 @@ namespace RaceYourself
 					}
 					db.EndBulkInsert(typeof(Models.Challenge));
 				}
-				
-				if (tracks != null) {
+                
+                if (games != null) {
+                    db.StartBulkInsert(typeof(Models.Game));
+                    foreach (Models.Game game in games) {
+                        if (game.deleted_at != null) {
+                            if (db.DeleteObjectBy("id", game)) deletes++;
+                            continue;
+                        }
+                        if (!db.UpdateObjectBy("id", game)) {
+                            db.StoreObject(game);
+                            inserts++;
+                        } else updates++;
+                    }
+                    db.EndBulkInsert(typeof(Models.Game));
+                }
+
+                if (tracks != null) {
 					db.StartBulkInsert(typeof(Models.Device));
 					foreach (Models.Track track in tracks) {
 						track.GenerateCompositeId();
 						if (track.deleted_at != null) {
-							db.DeleteObjectBy("id", track);
+							if (db.DeleteObjectBy("id", track))
+                                deletes++;
 							continue;
 						}
 						if (!db.UpdateObjectBy("id", track)) {

@@ -1,23 +1,52 @@
 ﻿using System;
+using Newtonsoft.Json;
+using Sqo.Attributes;
 using UnityEngine;
+using Sqo;
 
 namespace RaceYourself.Models
 {
 	public class Game
 	{
-		public string gameId;// Unique identifier of the game (e.g. "Zombies 2")
-		public string name; // Pretty name to display to users
-		public string iconName;
-		public string activity;
-		public string description; // Pretty description to display to users
-		public string state; // "Locked" or "Unlocked"
-		public int tier; // which tier the game sits in (1,2,3,4 etc)
-		public long priceInPoints;
-		public long priceInGems;
-		public string type;
-		public int column;
+		// Game
+        
+        [Index]
+        [UniqueConstraint]
+        [JsonProperty("id")]
+        public string gameId;// Unique identifier of the game (e.g. "Zombies 2")
+        public string name; // Pretty name to display to users
+        public string activity;
+        public string description; // Pretty description to display to users
+        public int tier; // which tier the game sits in (1,2,3,4 etc)
+        [JsonProperty("price_in_points")]
+        public long priceInPoints;
+        [JsonProperty("price_in_gems")]
+        public long priceInGems;
+		public string type; // N/A, Race, Challenge, Snack
+        [JsonProperty("scene_name")]
+        public string sceneName;
+
+        // Game state
+        
+        [JsonConverter(typeof(LockedConverter))]
+        public string state; // "Locked" or "Unlocked"
+        public bool enabled; // Can the user access this game? Server-driven; overrides player unlocks
+        
+        // Menu-specific
+
+        [JsonProperty("icon")]
+        public string iconName;
+        public int column;
 		public int row;
-		public string sceneName;
+
+        // For server sync
+
+        // Populated by server if game is to be deleted. (???)
+        [JsonIgnore]
+        public DateTime? deleted_at;
+        [JsonIgnore]
+        // is there a local change to this game that is awaiting a server sync?
+        public bool dirty = false;
 
 		public Game () {}
 		public Game(string gameID, string name, string iconName, string activity, string description, 
@@ -52,3 +81,21 @@ namespace RaceYourself.Models
 	}
 }
 
+// TODO HAXXXX look into whether we can just make 'locked' a bool.
+class LockedConverter : JsonConverter
+{
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    {
+        writer.WriteValue(((bool)value) ? "Locked" : "Unlocked");
+    }
+    
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    {
+        return reader.Value.ToString() == "Locked";
+    }
+    
+    public override bool CanConvert(Type objectType)
+    {
+        return objectType == typeof(bool) || objectType == typeof(string);
+    }
+}
