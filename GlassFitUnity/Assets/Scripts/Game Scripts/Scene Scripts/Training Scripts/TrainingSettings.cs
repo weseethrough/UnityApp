@@ -66,7 +66,7 @@ public class TrainingSettings : MonoBehaviour {
 			GUI.Label(new Rect(originalWidth/2 -100, 50, 200, 40), "Walking: 1.25m/s");
 			GUI.Label (new Rect(originalWidth/2 - 100, 90, 200, 40), "Jogging: 2.2m/s");
 			GUI.Label(new Rect(originalWidth/2 - 100, 130, 200, 40), "Running: 4.2m/s");
-			GUI.Label(new Rect(originalWidth/2 - 100, 170, 200, 40), "Usain Bolt: 10.4m/s");			
+			GUI.Label(new Rect(originalWidth/2 - 100, 170, 200, 40), "Sprinter: 10.4m/s");			
 					
 			// Set the speed slider, if the value has changed set the new speed
 			float temp  = GUI.HorizontalSlider(new Rect((originalWidth/2)-100, 250, 200, 50), targSpeed,  1.25f, 10.4f);

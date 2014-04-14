@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BoltController : ConstantVelocityPositionController {
+public class SprinterController : ConstantVelocityPositionController {
 	
-	// Distance where Bolt and the player started running
+	// Sprinter's speed
+	private float speed = 10.44f;
+	
+	// Distance where sprinter and the player started running
 	private float startDistance = 0.0f;
 	
 	// Level for the enemy
@@ -36,7 +39,7 @@ public class BoltController : ConstantVelocityPositionController {
 	// Update is called once per frame
 	public override void Update () 
 	{
-		if(GetBoltDistanceTravelled() > 100)
+		if(GetSprinterDistanceTravelled() > 100)
 		{
 			//stop running
 			velocity = Vector3.zero;
@@ -46,12 +49,12 @@ public class BoltController : ConstantVelocityPositionController {
 	}
 		
 	/// <summary>
-	/// Gets the distance travelled for Bolt
+	/// Gets the distance travelled for Sprinter
 	/// </summary>
 	/// <returns>
 	/// The distance in meters
 	/// </returns>
-	public float GetBoltDistanceTravelled()
+	public float GetSprinterDistanceTravelled()
 	{
 		return worldObject.getRealWorldPos().z - startDistance;
 	}

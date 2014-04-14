@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MoFarahController : RYWorldObject {
+public class SprinterTenKController : RYWorldObject {
 
 	// Use this for initialization
 	public override void Start () {

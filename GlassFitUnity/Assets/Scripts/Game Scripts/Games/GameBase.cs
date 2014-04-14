@@ -64,7 +64,12 @@ public class GameBase : MonoBehaviour {
 
 	public static int getTargetDistance()
 	{
+		if(Application.isEditor) 
+			return 5000;
+
 		Track selectedTrack = (Track)DataVault.Get("current_track");
+
+
 		if(selectedTrack != null)
 		{
 			return (int)selectedTrack.distance;
