@@ -674,7 +674,8 @@ namespace RaceYourself
 					foreach (Models.Track track in tracks) {
 						track.GenerateCompositeId();
 						if (track.deleted_at != null) {
-							db.DeleteObjectBy("id", track); // FIXME deletes++?
+							if (db.DeleteObjectBy("id", track))
+                                deletes++;
 							continue;
 						}
 						if (!db.UpdateObjectBy("id", track)) {
