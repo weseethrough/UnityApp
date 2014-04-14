@@ -12,28 +12,20 @@ public class RaceGame : GameBase {
 	public enum ActorType
 	{
 		Runner			= 1,
-		Cyclist			= 2,
-		Mo				= 3,
-		Paula 			= 4,
-		Chris			= 5,
-		Bradley 		= 6
+		Cyclist			= 2
 	}
 	
 	private ActorType currentActorType = ActorType.Runner;
     public List<GameObject> actors = new List<GameObject>();
 
+	protected GameObject opponent;
+
+	private float targSpeed = 2.4f;
+
 	// Holds actor templates
 	public GameObject cyclistHolder;
 	public GameObject runnerHolder;
-	public GameObject moHolder;
-	public GameObject paulaHolder;
-	public GameObject chrisHolder;
-	public GameObject bradleyHolder;
-
-	public GameObject opponent;
-
-	private float targSpeed;
-
+		
 	public override void Start () {
 		base.Start();
 		
@@ -57,34 +49,7 @@ public class RaceGame : GameBase {
 		case "Cyclist":
 			currentActorType = ActorType.Cyclist;
 			opponent = cyclistHolder;
-			break;
-			
-		case "Mo":
-			currentActorType = ActorType.Mo;
-			opponent = moHolder;
-			DataVault.Set("slider_val", 0.525f);
-			targSpeed = 6.059f;
-			break;
-			
-		case "Paula":
-			currentActorType = ActorType.Paula;
-			opponent = paulaHolder;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 4.91f;
-			break;
-			
-		case "Chris":
-			currentActorType = ActorType.Chris;
-			opponent = chrisHolder;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 15.686f;			
-			break;
-			
-		case "Bradley":
-			currentActorType = ActorType.Bradley;
-			opponent = bradleyHolder;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 17.007f;	
+			targSpeed = 2.4f;
 			break;
 		}
 		

@@ -28,7 +28,10 @@ public class ChallengeGame : GameBase {
 		foreach (TargetTracker tracker in trackers) {
 			TargetTrackerPositionController controller = runnerHolder.GetComponent<TargetTrackerPositionController>();
 			controller.tracker = tracker;
-			//runnerHolder.SetLane(lane++);
+			newRunnerPos = runnerHolder.getRealWorldPos();
+			newRunnerPos.x = lane;
+			runnerHolder.setRealWorldPos(newRunnerPos);
+			lane++;
 		}
 		
 		SetVirtualTrackVisible(true);

@@ -11,7 +11,7 @@ using System.Reflection;
 [Serializable]
 public class MultiPanel : Panel
 {
-    private List<MultiPanelChild> managedChildren;
+    protected List<MultiPanelChild> managedChildren;
     private float dragTime;
     private float dragOffset;    
     private Vector3 firstGliph = Vector3.zero;
@@ -249,7 +249,7 @@ public class MultiPanel : Panel
 			DataVault.Set("currentPageIndex", index);
             firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.3f, pos);
             firstTweener.delay = 0.0f;
-			
+
 //			if(focusedChildPanel.GetDisplayName() == "MultiPanelChild: GPS") {
 //				UnityEngine.Debug.Log("MultiPanel: turning taphandler on");
 //				GestureHelper.onTap += tapHandler;
