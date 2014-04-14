@@ -221,11 +221,20 @@ public class PlatformDummy : Platform
 			}
 		}
 		// Remove non-default games
+		//first build the list of games to be removed.
+		List<Game> gamesToDelete = new List<Game>();
 		foreach (var game in games) {
 			if (!defaultGames.Exists(g => g.gameId == game.gameId)) {
-				games.Remove(game);
+				//games.Remove(game);
+				gamesToDelete.Add(game);
 				db.Delete(game);
 			}
+		}
+
+		//now remove the games in the list
+		foreach (var game in gamesToDelete)
+		{
+			games.Remove(game);
 		}
 	}
 
