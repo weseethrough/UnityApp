@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
 
-public class PBRunnerController : TargetController {
+public class PBRunnerController : RYWorldObject {
 	
 	private Animator anim; 
 

@@ -11,7 +11,7 @@ public class FirstRun : GameBase {
 	
 	private bool runReadyToStart = false;
 	private PositionController runnerController;
-	public TargetController runnerObj;
+	public RYWorldObject runnerObj;
 
 	private bool indoorRaceYourself = false;
 	private bool indoorComplete = false;

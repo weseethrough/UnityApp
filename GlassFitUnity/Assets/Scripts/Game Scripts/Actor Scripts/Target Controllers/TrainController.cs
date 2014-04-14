@@ -7,7 +7,7 @@ using System;
 /// <summary>
 /// Controls the position of the train
 /// </summary>
-public class TrainController : TargetController {
+public class TrainController : RYWorldObject {
 	private float whistleTime = 0;
 	
 	/// <summary>

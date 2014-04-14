@@ -21,16 +21,16 @@ public class PursuitGame : GameBase {
 	
 	private ActorType currentActorType;
     
-	private TargetController currentOpponent = null;
+	private RYWorldObject currentOpponent = null;
 	
 	private new GestureHelper.OnTap tapHandler;
 	
-	public TargetController eagleHolder;
-	public TargetController boulderHolder;
-	public TargetController zombieHolder;
-	public TargetController trainHolder;
-	public TargetController dinoHolder;
-	public TargetController fireHolder;
+	public RYWorldObject eagleHolder;
+	public RYWorldObject boulderHolder;
+	public RYWorldObject zombieHolder;
+	public RYWorldObject trainHolder;
+	public RYWorldObject dinoHolder;
+	public RYWorldObject fireHolder;
 	
 	private bool finished = false;
 	

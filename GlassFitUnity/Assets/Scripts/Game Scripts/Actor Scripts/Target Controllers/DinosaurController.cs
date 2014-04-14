@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Controls the position of the Dinosaur and sounds.
 /// </summary>
-public class DinosaurController : TargetController {
+public class DinosaurController : RYWorldObject {
 	
 	// Time until next scream
 	private float screamTime = 0.0f;

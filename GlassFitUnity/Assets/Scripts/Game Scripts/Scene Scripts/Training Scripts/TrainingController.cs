@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class TrainingController : TargetController {
+public class TrainingController : RYWorldObject {
 
 	// Avatar's animator.
 	private Animator anim; 

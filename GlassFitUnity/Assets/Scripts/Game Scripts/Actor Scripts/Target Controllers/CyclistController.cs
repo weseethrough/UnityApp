@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Controls the cyclist
 /// </summary>
-public class CyclistController : TargetController {
+public class CyclistController : RYWorldObject {
 
 	/// <summary>
 	/// Sets the attributes

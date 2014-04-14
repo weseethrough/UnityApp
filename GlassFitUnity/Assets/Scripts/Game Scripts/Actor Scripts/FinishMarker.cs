@@ -18,7 +18,7 @@ public class FinishMarker : RYWorldObject {
 	/// <summary>
 	/// Sets the initial position and target
 	/// </summary>
-	protected override void Start () {
+	public override void Start () {
 		// Get the player's target.
 		target = GameBase.getTargetDistance();
 

@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Controls the Boulder
 /// </summary>
-public class BoulderController : TargetController {
+public class BoulderController : RYWorldObject {
 	
 	// Rotation speed
 	private float rotationSpeed = -20;

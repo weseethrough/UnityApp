@@ -12,13 +12,13 @@ public class RYWorldObject : MonoBehaviour {
 	protected bool scenePosIsFrozen = false;
 
 	// Use this for initialization
-	protected virtual void Start () {
+	public virtual void Start () {
 		//by default, set the real world pos as the scene pos
 		realWorldPos = new Vector3( 0,0,(float)Platform.Instance.LocalPlayerPosition.Distance) + transform.position;
 	}
 	
 	// Update is called once per frame
-	protected virtual void Update () {
+	public virtual void Update () {
 		if(!scenePosIsFrozen)
 		{
 			updateScenePos();

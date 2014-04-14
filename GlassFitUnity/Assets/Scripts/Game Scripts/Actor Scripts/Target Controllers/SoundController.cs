@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Controls the music in the Music game
 /// </summary>
-public class SoundController : TargetController {
+public class SoundController : RYWorldObject {
 	
 	// Number of audio tracks.
 	private const float NUM_TRACKS = 11;
@@ -56,7 +56,7 @@ public class SoundController : TargetController {
 	/// <summary>
 	/// Raises the GUI event. Sets the buttons - needs updating
 	/// </summary>
-	public override void OnGUI() {
+	public void OnGUI() {
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, scale);
 		
 		// Button for Indoor mode.

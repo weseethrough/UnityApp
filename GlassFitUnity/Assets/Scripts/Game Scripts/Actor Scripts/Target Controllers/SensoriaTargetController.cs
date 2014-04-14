@@ -4,7 +4,7 @@ using System.Collections;
 // NOTE this class won't currently work. Refactor required to use position controller - AH
 
 
-public class SensoriaTargetController : TargetController {
+public class SensoriaTargetController : RYWorldObject {
 
 	private Animator anim; 
 	private float speed;

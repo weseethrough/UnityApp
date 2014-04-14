@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class DemoController : TargetController {
+public class DemoController : RYWorldObject {
 
 	private Animator anim; 
 	private float speed;

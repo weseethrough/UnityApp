@@ -11,7 +11,7 @@ public class ZombieAnimation : MonoBehaviour {
 	
 	// Animator for the zombie.
 	private Animator anim;
-	private TargetController controller;
+	private RYWorldObject controller;
 	
 	/// <summary>
 	/// Get components and set the speed
@@ -19,7 +19,7 @@ public class ZombieAnimation : MonoBehaviour {
 	void Start () {
 		// Get the animator.
 		anim = GetComponent<Animator>();
-		controller = transform.parent.gameObject.GetComponent<TargetController>();
+		controller = transform.parent.gameObject.GetComponent<RYWorldObject>();
 		
 		// Get the speed of the target.
 		//speed = controller.target.PollCurrentSpeed();

@@ -7,7 +7,7 @@ using System;
 /// <summary>
 /// Controls the position of the zombies
 /// </summary> 
-public class ZombieController : TargetController {
+public class ZombieController : RYWorldObject {
 	
 	int health = 3;
 	

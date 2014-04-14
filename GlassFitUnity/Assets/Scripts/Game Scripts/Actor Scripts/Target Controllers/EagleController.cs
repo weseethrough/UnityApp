@@ -9,7 +9,7 @@ using System;
 /// <summary>
 /// Controls the eagle's movement and sound
 /// </summary>
-public class EagleController : TargetController {
+public class EagleController : RYWorldObject {
 
 	// Animation speed.
 	private float speed;
