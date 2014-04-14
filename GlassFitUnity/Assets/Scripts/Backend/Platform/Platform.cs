@@ -290,14 +290,15 @@ public abstract class Platform : SingletonBase
     public virtual List<Game> GetGames() {
         // check from DB
         // TODO: Change signature to IList<Game>
-//        var games = new List<Game>(db.LoadAll<Game>());
 
-        List<Game> games = null;
-        // or fetch from API
-        IEnumerator e = api.get("games", (body) => {
-            games = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Game>>(body).response;
-        });
-        while(e.MoveNext()) {}; // block until finished
+        var games = new List<Game>(db.LoadAll<Game>());
+
+//        List<Game> games = null;
+//        // or fetch from API
+//        IEnumerator e = api.get("games", (body) => {
+//            games = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Game>>(body).response;
+//        });
+//        while(e.MoveNext()) {}; // block until finished
 
         return games;
     }
