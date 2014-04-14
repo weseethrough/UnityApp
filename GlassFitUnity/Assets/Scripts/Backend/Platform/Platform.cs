@@ -33,7 +33,7 @@ public abstract class Platform : SingletonBase
     public BluetoothMessageListener BluetoothMessageListener { get { return _bluetoothMessageListener; } }
 
     // internal platform tools
-    private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platfrom
+    private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
     protected static Log log = new Log("Platform");  // for use by subclasses
     protected Siaqodb db;
     public API api;
@@ -97,9 +97,9 @@ public abstract class Platform : SingletonBase
 
         log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");        
     }
-        
+
 	protected virtual void Initialize()
-	{        	                
+	{
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();	                
 		// Set initialised=true in overriden method
@@ -113,6 +113,9 @@ public abstract class Platform : SingletonBase
             db = DatabaseFactory.GetInstance();
             api = new API(db);
             sessionId = Sequence.Next("session", db);
+
+            //DataVault.Set("loading", "Please wait while we sync the database");
+            //SyncToServer();
         }
 
 		if (OnGlass() && HasInternet()) {
@@ -232,14 +235,16 @@ public abstract class Platform : SingletonBase
         return api.user;
     }
     
-    public virtual User GetPlayerConfig()
+    public virtual PlayerConfig GetPlayerConfig()
     {
-        User user = null;
+        PlayerConfig cfg = null;
         IEnumerator e = api.get("configurations/unity", (body) => {
-            user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+            cfg = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.PlayerConfig>>(body).response;
+            var payload = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.ConfigurationPayload>>(cfg.configuration).response;
+            cfg.payload = payload;
         });
         while(e.MoveNext()) {}; // block until finished
-        return user;
+        return cfg;
     }
 
     public virtual User GetUser(int userId)
@@ -283,8 +288,18 @@ public abstract class Platform : SingletonBase
     /// Typically used when building the main hex menu
     /// </summary>
     public virtual List<Game> GetGames() {
+        // check from DB
         // TODO: Change signature to IList<Game>
+
         var games = new List<Game>(db.LoadAll<Game>());
+
+//        List<Game> games = null;
+//        // or fetch from API
+//        IEnumerator e = api.get("games", (body) => {
+//            games = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Game>>(body).response;
+//        });
+//        while(e.MoveNext()) {}; // block until finished
+
         return games;
     }
 
@@ -372,7 +387,6 @@ public abstract class Platform : SingletonBase
         lastSync = DateTime.Now;
         GetMonoBehavioursPartner().StartCoroutine(api.Sync());
     }
-
 
     // *** Methods that need platform-specific overrides ***
 	

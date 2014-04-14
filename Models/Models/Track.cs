@@ -6,11 +6,12 @@ using System.Collections.Generic;
 
 namespace RaceYourself.Models
 {
+    // A saved run - coordinates of each moment of your run.
 	public class Track
 	{
 		[Index]
 		[UniqueConstraint]
-        public ulong id = 0;
+        public long id = 0;
 
 		[JsonProperty("device_id")]		
 		public int deviceId;
@@ -48,12 +49,12 @@ namespace RaceYourself.Models
             }
         }
         
-        public ulong GenerateCompositeId ()
+        public long GenerateCompositeId ()
         {
-            ulong high = deviceId;
-            uint low = (uint)trackId;
+            long high = deviceId;
+            uint low = (uint) trackId;
             
-            ulong composite = (high << 32) | low;
+            long composite = (high << 32) | low;
             this.id = composite;
             return this.id;
         }

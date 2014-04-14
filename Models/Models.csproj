@@ -61,6 +61,7 @@
     <Compile Include="JsonStringConverter.cs" />
     <Compile Include="ObjectIdConverter.cs" />
     <Compile Include="Models\Game.cs" />
+    <Compile Include="Models\PlayerConfig.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="JsonDotNet">
