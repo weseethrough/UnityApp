@@ -241,7 +241,7 @@ public class GameSelectPanel : HexPanel
 				}
 			}
 			else */
-			if(games[i].type == "Race") 
+			if(games[i].type == "Race" || games[i].type == "Bike") 
 			{
 				gc.EventFunction = "SetType";
 				if(raceExit.Link.Count > 0) 

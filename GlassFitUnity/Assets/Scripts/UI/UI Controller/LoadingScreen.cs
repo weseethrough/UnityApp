@@ -39,7 +39,12 @@ public class LoadingScreen : MonoBehaviour {
 			levelName = "SnackRun";
 			DataVault.Set("custom_redirection_point", "GameIntroExit");
 			break;
-			
+
+		case "bike":
+			levelName = "Bike Mode";
+			DataVault.Set("custom_redirection_point", "GameIntroExit");
+			break;
+
 		case "challenge":
 			levelName = "Challenge Mode";
 			DataVault.Set("custom_redirection_point", "GameIntroExit");

@@ -59,7 +59,7 @@ public class TargetController : MonoBehaviour {
 		distanceOffset = offset;
 		travelSpeed = speed;
 		height = yDist;
-		xOffset = xDist*(lane*lanePitch); // TODO: parent.gameObject.width?
+		xOffset = xDist*(lane); // TODO: parent.gameObject.width?
 	}
 	
 	public virtual void SetSpeed(float f) {

@@ -35,6 +35,8 @@ public class PageIndicatorController : MonoBehaviour {
 			GameObject spriteOffi = GameObject.Find("PageIndicator_off" + i);
 			//calculate position
 			Vector2 pos = new Vector2(PosForIndex(i), indicatorHeight);
+
+			if(spriteOffi)
 			spriteOffi.transform.localPosition = pos;
 		}
 		
@@ -69,7 +71,9 @@ public class PageIndicatorController : MonoBehaviour {
 
 		//move selected indicator to position
 		spriteOn = GameObject.Find("PageIndicator_on");
-		spriteOn.transform.localPosition = new Vector2(PosForIndex(currentPage), indicatorHeight);
+		if(spriteOn) {
+			spriteOn.transform.localPosition = new Vector2(PosForIndex(currentPage), indicatorHeight);
+		}
 	}
 	
 	public void GhostProgressBeyondPage(int lastAllowedPage)
@@ -77,8 +81,10 @@ public class PageIndicatorController : MonoBehaviour {
 		for(int i=lastAllowedPage+1; i<numPages; i++)
 		{
 			GameObject indicator = GameObject.Find("PageIndicator_off" + i);
-			UISprite sprite = indicator.GetComponent("UISprite") as UISprite;
-			sprite.color = new Color(1.0f, 1.0f, 1.0f);
+			if(indicator) {
+				UISprite sprite = indicator.GetComponent("UISprite") as UISprite;
+				sprite.color = new Color(1.0f, 1.0f, 1.0f);
+			}
 		}
 	}
 	
@@ -87,8 +93,11 @@ public class PageIndicatorController : MonoBehaviour {
 		for(int i=0; i<numPages; i++)
 		{
 			GameObject indicator = GameObject.Find("PageIndicator_off" + i);
-			UISprite sprite = indicator.GetComponent("UISprite") as UISprite;
-			sprite.color = new Color(0.5f, 0.5f, 0.5f);
+			if(indicator) {
+				UISprite sprite = indicator.GetComponent("UISprite") as UISprite;
+				sprite.color = new Color(0.5f, 0.5f, 0.5f);
+			}
+
 		}
 	}
 	
