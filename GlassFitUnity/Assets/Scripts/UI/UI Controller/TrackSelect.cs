@@ -65,7 +65,7 @@ public class TrackSelect : MonoBehaviour {
 			UnityEngine.Debug.LogError("TrackSelect: textbox time is null!");
 			textboxTime = transform.FindChild("TimeLabel").GetComponent<UIBasiclabel>();
 		}
-		textboxTime.SetLabel(UnitsHelper.TimestampMMSS(4050));
+		textboxTime.SetLabel(UnitsHelper.TimestampMMSSfromMillis(4050));
 		
 		if(textboxDate == null) {
 			UnityEngine.Debug.LogError("TrackSelect: textbox date is null!");
@@ -89,7 +89,7 @@ public class TrackSelect : MonoBehaviour {
 			UnityEngine.Debug.LogError("TrackSelect: textbox time is null!");
 			textboxTime = transform.FindChild("TimeLabel").GetComponent<UIBasiclabel>();
 		}
-		textboxTime.SetLabel(UnitsHelper.TimestampMMSS(track.time));
+		textboxTime.SetLabel(UnitsHelper.TimestampMMSSfromMillis(track.time));
 
 		if(textboxDate == null) {
 			UnityEngine.Debug.LogError("TrackSelect: textbox date is null!");
@@ -134,12 +134,6 @@ public class TrackSelect : MonoBehaviour {
 			tex = GetComponent<UITexture>();
 		}
 		tex.mainTexture = mapTexture;
-	}
-	
-	protected string TimestampMMSS(long milli) {
-		TimeSpan span = TimeSpan.FromMilliseconds(milli);
-
-		return string.Format("{0:00}:{1:00}",span.Minutes,span.Seconds);	
 	}
 	
 //	public void SetTrack() {
@@ -215,7 +209,9 @@ public class TrackSelect : MonoBehaviour {
 		// Get the list of positions for the current track
 		List<Position> curTrackPositions = track.positions;
 
-		UnityEngine.Debug.Log("TrackSelect: starting loop");
+		UnityEngine.Debug.Log("TrackSelect: starting loop, number of positions is " + curTrackPositions.Count);
+
+
 
 		// Loop through all positions and test for limits
 		for(int i=0; i<curTrackPositions.Count; i++)
@@ -245,7 +241,7 @@ public class TrackSelect : MonoBehaviour {
 			totalLong += curTrackPositions[i].longitude;
 		}
 
-		UnityEngine.Debug.Log("TrackSelect: loop finished, getting center");
+		UnityEngine.Debug.Log("TrackSelect: loop finished, getting center from lat: " + totalLat.ToString("f3") + " and long: " + totalLong.ToString());
 
 		// Calculate the average lat and long for the center
 		float newcenterLat = totalLat / curTrackPositions.Count;
