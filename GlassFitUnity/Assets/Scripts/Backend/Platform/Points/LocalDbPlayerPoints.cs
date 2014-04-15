@@ -223,7 +223,7 @@ public class LocalDbPlayerPoints : PlayerPoints
         "\ntransaction_calc = " + t.transaction_calc +
         "\nsource_id = " + t.source_id +
         "\nts = " + t.ts +
-        "\n_id = " + t._id +
+//        "\n_id = " + t._id +
         "\ntransaction_id = " + t.transactionId +
         "\nuser_id = " + t.user_id +
         "\ndeleted_at = " + t.deleted_at +

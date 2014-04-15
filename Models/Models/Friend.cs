@@ -8,7 +8,6 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
-		[JsonProperty("_id")]
 		public string guid;
 		[JsonProperty("has_glass")]
 		public bool hasGlass;
@@ -22,7 +21,13 @@ namespace RaceYourself.Models
 
 		// TOOD: Polymophism
 		[JsonProperty("screen_name")]
-		public string username;
+        public string username;
+        
+        public string GenerateCompositeId ()
+        {
+            this.guid = uid + "_" + provider;
+            return this.guid;
+        }
 	}
 }
 

@@ -2,6 +2,8 @@
 using System.Collections;
 using System;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// Units helper.
 /// A collection of utility functions for formatting and operating on times and distances
@@ -42,6 +44,48 @@ public class UnitsHelper {
 	/// </param>
 	public static string SiDistance(double meters) {
 		return SiDistanceUnitless(meters, "distanceunits") + DataVault.Get("distance_units");
+	}
+
+	/// <summary>
+	/// As above but doesn't use DataVault
+	/// </summary>
+	/// <returns>The distance string in full.</returns>
+	/// <param name="meters">Meters.</param>
+	public static string SiDistanceFull(double meters) {
+		string postfix = "m";
+		string final;
+		float value = (float)meters;
+		if(value > 1000) {
+			value = value / 1000;
+			postfix = "km";
+			if(value >= 10) {
+				final = value.ToString("f1");
+			} else {
+				final = value.ToString("f2");
+			}
+		} else {
+			final = value.ToString("f0");
+		}
+
+		return final + postfix;
+	}
+
+	public static Vector2 MercatorToPixel(Position mercator, int mapZoom) {
+		// Per google maps spec: pixelCoordinate = worldCoordinate * 2^zoomLevel
+		int mapScale = (int)Math.Pow(2, mapZoom);
+		
+		// Mercator to google world cooordinates
+		Vector2 world = new Vector2(
+			(float)(mercator.longitude+180)/360*256,
+			(float)(
+			(1 - Math.Log(
+			Math.Tan(mercator.latitude * Math.PI / 180) +  
+			1 / Math.Cos(mercator.latitude * Math.PI / 180)
+			) / Math.PI
+		 ) / 2
+			) * 256
+			);
+		return world * mapScale;
 	}
 	
 	/// <summary>

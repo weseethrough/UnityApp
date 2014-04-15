@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Sqo.Attributes;
 using Newtonsoft.Json;
 using Sqo;
@@ -9,9 +9,8 @@ namespace RaceYourself.Models
     {
         [Index]
         [UniqueConstraint]
-        [JsonIgnore]
+//        [JsonIgnore]
         public long id;
-        public string _id;
         [JsonProperty ("device_id")]		
         public int deviceId;
         [JsonProperty ("transaction_id")]		
@@ -35,11 +34,11 @@ namespace RaceYourself.Models
 
         public long GenerateCompositeId ()
         {
-            uint high = (uint)deviceId;
+            long high = deviceId;
             uint low = (uint)transactionId;
 
-            ulong composite = (((ulong)high) << 32) | low;
-            this.id = (long)composite;
+            long composite = (high << 32) | low;
+            this.id = composite;
             return this.id;
         }
 

@@ -33,7 +33,7 @@ public abstract class Platform : SingletonBase
     public BluetoothMessageListener BluetoothMessageListener { get { return _bluetoothMessageListener; } }
 
     // internal platform tools
-    private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platfrom
+    private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
     protected static Log log = new Log("Platform");  // for use by subclasses
     protected Siaqodb db;
     public API api;
@@ -97,9 +97,9 @@ public abstract class Platform : SingletonBase
 
         log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");        
     }
-        
+
 	protected virtual void Initialize()
-	{        	                
+	{
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();	                
 		// Set initialised=true in overriden method
@@ -108,6 +108,15 @@ public abstract class Platform : SingletonBase
 	protected virtual void PostInit()
     {
         log.info("Starting PostInit");
+        
+        if (Application.isPlaying) {
+            db = DatabaseFactory.GetInstance();
+            api = new API(db);
+            sessionId = Sequence.Next("session", db);
+
+            //DataVault.Set("loading", "Please wait while we sync the database");
+            //SyncToServer();
+        }
 
 		if (OnGlass() && HasInternet()) {
 			log.info("Attempting authorize");
@@ -143,12 +152,6 @@ public abstract class Platform : SingletonBase
 
             }
 		});
-		
-		if (Application.isPlaying) {
-			db = DatabaseFactory.GetInstance();
-			api = new API(db);
-            sessionId = Sequence.Next("session", db);
-		}
 	}
 
     /// <summary>
@@ -208,10 +211,6 @@ public abstract class Platform : SingletonBase
         return partner;
     }
 
-
-
-
-
     //***** Convenience methods that mostly return values from the database  ****
 
     // Get the device's orientation
@@ -234,6 +233,18 @@ public abstract class Platform : SingletonBase
     {
         if (api == null) return null;
         return api.user;
+    }
+    
+    public virtual PlayerConfig GetPlayerConfig()
+    {
+        PlayerConfig cfg = null;
+        IEnumerator e = api.get("configurations/unity", (body) => {
+            cfg = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.PlayerConfig>>(body).response;
+            var payload = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.ConfigurationPayload>>(cfg.configuration).response;
+            cfg.payload = payload;
+        });
+        while(e.MoveNext()) {}; // block until finished
+        return cfg;
     }
 
     public virtual User GetUser(int userId)
@@ -277,8 +288,18 @@ public abstract class Platform : SingletonBase
     /// Typically used when building the main hex menu
     /// </summary>
     public virtual List<Game> GetGames() {
+        // check from DB
         // TODO: Change signature to IList<Game>
+
         var games = new List<Game>(db.LoadAll<Game>());
+
+//        List<Game> games = null;
+//        // or fetch from API
+//        IEnumerator e = api.get("games", (body) => {
+//            games = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Game>>(body).response;
+//        });
+//        while(e.MoveNext()) {}; // block until finished
+
         return games;
     }
 
@@ -349,12 +370,12 @@ public abstract class Platform : SingletonBase
         return track;
     }
 
-
     // *** Networking methods ***
 
     public virtual void Authorize(string provider, string permissions) {
         if (Application.isPlaying) {
-            GetMonoBehavioursPartner().StartCoroutine(api.Login("janne.husberg@gmail.com", "testing123"));
+            // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no?
+            GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
         }
     }
 
@@ -366,7 +387,6 @@ public abstract class Platform : SingletonBase
         lastSync = DateTime.Now;
         GetMonoBehavioursPartner().StartCoroutine(api.Sync());
     }
-
 
     // *** Methods that need platform-specific overrides ***
 	

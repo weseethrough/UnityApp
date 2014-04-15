@@ -16,30 +16,47 @@ namespace RaceYourself
 	/// </summary>
 	public class API
 	{
-		private const string SCHEME = "https://";
-		private const string AUTH_HOST = "auth.raceyourself.com";
-		private const string AUTH_TOKEN_URL = SCHEME + AUTH_HOST + "/oauth/token";
-		private string apiHost = "auth.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
-			
-		private const string CLIENT_ID = "8c8f56a8f119a2074be04c247c3d35ebed42ab0dcc653eb4387cff97722bb968";
-		private const string CLIENT_SECRET = "892977fbc0d31799dfc52e2d59b3cba88b18a8e0080da79a025e1a06f56aa8b2";
-		
-		private readonly Regex CACHE_REGEXP = new Regex(".*max-age=(?<maxage>[0-9]*).*");
+/* To package an .apk for the app store, we need to use the production auth server. For testing, we have our sandbox.
+ * As such, for the app store, define PRODUCTION.
+ */
+#if PRODUCTION
+        private const string SCHEME = "https://";
+        private const string AUTH_HOST = "api.raceyourself.com";
+        private const string apiHost = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
+        private const string CLIENT_ID = "98f985cd4fca00aefda3f31c10b3d994eaa496d882fdf3db936fad76e4dae236";
+        private const string CLIENT_SECRET = "9ca4b4f56b518deca0c2200b92a3435f05cb4e0b3d52b0a5a1608f39d004750e";
+#elif LOCALHOST
+        private const string SCHEME = "http://";
+        private const string AUTH_HOST = "localhost:3000";
+        private const string apiHost = "localhost:3000"; // Note: might be supplied through auth load-balancer in future
+        private const string CLIENT_ID = "e4585379c3f6627e5510c21f21af999da38c0bfff82066be1b3bca34efe6092f";
+        private const string CLIENT_SECRET = "89ac25d58a314eca793b1597b477f4e38a2c470a5a1f45830043bab912d4bdd9";
+#else
+        private const string SCHEME = "http://";
+        private const string AUTH_HOST = "a.staging.raceyourself.com";
+        private const string apiHost = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
+        private const string CLIENT_ID = "c9842247411621e35dbaf21ad0e15c263364778bf9a46b5e93f64ff2b6e0e17c";
+        private const string CLIENT_SECRET = "75f3e999c01942219bea1e9c0a1f76fd24c3d55df6b1c351106cc686f7fcd819";
+#endif
+
+        private const string AUTH_TOKEN_URL = SCHEME + AUTH_HOST + "/oauth/token";
+
+        private readonly Regex CACHE_REGEXP = new Regex(".*max-age=(?<maxage>[0-9]*).*");
 		private readonly string CACHE_PATH = Path.Combine(Application.persistentDataPath, "www-cache");
 		
 		private Siaqodb db;
 		
 		private OauthToken token = null;
 		public User user { get; private set; }
-		
+
 		private bool syncing = false;
 		
 		public API(Siaqodb database) 
 		{
 			Debug.Log("API: created");
 			db = database;
-			user = db.Cast<User>().SingleOrDefault();
-			token = db.Cast<OauthToken>().SingleOrDefault();
+			user = db.Cast<User>().LastOrDefault();
+			token = db.Cast<OauthToken>().LastOrDefault();
 			if (user != null && token != null) {
 				if (user.id != token.userId) {
 					Debug.LogError("API: Token in database does not belong to user in database!");
@@ -111,8 +128,8 @@ namespace RaceYourself
 		/// Coroutine to log in using Resource Owner Password Credentials flow.
 		/// Triggers Platform.OnAuthentication upon completion.
 		/// </summary>
-		public IEnumerator Login(string username, string password) 
-		{
+		public IEnumerator Login(string username, string password)
+        {
 			Debug.Log("API: Login(" + username + ",<password>)");
 			string ret = "Failure";
 			try {
@@ -197,7 +214,7 @@ namespace RaceYourself
 
 			user = account.response;
 			var transaction = db.BeginTransaction();
-			try {			
+			try {
 				if (!db.UpdateObjectBy("id", user)) {
 					db.StoreObject(user);
 				}
@@ -231,7 +248,7 @@ namespace RaceYourself
 				}
 				syncing = true;
 				
-				SyncState state = db.Cast<SyncState>().FirstOrDefault();
+				SyncState state = db.Cast<SyncState>().LastOrDefault();
 				if (state == null) state = new SyncState(0);
 				Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
 						+ " tail: " + state.tail_timestamp + "#" + state.tail_skip);
@@ -251,7 +268,7 @@ namespace RaceYourself
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
 				headers.Add("Accept-Charset", "utf-8");
-				headers.Add("Accept-Encoding", "gzip");
+				//headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
 				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
@@ -259,9 +276,9 @@ namespace RaceYourself
 				
 				var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
 				yield return post;
-							
+				
 				if (!post.isDone) {}
-						
+				
 				if (!String.IsNullOrEmpty(post.error)) {
 					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
 					if (post.error.ToLower().Contains("401 unauthorized")) {
@@ -284,7 +301,7 @@ namespace RaceYourself
 				
 				// Run slow ops in a background thread
 				var bytes = post.bytes;				
-				Thread backgroundThread = new Thread(() => {				
+				Thread backgroundThread = new Thread(() => {
 					ResponseWrapper response = null;
 					var parseStart = DateTime.Now;
 					try {
@@ -321,7 +338,6 @@ namespace RaceYourself
 				while (backgroundThread.IsAlive) yield return null;
 				
 				if (ret.Equals("full") || ret.Equals("partial")) Debug.Log("API: Sync() completed successfully in " + (DateTime.Now - start));
-				
 			} finally {
 				syncing = false;
                 Platform.Instance.NetworkMessageListener.OnSynchronization(ret);
@@ -333,7 +349,7 @@ namespace RaceYourself
 		/// Returns cached data or null if missing
 		/// </summary>
 		public string getCached(string route) {
-			var cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).FirstOrDefault();
+			var cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).LastOrDefault();
 			if (cache == null || cache.Expired) return null;
 			try {
 				return File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
@@ -453,7 +469,6 @@ namespace RaceYourself
 			public List<Models.Device> devices;
 			public List<Models.Track> tracks;
 			public List<Models.Position> positions;
-			public List<Models.Orientation> orientations;
 			public List<Models.Notification> notifications;
 			public List<Models.Transaction> transactions;
 			public List<Models.Action> actions;
@@ -463,21 +478,17 @@ namespace RaceYourself
 				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
 				tracks = new List<Models.Track>(db.Cast<Models.Track>().Where<Models.Track>(t => t.dirty == true));
 				positions = new List<Models.Position>(db.Cast<Models.Position>().Where<Models.Position>(p => p.dirty == true));
-				orientations = new List<Models.Orientation>(db.Cast<Models.Orientation>().Where<Models.Orientation>(o => o.dirty == true));
 				notifications = new List<Models.Notification>(db.Cast<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
 				transactions = new List<Models.Transaction>(db.Cast<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
 				actions = new List<Models.Action>(db.LoadAll<Models.Action>());
-				events = new List<Models.Event>(db.LoadAll<Models.Event>());
-				
+                events = new List<Models.Event>(db.LoadAll<Models.Event>());
+                
 				// Populate device_id
 				foreach (Models.Track track in tracks) {
 					track.deviceId = self.id;
 				}
 				foreach (Models.Position pos in positions) {
 					pos.deviceId = self.id;
-				}
-				foreach (Models.Orientation o in orientations) {
-					o.deviceId = self.id;
 				}
 				foreach (Models.Event e in events) {
 					e.deviceId = self.id;
@@ -512,17 +523,6 @@ namespace RaceYourself
 					db.StoreObject(p); // Store non-transient object by OID
 					updates++;
 				}
-				foreach (Models.Orientation o in orientations) {
-					if (o.deleted_at.HasValue) {
-						db.Delete(o);
-						deletes++;
-						continue;
-					}
-					o.dirty = false;
-					o.GenerateCompositeId(); 
-					db.StoreObject(o); // Store non-transient object by OID
-					updates++;
-				}
 				foreach (Models.Notification n in notifications) {
 					n.dirty = false;
 					db.StoreObject(n); // Store non-transient object by OID
@@ -555,9 +555,8 @@ namespace RaceYourself
 			public override string ToString()
 			{
 				return (LengthOrNull(devices) + " devices, "
-						+ LengthOrNull(tracks) + " tracks, "
+                        + LengthOrNull(tracks) + " tracks, "
 						+ LengthOrNull(positions) + " positions, "
-						+ LengthOrNull(orientations) + " orientations, "
 						+ LengthOrNull(notifications) + " notifications, "
 						+ LengthOrNull(transactions) + " transactions, "
 						+ LengthOrNull(actions) + " actions, "
@@ -581,9 +580,10 @@ namespace RaceYourself
 			public List<Models.Challenge> challenges;
 			public List<Models.Track> tracks;
 			public List<Models.Position> positions;
-			public List<Models.Orientation> orientations;
 			public List<Models.Notification> notifications;
-			public List<Models.Transaction> transactions;
+            public List<Models.Transaction> transactions;
+            //public List<Models.PlayerConfig> playerConfig;
+            public List<Models.Game> games;
 			
 			public List<string> errors = new List<string>();
 			
@@ -592,11 +592,11 @@ namespace RaceYourself
 				return ("head: " + sync_timestamp
 						+ " tail: " + tail_timestamp + "#" + tail_skip + "; "
 					    + LengthOrNull(devices) + " devices, "
-						+ LengthOrNull(friends) + " friends, "
+                        + LengthOrNull(friends) + " friends, "
+                        + LengthOrNull(games) + " games, "
 						+ LengthOrNull(challenges) + " challenges, "
 						+ LengthOrNull(tracks) + " tracks, "
 						+ LengthOrNull(positions) + " positions, "
-						+ LengthOrNull(orientations) + " orientations, "
 						+ LengthOrNull(notifications) + " notifications, "
 						+ LengthOrNull(transactions) + " transactions, "
 						+ LengthOrNull(errors) + " errors");
@@ -607,7 +607,7 @@ namespace RaceYourself
 				uint inserts, updates, deletes;
 				inserts = updates = deletes = 0;
 				
-				SyncState state = db.Cast<SyncState>().FirstOrDefault();
+				SyncState state = db.Cast<SyncState>().LastOrDefault();
 				if (state == null) {
 					state = new SyncState(sync_timestamp, tail_timestamp, tail_skip);
 				} else {
@@ -653,13 +653,29 @@ namespace RaceYourself
 					}
 					db.EndBulkInsert(typeof(Models.Challenge));
 				}
-				
-				if (tracks != null) {
+                
+                if (games != null) {
+                    db.StartBulkInsert(typeof(Models.Game));
+                    foreach (Models.Game game in games) {
+                        if (game.deleted_at != null) {
+                            if (db.DeleteObjectBy("id", game)) deletes++;
+                            continue;
+                        }
+                        if (!db.UpdateObjectBy("id", game)) {
+                            db.StoreObject(game);
+                            inserts++;
+                        } else updates++;
+                    }
+                    db.EndBulkInsert(typeof(Models.Game));
+                }
+
+                if (tracks != null) {
 					db.StartBulkInsert(typeof(Models.Device));
 					foreach (Models.Track track in tracks) {
 						track.GenerateCompositeId();
 						if (track.deleted_at != null) {
-							db.DeleteObjectBy("id", track);
+							if (db.DeleteObjectBy("id", track))
+                                deletes++;
 							continue;
 						}
 						if (!db.UpdateObjectBy("id", track)) {
@@ -684,22 +700,6 @@ namespace RaceYourself
 						} else updates++;
 					}
 					db.EndBulkInsert(typeof(Models.Position));
-				}
-				
-				if (orientations != null) {
-					db.StartBulkInsert(typeof(Models.Orientation));
-					foreach (Models.Orientation orientation in orientations) {
-						orientation.GenerateCompositeId();
-						if (orientation.deleted_at != null) {
-							if (db.DeleteObjectBy("id", orientation)) deletes++;
-							continue;
-						}							
-						if (!db.UpdateObjectBy("id", orientation)) {
-							db.StoreObject(orientation);
-							inserts++;
-						} else updates++;
-					}
-					db.EndBulkInsert(typeof(Models.Orientation));
 				}
 				
 				if (notifications != null) {

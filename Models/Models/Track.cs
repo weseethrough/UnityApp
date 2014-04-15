@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Sqo;
 using Sqo.Attributes;
 using Newtonsoft.Json;
@@ -6,13 +6,12 @@ using System.Collections.Generic;
 
 namespace RaceYourself.Models
 {
+    // A saved run - coordinates of each moment of your run.
 	public class Track
 	{
 		[Index]
 		[UniqueConstraint]
         public long id = 0;
-
-		public string _id; // Server-side guid. TODO: Ignore in the future?
 
 		[JsonProperty("device_id")]		
 		public int deviceId;
@@ -34,30 +33,36 @@ namespace RaceYourself.Models
 		[JsonIgnore]
 		public bool dirty = false;
 
-        public void save(Siaqodb db) {
-            if (this.trackId <= 0) {
+        public void save(Siaqodb db)
+        {
+            if (this.trackId <= 0)
+            {
                 trackId = Sequence.Next("track", db);
             }
 
             if (this.id <= 0)
                 GenerateCompositeId ();
 
-            if (!db.UpdateObjectBy ("id", this)) {
+            if (!db.UpdateObjectBy ("id", this))
+            {
                 db.StoreObject (this);
             }
         }
+        
+        public long GenerateCompositeId ()
+        {
+            long high = deviceId;
+            uint low = (uint) trackId;
+            
+            long composite = (high << 32) | low;
+            this.id = composite;
+            return this.id;
+        }
 
-		public long GenerateCompositeId() {
-			uint high = (uint)deviceId;
-            uint low = (uint)trackId;
-
-			ulong composite = (((ulong) high) << 32) | low;
-			this.id = (long)composite;
-			return this.id;
-		}
-
-		public DateTime date {
-			get {
+		public DateTime date
+        {
+			get
+            {
 				return Date.FromUnixTime(ts);
 			}
 		}

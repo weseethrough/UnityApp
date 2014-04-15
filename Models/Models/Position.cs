@@ -12,9 +12,6 @@ namespace RaceYourself.Models
 		[UniqueConstraint]
         public long id = 0;
 
-		[JsonConverter(typeof(ObjectIdConverter))]
-		public string _id; // Server-side guid. TODO: Ignore in the future?
-
 		[JsonProperty("device_id")]
 		public int deviceId;
 		[JsonProperty("position_id")]
@@ -64,17 +61,19 @@ namespace RaceYourself.Models
                 db.StoreObject (this);
             }
         }
+        
+        public long GenerateCompositeId ()
+        {
+            long high = deviceId;
+            uint low = (uint) positionId;
+            
+            long composite = (high << 32) | low;
+            this.id = composite;
+            return this.id;
+        }
 
-		public long GenerateCompositeId() {
-			uint high = (uint)deviceId;
-			uint low = (uint)positionId;
-
-			ulong composite = (((ulong) high) << 32) | low;
-			this.id = (long)composite;
-			return this.id;
-		}
-
-		public Vector3 ToXYZ() {
+		public Vector3 ToXYZ()
+        {
 			float x = latitude * DEGREES_TO_METERS;
 			float y = 0f; //height
 			float z = longitude * DEGREES_TO_METERS * (float)Math.Cos (latitude);
@@ -82,4 +81,3 @@ namespace RaceYourself.Models
 		}
 	}
 }
-
