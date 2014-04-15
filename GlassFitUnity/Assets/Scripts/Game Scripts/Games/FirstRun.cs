@@ -45,32 +45,11 @@ public class FirstRun : GameBase {
 		base.Start ();
 				
 		UnityEngine.Debug.Log("FirstRun: Start");
-		
-		//hide virtual track to begin with
-		//SetVirtualTrackVisible(false);
-		//SetRunnerVisible(true);
-		
-		//create target trackers for a few different paces
-		float fInterval = (MAX_PACE - MIN_PACE) / NUM_PACES;
-		
+
 		Platform.Instance.ResetTargets();
 				
 		chime = GetComponent<AudioSource>();
-//		for(float TotalTimePace = 2.0f; TotalTimePace <= 10.0f; TotalTimePace += 1.0f)
-//		{
-//			float TotalSeconds = TotalTimePace * 60;	
-//			
-//			float speed = finish/TotalSeconds;
-//			
-//			TargetTracker tracker = Platform.Instance.CreateTargetTracker(speed);
-//		}
-		
-		
-		
-		//create actors for each target tracker
-		//InstantiateActors();
-		
-		//SetReadyToStart(true);
+
 	}
 	
 	protected void SetRunnerVisible(bool visible)
@@ -212,31 +191,4 @@ public class FirstRun : GameBase {
 		
 	}
 
-//	private void InstantiateActors() {
-//		//create an actor for each active target tracker
-//		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
-//		int lane = 1;
-//		foreach (TargetTracker tracker in trackers) {
-//			GameObject actor = Instantiate(runner) as GameObject;
-//			TargetController controller = actor.GetComponent<TargetController>();
-//			controller.SetLane(1);
-//			controller.SetTracker(tracker);
-//			controller.SetLane(lane++);
-//			//actor.SetActive(true);
-//			actors.Add(actor);
-//			
-//			//determine pace and set string
-//			float speed = tracker.PollCurrentSpeed();
-//			long totalTime = (long)((float)finish/speed)*1000;
-//			//UnityEngine.Debug.Log("FirstRun: Speed = " + speed);
-//			//UnityEngine.Debug.Log("FirstRun: totalTime = " + totalTime);
-//			string paceString = TimestampMMSSFromMS(totalTime) + "min/km";
-//			//UnityEngine.Debug.Log("FirstRun: pace = " + paceString);
-//			controller.overheadLabelString = paceString;
-//		}
-//		
-//	}
-	
-		
-		
 }
