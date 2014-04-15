@@ -32,7 +32,27 @@ public class BikeGame : GameBase {
 			UnityEngine.Debug.LogError("BikeGame: Cyclist game object is null");
 		}
 
+		if(cyclist != null) {
+			cyclist.enabled = false;
+		}
+
 		Platform.Instance.ResetTargets();
+	}
+
+	protected override void OnExitState(string state)
+	{
+		switch(state)
+		{
+		case GAMESTATE_AWAITING_USER_READY:
+
+			cyclist.enabled = true;
+
+			cyclist.SetHeadstart(20.0f);
+
+			SetVirtualTrackVisible(true);
+			break;
+		}
+		base.OnExitState(state);
 	}
 
 	protected override double GetDistBehindForHud ()

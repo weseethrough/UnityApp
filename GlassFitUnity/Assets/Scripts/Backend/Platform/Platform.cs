@@ -171,9 +171,9 @@ public abstract class Platform : SingletonBase
     }
 
     public void OnApplicationFocus(bool paused) {
-        if (initialised && paused && OnGlass()) {
-            Application.Quit();
-        }
+//        if (initialised && paused && OnGlass()) {
+//            Application.Quit();
+//        }
     }
 
     public void OnApplicationQuit ()
