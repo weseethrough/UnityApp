@@ -50,36 +50,38 @@ namespace RaceYourself
 		public User user { get; private set; }
 
 		private bool syncing = false;
-		
+
+		protected static Log log = new Log("API");  // for use by subclasses
+
 		public API(Siaqodb database) 
 		{
-			Debug.Log("API: created");
+			log.info("created");
 			db = database;
 			user = db.Cast<User>().LastOrDefault();
 			token = db.Cast<OauthToken>().LastOrDefault();
 			if (user != null && token != null) {
 				if (user.id != token.userId) {
-					Debug.LogError("API: Token in database does not belong to user in database!");
+					log.error("Token in database does not belong to user in database!");
 					// TODO: Allow storage of multiple users or delete old data on id mismatch?
 					user = null;
 					token = null;
 				} else {
 					if (!token.HasExpired) {
-						Debug.Log("API: Still logged in as " + user.DisplayName + "/" + user.id);
+						log.info("Still logged in as " + user.DisplayName + "/" + user.id);
 					}
 				}
 			} else {
-				Debug.Log("API: No stored account");
+				log.info("No stored account");
 			}
 			Directory.CreateDirectory(CACHE_PATH);
 			Device self = db.Query<Device>().Where(d => d.self == true).FirstOrDefault();
 			if (self == null) {
 				self = Platform.Instance.DeviceInformation();
 				db.StoreObject(self);
-				Debug.Log("API: Unregistered device");
+				log.info("Unregistered device");
 			} else {
-				if (self.id != 0) Debug.Log("API: Device registered as " + self.id);
-				else Debug.Log("API: Device waiting to be registered");
+				if (self.id != 0) log.info("Device registered as " + self.id);
+				else log.info("Device waiting to be registered");
 			}
 		}
 		
@@ -88,7 +90,7 @@ namespace RaceYourself
 		/// Triggers Platform.OnRegistration upon completion.
 		/// </summary>
 		public IEnumerator RegisterDevice(Device device) {
-			Debug.Log("API: RegisterDevice()");
+			log.info("RegisterDevice()");
 			
 			string ret = "Failure";
 			try {
@@ -105,7 +107,7 @@ namespace RaceYourself
 				if (!post.isDone) {}
 				
 				if (!String.IsNullOrEmpty(post.error)) {
-					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
+					log.error("RegisterDevice() threw error: " + post.error);
 					ret = "Network error";
 					yield break;
 				}
@@ -116,7 +118,7 @@ namespace RaceYourself
 				device = response.response;
 				device.self = true;
 				db.StoreObject(device);
-				Debug.Log("API: RegisterDevice(): device registered as " + device.id);
+				log.info("RegisterDevice(): device registered as " + device.id);
 				
 				ret = "Success";
 			} finally {
@@ -130,7 +132,7 @@ namespace RaceYourself
 		/// </summary>
 		public IEnumerator Login(string username, string password)
         {
-			Debug.Log("API: Login(" + username + ",<password>)");
+			log.info("Login(" + username + ",<password>)");
 			string ret = "Failure";
 			try {
 				var form = new WWWForm();
@@ -146,19 +148,19 @@ namespace RaceYourself
 				if (!post.isDone) {}
 				
 				if (!String.IsNullOrEmpty(post.error)) {
-					Debug.LogError("API: Login(" + username + ",<password>) threw error: " + post.error);
+					log.error("Login(" + username + ",<password>) threw error: " + post.error);
 					ret = "Failure";
 					yield break;
 				}
 				
 				var response = JsonConvert.DeserializeObject<OauthToken>(post.text);
 				if (String.IsNullOrEmpty(response.access_token)) {
-					Debug.LogError("API: Login(" + username + ",<password>) received an invalid response: " + post.text);
+					log.error("Login(" + username + ",<password>) received an invalid response: " + post.text);
 					ret = "Failure";
 					yield break;
 				}
 				
-				Debug.Log("API: Login(" + username + ",<password>) received an access token");
+				log.info("Login(" + username + ",<password>) received an access token");
 				
 				token = response;
 				IEnumerator e = UpdateAuthentications();
@@ -189,10 +191,10 @@ namespace RaceYourself
 		public IEnumerator UpdateAuthentications() 
 		{
 			if (token == null || token.HasExpired) {
-				Debug.LogError("API: UpdateAuthentications() called with expired or missing token");
+				log.error("UpdateAuthentications() called with expired or missing token");
 				yield break;
 			}
-			Debug.Log("API: UpdateAuthentications()");
+			log.info("UpdateAuthentications()");
 			
 			var headers = new Hashtable();
 			headers.Add("Authorization", "Bearer " + token.access_token);
@@ -202,13 +204,13 @@ namespace RaceYourself
 			if (!request.isDone) {}
 			
 			if (!String.IsNullOrEmpty(request.error)) {
-				Debug.LogError("API: UpdateAuthentications(): threw error: " + request.error);
+				log.error("UpdateAuthentications(): threw error: " + request.error);
 				yield break;
 			}
 			
 			var account = JsonConvert.DeserializeObject<SingleResponse<User>>(request.text);
 			if (account.response.id <= 0) {
-				Debug.LogError("API: UpdateAuthentications(): received an invalid response: " + request.text);
+				log.error("UpdateAuthentications(): received an invalid response: " + request.text);
 				yield break;
 			}
 
@@ -224,7 +226,7 @@ namespace RaceYourself
 				throw ex;
 			}
 			
-			Debug.Log("API: UpdateAuthentications() fetched " + user.authentications.Count + " authentications");
+			log.info("UpdateAuthentications() fetched " + user.authentications.Count + " authentications");
 		}
 		
 		/// <summary>
@@ -233,17 +235,17 @@ namespace RaceYourself
 		/// </summary>
 		public IEnumerator Sync() {
 			if (token == null || token.HasExpired) {
-				Debug.LogError("API: UpdateAuthentications() called with expired or missing token");
+				log.error("UpdateAuthentications() called with expired or missing token");
                 Platform.Instance.NetworkMessageListener.OnSynchronization("Failure");
 				yield break;
 			}
-			Debug.Log("API: Sync()");
+			log.info("Sync()");
 			var start = DateTime.Now;
 			
 			string ret = "Failure";
 			try {
 				if (syncing) {
-					Debug.Log("API: Sync() already syncing");
+					log.info("Sync() already syncing");
 					yield break;
 				}
 				syncing = true;
@@ -262,7 +264,7 @@ namespace RaceYourself
 				}
 				var gatherStart = DateTime.Now;
 				DataWrapper wrapper = new DataWrapper(db, self);
-				Debug.Log("API: Sync() gathered " + wrapper.data.ToString() + " in " + (DateTime.Now - gatherStart));
+				log.info("Sync() gathered " + wrapper.data.ToString() + " in " + (DateTime.Now - gatherStart));
 				
 				var encoding = new System.Text.UTF8Encoding();			
 				var headers = new Hashtable();
@@ -272,7 +274,7 @@ namespace RaceYourself
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
 				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
-				Debug.Log("API: Sync() pushing " + (body.Length/1000) + "kB");
+				log.info("Sync() pushing " + (body.Length/1000) + "kB");
 				
 				var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
 				yield return post;
@@ -280,7 +282,7 @@ namespace RaceYourself
 				if (!post.isDone) {}
 				
 				if (!String.IsNullOrEmpty(post.error)) {
-					Debug.LogError("API: RegisterDevice() threw error: " + post.error);
+					log.error("RegisterDevice() threw error: " + post.error);
 					if (post.error.ToLower().Contains("401 unauthorized")) {
 						db.Delete(token);
 						token = null;
@@ -297,7 +299,7 @@ namespace RaceYourself
 						break;
 					}
 				}
-				Debug.Log("API: Sync() received " + (post.size/1000) + "kB " + responseEncoding);
+				log.info("Sync() received " + (post.size/1000) + "kB " + responseEncoding);
 				
 				// Run slow ops in a background thread
 				var bytes = post.bytes;				
@@ -311,12 +313,12 @@ namespace RaceYourself
 						response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
 					} catch (Exception ex) {
 						ret = "Failure";
-						Debug.LogError("API: Sync() threw exception " + ex.ToString());
+						log.error("Sync() threw exception " + ex.ToString());
 						throw ex;
 					}
-					Debug.Log("API: Sync() parsed " + response.response.ToString() + " in " + (DateTime.Now - parseStart));
+					log.info("Sync() parsed " + response.response.ToString() + " in " + (DateTime.Now - parseStart));
 					if (response.response.errors.Count > 0) {
-						Debug.LogError("API: Sync(): server reported " + response.response.errors.Count + " errors: " + string.Join("\n", response.response.errors.ToArray()));
+						log.error("Sync(): server reported " + response.response.errors.Count + " errors: " + string.Join("\n", response.response.errors.ToArray()));
 					}
 					
 					var transaction = db.BeginTransaction();
@@ -326,7 +328,7 @@ namespace RaceYourself
 						transaction.Commit();
 					} catch (Exception ex) {
 						ret = "Failure";
-						Debug.LogError("API: Sync() threw exception " + ex.ToString());
+						log.error("Sync() threw exception " + ex.ToString());
 						transaction.Rollback();
 						throw ex;
 					}
@@ -337,7 +339,7 @@ namespace RaceYourself
 				backgroundThread.Start();
 				while (backgroundThread.IsAlive) yield return null;
 				
-				if (ret.Equals("full") || ret.Equals("partial")) Debug.Log("API: Sync() completed successfully in " + (DateTime.Now - start));
+				if (ret.Equals("full") || ret.Equals("partial")) log.info("Sync() completed successfully in " + (DateTime.Now - start));
 			} finally {
 				syncing = false;
                 Platform.Instance.NetworkMessageListener.OnSynchronization(ret);
@@ -354,25 +356,38 @@ namespace RaceYourself
 			try {
 				return File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
 			} catch (Exception ex) {
-				Debug.LogError("API: Cache get threw: " + ex.ToString());
+				log.error("Cache get threw: " + ex.ToString());
 				db.Delete(cache);
 				return null;
 			}
 		}
+
+		public IEnumerator get(string route, Action<string> callback) {
+			return get (route, callback, true);
+		}
 		
+
 		/// <summary>
 		/// Coroutine to fetch data from API.
 		/// Response string or null if failed returned through callback.
 		/// </summary>
-		public IEnumerator get(string route, Action<string> callback, bool checkCache=true) {
+		public IEnumerator get(string route, Action<string> callback, bool checkCache) {
+			Models.Cache cache = null;
 			if (checkCache) {
-				var cached = getCached(route);
-				if (cached != null) {
-					callback(cached);
-					yield break;
+				cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).FirstOrDefault();
+				if (cache != null && !cache.Expired) {
+					try {
+						var cached = File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
+						callback(cached);
+						yield break;
+					} catch (Exception ex) {
+						log.error("Cache get threw: " + ex.ToString());
+						db.Delete(cache);
+						cache = null;
+					}
 				}
 			}
-			
+
 			if (token == null || token.HasExpired) {
 				callback(null);
 				yield break;
@@ -382,6 +397,10 @@ namespace RaceYourself
 			headers.Add("Accept-Charset", "utf-8");
 			headers.Add("Accept-Encoding", "gzip");
 			headers.Add("Authorization", "Bearer " + token.access_token);
+			if (cache != null && cache.lastModified != null) {
+				log.error("DEBUG: ifs " + cache.lastModified);
+				headers["If-Modified-Since"] = cache.lastModified;
+			}
 			
 			var www = new WWW(ApiUrl(route), null, headers);
 			yield return www;
@@ -389,7 +408,7 @@ namespace RaceYourself
 			while (!www.isDone) {}
 				
 			if (!String.IsNullOrEmpty(www.error)) {
-				Debug.LogError("API: get(" + route + ") threw error: " + www.error);
+				log.error("get(" + route + ") threw error: " + www.error);
 				if (www.error.ToLower().Contains("401 unauthorized")) {
 					db.Delete(token);
 					token = null;
@@ -397,10 +416,20 @@ namespace RaceYourself
 				callback(null);
 				yield break;
 			}			
-			
+
+			if (cache != null && www.bytesDownloaded <= 0) {
+				log.error("304?");
+				// 304 Not Modified (hopefully)
+				var cached = File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
+				callback(cached);
+				yield break;
+			}
+
 			string responseEncoding = "uncompressed";
 			string cacheControl = "no-cache";
-			long maxAge = 60;
+			long maxAge = 0;
+			string lastModified = null;
+			string date = null;
 			foreach (string key in www.responseHeaders.Keys) {
 				if (key.ToLower().Equals("content-encoding")) {
 					responseEncoding = www.responseHeaders[key];
@@ -413,30 +442,38 @@ namespace RaceYourself
 						if (maxAge < 60) maxAge = 60; // TODO: Fix server cache-control responses
 					}
 				}
+				if (key.ToLower().Equals("last-modified")) {
+					lastModified = www.responseHeaders[key];
+				}
+				if (key.ToLower().Equals("date")) {
+					date = www.responseHeaders[key];
+				}
 			}
-			
+			if (lastModified == null && date != null) lastModified = date;
+			if (lastModified == null && maxAge == 0) maxAge = 60;
+
 			var encoding = new System.Text.UTF8Encoding();
 			string body = null;			
 			if (responseEncoding.ToLower().Equals("gzip")) body = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(www.bytes));
 			else body = encoding.GetString(www.bytes);
 			
-			Models.Cache cache = new Models.Cache(route, maxAge);
-			if (maxAge > 0) {
+			cache = new Models.Cache(route, maxAge, lastModified);
+			if (maxAge > 0 || lastModified != null) {
 				if (!db.UpdateObjectBy("id", cache)) {
 					db.StoreObject(cache);
 				}
 				try {
 					File.WriteAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")), body);
-					Debug.Log("API: get(" + route + ") cached for " + maxAge + "s");
+					log.info("get(" + route + ") cached for " + maxAge + "s");
 				} catch (Exception ex) {
-					Debug.LogError("API: Cache store threw: " + ex.ToString());
+					log.error("Cache store threw: " + ex.ToString());
 					db.Delete(cache);
 				}
 			} else {
 				db.DeleteObjectBy("id", cache);
 			}
 			
-			Debug.Log("API: get(" + route + ") returned in " + (DateTime.Now - start));
+			log.info("get(" + route + ") returned in " + (DateTime.Now - start));
 			callback(body);
 		}
 		
@@ -549,7 +586,7 @@ namespace RaceYourself
 					db.Delete(e);
 					deletes++;
 				}
-				Debug.Log("API: Sync: flushed old data: " + updates + " updates, " + deletes + " deletes in " + (DateTime.Now - start));				
+				log.info("Sync: flushed old data: " + updates + " updates, " + deletes + " deletes in " + (DateTime.Now - start));				
 			}
 			
 			public override string ToString()
@@ -730,7 +767,7 @@ namespace RaceYourself
 				}
 				
 				db.StoreObject(state);
-				Debug.Log("API: Sync: persisted new data: " + inserts + " inserts, " + updates + " updates, " + deletes + " deletes in " + (DateTime.Now - start));
+				log.info("Sync: persisted new data: " + inserts + " inserts, " + updates + " updates, " + deletes + " deletes in " + (DateTime.Now - start));
 			}
 		}
 		

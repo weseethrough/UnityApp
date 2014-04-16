@@ -112,7 +112,7 @@ public abstract class Platform : SingletonBase
         if (Application.isPlaying) {
             db = DatabaseFactory.GetInstance();
             api = new API(db);
-            sessionId = Sequence.Next("session", db);
+            sessionId = Sequences.Instance.Next("session", db);
 
             //DataVault.Set("loading", "Please wait while we sync the database");
             //SyncToServer();
@@ -135,7 +135,7 @@ public abstract class Platform : SingletonBase
 			// TODO: Non-blocking connect?
 			ConnectSocket();
 		}
-		
+
 		// start listening for 2-tap gestures to reset gyros
 		GestureHelper.onTwoTap += new GestureHelper.TwoFingerTap(() => {
             if (IsRemoteDisplay())

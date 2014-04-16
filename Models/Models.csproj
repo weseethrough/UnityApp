@@ -10,7 +10,7 @@
     <RootNamespace>RaceYourself.Models</RootNamespace>
     <AssemblyName>Models</AssemblyName>
     <UseMSBuildEngine>False</UseMSBuildEngine>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>True</DebugSymbols>
@@ -61,6 +61,8 @@
     <Compile Include="ObjectIdConverter.cs" />
     <Compile Include="Models\Game.cs" />
     <Compile Include="Models\PlayerConfig.cs" />
+    <Compile Include="Tests\SiaqoTests.cs" />
+    <Compile Include="Sequences.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="JsonDotNet">
