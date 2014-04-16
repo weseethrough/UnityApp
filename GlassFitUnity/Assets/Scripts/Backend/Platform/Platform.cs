@@ -179,6 +179,7 @@ public abstract class Platform : SingletonBase
     public void OnApplicationQuit ()
     {
         if (db != null) {
+			Sequences.Instance.Flush(db);
             DatabaseFactory.CloseDatabase();
         }
         //      Destroy(gameObject);
