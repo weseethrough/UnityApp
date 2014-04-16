@@ -22,19 +22,19 @@ namespace RaceYourself
 #if PRODUCTION
         private const string SCHEME = "https://";
         private const string AUTH_HOST = "api.raceyourself.com";
-        private const string apiHost = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
+        private const string API_HOST = "api.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
         private const string CLIENT_ID = "98f985cd4fca00aefda3f31c10b3d994eaa496d882fdf3db936fad76e4dae236";
         private const string CLIENT_SECRET = "9ca4b4f56b518deca0c2200b92a3435f05cb4e0b3d52b0a5a1608f39d004750e";
 #elif LOCALHOST
         private const string SCHEME = "http://";
         private const string AUTH_HOST = "localhost:3000";
-        private const string apiHost = "localhost:3000"; // Note: might be supplied through auth load-balancer in future
+        private const string API_HOST = "localhost:3000"; // Note: might be supplied through auth load-balancer in future
         private const string CLIENT_ID = "e4585379c3f6627e5510c21f21af999da38c0bfff82066be1b3bca34efe6092f";
         private const string CLIENT_SECRET = "89ac25d58a314eca793b1597b477f4e38a2c470a5a1f45830043bab912d4bdd9";
 #else
         private const string SCHEME = "http://";
         private const string AUTH_HOST = "a.staging.raceyourself.com";
-        private const string apiHost = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
+        private const string API_HOST = "a.staging.raceyourself.com"; // Note: might be supplied through auth load-balancer in future
         private const string CLIENT_ID = "c9842247411621e35dbaf21ad0e15c263364778bf9a46b5e93f64ff2b6e0e17c";
         private const string CLIENT_SECRET = "75f3e999c01942219bea1e9c0a1f76fd24c3d55df6b1c351106cc686f7fcd819";
 #endif
@@ -442,7 +442,7 @@ namespace RaceYourself
 		
 		private string ApiUrl(string path) 
 		{
-			return SCHEME + apiHost + "/api/1/" + path;
+			return SCHEME + API_HOST + "/api/1/" + path;
 		}
 				
 		public class SingleResponse<T> 
@@ -472,7 +472,8 @@ namespace RaceYourself
 			public List<Models.Notification> notifications;
 			public List<Models.Transaction> transactions;
 			public List<Models.Action> actions;
-			public List<Models.Event> events;
+            public List<Models.Event> events;
+            public List<Models.Game> games;
 			
 			public Data(Siaqodb db, Device self) {
 				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
@@ -482,6 +483,7 @@ namespace RaceYourself
 				transactions = new List<Models.Transaction>(db.Cast<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
 				actions = new List<Models.Action>(db.LoadAll<Models.Action>());
                 events = new List<Models.Event>(db.LoadAll<Models.Event>());
+                games = new List<Models.Game>(db.LoadAll<Models.Game>());
                 
 				// Populate device_id
 				foreach (Models.Track track in tracks) {
@@ -523,12 +525,17 @@ namespace RaceYourself
 					db.StoreObject(p); // Store non-transient object by OID
 					updates++;
 				}
-				foreach (Models.Notification n in notifications) {
-					n.dirty = false;
-					db.StoreObject(n); // Store non-transient object by OID
-					updates++;
-				}
-				foreach (Models.Transaction t in transactions) {
+                foreach (Models.Notification n in notifications) {
+                    n.dirty = false;
+                    db.StoreObject(n); // Store non-transient object by OID
+                    updates++;
+                }
+                foreach (Models.Game g in games) {
+                    g.dirty = false;
+                    db.StoreObject(g); // Store non-transient object by OID
+                    updates++;
+                }
+                foreach (Models.Transaction t in transactions) {
 					if (t.deleted_at.HasValue) {
 						db.Delete(t);
 						deletes++;
@@ -556,6 +563,7 @@ namespace RaceYourself
 			{
 				return (LengthOrNull(devices) + " devices, "
                         + LengthOrNull(tracks) + " tracks, "
+                        + LengthOrNull(games) + " games, "
 						+ LengthOrNull(positions) + " positions, "
 						+ LengthOrNull(notifications) + " notifications, "
 						+ LengthOrNull(transactions) + " transactions, "
@@ -615,7 +623,7 @@ namespace RaceYourself
 					state.tail_timestamp = tail_timestamp;
 					state.tail_skip = tail_skip;
 				}
-									
+
 				if (devices != null) {
 					db.StartBulkInsert(typeof(Models.Device));
 					foreach (Models.Device device in devices) {
@@ -653,15 +661,12 @@ namespace RaceYourself
 					}
 					db.EndBulkInsert(typeof(Models.Challenge));
 				}
-                
+
                 if (games != null) {
                     db.StartBulkInsert(typeof(Models.Game));
                     foreach (Models.Game game in games) {
-                        if (game.deleted_at != null) {
-                            if (db.DeleteObjectBy("id", game)) deletes++;
-                            continue;
-                        }
-                        if (!db.UpdateObjectBy("id", game)) {
+                        // TODO: Move to <model>.save(db)?
+                        if (!db.UpdateObjectBy("gameId", game)) {
                             db.StoreObject(game);
                             inserts++;
                         } else updates++;
