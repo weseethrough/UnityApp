@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PositionTracker", "PositionTracker\PositionTracker.csproj", "{56380157-1FD5-470B-B0AE-FBAA7105BE13}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{56380157-1FD5-470B-B0AE-FBAA7105BE13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56380157-1FD5-470B-B0AE-FBAA7105BE13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56380157-1FD5-470B-B0AE-FBAA7105BE13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56380157-1FD5-470B-B0AE-FBAA7105BE13}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = PositionTracker\PositionTracker.csproj
+		Policies = $0
+		$0.ChangeLogPolicy = $1
+		$1.UpdateMode = None
+		$1.MessageStyle = $2
+		$2.LineAlign = 0
+		$1.inheritsSet = Mono
+	EndGlobalSection
+EndGlobal

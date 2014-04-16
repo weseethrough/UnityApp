@@ -29,6 +29,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private bool timerActive = false;
 	private float yRotate = 0f;
 	private bool rearview = false;
+	private bool isCycling = false;
 	private bool noGrid = false;
 	private Vector3 scale;
 	
@@ -288,7 +289,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 			}
 		}
 		
-		if(pitchActive) {
+		if(pitchActive || isCycling) {
 			if(Platform.Instance.GetTouchCount() == 2)
 			{
 				Vector2? xChange = Platform.Instance.GetTouchInput();
@@ -333,6 +334,10 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 		
 	}
+
+	public void SetCycling(bool cycling) {
+		isCycling = cycling;
+	}
 	
 	/// <summary>
 	/// Pauses the sensor rotation.
@@ -353,7 +358,5 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;
-		//GestureHelper.onSwipeLeft -= leftHandler;
-		//GestureHelper.onTap -= tapHandler;
 	}
 }

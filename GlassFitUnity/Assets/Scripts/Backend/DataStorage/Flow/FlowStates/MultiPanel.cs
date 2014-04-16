@@ -247,6 +247,7 @@ public class MultiPanel : Panel
 			
             //Set current page in the data vault, for paging indicator
 			DataVault.Set("currentPageIndex", index);
+			OnChildChange(index);
             firstTweener = TweenPosition.Begin(managedChildren[0].physicalWidgetRoot, 0.3f, pos);
             firstTweener.delay = 0.0f;
 
@@ -263,6 +264,10 @@ public class MultiPanel : Panel
             focusedChildPanel.StateUpdate();
         }
     }
+
+	public virtual void OnChildChange(int i) {
+
+	}
 
     /// <summary>
     /// Position panels for later scrolling, arranges them in a row

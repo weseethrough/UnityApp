@@ -208,7 +208,7 @@ public class ButtonFunctionCollection
 			
 		case "activity_bike":
 			DataVault.Set("type", "Cyclist");
-			DataVault.Set("race_type", "race");
+			DataVault.Set("race_type", "bike");
 			break;
 			
 		case "activity_boulder":

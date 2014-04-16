@@ -8,7 +8,7 @@ using RaceYourself.Models;
 public class FirstRaceOpponenet : TargetController {
 	
 	protected float currentMovementSpeed = 0.0f;
-	private Animator anim; 
+	protected Animator anim; 
 	
 	protected float distanceFromStart = 0.0f;
 	protected float headStartDistance = 0.0f;
@@ -213,7 +213,7 @@ public class FirstRaceOpponenet : TargetController {
 		return relativeDist;
 	}
 	
-	void SetAnimSpeed(float speed)
+	protected virtual void SetAnimSpeed(float speed)
 	{
 		//pick appropriate anim speed based on our movement speed.
 		//UnityEngine.Debug.Log("FirstRace: speed is " + speed.ToString("f2"));

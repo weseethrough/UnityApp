@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.0</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{56380157-1FD5-470B-B0AE-FBAA7105BE13}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>PositionTracker</RootNamespace>
+    <AssemblyName>PositionTracker</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Models">
+      <HintPath>..\..\GlassFitUnity\Assets\Scripts\Backend\Platform\Models\Models.dll</HintPath>
+    </Reference>
+    <Reference Include="CSVFile">
+      <HintPath>External\CSVFile_1.1.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics">
+      <HintPath>External\MathNet.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpKml">
+      <HintPath>External\SharpKml.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\Common\nunit.framework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="PositionPredictor\AssemblyInfo.cs" />
+    <Compile Include="PositionPredictor\BearingCalculator.cs" />
+    <Compile Include="PositionPredictor\CardinalSpline.cs" />
+    <Compile Include="PositionPredictor\GpsCsvReader.cs" />
+    <Compile Include="PositionPredictor\PositionPredictor.cs" />
+    <Compile Include="PositionPredictor\PositionUtils.cs" />
+    <Compile Include="PositionPredictor\SimpleRegression.cs" />
+    <Compile Include="PositionTracker.cs" />
+    <Compile Include="IPositionTracker.cs" />
+    <Compile Include="IPositionListener.cs" />
+    <Compile Include="ISensorProvider.cs" />
+    <Compile Include="DescriptiveStatistics.cs" />
+    <Compile Include="IPositionProvider.cs" />
+    <Compile Include="Test\SpeedStateTest.cs" />
+    <Compile Include="Test\PositionTrackerTest.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="PositionPredictor\" />
+    <Folder Include="Kml\" />
+    <Folder Include="Test\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="External\CSVFile_1.1.dll" />
+    <None Include="External\MathNet.Numerics.dll" />
+    <None Include="External\SharpKml.dll" />
+  </ItemGroup>
+</Project>

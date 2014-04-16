@@ -66,13 +66,17 @@ public class TrackManagerPanel : MultiPanel {
 
 		base.EnterStart ();	
 
-		for(int i=0; i<managedChildren.Count; i++) {
-			if(managedChildren[i] is MultiPanelChild ) {
-				SetTrackInfo(managedChildren[i] as MultiPanelChild, i);
-			}
-		}		
+		SetTrackInfo(managedChildren[0] as MultiPanelChild, 0);
+
 
 		DataVault.Set("numberOfPages", managedChildren.Count);	
+	}
+
+	public override void OnChildChange (int i)
+	{
+		base.OnChildChange(i);
+
+		SetTrackInfo(managedChildren[i] as MultiPanelChild, i);
 	}
 
 	public override void Exited ()

@@ -28,6 +28,7 @@ public class BoltController : TargetController {
 	public override void Start () {
 		// Get the animator
 		anim = GetComponent<Animator>();
+		SetAttribs(0, 1, transform.position.y, transform.position.x);
 	}
 	
 	public void SetLevel(int l)
@@ -61,7 +62,8 @@ public class BoltController : TargetController {
 			anim.speed = 1.5f;
 		}
 		// Set the atttributes for the character
-		SetAttribs(0, 1, transform.position.y, transform.position.x);
+//		SetAttribs(0, 1, transform.position.y, transform.position.x);
+//		SetLane(1);
 	}
 	
 	void OnDisable()

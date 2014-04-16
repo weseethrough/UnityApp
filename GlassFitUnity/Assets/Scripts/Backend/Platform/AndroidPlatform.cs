@@ -600,7 +600,7 @@ public class AndroidPlatform : Platform
 	
 	public override void Poll() {
 
-        base.Update ();
+        base.Poll ();
 
 		//UnityEngine.Debug.Log("Platform: poll There are " + targetTrackers.Count + " target trackers");
 		for(int i=0; i<targetTrackers.Count; i++) {
