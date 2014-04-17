@@ -16,7 +16,7 @@ public class TrainSound : MonoBehaviour {
 	private bool movePlaying = false;
 	// Gameobject for the train.
 	private GameObject train;
-	private TargetController controller;
+	private RYWorldObject controller;
 	
 	/// <summary>
 	/// Gets the sounds from the object
@@ -26,7 +26,7 @@ public class TrainSound : MonoBehaviour {
 		// Get the audio sources for the train sounds.
 		var aSources = GetComponents<AudioSource>();
 		train = transform.parent.gameObject;
-		controller = train.GetComponent<TargetController>();
+		controller = train.GetComponent<RYWorldObject>();
 		trainMove = aSources[0];
 		trainWhistle = aSources[1];
 		
@@ -61,7 +61,7 @@ public class TrainSound : MonoBehaviour {
 				}
 				
 				// Set the position of the object based on distance behind object and offset.
-				transform.position = new Vector3(0, 0, (float)Platform.Instance.DistanceBehindTarget(controller.target)-50.0f);
+				//transform.position = new Vector3(0, 0, (float)Platform.Instance.DistanceBehindTarget(controller.target)-50.0f);
 			}
 			else {
 				// Stop the train move sound and set boolean to false.

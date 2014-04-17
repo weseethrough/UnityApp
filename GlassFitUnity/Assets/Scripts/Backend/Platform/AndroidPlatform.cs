@@ -124,24 +124,6 @@ public class AndroidPlatform : Platform
 		}
 	}
 
-	// Returns the target tracker
-	public override TargetTracker CreateTargetTracker(float constantSpeed){
-		FauxTargetTracker t;
-		try {
-			AndroidJavaObject ajo = helper.Call<AndroidJavaObject>("getFauxTargetTracker", constantSpeed);
-			if (ajo.GetRawObject().ToInt32() == 0) return null;
-			UnityEngine.Debug.Log("TargetTracker: faux target tracker obtained");
-			t = new FauxTargetTracker(ajo);
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("TargetTracker: Helper.getFauxTargetTracker() failed" + e.Message);
-			UnityEngine.Debug.LogException(e);
-			return null;
-		}
-		if (t == null) return null;
-		targetTrackers.Add(t);
-		return t;
-	}
-
 	public override TargetTracker CreateTargetTracker(int deviceId, int trackId){
 		TargetTracker t = TargetTracker.Build(helper, deviceId, trackId);
 		if (t == null) return null;

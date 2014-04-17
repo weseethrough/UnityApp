@@ -48,7 +48,7 @@ public class BikeGame : GameBase {
 			cyclist.enabled = true;
 
 			if(selectedTrack == null) {
-				cyclist.SetHeadstart(20.0f);
+				//cyclist.SetHeadstart(20.0f);
 			}
 	
 			SetVirtualTrackVisible(true);

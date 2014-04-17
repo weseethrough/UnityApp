@@ -116,45 +116,12 @@ public class SnackBase : MonoBehaviour {
             DataVault.Set("ahead_col_box", UIColour.green);
 		}
 		// Set the units
-		string siDistance = SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
+		string siDistance = UnitsHelper.SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
 		// Set the distance
 		DataVault.Set("ahead_box", siDistance);
 	}
 	
-	/// <summary>
-	/// Gets the distance as a string and converts it to relevant units.
-	/// </summary>
-	/// <returns>
-	/// The unitless distance.
-	/// </returns>
-	/// <param name='meters'>
-	/// Meters to convert.
-	/// </param>
-	/// <param name='units'>
-	/// Units name to save.
-	/// </param>
-	protected string SiDistanceUnitless(double meters, string units) {
-		string postfix = "m";
-		string final;
-		float value = (float)meters;
-		if (value > 1000) {
-			value = value/1000;
-			postfix = "km";
-			if(value >= 10) {
-				final = value.ToString("f1");
-			} else {
-				final = value.ToString("f2");
-			}
-		}
-		else
-		{
-			final = value.ToString("f0");
-		}
-		//set the units string for the HUD
-		DataVault.Set(units, postfix);
-		return final;
-	}
-	
+
 	protected void SetTrack(bool visible)
 	{
 		SnackRun snack = (SnackRun)FindObjectOfType(typeof(SnackRun));
