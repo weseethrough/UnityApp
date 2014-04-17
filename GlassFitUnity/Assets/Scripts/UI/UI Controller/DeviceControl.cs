@@ -62,7 +62,7 @@ public class DeviceControl : MonoBehaviour {
 	protected void SetStringsNoDevice()
 	{
 		DataVault.Set("register_title", "Please Sign Up");
-		DataVault.Set("register_body", "You must register on the RaceYourself website before running this build\n\nPlease visit:\nauth.raceyourself.com/users/sign_up");
+		DataVault.Set("register_body", "You must register on the RaceYourself website before running this build\n\nPlease visit:\nhttp://api.raceyourself.com");
 	}
 	
 	// Update is called once per frame
