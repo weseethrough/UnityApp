@@ -113,15 +113,12 @@ public abstract class Platform : SingletonBase
             db = DatabaseFactory.GetInstance();
             api = new API(db);
             sessionId = Sequences.Instance.Next("session", db);
-
-            //DataVault.Set("loading", "Please wait while we sync the database");
-            //SyncToServer();
         }
 
 		if (OnGlass() && HasInternet()) {
 			log.info("Attempting authorize");
 			Authorize("any", "login");
-			log.info("Authorize complete");
+            log.info("Authorize complete");
 		}
 
 		log.info("Initializing bluetooth");
@@ -135,7 +132,7 @@ public abstract class Platform : SingletonBase
 			// TODO: Non-blocking connect?
 			ConnectSocket();
 		}
-
+		
 		// start listening for 2-tap gestures to reset gyros
 		GestureHelper.onTwoTap += new GestureHelper.TwoFingerTap(() => {
             if (IsRemoteDisplay())
@@ -171,15 +168,14 @@ public abstract class Platform : SingletonBase
     }
 
     public void OnApplicationFocus(bool paused) {
-//        if (initialised && paused && OnGlass()) {
-//            Application.Quit();
-//        }
+        if (initialised && paused && OnGlass()) {
+            Application.Quit();
+        }
     }
 
     public void OnApplicationQuit ()
     {
         if (db != null) {
-			Sequences.Instance.Flush(db);
             DatabaseFactory.CloseDatabase();
         }
         //      Destroy(gameObject);
@@ -289,18 +285,8 @@ public abstract class Platform : SingletonBase
     /// Typically used when building the main hex menu
     /// </summary>
     public virtual List<Game> GetGames() {
-        // check from DB
         // TODO: Change signature to IList<Game>
-
         var games = new List<Game>(db.LoadAll<Game>());
-
-//        List<Game> games = null;
-//        // or fetch from API
-//        IEnumerator e = api.get("games", (body) => {
-//            games = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Game>>(body).response;
-//        });
-//        while(e.MoveNext()) {}; // block until finished
-
         return games;
     }
 

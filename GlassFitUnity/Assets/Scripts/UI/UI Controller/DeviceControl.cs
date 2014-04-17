@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using RaceYourself.Models;
 
 public class DeviceControl : MonoBehaviour {
-
+	
 	private float pollTime = 0.0f;
 	
 	// Use this for initialization
@@ -101,7 +101,7 @@ public class DeviceControl : MonoBehaviour {
 	protected void SetStringsNoDevice()
 	{
 		DataVault.Set("register_title", "Please Sign Up");
-		DataVault.Set("register_body", "You must register on the RaceYourself website before running this build\n\nPlease visit:\nauth.raceyourself.com/users/sign_up");
+		DataVault.Set("register_body", "You must register on the RaceYourself website before running this build\n\nPlease visit:\nhttp://api.raceyourself.com");
 	}
 	
 	// Update is called once per frame
@@ -112,31 +112,31 @@ public class DeviceControl : MonoBehaviour {
 		{
 			if(Application.isEditor)
 			{
-	            pollTime -= 500.0f; //simply shouldn't have to happen again
-	            FlowState fs = FlowStateMachine.GetCurrentFlowState();
+	            		pollTime -= 500.0f; //simply shouldn't have to happen again
+	            		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				FlowState.FollowFlowLinkNamed("MenuExit");
 			}
 			pollTime -= 5.0f;
 			
 			UpdateStatus();
-//			if(Platform.Instance.Device() != null)
-//			{
-//				UnityEngine.Debug.Log("DeviceControl: device obtained");
-//				FlowState fs = FlowStateMachine.GetCurrentFlowState();
-//				GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
-//				if(gConnect != null)
-//				{
-//					UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
-//					fs.parentMachine.FollowConnection(gConnect);
-//				} else
-//				{
-//					UnityEngine.Debug.Log("DeviceControl: connection not found: MenuExit");
-//				}
-//			} else
-//			{
-//				UnityEngine.Debug.Log("DeviceControl: device null");
-//			}
-
-        }
+			//			if(Platform.Instance.Device() != null)
+			//			{
+			//				UnityEngine.Debug.Log("DeviceControl: device obtained");
+			//				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+			//				GConnector gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
+			//				if(gConnect != null)
+			//				{
+			//					UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
+			//					fs.parentMachine.FollowConnection(gConnect);
+			//				} else
+			//				{
+			//					UnityEngine.Debug.Log("DeviceControl: connection not found: MenuExit");
+			//				}
+			//			} else
+			//			{
+			//				UnityEngine.Debug.Log("DeviceControl: device null");
+			//			}
+			
+		}
 	}
 }
