@@ -90,7 +90,23 @@ public class GraphComponent : GraphComponentBase
 	public GraphComponent()
 	{
 		m_graph = new GraphData();
-	}    
+	}
+
+
+    public int GetFlowIndex(string name)
+    {
+
+        string[] names = GetFlowArray();
+        for (int i = 0; i < names.Length; i++)
+        {
+            if (names[i] == name)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
 
     /// <summary>
     /// 
@@ -98,19 +114,18 @@ public class GraphComponent : GraphComponentBase
     /// <returns></returns>
     public int GetSelectedFlowIndex()
     {
-        //TODO: we dont want to use indexes now, I'm not sure how well they work for database yet
-        return 0;//
-
-
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
-        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
-
-        if (flowDictionary.Length() <= selectedFlow)
-        {
-            selectedFlow = 0;
-        }
-
         return selectedFlow;
+        /*
+        string[] names = GetFlowArray();
+        for (int i = 0; i < names.Length; i++ )
+        {
+            if (names[i] == nextStartNavigateTo)
+            {
+                return i;
+            }
+        }
+        
+        return -1;*/
     }
    
 
@@ -133,24 +148,13 @@ public class GraphComponent : GraphComponentBase
         //we do not check if index is the same because data could change, flow cold have removed or be modified.
 
         selectedFlow = flowIndex;
-        /*
-        //DataStore.LoadStorage(DataStore.BlobNames.flow);
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
-        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
 
-        if (flowDictionary.Length() <= selectedFlow)
+        string[] names = GetFlowArray();
+        if (names.Length > selectedFlow)
         {
-            selectedFlow = 0;
-        }
-
-        GraphData data = flowDictionary.Get(selectedFlow) as GraphData;
-        if (data == null)
-        {
-            data = new GraphData();
-        }
-        data.Style = new GStyle();//m_graph.Style;
-        
-        m_graph = data;*/
+            selectedFlow = flowIndex;
+            LoadFlow(names[selectedFlow]);
+        }        
     }
 
     /// <summary>
@@ -160,18 +164,15 @@ public class GraphComponent : GraphComponentBase
     /// <returns></returns>
     public void SetSelectedFlowByName(string flowName)
     {
-        LoadFlow(flowName);
-        return;
 
-       // DataStore.LoadStorage(DataStore.BlobNames.flow);
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
-        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
-        int index = flowDictionary.GetIndex(flowName);
-        if (index >= 0)
+        int index = GetFlowIndex(flowName);
+
+        if (index >=0)
         {
             selectedFlow = index;
-        }
-        SetSelectedFlowIndex();
+            LoadFlow(flowName);
+        }        
+        return;
     }
 
     /// <summary>
@@ -180,17 +181,16 @@ public class GraphComponent : GraphComponentBase
     /// <returns></returns>
     public void SetSelectedFlowByLast()
     {
-        return;
-
-       // DataStore.LoadStorage(DataStore.BlobNames.flow);
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.flow);
-        StorageDictionary flowDictionary = (StorageDictionary)s.dictionary;
-        int index = flowDictionary.Length();
-        if (index > 0)
+        int length = GetFlowArray().Length;
+        if (length == 0)
         {
-            selectedFlow = index -1;
+            selectedFlow = length;
         }
-        SetSelectedFlowIndex();
+        else
+        {
+            selectedFlow = length -1;
+        }
+        return;
     }
 
     /// <summary>
@@ -259,11 +259,15 @@ public class GraphComponent : GraphComponentBase
         return instance;
     }
 
-    //New functionality
-
+    //DB access
     public string[] GetFlowArray()
     {
-        if (avaliableFlows != null) return avaliableFlows;
+        return GetFlowArray(false);
+    }
+
+    public string[] GetFlowArray(bool forced)
+    {
+        if (!forced && avaliableFlows != null) return avaliableFlows;
 
         Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
         ISqoQuery<GraphDataBase> q = db.Query<GraphDataBase>();
@@ -292,6 +296,7 @@ public class GraphComponent : GraphComponentBase
         return ret;
     }
 
+   
     public void SaveFlow()
     {
         Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
@@ -331,6 +336,8 @@ public class GraphComponent : GraphComponentBase
 
         GraphDataBase data = q.Where(d => d.Name == name).FirstOrDefault();
 
+        nextStartNavigateTo = name;
+
         if (data == null)
         {
             m_graph = new GraphDataBase();
@@ -341,5 +348,28 @@ public class GraphComponent : GraphComponentBase
             m_graph = data;
         }
         GraphDataBase.Style = new GStyle();
+    }
+
+    public void RemoveFlow(string name)
+    {
+        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
+        ISqoQuery<GraphDataBase> q = db.Query<GraphDataBase>();
+
+        GraphDataBase data = q.Where(d => d.Name == name).FirstOrDefault();
+
+        if (data != null)
+        {
+            db.Delete(data);
+        }
+        GetFlowArray(true);
+    }
+
+    public void RemoveFlowByIndex(int index)
+    {
+        string[] names = GetFlowArray();
+        if (index < names.Length)
+        {
+            RemoveFlow(names[index]);
+        }
     }
 }

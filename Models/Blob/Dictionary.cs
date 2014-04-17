@@ -18,6 +18,7 @@ namespace RaceYourself.Models.Blob
     {
         public List<T> data = null;
         public List<String> names = null;
+        public string name = "";
 
         public Dictionary()
 	    {

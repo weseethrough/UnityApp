@@ -10,18 +10,20 @@ using System.Collections.Generic;
 [System.Serializable]
 public class SerializableTransformBase : ISerializable 
 {
-    private float positionX;
-    private float positionY;
-    private float positionZ;
+    public float positionX;
+    public float positionY;
+    public float positionZ;
 
-    private float rotationX;
-    private float rotationY;
-    private float rotationZ;
-    private float rotationW;
+    public float rotationX;
+    public float rotationY;
+    public float rotationZ;
+    public float rotationW;
 
-    private float scaleX;
-    private float scaleY;
-    private float scaleZ;
+    public float scaleX;
+    public float scaleY;
+    public float scaleZ;
+
+    public SerializableTransformBase() { }
 
 	/// <summary>
 	/// constructor reading all required parameters from original transform

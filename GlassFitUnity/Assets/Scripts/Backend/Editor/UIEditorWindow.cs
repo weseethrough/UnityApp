@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;
 
+using RaceYourself.Models.Blob;
+
 /// <summary>
 /// Main Ui management editor window
 /// </summary>
@@ -58,7 +60,7 @@ public class UIEditorWindow : EditorWindow
         GUILayout.BeginHorizontal();
 			if (GUILayout.Button("Delete screen"))
             {
-                StorageDictionary screensDictionary = Panel.GetPanelDictionary();
+                Dictionary<SerializedNodeBase> screensDictionary = Panel.GetPanelDictionary();
 
                 if (index < screensDictionary.Length())
                 {
@@ -108,7 +110,7 @@ public class UIEditorWindow : EditorWindow
 	void BuildScreenList()
 	{
 
-        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
+        Dictionary<SerializedNodeBase> screensDictionary = Panel.GetPanelDictionary();
 
         int count = screensDictionary == null ? 0 : screensDictionary.Length();
         screens = new string[count + 1];
@@ -116,9 +118,8 @@ public class UIEditorWindow : EditorWindow
 
         for (int i = 0; i < count; i++)
         {
-            string screenName;
-            ISerializable screen;
-            screensDictionary.Get(i, out screenName, out screen);
+            string screenName;            
+            screenName = screensDictionary.GetName(i);
             screens[i] = screenName;
         }
 	}
@@ -127,7 +128,7 @@ public class UIEditorWindow : EditorWindow
     /// finds manager and saves to the blob currently selected ui scene
     /// </summary>
     /// <returns>root point of current screen serializable structure</returns>
-    ISerializable GetCurrentScreenStructure()
+    SerializedNodeBase GetCurrentScreenStructure()
     {
         UIManager[] scripts = (UIManager[])FindObjectsOfType(typeof(UIManager));
 
@@ -152,17 +153,22 @@ public class UIEditorWindow : EditorWindow
     void LoadSavedScreenStructure(int index)
     {
         UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
-        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
+        Dictionary<SerializedNodeBase> screensDictionary = Panel.GetPanelDictionary();
 
-        if (script == null || screensDictionary == null)
+        if (script == null)
         {
             Debug.LogError("Scene requires to have UIManager in its root");                
         }            
         else
         {
-            ISerializable data;
-            string screenName;
-            screensDictionary.Get(index, out screenName, out data);
+            if ( screensDictionary == null)
+            {
+                Debug.LogError("Dictionary empty...");
+                return;
+            }
+
+            SerializedNodeBase data;           
+            data = screensDictionary.Get(index);
             if (data != null)
             {
                 ClearCurrentStage(script.transform);
@@ -199,7 +205,7 @@ public class UIEditorWindow : EditorWindow
     /// <returns></returns>
     void RefreshFromSource()
     {
-        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
+        Dictionary<SerializedNodeBase> screensDictionary = Panel.GetPanelDictionary();
 
         BuildScreenList();
         int id = screensDictionary != null ? screensDictionary.GetIndex(screenName) : -1;
@@ -222,7 +228,7 @@ public class UIEditorWindow : EditorWindow
     void SaveScreen(bool deleteOld)
     {
         //Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
-        StorageDictionary screensDictionary = Panel.GetPanelDictionary(false);
+        Dictionary<SerializedNodeBase> screensDictionary = Panel.GetPanelDictionary(false);
 
         if (screenName.Length == 0)
         {
@@ -234,7 +240,7 @@ public class UIEditorWindow : EditorWindow
         }
         else
         {
-            ISerializable structure = GetCurrentScreenStructure();
+            SerializedNodeBase structure = GetCurrentScreenStructure();
             if (structure != null)
             {
                 screensDictionary.Set(screenName, structure);

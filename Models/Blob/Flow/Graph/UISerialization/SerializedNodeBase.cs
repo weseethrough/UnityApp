@@ -15,10 +15,10 @@ using UnityEditor;
 public class SerializedNodeBase : ISerializable 
 {
     public  List<SerializedNodeBase> subBranches; //this is list, simply allowing to cast form List<SerializedNode> to this format
-    private SerializableTransformBase transform;        
-    private SerializableSettingsBase settings;
-    private string name;
-    private string prefabName;
+    public  SerializableTransformBase transform;
+    public SerializableSettingsBase settings;
+    public string name;
+    public string prefabName;
 
     /// <summary>
     /// default construction initializator

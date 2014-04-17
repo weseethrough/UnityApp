@@ -104,7 +104,7 @@ public class DataStore : MonoBehaviour
             string name = bName.ToString();
 
             if (i == (int)BlobNames.persistent) continue;
-            if (i == (int)BlobNames.flow)
+            if (i == (int)BlobNames.flow || i == (int)BlobNames.ui_panels)
             {
                 if (!storageBank.ContainsKey(name.ToString()))
                 {
@@ -203,6 +203,12 @@ public class DataStore : MonoBehaviour
 
         if (name == BlobNames.persistent) return;
         if (name == BlobNames.flow) return;
+        if (name == BlobNames.ui_panels)
+        {
+            int a = 0;
+            a = a * a;
+            return;
+        }
 #if UNITY_EDITOR
         if (instance != null && Platform.Instance != null)
         {            
@@ -316,6 +322,23 @@ public class DataStore : MonoBehaviour
     /// <returns></returns>
     static public void SaveStorage(BlobNames name, bool saveInCollection)
     {
+        if (name == BlobNames.persistent)
+        {
+            Debug.LogError("Persistent data save to blob no longer valid");
+            return;
+        }
+        if (name == BlobNames.flow)
+        {
+            Debug.LogError("Flow data save to blob no longer valid");
+            return;
+        }
+        if (name == BlobNames.ui_panels)
+        {
+            UIPanelsManager.GetInstance().SaveUIPanels();
+            return;
+        }
+
+
 #if UNITY_EDITOR
         if (instance != null && Platform.Instance != null)
         {

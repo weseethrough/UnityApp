@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System;
 
+using RaceYourself.Models.Blob;
+
 public class GraphWindow : EditorWindow, IDraw
 {
 	// Allow user to drag viewport to see graph
@@ -503,7 +505,7 @@ public class GraphWindow : EditorWindow, IDraw
                     {
                         Vector2 p1 = c.GetPosition(data);
                         Vector2 p2 = dest.GetPosition(data);
-                        bool swap = c.IsInput ? (GraphData.Style.RightToLeft == false) : (GraphData.Style.RightToLeft == true);
+                        bool swap = c.IsInput ? true : false;
                         if (swap)
                         {
                             Vector2 tmp = p1;
@@ -522,6 +524,8 @@ public class GraphWindow : EditorWindow, IDraw
                         lineMaterial.SetPass(0);
 
                         Color lineColor;
+
+                        if (GraphData.Style == null) { GraphData.Style = new GStyle(); }
 
                         if (m_selection == null || c.Parent == m_selection || dest.Parent == m_selection)
                         {
@@ -1333,25 +1337,26 @@ public class GraphWindow : EditorWindow, IDraw
     /// <returns></returns>
     public string[] GetUIComponentNames(string selectedName, out int selected)
     {
-        Storage s                           = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
+        Dictionary<SerializedNodeBase> dict = UIPanelsManager.GetPanels();
+
+        /*Storage s                           = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
         if (s == null || s.dictionary == null)
         {
             selected = -1;
             return null;
-        }
+        }*/
 
-        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
+        //StorageDictionary screensDictionary = Panel.GetPanelDictionary();
 
-        int count                           = screensDictionary == null ? 0 : screensDictionary.Length();
+        int count = dict.Length();//screensDictionary == null ? 0 : screensDictionary.Length();
         string[]  screens                   = count > 0 ? new string[count] : null;
 
         selected = -1;
 
         for (int i = 0; i < count; i++)
         {
-            string screenName;
-            ISerializable screen;
-            screensDictionary.Get(i, out screenName, out screen);
+            string screenName;           
+            screenName = dict.GetName(i);
             screens[i] = screenName;
             if (selectedName == screens[i])
             {

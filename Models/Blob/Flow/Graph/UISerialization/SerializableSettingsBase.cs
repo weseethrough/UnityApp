@@ -12,7 +12,7 @@ using System.Reflection;
 [Serializable]
 public class SerializableSettingsBase : ISerializable 
 {
-    protected List<SingleComponentBase> components;    
+    public List<SingleComponentBase> components;    
 
     /// <summary>
     /// default constructor initialization

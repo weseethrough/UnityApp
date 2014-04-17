@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Reflection;
 
+using RaceYourself.Models.Blob;
 /// <summary>
 /// basic panel which allows to show ui
 /// </summary>
@@ -180,14 +181,16 @@ public class Panel : PanelBase
     /// <returns>screen serialized root</returns>
     public SerializedNodeBase GetPanelSerializationNode(string selectedName)
     {
+        return UIPanelsManager.GetPanel(selectedName);
+
         Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
         if (s == null || s.dictionary == null)
         {           
             return null;
         }
 
-        StorageDictionary screens = Panel.GetPanelDictionary();
-        return screens != null ? screens.Get(selectedName) as SerializedNodeBase : null;
+        Dictionary<SerializedNodeBase> screens = Panel.GetPanelDictionary();
+        return screens != null ? screens.Get(selectedName) : null;
     }
 
     /// <summary>
@@ -198,8 +201,8 @@ public class Panel : PanelBase
     {
         base.EnterStart();
 
-        UIManager script = (UIManager)GameObject.FindObjectOfType(typeof(UIManager));        
-        StorageDictionary screensDictionary = Panel.GetPanelDictionary();
+        UIManager script = (UIManager)GameObject.FindObjectOfType(typeof(UIManager));
+        Dictionary<SerializedNodeBase> screensDictionary = Panel.GetPanelDictionary();
 
         if (script == null)
         {
@@ -329,7 +332,7 @@ public class Panel : PanelBase
     /// 
     /// </summary>
     /// <returns></returns>
-    public static StorageDictionary GetPanelDictionary()
+    public static Dictionary<SerializedNodeBase> GetPanelDictionary()
     {
         return GetPanelDictionary(true);
     }
@@ -339,8 +342,10 @@ public class Panel : PanelBase
     /// </summary>
     /// <param name="tryOldOne"></param>
     /// <returns></returns>
-    public static StorageDictionary GetPanelDictionary(bool tryOldOne)
+    public static Dictionary<SerializedNodeBase> GetPanelDictionary(bool tryOldOne)
     {
+        return UIPanelsManager.GetPanels();
+        /*
         Storage s = DataStore.GetStorage(DataStore.BlobNames.ui_panels);
         StorageDictionary screensDictionary = null;
         if (tryOldOne)
@@ -354,7 +359,7 @@ public class Panel : PanelBase
             screensDictionary = s.dictionary;
         }
         
-        return screensDictionary;
+        return screensDictionary;*/
     }
 
     public override bool CallStaticFunction(string functionName, FlowButton caller)

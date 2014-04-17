@@ -49,26 +49,12 @@ public class GraphInspector : Editor
             }
             if (GUILayout.Button(new GUIContent("Save flows", "This should be done automatically with every change. If not then this is a safety button")))
             {
-                
 
-            /*    if (!flowDictionary.Contains("MainFlow"))
-                {
-                    flowDictionary.Add("MainFlow", gc.m_graph);
-                }
-                else
-                {
-                    flowDictionary.Set(gc.m_graph, "MainFlow");
-                }
-              */  
-
-                DataStore.SaveStorage(DataStore.BlobNames.flow);
+                gc.SaveFlow();
             }
             if (GUILayout.Button(new GUIContent("Remove current flow", "You should never remove last flow. If you do it will create noname emply flow for you")))
             {
-                flowDictionary.RemoveAt(flowIndex);
-                DataStore.SaveStorage(DataStore.BlobNames.flow);
-
-                componentSource.SetSelectedFlowIndex();
+                gc.RemoveFlowByIndex(flowIndex);
                 GraphWindow.Init();
             }      
         EditorGUILayout.EndHorizontal();
@@ -78,20 +64,20 @@ public class GraphInspector : Editor
             newFlowName = EditorGUILayout.TextField(newFlowName);
             if (GUILayout.Button(new GUIContent("Create flow", "Creates new flow if desired name is not used by another flow at this moment")))
             {
-                gc.SaveFlow();
+                //gc.SaveFlow();
 
                 GraphDataBase gd = new GraphDataBase();
-                gd.Name = newFlowName;
-
-                gc.SaveFlow(gd);
-
-                if (newFlowName.Length > 0 && !flowDictionary.Contains(newFlowName))
+                gd.Name = newFlowName;                
+                if (newFlowName.Length > 0)
                 {
+
+                    gc.SaveFlow(gd);
+                    gc.LoadFlow(newFlowName);
                     
-                    flowDictionary.Add(newFlowName, gd);
+                    //flowDictionary.Add(newFlowName, gd);
                     //DataStore.SaveStorage(DataStore.BlobNames.flow);
 
-                    componentSource.SetSelectedFlowByLast();                    
+                    //componentSource.SetSelectedFlowByLast();                    
                 }
                 GraphWindow.Init();
             }
