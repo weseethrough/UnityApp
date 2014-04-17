@@ -112,7 +112,7 @@ public abstract class Platform : SingletonBase
         if (Application.isPlaying) {
             db = DatabaseFactory.GetInstance();
             api = new API(db);
-            sessionId = Sequence.Next("session", db);
+            sessionId = Sequences.Instance.Next("session", db);
         }
 
 		if (OnGlass() && HasInternet()) {
