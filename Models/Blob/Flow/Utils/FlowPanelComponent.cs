@@ -23,6 +23,11 @@ public class FlowPanelComponent
     [NonSerialized()] private bool[] foldoutRoot;
     [NonSerialized()] private const int subtreeOffset = 10;
 
+    public FlowPanelComponent()
+    {
+
+    }
+
     /// <summary>
     /// constructor - class initializator
     /// </summary>
