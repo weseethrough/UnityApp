@@ -234,11 +234,10 @@ public abstract class Platform : SingletonBase
     
     public virtual PlayerConfig GetPlayerConfig()
     {
+        // TODO put in synchronise call.
         PlayerConfig cfg = null;
         IEnumerator e = api.get("configurations/unity", (body) => {
             cfg = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.PlayerConfig>>(body).response;
-            var payload = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.ConfigurationPayload>>(cfg.configuration).response;
-            cfg.payload = payload;
         });
         while(e.MoveNext()) {}; // block until finished
         return cfg;
@@ -362,7 +361,8 @@ public abstract class Platform : SingletonBase
     public virtual void Authorize(string provider, string permissions) {
         if (Application.isPlaying) {
             // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no?
-            GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
+            //GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
+            GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
         }
     }
 

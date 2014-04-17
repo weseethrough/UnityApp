@@ -34,13 +34,15 @@ public class DeviceControl : MonoBehaviour {
 			int gameCount = 0;
 			Game chosenGame = null;
 			for(int i=0; i<gamesList.Count; i++) {
-				if(gamesList[i].type != "N/A") {
+                var game = gamesList[i];
+
+                // TODO remove all references to "N/A"; just use enabled and locked flags.
+				if(game.enabled && game.type != "Snack" && game.type != "N/A") {
 					gameCount++;
 					chosenGame = gamesList[i];
 				}
 			}
 			if(gameCount == 1) {
-				DataVault.Set("is_testing", true);
 				gConnect = fs.Outputs.Find(r => r.Name == "GameExit");
 				switch(chosenGame.type) {
 				case "Snack":
@@ -56,13 +58,11 @@ public class DeviceControl : MonoBehaviour {
 					gConnect = fs.Outputs.Find(r => r.Name == "ChallengeExit");
 					break;
 				default:
-					UnityEngine.Debug.Log("DeviceControl: game type not recognise - it says " + chosenGame.type);
-					DataVault.Set("is_testing", false);
+					UnityEngine.Debug.Log("DeviceControl: game type not recognised - it says " + chosenGame.type);
 					gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 					break;
 				}
 			} else {
-				DataVault.Set("is_testing", false);
 				gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 			}
 			

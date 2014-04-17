@@ -286,7 +286,7 @@ public class GameSelectPanel : HexPanel
 
         }
 				
-        base.EnterStart();   
+        base.EnterStart();
     }
 	
 	public override void Exited ()

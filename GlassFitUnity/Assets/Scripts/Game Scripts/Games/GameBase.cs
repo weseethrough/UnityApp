@@ -334,19 +334,19 @@ public class GameBase : MonoBehaviour {
 	}
 	
 	/// <summary>
-	/// Continue, once we h
+	/// Continue, once we come to the end of a game
 	/// </summary>
 	void Continue() {
 		SoundManager.PlaySound(SoundManager.Sounds.Tap);
 
-		if(!Convert.ToBoolean(DataVault.Get("is_testing"))) {
-			FlowState.FollowFlowLinkNamed("ContinueButton");
-			CleanUp();
-			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+        if(Platform.Instance.GetPlayerConfig().Test()) {
+            FlowState.FollowFlowLinkNamed("RetryPromptExit");
+            SetGameState(GAMESTATE_RETRY_PROMPT);
 		} else {
-			FlowState.FollowFlowLinkNamed("RetryPromptExit");
-			SetGameState(GAMESTATE_RETRY_PROMPT);
-		}	
+            FlowState.FollowFlowLinkNamed("ContinueButton");
+            CleanUp();
+            AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+        }	
 	}
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)

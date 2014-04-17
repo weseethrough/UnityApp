@@ -48,6 +48,7 @@ namespace RaceYourself
 		
 		private OauthToken token = null;
 		public User user { get; private set; }
+        public PlayerConfig playerConfig { get; private set; }
 
 		private bool syncing = false;
 
@@ -321,7 +322,16 @@ namespace RaceYourself
 					log.info("Sync() parsed " + response.response.ToString() + " in " + (DateTime.Now - parseStart));
 					if (response.response.errors.Count > 0) {
 						log.error("Sync(): server reported " + response.response.errors.Count + " errors: " + string.Join("\n", response.response.errors.ToArray()));
-					}
+                    }
+                    
+//                    PlayerConfig cfg = null;
+//                    IEnumerator e = api.get("configurations/unity", (body) => {
+//                        cfg = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.PlayerConfig>>(body).response;
+//                        var payload = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.ConfigurationPayload>>(cfg.configuration).response;
+//                        cfg.payload = payload;
+//                    });
+//                    while(e.MoveNext()) {}; // block until finished
+//                    playerConfig = cfg;
 					
 					var transaction = db.BeginTransaction();
 					try {
@@ -340,7 +350,7 @@ namespace RaceYourself
 				});
 				backgroundThread.Start();
 				while (backgroundThread.IsAlive) yield return null;
-				
+
 				if (ret.Equals("full") || ret.Equals("partial")) log.info("Sync() completed successfully in " + (DateTime.Now - start));
 			} finally {
 				syncing = false;
@@ -616,7 +626,13 @@ namespace RaceYourself
 			public Response response;
 		}
 		
-		private class Response
+        public void persist(Siaqodb db, PlayerConfig playerConfig) {
+            if (!db.UpdateObjectBy("id", playerConfig)) {
+                db.StoreObject(playerConfig);
+            }
+        }
+
+        private class Response
 		{
 			public long sync_timestamp;
 			public long? tail_timestamp;
@@ -648,7 +664,7 @@ namespace RaceYourself
 						+ LengthOrNull(transactions) + " transactions, "
 						+ LengthOrNull(errors) + " errors");
 			}
-			
+
 			public void persist(Siaqodb db) {
 				var start = DateTime.Now;
 				uint inserts, updates, deletes;

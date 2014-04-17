@@ -35,7 +35,7 @@ public class SnackController : MonoBehaviour {
 			//cherry pick the games which are of type snack, and are unlocked
 			foreach( Game game in allGames )
 			{
-				if( game.type == "Snack")
+				if(game.type == "Snack" && game.enabled)
 				{
 					UnityEngine.Debug.Log("SnackController: Found a snack: " + game.gameId );
 					snackGames.Add( game );	

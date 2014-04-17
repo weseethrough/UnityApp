@@ -57,7 +57,9 @@
     <Compile Include="Date.cs" />
     <Compile Include="DefaultConverter.cs" />
     <Compile Include="Jsonable.cs" />
-    <Compile Include="JsonStringConverter.cs" />
+    <Compile Include="JsonStringConverter.cs">
+      <DependentUpon>ObjectIdConverter.cs</DependentUpon>
+    </Compile>
     <Compile Include="ObjectIdConverter.cs" />
     <Compile Include="Models\Game.cs" />
     <Compile Include="Models\PlayerConfig.cs" />
