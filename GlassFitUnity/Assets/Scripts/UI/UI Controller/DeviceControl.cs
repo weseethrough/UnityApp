@@ -65,7 +65,7 @@ public class DeviceControl : MonoBehaviour {
 			} else {
 				gConnect = fs.Outputs.Find(r => r.Name == "MenuExit");
 			}
-			
+
 			if(gConnect != null)
 			{
 				UnityEngine.Debug.Log("DeviceControl: connection found, travelling");
@@ -112,8 +112,8 @@ public class DeviceControl : MonoBehaviour {
 		{
 			if(Application.isEditor)
 			{
-				pollTime -= 500.0f; //simply shouldn't have to happen again
-				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+	            		pollTime -= 500.0f; //simply shouldn't have to happen again
+	            		FlowState fs = FlowStateMachine.GetCurrentFlowState();
 				FlowState.FollowFlowLinkNamed("MenuExit");
 			}
 			pollTime -= 5.0f;

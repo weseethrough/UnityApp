@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Controls the cyclist
 /// </summary>
-public class CyclistController : FirstRaceOpponenet {
+public class CyclistController : PBRunnerController {
 
 	private AudioSource bikeBell;
 
@@ -20,17 +20,18 @@ public class CyclistController : FirstRaceOpponenet {
 	}
 
 	private void Initialise() {
-		base.SetAttribs(0, 1, transform.position.y, transform.position.x);
 		bikeBell = GetComponent<AudioSource>();
 	}
+
 	
 	/// <summary>
 	/// Raises the enable event. Sets the attributes
 	/// </summary>
-	public override void OnEnable() {
+	public virtual void OnEnable() {
 		// Enable the base and set the attributes.
-		base.OnEnable();
 		Initialise();
+		FirstRaceOpponenet posController = gameObject.GetComponent<FirstRaceOpponenet>();
+		posController.enabled = true;
 	}
 	
 	/// <summary>
@@ -47,14 +48,23 @@ public class CyclistController : FirstRaceOpponenet {
 		if(hasOvertaken && GetDistanceBehindTarget() < 0) {
 			hasOvertaken = false;
 		}
-	}
 
-	protected override void SetAnimSpeed (float speed)
-	{
-		if(speed > 0.0f) {
+		if(realWorldMovementSpeed > 0)
+		{
 			anim.speed = 1.0f;
-		} else {
+		}
+		else
+		{
 			anim.speed = 0.0f;
 		}
 	}
+
+//	protected virtual void SetAnimSpeed (float speed)
+//	{
+//		if(speed > 0.0f) {
+//			anim.speed = 1.0f;
+//		} else {
+//			anim.speed = 0.0f;
+//		}
+//	}
 }

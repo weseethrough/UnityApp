@@ -12,82 +12,91 @@ namespace PositionTracker
 		[Test]
 		public void StoppedTest ()
 		{
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.STOPPED;
-			nextState = PositionTracker.SpeedState.NextState( 0.5f, 10.0f); 			
+			SpeedState speedState = new SpeedState();
+			speedState.CurrentState = PositionTracker.State.STOPPED;
+			nextState = speedState.NextState( 0.5f, 10.0f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.SENSOR_ACC);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.STOPPED;
-			nextState = PositionTracker.SpeedState.NextState( 0.4f, 10.0f); 			
+			speedState.CurrentState = PositionTracker.State.STOPPED;
+			nextState = speedState.NextState( 0.4f, 10.0f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.STOPPED);
 		}
 		
 		[Test]
 		public void SensorAccTest ()
 		{
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.SENSOR_ACC;
-			nextState = PositionTracker.SpeedState.NextState( 10.0f, 0.1f ); 			
+			SpeedState speedState = new SpeedState();
+
+			speedState.CurrentState = PositionTracker.State.SENSOR_ACC;
+			nextState = speedState.NextState( 10.0f, 0.1f ); 			
 			Assert.AreEqual(nextState, PositionTracker.State.STEADY_GPS_SPEED);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.SENSOR_ACC;
-			nextState = PositionTracker.SpeedState.NextState(  0.3f, 0.0f); 			
+			speedState.CurrentState = PositionTracker.State.SENSOR_ACC;
+			nextState = speedState.NextState(  0.3f, 0.0f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.SENSOR_DEC);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.SENSOR_ACC;
-			nextState = PositionTracker.SpeedState.NextState( 0.4f, 0.0f); 			
+			speedState.CurrentState = PositionTracker.State.SENSOR_ACC;
+			nextState = speedState.NextState( 0.4f, 0.0f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.SENSOR_ACC);
 		}
 		
 		[Test]
 		public void SteadyGpsSpeedTest ()
 		{
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.STEADY_GPS_SPEED;
-			nextState = PositionTracker.SpeedState.NextState( 0.3f, 0.1f ); 			
+			SpeedState speedState = new SpeedState();
+
+			speedState.CurrentState = PositionTracker.State.STEADY_GPS_SPEED;
+			nextState = speedState.NextState( 0.3f, 0.1f ); 			
 			Assert.AreEqual(nextState, PositionTracker.State.SENSOR_DEC);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.STEADY_GPS_SPEED;
-			nextState = PositionTracker.SpeedState.NextState(  0.4f, 0.0f); 			
+			speedState.CurrentState = PositionTracker.State.STEADY_GPS_SPEED;
+			nextState = speedState.NextState(  0.4f, 0.0f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.COAST);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.STEADY_GPS_SPEED;
-			nextState = PositionTracker.SpeedState.NextState( 0.4f, 0.1f); 			
+			speedState.CurrentState = PositionTracker.State.STEADY_GPS_SPEED;
+			nextState = speedState.NextState( 0.4f, 0.1f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.STEADY_GPS_SPEED);
 		}
 		
 		[Test]
 		public void CoastTest ()
 		{
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.COAST;
-			nextState = PositionTracker.SpeedState.NextState( 0.3f, 0.1f ); 			
+			SpeedState speedState = new SpeedState();
+			
+			speedState.CurrentState = PositionTracker.State.COAST;
+			nextState = speedState.NextState( 0.3f, 0.1f ); 			
 			Assert.AreEqual(nextState, PositionTracker.State.SENSOR_DEC);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.COAST;
-			nextState = PositionTracker.SpeedState.NextState(  0.4f, 0.1f); 			
+			speedState.CurrentState = PositionTracker.State.COAST;
+			nextState = speedState.NextState(  0.4f, 0.1f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.STEADY_GPS_SPEED);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.COAST;
-			nextState = PositionTracker.SpeedState.NextState( 0.4f, 0.0f); 			
+			speedState.CurrentState = PositionTracker.State.COAST;
+			nextState = speedState.NextState( 0.4f, 0.0f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.COAST);
 		}
 		
 		[Test]
 		public void SensorDecTest ()
 		{
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.SENSOR_DEC;
-			nextState = PositionTracker.SpeedState.NextState( 0.3f, 0.0f ); 			
+			SpeedState speedState = new SpeedState();
+
+			speedState.CurrentState = PositionTracker.State.SENSOR_DEC;
+			nextState = speedState.NextState( 0.3f, 0.0f ); 			
 			Assert.AreEqual(nextState, PositionTracker.State.STOPPED);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.SENSOR_DEC;
+			speedState.CurrentState = PositionTracker.State.SENSOR_DEC;
 			// TODO: avoid sleeping by overriding GetTimeInState() to mock entry time
 			Thread.Sleep(3500);
-			nextState = PositionTracker.SpeedState.NextState(0.4f, 0.1f); 			
+			nextState = speedState.NextState(0.4f, 0.1f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.STEADY_GPS_SPEED);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.SENSOR_DEC;
-			nextState = PositionTracker.SpeedState.NextState( 0.5f, 0.1f); 			
+			speedState.CurrentState = PositionTracker.State.SENSOR_DEC;
+			nextState = speedState.NextState( 0.5f, 0.1f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.SENSOR_ACC);
 			
-			PositionTracker.SpeedState.CurrentState = PositionTracker.State.SENSOR_DEC;
-			nextState = PositionTracker.SpeedState.NextState( 0.3f, 0.1f); 			
+			speedState.CurrentState = PositionTracker.State.SENSOR_DEC;
+			nextState = speedState.NextState( 0.3f, 0.1f); 			
 			Assert.AreEqual(nextState, PositionTracker.State.SENSOR_DEC);
 		}		
 	}

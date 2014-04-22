@@ -153,41 +153,6 @@ public class ButtonFunctionCollection
 			return false;
 		}
 	}
-
-    static public bool SetCeleb(FlowButton fb, FlowState panel)
-	{
-		switch(fb.name)
-		{
-		case "activity_farah":
-			DataVault.Set("type", "Mo");
-			DataVault.Set("finish", 10000);
-			AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
-			break;
-			
-		case "activity_paula_radcliffe":
-			DataVault.Set("type", "Paula");
-			DataVault.Set("finish", 42195);
-			AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
-			break;
-			
-		case "activity_chris_hoy":
-			DataVault.Set("type", "Chris");
-			DataVault.Set("finish", 1000);
-			AutoFade.LoadLevel("Race Mode", 0.1f, 1.0f, Color.black);
-			break;
-			
-		case "activity_bradley_wiggins":
-			DataVault.Set("type", "Bradley");
-			DataVault.Set("finish", 4000);
-			AutoFade.LoadLevel("Race Mode", 0.1f, 0.1f, Color.black);
-			break;
-			
-		default:
-			return false;
-		}
-		
-		return true;
-	}
 	
 	/// <summary>
 	/// sets type f the challenge based on button which provided event

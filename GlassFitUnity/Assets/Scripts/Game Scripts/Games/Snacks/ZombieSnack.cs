@@ -94,7 +94,8 @@ public class ZombieSnack : SnackBase {
 				AddZombie();
 			}
 		}
-		
+
+		//set visibility of left/right markers based on where zombies are in scnee
 		if(zombieList != null && zombieList.Count > 0)
 		{
 			if(leftMarker != null && rightMarker != null)
@@ -155,13 +156,26 @@ public class ZombieSnack : SnackBase {
 		if(zombiePrefab != null)
 		{
 			GameObject zombie = (GameObject)Instantiate(zombiePrefab);
+
+			//choose a random position and velocity
+
 			zombie.tag = "Snacks";
 			zombie.name = "Zombie" + zombieID.ToString();
+
+			//apply random position
 			ZombieController controller = zombie.GetComponent<ZombieController>();
 			if(controller != null)
 			{
-				controller.SetSpeed(speed);
+				controller.setRealWorldPos( new Vector3( Random.Range(-2,2), 0, (float)Platform.Instance.LocalPlayerPosition.Distance + 40) );
 			}
+			//apply speed
+			ConstantVelocityPositionController posController = zombie.GetComponent<ConstantVelocityPositionController>();
+			if(posController != null)
+			{
+				posController.setSpeed(speed);
+			}
+
+			//housekeeping
 			zombieList.Add(zombie);
 			numberOfZombies++;
 			zombieID++;

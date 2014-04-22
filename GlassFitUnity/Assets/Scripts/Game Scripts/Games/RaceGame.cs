@@ -12,80 +12,44 @@ public class RaceGame : GameBase {
 	public enum ActorType
 	{
 		Runner			= 1,
-		Cyclist			= 2,
-		Mo				= 3,
-		Paula 			= 4,
-		Chris			= 5,
-		Bradley 		= 6
+		Cyclist			= 2
 	}
 	
 	private ActorType currentActorType = ActorType.Runner;
     public List<GameObject> actors = new List<GameObject>();
 
-	
-//	// Minimap attributes
-//	private GameObject minimap;
-//	private const int MAP_RADIUS = 1;
-//	Texture2D selfIcon;
-//	Texture2D targetIcon;
-//	Texture2D mapTexture = null;
-//	Material mapStencil;
-//	const int mapAtlasRadius = 315; // API max width/height is 640
-//	const int mapZoom = 18;
-//	Position mapOrigo = new Position(0, 0);
-//	WWW mapWWW = null;
-//	Position fetchOrigo = new Position(0, 0);
-	
-//	private Rect debug;
-	//private const int MARGIN = 15;
-	
+	protected GameObject opponent;
+
+	private float targSpeed = 2.4f;
+
 	// Holds actor templates
 	public GameObject cyclistHolder;
 	public GameObject runnerHolder;
-	public GameObject moHolder;
-	public GameObject paulaHolder;
-	public GameObject chrisHolder;
-	public GameObject bradleyHolder;
 		
 	public override void Start () {
 		base.Start();
 		
-		//instantiate teh appropriate actor
+		//instantiate the appropriate actor
 		string tar = (string)DataVault.Get("type");
-		
+		if(tar == null)
+		{
+			tar = "Runner";
+		}
+
+		opponent = null;
+
 		switch(tar)
 		{
 		case "Runner":
 			currentActorType = ActorType.Runner;
+			opponent = runnerHolder;
 			targSpeed = 3.0f;
 			break;
 			
 		case "Cyclist":
 			currentActorType = ActorType.Cyclist;
-			break;
-			
-		case "Mo":
-			currentActorType = ActorType.Mo;
-			DataVault.Set("slider_val", 0.525f);
-			targSpeed = 6.059f;
-			break;
-			
-		case "Paula":
-			currentActorType = ActorType.Paula;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 4.91f;
-			break;
-			
-		case "Chris":
-			currentActorType = ActorType.Chris;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 15.686f;			
-			break;
-			
-		case "Bradley":
-			currentActorType = ActorType.Bradley;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 17.007f;	
+			opponent = cyclistHolder;
+			targSpeed = 2.4f;
 			break;
 		}
 		
@@ -94,15 +58,22 @@ public class RaceGame : GameBase {
 		runnerHolder.SetActive(false);
 		
 		Platform.Instance.ResetTargets();
-		
+
+		opponent.SetActive(true);
+
+		TargetTracker tracker;
 		if(selectedTrack != null) {
-			Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
-		} else {
-			Platform.Instance.CreateTargetTracker(targSpeed);
+			//create a target tracker position controller component and add it to the runner
+			tracker = Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
+			TargetTrackerPositionController posController = opponent.AddComponent<TargetTrackerPositionController>();
+			posController.tracker = tracker;
+		} 
+		else {
+			//create a fixed velocity target tracker
+			ConstantVelocityPositionController posController = opponent.AddComponent<ConstantVelocityPositionController>();
+			posController.velocity = new Vector3(0,0,targSpeed);
 		}
-		
-		InstantiateActors();
-		
+
 		//Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		//SetReadyToStart(true);
 		SetVirtualTrackVisible(true);
@@ -112,14 +83,6 @@ public class RaceGame : GameBase {
 	public void SetActorType(ActorType targ) {
 		currentActorType = targ;
 	}
-	
-//	public void OnGUI()
-//	{
-//		base.OnGUI();
-//	}
-		
-
-	
 	
 	protected void UpdateLeaderboard() {
 		double distance = Platform.Instance.LocalPlayerPosition.Distance;
@@ -160,7 +123,10 @@ public class RaceGame : GameBase {
 		TargetTracker upstream = null;
 		if (position > 1) upstream = trackers[position - 2]; // 1->0 indexing
 		TargetTracker downstream = null;
-		if (position < trackers.Count + 1) downstream = trackers[position - 1]; // 1->0 indexing
+		if (position < trackers.Count + 1) 
+		{
+			downstream = trackers[position - 1]; // 1->0 indexing
+		}
 			
 		if (upstream != null && downstream != null) {
 			if (Math.Abs(upstream.GetDistanceBehindTarget()) <= Math.Abs(downstream.GetDistanceBehindTarget())) nemesis = upstream;
@@ -184,82 +150,7 @@ public class RaceGame : GameBase {
 
 	
 	public override void Update () {
-
 		base.Update ();
-	
-		UpdateLeaderboard();
 	}
-	
-	
-	// Instantiate target actors based on actor type
-	void InstantiateActors() 
-	{				
-		// Remove current actors
-		foreach (GameObject actor in actors) {
-			Destroy(actor);
-		}
-		actors.Clear();
-		
-		GameObject template;
-		switch(currentActorType) {
-		case ActorType.Runner:
-			template = runnerHolder;
-			targSpeed = 3.0f;
-			break;
-		case ActorType.Cyclist:
-			template = cyclistHolder;
-			break;
-		case ActorType.Mo:
-			template = moHolder;
-			targSpeed = 6.059f;
-			DataVault.Set("slider_val", 0.525f);
-			finish = 10000;
-			break;
-		case ActorType.Paula:
-			template = paulaHolder;
-			DataVault.Set("slider_val", 0.4f);
-			targSpeed = 4.91f;
-			finish = 42195;
-			break;
-		case ActorType.Chris:
-			template = chrisHolder;
-			finish = 1000;
-			targSpeed = 17.007f;
-			break;
-		case ActorType.Bradley:
-			template = bradleyHolder;
-			finish = 4000;
-			targSpeed = 15.686f;			
-			break;
-		default:
-			throw new NotImplementedException("Unknown actor type: " + currentActorType);
-			break;
-		}
-		
-		
-//Don't create target trackers in the editor, since these rely on the real Platform being around, for now.
-#if !UNITY_EDITOR
-		List<TargetTracker> trackers = Platform.Instance.targetTrackers;
-		int lane = 1;
-		foreach (TargetTracker tracker in trackers) {
-			GameObject actor = Instantiate(template) as GameObject;
-			TargetController controller = actor.GetComponent<TargetController>();
-			controller.SetTracker(tracker);
-			controller.SetLane(lane++);
-			actor.SetActive(true);
-			actors.Add(actor);
-		}
-#else
-		GameObject actorDummy = Instantiate(template) as GameObject;
-		actorDummy.SetActive(true);
-		actors.Add(actorDummy);
-		UnityEngine.Debug.Log("RaceGame: instantiated actors");
-#endif
-	}
-	
-	// Listen for UnitySendMessage with multiplier updates
-	// Display the ner multiplier on screen for a second or so
-
-	
 }
 

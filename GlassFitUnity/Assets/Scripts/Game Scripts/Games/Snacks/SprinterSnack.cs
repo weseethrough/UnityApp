@@ -1,82 +1,54 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BoltSnack : SnackBase {
+public class SprinterSnack : SnackBase {
 	
-	// Usain Bolt's controller
-	private BoltController bolt;
+	// Sprinter's controller
+	private SprinterController sprinter;
 	
-	// Boolean to check if Bolt has finished the race
-	private bool boltFinished = false;
+	// Boolean to check if Sprinter has finished the race
+	private bool sprinterFinished = false;
 	
 	// Boolean to check if the player has finished the race
 	private bool playerFinished = false;
-	
-	// Boolean to check if the banner is being displayed
-	private bool displayingBanner = false;
-	
+
 	// The start time for the player
 	private long startTime = 0;
 	
 	// The end time for the player
 	private long finalTime = 0;
 	
-	StadiumController stadiumController;
+	RYWorldObject stadiumObject;
+	RYWorldObject finishLineObject;
 	
-	StadiumController finishController;
-	
-	private int boltLevel = 0;
+	private int sprinterLevel = 0;
 	
 	// Use this for initialization
 	public override void Start () {
 		base.Start();
 		
-		GameObject stadium = GameObject.Find("Stadium");
-		if(stadium != null)
-		{
-			stadiumController = stadium.GetComponent<StadiumController>();
-			if(stadiumController == null)
-			{
-				UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController");
-			}
-		}
-		else
-		{
-			UnityEngine.Debug.Log("BoltSnack: couldn't find Stadium object");
-		}
-		
-		stadium = GameObject.Find("Finish Line");
-		if(stadium != null)
-		{
-			finishController = stadium.GetComponent<StadiumController>();
-			if(finishController == null)
-			{
-				UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController");
-			}
-		}
-		else
-		{
-			UnityEngine.Debug.Log("BoltSnack: couldn't find Stadium object");
-		}
-		
-		boltLevel = (int)DataVault.Get("bolt_level");
+		stadiumObject = (RYWorldObject)GameObject.Find("Stadium").GetComponent<RYWorldObject>();
+		finishLineObject = (RYWorldObject)GameObject.Find("Finish Line").GetComponent<RYWorldObject>();
+		stadiumObject.setScenePositionFrozen(true);
+		finishLineObject.setScenePositionFrozen(true);
+		sprinterLevel = (int)DataVault.Get("sprinter_level");
 	}
 	
 	// Update is called once per frame
 	public override void Update () {
 		base.Update();
 		
-		// Check if bolt is enabled
-		if(bolt != null && bolt.enabled)
+		// Check if sprinter is enabled
+		if(sprinter != null && sprinter.enabled)
 		{
 			// Update the ahead/behind
-			UpdateAhead(bolt.GetDistanceBehindTarget());
+			UpdateAhead(sprinter.getWorldObject().GetDistanceBehindTarget());
 			
-			// If bolt has finished the race
-			if(bolt.GetBoltDistanceTravelled() >= 100 && !boltFinished)
+			// If sprinter has finished the race
+			if(sprinter.GetSprinterDistanceTravelled() >= 100 && !sprinterFinished)
 			{
 				// Set the boolean to true
-				boltFinished = true;
+				sprinterFinished = true;
 				
 				// Set the banner attributes and show it
 				if(!playerFinished) {
@@ -88,21 +60,21 @@ public class BoltSnack : SnackBase {
 			}
 			
 			// If the player finishes the race
-			if(bolt.GetPlayerDistanceTravelled() >= 100 && !playerFinished)
+			if(sprinter.GetPlayerDistanceTravelled() >= 100 && !playerFinished)
 			{
-				// If they finish before Bolt (unlikely)
-				if(!boltFinished) {
+				// If they finish before Sprinter (unlikely)
+				if(!sprinterFinished) {
 					// Set the attributes and show the banner
 					DataVault.Set("death_colour", "12D400FF");
 					DataVault.Set("snack_result", "You won!");
 					DataVault.Set("snack_result_desc", "Your enemy has leveled up!");
-					UnityEngine.Debug.Log("BoltSnack: Increasing level");
-					boltLevel++;
-					UnityEngine.Debug.Log("BoltSnack: Setting level in DataVault");
-					DataVault.Set("bolt_level", boltLevel);
-					UnityEngine.Debug.Log("BoltSnack: About to save to blob");
+					UnityEngine.Debug.Log("SprinterSnack: Increasing level");
+					sprinterLevel++;
+					UnityEngine.Debug.Log("SprinterSnack: Setting level in DataVault");
+					DataVault.Set("sprinter_level", sprinterLevel);
+					UnityEngine.Debug.Log("SprinterSnack: About to save to blob");
 					DataVault.SaveToBlob();
-					UnityEngine.Debug.Log("BoltSnack: Showing banner");
+					UnityEngine.Debug.Log("SprinterSnack: Showing banner");
 					StartCoroutine(ShowBanner(3.0f));
 				}
 				// Set the player finished to true
@@ -129,15 +101,17 @@ public class BoltSnack : SnackBase {
 	{
 		// Show the player's time for 5 seconds
 		DataVault.Set("countdown_subtitle", "100m time: " + finalTime / 1000 + " seconds");
-		if(stadiumController != null)
+		if(stadiumObject != null)
 		{
-			stadiumController.ShouldMove(false);
+			stadiumObject.setScenePositionFrozen(true);
 		}
 		
-		if(finishController != null)
+		if(finish != null)
 		{
-			finishController.ShouldMove(false);
+			finishLineObject.setScenePositionFrozen(true);
 		}
+
+		sprinter.getWorldObject().setScenePositionFrozen(true);
 		
 		yield return new WaitForSeconds(5.0f);
 		DataVault.Set("countdown_subtitle", "");
@@ -153,7 +127,7 @@ public class BoltSnack : SnackBase {
 		// Call the base function
 		base.Begin ();
 		// Set the default booleans
-		boltFinished = false;
+		sprinterFinished = false;
 		playerFinished = false;
 		SetTrack(false);
 		
@@ -177,7 +151,7 @@ public class BoltSnack : SnackBase {
 	/// </returns>
 	IEnumerator DoCountDown()
 	{
-		UnityEngine.Debug.Log("BoltSnack: Starting Countdown Coroutine");
+		UnityEngine.Debug.Log("SprinterSnack: Starting Countdown Coroutine");
 		for(int i=3; i>=0; i--)
 		{
 			//set value for subtitle. 0 = GO
@@ -189,25 +163,11 @@ public class BoltSnack : SnackBase {
 		}
 		//start the game
 		DataVault.Set("countdown_subtitle", " ");
-		
-		if(stadiumController != null)
-		{
-			stadiumController.ShouldMove(true);
-		}
-		else
-		{
-			UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController on stadium");
-		}
-		
-		if(finishController != null)
-		{
-			finishController.ShouldMove(true);
-		}
-		else
-		{
-			UnityEngine.Debug.Log("BoltSnack: couldn't find StadiumController on finish line");
-		}
-		
+
+		float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
+		stadiumObject.setScenePositionFrozen(false);
+		finishLineObject.setScenePositionFrozen(false);
+
 		StartRace();
 	}
 	
@@ -216,18 +176,18 @@ public class BoltSnack : SnackBase {
 	/// </summary>
 	void StartRace()
 	{
-		// Find bolt
-		bolt = GetComponent<BoltController>();
-		if(bolt)
+		// Find sprinter
+		sprinter = GetComponent<SprinterController>();
+		if(sprinter)
 		{
 			// Enable him and save the start time
-			bolt.enabled = true;
-			bolt.SetLevel(boltLevel);
+			sprinter.enabled = true;
+			sprinter.SetLevel(sprinterLevel);
 			startTime = Platform.Instance.LocalPlayerPosition.Time;
 		}
 		else
 		{
-			UnityEngine.Debug.Log("BoltSnack: can't find Bolt controller!");
+			UnityEngine.Debug.Log("SprinterSnack: can't find Sprinter controller!");
 		}
 	}
 }

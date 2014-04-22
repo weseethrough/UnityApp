@@ -23,9 +23,11 @@ namespace PositionTracker
 	[TestFixture]
 	public class PositionTrackerTest
 	{
-		public PositionTrackerTest ()
+		[Test]
+		public void PositionTrackerTest1 ()
 		{
 			PositionTracker positionTracker = new PositionTracker(new PositionProviderStub(), new SensorProviderStub());
+			Assert.IsTrue(true);
 		}
 	}
 }
