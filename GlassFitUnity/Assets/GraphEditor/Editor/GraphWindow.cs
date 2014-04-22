@@ -33,6 +33,8 @@ public class GraphWindow : EditorWindow, IDraw
     bool m_showExitManager;
     bool m_ctrlDown;
 
+    bool m_toggle;
+
     float m_zoomScale = 1.0f;
 
     string m_newExitName;
@@ -1001,7 +1003,7 @@ public class GraphWindow : EditorWindow, IDraw
                     
             index = EditorGUILayout.Popup(index, names);
 
-            if (index < 0 || index >= names.Length)
+            if (index <= 0 || index >= names.Length)
             {
                 connector.EventFunction = "";
             }
@@ -1220,41 +1222,46 @@ public class GraphWindow : EditorWindow, IDraw
 		EditorGUILayout.LabelField("Click buttons to add Node to graph",EditorStyles.boldLabel);
 		//GUILayout.FlexibleSpace();
 		EditorGUILayout.EndHorizontal();
+        
+        m_toggle = EditorGUILayout.ToggleLeft("Show node buttons", m_toggle);
 
-		for (int i=0; i<m_types.Count; ++i)
-		{
-			System.Type it = m_types[i];
-			//Debug.Log(it.Name);
-			if (it.IsAbstract)
-			{
-				continue;
-			}
-			string displayName = it.Name;						
+        if (m_toggle)
+        {
+            for (int i = 0; i < m_types.Count; ++i)
+            {
+                System.Type it = m_types[i];
+                //Debug.Log(it.Name);
+                if (it.IsAbstract)
+                {
+                    continue;
+                }
+                string displayName = it.Name;
 
-			// Note: EditorGUILayout works for static buttons
-			// GUI.Button is required if button visibility changes
-        	if (GUILayout.Button( displayName, GUILayout.Height(24) ))
-			{
-				GraphComponent gc = Graph;
-				if (gc != null)
-				{
-                    System.Object o = Activator.CreateInstance(it);
-                    GNodeBase newNode = (GNodeBase)o;// ScriptableObject.CreateInstance(it.Name);
-					newNode.Id = gc.Data.IdNext++;
-                    newNode.Position = GetNewPosition(newNode.Size.GetVector2());
-					SelectNode(newNode);
-					//Debug.Log("Pos = "+newNode.Position.ToString());
-					Graph.Data.Add(newNode);
-					UnityEditor.EditorUtility.SetDirty(gc.gameObject);
+                // Note: EditorGUILayout works for static buttons
+                // GUI.Button is required if button visibility changes
+                if (GUILayout.Button(displayName, GUILayout.Height(20)))
+                {
+                    GraphComponent gc = Graph;
+                    if (gc != null)
+                    {
+                        System.Object o = Activator.CreateInstance(it);
+                        GNodeBase newNode = (GNodeBase)o;// ScriptableObject.CreateInstance(it.Name);
+                        newNode.Id = gc.Data.IdNext++;
+                        newNode.Position = GetNewPosition(newNode.Size.GetVector2());
+                        SelectNode(newNode);
+                        //Debug.Log("Pos = "+newNode.Position.ToString());
+                        Graph.Data.Add(newNode);
+                        UnityEditor.EditorUtility.SetDirty(gc.gameObject);
 
-                    dirtySave = true;
-				}
-				else
-				{
-					Debug.LogWarning("Object does not contain GraphComponent!");
-				}
-			}
-		}
+                        dirtySave = true;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Object does not contain GraphComponent!");
+                    }
+                }
+            }
+        }
 
         //change layout only during proper event. We don't want to change it during repaint as it will error
         if (m_drawInfo == false && Event.current.type == EventType.Layout)
@@ -1349,9 +1356,23 @@ public class GraphWindow : EditorWindow, IDraw
         //StorageDictionary screensDictionary = Panel.GetPanelDictionary();
 
         int count = dict.Length();//screensDictionary == null ? 0 : screensDictionary.Length();
-        string[]  screens                   = count > 0 ? new string[count] : null;
+        List<string> screens = new List<string>();
 
-        selected = -1;
+        for (int i = 0; i < count; i++)
+        {
+            string screenName;
+            screenName = dict.GetName(i);
+            screens.Add(screenName);            
+        }
+
+        screens.Sort();
+
+        selected = screens.IndexOf(selectedName);
+
+        return screens.ToArray();
+        //string[]  screens                   = count > 0 ? new string[count] : null;
+
+       /* selected = -1;
 
         for (int i = 0; i < count; i++)
         {
@@ -1364,7 +1385,7 @@ public class GraphWindow : EditorWindow, IDraw
             }
         }
 
-        return screens;
+        return screens;*/
     }
 
     private string[] GetFunctionEventNames(string currentName, out int index)
@@ -1383,18 +1404,17 @@ public class GraphWindow : EditorWindow, IDraw
             //if (methods[i].IsStatic && methods[i].IsPublic)
             {
                 names.Add(methods[i].Name);
-                if (methods[i].Name == currentName)
-                {
-                    index = i;
-                }
+                
             }            
         }
 
-        names.Add("None");
+        names.Sort();
+        names.Insert(0, "None");
+        index = names.IndexOf(currentName) ;        
 
         if (index == -1)
         {
-            index = names.Count - 1;
+            index = 0;
         }
                 
         return names.ToArray();
