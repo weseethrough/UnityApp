@@ -29,7 +29,7 @@ namespace PositionTracker
 		// Platform-dependent providers of position and sensors
 		private IPositionProvider positionProvider;
 		private ISensorProvider sensorProvider;
-		
+		private AccelerationCalculator accCalc;
 		// Callback class for recurrent sensor polling
 		SensorPollTick sensorPollTick;
 		// Sensor poll timer
@@ -55,6 +55,7 @@ namespace PositionTracker
 		public PositionTracker(IPositionProvider positionProvider, ISensorProvider sensorProvider) {
 			this.positionProvider = positionProvider;
 			this.sensorProvider = sensorProvider;
+			accCalc = new AccelerationCalculator(sensorProvider);
 			speedState.CurrentState = State.STOPPED;
 			MinIndoorSpeed = 0.0f;
 			
@@ -416,10 +417,10 @@ namespace PositionTracker
 	            tickTime = Utils.CurrentTimeMillis();
 	
 	            // update buffers with most recent sensor sample
-	            dFaStats.AddValue(Math.Abs(sensorProvider.ForwardAcceleration-lastForwardAcc));
+	            dFaStats.AddValue(Math.Abs(positionTracker.accCalc.ForwardAcceleration-lastForwardAcc));
 	//            rmsForwardAcc = (float)Math.sqrt(0.95*Math.pow(rmsForwardAcc,2) + 0.05*Math.pow(getForwardAcceleration(),2));
-	            taStats.AddValue(sensorProvider.TotalAcceleration);
-	            dTaStats.AddValue(Math.Abs(sensorProvider.TotalAcceleration-lastTotalAcc));
+	            taStats.AddValue(positionTracker.accCalc.TotalAcceleration);
+	            dTaStats.AddValue(Math.Abs(positionTracker.accCalc.TotalAcceleration-lastTotalAcc));
 	            
 	            // compute some stats on the buffers
 	            // TODO: frequency analysis
@@ -437,8 +438,8 @@ namespace PositionTracker
 	            positionTracker.speedState.NextState(meanDta, (positionTracker.IndoorMode ? -1.0f : gpsSpeed));
 	            
 	            // save for next loop
-	            lastForwardAcc = sensorProvider.ForwardAcceleration;
-	            lastTotalAcc = sensorProvider.TotalAcceleration;
+	            lastForwardAcc = positionTracker.accCalc.ForwardAcceleration;
+	            lastTotalAcc = positionTracker.accCalc.TotalAcceleration;
 	            
 				float outdoorSpeed = positionTracker.CurrentSpeed;
 	            // adjust speed

@@ -15,8 +15,7 @@ namespace PositionTracker
 	
 	public class SensorProviderStub :  ISensorProvider	
 	{
-		public float ForwardAcceleration { get; set; }
-		public float TotalAcceleration { get; set; }
+		public float[] LinearAcceleration { get; set; }
 		
 	}
 	
