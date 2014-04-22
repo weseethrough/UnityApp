@@ -361,8 +361,8 @@ public abstract class Platform : SingletonBase
     public virtual void Authorize(string provider, string permissions) {
         if (Application.isPlaying) {
             // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no?
-            //GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
-            GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
+            GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
+            //GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
         }
     }
 
