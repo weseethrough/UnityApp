@@ -11,12 +11,19 @@ using System.Reflection;
 [Serializable]
 public class MultiPanel : Panel
 {
+    [Sqo.Attributes.Ignore]
     private List<MultiPanelChild> managedChildren;
+    [Sqo.Attributes.Ignore]
     private float dragTime;
-    private float dragOffset;    
+    [Sqo.Attributes.Ignore]
+    private float dragOffset;
+    [Sqo.Attributes.Ignore]
     private Vector3 firstGliph = Vector3.zero;
+    [Sqo.Attributes.Ignore]
     private TweenPosition firstTweener;
+    [Sqo.Attributes.Ignore]
     private float firstOffset = 0.0f;
+    [Sqo.Attributes.Ignore]
     private Vector2 firstTouchPosition;
 	
 	//private GestureHelper.OnTap tapHandler = null;
