@@ -29,6 +29,7 @@ namespace RaceYourself.Models
         // Game state
         
         [JsonConverter(typeof(LockedConverter))]
+        [JsonProperty("locked")]
         public string state; // "Locked" or "Unlocked"
         public bool enabled; // Can the user access this game? Server-driven; overrides player unlocks
         
@@ -86,12 +87,16 @@ class LockedConverter : JsonConverter
 {
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
-        writer.WriteValue(((bool)value) ? "Locked" : "Unlocked");
+        UnityEngine.Debug.Log("LockedConverter.WriteJson: value=" + value);
+        writer.WriteValue(((string) value) == "Locked");
+        //writer.WriteValue(((bool)value) ? "Locked" : "Unlocked");
     }
     
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
-        return reader.Value.ToString() == "Locked";
+        UnityEngine.Debug.Log("LockedConverter.ReadJson: value=" + reader.Value + ";existingValue=" + existingValue);
+        return ((bool) reader.Value) ? "Locked" : "Unlocked";
+        //return reader.Value.ToString() == "Locked";
     }
     
     public override bool CanConvert(Type objectType)

@@ -187,7 +187,7 @@ public class GameSelectPanel : HexPanel
             hbd.imageName = games[i].iconName;
 			
 			
-			if(games[i].type == "N/A")
+			if(!games[i].enabled)
 			{
 				hbd.displayInfoData = false;
 				hbd.textOverlay = "Coming Soon";
@@ -229,7 +229,7 @@ public class GameSelectPanel : HexPanel
 			
 			/*gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
 			
-			if(games[i].state == "Locked" && games[i].type != "N/A")
+			if(games[i].state == "Locked" && games[i].enabled)
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)

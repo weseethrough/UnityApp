@@ -37,7 +37,7 @@ public class DeviceControl : MonoBehaviour {
                 var game = gamesList[i];
 
                 // TODO remove all references to "N/A"; just use enabled and locked flags.
-				if(game.enabled && game.type != "Snack" && game.type != "N/A") {
+				if(game.enabled && game.type != "Snack") {
 					gameCount++;
 					chosenGame = gamesList[i];
 				}
