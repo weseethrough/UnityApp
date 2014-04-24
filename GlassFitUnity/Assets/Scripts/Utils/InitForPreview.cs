@@ -29,17 +29,7 @@ public class InitForPreview : MonoBehaviour {
 			
 			//Set the camera to clear everything
 			mainCamera.clearFlags = CameraClearFlags.SolidColor;
-			
-			//deactivate scripts on the camera
-			QCARBehaviour qcar = (QCARBehaviour) mainCamera.GetComponent("QCARBehaviour");
-			qcar.enabled = false;
-			DefaultInitializationErrorHandler errorHandler = (DefaultInitializationErrorHandler) mainCamera.GetComponent("DefaultInitializationErrorHandler");
-			errorHandler.enabled = false;
-			DataSetLoadBehaviour loadBehaviour = (DataSetLoadBehaviour) mainCamera.GetComponent("DataSetLoadBehaviour");
-			loadBehaviour.enabled = false;
-			WebCamBehaviour webCamBehaviour = (WebCamBehaviour) mainCamera.GetComponent("WebCamBehaviour");
-			webCamBehaviour.enabled = false;
-			
+
 			//do we also need to do something about the flow?
 		}
 	

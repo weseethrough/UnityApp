@@ -65,15 +65,6 @@ public class MinimalSensorCamera : MonoBehaviour {
 		});
 		GestureHelper.onThreeTap += threeHandler;
 
-		bool ARCameraOn = Convert.ToBoolean(DataVault.Get("camera_setting"));
-		if(!ARCameraOn)
-		{
-			GetComponentInChildren<QCARBehaviour>().enabled = false;
-			GetComponentInChildren<DefaultInitializationErrorHandler>().enabled = false;
-			GetComponentInChildren<WebCamBehaviour>().enabled = false;
-			GetComponentInChildren<KeepAliveBehaviour>().enabled = false;
-		}
-		
 		fovActive = Convert.ToBoolean(DataVault.Get("activity_fov"));
 		pitchActive = Convert.ToBoolean(DataVault.Get("activity_pitch"));
 	}
