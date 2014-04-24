@@ -18,6 +18,8 @@ public class MinimalAndroidPlatform : Platform
     public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
     private PlayerPosition _localPlayerPosition = new AndroidPlayerPosition ();
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
+    private BleController _bleController = new BleControllerAndroid ();
+    public override BleController BleController { get { return _bleController; } }
 
     // Native android class/object references
     private AndroidJavaClass build_class;

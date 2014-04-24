@@ -7,7 +7,7 @@ using SiaqodbUtils;
 
 public class BluetoothMessageListener : MonoBehaviour
 {
-    private Log log = new Log("NetworkMessageListener");
+    private Log log = new Log("BluetoothMessageListener");
     private Siaqodb db = DatabaseFactory.GetInstance();
 
     protected void OnBluetoothJson(JSONNode json) {

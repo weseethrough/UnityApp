@@ -23,6 +23,7 @@ public abstract class Platform : SingletonBase
 
     // Services that need platform-specific implementations
     public abstract PlayerPosition LocalPlayerPosition { get; }  // Holds the local player's position and bearing
+    public abstract BleController BleController { get; }  // Interface to BLE devices
 
     // Listeners for unity messages, attached to Platform game object in GetMonoBehavioursPartner
     public PositionMessageListener _positionMessageListener;
@@ -31,6 +32,8 @@ public abstract class Platform : SingletonBase
     public NetworkMessageListener NetworkMessageListener { get { return _networkMessageListener; } }
     public BluetoothMessageListener _bluetoothMessageListener;
     public BluetoothMessageListener BluetoothMessageListener { get { return _bluetoothMessageListener; } }
+    public BleMessageListener _bleMessageListener;
+    public BleMessageListener BleMessageListener { get { return _bleMessageListener; } }
 
     // internal platform tools
     private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
