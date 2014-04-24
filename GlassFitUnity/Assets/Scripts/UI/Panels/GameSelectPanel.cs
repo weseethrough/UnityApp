@@ -135,11 +135,8 @@ public class GameSelectPanel : HexPanel
 		
 		GestureHelper.onThreeTap += threeHandler;
 		
-#if !UNITY_EDITOR
 		List<Game> games = Platform.Instance.GetGames();
-#else
-        List<Game> games = PlatformDummy.Instance.GetGames();
-#endif
+
 		UnityEngine.Debug.Log("Games: There are currently " + games.Count + " games");
 		
 		HexButtonData hbd = GetButtonAt(0, 0);
@@ -190,7 +187,7 @@ public class GameSelectPanel : HexPanel
             hbd.imageName = games[i].iconName;
 			
 			
-			if(games[i].type == "N/A")
+			if(!games[i].enabled)
 			{
 				hbd.displayInfoData = false;
 				hbd.textOverlay = "Coming Soon";
@@ -232,7 +229,7 @@ public class GameSelectPanel : HexPanel
 			
 			/*gComponent.Data.Disconnect(gc, unlockExit.Link[0]);
 			
-			if(games[i].state == "Locked" && games[i].type != "N/A")
+			if(games[i].state == "Locked" && games[i].enabled)
 			{
 				gc.EventFunction = "SetGameDesc";
 				if(unlockExit.Link.Count > 0)
@@ -241,7 +238,7 @@ public class GameSelectPanel : HexPanel
 				}
 			}
 			else */
-			if(games[i].type == "Race") 
+			if(games[i].type == "Race" || games[i].type == "Bike") 
 			{
 				gc.EventFunction = "SetType";
 				if(raceExit.Link.Count > 0) 
@@ -286,7 +283,7 @@ public class GameSelectPanel : HexPanel
 
         }
 				
-        base.EnterStart();   
+        base.EnterStart();
     }
 	
 	public override void Exited ()

@@ -93,7 +93,12 @@ public class MinimalAndroidPlatform : Platform
         }
     }
 
-
+    public override TargetTracker CreateTargetTracker(int deviceId, int trackId){
+        TargetTracker t = TargetTracker.Build(helper, deviceId, trackId);
+        if (t == null) return null;
+        targetTrackers.Add(t);
+        return t;
+    }
 
 
     // *** Device information ***

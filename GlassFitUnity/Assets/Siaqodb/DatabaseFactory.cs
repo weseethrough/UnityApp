@@ -32,6 +32,7 @@ namespace SiaqodbUtils
                     Directory.CreateDirectory(siaoqodbPath);
                 }
                 instance = new Siaqodb(siaoqodbPath);
+				UnityEngine.Debug.Log("Siaqo path: " + siaoqodbPath);
             }
             return instance;
         }

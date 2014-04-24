@@ -26,6 +26,11 @@ public class Log
 		UnityEngine.Debug.LogWarning(tic() + "ms: " + tag + ": " + message);
 	}
 
+	public void error(String message)
+	{
+		UnityEngine.Debug.LogError(tic() + "ms: " + tag + ": " + message);
+	}
+
 	public void error(Exception e, String message)
 	{
 		UnityEngine.Debug.LogError(tic() + "ms: " + tag + ": " + message);

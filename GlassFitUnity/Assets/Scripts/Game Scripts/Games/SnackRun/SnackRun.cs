@@ -27,7 +27,7 @@ public class SnackRun : GameBase {
 		
 		if( !Platform.Instance.LocalPlayerPosition.IsIndoor() )
 		{
-			nextSnackDistance = 50.0f;
+			nextSnackDistance = 10.0f;
 			snackInterval = 100.0f;
 		}
 		
@@ -46,7 +46,9 @@ public class SnackRun : GameBase {
 		
 		//initialise minigame 
 		if(minigameToken != null)
-		{ minigameToken.SetDistance(nextSnackDistance); }
+		{ 
+			minigameToken.setRealWorldDist(nextSnackDistance); 
+		}
 	}
 
 	protected void ClearAheadBehind()
@@ -153,7 +155,7 @@ public class SnackRun : GameBase {
 		//shift token along and unhide
 		if(minigameToken != null)
 		{ 
-			minigameToken.SetDistance(nextSnackDistance);
+			minigameToken.setRealWorldDist(nextSnackDistance);
 			minigameToken.gameObject.SetActive(true);
 		}
 		

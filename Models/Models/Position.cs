@@ -51,7 +51,7 @@ namespace RaceYourself.Models
 
         public void save(Siaqodb db) {
             if (this.positionId <= 0) {
-                positionId = Sequence.Next("position", db);
+                positionId = Sequences.Instance.Next("position", db);
             }
 
             if (this.id <= 0)

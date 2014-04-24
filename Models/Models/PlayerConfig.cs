@@ -1,39 +1,43 @@
 using System;
 using Newtonsoft.Json;
+using Sqo.Attributes;
+using UnityEngine;
+using Sqo;
+using System.Collections.Generic;
 
 namespace RaceYourself.Models
 {
     //------------------------------------------------------------------------------
     // Config for the person playing the game (not a friend).
     //------------------------------------------------------------------------------
-    [JsonConverter(typeof(CustomConverter))]
     public class PlayerConfig
     {
-        /// Is the player a beta tester? Used to determine whether we should prompt them for feedback.
-        public string configuration;
+        [Index]
+        [UniqueConstraint]
+        public string id;
 
-        [JsonIgnore]
-        public ConfigurationPayload payload;
+        public string type; // ignore
+
+        /// Is the player a beta tester? Used to determine whether we should prompt them for feedback.
+        public Dictionary<String, bool> configuration;
+
+        public DateTime? created_at;
+
+        public DateTime? updated_at;
 
         public PlayerConfig ()
         {
 
         }
 
-        public PlayerConfig(string configuration)
+        public PlayerConfig(Dictionary<String, bool> configuration)
         {
             this.configuration = configuration;
         }
 
         public bool Test()
         {
-            return payload.test;
+            return configuration["test"];
         }
-    }
-
-    [JsonConverter(typeof(CustomConverter))]
-    public class ConfigurationPayload
-    {
-        public bool test;
     }
 }

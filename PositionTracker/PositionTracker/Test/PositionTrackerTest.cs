@@ -15,17 +15,18 @@ namespace PositionTracker
 	
 	public class SensorProviderStub :  ISensorProvider	
 	{
-		public float ForwardAcceleration { get; set; }
-		public float TotalAcceleration { get; set; }
+		public float[] LinearAcceleration { get; set; }
 		
 	}
 	
 	[TestFixture]
 	public class PositionTrackerTest
 	{
-		public PositionTrackerTest ()
+		[Test]
+		public void PositionTrackerTest1 ()
 		{
 			PositionTracker positionTracker = new PositionTracker(new PositionProviderStub(), new SensorProviderStub());
+			Assert.IsTrue(true);
 		}
 	}
 }

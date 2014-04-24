@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Controls the finish markers
 /// </summary>
-public class FinishMarker : MonoBehaviour {
+public class FinishMarker : RYWorldObject {
 	
 	// Target for the player to reach.
 	private int target;
@@ -18,24 +18,24 @@ public class FinishMarker : MonoBehaviour {
 	/// <summary>
 	/// Sets the initial position and target
 	/// </summary>
-	void Start () {
+	public override void Start () {
 		// Get the player's target.
-#if UNITY_EDITOR
-		target = 5000;
-#else
-		target = (int)DataVault.Get("finish");
-#endif	
-		// Set the initial position out of view.
-		transform.position = new Vector3(0f, -595f, 500000f);
+		target = GameBase.getTargetDistance();
+
+		base.Start();
+
+		setRealWorldDist(target);
+
 	}
 	
 	/// <summary>
 	/// Updates the position
 	/// </summary>
-	void Update () {
+	public override void Update () {
 		// Get the current distance travelled.
 		distance = Platform.Instance.LocalPlayerPosition.Distance;
-		// If the finish line is in range, display it.
+
+		//display ending bonus messages
 		if(distance > target - 100) 
 		{
 			DataVault.Set("ending_bonus", "Keep going for " + finalBonus.ToString("f0") + " bonus points!");
@@ -44,12 +44,11 @@ public class FinishMarker : MonoBehaviour {
 			} else {
 				finalBonus = 0;
 			}
-			double deltDist = target - distance;
-			//deltDist *= 135f;
-			transform.localPosition = new Vector3(0, 0f, (float)deltDist);
 		} else 
 		{
 			DataVault.Set("ending_bonus", "");
 		}
+
+		base.Update();
 	}
 }

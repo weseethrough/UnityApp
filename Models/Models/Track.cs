@@ -37,7 +37,7 @@ namespace RaceYourself.Models
         {
             if (this.trackId <= 0)
             {
-                trackId = Sequence.Next("track", db);
+                trackId = Sequences.Instance.Next("track", db);
             }
 
             if (this.id <= 0)

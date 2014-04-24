@@ -29,6 +29,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 	private bool timerActive = false;
 	private float yRotate = 0f;
 	private bool rearview = false;
+	private bool isCycling = false;
 	private bool noGrid = false;
 	private Vector3 scale;
 	
@@ -122,45 +123,43 @@ public class MinimalSensorCamera : MonoBehaviour {
 
 		}
 
-#if !UNITY_EDITOR
-		if(!noGrid) {
-			if(!started) {
-				if(GUI.Button(new Rect(200, 0, 400, 500), "", GUIStyle.none)) {
-					started = true;
-				}
-			} else {
-				// Check if the button is being held
-				if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
-				{ 
-					// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
-					if(timerActive) {
-						gridOn = false;
-					} else {
-						gridOn = true;
+		if(!Application.isEditor)
+		{
+			if(!noGrid) {
+				if(!started) {
+					if(GUI.Button(new Rect(200, 0, 400, 500), "", GUIStyle.none)) {
+						started = true;
 					}
-					gridTimer = 5.0f;
-				
-				}
-				else if(Event.current.type == EventType.Repaint)
-				{
-					// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
-					if(gridOn)
-					{
-						timerActive = true;
-					} else
-					{
-						gridTimer = 0.0f;
-						timerActive = false;
+				} else {
+					// Check if the button is being held
+					if(GUI.RepeatButton(new Rect(200, 0, 400, 250), "", GUIStyle.none))
+					{ 
+						// Activates the grid and reset the gyros if the timer is off, turns it off if the timer is on
+						if(timerActive) {
+							gridOn = false;
+						} else {
+							gridOn = true;
+						}
+						gridTimer = 5.0f;
+					
 					}
-				}	
+					else if(Event.current.type == EventType.Repaint)
+					{
+						// If the grid is on when the button is released, activate timer, else reset the timer and switch it off
+						if(gridOn)
+						{
+							timerActive = true;
+						} else
+						{
+							gridTimer = 0.0f;
+							timerActive = false;
+						}
+					}	
+				}
 			}
 		}
-		
-		
-#endif
+
 		GUI.matrix = Matrix4x4.identity;
-		
-		
 	}
 
 	// if the user does a 2-top to reset the gyros, we need to
@@ -288,7 +287,7 @@ public class MinimalSensorCamera : MonoBehaviour {
 			}
 		}
 		
-		if(pitchActive) {
+		if(pitchActive || isCycling) {
 			if(Platform.Instance.GetTouchCount() == 2)
 			{
 				Vector2? xChange = Platform.Instance.GetTouchInput();
@@ -333,6 +332,10 @@ public class MinimalSensorCamera : MonoBehaviour {
 		}
 		
 	}
+
+	public void SetCycling(bool cycling) {
+		isCycling = cycling;
+	}
 	
 	/// <summary>
 	/// Pauses the sensor rotation.
@@ -353,7 +356,5 @@ public class MinimalSensorCamera : MonoBehaviour {
 	{
 		GestureHelper.onTwoTap -= twoHandler;
 		GestureHelper.onThreeTap -= threeHandler;
-		//GestureHelper.onSwipeLeft -= leftHandler;
-		//GestureHelper.onTap -= tapHandler;
 	}
 }

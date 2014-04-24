@@ -63,6 +63,8 @@
     <Compile Include="IPositionProvider.cs" />
     <Compile Include="Test\SpeedStateTest.cs" />
     <Compile Include="Test\PositionTrackerTest.cs" />
+    <Compile Include="SpeedState.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

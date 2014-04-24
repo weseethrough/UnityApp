@@ -57,10 +57,15 @@
     <Compile Include="Date.cs" />
     <Compile Include="DefaultConverter.cs" />
     <Compile Include="Jsonable.cs" />
-    <Compile Include="JsonStringConverter.cs" />
+    <Compile Include="JsonStringConverter.cs">
+      <DependentUpon>ObjectIdConverter.cs</DependentUpon>
+    </Compile>
     <Compile Include="ObjectIdConverter.cs" />
     <Compile Include="Models\Game.cs" />
     <Compile Include="Models\PlayerConfig.cs" />
+    <Compile Include="Tests\SiaqoTests.cs" />
+    <Compile Include="Sequences.cs" />
+    <Compile Include="Compatibility\ConcurrentDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="JsonDotNet">
@@ -79,5 +84,8 @@
       <HintPath>..\Common\nunit.framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Compatibility\" />
   </ItemGroup>
 </Project>

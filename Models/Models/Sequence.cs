@@ -1,6 +1,7 @@
 ﻿using System;
 using Sqo;
 using Sqo.Attributes;
+using UnityEngine;
 
 namespace RaceYourself.Models
 {
@@ -18,21 +19,37 @@ namespace RaceYourself.Models
 			this.seq = 0;
 		}
 
-		public static int Next(string id, Siaqodb db)
-		{
-			var transaction = db.BeginTransaction ();
-			try {
-				var sequence = db.Cast<Sequence>().Where<Sequence>(s => s.id == id).FirstOrDefault();
-				if (sequence == null) sequence = new Sequence(id);
-				sequence.seq++;
-				db.StoreObject(sequence);
-				return sequence.seq;
-			} catch (Exception ex) {
-				transaction.Rollback ();
-				throw ex;
-				// TODO: Retry?
-			}
-		}
+        public static Sequence Get(string id, Siaqodb db) {
+            Exception fault = null;
+            for (int retries = 3; retries > 0; retries--) {
+                var transaction = db.BeginTransaction ();
+                try {
+                    var sequence = db.Query<Sequence> ().Where<Sequence> (s => s.id == id).FirstOrDefault ();
+                    if (sequence == null) {
+                        Console.WriteLine ("Sequence: creating sequence " + id);
+                        sequence = new Sequence (id);
+                        db.StoreObject (sequence, transaction);
+                        transaction.Commit ();
+                    }
+                    return sequence;    
+                } catch (Exception ex) {
+                    if (retries > 0) {
+                        Console.WriteLine ("Sequence: Failed to get sequence " + id + ", retrying " + retries + " times");
+                        //                        UnityEngine.Debug.LogException (ex);
+                    }
+                    transaction.Rollback ();
+                    fault = ex;
+                }
+            }
+            throw fault;
+        }
+
+        public void Save(Siaqodb db) {
+            if (!db.UpdateObjectBy ("id", this)) {
+                db.StoreObject (this);
+            }
+        }
+
 	}
 }
 

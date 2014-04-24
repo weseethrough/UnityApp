@@ -60,12 +60,10 @@ public class UISensorCamera : MonoBehaviour {
 		// Reset the Gyro at the start, didn't work in Start()
 		if(!started)
 		{            
-#if !UNITY_EDITOR
 			if (Platform.Instance.OnGlass())
             { 
                 Platform.Instance.GetPlayerOrientation().Reset();
             }
-#endif
             started = true;
 		}
 
@@ -98,29 +96,12 @@ public class UISensorCamera : MonoBehaviour {
 	/// </summary>
 	void Update () {
 		
-#if !UNITY_EDITOR
 		Quaternion newOffset = Platform.Instance.GetPlayerOrientation().AsQuaternion();
 		
 		//UnityEngine.Debug.Log("UISensorCamera: Euler angles are: " + newOffset.eulerAngles.x + ", " + newOffset.eulerAngles.y + ", " + newOffset.eulerAngles.z);
 		
-//		if((newOffset.eulerAngles.x > 30 && newOffset.eulerAngles.x < 330) || (newOffset.eulerAngles.y > 40 && newOffset.eulerAngles.y < 320)) 
-//		{
-//			DataVault.Set("tutorial_hint", "Tap with two fingers to center view");
-//			LoadingTextComponent.SetVisibility(true);
-//		}
-//		else
-//		{
-//			string tutHint = (string)DataVault.Get("tutorial_hint");
-//			if(tutHint == "Tap with two fingers to center view") {
-//				DataVault.Set("tutorial_hint", " ");
-//				//LoadingTextComponent.SetVisibility(false);
-//			}
-//			
-//		}
-		
 		transform.rotation = newOffset;
 		
-#endif
     }
 	
 	void OnDestroy() {

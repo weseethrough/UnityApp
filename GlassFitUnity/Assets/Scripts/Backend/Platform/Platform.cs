@@ -112,16 +112,13 @@ public abstract class Platform : SingletonBase
         if (Application.isPlaying) {
             db = DatabaseFactory.GetInstance();
             api = new API(db);
-            sessionId = Sequence.Next("session", db);
-
-            //DataVault.Set("loading", "Please wait while we sync the database");
-            //SyncToServer();
+            sessionId = Sequences.Instance.Next("session", db);
         }
 
 		if (OnGlass() && HasInternet()) {
 			log.info("Attempting authorize");
 			Authorize("any", "login");
-			log.info("Authorize complete");
+            log.info("Authorize complete");
 		}
 
 		log.info("Initializing bluetooth");
@@ -237,11 +234,10 @@ public abstract class Platform : SingletonBase
     
     public virtual PlayerConfig GetPlayerConfig()
     {
+        // TODO put in synchronise call.
         PlayerConfig cfg = null;
         IEnumerator e = api.get("configurations/unity", (body) => {
             cfg = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.PlayerConfig>>(body).response;
-            var payload = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.ConfigurationPayload>>(cfg.configuration).response;
-            cfg.payload = payload;
         });
         while(e.MoveNext()) {}; // block until finished
         return cfg;
@@ -288,18 +284,8 @@ public abstract class Platform : SingletonBase
     /// Typically used when building the main hex menu
     /// </summary>
     public virtual List<Game> GetGames() {
-        // check from DB
         // TODO: Change signature to IList<Game>
-
         var games = new List<Game>(db.LoadAll<Game>());
-
-//        List<Game> games = null;
-//        // or fetch from API
-//        IEnumerator e = api.get("games", (body) => {
-//            games = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Game>>(body).response;
-//        });
-//        while(e.MoveNext()) {}; // block until finished
-
         return games;
     }
 
@@ -376,6 +362,7 @@ public abstract class Platform : SingletonBase
         if (Application.isPlaying) {
             // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no?
             GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
+            //GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
         }
     }
 

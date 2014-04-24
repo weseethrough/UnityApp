@@ -23,8 +23,8 @@ public class LabelScroller : MonoBehaviour
 	public void Update ()
 	{		
 		velocity *= (1.0f-Math.Min(1.0f, Time.deltaTime*2));
-		
-#if !UNITY_EDITOR
+
+		//touch input
 		if (Platform.Instance.GetTouchCount() >= 1) {
 			Vector2? touch = Platform.Instance.GetTouchInput();
 			if (touch.HasValue) {
@@ -44,9 +44,10 @@ public class LabelScroller : MonoBehaviour
 				draggingStartPos = touch.Value;
 			}
 		} else draggingStartPos = null;
-#endif		
-#if UNITY_EDITOR
-        if (Input.GetMouseButtonDown(0))
+
+
+		//mouse input
+		if (Input.GetMouseButtonDown(0))
         {
             draggingStartPos = Input.mousePosition;
 			velocity = 0;
@@ -59,7 +60,7 @@ public class LabelScroller : MonoBehaviour
 
 			velocity = offset.y*25;
         }        
-#endif
+
        
 		Vector3 position = transform.position;
 		position.y += velocity*Time.deltaTime;

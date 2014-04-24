@@ -1,11 +1,11 @@
 using System;
+using Assimp;
 
 namespace PositionTracker
 {
 	public interface ISensorProvider	
 	{
-		float ForwardAcceleration { get; }
-		float TotalAcceleration { get; }
+		float[] LinearAcceleration { get; }
 		
 	}
 }
