@@ -522,8 +522,7 @@ namespace RaceYourself
 			public List<Models.Transaction> transactions;
 			public List<Models.Action> actions;
             public List<Models.Event> events;
-            public List<Models.Game> games;
-			
+    		
 			public Data(Siaqodb db, Device self) {
 				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
 				tracks = new List<Models.Track>(db.Cast<Models.Track>().Where<Models.Track>(t => t.dirty == true));
@@ -532,8 +531,7 @@ namespace RaceYourself
 				transactions = new List<Models.Transaction>(db.Cast<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
 				actions = new List<Models.Action>(db.LoadAll<Models.Action>());
                 events = new List<Models.Event>(db.LoadAll<Models.Event>());
-                games = new List<Models.Game>(db.LoadAll<Models.Game>());
-                
+
 				// Populate device_id
 				foreach (Models.Track track in tracks) {
 					track.deviceId = self.id;
@@ -579,11 +577,6 @@ namespace RaceYourself
                     db.StoreObject(n); // Store non-transient object by OID
                     updates++;
                 }
-                foreach (Models.Game g in games) {
-                    g.dirty = false;
-                    db.StoreObject(g); // Store non-transient object by OID
-                    updates++;
-                }
                 foreach (Models.Transaction t in transactions) {
 					if (t.deleted_at.HasValue) {
 						db.Delete(t);
@@ -612,8 +605,7 @@ namespace RaceYourself
 			{
 				return (LengthOrNull(devices) + " devices, "
                         + LengthOrNull(tracks) + " tracks, "
-                        + LengthOrNull(games) + " games, "
-						+ LengthOrNull(positions) + " positions, "
+            			+ LengthOrNull(positions) + " positions, "
 						+ LengthOrNull(notifications) + " notifications, "
 						+ LengthOrNull(transactions) + " transactions, "
 						+ LengthOrNull(actions) + " actions, "
