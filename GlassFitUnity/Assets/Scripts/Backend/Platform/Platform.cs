@@ -136,7 +136,9 @@ public abstract class Platform : SingletonBase
 			ConnectSocket();
 		}
 		
-		// start listening for 2-tap gestures to reset gyros
+		FB.Init(OnInitComplete, OnHideUnity);
+		
+        // start listening for 2-tap gestures to reset gyros
 		GestureHelper.onTwoTap += new GestureHelper.TwoFingerTap(() => {
             if (IsRemoteDisplay())
             {
@@ -363,9 +365,32 @@ public abstract class Platform : SingletonBase
 
     public virtual void Authorize(string provider, string permissions) {
         if (Application.isPlaying) {
-            // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no?
-            GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
-            //GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
+			switch(provider) {
+			case "facebook": {
+				FBLogin(permissions);
+				return;
+			}
+			case "twitter": {
+				NetworkMessageListener.OnAuthentication("Failure");
+                throw new NotImplementedException("Implement Twitter authorization in native platform or webview");
+				return;
+			}
+			case "google+": {
+				NetworkMessageListener.OnAuthentication("Failure");
+				throw new NotImplementedException("Implement Google+ authorization in native platform");
+                return;
+            }
+			case "any":
+			default: {
+	            // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no? 
+				//      Yes
+	            GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
+	            //GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
+				return;
+			}
+			}
+        } else {
+			NetworkMessageListener.OnAuthentication("Failure");
         }
     }
 
@@ -500,6 +525,42 @@ public abstract class Platform : SingletonBase
 	public virtual bool LeaveGroup(int groupId) {
 		throw new NotImplementedException();
 	}
+
+	// Facebook methods
+	private void OnInitComplete()
+	{
+		log.info("Facebook: FB.Init completed: Is user logged in? " + FB.IsLoggedIn);
+		if (FB.IsLoggedIn) log.info("Facebook: Logged in as " + FB.UserId + " " + FB.AccessToken);
+    }
 	
+	private void OnHideUnity(bool isGameShown)
+	{
+		log.info("Facebook: Is game showing? " + isGameShown);
+    }
+    
+	private void FBLogin(string permissions)
+	{
+		string scope = ""; // Default/"" = login only
+		// TODO: Convert our permissions to Facebook permissions
+		FB.Login(scope, LoginCallback);
+	}
 	
+	private void LoginCallback(FBResult result)
+	{
+		if (result.Error != null) {
+			log.error("Facebook: Error Response:\n" + result.Error);
+			NetworkMessageListener.OnAuthentication("Failure");
+        }
+		else if (!FB.IsLoggedIn)
+		{
+			log.info("Facebook: Login cancelled by Player");
+			NetworkMessageListener.OnAuthentication("Failure");
+		}
+		else
+		{
+			log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
+			NetworkMessageListener.OnAuthentication("Success");
+		}
+	}
+    
 }
