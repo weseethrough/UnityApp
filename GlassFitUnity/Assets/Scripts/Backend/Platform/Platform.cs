@@ -580,6 +580,7 @@ public abstract class Platform : SingletonBase
 	// Facebook methods
 	private void OnInitComplete()
 	{
+		Authorize("facebook", "login");
 		log.info("Facebook: FB.Init completed: Is user logged in? " + FB.IsLoggedIn);
 		if (FB.IsLoggedIn) {
 			log.info("Facebook: Logged in as " + FB.UserId + " " + FB.AccessToken);
