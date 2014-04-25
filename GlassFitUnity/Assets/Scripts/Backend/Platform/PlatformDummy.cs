@@ -35,6 +35,11 @@ public class PlatformDummy : Platform
 	private PlayerPoints _playerPoints;
 	public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
 
+    private BleController _bleController = new BleController();
+    public override BleController BleController {
+        get { return _bleController; }
+    }
+
 	private Stopwatch timer = new Stopwatch();
 	private System.Random random = new System.Random();
 	private long update = 0;

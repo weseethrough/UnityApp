@@ -18,6 +18,8 @@ public class IosPlatform : Platform
     public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
     private PlayerPosition _localPlayerPosition = new IosPlayerPosition ();
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
+    private BleController _bleController;
+    public override BleController BleController { get { return _bleController; } }
 
 	Log log = new Log("IosPlatform");
 
