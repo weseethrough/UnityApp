@@ -42,3 +42,8 @@ MobileList
 2DHUD
 screen1
 Retry
+MobileLogin
+MobileSignup
+MobileNotOnList
+MobilePleaseWait
+require reload
