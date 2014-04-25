@@ -18,7 +18,7 @@ public class MinimalAndroidPlatform : Platform
     public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
     private PlayerPosition _localPlayerPosition = new AndroidPlayerPosition ();
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
-    private BleController _bleController = new BleControllerAndroid ();
+    private BleController _bleController;
     public override BleController BleController { get { return _bleController; } }
 
     // Native android class/object references
@@ -59,6 +59,10 @@ public class MinimalAndroidPlatform : Platform
 
             log.info("Initializing AndroidPlayerPosition");
             _localPlayerPosition = new AndroidPlayerPosition();
+
+            log.info("Initializing BleControllerAndroid");
+            _bleController= new BleControllerAndroid (context);
+
         } catch (Exception e) {
             log.error(e, "JNI error in android initialisation main thread");
             Application.Quit();

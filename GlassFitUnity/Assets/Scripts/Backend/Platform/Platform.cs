@@ -194,6 +194,7 @@ public abstract class Platform : SingletonBase
             _positionMessageListener = obj.gameObject.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
             _networkMessageListener = obj.gameObject.AddComponent<NetworkMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
             _bluetoothMessageListener = obj.gameObject.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            _bleMessageListener = obj.gameObject.AddComponent<BleMessageListener>();  // listenes for BLE messages - new devices, services and characteristics data, e.g. heart-rate or cadence
 
             //post initialziation procedure
             partner = obj;

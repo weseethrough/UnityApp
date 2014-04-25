@@ -79,7 +79,7 @@ public class AndroidPlatform : Platform
 			_playerPoints = new LocalDbPlayerPoints();
 
             log.info("Initializing BleControllerAndroid");
-            _bleController = new BleControllerAndroid();
+            _bleController = new BleControllerAndroid(context);
 
 
 	    } catch (Exception e) {
