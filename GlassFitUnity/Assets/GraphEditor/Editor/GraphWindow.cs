@@ -1222,7 +1222,7 @@ public class GraphWindow : EditorWindow, IDraw
 
 			// Note: EditorGUILayout works for static buttons
 			// GUI.Button is required if button visibility changes
-        	if (GUILayout.Button( displayName, GUILayout.Height(24) ))
+        	if (GUILayout.Button( displayName, GUILayout.Height(18) ))
 			{
 				GraphComponent gc = Graph;
 				if (gc != null)
