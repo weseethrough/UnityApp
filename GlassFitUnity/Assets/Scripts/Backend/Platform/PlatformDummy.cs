@@ -58,7 +58,7 @@ public class PlatformDummy : Platform
 	
     public override bool OnGlass()
     {
-        return true;
+        return false;
     }
 	public override bool IsRemoteDisplay()
 	{
@@ -138,6 +138,7 @@ public class PlatformDummy : Platform
 	
 	protected override void Initialize()
 	{
+		base.Initialize();
 		try {
 			initialised = false;
 			_localPlayerPosition = new EditorPlayerPosition();
@@ -161,18 +162,15 @@ public class PlatformDummy : Platform
 	
 			UnityEngine.Debug.Log("Creating Platform Dummy instance");
 			
-			blobstore = Path.Combine(Application.persistentDataPath, blobstore);
-			blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+
 			var tag = "Player";
 			if (!Application.isPlaying) {
 				// Save to blob assets in editor
 				blobstore = blobassets;
 				tag = "Editor";
 			}
-			Directory.CreateDirectory(blobstore);
-			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
-			if (Application.isEditor) Directory.CreateDirectory(blobassets);
-			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
+
+
 				
 		
 			if (!initialised) {
@@ -398,5 +396,10 @@ public class PlatformDummy : Platform
     {
         return 0.0f;
     }
+
+	public override bool RequiresSoftwareBackButton ()
+	{
+		return true;
+	}
 }
 #endif

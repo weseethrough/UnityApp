@@ -116,7 +116,9 @@ public abstract class Platform : SingletonBase
 
 		//create the blob store directory
 		Directory.CreateDirectory(blobstore);
-
+		log.info(" blobstore: " + blobstore);
+		if (Application.isEditor) Directory.CreateDirectory(blobassets);
+		log.info(" blobassets: " + blobassets);
 		// Set initialised=true in overriden method
 	}
 	
@@ -538,6 +540,13 @@ public abstract class Platform : SingletonBase
 	public virtual bool LeaveGroup(int groupId) {
 		throw new NotImplementedException();
 	}
-	
+
+	/// <summary>
+	/// Does the current platform require a software back button. i.e. is this iOS?
+	/// </summary>
+	/// <returns><c>true</c>, if the platform requires there to be a back button in the software, <c>false</c> if there is a back button on the device.</returns>
+	public virtual bool RequiresSoftwareBackButton() {
+		return false;
+	}
 	
 }

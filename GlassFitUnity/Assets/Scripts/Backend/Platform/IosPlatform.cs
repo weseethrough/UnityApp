@@ -97,14 +97,14 @@ public class IosPlatform : Platform
 
     public override bool HasInternet ()
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
 		//TODO FIX
 		return false;
     }
 
     public override bool HasWifi ()
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
 		//TODO FIX
         //throw new NotImplementedException ();
 		return false;
@@ -112,7 +112,7 @@ public class IosPlatform : Platform
 
     public override bool IsDisplayRemote ()
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
 		return false;
@@ -120,7 +120,7 @@ public class IosPlatform : Platform
 
     public override bool HasGpsProvider ()
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
 		return true;
@@ -128,7 +128,7 @@ public class IosPlatform : Platform
     // *** iOS implementation of bluetooth ***
     public override bool IsBluetoothBonded ()
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
 		return false;
@@ -136,7 +136,7 @@ public class IosPlatform : Platform
 
     public override void BluetoothServer ()
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
 		return;
@@ -144,7 +144,7 @@ public class IosPlatform : Platform
 
     public override void BluetoothClient ()
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
 		return;
@@ -152,7 +152,7 @@ public class IosPlatform : Platform
 
     public override void BluetoothBroadcast (string json)
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
 		return;
@@ -160,7 +160,7 @@ public class IosPlatform : Platform
 
     public override string[] BluetoothPeers ()
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
 		return null;
@@ -222,10 +222,15 @@ public class IosPlatform : Platform
     // Should probably move to PlayerOrientation class
     public override float Yaw ()
     {
-		log.error("Not yet implemented for iOS");
+		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		return 0;
     }
+
+	public override bool RequiresSoftwareBackButton()
+	{
+		return true;
+	}
 }
 #endif
 
