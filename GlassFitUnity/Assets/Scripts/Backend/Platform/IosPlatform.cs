@@ -21,6 +21,15 @@ public class IosPlatform : Platform
 
 	Log log = new Log("IosPlatform");
 
+	/// <summary>
+	/// Initialize this instance.
+	/// </summary>
+	protected override void Initialize()
+	{
+		base.Initialize();
+		initialised = true;
+	}
+
     /// <summary>
     /// Called every frame by PlatformPartner to update internal state
     /// </summary>
@@ -29,7 +38,7 @@ public class IosPlatform : Platform
 
 	public override void Update ()
     {
-		log.info("IosPlatform.Update");
+		//log.info("IosPlatform.Update");
 		try {
 			_Update();
 		} catch(Exception e) {
@@ -48,7 +57,7 @@ public class IosPlatform : Platform
     /// </summary>
 	public override void Poll ()
     {
-		log.info("IosPlatform.Poll");
+		//log.info("IosPlatform.Poll");
 		try { _Poll(); }
 		catch(Exception e) {
 			log.exception(e);
@@ -156,21 +165,29 @@ public class IosPlatform : Platform
 		//TODO FIX
 		return null;
     }
-    // *** iOS implementation of blob-storage ***
-    // Will likely be replaced by database soon - don't bother implementing
-    public override byte[] LoadBlob (string id)
-    {
-		log.error("Not yet implemented for iOS");
-        //throw new NotImplementedException ();
-		return null;
-    }
 
-    public override void StoreBlob (string id, byte[] blob)
-    {
-		log.error("Not yet implemented for iOS");
-        //throw new NotImplementedException ();
-		return;
-    }
+//	[DllImport("__Internal")]
+//	private static extern byte[] _LoadBlob (string id);
+//
+//    // *** iOS implementation of blob-storage ***
+//    // Will likely be replaced by database soon - don't bother implementing
+//    public override byte[] LoadBlob (string id)
+//    {
+//		log.error("Load Blob Unity call: " + id);
+//        //throw new NotImplementedException ();
+//		return _LoadBlob (id);
+//    }
+//
+//	[DllImport("__Internal")]
+//	private static extern byte[] _StoreBlob (string id, byte[] blob);
+//
+//    public override void StoreBlob (string id, byte[] blob)
+//    {
+//		log.error("Store Blob Unity call: " + id);
+//        //throw new NotImplementedException ();
+//		_StoreBlob(id, blob);
+//		return;
+//    }
 
     public override void EraseBlob (string id)
     {
