@@ -64,6 +64,8 @@ public class UIPanelsManager
 
     public void LoadUIPanels()
     {
+        float startTime = Time.realtimeSinceStartup;        
+
         Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
         ISqoQuery<Dictionary<SerializedNodeBase>> q = db.Query<Dictionary<SerializedNodeBase>>();
         Dictionary<SerializedNodeBase> data = q.Where<Dictionary<SerializedNodeBase>>(r => r.name == DataStore.BlobNames.ui_panels.ToString()).First();
@@ -75,6 +77,9 @@ public class UIPanelsManager
         }
 
         panels = data;
+
+        float endTime = Time.realtimeSinceStartup;
+        Debug.Log("Loading time for uiPanels took " + (float)(endTime - startTime));
 
     }
 

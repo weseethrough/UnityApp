@@ -19,7 +19,7 @@ public class Panel : PanelBase
 												  "Friend List/ChallengeButton"};    
     public FlowPanelComponent panelNodeData;
 
-    [NonSerialized()] public GameObject physicalWidgetRoot;    
+    [NonSerialized()] public GameObject physicalWidgetRoot;
 
     /// <summary>
     /// default constructor

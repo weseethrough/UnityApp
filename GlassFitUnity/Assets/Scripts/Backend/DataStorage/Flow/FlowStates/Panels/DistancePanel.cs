@@ -9,9 +9,10 @@ using RaceYourself.Models.Blob;
 [Serializable]
 public class DistancePanel : HexPanel {
 	
-	GConnectorBase gameExit;
-	GConnectorBase tutorialExit;
-	GConnectorBase snackExit;
+    
+	GConnectorBase gameExit;    
+	GConnectorBase tutorialExit;    
+	GConnectorBase snackExit;    
 	string raceType;
 	
 	public DistancePanel() { }

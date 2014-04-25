@@ -6,12 +6,6 @@ using System.Collections.Generic;
 using System;
 using RaceYourself.Models.Blob;
 
-#if UNITY_EDITOR
-using UnityEditor; 
-using System.Reflection;
-#endif
-
-
 /// <summary>
 /// single component contains all integer, boolean float, double and string parameters which were defined public on one component. It allows for storage for serialziation and deserialziation
 /// </summary>

@@ -36,12 +36,15 @@ public class GraphComponent : GraphComponentBase
 
             GraphDataBase.Style = new GStyle();
 
-            DataStore.LoadStorage(DataStore.BlobNames.flow);
+            /*DataStore.LoadStorage(DataStore.BlobNames.flow);
 
             nextStartNavigateTo = "MasterFlow";
 
             LoadFlow(nextStartNavigateTo);
-            return;
+            return;*/
+
+            LoadFlow(nextStartNavigateTo);
+            
             //test area. Need to be removed after tests are done
 #if !UNITY_EDITOR
             //below is the example how to initialize game with specific flow
@@ -67,16 +70,29 @@ public class GraphComponent : GraphComponentBase
 			int toGameInt = PlayerPrefs.GetInt("toGame");
 			bool toGame = toGameInt > 0;
 			string flowName = "MainFlow";
-			if(toGame)
-			{
-				DataVault.Set("custom_redirection_point", "GameIntroExit");
-				flowName = "GameplayFlow";
-			}
-			else
-			{
-	            DataVault.Set("custom_redirection_point", "MenuPoint");
-	            flowName = "MainFlow";//"MobileUX";
-			}
+
+            if (Application.isEditor)
+            {
+                flowName = "MobileUX";
+            }
+            else
+            {
+
+                if (toGame)
+                {
+                    DataVault.Set("custom_redirection_point", "GameIntroExit");
+                    flowName = "GameplayFlow";
+                }
+                else
+                {
+                    DataVault.Set("custom_redirection_point", "MenuPoint");
+                    flowName = "MainFlow";//"MobileUX";
+                }
+            }
+
+
+            Debug.LogWarning("Switch flow to |" + flowName+"|");
+
             SetSelectedFlowByName(flowName);
 #endif
             
@@ -332,9 +348,14 @@ public class GraphComponent : GraphComponentBase
     public void LoadFlow(string name)
     {
         Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStaticInstance();
+
+        float startTime = Time.realtimeSinceStartup;
         ISqoQuery<GraphDataBase> q = db.Query<GraphDataBase>();
 
         GraphDataBase data = q.Where(d => d.Name == name).FirstOrDefault();
+
+        float endTime = Time.realtimeSinceStartup;
+        Debug.Log("Loading time for flow " + name + " took " + (float)(endTime - startTime));
 
         nextStartNavigateTo = name;
 

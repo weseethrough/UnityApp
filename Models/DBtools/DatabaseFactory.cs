@@ -18,7 +18,8 @@ namespace SiaqodbUtils
         {
             if (staticInstance == null)
             {
-                siaoqodbPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + @"database";
+                char slash = Path.DirectorySeparatorChar;
+                siaoqodbPath = Environment.CurrentDirectory + slash + @"Assets" + slash + @"StreamingAssets" + slash + @"database";
 
                 if (!Directory.Exists(siaoqodbPath))
                 {
