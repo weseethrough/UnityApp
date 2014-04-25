@@ -344,6 +344,15 @@ public abstract class Platform : SingletonBase
         return challenge;
     }
 
+	public virtual List<Challenge> FetchChallenges() {
+		List<Challenge> challenges = null;
+		IEnumerator e = api.get("challenges", (body) => {
+			challenges = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Challenge>>(body).response;
+		});
+		while(e.MoveNext()) {}; // block until finished
+		return challenges;
+	}
+
     public virtual Track FetchTrack(int deviceId, int trackId) {
         // Check db
         Track track = db.Cast<Track>().Where<Track>(t => t.deviceId == deviceId && t.trackId == trackId).FirstOrDefault();
