@@ -530,7 +530,10 @@ public abstract class Platform : SingletonBase
 	private void OnInitComplete()
 	{
 		log.info("Facebook: FB.Init completed: Is user logged in? " + FB.IsLoggedIn);
-		if (FB.IsLoggedIn) log.info("Facebook: Logged in as " + FB.UserId + " " + FB.AccessToken);
+		if (FB.IsLoggedIn) {
+			log.info("Facebook: Logged in as " + FB.UserId + " " + FB.AccessToken);
+			FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
+		}
     }
 	
 	private void OnHideUnity(bool isGameShown)
@@ -542,10 +545,10 @@ public abstract class Platform : SingletonBase
 	{
 		string scope = ""; // Default/"" = login only
 		// TODO: Convert our permissions to Facebook permissions
-		FB.Login(scope, LoginCallback);
+		FB.Login(scope, FacebookLoginCallback);
 	}
 	
-	private void LoginCallback(FBResult result)
+	private void FacebookLoginCallback(FBResult result)
 	{
 		if (result.Error != null) {
 			log.error("Facebook: Error Response:\n" + result.Error);
@@ -562,5 +565,11 @@ public abstract class Platform : SingletonBase
 			NetworkMessageListener.OnAuthentication("Success");
 		}
 	}
-    
+
+	private void FacebookMeCallback(FBResult result) {
+		if (result.Error == null) {
+			FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
+			log.info("Facebook me: " + JsonConvert.SerializeObject(me));
+		}
+	}    
 }
