@@ -6,6 +6,7 @@ namespace PositionTracker
 	public class AccelerationCalculator
 	{
 		private ISensorProvider sensorProvider;
+		// TODO:
 	    private Matrix4x4 deviceToWorldTransform = new Matrix4x4(); // rotation matrix to get from device co-ords to world co-ords
 
 		
@@ -13,11 +14,20 @@ namespace PositionTracker
 		{
 			this.sensorProvider = sensorProvider;
 		}
-		
+		// TODO:
 		public float ForwardAcceleration { get; set;}
-		public float TotalAcceleration { get; set; }
 		
-		
+		/**
+	     * Computes the magnitude of the device's acceleration vector
+     	* @return
+     	*/
+		public float TotalAcceleration { 
+			get {
+	        	float[] rawAcceleration3 = sensorProvider.LinearAcceleration;
+    	    	return (float)Math.Sqrt(Math.Pow(rawAcceleration3[0],2) + Math.Pow(rawAcceleration3[1],2) + Math.Pow(rawAcceleration3[2],2));
+			}
+		}
+
 		/**
      	* Computes the component of the device acceleration along a given axis (e.g. forward-backward)
      	* @param float[] (x,y,z) unit vector in real-world space
