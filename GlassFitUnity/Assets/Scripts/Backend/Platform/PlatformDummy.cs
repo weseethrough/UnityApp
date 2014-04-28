@@ -206,7 +206,6 @@ public class PlatformDummy : Platform
 			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
 			if (Application.isEditor) Directory.CreateDirectory(blobassets);
 			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
-				
 		
 			if (!initialised) {
 				playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
