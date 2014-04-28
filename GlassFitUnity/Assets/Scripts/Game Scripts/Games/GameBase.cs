@@ -453,32 +453,36 @@ public class GameBase : MonoBehaviour {
 			}
 		} else {
 			UnityEngine.Debug.Log("GameBase: Pause pressed, turning off");
-			pause = false;
-			autopause = false; // user can exit auto-pause by swiping down
+			 // user can exit auto-pause by swiping down
 			FlowState fs = FlowStateMachine.GetCurrentFlowState();
 			UnityEngine.Debug.Log("GameBase: flowstate obtained");
 			GConnector gConnect = fs.Outputs.Find(r => r.Name == "ReturnExit");
 		 	if(gConnect != null)
 			{
 				UnityEngine.Debug.Log("GameBase: found connection, following");
+				pause = false;
+				autopause = false;
+
+				if(started)
+				{
+					UnityEngine.Debug.Log("GameBase: Starting to track");
+					Platform.Instance.StartTrack();
+					UnityEngine.Debug.Log("GameBase: Track started successfully");
+				} 
+				else
+				{
+					countdown = false;
+					countTime = 3.0f;
+				}
+				OnUnpause();
+
 				fs.parentMachine.FollowConnection(gConnect);
 			} else
 			{
-				UnityEngine.Debug.Log("GameBase: Can't find exit - PauseExit");
+				UnityEngine.Debug.Log("GameBase: Can't find exit - ReturnExit");
 			}
 			
-			if(started)
-			{
-				UnityEngine.Debug.Log("GameBase: Starting to track");
-				Platform.Instance.StartTrack();
-				UnityEngine.Debug.Log("GameBase: Track started successfully");
-			} 
-			else
-			{
-				countdown = false;
-				countTime = 3.0f;
-			}
-			OnUnpause();
+
 		}
 	}
 	
