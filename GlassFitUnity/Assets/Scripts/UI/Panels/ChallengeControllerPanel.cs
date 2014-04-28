@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Diagnostics;
 using System;
 
 using RaceYourself.Models;
@@ -13,6 +14,15 @@ public class ChallengeControllerPanel : Panel {
 
 	GestureHelper.OnSwipeLeft leftHandler = null;
 	GestureHelper.OnSwipeRight rightHandler = null;
+
+	Stopwatch timer = null;
+
+	ChangeColour likeIcon = null;
+	ChangeColour dislikeIcon = null;
+
+	bool endOfChallenges = false;
+
+	bool changingColour = false;
 
 	int currentChallenge = -1;
 
@@ -53,6 +63,8 @@ public class ChallengeControllerPanel : Panel {
 	{
 		base.EnterStart ();
 
+		timer = new Stopwatch();
+
 		sampleChallengeList = CreateSampleChallenges();
 
 		DataVault.Set("chosen_challenges", " ");
@@ -70,6 +82,27 @@ public class ChallengeControllerPanel : Panel {
 
 			SetNewChallenge();
 		}
+
+		GameObject icon = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "LikeIcon");
+		if(icon != null) {
+			likeIcon = icon.GetComponent<ChangeColour>();
+			if(likeIcon != null) {
+				likeIcon.SetColours(new Color(2/255f, 204/255f, 42/255f));
+			}
+		} else {
+			UnityEngine.Debug.LogError("ChallengeControllerPanel: can't find like icon object");
+		}
+
+		icon = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "DislikeIcon");
+		if(icon != null) {
+			dislikeIcon = icon.GetComponent<ChangeColour>();
+			if(dislikeIcon != null) {
+				dislikeIcon.SetColours(new Color(2/255f, 204/255f, 42/255f));
+			}
+		} else {
+			UnityEngine.Debug.LogError("ChallengeControllerPanel: can't find dislike icon object");
+		}
+		
 	}
 
 	public override void StateUpdate ()
@@ -81,11 +114,15 @@ public class ChallengeControllerPanel : Panel {
 	public void DislikeChallenge() {
 		// TODO: Add code to save when a user dislikes a challenge
 
+		dislikeIcon.StartChange();
+
 		SetNewChallenge();
 	}
 
 	public void LikeChallenge() {
 		// TODO: Add code to save when a user likes a challenge
+		//changingColour = true;
+//		likeSelected = true;
 		string challengeString = (string)DataVault.Get("chosen_challenges");
 		if(challengeString == " ") {
 			DataVault.Set("chosen_challenges", sampleChallengeList[currentChallenge].type);
@@ -93,13 +130,18 @@ public class ChallengeControllerPanel : Panel {
 			DataVault.Set("chosen_challenges", challengeString + ", " + sampleChallengeList[currentChallenge].type);
 		}
 
+		likeIcon.StartChange();
+
 		SetNewChallenge();
 	}
 
 	public void SetNewChallenge() {
 		currentChallenge++;		
-		if(currentChallenge >= sampleChallengeList.Count) {
-			FollowFlowLinkNamed("Exit");
+		if(currentChallenge >= sampleChallengeList.Count && !endOfChallenges) {
+			endOfChallenges = true;
+			likeIcon.EndSection();
+			GestureHelper.onSwipeLeft -= leftHandler;
+			GestureHelper.onSwipeRight -= rightHandler;
 		} else {
 			DataVault.Set("challenge_mobile_name", sampleChallengeList[currentChallenge].name);
 			DataVault.Set("challenge_mobile_description", sampleChallengeList[currentChallenge].description);
