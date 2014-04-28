@@ -196,16 +196,16 @@ public class PlatformDummy : Platform
 			
 			blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 			blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
-			var tag = "Player";
-			if (!Application.isPlaying) {
-				// Save to blob assets in editor
-				blobstore = blobassets;
-				tag = "Editor";
-			}
-			Directory.CreateDirectory(blobstore);
-			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
-			if (Application.isEditor) Directory.CreateDirectory(blobassets);
-			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
+//			var tag = "Player";
+//			if (!Application.isPlaying) {
+//				// Save to blob assets in editor
+//				blobstore = blobassets;
+//				tag = "Editor";
+//			}
+//			Directory.CreateDirectory(blobstore);
+//			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
+//			if (Application.isEditor) Directory.CreateDirectory(blobassets);
+//			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 				
 		
 			if (!initialised) {
@@ -310,7 +310,7 @@ public class PlatformDummy : Platform
 	public override byte[] LoadBlob(string id) {
 		try {
 			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);			
-			return File.ReadAllBytes(Path.Combine(blobstore, id));			
+			return File.ReadAllBytes(Path.Combine(getBlobStorePath(), id));			
 		} catch (FileNotFoundException e) {
 			return LoadDefaultBlob(id);
 		}
@@ -331,10 +331,22 @@ public class PlatformDummy : Platform
 		}
 	}
 
+	protected string getBlobStorePath()
+	{
+		if(Application.isEditor && !Application.isPlaying)
+		{
+			return blobassets;
+		}
+		else
+		{
+			return blobstore;
+		}
+	}
+
     public override void StoreBlob(string id, byte[] blob)
     {
-        File.WriteAllBytes(Path.Combine(blobstore, id), blob);
-		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id);
+        File.WriteAllBytes(Path.Combine(getBlobStorePath(), id), blob);
+		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id + "to path: " + blobstore);
     }
 
 	public override void ResetBlobs ()
@@ -459,5 +471,9 @@ public class PlatformDummy : Platform
     {
         return 0.0f;
     }
+
+//	public override bool RequiresSoftwareBackButton() {
+//		return true;
+//	}
 }
 #endif
