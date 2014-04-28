@@ -231,6 +231,42 @@ namespace RaceYourself
 		}
 		
 		/// <summary>
+		/// Coroutine to link a third-party service to the logged in user.
+		/// </summary>
+		public IEnumerator LinkProvider(ProviderToken ptoken) {
+			log.info(string.Format("LinkProvider({0})", ptoken.provider));
+
+			string ret = "Failed";
+			try {
+				string body = JsonConvert.SerializeObject(ptoken);
+				
+				var encoding = new System.Text.UTF8Encoding();			
+				var headers = new Hashtable();
+				headers.Add("Content-Type", "application/json");
+				headers.Add("Authorization", "Bearer " + token.access_token);				
+
+				var post = new WWW(ApiUrl("credentials"), encoding.GetBytes(body), headers);
+				yield return post;
+				
+				if (!post.isDone) {}
+				
+				if (!String.IsNullOrEmpty(post.error)) {
+					log.error(string.Format("LinkProvider({0}) threw error: {1}", ptoken.provider, post.error));
+					ret = "Network error";
+					yield break;
+				}
+
+				IEnumerator e = UpdateAuthentications();
+				while(e.MoveNext()) yield return e.Current;
+
+				log.info(string.Format("LinkProvider({0}): succeeded", ptoken.provider));
+                
+                ret = "Success";
+            } finally {
+            }
+        }
+        
+        /// <summary>
 		/// Coroutine to sync the database to the server and back.
 		/// Triggers Platform.OnSynchronization upon completion.
 		/// </summary>

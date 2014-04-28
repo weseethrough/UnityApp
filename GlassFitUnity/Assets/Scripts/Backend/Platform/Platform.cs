@@ -395,6 +395,7 @@ public abstract class Platform : SingletonBase
 				//      Yes
 	            GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
 	            //GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
+				//NetworkMessageListener.OnAuthentication("Failure");
 				return;
 			}
 			}
@@ -542,6 +543,8 @@ public abstract class Platform : SingletonBase
 		if (FB.IsLoggedIn) {
 			log.info("Facebook: Logged in as " + FB.UserId + " " + FB.AccessToken);
 			FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
+		} else {
+			Authorize("facebook", "login");
 		}
     }
 	
@@ -571,7 +574,13 @@ public abstract class Platform : SingletonBase
 		else
 		{
 			log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
-			NetworkMessageListener.OnAuthentication("Success");
+			if (NetworkMessageListener.authenticated) {
+				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId)));
+				NetworkMessageListener.OnAuthentication("Success");
+			} else {
+				// OnAuthentication sent from coroutine
+				GetMonoBehavioursPartner().StartCoroutine(api.Login(FB.UserId + "@facebook", FB.AccessToken));
+			}
 		}
 	}
 
