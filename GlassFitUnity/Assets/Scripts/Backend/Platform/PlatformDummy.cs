@@ -196,16 +196,16 @@ public class PlatformDummy : Platform
 			
 			blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 			blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
-//			var tag = "Player";
-//			if (!Application.isPlaying) {
-//				// Save to blob assets in editor
-//				blobstore = blobassets;
-//				tag = "Editor";
-//			}
-//			Directory.CreateDirectory(blobstore);
-//			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
-//			if (Application.isEditor) Directory.CreateDirectory(blobassets);
-//			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
+			var tag = "Player";
+			if (!Application.isPlaying) {
+				// Save to blob assets in editor
+				blobstore = blobassets;
+				tag = "Editor";
+			}
+			Directory.CreateDirectory(blobstore);
+			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
+			if (Application.isEditor) Directory.CreateDirectory(blobassets);
+			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 				
 		
 			if (!initialised) {

@@ -987,5 +987,39 @@ public class ButtonFunctionCollection
 			DataVault.Set("custom_redirection_point", "MobileExit");
 		}
 		return true;
-	}
+    }
+
+    static public bool FacebookLogin(FlowButton button, FlowState panel)
+    {
+        // TODO if FB != null && FB.IsLoggedIn, hide button
+
+        FB.Login("", FacebookLoginCallback); // "" = zero permissions
+        return true;
+    }
+    
+    private void FacebookLoginCallback(FBResult result)
+    {
+        if (result.Error != null) {
+            log.error("Facebook: Error Response:\n" + result.Error);
+            // TODO show error
+        }
+        else if (!FB.IsLoggedIn)
+        {
+            log.info("Facebook: Login cancelled by Player");
+        }
+        else
+        {
+            log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
+            FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
+        }
+    }
+    
+    private void FacebookMeCallback(FBResult result) {
+        if (result.Error == null) {
+            FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
+            log.info("Facebook me: " + result.Text);
+            
+            // TODO update data vault with name/surname/email from FB
+        }
+    }
 }
