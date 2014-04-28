@@ -22,7 +22,7 @@ public class ChangeColour : MonoBehaviour {
 		UIWidget widget = GetComponent<UIWidget>();
 		float time = 0.0f;
 		while(time < 1.0f) {
-			UnityEngine.Debug.LogError((Color.Lerp(startColor, finalColor, time).ToString()));
+//			UnityEngine.Debug.LogError((Color.Lerp(startColor, finalColor, time).ToString()));
 			widget.color = Color.Lerp(startColor, finalColor, time);
 			time += Time.deltaTime * 3;
 			yield return null;
