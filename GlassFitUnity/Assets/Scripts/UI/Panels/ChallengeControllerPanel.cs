@@ -97,7 +97,7 @@ public class ChallengeControllerPanel : Panel {
 		if(icon != null) {
 			dislikeIcon = icon.GetComponent<ChangeColour>();
 			if(dislikeIcon != null) {
-				dislikeIcon.SetColours(new Color(2/255f, 204/255f, 42/255f));
+				dislikeIcon.SetColours(new Color(214/255f, 62/255f, 62/255f));
 			}
 		} else {
 			UnityEngine.Debug.LogError("ChallengeControllerPanel: can't find dislike icon object");
