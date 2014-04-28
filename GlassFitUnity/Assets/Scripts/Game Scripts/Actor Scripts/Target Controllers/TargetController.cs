@@ -19,7 +19,7 @@ public class TargetController : MonoBehaviour {
 	protected float xOffset = 0.0f;
 	
 	protected int lane = 1;
-	protected float lanePitch = 3.0f;
+	protected float lanePitch = 1.0f;
 	
 	// Use this for initialization
 	protected void Start () {		
