@@ -76,7 +76,7 @@ public class GraphComponent : MonoBehaviour
 			}
 			else
 			{
-                DataVault.Set("custom_redirection_point", "Exit"); // Exit to see first run flow; MenuPoint to jump to main menu
+                DataVault.Set("custom_redirection_point", "Mobile"); // Exit to see first run flow; MenuPoint to jump to main menu; Mobile to see mobile-only screens
 	            flowName = "MainFlow";//"MobileUX";
 			}
             SetSelectedFlowByName(flowName);
