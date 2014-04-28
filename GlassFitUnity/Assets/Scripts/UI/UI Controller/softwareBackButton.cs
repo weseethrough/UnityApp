@@ -7,12 +7,12 @@ public class softwareBackButton : MonoBehaviour {
 		if(Platform.Instance.RequiresSoftwareBackButton())
 		{
 			UnityEngine.Debug.Log("SoftwareBackButton: enabling software back button");
-			enabled = true;
+			gameObject.SetActive(true);
 		}
 		else
 		{
 			UnityEngine.Debug.Log("SoftwareBackButton: disabling software back button");
-			enabled = false;
+			gameObject.SetActive(false);
 		}
 	}
 

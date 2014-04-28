@@ -67,12 +67,18 @@ public class GraphComponent : MonoBehaviour
 #else
 			//to go in-game menu, or else to main menu point
 			int toGameInt = PlayerPrefs.GetInt("toGame");
-			bool toGame = toGameInt > 0;
+			bool toGame = (toGameInt == 1);
+			bool toMobile = (toGameInt == 2);
 			string flowName = "MainFlow";
 			if(toGame)
 			{
 				DataVault.Set("custom_redirection_point", "GameIntroExit");
 				flowName = "GameplayFlow";
+			}
+			else if(toMobile)
+			{
+				DataVault.Set("custom_redirection_point", "Exit");
+				flowName = "MobileUX";
 			}
 			else
 			{

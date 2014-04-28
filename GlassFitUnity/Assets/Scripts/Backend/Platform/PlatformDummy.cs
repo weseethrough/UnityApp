@@ -23,7 +23,7 @@ public class PlatformDummy : Platform
 {
 	const string STARTHEX_SCENE_NAME = "Assets/Scenes/Start Hex.unity";
 	const string SNACKRUN_SCENE_NAME = "Assets/Scenes/SnackRun.unity";
-
+	const string UITEST_SCENE_NAME = "Assets/Scenes/UITestScene.unity";
 
 	// Helper class for accessing the player's current position, speed and direction of movement
 	private PlayerPosition _localPlayerPosition;
@@ -96,25 +96,51 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
     {
-		PlayWithScene(STARTHEX_SCENE_NAME, false);
+		PlayWithScene(STARTHEX_SCENE_NAME, false, false);
 	}
 
 	[MenuItem("Race Yourself/Play from current Scene, with flow at Game Intro %[")]
 	public static void PlayFromCurrentGameScene()
 	{
-		PlayWithScene(null, true);
+		PlayWithScene(null, true, false);
 	}
 
 	[MenuItem("Race Yourself/Play from SnackRun Scene, with flow at Game Intro %]")]
 	public static void PlayFromSnackRunscene()
 	{
-		PlayWithScene(SNACKRUN_SCENE_NAME, true);
+		PlayWithScene(SNACKRUN_SCENE_NAME, true, false);
 	}
-	
-	protected static void PlayWithScene(string scene, bool toGame)
+
+	[MenuItem("Race Yourself/Play with Mobile UX %.")]
+    public static void PlayWithMobileUX()
 	{
-		//set the string for the exit we want to follow from the start node
-		PlayerPrefs.SetInt("toGame", toGame? 1:0);
+		PlayWithScene(STARTHEX_SCENE_NAME, false, true);
+	}
+
+	[MenuItem("Race Yourself/Load UITestScene %u")]
+	public static void LoadUITestScene()
+	{
+		EditorApplication.SaveCurrentSceneIfUserWantsTo();
+		EditorApplication.OpenScene(UITEST_SCENE_NAME);
+	}
+
+	protected static void PlayWithScene(string scene, bool toGame, bool toMobile)
+	{
+		//encode the 'intent' in this integer
+		if(toGame)
+		{
+			PlayerPrefs.SetInt("toGame", 1);
+		}
+		else if(toMobile)
+		{
+			PlayerPrefs.SetInt("toGame", 2);
+		}
+		else
+		{
+			PlayerPrefs.SetInt("toGame", 0);
+		}
+
+
 		//load scene, then play
 		if(scene != null)
 		{
