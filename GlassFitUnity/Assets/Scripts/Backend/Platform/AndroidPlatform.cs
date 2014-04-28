@@ -24,6 +24,11 @@ public class AndroidPlatform : Platform
         get { return _localPlayerPosition; }
     }
 
+    private BleController _bleController;
+    public override BleController BleController {
+        get { return _bleController; }
+    }
+
 	// Helper class for accessing/awarding points
 	private PlayerPoints _playerPoints;
 	public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
@@ -72,6 +77,11 @@ public class AndroidPlatform : Platform
 			_localPlayerPosition = new AndroidPlayerPosition();
 			log.info("Initializing LocalDbPlayerPoints");
 			_playerPoints = new LocalDbPlayerPoints();
+
+            log.info("Initializing BleControllerAndroid");
+            _bleController = new BleControllerAndroid(context);
+
+
 	    } catch (Exception e) {
             log.error(e, "Error in android initialisation main thread");
 			Application.Quit();
