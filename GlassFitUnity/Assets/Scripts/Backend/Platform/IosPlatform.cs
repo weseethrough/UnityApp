@@ -1,7 +1,7 @@
 using System;
 using RaceYourself.Models;
 using System.Runtime.InteropServices;
-
+using System.IO;
 using System.Collections.Generic;
 
 #if UNITY_IPHONE
@@ -20,6 +20,9 @@ public class IosPlatform : Platform
 	const float SWIPE_MIN_DIST = 10.0f;
 	const float TAP_MAX_DIST = 2.0f;
 
+	private string blobstore = "game-blob";
+	private string blobassets = "blob";
+
     // iOS implementation of services
     private PlayerPoints _playerPoints = new LocalDbPlayerPoints ();
     public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
@@ -28,13 +31,26 @@ public class IosPlatform : Platform
     private BleController _bleController;
     public override BleController BleController { get { return _bleController; } }
 
-	Log log = new Log("IosPlatform");
-
 	/// <summary>
 	/// Initialize this instance.
 	/// </summary>
 	protected override void Initialize()
 	{
+		UnityEngine.Debug.Log("Creating Platform Dummy instance");
+		
+		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
+		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+		var tag = "Player";
+		if (!Application.isPlaying) {
+			// Save to blob assets in editor
+			blobstore = blobassets;
+			tag = "Editor";
+		}
+		Directory.CreateDirectory(blobstore);
+		UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
+		if (Application.isEditor) Directory.CreateDirectory(blobassets);
+		UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
+
 		base.Initialize();
 
 		//find and store the gesture helper object, to send messages to
@@ -181,43 +197,49 @@ public class IosPlatform : Platform
 		return new string[0];
 	}
 
-//	[DllImport("__Internal")]
-//	private static extern byte[] _LoadBlob (string id);
-//
-//    // *** iOS implementation of blob-storage ***
-//    // Will likely be replaced by database soon - don't bother implementing
-//    public override byte[] LoadBlob (string id)
-//    {
-//		log.error("Load Blob Unity call: " + id);
-//        //throw new NotImplementedException ();
-//		return _LoadBlob (id);
-//    }
-//
-//	[DllImport("__Internal")]
-//	private static extern byte[] _StoreBlob (string id, byte[] blob);
-//
-//    public override void StoreBlob (string id, byte[] blob)
-//    {
-//		log.error("Store Blob Unity call: " + id);
-//        //throw new NotImplementedException ();
-//		_StoreBlob(id, blob);
-//		return;
-//    }
-
-    public override void EraseBlob (string id)
-    {
-		log.error("Not yet implemented for iOS");
-		//throw new NotImplementedException ();
+	public override byte[] LoadBlob(string id) {
+		try {
+			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);			
+			return File.ReadAllBytes(Path.Combine(blobstore, id));			
+		} catch (FileNotFoundException e) {
+			return LoadDefaultBlob(id);
+		}
+	}
+	
+	public byte[] LoadDefaultBlob(string id) {
+		try {
+			UnityEngine.Debug.Log("PlatformDummy: Loading default blob id: " + id);
+			if (blobassets.Contains("://")) {
+				var www = new WWW(Path.Combine(blobassets, id));
+				while(!www.isDone) {}; // block until finished
+				return www.bytes;
+			} else {
+				return File.ReadAllBytes(Path.Combine(blobassets, id));			
+			}
+		} catch (FileNotFoundException e) {
+			return new byte[0];
+		}
+	}
+	
+	public override void StoreBlob(string id, byte[] blob)
+	{
+		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
+		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id);
+	}
+	
+	public override void ResetBlobs ()
+	{
+		//Not entirely sure what this is supposed to do. Wil do nothing for now. AH
 		return;
-    }
+	}
+	
+	public override void EraseBlob (String id)
+	{
+		throw new NotImplementedException ();
+	}
 
-    public override void ResetBlobs ()
-    {
-		log.error("Not yet implemented for iOS");
-        //throw new NotImplementedException ();
-		return;
-    }
-    // *** iOS implementation of touch-input ***
+
+	// *** iOS implementation of touch-input ***
     // May not need native (unity has some functions) - check before implementing
     // Returns the int number of fingers touching glass's trackpad
     public override int GetTouchCount ()

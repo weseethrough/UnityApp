@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
 using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 using SimpleJSON;
 using RaceYourself;
@@ -50,13 +49,6 @@ public abstract class Platform : SingletonBase
     public int syncInterval = 10;  // Other components may change this to disable sync temporarily?
     public DateTime lastSync = new DateTime(0);
 
-	//protected string blobassets = "blob";
-	protected string blobassets = Path.Combine(Application.streamingAssetsPath, "blob");
-
-	//protected string blobstore = "game-blob";
-	protected string blobstore = Path.Combine(Application.persistentDataPath, "game-blob");
-
-	
     // TODO: fields that almost certainly want removing
     protected float yaw = -999.0f;
     protected bool started = false;
@@ -103,10 +95,7 @@ public abstract class Platform : SingletonBase
 
 		if (initialised == false)
         {
-			//blobstore = Path.Combine(Application.persistentDataPath, blobstore);
-			//blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
-
-			Initialize();
+            Initialize();
         }
 
         log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");        
@@ -115,13 +104,7 @@ public abstract class Platform : SingletonBase
 	protected virtual void Initialize()
 	{
 		connected = false;
-	    targetTrackers = new List<TargetTracker>();
-
-		//create the blob store directory
-		Directory.CreateDirectory(blobstore);
-		log.info(" blobstore: " + blobstore);
-		if (Application.isEditor) Directory.CreateDirectory(blobassets);
-		log.info(" blobassets: " + blobassets);
+	    targetTrackers = new List<TargetTracker>();	                
 		// Set initialised=true in overriden method
 	}
 	
@@ -152,10 +135,11 @@ public abstract class Platform : SingletonBase
 			// TODO: Non-blocking connect?
 			ConnectSocket();
 		}
-		
+
+
 		FB.Init(OnInitComplete, OnHideUnity);
-		
-        // start listening for 2-tap gestures to reset gyros
+
+		// start listening for 2-tap gestures to reset gyros
 		GestureHelper.onTwoTap += new GestureHelper.TwoFingerTap(() => {
             if (IsRemoteDisplay())
             {
@@ -172,6 +156,8 @@ public abstract class Platform : SingletonBase
             }
 		});
 	}
+
+
 
     /// <summary>
     /// Called every frame by PlatformPartner to update internal state
@@ -363,15 +349,6 @@ public abstract class Platform : SingletonBase
         return challenge;
     }
 
-	public virtual List<Challenge> FetchChallenges() {
-		List<Challenge> challenges = null;
-		IEnumerator e = api.get("challenges", (body) => {
-			challenges = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Challenge>>(body).response;
-		});
-		while(e.MoveNext()) {}; // block until finished
-		return challenges;
-	}
-
     public virtual Track FetchTrack(int deviceId, int trackId) {
         // Check db
         Track track = db.Cast<Track>().Where<Track>(t => t.deviceId == deviceId && t.trackId == trackId).FirstOrDefault();
@@ -398,25 +375,25 @@ public abstract class Platform : SingletonBase
 			}
 			case "twitter": {
 				NetworkMessageListener.OnAuthentication("Failure");
-                throw new NotImplementedException("Implement Twitter authorization in native platform or webview");
+				throw new NotImplementedException("Implement Twitter authorization in native platform or webview");
 				return;
 			}
 			case "google+": {
 				NetworkMessageListener.OnAuthentication("Failure");
 				throw new NotImplementedException("Implement Google+ authorization in native platform");
-                return;
-            }
+				return;
+			}
 			case "any":
 			default: {
-	            // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no? 
+				// TODO should this be in PlatformDummy? If on device, email/password should come from OS, no? 
 				//      Yes
-	            GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
-	            //GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
+				GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
+				//GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
 				//NetworkMessageListener.OnAuthentication("Failure");
 				return;
 			}
 			}
-        } else {
+		} else {
 			NetworkMessageListener.OnAuthentication("Failure");
         }
     }
@@ -448,37 +425,11 @@ public abstract class Platform : SingletonBase
 
     public abstract bool IsBluetoothBonded ();
 	
-	public virtual byte[] LoadBlob(string id) {
-		try {
-			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);			
-			return File.ReadAllBytes(Path.Combine(blobstore, id));			
-		} catch (FileNotFoundException e) {
-			return LoadDefaultBlob(id);
-		}
-	}
+    public abstract byte[] LoadBlob (string id);
 	
-	public byte[] LoadDefaultBlob(string id) {
-		try {
-			UnityEngine.Debug.Log("PlatformDummy: Loading default blob id: " + id);
-			if (blobassets.Contains("://")) {
-				var www = new WWW(Path.Combine(blobassets, id));
-				while(!www.isDone) {}; // block until finished
-				return www.bytes;
-			} else {
-				return File.ReadAllBytes(Path.Combine(blobassets, id));			
-			}
-		} catch (FileNotFoundException e) {
-			return new byte[0];
-		}
-	}
-	
-	public virtual void StoreBlob(string id, byte[] blob)
-	{
-		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
-		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id);
-	}
-	
-	public abstract void EraseBlob (string id);
+    public abstract void StoreBlob (string id, byte[] blob);
+
+    public abstract void EraseBlob (string id);
 
     public abstract void ResetBlobs ();
 
@@ -541,7 +492,9 @@ public abstract class Platform : SingletonBase
         return 0.0f;
     }
 	
-	
+	public virtual bool RequiresSoftwareBackButton() {
+		return false;
+	}
 	
 
 
@@ -579,14 +532,6 @@ public abstract class Platform : SingletonBase
 		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	/// Does the current platform require a software back button. i.e. is this iOS?
-	/// </summary>
-	/// <returns><c>true</c>, if the platform requires there to be a back button in the software, <c>false</c> if there is a back button on the device.</returns>
-	public virtual bool RequiresSoftwareBackButton() {
-		return false;
-	}
-	
 	// Facebook methods
 	private void OnInitComplete()
 	{
@@ -598,13 +543,13 @@ public abstract class Platform : SingletonBase
 		} else {
 			Authorize("facebook", "login");
 		}
-    }
+	}
 	
 	private void OnHideUnity(bool isGameShown)
 	{
 		log.info("Facebook: Is game showing? " + isGameShown);
-    }
-    
+	}
+	
 	private void FBLogin(string permissions)
 	{
 		string scope = ""; // Default/"" = login only
@@ -617,7 +562,7 @@ public abstract class Platform : SingletonBase
 		if (result.Error != null) {
 			log.error("Facebook: Error Response:\n" + result.Error);
 			NetworkMessageListener.OnAuthentication("Failure");
-        }
+		}
 		else if (!FB.IsLoggedIn)
 		{
 			log.info("Facebook: Login cancelled by Player");
@@ -635,11 +580,13 @@ public abstract class Platform : SingletonBase
 			}
 		}
 	}
-
+	
 	private void FacebookMeCallback(FBResult result) {
 		if (result.Error == null) {
 			FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
 			log.info("Facebook me: " + JsonConvert.SerializeObject(me));
 		}
 	}    
+
+	
 }
