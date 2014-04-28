@@ -15,7 +15,8 @@ public class ChallengeControllerPanel : Panel {
 	GestureHelper.OnSwipeLeft leftHandler = null;
 	GestureHelper.OnSwipeRight rightHandler = null;
 
-	Stopwatch timer = null;
+	bool isChanging = false;
+	float changeTime = 0.0f;
 
 	ChangeColour likeIcon = null;
 	ChangeColour dislikeIcon = null;
@@ -62,21 +63,23 @@ public class ChallengeControllerPanel : Panel {
 	public override void EnterStart ()
 	{
 		base.EnterStart ();
-
-		timer = new Stopwatch();
-
+		
 		sampleChallengeList = CreateSampleChallenges();
 
 		DataVault.Set("chosen_challenges", " ");
 
 		if(sampleChallengeList != null) {
 			leftHandler = new GestureHelper.OnSwipeLeft(() => {
-				DislikeChallenge();
+				if(!isChanging) {
+					DislikeChallenge();
+				}
 			});
 			GestureHelper.onSwipeLeft += leftHandler;
 
 			rightHandler = new GestureHelper.OnSwipeRight(() => {
-				LikeChallenge();
+				if(!isChanging) {
+					LikeChallenge();
+				}
 			});
 			GestureHelper.onSwipeRight += rightHandler;
 
@@ -109,6 +112,14 @@ public class ChallengeControllerPanel : Panel {
 	{
 		base.StateUpdate ();
 
+		if(isChanging) {
+			if(changeTime < 0.333f) {
+				changeTime += Time.deltaTime;
+			} else {
+				isChanging = false;
+				SetNewChallenge();
+			}
+		}
 	}
 
 	public void DislikeChallenge() {
@@ -116,7 +127,10 @@ public class ChallengeControllerPanel : Panel {
 
 		dislikeIcon.StartChange();
 
-		SetNewChallenge();
+		isChanging = true;
+		changeTime = 0.0f;
+
+//		SetNewChallenge();
 	}
 
 	public void LikeChallenge() {
@@ -132,14 +146,17 @@ public class ChallengeControllerPanel : Panel {
 
 		likeIcon.StartChange();
 
-		SetNewChallenge();
+		isChanging = true;
+		changeTime = 0.0f;
+
+//		SetNewChallenge();
 	}
 
 	public void SetNewChallenge() {
 		currentChallenge++;		
 		if(currentChallenge >= sampleChallengeList.Count && !endOfChallenges) {
 			endOfChallenges = true;
-			likeIcon.EndSection();
+			FlowState.FollowFlowLinkNamed("Exit");
 			GestureHelper.onSwipeLeft -= leftHandler;
 			GestureHelper.onSwipeRight -= rightHandler;
 		} else {
