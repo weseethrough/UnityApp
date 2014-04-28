@@ -5,7 +5,6 @@ public class softwareBackButton : MonoBehaviour {
 
 	void Awake () {
 		if(Platform.Instance.RequiresSoftwareBackButton())
-		if(false)
 		{
 			UnityEngine.Debug.Log("SoftwareBackButton: enabling software back button");
 			enabled = true;
