@@ -1044,8 +1044,7 @@ public class ButtonFunctionCollection
 
             UpdateLabel (widgetRoot, "ForenameInput", me.first_name);
             UpdateLabel (widgetRoot, "SurnameInput", me.last_name);
-            if (me.email != null && me.email.Length > 0)
-                UpdateLabel (widgetRoot, "EmailInput", me.email);
+            UpdateLabel (widgetRoot, "EmailInput", me.email);
         }
     }
 
@@ -1053,16 +1052,12 @@ public class ButtonFunctionCollection
     {
         GameObject inputField = GameObjectUtils.SearchTreeByName(widgetRoot, inputName);
         if (inputField == null)
+        {
             log.error("Unable to find " + inputName + " field in mobile signup panel!");
+        }
         else
         {
-            //inputField.GetComponent<UIInput>().enabled = false;
-            inputField.GetComponentInChildren<UILabel>().text = value;
-//            inputField.GetComponent<UIBasiclabel>().SetLabel(value);
-//            inputField.GetComponent<UIBasiclabel>().Apply();
-            //UIInput input = forenameInput.GetComponent<UIInput>();
-            //input.value = value;
-
+            inputField.GetComponent<UIBasiclabel>().SetLabel(value == null ? "" : value);
         }
     }
 }
