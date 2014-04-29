@@ -97,6 +97,7 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
     {
+		
 		PlayWithScene(STARTHEX_SCENE_NAME, false, false);
 	}
 
@@ -332,12 +333,14 @@ public class PlatformDummy : Platform
 
 	protected string getBlobStorePath()
 	{
-		if(Application.isEditor && !Application.isPlaying)
+		if(Application.isEditor)// && !Application.isPlaying)
 		{
+			//modify the actual assets directly in the editor
 			return blobassets;
 		}
 		else
 		{
+			//Use the 'store' - a writable copy for the play mode session
 			return blobstore;
 		}
 	}

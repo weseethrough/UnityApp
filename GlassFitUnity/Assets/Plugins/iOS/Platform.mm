@@ -25,7 +25,7 @@ extern "C" {
 //        NSLog(@"Platform IsPluggedIn native call");
     }
     
-    void _getDeviceInfo() {
+    char* _getDeviceInfo() {
         struct utsname systemInfo;
         uname(&systemInfo);
         
