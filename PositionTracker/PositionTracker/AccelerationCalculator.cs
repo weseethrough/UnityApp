@@ -1,18 +1,18 @@
 using System;
-using Assimp;
-
+// TODO: using Assimp;
 namespace PositionTracker
 {
 	public class AccelerationCalculator
 	{
 		private ISensorProvider sensorProvider;
 		// TODO:
-	    private Matrix4x4 deviceToWorldTransform = new Matrix4x4(); // rotation matrix to get from device co-ords to world co-ords
+	    //private Matrix4x4 deviceToWorldTransform = new Matrix4x4(); // rotation matrix to get from device co-ords to world co-ords
 
 		
 		public AccelerationCalculator (ISensorProvider sensorProvider)
 		{
 			this.sensorProvider = sensorProvider;
+			ForwardAcceleration = 0.0f;			
 		}
 		// TODO:
 		public float ForwardAcceleration { get; set;}

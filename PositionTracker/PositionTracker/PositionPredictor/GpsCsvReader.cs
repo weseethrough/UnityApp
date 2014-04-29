@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
 using RaceYourself.Models;
-using CSVFile;
+// TODO: backport library to .NET 3.5
+// https://code.google.com/p/csharp-csv-reader/
+
+// using CSVFile;
 
 namespace PositionPredictor
 {
 	public class GpsCsvReader
 	{
+/*		
 		private CSVReader csvReader = null;
 		// TODO: move to CSV reader class when it is moved out to a separate file
 		private enum CsvField {
@@ -135,6 +139,7 @@ namespace PositionPredictor
 				return index;
 			return 0;
 		}
+	*/
 
 	}
 }
