@@ -6,15 +6,17 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
-
+using RaceYourself;
 using RaceYourself.Models;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Every function in collection have to accept FlowButton and panel variable and return boolean helping to decide if navigation should continue or stop
 /// </summary>
-public class ButtonFunctionCollection  
+public class ButtonFunctionCollection
 {
-   
+    protected static Log log = new Log("ButtonFunctionCollection");  // for use by subclasses
+
     /// <summary>
     /// default testing function 
     /// </summary>
@@ -992,34 +994,75 @@ public class ButtonFunctionCollection
     static public bool FacebookLogin(FlowButton button, FlowState panel)
     {
         // TODO if FB != null && FB.IsLoggedIn, hide button
-
-        FB.Login("", FacebookLoginCallback); // "" = zero permissions
-        return true;
+        try
+        {
+            FB.Login("", FacebookLoginCallback); // "" = zero permissions
+            return true;
+        }
+        catch (Exception e) {
+            // TODO show error to user
+            DataVault.Set("facebook_error", e.Message);
+            log.error("Facebook: error:\n" + e.Message);
+            return false;
+        }
     }
     
-    private void FacebookLoginCallback(FBResult result)
+    private static void FacebookLoginCallback(FBResult result)
     {
-        if (result.Error != null) {
+        if (result.Error != null)
+        {
             log.error("Facebook: Error Response:\n" + result.Error);
-            // TODO show error
+            DataVault.Set("facebook_error", result.Error);
         }
         else if (!FB.IsLoggedIn)
         {
-            log.info("Facebook: Login cancelled by Player");
+            log.info("Facebook: Login cancelled by player");
         }
         else
         {
             log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
-            FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
+            try
+            {
+                FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
+            }
+            catch (Exception e)
+            {
+                DataVault.Set("facebook_error", e.Message);
+            }
         }
     }
     
-    private void FacebookMeCallback(FBResult result) {
-        if (result.Error == null) {
+    private static void FacebookMeCallback(FBResult result)
+    {
+        if (result.Error == null)
+        {
             FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
             log.info("Facebook me: " + result.Text);
-            
-            // TODO update data vault with name/surname/email from FB
+
+            Panel signupPanel = (Panel) FlowStateMachine.GetCurrentFlowState();
+            GameObject widgetRoot = signupPanel.physicalWidgetRoot;
+
+            UpdateLabel (widgetRoot, "ForenameInput", me.first_name);
+            UpdateLabel (widgetRoot, "SurnameInput", me.last_name);
+            if (me.email != null && me.email.Length > 0)
+                UpdateLabel (widgetRoot, "EmailInput", me.email);
+        }
+    }
+
+    private static void UpdateLabel(GameObject widgetRoot, string inputName, string value)
+    {
+        GameObject inputField = GameObjectUtils.SearchTreeByName(widgetRoot, inputName);
+        if (inputField == null)
+            log.error("Unable to find " + inputName + " field in mobile signup panel!");
+        else
+        {
+            //inputField.GetComponent<UIInput>().enabled = false;
+            inputField.GetComponentInChildren<UILabel>().text = value;
+//            inputField.GetComponent<UIBasiclabel>().SetLabel(value);
+//            inputField.GetComponent<UIBasiclabel>().Apply();
+            //UIInput input = forenameInput.GetComponent<UIInput>();
+            //input.value = value;
+
         }
     }
 }
