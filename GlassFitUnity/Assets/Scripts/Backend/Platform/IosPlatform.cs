@@ -66,10 +66,17 @@ public class IosPlatform : Platform
         // TODO: update any internal state that only needs to change *during* a race
     }
 
-    public override Device DeviceInformation ()
-    {
-        return new Device ("Apple", "iUnknown");
-    }
+	[DllImport("__Internal")]
+	private static extern string _getDeviceInfo();
+
+	public override Device DeviceInformation ()
+	{
+		return new Device ("Apple", "iUnknown");
+		string deviceModel = _getDeviceInfo();
+		log.info("device model : " + deviceModel);
+		return new Device ("Apple", deviceModel);
+	}
+
 
     public override bool OnGlass ()
     {

@@ -7,6 +7,8 @@
 //
 
 #import "Platform.h"
+#import <sys/utsname.h>
+
 
 @implementation Platform
 
@@ -24,6 +26,13 @@ extern "C" {
 //        NSLog(@"Platform IsPluggedIn native call");
     }
     
+    char* _getDeviceInfo() {
+        struct utsname systemInfo;
+        uname(&systemInfo);
+        
+        char* machine = systemInfo.machine;
+        return machine;
+
 }
 
 @end
