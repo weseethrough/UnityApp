@@ -110,6 +110,9 @@
       <HintPath>..\Common\nunit.framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Ionic.Zip">
+      <HintPath>..\GlassFitUnity\Assets\Zlib\Ionic.Zip.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>xcopy /y "$(TargetDir)$(TargetName).pdb" "$(TargetDir)GlassFitUnity\Assets\Scripts\Backend\Platform\Models\"</PostBuildEvent>

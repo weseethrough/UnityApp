@@ -5,12 +5,13 @@ using System.Text;
 using System.IO;
 using Sqo;
 using UnityEngine;
+using Ionic.Zip;
 
 namespace SiaqodbUtils
 {
     public class DatabaseFactory
     {
-        public static string siaoqodbPath;
+        public static string siaqodbPath;
         private static Siaqodb writableInstance;
         private static Siaqodb staticInstance;
 
@@ -19,13 +20,36 @@ namespace SiaqodbUtils
             if (staticInstance == null)
             {
                 char slash = Path.DirectorySeparatorChar;
-                siaoqodbPath = Environment.CurrentDirectory + slash + @"Assets" + slash + @"StreamingAssets" + slash + @"database";
+                siaqodbPath = Path.Combine(Application.streamingAssetsPath, @"database");
 
-                if (!Directory.Exists(siaoqodbPath))
+                if (siaqodbPath.Contains("://")) {
+                    var basePath = Application.persistentDataPath;
+                    if (!Directory.Exists(basePath))
+                    {
+                        Directory.CreateDirectory(basePath);
+                    }
+                    siaqodbPath = Path.Combine(Application.persistentDataPath, @"assets/database");
+                    if (!Directory.Exists(siaqodbPath))
+                    {
+                        Directory.CreateDirectory(siaqodbPath);
+                    }
+
+                    var jarFile = Application.dataPath;
+                    var zipFile = new ZipFile(jarFile);
+                    foreach (var zipEntry in zipFile)
+                    {
+                        if (zipEntry.FileName.StartsWith("assets/database/")) {
+                            zipEntry.Extract(basePath);
+                        }
+                    }
+
+                } 
+
+                if (!Directory.Exists(siaqodbPath))
                 {
-                    Directory.CreateDirectory(siaoqodbPath);
+                    Directory.CreateDirectory(siaqodbPath);
                 }
-                staticInstance = new Siaqodb(siaoqodbPath);
+                staticInstance = new Siaqodb(siaqodbPath);
             }
             return staticInstance;
         }
@@ -36,18 +60,18 @@ namespace SiaqodbUtils
             {
               
                 //if ANDROID:
-                siaoqodbPath = Application.persistentDataPath;
+                siaqodbPath = Application.persistentDataPath;
                 //if Windows or MAC
                 //siaoqodbPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + @"database";
                 
                 //if iOS (iPhone /iPad)
                 //siaoqodbPath =Application.dataPath;
 		
-                if (!Directory.Exists(siaoqodbPath))
+                if (!Directory.Exists(siaqodbPath))
                 {
-                    Directory.CreateDirectory(siaoqodbPath);
+                    Directory.CreateDirectory(siaqodbPath);
                 }
-                writableInstance = new Siaqodb(siaoqodbPath);
+                writableInstance = new Siaqodb(siaqodbPath);
             }
             return writableInstance;
         }
