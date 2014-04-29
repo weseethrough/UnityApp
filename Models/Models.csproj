@@ -34,6 +34,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="Blob\Dictionary.cs" />
+    <Compile Include="Blob\PersistentData.cs" />
     <Compile Include="Tests\JsonTests.cs" />
     <Compile Include="Models\Action.cs" />
     <Compile Include="Models\Cache.cs" />
@@ -86,7 +88,5 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Compatibility\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>

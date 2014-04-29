@@ -5,20 +5,20 @@ using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using Sqo;
 
 [System.Serializable]
 public class DataEntry
-{        
+{
     //warning some objects might not be serializable!
     //If you use this class for serialization process ensure it does check on stored value
-    public System.Object    storedValue;    
-    public bool             persistent;
-    public int              OID;
+    public System.Object storedValue;
+    public bool persistent;
 
     public DataEntry(System.Object v, bool p)
     {
         storedValue = v;
-        persistent  = p;        
+        persistent = p;
     }
 }
 
@@ -27,7 +27,7 @@ public class DataEntry
 /// Class used to centralize access for variables. Is working on top on DataStorage
 /// </summary>
 [ExecuteInEditMode]
-public class DataVault : MonoBehaviour 
+public class DataVault : MonoBehaviour
 {
     enum Types
     {
@@ -38,19 +38,19 @@ public class DataVault : MonoBehaviour
     }
 
     const string STARTING_BRACKET = "<db_";
-    const string ENDING_BRACKET = ">";    
+    const string ENDING_BRACKET = ">";
 
     static public Dictionary<string, DataEntry> data;
     static public Dictionary<string, List<UIComponentSettings>> registeredListeners;
     static public Dictionary<UIComponentSettings, List<string>> registrationRecord;
-    
+
 
     /// <summary>
     /// default unity initialziation function is preparing datavault and loads variables to useful easy to search dictionaries
     /// </summary>
     /// <returns></returns>
     void Start()
-    {        
+    {
         Initialize();
     }
 
@@ -60,13 +60,41 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     static public void SaveToBlob()
     {
+        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetInstance();
+
+        ISqoQuery<RaceYourself.Models.Blob.PersistentData> q = db.Query<RaceYourself.Models.Blob.PersistentData>();
+
+        RaceYourself.Models.Blob.PersistentData vault = null;
+        if (q.Count() > 0)
+        {
+            vault = q.First();
+        }
+        else
+        {
+            vault = new RaceYourself.Models.Blob.PersistentData();
+        }
+
+        //load all stored data to local structure (later can be replaced by usage of remote type only
+        foreach (KeyValuePair<string, DataEntry> de in data)
+        {
+            DataEntry dEntry = de.Value;
+
+            if (dEntry.persistent == true)
+            {
+                vault.AddData(de.Key, dEntry.storedValue);
+            }
+        }
+
+        db.StoreObject(vault);
+        return;
+        /*
         Storage s = DataStore.GetStorage(DataStore.BlobNames.persistent);
         if (s == null) return;
 
         //process all stored types and write them into 
         StorageDictionaryBase<int> intStorage       = new StorageDictionaryBase<int>();
         StorageDictionaryBase<bool> boolStorage     = new StorageDictionaryBase<bool>();
-        StorageDictionaryBase<double> doubleStorage = new StorageDictionaryBase<double>();        
+        StorageDictionaryBase<double> doubleStorage = new StorageDictionaryBase<double>();       
         StorageDictionaryBase<string> stringStorage = new StorageDictionaryBase<string>();
 
         foreach (var pair in data)
@@ -98,7 +126,7 @@ public class DataVault : MonoBehaviour
         s.dictionary.Set(Types.Boolean.ToString(), boolStorage   );
         s.dictionary.Set(Types.String .ToString(), stringStorage );
 
-        DataStore.SaveStorage(DataStore.BlobNames.persistent);
+        DataStore.SaveStorage(DataStore.BlobNames.persistent);*/
     }
 
     /// <summary>
@@ -107,11 +135,47 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     static public void Initialize()
     {
+
         if (data != null) return;
 
-        data = new Dictionary<string, DataEntry>();
         registeredListeners = new Dictionary<string, List<UIComponentSettings>>();
         registrationRecord = new Dictionary<UIComponentSettings, List<string>>();
+
+        data = new Dictionary<string, DataEntry>();
+
+        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetInstance();
+        ISqoQuery<RaceYourself.Models.Blob.PersistentData> q = db.Query<RaceYourself.Models.Blob.PersistentData>();
+
+        RaceYourself.Models.Blob.PersistentData vault = q.FirstOrDefault();
+
+        //load all stored data to local structure (later can be replaced by usage of remote type only
+        if (vault != null)
+        {
+            foreach (RaceYourself.Models.Blob.DictionaryEntry<int> val in vault.listInt)
+            {
+                data[val.name] = new DataEntry(val.data, true);
+            }
+
+            foreach (RaceYourself.Models.Blob.DictionaryEntry<bool> val in vault.listBool)
+            {
+                data[val.name] = new DataEntry(val.data, true);
+            }
+
+            foreach (RaceYourself.Models.Blob.DictionaryEntry<double> val in vault.listDouble)
+            {
+                data[val.name] = new DataEntry(val.data, true);
+            }
+
+            foreach (RaceYourself.Models.Blob.DictionaryEntry<string> val in vault.listStr)
+            {
+                data[val.name] = new DataEntry(val.data, true);
+            }
+
+
+            return;
+        }
+
+        /*
 
         Storage s = DataStore.GetStorage(DataStore.BlobNames.persistent);
         if (s == null) return;
@@ -175,7 +239,8 @@ public class DataVault : MonoBehaviour
                     data[name] = new DataEntry(value, true);
                 }
             }
-        }                
+        }   
+        */
     }
 
     /// <summary>
@@ -186,7 +251,7 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     static public void Set(string name, System.Object value)
     {
-        if (data == null) 
+        if (data == null)
         {
             Initialize();
         }
@@ -227,7 +292,7 @@ public class DataVault : MonoBehaviour
                     listener.Apply();// .SetTranslatedText(false);
                 }
             }
-        }                
+        }
     }
 
     /// <summary>
@@ -295,13 +360,13 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     static public void Remove(string name)
     {
-        if (data == null )
+        if (data == null)
         {
             Initialize();
         }
-        
-        if ( !data.ContainsKey(name))
-        {            
+
+        if (!data.ContainsKey(name))
+        {
             return;
         }
 
@@ -331,11 +396,11 @@ public class DataVault : MonoBehaviour
         if (startingPoint >= source.Length) return source;
 
         int start = source.IndexOf(STARTING_BRACKET, startingPoint);
-        int end;        
-         
+        int end;
+
         if (start > -1)
         {
-            end = source.IndexOf(ENDING_BRACKET, start);            
+            end = source.IndexOf(ENDING_BRACKET, start);
             if (end > -1)
             {
                 source = Translate(source, end, registerForUpdates);
@@ -349,8 +414,8 @@ public class DataVault : MonoBehaviour
 
                     //find translated word
                     System.Object obj = Get(dataName);
-                    
-                    if (obj == null)                    
+
+                    if (obj == null)
                     {
                         //we did not found word, we will return unchanged
                         return source;
@@ -360,10 +425,10 @@ public class DataVault : MonoBehaviour
                         //we have found word
                         newSection = obj.ToString();
                     }
-                    
+
                 }
-                string startSection = start > 0 ? source.Substring(0,start) : "";
-                string endSection = end < source.Length-1 ? source.Substring(end+1,source.Length-end-1) : "";
+                string startSection = start > 0 ? source.Substring(0, start) : "";
+                string endSection = end < source.Length - 1 ? source.Substring(end + 1, source.Length - end - 1) : "";
                 return startSection + newSection + endSection;
             }
         }
