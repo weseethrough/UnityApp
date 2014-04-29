@@ -68,12 +68,9 @@
     <Compile Include="Compatibility\ConcurrentDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="JsonDotNet">
-      <HintPath>..\GlassFitUnity\Assets\JsonDotNet\JsonDotNet.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="siaqodb">
       <HintPath>..\GlassFitUnity\Assets\Plugins\siaqodb.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\Common\UnityEngine.dll</HintPath>
@@ -82,6 +79,10 @@
     <Reference Include="System" />
     <Reference Include="nunit.framework">
       <HintPath>..\Common\nunit.framework.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="JsonDotNet">
+      <HintPath>..\GlassFitUnity\Assets\JsonDotNet\JsonDotNet.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
