@@ -17,9 +17,10 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 	// Returns true in case of successful registration, false otherwise
 	public bool RegisterPositionListener(IPositionListener posListener) {
 		
-		if (!Input.location.isEnabledByUser)
+		if (!Input.location.isEnabledByUser) {
 			log.warning("Location not enabled by user");
 			return false;
+		}
 
 		if (Input.location.status == LocationServiceStatus.Failed) {
 			log.warning("Unable to determine device location");
