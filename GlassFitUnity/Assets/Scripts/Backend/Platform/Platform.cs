@@ -104,7 +104,10 @@ public abstract class Platform : SingletonBase
 	protected virtual void Initialize()
 	{
 		connected = false;
-	    targetTrackers = new List<TargetTracker>();	                
+	    targetTrackers = new List<TargetTracker>();
+
+		Input.location.Start();
+
 		// Set initialised=true in overriden method
 	}
 	
