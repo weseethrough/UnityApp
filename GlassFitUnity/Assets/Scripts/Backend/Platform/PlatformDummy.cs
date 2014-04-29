@@ -97,6 +97,7 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
     {
+		
 		PlayWithScene(STARTHEX_SCENE_NAME, false, false);
 	}
 
@@ -196,17 +197,16 @@ public class PlatformDummy : Platform
 			
 			blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 			blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
-//			var tag = "Player";
+			var tag = "Player";
 //			if (!Application.isPlaying) {
 //				// Save to blob assets in editor
 //				blobstore = blobassets;
 //				tag = "Editor";
 //			}
-//			Directory.CreateDirectory(blobstore);
-//			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
-//			if (Application.isEditor) Directory.CreateDirectory(blobassets);
-//			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
-				
+			Directory.CreateDirectory(blobstore);
+			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
+			if (Application.isEditor) Directory.CreateDirectory(blobassets);
+			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 		
 			if (!initialised) {
 				playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
@@ -333,12 +333,14 @@ public class PlatformDummy : Platform
 
 	protected string getBlobStorePath()
 	{
-		if(Application.isEditor && !Application.isPlaying)
+		if(Application.isEditor)// && !Application.isPlaying)
 		{
+			//modify the actual assets directly in the editor
 			return blobassets;
 		}
 		else
 		{
+			//Use the 'store' - a writable copy for the play mode session
 			return blobstore;
 		}
 	}

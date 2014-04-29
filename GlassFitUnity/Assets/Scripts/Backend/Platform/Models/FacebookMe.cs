@@ -19,6 +19,10 @@ namespace RaceYourself
 				return string.Format("http://graph.facebook.com/{0}/picture", id);
 			}
 		}
+
+		public FacebookMe() {
+			this.verified = false;
+		}
 	}
 }
 

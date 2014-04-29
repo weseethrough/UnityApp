@@ -45,6 +45,10 @@ Models/obj
 !Models/Models.sln
 !Models/Models.csproj
 
+JsonDotNet/JsonDotNet/obj
+!JsonDotNet/JsonDotNet.sln
+!JsonDotNet/JsonDotNet/JsonDotNet.csproj
+
 *.svd
 *.userprefs
 *.suo

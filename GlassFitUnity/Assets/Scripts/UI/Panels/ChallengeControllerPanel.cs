@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Diagnostics;
 using System;
 
 using RaceYourself.Models;
@@ -13,6 +14,16 @@ public class ChallengeControllerPanel : Panel {
 
 	GestureHelper.OnSwipeLeft leftHandler = null;
 	GestureHelper.OnSwipeRight rightHandler = null;
+
+	bool isChanging = false;
+	float changeTime = 0.0f;
+
+	ChangeColour likeIcon = null;
+	ChangeColour dislikeIcon = null;
+
+	bool endOfChallenges = false;
+
+	bool changingColour = false;
 
 	int currentChallenge = -1;
 
@@ -52,40 +63,80 @@ public class ChallengeControllerPanel : Panel {
 	public override void EnterStart ()
 	{
 		base.EnterStart ();
-
+		
 		sampleChallengeList = CreateSampleChallenges();
 
 		DataVault.Set("chosen_challenges", " ");
 
 		if(sampleChallengeList != null) {
 			leftHandler = new GestureHelper.OnSwipeLeft(() => {
-				DislikeChallenge();
+				if(!isChanging) {
+					DislikeChallenge();
+				}
 			});
 			GestureHelper.onSwipeLeft += leftHandler;
 
 			rightHandler = new GestureHelper.OnSwipeRight(() => {
-				LikeChallenge();
+				if(!isChanging) {
+					LikeChallenge();
+				}
 			});
 			GestureHelper.onSwipeRight += rightHandler;
 
 			SetNewChallenge();
 		}
+
+		GameObject icon = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "LikeIcon");
+		if(icon != null) {
+			likeIcon = icon.GetComponent<ChangeColour>();
+			if(likeIcon != null) {
+				likeIcon.SetColours(new Color(2/255f, 204/255f, 42/255f));
+			}
+		} else {
+			UnityEngine.Debug.LogError("ChallengeControllerPanel: can't find like icon object");
+		}
+
+		icon = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "DislikeIcon");
+		if(icon != null) {
+			dislikeIcon = icon.GetComponent<ChangeColour>();
+			if(dislikeIcon != null) {
+				dislikeIcon.SetColours(new Color(214/255f, 62/255f, 62/255f));
+			}
+		} else {
+			UnityEngine.Debug.LogError("ChallengeControllerPanel: can't find dislike icon object");
+		}
+		
 	}
 
 	public override void StateUpdate ()
 	{
 		base.StateUpdate ();
 
+		if(isChanging) {
+			if(changeTime < 0.333f) {
+				changeTime += Time.deltaTime;
+			} else {
+				isChanging = false;
+				SetNewChallenge();
+			}
+		}
 	}
 
 	public void DislikeChallenge() {
 		// TODO: Add code to save when a user dislikes a challenge
 
-		SetNewChallenge();
+		dislikeIcon.StartChange();
+
+		isChanging = true;
+		changeTime = 0.0f;
+
+//		SetNewChallenge();
 	}
 
 	public void LikeChallenge() {
 		// TODO: Add code to save when a user likes a challenge
+		//changingColour = true;
+//		likeSelected = true;
 		string challengeString = (string)DataVault.Get("chosen_challenges");
 		if(challengeString == " ") {
 			DataVault.Set("chosen_challenges", sampleChallengeList[currentChallenge].type);
@@ -93,13 +144,21 @@ public class ChallengeControllerPanel : Panel {
 			DataVault.Set("chosen_challenges", challengeString + ", " + sampleChallengeList[currentChallenge].type);
 		}
 
-		SetNewChallenge();
+		likeIcon.StartChange();
+
+		isChanging = true;
+		changeTime = 0.0f;
+
+//		SetNewChallenge();
 	}
 
 	public void SetNewChallenge() {
 		currentChallenge++;		
-		if(currentChallenge >= sampleChallengeList.Count) {
-			FollowFlowLinkNamed("Exit");
+		if(currentChallenge >= sampleChallengeList.Count && !endOfChallenges) {
+			endOfChallenges = true;
+			FlowState.FollowFlowLinkNamed("Exit");
+			GestureHelper.onSwipeLeft -= leftHandler;
+			GestureHelper.onSwipeRight -= rightHandler;
 		} else {
 			DataVault.Set("challenge_mobile_name", sampleChallengeList[currentChallenge].name);
 			DataVault.Set("challenge_mobile_description", sampleChallengeList[currentChallenge].description);
