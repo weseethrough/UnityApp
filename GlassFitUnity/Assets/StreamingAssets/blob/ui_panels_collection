@@ -42,9 +42,10 @@ MobileList
 2DHUD
 screen1
 Retry
-ChallengeChoice
-EndChallengeSelect
+MobileChallengeChoice
+MobileEndChallengeSelect
 MobileDescription
 MobileLogin
 MobileSignup
 MobileNotOnList
+MobileThanksPendingNotification
