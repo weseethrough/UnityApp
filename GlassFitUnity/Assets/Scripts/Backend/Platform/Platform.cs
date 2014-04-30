@@ -403,7 +403,17 @@ public abstract class Platform : SingletonBase
     }
 
     public virtual bool HasPermissions(string provider, string permissions) {
-        return NetworkMessageListener.authenticated;
+		if (api == null || api.user == null) return false;
+		var authentication = api.user.authentications.Find(auth => auth.provider == provider);
+		if (authentication == null) return false;
+
+		var perms = permissions.Split(',');
+		foreach(var perm in perms) {
+			var trimmed = perm.Trim();
+			if (trimmed.Length == 0) continue;
+			if (!authentication.permissions.Contains(trimmed)) return false;
+		}
+		return true;
     }
 
     public virtual void SyncToServer() {
