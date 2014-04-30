@@ -1,1 +1,3 @@
-Changelog
+Version 1.21
+
+* Updated for Glass XE16
