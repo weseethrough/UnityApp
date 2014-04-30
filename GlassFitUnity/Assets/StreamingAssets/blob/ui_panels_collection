@@ -45,3 +45,6 @@ Retry
 ChallengeChoice
 EndChallengeSelect
 MobileDescription
+MobileLogin
+MobileSignup
+MobileNotOnList

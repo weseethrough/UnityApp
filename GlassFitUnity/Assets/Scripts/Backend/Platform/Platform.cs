@@ -535,14 +535,7 @@ public abstract class Platform : SingletonBase
 	// Facebook methods
 	private void OnInitComplete()
 	{
-		Authorize("facebook", "login");
 		log.info("Facebook: FB.Init completed: Is user logged in? " + FB.IsLoggedIn);
-		if (FB.IsLoggedIn) {
-			log.info("Facebook: Logged in as " + FB.UserId + " " + FB.AccessToken);
-			FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
-		} else {
-			Authorize("facebook", "login");
-		}
 	}
 	
 	private void OnHideUnity(bool isGameShown)
@@ -586,7 +579,7 @@ public abstract class Platform : SingletonBase
 			FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
 			log.info("Facebook me: " + JsonConvert.SerializeObject(me));
 		}
-	}    
+	}
 
 	
 }
