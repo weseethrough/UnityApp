@@ -91,6 +91,40 @@ public class ButtonFunctionCollection
 		
 		return true;
 	}
+
+	static public bool ImportFacebook(FlowButton fb, FlowState panel) 
+	{
+		NetworkMessageListener.OnAuthenticated networkHandler = null;
+		networkHandler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+			if (authenticated && Platform.Instance.HasPermissions("facebook", "login")) {
+				NetworkMessageListener.OnSync syncHandler = null;
+				syncHandler = new NetworkMessageListener.OnSync((message) => {
+					Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
+					DataVault.Set("facebook_message", "Facebook sync successful!");
+					FlowState.FollowBackLink();
+				});
+				Platform.Instance.NetworkMessageListener.onSync += syncHandler;
+				Platform.Instance.SyncToServer();
+
+				DataVault.Set("facebook_message", "Facebook login successful! Syncing friends...");
+			} else {
+				DataVault.Set("facebook_message", "Error authorizing Facebook! Tap to try again");
+				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+				GameObject FacebookButton = GameObjectUtils.SearchTreeByName(((Panel)fs).physicalWidgetRoot, "FacebookButton");
+				FacebookButton.GetComponentInChildren<UIButton>().enabled = true;
+			}
+			Platform.Instance.NetworkMessageListener.onAuthenticated -= networkHandler;
+		});
+		DataVault.Set ("facebook_message", "Authorizing...");
+		FlowState flowState = FlowStateMachine.GetCurrentFlowState();
+		GameObject fbButton = GameObjectUtils.SearchTreeByName(((Panel)flowState).physicalWidgetRoot, "FacebookButton");
+		fbButton.GetComponentInChildren<UIButton>().enabled = false;
+		Platform.Instance.NetworkMessageListener.onAuthenticated += networkHandler;
+
+		Platform.Instance.Authorize("facebook", "login");
+
+		return false;
+	}
 	
 	static public bool SetChallenge(FlowButton fb, FlowState panel)
 	{

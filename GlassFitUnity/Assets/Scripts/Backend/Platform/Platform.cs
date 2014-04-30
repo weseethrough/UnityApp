@@ -74,9 +74,9 @@ public abstract class Platform : SingletonBase
 #if UNITY_EDITOR
             return (Platform)GetInstance<PlatformDummy>();
 #elif UNITY_ANDROID && RACEYOURSELF_MOBILE
-            return (Platform)GetInstance<AndroidPlatform>();
+            return (Platform)GetInstance<MinimalAndroidPlatform>();
 #elif UNITY_ANDROID
-            return (Platform)GetInstance<AndroidPlatform>();
+            return (Platform)GetInstance<MinimalAndroidPlatform>();
 #elif UNITY_IPHONE
             return (Platform)GetInstance<IosPlatform>();
 #endif

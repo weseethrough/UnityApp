@@ -75,6 +75,8 @@ public class MobileSelectFriend : MobilePanel
 			UnityEngine.Debug.LogError("MobileSelectPanel: error finding connection - " + connectionName);
 		}
 
+		DataVault.Set("facebook_message", "Connect to Facebook");
+
 		return gc;
 	}
 	

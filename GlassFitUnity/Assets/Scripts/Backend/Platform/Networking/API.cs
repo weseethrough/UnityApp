@@ -333,12 +333,12 @@ namespace RaceYourself
 				}
 				string responseEncoding = "uncompressed";
 				foreach (string key in post.responseHeaders.Keys) {
-					if (key.ToLower().Equals("content-encoding")) {
+					if (key.ToLower().Equals("content-encoding") && post.responseHeaders[key] != null) {
 						responseEncoding = post.responseHeaders[key];
 						break;
 					}
 				}
-				log.info("Sync() received " + (post.size/1000) + "kB " + responseEncoding);
+				log.info("Sync() received " + (post.bytesDownloaded/1000) + "kB " + responseEncoding);
 				
 				// Run slow ops in a background thread
 				var bytes = post.bytes;				
@@ -347,12 +347,22 @@ namespace RaceYourself
 					var parseStart = DateTime.Now;
 					try {
 						string responseBody = null;
+						if(bytes == null) {
+							throw new Exception("Sync() bytes is null");
+						}
+
 						if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(bytes));
 						else responseBody = encoding.GetString(bytes);
+
+						log.info("Sync() response body is " + responseBody);
+						if(responseBody == null) {
+							throw new Exception("Sync() responsebody is null");
+						}
 						response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
 					} catch (Exception ex) {
 						ret = "Failure";
 						log.error("Sync() threw exception " + ex.ToString());
+						log.error(ex, "Sync() exception stack");
 						throw ex;
 					}
 					log.info("Sync() parsed " + response.response.ToString() + " in " + (DateTime.Now - parseStart));
