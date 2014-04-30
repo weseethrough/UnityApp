@@ -164,7 +164,7 @@ public class MobilePanel : Panel
     /// <returns></returns>
     protected GConnector GetBaseButtonConnection()
     {
-         GConnector gc = Outputs.Find(r => r.Name == "buttonHandler");
+        GConnector gc = Outputs.Find(r => r.Name == "buttonHandler");
         if (gc == null)
         {
             gc = Outputs.Find(r => r.Name == ListButtonData.ButtonFormat.ButtonPrototype.ToString());

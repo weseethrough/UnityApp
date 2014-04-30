@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -52,12 +52,13 @@ public class MobileSelectFriend : MobilePanel
 
         friendsData = Platform.Instance.Friends();
         if (friendsData != null)
-        {            
-
+        {        
             for (int i = 0; i < friendsData.Count; i++)
             {
-                AddButtonData("button" + i, friendsData[i].name, "", ListButtonData.ButtonFormat.ButtonNormalPrototype, baseConnection);
+                AddButtonData("button" + i, friendsData[i].name, "", ListButtonData.ButtonFormat.ChallengeButton, baseConnection);
             }
+
+			AddButtonData ("ImportButton", "", "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
             
             if (list != null)
             {            
@@ -67,18 +68,30 @@ public class MobileSelectFriend : MobilePanel
         }
     }
 
-    public override void OnClick(FlowButton button)
+	public GConnector GetConnection(string connectionName) {
+		GConnector gc = Outputs.Find(r => r.Name == connectionName);
+		if (gc == null)
+		{
+			UnityEngine.Debug.LogError("MobileSelectPanel: error finding connection - " + connectionName);
+		}
+
+		return gc;
+	}
+	
+	public override void OnClick(FlowButton button)
     {
         if (button != null && friendsData != null)
         {
-            string prefix = "button";
-            string index = button.name.Substring(prefix.Length);
-            int i = Convert.ToInt32(index);
-
-            DataVault.Set("chosen_friend", friendsData[i]);
-            Debug.Log("chosen_friend set to " + friendsData[i].name);
-        }
-        else
+			if(button.name != "ImportButton") {
+				string prefix = "button";
+				string index = button.name.Substring(prefix.Length);
+				int i = Convert.ToInt32(index);
+				
+				DataVault.Set("chosen_friend", friendsData[i]);
+				Debug.Log("chosen_friend set to " + friendsData[i].name);
+			}
+		}
+		else
         {
             return;
         }
