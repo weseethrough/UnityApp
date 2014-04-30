@@ -60,6 +60,10 @@ namespace PositionTracker
 	    float CurrentBearing  {
 			get;
 		}
+		
+		bool HasPosition { 
+			get; 
+		}
 
 		
 		/**
@@ -67,7 +71,9 @@ namespace PositionTracker
 	     * 
 	     * @return position of the device
 	     */
-	    Position CurrentPosition();
+	    Position CurrentPosition {
+			get;
+		}
 
 		/**
 	     * Returns the current speed of the device in m/s, or zero if we think we're stopped.

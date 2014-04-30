@@ -45,5 +45,8 @@ Retry
 ChallengeChoice
 EndChallengeSelect
 MobileDescription
+MobileLogin
+MobileSignup
+MobileNotOnList
 MobileFriendList
 ImportFriends

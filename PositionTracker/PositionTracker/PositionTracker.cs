@@ -66,6 +66,10 @@ namespace PositionTracker
 	        // get the latest GPS position
 	        //Position tempPosition = new Position(track, location);
 	        //Log.i("GPSTracker", "New position with error " + tempPosition.getEpe());
+			if (track != null) {
+				position.deviceId = track.deviceId;
+				position.trackId = track.trackId;
+			}
 	        
 	        // if the latest gpsPosition doesn't meets our accuracy criteria, throw it away
 	        if (position.epe > MAX_TOLERATED_POSITION_ERROR) {
@@ -197,12 +201,14 @@ namespace PositionTracker
 	    }
 	    
 		
-	    public Position CurrentPosition() {
-	        return gpsPosition;
+	    public Position CurrentPosition {
+	        get {return gpsPosition;}
 	    }
 	
-		public bool HasPosition() {
-			return (gpsPosition != null);
+		public bool HasPosition {
+			get {
+				return (gpsPosition != null);
+			}
 		}
 		
 	
@@ -223,7 +229,7 @@ namespace PositionTracker
         
         	// if we already have a position, start the stopwatch, if not it'll
         	// be triggered when we get our first decent GPS fix
-        	if (HasPosition()) {
+        	if (HasPosition) {
             	trackStopwatch.Start();
             	interpolationStopwatch.Start();
         	}

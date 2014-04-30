@@ -104,7 +104,10 @@ public abstract class Platform : SingletonBase
 	protected virtual void Initialize()
 	{
 		connected = false;
-	    targetTrackers = new List<TargetTracker>();	                
+	    targetTrackers = new List<TargetTracker>();
+
+		Input.location.Start();
+
 		// Set initialised=true in overriden method
 	}
 	
@@ -199,6 +202,7 @@ public abstract class Platform : SingletonBase
             _positionMessageListener = obj.gameObject.AddComponent<PositionMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
             _networkMessageListener = obj.gameObject.AddComponent<NetworkMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
             _bluetoothMessageListener = obj.gameObject.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
+            _bleMessageListener = obj.gameObject.AddComponent<BleMessageListener>();  // listenes for BLE messages - new devices, services and characteristics data, e.g. heart-rate or cadence
 
             //post initialziation procedure
             partner = obj;
@@ -535,14 +539,7 @@ public abstract class Platform : SingletonBase
 	// Facebook methods
 	private void OnInitComplete()
 	{
-		Authorize("facebook", "login");
 		log.info("Facebook: FB.Init completed: Is user logged in? " + FB.IsLoggedIn);
-		if (FB.IsLoggedIn) {
-			log.info("Facebook: Logged in as " + FB.UserId + " " + FB.AccessToken);
-			FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
-		} else {
-			Authorize("facebook", "login");
-		}
 	}
 	
 	private void OnHideUnity(bool isGameShown)
@@ -586,7 +583,7 @@ public abstract class Platform : SingletonBase
 			FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
 			log.info("Facebook me: " + JsonConvert.SerializeObject(me));
 		}
-	}    
+	}
 
 	
 }

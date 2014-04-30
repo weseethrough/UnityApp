@@ -3,8 +3,9 @@ using RaceYourself.Models;
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Collections.Generic;
-
+using AOT;
 #if UNITY_IPHONE
+
 using UnityEngine;
 
 
@@ -36,7 +37,7 @@ public class IosPlatform : Platform
 	/// </summary>
 	protected override void Initialize()
 	{
-		UnityEngine.Debug.Log("Creating Platform Dummy instance");
+		UnityEngine.Debug.Log("Creating iOS Platform instance");
 		
 		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
@@ -57,6 +58,17 @@ public class IosPlatform : Platform
 		gh = (GestureHelper)Component.FindObjectOfType(typeof(GestureHelper));
 
 		initialised = true;
+
+
+	}
+
+	/// <summary>
+	/// Method which exists just to facilitate ahead of time compilation.
+	/// </summary> 	
+	private static void iOSUnusedMethod(){
+		RaceYourself.FacebookMe fbme = new RaceYourself.FacebookMe();
+		string s = fbme.id;
+		string p = fbme.Picture;
 	}
 
     /// <summary>
@@ -97,9 +109,14 @@ public class IosPlatform : Platform
         // TODO: update any internal state that only needs to change *during* a race
     }
 
+	[DllImport("__Internal")]
+	private static extern string _getDeviceInfo();
+
     public override Device DeviceInformation ()
     {
-        return new Device ("Apple", "iUnknown");
+		string deviceModel = _getDeviceInfo();
+		log.info("device model : " + deviceModel);
+        return new Device ("Apple", deviceModel);
     }
 
     public override bool OnGlass ()
