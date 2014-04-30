@@ -389,13 +389,14 @@ public abstract class Platform : SingletonBase
 			}
 			case "any":
 			default: {
-				// TODO should this be in PlatformDummy? If on device, email/password should come from OS, no? 
-				//      Yes
-				GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
-				//GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
-				//NetworkMessageListener.OnAuthentication("Failure");
-				return;
-			}
+                // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no? 
+                //      Yes
+                // GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
+                //GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
+                if (NetworkMessageListener.authenticated) NetworkMessageListener.OnAuthentication("Success");
+                else NetworkMessageListener.OnAuthentication("Failure");
+                return;
+            }
 			}
 		} else {
 			NetworkMessageListener.OnAuthentication("Failure");
