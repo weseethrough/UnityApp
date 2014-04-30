@@ -34,9 +34,6 @@
     <Reference Include="Models">
       <HintPath>..\..\GlassFitUnity\Assets\Scripts\Backend\Platform\Models\Models.dll</HintPath>
     </Reference>
-    <Reference Include="MathNet.Numerics">
-      <HintPath>External\MathNet.Numerics.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\Common\nunit.framework.dll</HintPath>
     </Reference>
@@ -60,6 +57,12 @@
     <Compile Include="SpeedState.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="AccelerationCalculator.cs" />
+    <Compile Include="Numerics\Beta.cs" />
+    <Compile Include="Numerics\Constants.cs" />
+    <Compile Include="Numerics\Erf.cs" />
+    <Compile Include="Numerics\Gamma.cs" />
+    <Compile Include="Numerics\Precision.cs" />
+    <Compile Include="Numerics\StudentT.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
