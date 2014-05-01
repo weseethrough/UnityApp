@@ -508,16 +508,20 @@ public abstract class Platform : SingletonBase
         return 0.0f;
     }
 	
-	public virtual bool RequiresSoftwareBackButton() {
-		return false;
+    /// <summary>
+    // Does the platform provide a back button? Some of the possible scenarios:
+    //
+    // a. Android - Samsung Galaxy SII/S3/S4 - physical back button built into device.
+    // b. Android - Nexus 5 - no physical back button, but OS provides one when not full-screen.
+    // c. All iPhone models at time of writing - no physical back button and nothing provided by the OS by default.
+    // Left to individual apps to provide this.
+    //
+    /// </summary>
+    /// <returns><c>true</c>, in scenarios (a) and (b) above, <c>false</c> in scenario (c).</returns>
+	public virtual bool ProvidesBackButton() {
+        return true;
 	}
 	
-
-
-
-
-
-
     // *** Networking methods, currently overridden for android but not other platforms ***
 	
 	public virtual bool ConnectSocket() {

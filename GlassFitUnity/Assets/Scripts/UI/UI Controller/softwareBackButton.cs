@@ -1,18 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class softwareBackButton : MonoBehaviour {
+public class SoftwareBackButton : MonoBehaviour {
 
 	void Awake () {
-		if(Platform.Instance.RequiresSoftwareBackButton())
+		if(Platform.Instance.ProvidesBackButton())
 		{
-			UnityEngine.Debug.Log("SoftwareBackButton: enabling software back button");
-			gameObject.SetActive(true);
+            UnityEngine.Debug.Log("SoftwareBackButton: disabling software back button");
+            gameObject.SetActive(false);
 		}
 		else
 		{
-			UnityEngine.Debug.Log("SoftwareBackButton: disabling software back button");
-			gameObject.SetActive(false);
+            UnityEngine.Debug.Log("SoftwareBackButton: enabling software back button");
+            gameObject.SetActive(true);
 		}
 	}
 

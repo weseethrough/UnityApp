@@ -285,9 +285,9 @@ public class IosPlatform : Platform
 		return 0;
     }
 
-	public override bool RequiresSoftwareBackButton()
+    public override bool ProvidesBackButton()
 	{
-		return true;
+		return false;
 	}
 
 	protected void updateFlingDetection()
