@@ -106,7 +106,8 @@ public abstract class Platform : SingletonBase
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();
 
-		Input.location.Start();
+		
+		//Input.location.Start();
 
 		// Set initialised=true in overriden method
 	}
