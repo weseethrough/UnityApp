@@ -51,11 +51,29 @@ public class MobileSelectFriend : MobilePanel
         //AddBackButtonData();
 
         friendsData = Platform.Instance.Friends();
+
+		List<RaceYourself.Models.Friend> betaFriends = new List<RaceYourself.Models.Friend>();
+
+		for(int i=0; i<friendsData.Count; i++) {
+			if(friendsData[i].userId != null) {
+				betaFriends.Add(friendsData[i]);
+				friendsData.Remove(friendsData[i]);
+				i--;
+			}
+		}
+
+		if(betaFriends != null && betaFriends.Count > 0) {
+			for(int i=0; i<betaFriends.Count; i++) {
+				AddButtonData("button" + i, betaFriends[i].name, "", ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
+			}
+		}
+
         if (friendsData != null)
         {        
+			UnityEngine.Debug.Log("MobileSelectPanel: there are " + friendsData.Count);
             for (int i = 0; i < friendsData.Count; i++)
             {
-                AddButtonData("button" + i, friendsData[i].name, "", ListButtonData.ButtonFormat.ChallengeButton, baseConnection);
+				AddButtonData("button" + (i + betaFriends.Count), friendsData[i].name, "", ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
             }
 
 			AddButtonData ("ImportButton", "", "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));

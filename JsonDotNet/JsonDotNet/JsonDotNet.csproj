@@ -12,22 +12,25 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Editor|AnyCPU' ">
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>..\..\GlassFitUnity\Assets\JsonDotNet</OutputPath>
     <DefineConstants>DEBUG;UNITY_EDITOR;JSONNET_XMLDISABLE</DefineConstants>
     <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'iOS|AnyCPU' ">
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>..\..\GlassFitUnity\Assets\JsonDotNet</OutputPath>
     <WarningLevel>4</WarningLevel>
     <DefineConstants>DEBUG;UNITY_IOS;UNITY_IPHONE;JSONNET_XMLDISABLE</DefineConstants>
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Android|AnyCPU' ">
-    <Optimize>false</Optimize>
+    <Optimize>False</Optimize>
     <OutputPath>..\..\GlassFitUnity\Assets\JsonDotNet</OutputPath>
     <WarningLevel>4</WarningLevel>
     <DefineConstants>DEBUG;UNITY_ANDROID;JSONNET_XMLDISABLE</DefineConstants>
+    <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
