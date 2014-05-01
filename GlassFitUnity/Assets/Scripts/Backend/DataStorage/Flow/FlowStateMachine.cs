@@ -343,6 +343,7 @@ public class FlowStateMachine : MonoBehaviour
         {
             if (activeFlow.Count > 0 && activeFlow[activeFlow.Count - 1] == targetState)
             {
+                // Used to notify other components that we're at the end of a state transition.
                 DataVault.Set ("transition_ended", true);
                 targetStateConnector = null;
                 targetState = null;
