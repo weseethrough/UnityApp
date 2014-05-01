@@ -31,28 +31,42 @@ public class IosPlatform : Platform
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
     private BleController _bleController;
     public override BleController BleController { get { return _bleController; } }
+	private bool sentDeviceToken = false;
+
+	Log log = new Log("IosPlatform");
 
 	/// <summary>
 	/// Initialize this instance.
 	/// </summary>
-	protected override void Initialize()
+	protected override void Initialize ()
 	{
 		UnityEngine.Debug.Log("Creating iOS Platform instance");
 		
 		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
 		blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+		
 		var tag = "Player";
 		if (!Application.isPlaying) {
 			// Save to blob assets in editor
 			blobstore = blobassets;
 			tag = "Editor";
 		}
+
+		//report update frequency for gyros. May need to set it here too.
+		float rate = Input.gyro.updateInterval;
+		log.info("Gyro update interval: " + rate);
+
+		//start notification services
+		NotificationServices.RegisterForRemoteNotificationTypes(RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound);
+
+
+
 		Directory.CreateDirectory(blobstore);
 		UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
 		if (Application.isEditor) Directory.CreateDirectory(blobassets);
 		UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 
-		base.Initialize();
+		base.Initialize ();
 
 		//find and store the gesture helper object, to send messages to
 		gh = (GestureHelper)Component.FindObjectOfType(typeof(GestureHelper));
@@ -88,7 +102,26 @@ public class IosPlatform : Platform
 			UnityEngine.Debug.LogException(e);
 		}
         base.Update ();
-        // TODO: pass iOS sensor orientation quaternion into base.playerPosition.Update(Quaternion q);
+
+		if(!sentDeviceToken)
+		{
+			byte[] token;
+			if(NotificationServices.deviceToken != null)
+			{
+				String deviceTokenString = System.BitConverter.ToString(NotificationServices.deviceToken);
+				_networkMessageListener.OnPushId(deviceTokenString);
+				sentDeviceToken = true;
+				log.info("Device token sent to network message listener: " + deviceTokenString);
+			}
+			else
+			{
+				if(NotificationServices.registrationError != null)
+				{
+					log.info("Error registering for notification services: " + NotificationServices.registrationError);
+					sentDeviceToken = true;
+				}
+			}
+		}
     }
 
 	[DllImport("__Internal")]
@@ -112,12 +145,13 @@ public class IosPlatform : Platform
 	[DllImport("__Internal")]
 	private static extern string _getDeviceInfo();
 
-    public override Device DeviceInformation ()
-    {
+	public override Device DeviceInformation ()
+	{
 		string deviceModel = _getDeviceInfo();
 		log.info("device model : " + deviceModel);
-        return new Device ("Apple", deviceModel);
-    }
+		return new Device ("Apple", deviceModel);
+	}
+
 
     public override bool OnGlass ()
     {
@@ -171,7 +205,7 @@ public class IosPlatform : Platform
 		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
-		return true;
+		return Input.location.status == LocationServiceStatus.Running;
     }
     // *** iOS implementation of bluetooth ***
     public override bool IsBluetoothBonded ()
@@ -261,17 +295,17 @@ public class IosPlatform : Platform
     // Returns the int number of fingers touching glass's trackpad
     public override int GetTouchCount ()
     {
-		//just use the Unity version
 		return Input.touchCount;
     }
 
     // Returns (x,y) as floats between 0 and 1
     public override Vector2? GetTouchInput ()
     {
-		if(GetTouchCount()>0)
+		if(Input.touchCount>0)
 		{
 			Touch t = Input.GetTouch(0);
 			return t.position;
+		}
 		}
 		else return null;
     }
