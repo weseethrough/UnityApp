@@ -1079,6 +1079,16 @@ public class ButtonFunctionCollection
             UpdateLabel (widgetRoot, "ForenameInput", me.first_name);
             UpdateLabel (widgetRoot, "SurnameInput", me.last_name);
             UpdateLabel (widgetRoot, "EmailInput", me.email);
+
+            GameObject facebookButton = GameObject.FindWithTag("FacebookButton");
+            facebookButton.SetActive(false);
+
+            GameObject picSprite = GameObject.FindWithTag("FacebookPic");
+            picSprite.SetActive(true);
+        }
+        else
+        {
+            log.error("Error in FB callback: " + result.Error);
         }
     }
 
