@@ -58,8 +58,8 @@ namespace RaceYourself
 		{
 			log.info("created");
 			db = database;
-			user = db.Cast<User>().LastOrDefault();
-			token = db.Cast<OauthToken>().LastOrDefault();
+			user = db.Query<User>().LastOrDefault();
+			token = db.Query<OauthToken>().LastOrDefault();
 			if (user != null && token != null) {
 				if (user.id != token.userId) {
 					log.error("Token in database does not belong to user in database!");
@@ -114,11 +114,13 @@ namespace RaceYourself
 				}
 
 				var response = JsonConvert.DeserializeObject<SingleResponse<Device>>(post.text);
-				
-				db.Delete(device);
+
+				var transaction = db.BeginTransaction();
+				db.Delete(device, transaction);
 				device = response.response;
 				device.self = true;
-				db.StoreObject(device);
+				db.StoreObject(device, transaction);
+				transaction.Commit();
 				log.info("RegisterDevice(): device registered as " + device.id);
 				
 				ret = "Success";
@@ -289,17 +291,17 @@ namespace RaceYourself
 
 				Sequences.Instance.Flush(db);
 
-				SyncState state = db.Cast<SyncState>().LastOrDefault();
+				SyncState state = db.Query<SyncState>().LastOrDefault();
 				if (state == null) state = new SyncState(0);
 				Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
 						+ " tail: " + state.tail_timestamp + "#" + state.tail_skip);
 				
 				// Register device if it doesn't have an id
-				Device self = db.Cast<Device>().Where(d => d.self == true).First();
+				Device self = db.Query<Device>().Where(d => d.self == true).First();
 				if (self.id <= 0) {
 					IEnumerator e = RegisterDevice(self);
 					while(e.MoveNext()) yield return e.Current;
-					self = db.Cast<Device>().Where(d => d.self == true).First();
+					self = db.Query<Device>().Where(d => d.self == true).First();
 				}
 				var gatherStart = DateTime.Now;
 				DataWrapper wrapper = new DataWrapper(db, self);
@@ -321,7 +323,7 @@ namespace RaceYourself
 				if (!post.isDone) {}
 				
 				if (!String.IsNullOrEmpty(post.error)) {
-					log.error("RegisterDevice() threw error: " + post.error);
+					log.error("Sync() threw error: " + post.error);
 					if (post.error.ToLower().Contains("401 unauthorized")) {
 						db.Delete(token);
 						token = null;
@@ -409,7 +411,7 @@ namespace RaceYourself
 		/// Returns cached data or null if missing
 		/// </summary>
 		public string getCached(string route) {
-			var cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).LastOrDefault();
+			var cache = db.Query<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).LastOrDefault();
 			if (cache == null || cache.Expired) return null;
 			try {
 				return File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
@@ -432,7 +434,7 @@ namespace RaceYourself
 		public IEnumerator get(string route, Action<string> callback, bool checkCache) {
 			Models.Cache cache = null;
 			if (checkCache) {
-				cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).FirstOrDefault();
+				cache = db.Query<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).FirstOrDefault();
 				if (cache != null && !cache.Expired) {
 					try {
 						var cached = File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
@@ -571,10 +573,10 @@ namespace RaceYourself
     		
 			public Data(Siaqodb db, Device self) {
 				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
-				tracks = new List<Models.Track>(db.Cast<Models.Track>().Where<Models.Track>(t => t.dirty == true));
-				positions = new List<Models.Position>(db.Cast<Models.Position>().Where<Models.Position>(p => p.dirty == true));
-				notifications = new List<Models.Notification>(db.Cast<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
-				transactions = new List<Models.Transaction>(db.Cast<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
+				tracks = new List<Models.Track>(db.Query<Models.Track>().Where<Models.Track>(t => t.dirty == true));
+				positions = new List<Models.Position>(db.Query<Models.Position>().Where<Models.Position>(p => p.dirty == true));
+				notifications = new List<Models.Notification>(db.Query<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
+				transactions = new List<Models.Transaction>(db.Query<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
 				actions = new List<Models.Action>(db.LoadAll<Models.Action>());
                 events = new List<Models.Event>(db.LoadAll<Models.Event>());
 
@@ -707,8 +709,10 @@ namespace RaceYourself
 				var start = DateTime.Now;
 				uint inserts, updates, deletes;
 				inserts = updates = deletes = 0;
+
+				Device self = db.Query<Device>().Where(d => d.self == true).First();
 				
-				SyncState state = db.Cast<SyncState>().LastOrDefault();
+				SyncState state = db.Query<SyncState>().LastOrDefault();
 				if (state == null) {
 					state = new SyncState(sync_timestamp, tail_timestamp, tail_skip);
 				} else {
@@ -720,6 +724,7 @@ namespace RaceYourself
 				if (devices != null) {
 					db.StartBulkInsert(typeof(Models.Device));
 					foreach (Models.Device device in devices) {
+						if (device.id == self.id) device.self = true;
 						// TODO: Move to <model>.save(db)?
 						if (!db.UpdateObjectBy("id", device)) {
 							db.StoreObject(device);
@@ -731,16 +736,13 @@ namespace RaceYourself
 				
 				if (friends != null) {
 					db.StartBulkInsert(typeof(Models.Friend));
-					log.info("There are " + friends.Count + " friends");
 					foreach (Models.Friendship friendship in friends) {
 						friendship.friend.GenerateCompositeId();
 
-//						if (friendship.deleted_at != null) {
-//							log.info("friendship delete at is " + friendship.deleted_at.ToString());
-//							if (db.DeleteObjectBy("guid", friendship.friend)) deletes++;
-//							log.info("deleting friend " + friendship.friend.guid);
-//							continue;
-//						}
+						if (friendship.deleted_at != null) {
+							if (db.DeleteObjectBy("guid", friendship.friend)) deletes++;
+							continue;
+						}
 						if (!db.UpdateObjectBy("guid", friendship.friend)) {
 							db.StoreObject(friendship.friend);
 							inserts++;
