@@ -16,17 +16,8 @@ public class SoftwareBackButton : MonoBehaviour {
 		}
 	}
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
-	public void OnClick () {
+	public void OnClick ()
+    {
 		//treat as a back gesture
 		GestureHelper.onBack();
 	}
