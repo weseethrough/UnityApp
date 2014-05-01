@@ -85,7 +85,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		_distance = positionTracker.ElapsedDistance;
 		_pace = positionTracker.CurrentSpeed;
 		if (positionTracker.HasPosition) {
-			_position = positionTracker.CurrentPosition();
+			_position = positionTracker.CurrentPosition;
 		}
 		_bearing = positionTracker.CurrentBearing;
 	}

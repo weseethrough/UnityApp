@@ -12,7 +12,7 @@ public class IosPlatform : Platform
     // iOS implementation of services
     private PlayerPoints _playerPoints = new LocalDbPlayerPoints ();
     public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
-    private PlayerPosition _localPlayerPosition = new IosPlayerPosition ();
+    private PlayerPosition _localPlayerPosition = new CrossPlatformPlayerPosition ();
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
     private BleController _bleController;
     public override BleController BleController { get { return _bleController; } }
@@ -23,8 +23,21 @@ public class IosPlatform : Platform
     public override void Update ()
     {
         base.Update ();
-        // TODO: pass iOS sensor orientation quaternion into base.playerPosition.Update(Quaternion q);
+
+		//TODO, if this is successful, move to base Platform
+		Quaternion orientation = Input.gyro.attitude;
+		playerOrientation.Update(orientation);
+
     }
+
+	protected override void Initialize ()
+	{
+		//report update frequency for gyros. May need to set it here too.
+		float rate = Input.gyro.updateInterval;
+		log.info("Gyro update interval: " + rate);
+
+		base.Initialize ();
+	}
 
     /// <summary>
     /// Called every frame *during* a race by RaceGame to update position, speed etc
