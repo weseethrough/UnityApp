@@ -289,8 +289,6 @@ namespace RaceYourself
 				}
 				syncing = true;
 
-				Sequences.Instance.Flush(db);
-
 				SyncState state = db.Query<SyncState>().LastOrDefault();
 				if (state == null) state = new SyncState(0);
 				Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
