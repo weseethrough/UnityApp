@@ -63,7 +63,7 @@ public class PlatformDummy : Platform
 	
     public override bool OnGlass()
     {
-        return true;
+        return false;
     }
 	public override bool IsRemoteDisplay()
 	{
@@ -143,6 +143,7 @@ public class PlatformDummy : Platform
 	
 	protected override void Initialize()
 	{
+		base.Initialize();
 		try {
 			initialised = false;
 			_localPlayerPosition = new EditorPlayerPosition();
@@ -166,18 +167,15 @@ public class PlatformDummy : Platform
 	
 			UnityEngine.Debug.Log("Creating Platform Dummy instance");
 			
-			blobstore = Path.Combine(Application.persistentDataPath, blobstore);
-			blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+
 			var tag = "Player";
 			if (!Application.isPlaying) {
 				// Save to blob assets in editor
 				blobstore = blobassets;
 				tag = "Editor";
 			}
-			Directory.CreateDirectory(blobstore);
-			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
-			if (Application.isEditor) Directory.CreateDirectory(blobassets);
-			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
+
+
 				
 		
 			if (!initialised) {
@@ -279,35 +277,7 @@ public class PlatformDummy : Platform
 		throw new NotImplementedException();
 	}
 	
-	public override byte[] LoadBlob(string id) {
-		try {
-			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);			
-			return File.ReadAllBytes(Path.Combine(blobstore, id));			
-		} catch (FileNotFoundException e) {
-			return LoadDefaultBlob(id);
-		}
-	}
 
-	public byte[] LoadDefaultBlob(string id) {
-		try {
-			UnityEngine.Debug.Log("PlatformDummy: Loading default blob id: " + id);
-			if (blobassets.Contains("://")) {
-				var www = new WWW(Path.Combine(blobassets, id));
-				while(!www.isDone) {}; // block until finished
-				return www.bytes;
-			} else {
-				return File.ReadAllBytes(Path.Combine(blobassets, id));			
-			}
-		} catch (FileNotFoundException e) {
-			return new byte[0];
-		}
-	}
-
-    public override void StoreBlob(string id, byte[] blob)
-    {
-        File.WriteAllBytes(Path.Combine(blobstore, id), blob);
-		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id);
-    }
 
 	public override void ResetBlobs ()
 	{
@@ -431,5 +401,10 @@ public class PlatformDummy : Platform
     {
         return 0.0f;
     }
+
+	public override bool RequiresSoftwareBackButton ()
+	{
+		return true;
+	}
 }
 #endif

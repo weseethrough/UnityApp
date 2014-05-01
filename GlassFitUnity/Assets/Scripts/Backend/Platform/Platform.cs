@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
 using System;
+using System.IO;
 using System.Runtime.CompilerServices;
 using SimpleJSON;
 using RaceYourself;
@@ -49,6 +50,13 @@ public abstract class Platform : SingletonBase
     public int syncInterval = 10;  // Other components may change this to disable sync temporarily?
     public DateTime lastSync = new DateTime(0);
 
+	//protected string blobassets = "blob";
+	protected string blobassets = Path.Combine(Application.streamingAssetsPath, "blob");
+
+	//protected string blobstore = "game-blob";
+	protected string blobstore = Path.Combine(Application.persistentDataPath, "game-blob");
+
+	
     // TODO: fields that almost certainly want removing
     protected float yaw = -999.0f;
     protected bool started = false;
@@ -95,7 +103,10 @@ public abstract class Platform : SingletonBase
 
 		if (initialised == false)
         {
-            Initialize();
+			//blobstore = Path.Combine(Application.persistentDataPath, blobstore);
+			//blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+
+			Initialize();
         }
 
         log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");        
@@ -108,6 +119,11 @@ public abstract class Platform : SingletonBase
 
 		Input.location.Start();
 
+		//create the blob store directory
+		Directory.CreateDirectory(blobstore);
+		log.info(" blobstore: " + blobstore);
+		if (Application.isEditor) Directory.CreateDirectory(blobassets);
+		log.info(" blobassets: " + blobassets);
 		// Set initialised=true in overriden method
 	}
 	
@@ -400,11 +416,37 @@ public abstract class Platform : SingletonBase
 
     public abstract bool IsBluetoothBonded ();
 	
-    public abstract byte[] LoadBlob (string id);
+	public virtual byte[] LoadBlob(string id) {
+		try {
+			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);			
+			return File.ReadAllBytes(Path.Combine(blobstore, id));			
+		} catch (FileNotFoundException e) {
+			return LoadDefaultBlob(id);
+		}
+	}
 	
-    public abstract void StoreBlob (string id, byte[] blob);
-
-    public abstract void EraseBlob (string id);
+	public byte[] LoadDefaultBlob(string id) {
+		try {
+			UnityEngine.Debug.Log("PlatformDummy: Loading default blob id: " + id);
+			if (blobassets.Contains("://")) {
+				var www = new WWW(Path.Combine(blobassets, id));
+				while(!www.isDone) {}; // block until finished
+				return www.bytes;
+			} else {
+				return File.ReadAllBytes(Path.Combine(blobassets, id));			
+			}
+		} catch (FileNotFoundException e) {
+			return new byte[0];
+		}
+	}
+	
+	public virtual void StoreBlob(string id, byte[] blob)
+	{
+		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
+		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id);
+	}
+	
+	public abstract void EraseBlob (string id);
 
     public abstract void ResetBlobs ();
 
@@ -504,6 +546,13 @@ public abstract class Platform : SingletonBase
 	public virtual bool LeaveGroup(int groupId) {
 		throw new NotImplementedException();
 	}
-	
+
+	/// <summary>
+	/// Does the current platform require a software back button. i.e. is this iOS?
+	/// </summary>
+	/// <returns><c>true</c>, if the platform requires there to be a back button in the software, <c>false</c> if there is a back button on the device.</returns>
+	public virtual bool RequiresSoftwareBackButton() {
+		return false;
+	}
 	
 }
