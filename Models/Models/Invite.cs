@@ -14,7 +14,7 @@ namespace RaceYourself.Models
     {
         public string code;
         public DateTime? expires_at;
-        public DateTime? used_at;
+        public DateTime? used_at; 
         public string user_id;
         public string identity_type;
         public string identity_uid;
