@@ -5,10 +5,13 @@ using System.Threading;
 using System;
 using System.Collections.Generic;
 
+using Newtonsoft.Json;
+using RaceYourself.Models;
+
 [Serializable]
 public class MobileSelectFriend : MobilePanel 
 {
-
+	List<RaceYourself.Models.Friend> betaFriends;
     List<RaceYourself.Models.Friend> friendsData;
 
     public MobileSelectFriend() { }
@@ -52,7 +55,7 @@ public class MobileSelectFriend : MobilePanel
 
         friendsData = Platform.Instance.Friends();
 
-		List<RaceYourself.Models.Friend> betaFriends = new List<RaceYourself.Models.Friend>();
+		betaFriends = new List<RaceYourself.Models.Friend>();
 
 		for(int i=0; i<friendsData.Count; i++) {
 			if(friendsData[i].userId != null) {
@@ -64,16 +67,48 @@ public class MobileSelectFriend : MobilePanel
 
 		if(betaFriends != null && betaFriends.Count > 0) {
 			for(int i=0; i<betaFriends.Count; i++) {
-				AddButtonData("button" + i, betaFriends[i].name, "", ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
+				string betaButtonName = "challenge" + i;
+				AddButtonData(betaButtonName, betaFriends[i].name, "", ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
+				Platform.Instance.RemoteTextureManager.LoadImage("http://graph.facebook.com/" + betaFriends[i].uid + "/picture", betaButtonName, (tex, buttonId) => {
+					
+					UnityEngine.Debug.Log("MobileSelectPanel: image is loaded, finding button " + buttonId);
+					
+					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
+					if(button != null) {
+						UnityEngine.Debug.Log("MobileSelectPanel: button found, setting picture");
+						button.GetComponentInChildren<UITexture>().mainTexture = tex;
+					}
+				});
 			}
 		}
 
+		DataVault.Remove("invite_codes");
+		Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("invites", body => {
+			
+			List<Invite> invites = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Invite>>(body).response;		
+			UnityEngine.Debug.LogError("MobileSelectFriend: got invites from server");
+			DataVault.Set("invite_codes", invites);
+		})) ;
+
         if (friendsData != null)
         {        
+			friendsData.Sort((t1, t2) => t1.name.CompareTo(t2.name));
+
 			UnityEngine.Debug.Log("MobileSelectPanel: there are " + friendsData.Count);
             for (int i = 0; i < friendsData.Count; i++)
             {
-				AddButtonData("button" + (i + betaFriends.Count), friendsData[i].name, "", ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
+				string buttonName = "invite" + i;
+				AddButtonData(buttonName, friendsData[i].name, "", ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
+				Platform.Instance.RemoteTextureManager.LoadImage("http://graph.facebook.com/" + friendsData[i].uid + "/picture", buttonName, (tex, buttonId) => {
+
+					UnityEngine.Debug.Log("MobileSelectPanel: image is loaded, finding button " + buttonId);
+
+					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
+					if(button != null) {
+						UnityEngine.Debug.Log("MobileSelectPanel: button found, setting picture");
+						button.GetComponentInChildren<UITexture>().mainTexture = tex;
+					}
+				});
             }
 
 			AddButtonData ("ImportButton", "", "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
@@ -103,12 +138,25 @@ public class MobileSelectFriend : MobilePanel
         if (button != null && friendsData != null)
         {
 			if(button.name != "ImportButton") {
-				string prefix = "button";
-				string index = button.name.Substring(prefix.Length);
-				int i = Convert.ToInt32(index);
-				
-				DataVault.Set("chosen_friend", friendsData[i]);
-				Debug.Log("chosen_friend set to " + friendsData[i].name);
+				if(button.name.Contains("invite")) {
+					List<Invite> invites = (List<Invite>)DataVault.Get("invite_codes");
+					Invite unusedInvite = invites.Find(x => x.used_at == null);
+					if(unusedInvite == null) {
+						return;
+					}
+					string prefix = "invite";
+					string index = button.name.Substring(prefix.Length);
+					int i = Convert.ToInt32(index);
+					DataVault.Set("chosen_friend", friendsData[i]);
+					Debug.Log("chosen_friend set to " + friendsData[i].name);
+				} else if(button.name.Contains("challenge")) {
+					string prefix = "challenge";
+					string index = button.name.Substring(prefix.Length);
+					int i = Convert.ToInt32(index);
+					DataVault.Set("chosen_friend", betaFriends[i]);
+					Debug.Log("beta chosen_friend set to " + betaFriends[i].name);
+				}
+
 			}
 		}
 		else

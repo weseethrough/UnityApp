@@ -108,6 +108,8 @@ public class ButtonFunctionCollection
 				Platform.Instance.NetworkMessageListener.onSync += syncHandler;
 				Platform.Instance.SyncToServer();
 
+
+
 				DataVault.Set("facebook_message", "Facebook login successful! Syncing friends...");
 			} else {
 				DataVault.Set("facebook_message", "Error authorizing Facebook! Tap to try again");

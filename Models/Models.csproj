@@ -68,6 +68,8 @@
     <Compile Include="Tests\SiaqoTests.cs" />
     <Compile Include="Sequences.cs" />
     <Compile Include="Compatibility\ConcurrentDictionary.cs" />
+    <Compile Include="Models\InviteAction.cs" />
+    <Compile Include="Models\Invite.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="siaqodb">
