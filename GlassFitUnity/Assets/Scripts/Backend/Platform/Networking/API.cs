@@ -731,16 +731,13 @@ namespace RaceYourself
 				
 				if (friends != null) {
 					db.StartBulkInsert(typeof(Models.Friend));
-					log.info("There are " + friends.Count + " friends");
 					foreach (Models.Friendship friendship in friends) {
 						friendship.friend.GenerateCompositeId();
 
-//						if (friendship.deleted_at != null) {
-//							log.info("friendship delete at is " + friendship.deleted_at.ToString());
-//							if (db.DeleteObjectBy("guid", friendship.friend)) deletes++;
-//							log.info("deleting friend " + friendship.friend.guid);
-//							continue;
-//						}
+						if (friendship.deleted_at != null) {
+							if (db.DeleteObjectBy("guid", friendship.friend)) deletes++;
+							continue;
+						}
 						if (!db.UpdateObjectBy("guid", friendship.friend)) {
 							db.StoreObject(friendship.friend);
 							inserts++;
