@@ -474,8 +474,8 @@ public class PlatformDummy : Platform
         return 0.0f;
     }
 
-//	public override bool RequiresSoftwareBackButton() {
-//		return true;
-//	}
+	public override bool ProvidesBackButton() {
+		return false; // for testing purposes
+	}
 }
 #endif
