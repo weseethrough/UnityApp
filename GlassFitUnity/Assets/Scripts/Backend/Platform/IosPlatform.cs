@@ -19,14 +19,24 @@ public class IosPlatform : Platform
     private PlayerPosition _localPlayerPosition = new IosPlayerPosition ();
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
 
+	private bool sentDeviceToken = false;
+
 	Log log = new Log("IosPlatform");
 
 	/// <summary>
 	/// Initialize this instance.
 	/// </summary>
-	protected override void Initialize()
+	protected override void Initialize ()
 	{
-		base.Initialize();
+		//report update frequency for gyros. May need to set it here too.
+		float rate = Input.gyro.updateInterval;
+		log.info("Gyro update interval: " + rate);
+
+		//start notification services
+		NotificationServices.RegisterForRemoteNotificationTypes(RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound);
+
+
+		base.Initialize ();
 		initialised = true;
 	}
 
@@ -45,7 +55,26 @@ public class IosPlatform : Platform
 			UnityEngine.Debug.LogException(e);
 		}
         base.Update ();
-        // TODO: pass iOS sensor orientation quaternion into base.playerPosition.Update(Quaternion q);
+
+		if(!sentDeviceToken)
+		{
+			byte[] token;
+			if(NotificationServices.deviceToken != null)
+			{
+				String deviceTokenString = System.BitConverter.ToString(NotificationServices.deviceToken);
+				_networkMessageListener.OnPushId(deviceTokenString);
+				sentDeviceToken = true;
+				log.info("Device token sent to network message listener: " + deviceTokenString);
+			}
+			else
+			{
+				if(NotificationServices.registrationError != null)
+				{
+					log.info("Error registering for notification services: " + NotificationServices.registrationError);
+					sentDeviceToken = true;
+				}
+			}
+		}
     }
 
 	[DllImport("__Internal")]
@@ -130,7 +159,7 @@ public class IosPlatform : Platform
 		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
-		return true;
+		return Input.location.status == LocationServiceStatus.Running;
     }
     // *** iOS implementation of bluetooth ***
     public override bool IsBluetoothBonded ()
@@ -170,7 +199,7 @@ public class IosPlatform : Platform
 		//log.error("Not yet implemented for iOS");
         //throw new NotImplementedException ();
 		//TODO FIX
-		return null;
+		return new string[0];
     }
 
 //	[DllImport("__Internal")]
@@ -214,16 +243,17 @@ public class IosPlatform : Platform
     // Returns the int number of fingers touching glass's trackpad
     public override int GetTouchCount ()
     {
-		log.error("Not yet implemented for iOS");
-        //throw new NotImplementedException ();
-		return 0;
+		return Input.touchCount;
     }
     // Returns (x,y) as floats between 0 and 1
     public override Vector2? GetTouchInput ()
     {
-		log.error("Not yet implemented for iOS");
+		if(Input.touchCount>0)
+		{
+			Touch t = Input.GetTouch(0);
+			return t.position;
+		}
 		return null;
-        //throw new NotImplementedException ();
     }
     // *** iOS implementation of yaw ***
     // Should probably move to PlayerOrientation class

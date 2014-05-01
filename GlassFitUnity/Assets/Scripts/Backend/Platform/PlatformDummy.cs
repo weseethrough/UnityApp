@@ -141,7 +141,7 @@ public class PlatformDummy : Platform
 		base.Initialize();
 		try {
 			initialised = false;
-			_localPlayerPosition = new EditorPlayerPosition();
+			_localPlayerPosition = new CrossPlatformPlayerPosition();
 			_playerPoints = new LocalDbPlayerPoints();
 
 //		FlowState fs = FlowStateMachine.GetCurrentFlowState();
