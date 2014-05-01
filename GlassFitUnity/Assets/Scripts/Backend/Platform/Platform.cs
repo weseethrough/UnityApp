@@ -26,17 +26,19 @@ public abstract class Platform : SingletonBase
     public abstract BleController BleController { get; }  // Interface to BLE devices
 
     // Listeners for unity messages, attached to Platform game object in GetMonoBehavioursPartner
-    public PositionMessageListener _positionMessageListener;
+    private PositionMessageListener _positionMessageListener;
     public PositionMessageListener PositionMessageListener { get { return _positionMessageListener; } }
-    public NetworkMessageListener _networkMessageListener;
+    private NetworkMessageListener _networkMessageListener;
     public NetworkMessageListener NetworkMessageListener { get { return _networkMessageListener; } }
-    public BluetoothMessageListener _bluetoothMessageListener;
+    private BluetoothMessageListener _bluetoothMessageListener;
     public BluetoothMessageListener BluetoothMessageListener { get { return _bluetoothMessageListener; } }
-    public BleMessageListener _bleMessageListener;
+    private BleMessageListener _bleMessageListener;
     public BleMessageListener BleMessageListener { get { return _bleMessageListener; } }
+	private RemoteTextureManager _remoteTextureManager;
+	public RemoteTextureManager RemoteTextureManager { get { return _remoteTextureManager; } }
 
     // internal platform tools
-    private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
+    public PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
     protected static Log log = new Log("Platform");  // for use by subclasses
     protected Siaqodb db;
     public API api;
@@ -74,9 +76,9 @@ public abstract class Platform : SingletonBase
 #if UNITY_EDITOR
             return (Platform)GetInstance<PlatformDummy>();
 #elif UNITY_ANDROID && RACEYOURSELF_MOBILE
-            return (Platform)GetInstance<AndroidPlatform>();
+            return (Platform)GetInstance<MinimalAndroidPlatform>();
 #elif UNITY_ANDROID
-            return (Platform)GetInstance<AndroidPlatform>();
+            return (Platform)GetInstance<MinimalAndroidPlatform>();
 #elif UNITY_IPHONE
             return (Platform)GetInstance<IosPlatform>();
 #endif
@@ -183,7 +185,7 @@ public abstract class Platform : SingletonBase
         if (initialised && paused && OnGlass()) {
             Application.Quit();
         }
-    }
+	}
 
     public void OnApplicationQuit ()
     {
@@ -204,6 +206,7 @@ public abstract class Platform : SingletonBase
             _networkMessageListener = obj.gameObject.AddComponent<NetworkMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
             _bluetoothMessageListener = obj.gameObject.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
             _bleMessageListener = obj.gameObject.AddComponent<BleMessageListener>();  // listenes for BLE messages - new devices, services and characteristics data, e.g. heart-rate or cadence
+			_remoteTextureManager = obj.gameObject.AddComponent<RemoteTextureManager>();
 
             //post initialziation procedure
             partner = obj;
@@ -508,16 +511,20 @@ public abstract class Platform : SingletonBase
         return 0.0f;
     }
 	
-	public virtual bool RequiresSoftwareBackButton() {
-		return false;
+    /// <summary>
+    // Does the platform provide a back button? Some of the possible scenarios:
+    //
+    // a. Android - Samsung Galaxy SII/S3/S4 - physical back button built into device.
+    // b. Android - Nexus 5 - no physical back button, but OS provides one when not full-screen.
+    // c. All iPhone models at time of writing - no physical back button and nothing provided by the OS by default.
+    // Left to individual apps to provide this.
+    //
+    /// </summary>
+    /// <returns><c>true</c>, in scenarios (a) and (b) above, <c>false</c> in scenario (c).</returns>
+	public virtual bool ProvidesBackButton() {
+        return true;
 	}
 	
-
-
-
-
-
-
     // *** Networking methods, currently overridden for android but not other platforms ***
 	
 	public virtual bool ConnectSocket() {

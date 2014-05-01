@@ -37,7 +37,6 @@ namespace RaceYourself.Models
             foreach (Thread thread in threads) {
                 thread.Join();
             }
-            Sequences.Instance.Flush(db);
             var sequence = Sequence.Get("_internal_unit_test", db);
             int seq = Sequences.Instance.Next("_internal_unit_test", db);
             //Console.WriteLine(seq);

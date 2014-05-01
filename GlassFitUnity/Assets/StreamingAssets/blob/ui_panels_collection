@@ -48,4 +48,8 @@ MobileDescription
 MobileLogin
 MobileSignup
 MobileNotOnList
+MobileFriendList
+ImportFriends
 MobileThanksPendingNotification
+MobileInvite
+MobileInAppBackButton
