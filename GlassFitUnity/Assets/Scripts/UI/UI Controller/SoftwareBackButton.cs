@@ -4,6 +4,7 @@ using System.Collections;
 public class SoftwareBackButton : UIComponentSettings {
 
     void Awake () {
+        // Check whether to display the back button or not when the transition to a new screen has ended.
         DataVault.RegisterListner(this, "transition_ended");
         Apply ();
 	}
