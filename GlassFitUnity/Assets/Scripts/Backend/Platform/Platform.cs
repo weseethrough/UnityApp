@@ -561,7 +561,7 @@ public abstract class Platform : SingletonBase
 	
 	private void FBLogin(string permissions)
 	{
-		string scope = ""; // Default/"" = login only
+		string scope = "email"; // Default/"" = login only
 		// TODO: Convert our permissions to Facebook permissions
 		FB.Login(scope, FacebookLoginCallback);
 	}

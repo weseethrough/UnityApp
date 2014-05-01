@@ -306,7 +306,6 @@ public class IosPlatform : Platform
 			Touch t = Input.GetTouch(0);
 			return t.position;
 		}
-		}
 		else return null;
     }
 
