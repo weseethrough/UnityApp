@@ -63,7 +63,7 @@ public class ChallengeControllerPanel : Panel {
 	public override void EnterStart ()
 	{
 		base.EnterStart ();
-		
+
 		sampleChallengeList = CreateSampleChallenges();
 
 		DataVault.Set("chosen_challenges", " ");
