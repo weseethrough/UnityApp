@@ -75,7 +75,7 @@ public class MinimalAndroidPlatform : Platform
     public override void Update() {
         base.Update();
         try {
-            log.info("Getting orientation over JNI");
+//            log.info("Getting orientation over JNI");
             AndroidJavaObject q = helper.Call<AndroidJavaObject>("getOrientation");
             playerOrientation.Update(new Quaternion(q.Call<float>("getX"), q.Call<float>("getY"), q.Call<float>("getZ"), q.Call<float>("getW")));
         } catch (Exception e) {

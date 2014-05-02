@@ -41,16 +41,9 @@ namespace RaceYourself.Models
                 }
             }
 
-            return Interlocked.Increment(ref sequence.seq);
-        }
-
-        public void Flush(Siaqodb db) {
-            lock (syncRoot) {
-                foreach (var sequence in sequences.Values) {
-                    sequence.Save(db);
-                }
-                sequences.Clear();
-            }
+            var seq = Interlocked.Increment(ref sequence.seq);
+            sequence.Save(db);
+            return seq;
         }
     }
 }
