@@ -8,7 +8,7 @@ using System;
 using RaceYourself.Models;
 
 [Serializable]
-public class ChallengeControllerPanel : Panel {
+public class ChallengeControllerPanel : MobilePanel {
 
 	List<ChallengeMaster> sampleChallengeList = null;
 

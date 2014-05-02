@@ -86,7 +86,6 @@ public class MobileSelectFriend : MobilePanel
 		Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("invites", body => {
 			
 			List<Invite> invites = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Invite>>(body).response;		
-			UnityEngine.Debug.LogError("MobileSelectFriend: got invites from server");
 			DataVault.Set("invite_codes", invites);
 		})) ;
 
