@@ -59,8 +59,6 @@ public class IosPlatform : Platform
 		//start notification services
 		NotificationServices.RegisterForRemoteNotificationTypes(RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound);
 
-
-
 		Directory.CreateDirectory(blobstore);
 		UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
 		if (Application.isEditor) Directory.CreateDirectory(blobassets);
@@ -73,6 +71,9 @@ public class IosPlatform : Platform
 
 		initialised = true;
 
+		//clear notification list notifications
+		// TODO when we have an area to view challenges, don't clear this until they have been viewed
+		NotificationServices.ClearRemoteNotifications();
 
 	}
 
@@ -101,15 +102,17 @@ public class IosPlatform : Platform
 		} catch(Exception e) {
 			UnityEngine.Debug.LogException(e);
 		}
-        base.Update ();
+        base.Update();
 
+
+		//check for device token
 		if(!sentDeviceToken)
 		{
 			byte[] token;
 			if(NotificationServices.deviceToken != null)
 			{
-				String deviceTokenString = System.BitConverter.ToString(NotificationServices.deviceToken);
-				_networkMessageListener.OnPushId(deviceTokenString);
+				String deviceTokenString = System.BitConverter.ToString(NotificationServices.deviceToken).Replace("-","");
+				NetworkMessageListener.OnPushId(deviceTokenString);
 				sentDeviceToken = true;
 				log.info("Device token sent to network message listener: " + deviceTokenString);
 			}
@@ -122,6 +125,17 @@ public class IosPlatform : Platform
 				}
 			}
 		}
+
+		//check for new notifications
+		if(NotificationServices.remoteNotificationCount > 0)
+		{
+			log.info("New remote push notification received.");
+			//clear it straight away for now.
+			// TODO raise some event in non-platform code (NetworkMessageListener?) which will inform that there's a new notification, 
+			// trigger a sync to get the full details, and do whatever else is necessary.
+			NotificationServices.ClearRemoteNotifications();
+		}
+
     }
 
 	[DllImport("__Internal")]
