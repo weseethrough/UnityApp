@@ -51,17 +51,18 @@ public class MobileSelectFriend : MobilePanel
         }
 
         GConnector baseConnection = GetBaseButtonConnection();
-        //AddBackButtonData();
 
         friendsData = Platform.Instance.Friends();
 
 		betaFriends = new List<RaceYourself.Models.Friend>();
 
-		for(int i=0; i<friendsData.Count; i++) {
-			if(friendsData[i].userId != null) {
-				betaFriends.Add(friendsData[i]);
-				friendsData.Remove(friendsData[i]);
-				i--;
+		if(friendsData != null) {
+			for(int i=0; i<friendsData.Count; i++) {
+				if(friendsData[i].userId != null) {
+					betaFriends.Add(friendsData[i]);
+					friendsData.Remove(friendsData[i]);
+					i--;
+				}
 			}
 		}
 
@@ -71,11 +72,8 @@ public class MobileSelectFriend : MobilePanel
 				AddButtonData(betaButtonName, betaFriends[i].name, "", ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
 				Platform.Instance.RemoteTextureManager.LoadImage("http://graph.facebook.com/" + betaFriends[i].uid + "/picture", betaButtonName, (tex, buttonId) => {
 					
-					UnityEngine.Debug.Log("MobileSelectPanel: image is loaded, finding button " + buttonId);
-					
 					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
 					if(button != null) {
-						UnityEngine.Debug.Log("MobileSelectPanel: button found, setting picture");
 						button.GetComponentInChildren<UITexture>().mainTexture = tex;
 					}
 				});
@@ -85,7 +83,7 @@ public class MobileSelectFriend : MobilePanel
 		DataVault.Remove("invite_codes");
 		Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("invites", body => {
 			
-			List<Invite> invites = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Invite>>(body).response;		
+			List<Invite> invites = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Invite>>(body).response;	
 			DataVault.Set("invite_codes", invites);
 		})) ;
 
@@ -93,18 +91,14 @@ public class MobileSelectFriend : MobilePanel
         {        
 			friendsData.Sort((t1, t2) => t1.name.CompareTo(t2.name));
 
-			UnityEngine.Debug.Log("MobileSelectPanel: there are " + friendsData.Count);
             for (int i = 0; i < friendsData.Count; i++)
             {
 				string buttonName = "invite" + i;
 				AddButtonData(buttonName, friendsData[i].name, "", ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
 				Platform.Instance.RemoteTextureManager.LoadImage("http://graph.facebook.com/" + friendsData[i].uid + "/picture", buttonName, (tex, buttonId) => {
 
-					UnityEngine.Debug.Log("MobileSelectPanel: image is loaded, finding button " + buttonId);
-
 					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
 					if(button != null) {
-						UnityEngine.Debug.Log("MobileSelectPanel: button found, setting picture");
 						button.GetComponentInChildren<UITexture>().mainTexture = tex;
 					}
 				});
