@@ -1085,8 +1085,8 @@ public class ButtonFunctionCollection
             GameObject facebookButton = GameObject.FindWithTag("FacebookButton");
             facebookButton.SetActive(false);
 
-            GameObject picSprite = GameObject.FindWithTag("FacebookPic");
-            picSprite.SetActive(true);
+            //GameObject picSprite = GameObject.FindWithTag("FacebookPic");
+            //picSprite.SetActive(true);
         }
         else
         {
