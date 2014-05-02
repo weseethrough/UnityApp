@@ -198,6 +198,7 @@ public class FlowStateMachine : MonoBehaviour
             }
 
             navigationHistory.Add(activeFlow[activeFlow.Count-1]);
+            //DataVault.Set("has_history", true);
             targetState = connection.Link[0].Parent as FlowState;
             targetStateConnector = connection.Link[0];            
             return true;
@@ -247,7 +248,7 @@ public class FlowStateMachine : MonoBehaviour
     }
 
     /// <summary>
-    /// 
+    /// 'Teleports' state machine to an arbitrary state, without a transition being defined in the flow.
     /// </summary>
     /// <param name="state">state instance which we want navigate to</param>
     /// <returns>returns always true</returns>
@@ -285,7 +286,7 @@ public class FlowStateMachine : MonoBehaviour
 //        gameDetails.AddField("Event type", "Flow state changed");
 //        Platform.Instance.LogAnalytics(gameDetails);
 
-        ForbidBack();        
+        ForbidBack();
         targetState = state;
         targetStateConnector = null;
         return true;        
@@ -301,6 +302,10 @@ public class FlowStateMachine : MonoBehaviour
         {
             FlowState fs = navigationHistory[navigationHistory.Count - 1];
             navigationHistory.RemoveAt(navigationHistory.Count - 1);
+            if (navigationHistory.Count == 0)
+            {
+                //DataVault.Set("has_history", false);
+            }
 			SoundManager.PlaySound(SoundManager.Sounds.HidePopup);
             targetState = fs;
             Debug.Log("'Back' to flow state: " + fs.GetDisplayName());
@@ -316,6 +321,13 @@ public class FlowStateMachine : MonoBehaviour
     public void ForbidBack()
     {
         navigationHistory = new List<FlowState>();
+        // update data vault - set hasHistory
+        //DataVault.Set("has_history", false);
+    }
+
+    public bool IsBackAllowed()
+    {
+        return navigationHistory.Count > 0;
     }
 
     /// <summary>
@@ -330,11 +342,14 @@ public class FlowStateMachine : MonoBehaviour
             IsReady())
         {
             if (activeFlow.Count > 0 && activeFlow[activeFlow.Count - 1] == targetState)
-            {                
+            {
+                // Used to notify other components that we're at the end of a state transition.
+                DataVault.Set ("transition_ended", true);
                 targetStateConnector = null;
                 targetState = null;
                 return true;
             }
+            DataVault.Set ("transition_ended", false);
 
             FlowState nextStep = targetState;
             FlowState nextStepChild = null;
