@@ -63,6 +63,7 @@
     <Compile Include="Numerics\Gamma.cs" />
     <Compile Include="Numerics\Precision.cs" />
     <Compile Include="Numerics\StudentT.cs" />
+    <Compile Include="Test\PositionPredictorTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
