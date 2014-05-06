@@ -100,15 +100,18 @@ using RaceYourself.Models;
 	    }
 
 		
-		public static double ToRadians(double val)
-    	{
+		public static double ToRadians(double val) {
         	return (Math.PI / 180) * val;
     	}
 		
-		public static double ToDegrees(double val)
-    	{
+		public static double ToDegrees(double val) {
         	return (180 / Math.PI) * val;
     	}
+	
+		public static string ToString(Position pos) {
+			if (pos == null) return "null";
+			return "(" + pos.latitude + "," + pos.longitude + ")";
+		}
 	}
 //}
 
