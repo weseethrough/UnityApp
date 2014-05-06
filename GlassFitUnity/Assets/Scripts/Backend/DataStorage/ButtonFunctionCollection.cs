@@ -135,7 +135,7 @@ public class ButtonFunctionCollection
 		{
 			for(int i=0; i<challenges.Count; i++)
 			{
-				if(fb.name == challenges[i].GetID())
+				if(fb.name == challenges[i].GetID().ToString())
 				{
 					UnityEngine.Debug.Log("ButtonFunc: getting track");
 					Track track = challenges[i].GetTrack();
@@ -641,12 +641,7 @@ public class ButtonFunctionCollection
 					foreach (Notification notification in notifications) {
 						if (notification.read) continue;
 						if (string.Equals(notification.message.type, "challenge")) {
-							string challengeId = notification.message.challenge_id;
-							if (challengeId == null || challengeId.Length == 0) continue;
-//							if (challengeId.Contains("$oid")) challengeId = notification.node["challenge_id"]["$oid"].ToString();
-//							challengeId = challengeId.Replace("\"", "");
-//							Debug.Log(challengeId + " vs " + generic.id);
-							// TODO: Standardize oids
+							int challengeId = notification.message.challenge_id;
 							if (!challengeId.Equals(generic.id)) continue;
 							
 							Platform.Instance.ReadNotification(notification.id);

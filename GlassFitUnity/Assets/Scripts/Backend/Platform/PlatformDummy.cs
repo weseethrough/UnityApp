@@ -303,10 +303,6 @@ public class PlatformDummy : Platform
 	
 
 	
-	public override void ReadNotification(string id) {
-		throw new NotImplementedException();
-	}
-	
 	public override byte[] LoadBlob(string id) {
 		try {
 			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);			
