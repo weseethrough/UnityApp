@@ -68,7 +68,10 @@ public class GraphWindow : EditorWindow, IDraw
     {
         if (dirtySave)
         {
-            SaveGraph();
+            if (!Application.isPlaying)
+            {
+                SaveGraph();
+            }
             dirtySave = false;
         }        
     }
@@ -1284,6 +1287,11 @@ public class GraphWindow : EditorWindow, IDraw
 
 	void OnGUI ()
 	{       
+        if (Application.isPlaying)
+        {
+            return;
+        }
+
 		if (!wantsMouseMove)
 		{
 			// Not sure why the original initialization fails.

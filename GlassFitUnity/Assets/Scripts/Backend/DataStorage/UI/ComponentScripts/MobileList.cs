@@ -10,34 +10,38 @@ using System.Threading;
 public class MobileList : UIComponentSettings
 {
     MobilePanel parent;
+    private int itemCountBeforeTop = 4;
+    private int itemsToManage = 14;
 
-        
     private List<GameObject> buttons = new List<GameObject>();
-
+    private int previousStartIndex = 0;
+    private int previousCount = 0;
     private bool initialized = false;
-
     private Dictionary<string, GameObject> buttonPrototypes;
     private GameObject listContent;
     private GameObject listHeader;
-
     private string title = "NoTitle";
-
     private GraphComponent gComponent;
+
+    private Dictionary<string, List<GameObject>> instances = new Dictionary<string, List<GameObject>>();
+
+    private float defayltYOffset;
 
     void Start()
     {
-        gComponent                  = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
-        listHeader                  = GameObjectUtils.SearchTreeByName(gameObject, "ListHeader");
-        listContent                 = GameObjectUtils.SearchTreeByName(gameObject, "ListContent");
+        gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+        listHeader = GameObjectUtils.SearchTreeByName(gameObject, "ListHeader");
+        listContent = GameObjectUtils.SearchTreeByName(gameObject, "ListContent");
         Debug.Log("listHeader " + listHeader);
         Debug.Log("listContent " + listContent);
 
         buttonPrototypes = GetPrototypes(listContent);
 
+        defayltYOffset = listContent.GetComponent<UIGrid>().transform.position.y;
+
         SetTitle(title);
- 
+
         initialized = true;
-        RebuildList();             
     }
 
     public void SetTitle(string title)
@@ -55,71 +59,152 @@ public class MobileList : UIComponentSettings
         this.parent = parent;
     }
 
-    public void RebuildList()
+    void Update()
+    {
+        if (parent == null) return;
+        List<ListButtonData> buttonData = parent.GetButtonData();
+        UIGrid grid = listContent.GetComponent<UIGrid>();
+
+        Vector3 pos = grid.transform.position;
+        float itemHeight = grid.cellHeight;
+        float position = pos.y - defayltYOffset;
+        int start = -itemCountBeforeTop + (int)(position / itemHeight);
+
+        Reposition(buttonData, start, itemsToManage);
+    }
+
+    public void Reposition(List<ListButtonData> items, int itemOffset, int itemCount)
     {
 
-        if (!initialized)
-        {
-            return;
-        }
+        int min = Mathf.Min(itemOffset, previousStartIndex);
+        int max = Mathf.Max(itemOffset + itemCount, previousStartIndex + previousCount);
 
-        if (parent == null)
-        {
-            //Debug.LogError("panel not identified! ensure panel is set to one of MobilePanel types");
-            return;
-        }
+        UIGrid grid = listContent.GetComponent<UIGrid>();
+        Transform transform = grid.transform;
 
-        buttons = new List<GameObject>();
+        List<GameObject> newButtons = new List<GameObject>();
 
-        Vector3 headerPos = listHeader.transform.localPosition;                
-        List<ListButtonData> buttonData = parent.GetButtonData();
-        if (buttonData != null && buttonData.Count > 0)
+        /*int x = 0;
+        int y = 0;*/
+        int i;
+
+        for (i = min; i < max; i++)
         {
-            for (int i = 0; i < buttonData.Count; i++)
+            //do not try to manage items off the list
+            if (i < 0 || i >= items.Count) continue;
+
+            bool makeVisible = false;
+
+            if (i >= itemOffset && i < itemOffset + itemCount)
             {
-                GameObject prototype;
-                GameObject button;
+                makeVisible = true;
+            }
 
-                prototype = buttonPrototypes[buttonData[i].buttonFormat];
-                button = GameObject.Instantiate(prototype) as GameObject;
-                button.SetActive(true);
+            if (makeVisible)
+            {
+                GameObject item;
 
-                button.transform.parent = prototype.transform.parent;
-                button.transform.localScale = prototype.transform.localScale;
-                button.name = buttonData[i].buttonName;
-
-                buttons.Add(button);
-
-                UIButton buttonScript = button.GetComponentInChildren<UIButton>();
-                if (buttonScript != null)
+                if (i >= previousStartIndex && i < previousStartIndex + previousCount)
                 {
-                    FlowButton fb = buttonScript.gameObject.GetComponent<FlowButton>();
-                    if (fb == null)
-                    {
-                        buttonScript.gameObject.AddComponent<FlowButton>();
-                    }
-                    fb.owner = parent;
-                    fb.name = buttonData[i].buttonName;
+                    item = buttons[0];
+                    buttons.RemoveAt(0);
                 }
+                else
+                {
+                    item = GetNewButton(items[i], newButtons);
+                }
+                newButtons.Add(item);
 
-                GameObjectUtils.SetTextOnLabelInChildren(button, "title", buttonData[i].textNormal);
-                GameObjectUtils.SetTextOnLabelInChildren(button, "content", buttonData[i].buttonName);
+                Vector3 p = item.transform.localPosition;
+                p.y = -grid.cellHeight * i;
 
-                Debug.Log("AddButton " + buttonData[i].textNormal + " btName: " + buttonData[i].buttonName);
+                item.transform.localPosition = p;
+
             }
-
-            UIGrid grid = listContent.GetComponent<UIGrid>();
-            if (grid != null)
+            else
             {
-                grid.Reposition();
+                if (i >= previousStartIndex && i < previousStartIndex + previousCount)
+                {
+                    buttons[0].SetActive(false);
+                    buttons.RemoveAt(0);
+                }
             }
         }
-    }    
+
+        buttons = newButtons;
+
+        previousStartIndex = itemOffset;
+        previousCount = itemCount;
+
+        UIDraggablePanel drag = NGUITools.FindInParents<UIDraggablePanel>(gameObject);
+        if (drag != null) drag.UpdateScrollbars(true);
+    }
+
+    private GameObject GetNewButton(ListButtonData data, List<GameObject> newListButtons)
+    {
+        GameObject prototype = null;
+        GameObject button = null;
+
+        List<GameObject> existingInstances = null;
+
+        if (instances.ContainsKey(data.buttonFormat))
+        {
+            existingInstances = instances[data.buttonFormat];
+        }
+        else
+        {
+            existingInstances = new List<GameObject>();
+            instances[data.buttonFormat] = existingInstances;
+        }
+
+        for (int i = 0; i < existingInstances.Count; i++)
+        {
+            //check if button were used in previous or new list. if not then we can use it
+            int index = Mathf.Max(buttons.IndexOf(existingInstances[i]), newListButtons.IndexOf(existingInstances[i]));
+            if (index == -1)
+            {
+                button = existingInstances[i];
+                break;
+            }
+        }
+
+        if (button == null)
+        {
+            prototype = buttonPrototypes[data.buttonFormat];
+            button = GameObject.Instantiate(prototype) as GameObject;
+            button.SetActive(true);
+            existingInstances.Add(button);
+
+            button.transform.parent = prototype.transform.parent;
+            button.transform.localScale = prototype.transform.localScale;
+        }
+
+        button.SetActive(true);
+        button.name = data.buttonName;
+
+        UIButton buttonScript = button.GetComponentInChildren<UIButton>();
+        if (buttonScript != null)
+        {
+            FlowButton fb = buttonScript.gameObject.GetComponent<FlowButton>();
+            if (fb == null)
+            {
+                buttonScript.gameObject.AddComponent<FlowButton>();
+            }
+            fb.owner = parent;
+            fb.name = data.buttonName;
+        }
+
+        GameObjectUtils.SetTextOnLabelInChildren(button, "title", data.textNormal);
+        GameObjectUtils.SetTextOnLabelInChildren(button, "content", data.buttonName);
+
+        return button;
+    }
+
 
     Dictionary<string, GameObject> GetPrototypes(GameObject root)
     {
         Dictionary<string, GameObject> collection = new Dictionary<string, GameObject>();
-        foreach(Transform t in root.transform)
+        foreach (Transform t in root.transform)
         {
             collection[t.name] = t.gameObject;
             t.gameObject.SetActive(false);
