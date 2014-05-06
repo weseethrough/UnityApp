@@ -28,11 +28,11 @@ public class ChallengeNotification {
 		}
 	}
 	
-	public string GetID() {
+	public int GetID() {
 		if(notification != null) {
 			return notification.id;
 		} else {
-			return "";
+			return -1;
 		}
 	}
 	
