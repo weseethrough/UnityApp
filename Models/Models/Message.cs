@@ -9,8 +9,7 @@ namespace RaceYourself.Models
 
 		// TODO: Polymorphism
 		public int from;
-		[JsonConverter(typeof(ObjectIdConverter))]
-		public string challenge_id;
+        public int challenge_id;
 		public string taunt;
 	}
 }
