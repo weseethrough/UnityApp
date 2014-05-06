@@ -295,10 +295,10 @@ namespace RaceYourself
 				yield break;
 			}
 			
-			var response = JsonConvert.DeserializeObject<SignUpResponse>(post.text);
-			if (!response.success) {
+			var response = JsonConvert.DeserializeObject<SingleResponse<SignUpResponse>>(post.text);
+			if (!response.response.success) {
 				log.error("SignUp() failed");
-				callback(false, response.errors);
+				callback(false, response.response.errors);
 				yield break;
 			}
 			
