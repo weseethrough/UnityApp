@@ -62,7 +62,6 @@
     <Compile Include="JsonStringConverter.cs">
       <DependentUpon>ObjectIdConverter.cs</DependentUpon>
     </Compile>
-    <Compile Include="ObjectIdConverter.cs" />
     <Compile Include="Models\Game.cs" />
     <Compile Include="Models\PlayerConfig.cs" />
     <Compile Include="Tests\SiaqoTests.cs" />

@@ -63,9 +63,8 @@ public class LoadingCont : MonoBehaviour {
 							if (notification.read) continue;
 							if (string.Equals(notification.message.type, "challenge")) {
 								int challengerId = notification.message.from;
-								string challengeId = notification.message.challenge_id;
-								if (challengeId == null || challengeId.Length == 0) continue;
-								
+								int challengeId = notification.message.challenge_id;
+
 								Debug.Log("AcceptChallenges: " + challengeId + " from " + challengerId);
 								
 								DataVault.Set("loading", "Please wait while we fetch a challenge");

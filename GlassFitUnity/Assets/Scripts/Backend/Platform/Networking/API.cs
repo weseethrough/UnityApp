@@ -268,7 +268,45 @@ namespace RaceYourself
             }
         }
         
-        /// <summary>
+		/// <summary>
+		/// Coroutine to sign up.
+		/// </summary>
+		public IEnumerator SignUp(string email, string password, string inviteCode, string username, string name, char gender, Profile profile, Action<bool, Dictionary<string, string>> callback)
+		{
+			log.info("SignUp()");
+			var encoding = new System.Text.UTF8Encoding();			
+			var headers = new Hashtable();
+			headers.Add("Content-Type", "application/json");
+			headers.Add("Accept-Charset", "utf-8");
+			headers.Add("Accept-Encoding", "gzip");
+
+			SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, username, name, gender, profile);
+
+			byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
+			
+			var post = new WWW(ApiUrl("sign_up"), body, headers);
+			yield return post;
+			
+			if (!post.isDone) {}
+			
+			if (!String.IsNullOrEmpty(post.error)) {
+				log.error("SignUp() threw error: " + post.error);
+				callback(false, new Dictionary<string, string>() {{"network",post.error}});
+				yield break;
+			}
+			
+			var response = JsonConvert.DeserializeObject<SingleResponse<SignUpResponse>>(post.text);
+			if (!response.response.success) {
+				log.error("SignUp() failed");
+				callback(false, response.response.errors);
+				yield break;
+			}
+			
+			log.info("SignUp() was successful");
+			callback(true, null);
+		}
+		
+		/// <summary>
 		/// Coroutine to sync the database to the server and back.
 		/// Triggers Platform.OnSynchronization upon completion.
 		/// </summary>
@@ -309,7 +347,7 @@ namespace RaceYourself
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
 				headers.Add("Accept-Charset", "utf-8");
-				//headers.Add("Accept-Encoding", "gzip");
+				headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
 				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
@@ -837,12 +875,39 @@ namespace RaceYourself
 				log.info("Sync: persisted new data: " + inserts + " inserts, " + updates + " updates, " + deletes + " deletes in " + (DateTime.Now - start));
 			}
 		}
-		
+
+		private class SignUpRequest 
+		{
+			public string email;
+			public string password;
+			public string invite_code;
+			public string username;
+			public string name;
+			public char gender;
+			public Profile profile;
+
+			public SignUpRequest(string email, string password, string inviteCode, string username, string name, char gender, Profile profile) {
+				this.email = email;
+				this.password = password;
+				this.invite_code = inviteCode;
+				this.username = username;
+				this.name = name;
+				this.gender = gender;
+				this.profile = profile;
+			}
+		}
+
+		private class SignUpResponse
+		{
+			public bool success = false;
+			public Dictionary<string, string> errors;
+		}
+
 		private static string LengthOrNull(IList list) {
 			if (list == null) return "null";
 			return list.Count.ToString();
 		}
 	}
-	
+
 }
 

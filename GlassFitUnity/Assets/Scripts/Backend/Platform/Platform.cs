@@ -328,7 +328,7 @@ public abstract class Platform : SingletonBase
         return array;
     }
 
-    public virtual void ReadNotification (string id) {
+    public virtual void ReadNotification (int id) {
         var notifications = Notifications();
         foreach (Notification note in notifications) {
             if (note.id == id) {
@@ -348,7 +348,7 @@ public abstract class Platform : SingletonBase
         db.StoreObject(e);
     }
 
-    public virtual Challenge FetchChallenge(string id) {
+    public virtual Challenge FetchChallenge(int id) {
         Challenge challenge = null;
         IEnumerator e = api.get("challenges/" + id, (body) => {
             challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;

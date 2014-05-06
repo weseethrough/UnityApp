@@ -280,7 +280,7 @@ public class AndroidPlatform : Platform
 		return null;
 	}
 	
-	public override Challenge FetchChallenge(string id) {
+	public override Challenge FetchChallenge(int id) {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching challenge");
 			using (AndroidJavaObject rawch = helper_class.CallStatic<AndroidJavaObject>("fetchChallenge", id)) {
@@ -477,7 +477,7 @@ public class AndroidPlatform : Platform
 				Notification[] notifications = new Notification[length];
 				for (int i=0;i<length;i++) {
 					AndroidJavaObject p = list.Call<AndroidJavaObject>("get", i);
-					notifications[i] = new AndroidNotification{id = p.Get<string>("id"), read = p.Get<bool>("read"), message = JsonConvert.DeserializeObject<Message>(p.Get<string>("message")), ajo = p};
+					notifications[i] = new AndroidNotification{id = p.Get<int>("id"), read = p.Get<bool>("read"), message = JsonConvert.DeserializeObject<Message>(p.Get<string>("message")), ajo = p};
 				}
 				UnityEngine.Debug.Log("Platform: " + notifications.Length + " notifications fetched");
 				return notifications;
@@ -489,7 +489,7 @@ public class AndroidPlatform : Platform
 		return new Notification[0];
 	}
 	
-	public override void ReadNotification(string id) {
+	public override void ReadNotification(int id) {
 		var notifications = Notifications();
 		foreach (Notification note in notifications) {
 			if (note.id == id) {
