@@ -52,10 +52,10 @@ public class MobileSelectTrack : MobilePanel
             GConnector baseConnection = GetBaseButtonConnection();
             //AddBackButtonData();
 
-            for (int i = 0; i < trackList.Count; i++)
-            {
-                AddButtonData("button" + i, "D:" + trackList[i].distance + ",T:" + trackList[i].time, "", ListButtonData.ButtonFormat.ButtonNormalPrototype, baseConnection);
-            }
+//            for (int i = 0; i < trackList.Count; i++)
+//            {
+//                AddButtonData("button" + i, "D:" + trackList[i].distance + ",T:" + trackList[i].time, "", ListButtonData.ButtonFormat.ButtonNormalPrototype, baseConnection);
+//            }
 
             
             if (list != null)

@@ -5,6 +5,9 @@ using System.Threading;
 using System;
 using System.Collections.Generic;
 
+using RaceYourself.Models;
+using Newtonsoft.Json;
+
 [Serializable]
 public class MobileChallengePanel : MobilePanel {
 
@@ -44,6 +47,8 @@ public class MobileChallengePanel : MobilePanel {
 		base.EnterStart ();
 		challengeList = physicalWidgetRoot.GetComponentInChildren<MobileList>();
 		challengesGrid = physicalWidgetRoot.GetComponentInChildren<UIGrid>();
+
+		Platform.Instance.Authorize("facebook", "login");
 		if (challengeList != null)
 		{
 			challengeList.SetTitle("");
@@ -57,8 +62,7 @@ public class MobileChallengePanel : MobilePanel {
 		UITexture profilePicture = bkg.GetComponentInChildren<UITexture>();
 
 		// TODO: add functionality for login information
-		
-		
+
 
 		GameObject btnObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "ActiveBtn");
 		if(btnObj != null) {
@@ -75,20 +79,36 @@ public class MobileChallengePanel : MobilePanel {
 
 		challengesGrid.cellHeight = 350f;
 
-		AddButtonData("ActiveButton" + current, "", "", ListButtonData.ButtonFormat.ActiveChallengeButton, GetBaseButtonConnection());
+		AddButtonData("ActiveButton" + current, null, "", ListButtonData.ButtonFormat.ActiveChallengeButton, GetBaseButtonConnection());
 
 		if(activeBtn != null) {
 			activeBtn.enabled = false;
 			activeBtn.defaultColor = new Color(202 / 255f, 202 / 255f, 202 / 255f);
 		}
 	
-
 		challengeList.RebuildList();
+	}
+
+	public void AddButtons(List<Challenge> challengeList, ListButtonData.ButtonFormat format) {
+		for(int i=0; i<challengeList.Count; i++) {
+			string buttonName = format.ToString() + i;
+			Dictionary<string, string> challengeDictionary = new Dictionary<string, string>();
+			challengeDictionary.Add("TitleText", "test name " + i);
+			challengeDictionary.Add("DescriptionText", "test description " + i);
+			challengeDictionary.Add("DeadlineText", "Challenge expires in " + "5 days");
+			if(format != ListButtonData.ButtonFormat.FriendChallengeButton) {
+				challengeDictionary.Add("PrizePotText", "Prize pot: " + (i * 1000));
+				if(format == ListButtonData.ButtonFormat.CommunityChallengeButton) {
+					challengeDictionary.Add("ExtraPrizeText", "Extra Prize: "  + "Secret!");
+				}
+			}
+			AddButtonData(buttonName, challengeDictionary, "", format, GetBaseButtonConnection());
+
+		}
 	}
 
 	public void ChangeListType(ListButtonData.ButtonFormat format) 
 	{
-
 		if(challengesGrid != null) {
 			if(format == ListButtonData.ButtonFormat.ActiveChallengeButton) {
 				challengesGrid.cellHeight = 350f;
@@ -99,7 +119,44 @@ public class MobileChallengePanel : MobilePanel {
 		}
 
 		buttonData = new List<ListButtonData>();
-		AddButtonData(format.ToString() + current, "", "", format, GetBaseButtonConnection());
+
+		switch(format) {
+		case ListButtonData.ButtonFormat.ActiveChallengeButton:
+			IList<Challenge> activeChallengeIList = Platform.Instance.Challenges();
+			if(activeChallengeIList != null) {
+				List<Challenge> activeChallengeList = new List<Challenge>(activeChallengeIList.Count);
+				for(int i=0; i<activeChallengeIList.Count; i++) {
+					activeChallengeList[i] = activeChallengeIList[i];
+				}
+				activeChallengeList.RemoveAll(r => r.accepted == false);
+				AddButtons(activeChallengeList, ListButtonData.ButtonFormat.ActiveChallengeButton);
+			}
+			break;
+			
+		case ListButtonData.ButtonFormat.CommunityChallengeButton:
+			Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("challenges", body => {
+				UnityEngine.Debug.LogError(body);
+				List<Challenge> communityChallengeList = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Challenge>>(body).response;	
+				AddButtons(communityChallengeList, ListButtonData.ButtonFormat.CommunityChallengeButton);
+				if (challengeList != null)
+				{
+					challengeList.RebuildList();
+				}
+			})) ;
+			break;
+			
+		case ListButtonData.ButtonFormat.FriendChallengeButton:
+			IList<Challenge> challengeIList = Platform.Instance.Challenges();
+			if(challengeIList != null) {
+				List<Challenge> friendChallengeList = new List<Challenge>(challengeIList.Count);
+				for(int i=0; i<challengeIList.Count; i++) {
+					friendChallengeList[i] = challengeIList[i];
+				}
+				friendChallengeList.RemoveAll(r => r.accepted == true);
+				AddButtons(friendChallengeList, ListButtonData.ButtonFormat.FriendChallengeButton);
+			}
+			break;
+		}
 
 		current++;
 
