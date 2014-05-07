@@ -70,7 +70,7 @@ public class MobileSelectFriend : MobilePanel
 			for(int i=0; i<betaFriends.Count; i++) {
 				string betaButtonName = "challenge" + i;
 				AddButtonData(betaButtonName, betaFriends[i].name, "", ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
-				Platform.Instance.RemoteTextureManager.LoadImage("http://graph.facebook.com/" + betaFriends[i].uid + "/picture", betaButtonName, (tex, buttonId) => {
+				Platform.Instance.RemoteTextureManager.LoadImage(betaFriends[i].image, betaButtonName, (tex, buttonId) => {
 					
 					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
 					if(button != null) {
@@ -95,7 +95,7 @@ public class MobileSelectFriend : MobilePanel
             {
 				string buttonName = "invite" + i;
 				AddButtonData(buttonName, friendsData[i].name, "", ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
-				Platform.Instance.RemoteTextureManager.LoadImage("http://graph.facebook.com/" + friendsData[i].uid + "/picture", buttonName, (tex, buttonId) => {
+				Platform.Instance.RemoteTextureManager.LoadImage(friendsData[i].image, buttonName, (tex, buttonId) => {
 
 					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
 					if(button != null) {

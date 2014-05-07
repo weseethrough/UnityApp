@@ -40,7 +40,7 @@ public abstract class Platform : SingletonBase
     // internal platform tools
     public PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
     protected static Log log = new Log("Platform");  // for use by subclasses
-    protected Siaqodb db;
+    public Siaqodb db;
     public API api;
 
     // internal platform state
