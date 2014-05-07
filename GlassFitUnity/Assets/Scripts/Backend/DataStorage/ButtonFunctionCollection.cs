@@ -94,6 +94,26 @@ public class ButtonFunctionCollection
 		return true;
 	}
 
+	static public bool SetMobileChallengeType(FlowButton fb, FlowState panel) 
+	{
+		if(panel is MobileChallengePanel) {
+			switch(fb.name) {
+			case "ActiveBtn":
+				(panel as MobileChallengePanel).ChangeListType(ListButtonData.ButtonFormat.ActiveChallengeButton);
+				break;
+
+			case "FriendBtn":
+				(panel as MobileChallengePanel).ChangeListType(ListButtonData.ButtonFormat.FriendChallengeButton);
+				break;
+
+			case "CommunityBtn":
+				(panel as MobileChallengePanel).ChangeListType(ListButtonData.ButtonFormat.CommunityChallengeButton);
+				break;
+			}
+		}
+		return false;
+	}
+
 	static public bool ImportFacebook(FlowButton fb, FlowState panel) 
 	{
 		NetworkMessageListener.OnAuthenticated networkHandler = null;
