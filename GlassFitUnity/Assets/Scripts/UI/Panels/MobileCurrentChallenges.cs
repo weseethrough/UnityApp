@@ -73,7 +73,9 @@ public class MobileCurrentChallenges : MobilePanel
             
             for (int i = 0; i < challengeNotifications.Count; i++)
             {
-                AddButtonData("button" + i, challengeNotifications[i].GetName(), "", ListButtonData.ButtonFormat.ButtonNormalPrototype, baseConnection);
+				Dictionary<string, string> challengeDictionary = new Dictionary<string, string>();
+				challengeDictionary.Add("title", challengeNotifications[i].GetName());
+                AddButtonData("button" + i, challengeDictionary, "", ListButtonData.ButtonFormat.ButtonNormalPrototype, baseConnection);
 
                 ListButtonData data = new ListButtonData();
                 data.textNormal = challengeNotifications[i].GetName();
