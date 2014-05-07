@@ -32,7 +32,7 @@ extern "C" {
         
         char* machine = systemInfo.machine;
         return machine;
-
+    }
 }
 
 @end

@@ -28,7 +28,15 @@ public class IosPlatform : Platform
 	/// </summary>
 	protected override void Initialize()
 	{
+		//report update frequency for gyros. May need to set it here too.
+		float rate = Input.gyro.updateInterval;
+		log.info("Gyro update interval: " + rate);
+
+		//start location service
+		Input.location.Start();
+
 		base.Initialize();
+
 		initialised = true;
 	}
 
@@ -53,15 +61,6 @@ public class IosPlatform : Platform
 		playerOrientation.Update(orientation);
 
     }
-
-	protected override void Initialize ()
-	{
-		//report update frequency for gyros. May need to set it here too.
-		float rate = Input.gyro.updateInterval;
-		log.info("Gyro update interval: " + rate);
-
-		base.Initialize ();
-	}
 
 	[DllImport("__Internal")]
 	private static extern void _Poll();
