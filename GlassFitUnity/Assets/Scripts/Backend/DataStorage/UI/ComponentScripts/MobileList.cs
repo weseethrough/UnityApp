@@ -215,11 +215,4 @@ public class MobileList : UIComponentSettings
         return collection;
     }
 
-	public void RemoveButtons() {
-		foreach(Transform t in listContent.transform) {
-			if(t.gameObject.activeSelf) {
-				Destroy(t.gameObject);
-			}
-		}
-	}
 }

@@ -357,6 +357,10 @@ public abstract class Platform : SingletonBase
         return challenge;
     }
 
+	public virtual IList<Challenge> Challenges() {
+		return db.LoadAll<Challenge>();
+	}
+
     public virtual Track FetchTrack(int deviceId, int trackId) {
         // Check db
         Track track = db.Cast<Track>().Where<Track>(t => t.deviceId == deviceId && t.trackId == trackId).FirstOrDefault();
