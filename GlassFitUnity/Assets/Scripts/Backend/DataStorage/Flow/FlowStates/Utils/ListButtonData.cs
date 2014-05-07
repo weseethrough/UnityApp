@@ -17,7 +17,10 @@ public class ListButtonData : ISerializable
         SliderPrototype,
 		ChallengeButton,
 		InviteButton,
-		ImportButton
+		ImportButton,
+		ActiveChallengeButton,
+		CommunityChallengeButton,
+		FriendChallengeButton
     }
 
     public string   buttonName      = string.Empty;    

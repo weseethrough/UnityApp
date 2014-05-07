@@ -20,7 +20,7 @@ public class MobileList : UIComponentSettings
     private GameObject listContent;
     private GameObject listHeader;
 
-    private string title = "NoTitle";
+    private string title = "";
 
     private GraphComponent gComponent;
 
@@ -127,4 +127,12 @@ public class MobileList : UIComponentSettings
 
         return collection;
     }
+
+	public void RemoveButtons() {
+		foreach(Transform t in listContent.transform) {
+			if(t.gameObject.activeSelf) {
+				Destroy(t.gameObject);
+			}
+		}
+	}
 }
