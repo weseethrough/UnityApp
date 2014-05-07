@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using RaceYourself.Models;
 using PositionTracker;
 
-public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
+public class CrossPlatformPositionProvider : IPositionProvider {
 	
 	// List of listeners
 	private List<IPositionListener> positionListeners = new List<IPositionListener>();
@@ -37,7 +37,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		positionListeners.Insert(0, posListener);
 		
 		// Update every second
-		InvokeRepeating("UpdateLocation", 0, 1);
+		//InvokeRepeating("UpdateLocation", 0, 1);
 		return true;
 
 		//We can't use yield return outside of coroutines, and coroutines can't return a value (only IEnumerator).
@@ -68,6 +68,12 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		}
 	}
 
+	public void Update() {
+
+		//TODO - only once a second
+		UpdateLocation();
+	}
+
 	//Renamed this to avoid clash with MonoBehaviour's own once-per-frame Update.
 	public void UpdateLocation() {
 		if (!Input.location.isEnabledByUser) {
@@ -85,7 +91,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 	
 	private void Reset() {
 		positionListeners.Clear();
-		CancelInvoke("UpdateLocation");
+		//CancelInvoke("UpdateLocation");
 		Input.location.Stop();		
 	}
 }

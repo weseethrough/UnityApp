@@ -28,7 +28,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 
 	private PositionTracker.PositionTracker positionTracker;
 	private IPositionProvider positionProvider;
-	private ISensorProvider sensorProvider;
+	private CrossPlatformSensorProvider sensorProvider;
 
 
 	public CrossPlatformPlayerPosition() {
@@ -88,6 +88,8 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 			_position = positionTracker.CurrentPosition;
 		}
 		_bearing = positionTracker.CurrentBearing;
+
+		sensorProvider.Update();
 	}
 
 	public override void NotifyAutoBearing() {
