@@ -98,7 +98,8 @@ public class MobilePanel : Panel
     /// <returns></returns>
     protected void AddBackButtonData()
     {
-        AddButtonData("buttonBack", "Back", "FollowBack");        
+//		Dictionary<string, string> dictionary = 
+//        AddButtonData("buttonBack", "Back", "FollowBack");        
     }
 
     /// <summary>
@@ -108,9 +109,9 @@ public class MobilePanel : Panel
     /// <param name="title"></param>
     /// <param name="function"></param>    
     /// <returns></returns>
-    protected void AddButtonData(string buttonName, string title, string function)
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function)
     {
-        AddButtonData(buttonName, title, function, ListButtonData.ButtonFormat.ButtonPrototype, null);
+        AddButtonData(buttonName, buttonDictionary, function, ListButtonData.ButtonFormat.ButtonPrototype, null);
     }
 
     /// <summary>
@@ -121,9 +122,9 @@ public class MobilePanel : Panel
     /// <param name="function"></param>
     /// <param name="buttonFormat"></param>
     /// <returns></returns>
-    protected void AddButtonData(string buttonName, string title, string function, ListButtonData.ButtonFormat buttonFormat)
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat)
     {
-        AddButtonData(buttonName, title, function, buttonFormat, null);
+        AddButtonData(buttonName, buttonDictionary, function, buttonFormat, null);
     }
 
     /// <summary>
@@ -135,13 +136,14 @@ public class MobilePanel : Panel
     /// <param name="buttonFormat"></param>
     /// <param name="cloneFirstLinkage"></param>
     /// <returns></returns>
-    protected void AddButtonData(string buttonName, string title, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
     {       
         ListButtonData data = new ListButtonData();
-        data.textNormal = title;
+//        data.textNormal = title;
         data.buttonName = buttonName;
         data.connectionFunction = function;
         data.buttonFormat = buttonFormat.ToString();
+		data.attributeDictionary = buttonDictionary;
 
         buttonData.Add(data);
 
@@ -157,6 +159,10 @@ public class MobilePanel : Panel
             gc.EventFunction = cloneFirstLinkage.EventFunction;
         }        
     }   
+
+//	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string CallStaticFunction, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage) {
+//
+//	}
 
     /// <summary>
     /// 

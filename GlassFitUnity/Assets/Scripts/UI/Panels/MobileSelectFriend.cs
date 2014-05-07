@@ -69,7 +69,9 @@ public class MobileSelectFriend : MobilePanel
 		if(betaFriends != null && betaFriends.Count > 0) {
 			for(int i=0; i<betaFriends.Count; i++) {
 				string betaButtonName = "challenge" + i;
-				AddButtonData(betaButtonName, betaFriends[i].name, "", ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
+				Dictionary<string, string> betaFriendDictionary = new Dictionary<string, string>();
+				betaFriendDictionary.Add("title", betaButtonName);
+				AddButtonData(betaButtonName, betaFriendDictionary, "", ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
 				Platform.Instance.RemoteTextureManager.LoadImage(betaFriends[i].image, betaButtonName, (tex, buttonId) => {
 					
 					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
@@ -94,7 +96,9 @@ public class MobileSelectFriend : MobilePanel
             for (int i = 0; i < friendsData.Count; i++)
             {
 				string buttonName = "invite" + i;
-				AddButtonData(buttonName, friendsData[i].name, "", ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
+				Dictionary<string, string> friendDictionary = new Dictionary<string, string>();
+				friendDictionary.Add("title", buttonName);
+				AddButtonData(buttonName, friendDictionary, "", ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
 				Platform.Instance.RemoteTextureManager.LoadImage(friendsData[i].image, buttonName, (tex, buttonId) => {
 
 					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
@@ -104,7 +108,7 @@ public class MobileSelectFriend : MobilePanel
 				});
             }
 
-			AddButtonData ("ImportButton", "", "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
+			AddButtonData ("ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
             
             if (list != null)
             {            

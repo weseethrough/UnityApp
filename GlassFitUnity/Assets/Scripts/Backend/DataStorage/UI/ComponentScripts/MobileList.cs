@@ -102,8 +102,14 @@ public class MobileList : UIComponentSettings
                     fb.name = buttonData[i].buttonName;
                 }
 
-                GameObjectUtils.SetTextOnLabelInChildren(button, "title", buttonData[i].textNormal);
-                GameObjectUtils.SetTextOnLabelInChildren(button, "content", buttonData[i].buttonName);
+				GameObjectUtils.SetTextOnLabelInChildren(button, "title", buttonData[i].textNormal);
+				GameObjectUtils.SetTextOnLabelInChildren(button, "content", buttonData[i].buttonName);
+
+				if(buttonData[i].attributeDictionary != null) {
+					foreach(var key in buttonData[i].attributeDictionary.Keys) {
+						GameObjectUtils.SetTextOnLabelInChildren(button, key, buttonData[i].attributeDictionary[key]);
+					}
+				}
 
                 Debug.Log("AddButton " + buttonData[i].textNormal + " btName: " + buttonData[i].buttonName);
             }

@@ -28,6 +28,8 @@ public class ListButtonData : ISerializable
     public string   connectionFunction = string.Empty;
     public string   buttonFormat = ButtonFormat.ButtonNormalPrototype.ToString();
 
+	public Dictionary<string, string> attributeDictionary = new Dictionary<string, string>();
+
     /// <summary>
     /// default constructor
     /// </summary>
