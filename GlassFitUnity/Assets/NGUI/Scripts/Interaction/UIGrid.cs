@@ -171,4 +171,14 @@ public class UIGrid : UIWidgetContainer
 //		UIDraggablePanel drag = NGUITools.FindInParents<UIDraggablePanel>(gameObject);
 //		if (drag != null) drag.ResetPosition();
 	}
+
+	public void RemoveButtons() {
+		for(int i=transform.childCount - 1; i>=0; i--) {
+			if(transform.GetChild(i).gameObject.activeSelf) {
+				Destroy(transform.GetChild(i).gameObject);
+				transform.GetChild(i).parent = null;
+			}
+		}
+
+	}
 }
