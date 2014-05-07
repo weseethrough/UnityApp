@@ -20,6 +20,7 @@ namespace RaceYourself.Models
 		public DateTime? stop_time;
 		public List<double> location;
 		public bool @public;
+        public bool? accepted;
 
 		public string type;
 					
