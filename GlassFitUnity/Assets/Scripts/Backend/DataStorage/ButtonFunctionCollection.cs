@@ -1026,12 +1026,30 @@ public class ButtonFunctionCollection
         Panel panel = (Panel) fs;
         GameObject widgetRoot = panel.physicalWidgetRoot;
         string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
+        string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
+        string firstName = getFieldUiBasiclabelContent(widgetRoot, "ForenameInput");
+        string surname = getFieldUiBasiclabelContent(widgetRoot, "SurnameInput");
+        
+        // TODO work out how to route to CommsError if network failure
+        // U = undisclosed.
+        Platform.Instance.api.SignUp(email, password, null, null, firstName + " " + surname, 'U', null, SignUpCallback);
 
-        // TODO replace this with API server query
-        bool onList = email == "corrida.simesmo@gmail.com";
+        // TODO show error and return false if passwords don't match
 
-        DataVault.Set("custom_redirection_point", onList ? "OnList" : "NotOnList");
         return true;
+    }
+    
+    private static void SignUpCallback(bool result, Dictionary<string, string> errors)
+    {
+        // TODO route to NotOnList if !result (check values of errors as well); route to OnList if result
+        
+        //DataVault.Set("custom_redirection_point", result ? "OnList" : "NotOnList");
+        string exit = result ? "OnList" : "NotOnList";
+        Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+        GConnector gc = panel.Outputs.Find(r => r.Name == exit);
+        if (gc == null)
+            Debug.LogError("Exit not found: " + exit);
+        else panel.parentMachine.FollowConnection(gc);
     }
 
     static public bool InitMobileLogin(FlowButton button, FlowState fs)
