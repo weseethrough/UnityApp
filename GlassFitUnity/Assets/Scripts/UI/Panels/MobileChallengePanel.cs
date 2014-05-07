@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -119,6 +119,7 @@ public class MobileChallengePanel : MobilePanel {
 		}
 
 		buttonData = new List<ListButtonData>();
+		AddButtonData(format.ToString() + current, "", "", format, GetBaseButtonConnection());
 
 		switch(format) {
 		case ListButtonData.ButtonFormat.ActiveChallengeButton:

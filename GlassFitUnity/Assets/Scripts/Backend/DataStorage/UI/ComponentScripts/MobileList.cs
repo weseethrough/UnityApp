@@ -208,7 +208,6 @@ public class MobileList : UIComponentSettings
 //                Debug.Log("AddButton " + data.textNormal + " btName: " + data.buttonName);
             }
 
-
     Dictionary<string, GameObject> GetPrototypes(GameObject root)
     {
         Dictionary<string, GameObject> collection = new Dictionary<string, GameObject>();
