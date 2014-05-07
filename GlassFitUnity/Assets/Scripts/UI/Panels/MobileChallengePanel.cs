@@ -130,12 +130,15 @@ public class MobileChallengePanel : MobilePanel {
 				}
 				activeChallengeList.RemoveAll(r => r.accepted == false);
 				AddButtons(activeChallengeList, ListButtonData.ButtonFormat.ActiveChallengeButton);
+				if (challengeList != null)
+				{
+					challengeList.RebuildList();
+				}
 			}
 			break;
 			
 		case ListButtonData.ButtonFormat.CommunityChallengeButton:
 			Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("challenges", body => {
-				UnityEngine.Debug.LogError(body);
 				List<Challenge> communityChallengeList = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Challenge>>(body).response;	
 				AddButtons(communityChallengeList, ListButtonData.ButtonFormat.CommunityChallengeButton);
 				if (challengeList != null)
@@ -154,15 +157,12 @@ public class MobileChallengePanel : MobilePanel {
 				}
 				friendChallengeList.RemoveAll(r => r.accepted == true);
 				AddButtons(friendChallengeList, ListButtonData.ButtonFormat.FriendChallengeButton);
+				if (challengeList != null)
+				{
+					challengeList.RebuildList();
+				}
 			}
 			break;
-		}
-
-		current++;
-
-		if (challengeList != null)
-		{
-			challengeList.RebuildList();
 		}
 
 		if(activeBtn != null && friendBtn != null && communityBtn != null) {
