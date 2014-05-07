@@ -20,7 +20,9 @@ public class MobileList : UIComponentSettings
     private Dictionary<string, GameObject> buttonPrototypes;
     private GameObject listContent;
     private GameObject listHeader;
-    private string title = "NoTitle";
+
+    private string title = "";
+
     private GraphComponent gComponent;
 
     private Dictionary<string, List<GameObject>> instances = new Dictionary<string, List<GameObject>>();
@@ -212,4 +214,12 @@ public class MobileList : UIComponentSettings
 
         return collection;
     }
+
+	public void RemoveButtons() {
+		foreach(Transform t in listContent.transform) {
+			if(t.gameObject.activeSelf) {
+				Destroy(t.gameObject);
+			}
+		}
+	}
 }
