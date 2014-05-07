@@ -58,8 +58,8 @@ namespace RaceYourself
 		{
 			log.info("created");
 			db = database;
-			user = db.Cast<User>().LastOrDefault();
-			token = db.Cast<OauthToken>().LastOrDefault();
+			user = db.Query<User>().LastOrDefault();
+			token = db.Query<OauthToken>().LastOrDefault();
 			if (user != null && token != null) {
 				if (user.id != token.userId) {
 					log.error("Token in database does not belong to user in database!");
@@ -114,11 +114,13 @@ namespace RaceYourself
 				}
 
 				var response = JsonConvert.DeserializeObject<SingleResponse<Device>>(post.text);
-				
-				db.Delete(device);
+
+				var transaction = db.BeginTransaction();
+				db.Delete(device, transaction);
 				device = response.response;
 				device.self = true;
-				db.StoreObject(device);
+				db.StoreObject(device, transaction);
+				transaction.Commit();
 				log.info("RegisterDevice(): device registered as " + device.id);
 				
 				ret = "Success";
@@ -231,6 +233,80 @@ namespace RaceYourself
 		}
 		
 		/// <summary>
+		/// Coroutine to link a third-party service to the logged in user.
+		/// </summary>
+		public IEnumerator LinkProvider(ProviderToken ptoken) {
+			log.info(string.Format("LinkProvider({0})", ptoken.provider));
+
+			string ret = "Failed";
+			try {
+				string body = JsonConvert.SerializeObject(ptoken);
+				
+				var encoding = new System.Text.UTF8Encoding();			
+				var headers = new Hashtable();
+				headers.Add("Content-Type", "application/json");
+				headers.Add("Authorization", "Bearer " + token.access_token);				
+
+				var post = new WWW(ApiUrl("credentials"), encoding.GetBytes(body), headers);
+				yield return post;
+				
+				if (!post.isDone) {}
+				
+				if (!String.IsNullOrEmpty(post.error)) {
+					log.error(string.Format("LinkProvider({0}) threw error: {1}", ptoken.provider, post.error));
+					ret = "Network error";
+					yield break;
+				}
+
+				IEnumerator e = UpdateAuthentications();
+				while(e.MoveNext()) yield return e.Current;
+
+				log.info(string.Format("LinkProvider({0}): succeeded", ptoken.provider));
+                
+                ret = "Success";
+            } finally {
+            }
+        }
+        
+		/// <summary>
+		/// Coroutine to sign up.
+		/// </summary>
+		public IEnumerator SignUp(string email, string password, string inviteCode, string username, string name, char gender, Profile profile, Action<bool, Dictionary<string, string>> callback)
+		{
+			log.info("SignUp()");
+			var encoding = new System.Text.UTF8Encoding();			
+			var headers = new Hashtable();
+			headers.Add("Content-Type", "application/json");
+			headers.Add("Accept-Charset", "utf-8");
+			headers.Add("Accept-Encoding", "gzip");
+
+			SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, username, name, gender, profile);
+
+			byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
+			
+			var post = new WWW(ApiUrl("sign_up"), body, headers);
+			yield return post;
+			
+			if (!post.isDone) {}
+			
+			if (!String.IsNullOrEmpty(post.error)) {
+				log.error("SignUp() threw error: " + post.error);
+				callback(false, new Dictionary<string, string>() {{"network",post.error}});
+				yield break;
+			}
+			
+			var response = JsonConvert.DeserializeObject<SingleResponse<SignUpResponse>>(post.text);
+			if (!response.response.success) {
+				log.error("SignUp() failed");
+				callback(false, response.response.errors);
+				yield break;
+			}
+			
+			log.info("SignUp() was successful");
+			callback(true, null);
+		}
+		
+		/// <summary>
 		/// Coroutine to sync the database to the server and back.
 		/// Triggers Platform.OnSynchronization upon completion.
 		/// </summary>
@@ -251,19 +327,17 @@ namespace RaceYourself
 				}
 				syncing = true;
 
-				Sequences.Instance.Flush(db);
-
-				SyncState state = db.Cast<SyncState>().LastOrDefault();
+				SyncState state = db.Query<SyncState>().LastOrDefault();
 				if (state == null) state = new SyncState(0);
 				Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
 						+ " tail: " + state.tail_timestamp + "#" + state.tail_skip);
 				
 				// Register device if it doesn't have an id
-				Device self = db.Cast<Device>().Where(d => d.self == true).First();
+				Device self = db.Query<Device>().Where(d => d.self == true).First();
 				if (self.id <= 0) {
 					IEnumerator e = RegisterDevice(self);
 					while(e.MoveNext()) yield return e.Current;
-					self = db.Cast<Device>().Where(d => d.self == true).First();
+					self = db.Query<Device>().Where(d => d.self == true).First();
 				}
 				var gatherStart = DateTime.Now;
 				DataWrapper wrapper = new DataWrapper(db, self);
@@ -273,7 +347,7 @@ namespace RaceYourself
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
 				headers.Add("Accept-Charset", "utf-8");
-				//headers.Add("Accept-Encoding", "gzip");
+				headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
 				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
@@ -285,7 +359,7 @@ namespace RaceYourself
 				if (!post.isDone) {}
 				
 				if (!String.IsNullOrEmpty(post.error)) {
-					log.error("RegisterDevice() threw error: " + post.error);
+					log.error("Sync() threw error: " + post.error);
 					if (post.error.ToLower().Contains("401 unauthorized")) {
 						db.Delete(token);
 						token = null;
@@ -297,12 +371,12 @@ namespace RaceYourself
 				}
 				string responseEncoding = "uncompressed";
 				foreach (string key in post.responseHeaders.Keys) {
-					if (key.ToLower().Equals("content-encoding")) {
+					if (key.ToLower().Equals("content-encoding") && post.responseHeaders[key] != null) {
 						responseEncoding = post.responseHeaders[key];
 						break;
 					}
 				}
-				log.info("Sync() received " + (post.size/1000) + "kB " + responseEncoding);
+				log.info("Sync() received " + (post.bytesDownloaded/1000) + "kB " + responseEncoding);
 				
 				// Run slow ops in a background thread
 				var bytes = post.bytes;				
@@ -311,12 +385,22 @@ namespace RaceYourself
 					var parseStart = DateTime.Now;
 					try {
 						string responseBody = null;
+						if(bytes == null) {
+							throw new Exception("Sync() bytes is null");
+						}
+
 						if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(bytes));
 						else responseBody = encoding.GetString(bytes);
+
+						log.info("Sync() response body is " + responseBody);
+						if(responseBody == null) {
+							throw new Exception("Sync() responsebody is null");
+						}
 						response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
 					} catch (Exception ex) {
 						ret = "Failure";
 						log.error("Sync() threw exception " + ex.ToString());
+						log.error(ex, "Sync() exception stack");
 						throw ex;
 					}
 					log.info("Sync() parsed " + response.response.ToString() + " in " + (DateTime.Now - parseStart));
@@ -363,7 +447,7 @@ namespace RaceYourself
 		/// Returns cached data or null if missing
 		/// </summary>
 		public string getCached(string route) {
-			var cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).LastOrDefault();
+			var cache = db.Query<Models.Cache>().Where<Models.Cache>(c => c.id == route).LastOrDefault();
 			if (cache == null || cache.Expired) return null;
 			try {
 				return File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
@@ -386,7 +470,7 @@ namespace RaceYourself
 		public IEnumerator get(string route, Action<string> callback, bool checkCache) {
 			Models.Cache cache = null;
 			if (checkCache) {
-				cache = db.Cast<Models.Cache>().Where<Models.Cache>(c => c.id.Equals(route)).FirstOrDefault();
+				cache = db.Query<Models.Cache>().Where<Models.Cache>(c => c.id == route).FirstOrDefault();
 				if (cache != null && !cache.Expired) {
 					try {
 						var cached = File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
@@ -525,10 +609,10 @@ namespace RaceYourself
     		
 			public Data(Siaqodb db, Device self) {
 				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
-				tracks = new List<Models.Track>(db.Cast<Models.Track>().Where<Models.Track>(t => t.dirty == true));
-				positions = new List<Models.Position>(db.Cast<Models.Position>().Where<Models.Position>(p => p.dirty == true));
-				notifications = new List<Models.Notification>(db.Cast<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
-				transactions = new List<Models.Transaction>(db.Cast<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
+				tracks = new List<Models.Track>(db.Query<Models.Track>().Where<Models.Track>(t => t.dirty == true));
+				positions = new List<Models.Position>(db.Query<Models.Position>().Where<Models.Position>(p => p.dirty == true));
+				notifications = new List<Models.Notification>(db.Query<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
+				transactions = new List<Models.Transaction>(db.Query<Models.Transaction>().Where<Models.Transaction>(t => t.dirty == true));
 				actions = new List<Models.Action>(db.LoadAll<Models.Action>());
                 events = new List<Models.Event>(db.LoadAll<Models.Event>());
 
@@ -661,8 +745,10 @@ namespace RaceYourself
 				var start = DateTime.Now;
 				uint inserts, updates, deletes;
 				inserts = updates = deletes = 0;
+
+				Device self = db.Query<Device>().Where(d => d.self == true).First();
 				
-				SyncState state = db.Cast<SyncState>().LastOrDefault();
+				SyncState state = db.Query<SyncState>().LastOrDefault();
 				if (state == null) {
 					state = new SyncState(sync_timestamp, tail_timestamp, tail_skip);
 				} else {
@@ -674,6 +760,7 @@ namespace RaceYourself
 				if (devices != null) {
 					db.StartBulkInsert(typeof(Models.Device));
 					foreach (Models.Device device in devices) {
+						if (device.id == self.id) device.self = true;
 						// TODO: Move to <model>.save(db)?
 						if (!db.UpdateObjectBy("id", device)) {
 							db.StoreObject(device);
@@ -686,6 +773,8 @@ namespace RaceYourself
 				if (friends != null) {
 					db.StartBulkInsert(typeof(Models.Friend));
 					foreach (Models.Friendship friendship in friends) {
+						friendship.friend.GenerateCompositeId();
+
 						if (friendship.deleted_at != null) {
 							if (db.DeleteObjectBy("guid", friendship.friend)) deletes++;
 							continue;
@@ -694,6 +783,7 @@ namespace RaceYourself
 							db.StoreObject(friendship.friend);
 							inserts++;
 						} else updates++;
+						log.info(friendship.friend.guid);	
 					}
 					db.EndBulkInsert(typeof(Models.Friend));
 				}
@@ -785,12 +875,39 @@ namespace RaceYourself
 				log.info("Sync: persisted new data: " + inserts + " inserts, " + updates + " updates, " + deletes + " deletes in " + (DateTime.Now - start));
 			}
 		}
-		
+
+		private class SignUpRequest 
+		{
+			public string email;
+			public string password;
+			public string invite_code;
+			public string username;
+			public string name;
+			public char gender;
+			public Profile profile;
+
+			public SignUpRequest(string email, string password, string inviteCode, string username, string name, char gender, Profile profile) {
+				this.email = email;
+				this.password = password;
+				this.invite_code = inviteCode;
+				this.username = username;
+				this.name = name;
+				this.gender = gender;
+				this.profile = profile;
+			}
+		}
+
+		private class SignUpResponse
+		{
+			public bool success = false;
+			public Dictionary<string, string> errors;
+		}
+
 		private static string LengthOrNull(IList list) {
 			if (list == null) return "null";
 			return list.Count.ToString();
 		}
 	}
-	
+
 }
 

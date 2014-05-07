@@ -23,6 +23,7 @@ public class PlatformDummy : Platform
 {
 	const string STARTHEX_SCENE_NAME = "Assets/Scenes/Start Hex.unity";
 	const string SNACKRUN_SCENE_NAME = "Assets/Scenes/SnackRun.unity";
+	const string UITEST_SCENE_NAME = "Assets/Scenes/UITestScene.unity";
 
 
 	// Helper class for accessing the player's current position, speed and direction of movement
@@ -63,7 +64,7 @@ public class PlatformDummy : Platform
 	
     public override bool OnGlass()
     {
-        return false;
+        return true;
     }
 	public override bool IsRemoteDisplay()
 	{
@@ -96,25 +97,53 @@ public class PlatformDummy : Platform
 	[MenuItem("Race Yourself/Play from StartHex Scene, with flow at Start %0")]
 	public static void PlayFromStartHex()
     {
-		PlayWithScene(STARTHEX_SCENE_NAME, false);
+		
+		PlayWithScene(STARTHEX_SCENE_NAME, false, false);
 	}
 
 	[MenuItem("Race Yourself/Play from current Scene, with flow at Game Intro %[")]
 	public static void PlayFromCurrentGameScene()
 	{
-		PlayWithScene(null, true);
+		PlayWithScene(null, true, false);
 	}
 
 	[MenuItem("Race Yourself/Play from SnackRun Scene, with flow at Game Intro %]")]
 	public static void PlayFromSnackRunscene()
 	{
-		PlayWithScene(SNACKRUN_SCENE_NAME, true);
+		PlayWithScene(SNACKRUN_SCENE_NAME, true, false);
+	}
+
+	[MenuItem("Race Yourself/Play with Mobile UX %.")]
+	public static void PlayWithMobileUX()
+	{
+		PlayWithScene(STARTHEX_SCENE_NAME, false, true);
 	}
 	
-	protected static void PlayWithScene(string scene, bool toGame)
+	[MenuItem("Race Yourself/Load UITestScene %u")]
+	public static void LoadUITestScene()
 	{
-		//set the string for the exit we want to follow from the start node
-		PlayerPrefs.SetInt("toGame", toGame? 1:0);
+		EditorApplication.SaveCurrentSceneIfUserWantsTo();
+		EditorApplication.OpenScene(UITEST_SCENE_NAME);
+	}
+
+
+
+	protected static void PlayWithScene(string scene, bool toGame, bool toMobile)
+	{
+		//encode the 'intent' in this integer
+		if(toGame)
+		{
+			PlayerPrefs.SetInt("toGame", 1);
+		}
+		else if(toMobile)
+		{
+			PlayerPrefs.SetInt("toGame", 2);
+		}
+		else
+		{
+			PlayerPrefs.SetInt("toGame", 0);
+		}
+
 		//load scene, then play
 		if(scene != null)
 		{
@@ -143,7 +172,6 @@ public class PlatformDummy : Platform
 	
 	protected override void Initialize()
 	{
-		base.Initialize();
 		try {
 			initialised = false;
 			_localPlayerPosition = new EditorPlayerPosition();
@@ -167,16 +195,18 @@ public class PlatformDummy : Platform
 	
 			UnityEngine.Debug.Log("Creating Platform Dummy instance");
 			
-
+			blobstore = Path.Combine(Application.persistentDataPath, blobstore);
+			blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
 			var tag = "Player";
 			if (!Application.isPlaying) {
 				// Save to blob assets in editor
 				blobstore = blobassets;
 				tag = "Editor";
 			}
-
-
-				
+			Directory.CreateDirectory(blobstore);
+			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
+			if (Application.isEditor) Directory.CreateDirectory(blobassets);
+			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
 		
 			if (!initialised) {
 				playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
@@ -273,11 +303,49 @@ public class PlatformDummy : Platform
 	
 
 	
-	public override void ReadNotification(string id) {
-		throw new NotImplementedException();
+	public override byte[] LoadBlob(string id) {
+		try {
+			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);			
+			return File.ReadAllBytes(Path.Combine(getBlobStorePath(), id));			
+		} catch (FileNotFoundException e) {
+			return LoadDefaultBlob(id);
+		}
 	}
-	
 
+	public byte[] LoadDefaultBlob(string id) {
+		try {
+			UnityEngine.Debug.Log("PlatformDummy: Loading default blob id: " + id);
+			if (blobassets.Contains("://")) {
+				var www = new WWW(Path.Combine(blobassets, id));
+				while(!www.isDone) {}; // block until finished
+				return www.bytes;
+			} else {
+				return File.ReadAllBytes(Path.Combine(blobassets, id));			
+			}
+		} catch (FileNotFoundException e) {
+			return new byte[0];
+		}
+	}
+
+	protected string getBlobStorePath()
+	{
+		if(Application.isEditor)// && !Application.isPlaying)
+		{
+			//modify the actual assets directly in the editor
+			return blobassets;
+		}
+		else
+		{
+			//Use the 'store' - a writable copy for the play mode session
+			return blobstore;
+		}
+	}
+
+    public override void StoreBlob(string id, byte[] blob)
+    {
+        File.WriteAllBytes(Path.Combine(getBlobStorePath(), id), blob);
+		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id + "to path: " + blobstore);
+    }
 
 	public override void ResetBlobs ()
 	{
@@ -402,9 +470,8 @@ public class PlatformDummy : Platform
         return 0.0f;
     }
 
-	public override bool RequiresSoftwareBackButton ()
-	{
-		return true;
+	public override bool ProvidesBackButton() {
+		return false; // for testing purposes
 	}
 }
 #endif

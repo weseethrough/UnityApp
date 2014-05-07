@@ -14,7 +14,10 @@ public class ListButtonData : ISerializable
     {
         ButtonNormalPrototype,
         ButtonPrototype,
-        SliderPrototype
+        SliderPrototype,
+		ChallengeButton,
+		InviteButton,
+		ImportButton
     }
 
     public string   buttonName      = string.Empty;    

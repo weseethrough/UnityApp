@@ -111,7 +111,7 @@ public class MessageWidget : MonoBehaviour
         md.atlas = atlasContainingIcon;
         md.iconName = iconName;
 
-        messageStack.Add(md);
+        if (messageStack != null) messageStack.Add(md);
     }
 
     /// <summary>

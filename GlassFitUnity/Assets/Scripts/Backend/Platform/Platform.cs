@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Threading;
 using System;
-using System.IO;
 using System.Runtime.CompilerServices;
 using SimpleJSON;
 using RaceYourself;
@@ -27,17 +26,19 @@ public abstract class Platform : SingletonBase
     public abstract BleController BleController { get; }  // Interface to BLE devices
 
     // Listeners for unity messages, attached to Platform game object in GetMonoBehavioursPartner
-    public PositionMessageListener _positionMessageListener;
+    private PositionMessageListener _positionMessageListener;
     public PositionMessageListener PositionMessageListener { get { return _positionMessageListener; } }
-    public NetworkMessageListener _networkMessageListener;
+    private NetworkMessageListener _networkMessageListener;
     public NetworkMessageListener NetworkMessageListener { get { return _networkMessageListener; } }
-    public BluetoothMessageListener _bluetoothMessageListener;
+    private BluetoothMessageListener _bluetoothMessageListener;
     public BluetoothMessageListener BluetoothMessageListener { get { return _bluetoothMessageListener; } }
-    public BleMessageListener _bleMessageListener;
+    private BleMessageListener _bleMessageListener;
     public BleMessageListener BleMessageListener { get { return _bleMessageListener; } }
+	private RemoteTextureManager _remoteTextureManager;
+	public RemoteTextureManager RemoteTextureManager { get { return _remoteTextureManager; } }
 
     // internal platform tools
-    private PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
+    public PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
     protected static Log log = new Log("Platform");  // for use by subclasses
     protected Siaqodb db;
     public API api;
@@ -50,13 +51,6 @@ public abstract class Platform : SingletonBase
     public int syncInterval = 10;  // Other components may change this to disable sync temporarily?
     public DateTime lastSync = new DateTime(0);
 
-	//protected string blobassets = "blob";
-	protected string blobassets = Path.Combine(Application.streamingAssetsPath, "blob");
-
-	//protected string blobstore = "game-blob";
-	protected string blobstore = Path.Combine(Application.persistentDataPath, "game-blob");
-
-	
     // TODO: fields that almost certainly want removing
     protected float yaw = -999.0f;
     protected bool started = false;
@@ -82,9 +76,9 @@ public abstract class Platform : SingletonBase
 #if UNITY_EDITOR
             return (Platform)GetInstance<PlatformDummy>();
 #elif UNITY_ANDROID && RACEYOURSELF_MOBILE
-            return (Platform)GetInstance<AndroidPlatform>();
+            return (Platform)GetInstance<MinimalAndroidPlatform>();
 #elif UNITY_ANDROID
-            return (Platform)GetInstance<AndroidPlatform>();
+            return (Platform)GetInstance<MinimalAndroidPlatform>();
 #elif UNITY_IPHONE
             return (Platform)GetInstance<IosPlatform>();
 #endif
@@ -103,10 +97,7 @@ public abstract class Platform : SingletonBase
 
 		if (initialised == false)
         {
-			//blobstore = Path.Combine(Application.persistentDataPath, blobstore);
-			//blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
-
-			Initialize();
+            Initialize();
         }
 
         log.info("awake, ensuring attachment to Platform game object for MonoBehaviours support");        
@@ -117,13 +108,10 @@ public abstract class Platform : SingletonBase
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();
 
-		Input.location.Start();
 
-		//create the blob store directory
-		Directory.CreateDirectory(blobstore);
-		log.info(" blobstore: " + blobstore);
-		if (Application.isEditor) Directory.CreateDirectory(blobassets);
-		log.info(" blobassets: " + blobassets);
+
+		//Input.location.Start();
+
 		// Set initialised=true in overriden method
 	}
 	
@@ -154,7 +142,10 @@ public abstract class Platform : SingletonBase
 			// TODO: Non-blocking connect?
 			ConnectSocket();
 		}
-		
+
+
+		FB.Init(OnInitComplete, OnHideUnity);
+
 		// start listening for 2-tap gestures to reset gyros
 		GestureHelper.onTwoTap += new GestureHelper.TwoFingerTap(() => {
             if (IsRemoteDisplay())
@@ -172,6 +163,8 @@ public abstract class Platform : SingletonBase
             }
 		});
 	}
+
+
 
     /// <summary>
     /// Called every frame by PlatformPartner to update internal state
@@ -193,7 +186,7 @@ public abstract class Platform : SingletonBase
         if (initialised && paused && OnGlass()) {
             Application.Quit();
         }
-    }
+	}
 
     public void OnApplicationQuit ()
     {
@@ -214,6 +207,7 @@ public abstract class Platform : SingletonBase
             _networkMessageListener = obj.gameObject.AddComponent<NetworkMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
             _bluetoothMessageListener = obj.gameObject.AddComponent<BluetoothMessageListener>();  // listenes for NewTrack and NewPosition messages from Java
             _bleMessageListener = obj.gameObject.AddComponent<BleMessageListener>();  // listenes for BLE messages - new devices, services and characteristics data, e.g. heart-rate or cadence
+			_remoteTextureManager = obj.gameObject.AddComponent<RemoteTextureManager>();
 
             //post initialziation procedure
             partner = obj;
@@ -335,7 +329,7 @@ public abstract class Platform : SingletonBase
         return array;
     }
 
-    public virtual void ReadNotification (string id) {
+    public virtual void ReadNotification (int id) {
         var notifications = Notifications();
         foreach (Notification note in notifications) {
             if (note.id == id) {
@@ -355,7 +349,7 @@ public abstract class Platform : SingletonBase
         db.StoreObject(e);
     }
 
-    public virtual Challenge FetchChallenge(string id) {
+    public virtual Challenge FetchChallenge(int id) {
         Challenge challenge = null;
         IEnumerator e = api.get("challenges/" + id, (body) => {
             challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
@@ -383,14 +377,49 @@ public abstract class Platform : SingletonBase
 
     public virtual void Authorize(string provider, string permissions) {
         if (Application.isPlaying) {
-            // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no?
-            GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
-            //GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
+			switch(provider) {
+			case "facebook": {
+				FBLogin(permissions);
+				return;
+			}
+			case "twitter": {
+				NetworkMessageListener.OnAuthentication("Failure");
+				throw new NotImplementedException("Implement Twitter authorization in native platform or webview");
+				return;
+			}
+			case "google+": {
+				NetworkMessageListener.OnAuthentication("Failure");
+				throw new NotImplementedException("Implement Google+ authorization in native platform");
+				return;
+			}
+			case "any":
+			default: {
+                // TODO should this be in PlatformDummy? If on device, email/password should come from OS, no? 
+                //      Yes
+                // GetMonoBehavioursPartner().StartCoroutine(api.Login("raceyourself@mailinator.com", "exerciseIsChanging123!"));
+                //GetMonoBehavioursPartner().StartCoroutine(api.Login("ry.beta@mailinator.com", "b3tab3ta"));
+                if (NetworkMessageListener.authenticated) NetworkMessageListener.OnAuthentication("Success");
+                else NetworkMessageListener.OnAuthentication("Failure");
+                return;
+            }
+			}
+		} else {
+			NetworkMessageListener.OnAuthentication("Failure");
         }
     }
 
     public virtual bool HasPermissions(string provider, string permissions) {
-        return NetworkMessageListener.authenticated;
+		if (api == null || api.user == null) return false;
+		var authentication = api.user.authentications.Find(auth => auth.provider == provider);
+		if (authentication == null) return false;
+
+		var perms = permissions.Split(',');
+		foreach(var perm in perms) {
+			var trimmed = perm.Trim();
+			if (trimmed.Length == 0) continue;
+			if (!authentication.permissions.Contains(trimmed)) return false;
+		}
+		return true;
     }
 
     public virtual void SyncToServer() {
@@ -416,37 +445,11 @@ public abstract class Platform : SingletonBase
 
     public abstract bool IsBluetoothBonded ();
 	
-	public virtual byte[] LoadBlob(string id) {
-		try {
-			UnityEngine.Debug.Log("PlatformDummy: Loading blob id: " + id);			
-			return File.ReadAllBytes(Path.Combine(blobstore, id));			
-		} catch (FileNotFoundException e) {
-			return LoadDefaultBlob(id);
-		}
-	}
+    public abstract byte[] LoadBlob (string id);
 	
-	public byte[] LoadDefaultBlob(string id) {
-		try {
-			UnityEngine.Debug.Log("PlatformDummy: Loading default blob id: " + id);
-			if (blobassets.Contains("://")) {
-				var www = new WWW(Path.Combine(blobassets, id));
-				while(!www.isDone) {}; // block until finished
-				return www.bytes;
-			} else {
-				return File.ReadAllBytes(Path.Combine(blobassets, id));			
-			}
-		} catch (FileNotFoundException e) {
-			return new byte[0];
-		}
-	}
-	
-	public virtual void StoreBlob(string id, byte[] blob)
-	{
-		File.WriteAllBytes(Path.Combine(blobstore, id), blob);
-		UnityEngine.Debug.Log("PlatformDummy: Stored blob id: " + id);
-	}
-	
-	public abstract void EraseBlob (string id);
+    public abstract void StoreBlob (string id, byte[] blob);
+
+    public abstract void EraseBlob (string id);
 
     public abstract void ResetBlobs ();
 
@@ -509,14 +512,20 @@ public abstract class Platform : SingletonBase
         return 0.0f;
     }
 	
+    /// <summary>
+    // Does the platform provide a back button? Some of the possible scenarios:
+    //
+    // a. Android - Samsung Galaxy SII/S3/S4 - physical back button built into device.
+    // b. Android - Nexus 5 - no physical back button, but OS provides one when not full-screen.
+    // c. All iPhone models at time of writing - no physical back button and nothing provided by the OS by default.
+    // Left to individual apps to provide this.
+    //
+    /// </summary>
+    /// <returns><c>true</c>, in scenarios (a) and (b) above, <c>false</c> in scenario (c).</returns>
+	public virtual bool ProvidesBackButton() {
+        return true;
+	}
 	
-	
-
-
-
-
-
-
     // *** Networking methods, currently overridden for android but not other platforms ***
 	
 	public virtual bool ConnectSocket() {
@@ -547,12 +556,54 @@ public abstract class Platform : SingletonBase
 		throw new NotImplementedException();
 	}
 
-	/// <summary>
-	/// Does the current platform require a software back button. i.e. is this iOS?
-	/// </summary>
-	/// <returns><c>true</c>, if the platform requires there to be a back button in the software, <c>false</c> if there is a back button on the device.</returns>
-	public virtual bool RequiresSoftwareBackButton() {
-		return false;
+	// Facebook methods
+	private void OnInitComplete()
+	{
+		log.info("Facebook: FB.Init completed: Is user logged in? " + FB.IsLoggedIn);
 	}
+	
+	private void OnHideUnity(bool isGameShown)
+	{
+		log.info("Facebook: Is game showing? " + isGameShown);
+	}
+	
+	private void FBLogin(string permissions)
+	{
+		string scope = "email"; // Default/"" = login only
+		// TODO: Convert our permissions to Facebook permissions
+		FB.Login(scope, FacebookLoginCallback);
+	}
+	
+	private void FacebookLoginCallback(FBResult result)
+	{
+		if (result.Error != null) {
+			log.error("Facebook: Error Response:\n" + result.Error);
+			NetworkMessageListener.OnAuthentication("Failure");
+		}
+		else if (!FB.IsLoggedIn)
+		{
+			log.info("Facebook: Login cancelled by Player");
+			NetworkMessageListener.OnAuthentication("Failure");
+		}
+		else
+		{
+			log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
+			if (NetworkMessageListener.authenticated) {
+				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId)));
+				NetworkMessageListener.OnAuthentication("Success");
+			} else {
+				// OnAuthentication sent from coroutine
+				GetMonoBehavioursPartner().StartCoroutine(api.Login(FB.UserId + "@facebook", FB.AccessToken));
+			}
+		}
+	}
+	
+	private void FacebookMeCallback(FBResult result) {
+		if (result.Error == null) {
+			FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
+			log.info("Facebook me: " + JsonConvert.SerializeObject(me));
+		}
+	}
+
 	
 }

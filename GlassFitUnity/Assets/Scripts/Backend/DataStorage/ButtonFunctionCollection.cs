@@ -6,15 +6,17 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading;
-
+using RaceYourself;
 using RaceYourself.Models;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Every function in collection have to accept FlowButton and panel variable and return boolean helping to decide if navigation should continue or stop
 /// </summary>
-public class ButtonFunctionCollection  
+public class ButtonFunctionCollection
 {
-   
+    protected static Log log = new Log("ButtonFunctionCollection");  // for use by subclasses
+
     /// <summary>
     /// default testing function 
     /// </summary>
@@ -91,6 +93,40 @@ public class ButtonFunctionCollection
 		
 		return true;
 	}
+
+	static public bool ImportFacebook(FlowButton fb, FlowState panel) 
+	{
+		NetworkMessageListener.OnAuthenticated networkHandler = null;
+		networkHandler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+			if (authenticated && Platform.Instance.HasPermissions("facebook", "login")) {
+				NetworkMessageListener.OnSync syncHandler = null;
+				syncHandler = new NetworkMessageListener.OnSync((message) => {
+					Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
+					DataVault.Set("facebook_message", "Facebook sync successful!");
+					FlowState.FollowBackLink();
+				});
+				Platform.Instance.NetworkMessageListener.onSync += syncHandler;
+				Platform.Instance.SyncToServer();
+
+				DataVault.Set("facebook_message", "Facebook login successful! Syncing friends...");
+			} else {
+				DataVault.Set("facebook_message", "Error authorizing Facebook! Tap to try again");
+				FlowState fs = FlowStateMachine.GetCurrentFlowState();
+				GameObject FacebookButton = GameObjectUtils.SearchTreeByName(((Panel)fs).physicalWidgetRoot, "FacebookButton");
+				FacebookButton.GetComponentInChildren<UIButton>().enabled = true;
+			}
+			Platform.Instance.NetworkMessageListener.onAuthenticated -= networkHandler;
+		});
+		DataVault.Set ("facebook_message", "Authorizing...");
+		FlowState flowState = FlowStateMachine.GetCurrentFlowState();
+		GameObject fbButton = GameObjectUtils.SearchTreeByName(((Panel)flowState).physicalWidgetRoot, "FacebookButton");
+		fbButton.GetComponentInChildren<UIButton>().enabled = false;
+		Platform.Instance.NetworkMessageListener.onAuthenticated += networkHandler;
+
+		Platform.Instance.Authorize("facebook", "login");
+
+		return false;
+	}
 	
 	static public bool SetChallenge(FlowButton fb, FlowState panel)
 	{
@@ -99,7 +135,7 @@ public class ButtonFunctionCollection
 		{
 			for(int i=0; i<challenges.Count; i++)
 			{
-				if(fb.name == challenges[i].GetID())
+				if(fb.name == challenges[i].GetID().ToString())
 				{
 					UnityEngine.Debug.Log("ButtonFunc: getting track");
 					Track track = challenges[i].GetTrack();
@@ -605,12 +641,7 @@ public class ButtonFunctionCollection
 					foreach (Notification notification in notifications) {
 						if (notification.read) continue;
 						if (string.Equals(notification.message.type, "challenge")) {
-							string challengeId = notification.message.challenge_id;
-							if (challengeId == null || challengeId.Length == 0) continue;
-//							if (challengeId.Contains("$oid")) challengeId = notification.node["challenge_id"]["$oid"].ToString();
-//							challengeId = challengeId.Replace("\"", "");
-//							Debug.Log(challengeId + " vs " + generic.id);
-							// TODO: Standardize oids
+							int challengeId = notification.message.challenge_id;
 							if (!challengeId.Equals(generic.id)) continue;
 							
 							Platform.Instance.ReadNotification(notification.id);
@@ -987,5 +1018,85 @@ public class ButtonFunctionCollection
 			DataVault.Set("custom_redirection_point", "MobileExit");
 		}
 		return true;
-	}
+    }
+
+    static public bool FacebookLogin(FlowButton button, FlowState panel)
+    {
+        // TODO if FB != null && FB.IsLoggedIn, hide button
+        try
+        {
+            FB.Login("", FacebookLoginCallback); // "" = zero permissions
+            return true;
+        }
+        catch (Exception e) {
+            // TODO show error to user
+            DataVault.Set("facebook_error", e.Message);
+            log.error("Facebook: error:\n" + e.Message);
+            return false;
+        }
+    }
+    
+    private static void FacebookLoginCallback(FBResult result)
+    {
+        if (result.Error != null)
+        {
+            log.error("Facebook: Error Response:\n" + result.Error);
+            DataVault.Set("facebook_error", result.Error);
+        }
+        else if (!FB.IsLoggedIn)
+        {
+            log.info("Facebook: Login cancelled by player");
+        }
+        else
+        {
+            log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
+            try
+            {
+                FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
+            }
+            catch (Exception e)
+            {
+                DataVault.Set("facebook_error", e.Message);
+            }
+        }
+    }
+    
+    private static void FacebookMeCallback(FBResult result)
+    {
+        if (result.Error == null)
+        {
+            FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
+            log.info("Facebook me: " + result.Text);
+
+            Panel signupPanel = (Panel) FlowStateMachine.GetCurrentFlowState();
+            GameObject widgetRoot = signupPanel.physicalWidgetRoot;
+
+            UpdateLabel (widgetRoot, "ForenameInput", me.first_name);
+            UpdateLabel (widgetRoot, "SurnameInput", me.last_name);
+            UpdateLabel (widgetRoot, "EmailInput", me.email);
+
+            GameObject facebookButton = GameObject.FindWithTag("FacebookButton");
+            facebookButton.SetActive(false);
+
+            //GameObject picSprite = GameObject.FindWithTag("FacebookPic");
+            //picSprite.SetActive(true);
+        }
+        else
+        {
+            log.error("Error in FB callback: " + result.Error);
+        }
+    }
+
+    private static void UpdateLabel(GameObject widgetRoot, string inputName, string value)
+    {
+        GameObject inputField = GameObjectUtils.SearchTreeByName(widgetRoot, inputName);
+        if (inputField == null)
+        {
+            log.error("Unable to find " + inputName + " field in mobile signup panel!");
+        }
+        else
+        {
+            inputField.GetComponent<UIBasiclabel>().SetLabel(value == null ? "" : value);
+        }
+    }
 }

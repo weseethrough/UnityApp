@@ -57,7 +57,7 @@ public class GraphComponent : MonoBehaviour
 
                 //make forwarding state go to challenge screen instead of main menu
                 //DataVault.Set("custom_redirection_point", "Challenge");
-                DataVault.Set("custom_redirection_point", "MenuPoint");
+//                DataVault.Set("custom_redirection_point", "MenuPoint");
                 SetSelectedFlowByName(flowName);
             }
             else
@@ -67,16 +67,22 @@ public class GraphComponent : MonoBehaviour
 #else
 			//to go in-game menu, or else to main menu point
 			int toGameInt = PlayerPrefs.GetInt("toGame");
-			bool toGame = toGameInt > 0;
+			bool toGame = (toGameInt == 1);
+			bool toMobile = (toGameInt == 2);
 			string flowName = "MainFlow";
 			if(toGame)
 			{
 				DataVault.Set("custom_redirection_point", "GameIntroExit");
 				flowName = "GameplayFlow";
 			}
+			else if(toMobile)
+			{
+				DataVault.Set("custom_redirection_point", "Exit");
+				flowName = "MobileUX";
+			}
 			else
 			{
-                DataVault.Set("custom_redirection_point", "Exit"); // Exit to see first run flow; MenuPoint to jump to main menu
+                DataVault.Set("custom_redirection_point", "Exit");
 	            flowName = "MainFlow";//"MobileUX";
 			}
             SetSelectedFlowByName(flowName);

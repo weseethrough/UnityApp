@@ -18,7 +18,7 @@
   InstallDir $TEMP\RaceYourselfBeta
 
   ;Request application privileges for Windows Vista
-  RequestExecutionLevel admin
+  RequestExecutionLevel none
 
 ;--------------------------------
 ;Interface Settings
@@ -89,23 +89,24 @@
       File /r "scripts"
     SetDetailsPrint both
 
-    checkglass:
-    DetailPrint "Looking for Google Glass device.."
-    nsExec::Exec '$INSTDIR\scripts\hasusbglass.bat'
-    Pop $0
-    IntCmp $0 0 hasusbglass
-    DetailPrint " Google Glass device not detected."
-    MessageBox MB_OKCANCEL "Please plug your Google Glass into a USB port" IDOK checkglass
-      Abort
+;    checkglass:
+;    DetailPrint "Looking for Google Glass device.."
+;    nsExec::Exec '$INSTDIR\scripts\hasusbglass.bat'
+;    Pop $0
+;    IntCmp $0 0 hasusbglass
+;    DetailPrint " Google Glass device not detected."
+;    MessageBox MB_OKCANCEL "Please plug your Google Glass into a USB port" IDOK checkglass
+;      Abort
 
-    hasusbglass:
-    DetailPrint "  Google Glass device detected."
+;    hasusbglass:
+;    DetailPrint "  Google Glass device detected."
 
     DetailPrint "Connecting to Google Glass device.."
     nsExec::Exec '$INSTDIR\scripts\hasadbglass.bat'
     Pop $0
     IntCmp $0 0 aok
     DetailPrint " Google Glass device is not available through adb."
+    goto installfailed
  
     DetailPrint "Installing Google Glass USB drivers.."
     nsExec::Exec '$INSTDIR\scripts\hasdriver.bat'
@@ -115,14 +116,15 @@
     reinstall:
     DetailPrint "  Removing old drivers.."
     nsExec::Exec 'wmic path win32_systemdriver where name="Android USB Driver" call delete'
+    nsExec::Exec 'wmic path win32_systemdriver where name="Android ADB Interface" call delete'
     nsExec::Exec 'wmic path win32_systemdriver where name="WinUsb" call delete'
 
     install:
     # If win8 and (right) driver not installed, reboot if test signing not enabled
     ${GetWindowsVersion} $R0
     DetailPrint "  OS: Windows $R0"
-    StrCmp $R0 "8" windows8
-    StrCmp $R0 "8.1" windows8
+    StrCmp $R0 "disabled_8" windows8
+    StrCmp $R0 "disabled_8.1" windows8
     goto installdriver
     windows8:
     ${If} ${RunningX64}
@@ -156,14 +158,20 @@
     ${Else}
     ExecWait '$INSTDIR\dpinst\dpinst.exe /path $INSTDIR\dpinst'
     ${EndIf}
+
+    MessageBox MB_OKCANCEL "Please disconnect and reconnect your Glass device so that the driver can reload" IDOK glassreconnected
+      Abort
+
+    glassreconnected:
     SetDetailsPrint both
     DetailPrint "  Driver installer completed."
     DetailPrint "Connecting to Google Glass device.."
     nsExec::Exec '$INSTDIR\scripts\hasadbglass.bat'
     Pop $0
     IntCmp $0 0 aok
-    DetailPrint "  Could not contact device after driver install."
-    MessageBox MB_OK|MB_ICONSTOP "Could not install Google Glass USB driver.$\nPlease install the Google Glass drivers manually and try again" /SD IDOK
+    installfailed:
+    DetailPrint "  Could not contact device"; after driver install."
+    MessageBox MB_OK|MB_ICONSTOP "Could not install Race Yourself Beta.$\nPlease install the Google Glass drivers (http://developer.android.com/sdk/win-usb.html) and try again" /SD IDOK
     Abort
 
     aok:

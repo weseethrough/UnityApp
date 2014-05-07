@@ -133,8 +133,7 @@ public class ChallengePanel : HexPanel {
 							if (string.Equals(notification.message.type, "challenge")) {
 								int challengerId = notification.message.from;
 								if (challengerId == null) continue;
-								string challengeId = notification.message.challenge_id;
-								if (challengeId == null || challengeId.Length == 0) continue;
+								int challengeId = notification.message.challenge_id;
 								Challenge potential = Platform.Instance.FetchChallenge(challengeId);
 								if(potential is DistanceChallenge) {
 									User user = Platform.Instance.GetUser(challengerId);
@@ -285,7 +284,7 @@ public class ChallengePanel : HexPanel {
 				
 			hbd.column = (int)currentPosition.x;
 			hbd.row = (int)currentPosition.y;
-			hbd.buttonName = challengeNotifications[0].GetID();
+			hbd.buttonName = challengeNotifications[0].GetID().ToString();
 			hbd.textNormal = challengeNotifications[0].GetName();
 			hbd.textSmall = SiDistanceUnitless(challengeNotifications[0].GetTrack().distance);
 			hbd.backgroundTileColor = 0x00A30EFF;	
@@ -316,7 +315,7 @@ public class ChallengePanel : HexPanel {
 					
 				hbd.column = (int)currentPosition.x;
 				hbd.row = (int)currentPosition.y;
-				hbd.buttonName = challengeNotifications[i].GetID();
+				hbd.buttonName = challengeNotifications[i].GetID().ToString();
 				hbd.textNormal = challengeNotifications[i].GetName();
 				hbd.textSmall = SiDistanceUnitless(challengeNotifications[i].GetTrack().distance);
 					

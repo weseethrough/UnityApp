@@ -95,6 +95,7 @@ class LockedConverter : JsonConverter
     public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
     {
         UnityEngine.Debug.Log("LockedConverter.ReadJson: value=" + reader.Value + ";existingValue=" + existingValue);
+        if(reader.Value == null) return "Locked";
         return ((bool) reader.Value) ? "Locked" : "Unlocked";
         //return reader.Value.ToString() == "Locked";
     }

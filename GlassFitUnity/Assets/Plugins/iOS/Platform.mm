@@ -26,13 +26,19 @@ extern "C" {
 //        NSLog(@"Platform IsPluggedIn native call");
     }
     
-    char* _getDeviceInfo() {
+    const char* _getDeviceInfo() {
         struct utsname systemInfo;
         uname(&systemInfo);
         
-        char* machine = systemInfo.machine;
-        return machine;
+        char* result = (char*)malloc(strlen(systemInfo.machine)+1);
+        strcpy(result, systemInfo.machine);
+        
+        return result;
     }
+    
 }
+
+
+
 
 @end

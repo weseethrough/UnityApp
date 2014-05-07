@@ -34,6 +34,8 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
   <ItemGroup>
+    <Compile Include="Blob\Dictionary.cs" />
+    <Compile Include="Blob\PersistentData.cs" />
     <Compile Include="Tests\JsonTests.cs" />
     <Compile Include="Models\Action.cs" />
     <Compile Include="Models\Cache.cs" />
@@ -60,20 +62,18 @@
     <Compile Include="JsonStringConverter.cs">
       <DependentUpon>ObjectIdConverter.cs</DependentUpon>
     </Compile>
-    <Compile Include="ObjectIdConverter.cs" />
     <Compile Include="Models\Game.cs" />
     <Compile Include="Models\PlayerConfig.cs" />
     <Compile Include="Tests\SiaqoTests.cs" />
     <Compile Include="Sequences.cs" />
     <Compile Include="Compatibility\ConcurrentDictionary.cs" />
+    <Compile Include="Models\InviteAction.cs" />
+    <Compile Include="Models\Invite.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="JsonDotNet">
-      <HintPath>..\GlassFitUnity\Assets\JsonDotNet\JsonDotNet.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="siaqodb">
       <HintPath>..\GlassFitUnity\Assets\Plugins\siaqodb.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
       <HintPath>..\Common\UnityEngine.dll</HintPath>
@@ -84,8 +84,10 @@
       <HintPath>..\Common\nunit.framework.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="JsonDotNet">
+      <HintPath>..\GlassFitUnity\Assets\JsonDotNet\JsonDotNet.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Compatibility\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>
