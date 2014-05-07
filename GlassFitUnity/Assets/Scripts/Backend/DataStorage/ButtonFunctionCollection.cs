@@ -1025,9 +1025,12 @@ public class ButtonFunctionCollection
 		return true;
     }
 
-    static public bool CheckUserIsOnList(FlowButton button, FlowState panel)
+    static public bool CheckUserIsOnList(FlowButton button, FlowState fs)
     {
-        string email = (string) DataVault.Get("signup_email");
+        //string email = (string) DataVault.Get("signup_email");
+        Panel panel = (Panel) fs;
+        GameObject widgetRoot = panel.physicalWidgetRoot;
+        string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
 
         // TODO replace this with API server query
         bool onList = email == "corrida.simesmo@gmail.com";
