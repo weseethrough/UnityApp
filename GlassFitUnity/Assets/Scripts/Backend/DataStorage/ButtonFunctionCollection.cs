@@ -1025,9 +1025,55 @@ public class ButtonFunctionCollection
 		return true;
     }
 
+    static public bool CheckUserIsOnList(FlowButton button, FlowState panel)
+    {
+        string email = (string) DataVault.Get("signup_email");
+
+        // TODO replace this with API server query
+        bool onList = email == "corrida.simesmo@gmail.com";
+
+        DataVault.Set("custom_redirection_point", onList ? "OnList" : "NotOnList");
+        return true;
+    }
+
+    static public bool InitMobileLogin(FlowButton button, FlowState fs)
+    {
+        //Debug.LogError("initmobilelogin");
+        DataVault.Set("login_fail_message", "");
+
+        return true;
+    }
+
+    static public bool AllowLogin(FlowButton button, FlowState fs)
+    {
+        Panel panel = (Panel) fs;
+        GameObject widgetRoot = panel.physicalWidgetRoot;
+
+        string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
+        string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
+
+        if (email == "questionnaire@raceyourself.com")
+           DataVault.Set("custom_redirection_point", "QuestionnaireOutstanding");
+
+        // TODO API call
+
+        bool success = email != "no@raceyourself.com";
+
+        DataVault.Set("login_fail_message", success ? "" : "Failed to login.");
+
+        return success;
+    }
+
+    static private string getFieldUiBasiclabelContent(GameObject widgetRoot, string gameObjectName)
+    {
+        GameObject inputField = GameObjectUtils.SearchTreeByName(widgetRoot, gameObjectName);
+        string label = inputField.GetComponentInChildren<UILabel>().text;
+
+        return label;
+    }
+
     static public bool FacebookLogin(FlowButton button, FlowState panel)
     {
-        // TODO if FB != null && FB.IsLoggedIn, hide button
         try
         {
             FB.Login("", FacebookLoginCallback); // "" = zero permissions
