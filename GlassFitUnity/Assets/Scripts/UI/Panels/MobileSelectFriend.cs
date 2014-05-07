@@ -11,8 +11,8 @@ using RaceYourself.Models;
 [Serializable]
 public class MobileSelectFriend : MobilePanel 
 {
-	List<RaceYourself.Models.Friend> betaFriends;
-    List<RaceYourself.Models.Friend> friendsData;
+	List<Friend> betaFriends;
+    List<Friend> friendsData;
 
     public MobileSelectFriend() { }
     public MobileSelectFriend(SerializationInfo info, StreamingContext ctxt)
@@ -54,7 +54,7 @@ public class MobileSelectFriend : MobilePanel
 
         friendsData = Platform.Instance.Friends();
 
-		betaFriends = new List<RaceYourself.Models.Friend>();
+		betaFriends = new List<Friend>();
 
 		if(friendsData != null) {
 			for(int i=0; i<friendsData.Count; i++) {
