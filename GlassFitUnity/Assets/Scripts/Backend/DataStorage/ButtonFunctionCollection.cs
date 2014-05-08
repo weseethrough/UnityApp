@@ -1069,11 +1069,18 @@ public class ButtonFunctionCollection
             }
         }
         
+        FollowExit(exit);
+    }
+
+    static private void FollowExit(string name)
+    {
         Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
-        GConnector gc = panel.Outputs.Find(r => r.Name == exit);
+        GConnector gc = panel.Outputs.Find(r => r.Name == name);
+
         if (gc == null)
-            Debug.LogError("Exit not found: " + exit);
-        else panel.parentMachine.FollowConnection(gc);
+            Debug.LogError("Exit not found: " + name);
+        else
+            panel.parentMachine.FollowConnection(gc);
     }
 
     static public bool InitMobileLogin(FlowButton button, FlowState fs)
@@ -1084,6 +1091,19 @@ public class ButtonFunctionCollection
         return true;
     }
 
+    private static void LoginCallback(bool result)
+    {
+        if (result)
+        {
+            FollowExit("Exit");
+        }
+        else
+        {
+            DataVault.Set("login_fail_message", result ? "" : "Failed to login.");
+            FollowExit("Error");
+        }
+    }
+
     static public bool AllowLogin(FlowButton button, FlowState fs)
     {
         Panel panel = (Panel) fs;
@@ -1092,16 +1112,14 @@ public class ButtonFunctionCollection
         string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
         string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
 
-        if (email == "questionnaire@raceyourself.com")
-           DataVault.Set("custom_redirection_point", "QuestionnaireOutstanding");
+        Platform plaf = Platform.Instance;
+        API api = plaf.api;
 
-        // TODO API call
+        NetworkMessageListener.OnAuthenticated onAuth = new NetworkMessageListener.OnAuthenticated(LoginCallback);
+        //NetworkMessageListener.OnAuthenticated += LoginCallback;
+        plaf.GetMonoBehavioursPartner().StartCoroutine(api.Login(email, password));
 
-        bool success = email != "no@raceyourself.com";
-
-        DataVault.Set("login_fail_message", success ? "" : "Failed to login.");
-
-        return success;
+        return true;
     }
 
     static private string getFieldUiBasiclabelContent(GameObject widgetRoot, string gameObjectName)
