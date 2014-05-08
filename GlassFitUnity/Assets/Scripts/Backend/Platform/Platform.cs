@@ -142,6 +142,8 @@ public abstract class Platform : SingletonBase
 			ConnectSocket();
 		}
 
+        log.info("Starting sync co-routine");
+        GetMonoBehavioursPartner().StartCoroutine(SyncLoop());
 
 		FB.Init(OnInitComplete, OnHideUnity);
 
@@ -422,6 +424,7 @@ public abstract class Platform : SingletonBase
     }
 
     public virtual void SyncToServer() {
+        log.info("SyncToServer called");
         lastSync = DateTime.Now;
         GetMonoBehavioursPartner().StartCoroutine(api.Sync());
     }
@@ -598,11 +601,19 @@ public abstract class Platform : SingletonBase
 	}
 	
 	private void FacebookMeCallback(FBResult result) {
-		if (result.Error == null) {
-			FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
-			log.info("Facebook me: " + JsonConvert.SerializeObject(me));
+        if (result.Error == null) {
+            FacebookMe me = JsonConvert.DeserializeObject<FacebookMe> (result.Text);
+			
+        log.info("Facebook me: " + JsonConvert.SerializeObject(me));
 		}
 	}
 
+    private IEnumerator SyncLoop()
+    {
+        while (true) {
+            SyncToServer ();
+            yield return new WaitForSeconds(10.0f);
+        }
+    }
 	
 }
