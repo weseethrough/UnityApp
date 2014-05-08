@@ -117,6 +117,7 @@ public class MobileList : UIComponentSettings
 
                 Vector3 p = item.transform.localPosition;
                 p.y = -grid.cellHeight * i;
+                p.x = 0;
 
                 item.transform.localPosition = p;
 
@@ -211,5 +212,26 @@ public class MobileList : UIComponentSettings
         }
 
         return collection;
+    }
+
+    public void ResetList(float newItemHeight)
+    {
+        foreach (KeyValuePair<string, List<GameObject>> list in instances)
+        {
+            foreach ( GameObject item in list.Value)
+            {
+                Destroy(item);
+            }
+        }
+
+        //clear defaults
+        buttons = new List<GameObject>();
+        instances = new Dictionary<string, List<GameObject>>();
+        previousStartIndex = 0;
+        previousCount = 0;
+
+        UIGrid grid = listContent.GetComponent<UIGrid>();
+        grid.cellHeight = newItemHeight;
+
     }
 }
