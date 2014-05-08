@@ -179,18 +179,12 @@ public class FlowStateMachine : MonoBehaviour
             Hashtable gameDetails = new Hashtable();
             object type = DataVault.Get("type");
             object log = DataVault.Get("warning_log");
-            //DataVault.Set("warning_log", "");
-
-            gameDetails.Add("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
-            gameDetails.Add("Game type", (string)type);
-            gameDetails.Add("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
-            gameDetails.Add("State live", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
-            gameDetails.Add("Custom Log", (string)log );
-
-            //GrabBridge.CustomEvent("Flow state changed", gameDetails);
-
-            // Our own internal logging for analytics
-            gameDetails.Add("Event type", "Flow state changed");
+            gameDetails.Add("event_type", "Flow state changed");
+            gameDetails.Add("flow_state", activeFlow[activeFlow.Count - 1].GetDisplayName());
+            gameDetails.Add("game_type", (string)type);
+            gameDetails.Add("time_since_launch", (int)(Time.realtimeSinceStartup * 1000));
+            gameDetails.Add("time_in_state", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
+            gameDetails.Add("custom_log", (string)log );
             Platform.Instance.LogAnalytics(JsonConvert.SerializeObject(gameDetails));
 
             if (navigationHistory == null)
