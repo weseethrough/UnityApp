@@ -271,7 +271,7 @@ namespace RaceYourself
 		/// <summary>
 		/// Coroutine to sign up.
 		/// </summary>
-		public IEnumerator SignUp(string email, string password, string inviteCode, string username, string name, char gender, Profile profile, Action<bool, Dictionary<string, string>> callback)
+		public IEnumerator SignUp(string email, string password, string inviteCode, string username, string name, char gender, Profile profile, Action<bool, Dictionary<string, IList<string>>> callback)
 		{
 			log.info("SignUp()");
 			var encoding = new System.Text.UTF8Encoding();			
@@ -291,7 +291,7 @@ namespace RaceYourself
 			
 			if (!String.IsNullOrEmpty(post.error)) {
 				log.error("SignUp() threw error: " + post.error);
-				callback(false, new Dictionary<string, string>() {{"network",post.error}});
+                callback(false, new Dictionary<string, IList<string>>() {{"network", new List<string> {post.error}}});
 				yield break;
 			}
 			
@@ -900,7 +900,7 @@ namespace RaceYourself
 		private class SignUpResponse
 		{
 			public bool success = false;
-			public Dictionary<string, string> errors;
+			public Dictionary<string, IList<string>> errors;
 		}
 
 		private static string LengthOrNull(IList list) {

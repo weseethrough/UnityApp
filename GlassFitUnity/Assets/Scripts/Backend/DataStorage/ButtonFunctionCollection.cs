@@ -1032,19 +1032,43 @@ public class ButtonFunctionCollection
         
         // TODO work out how to route to CommsError if network failure
         // U = undisclosed.
-        Platform.Instance.api.SignUp(email, password, null, null, firstName + " " + surname, 'U', null, SignUpCallback);
+        Platform plaf = Platform.Instance;
+        API api = plaf.api;
+
+        plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, null, firstName + " " + surname, 'U', null, SignUpCallback));
 
         // TODO show error and return false if passwords don't match
 
         return true;
     }
     
-    private static void SignUpCallback(bool result, Dictionary<string, string> errors)
+    private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
     {
         // TODO route to NotOnList if !result (check values of errors as well); route to OnList if result
+
+        string exit = "";
+        var validationErrors = new System.Text.StringBuilder();
+        if (result)
+            exit = "OnList";
+        else if(errors.ContainsKey("invite_code") && errors["invite_code"][0] == "missing")
+            exit = "NotOnList";
+        else
+        {
+            exit = "BlockingError";
+            foreach(KeyValuePair<string, IList<string>> entry in errors)
+            {
+                validationErrors.Append(entry.Key);
+                validationErrors.Append(" => [");
+                //validationErrors.AppendLine(entry.Value.ToString);
+                foreach(string v in entry.Value)
+                {
+                    validationErrors.Append(v);
+                    validationErrors.Append(", ");
+                }
+                validationErrors.AppendLine("]");
+            }
+        }
         
-        //DataVault.Set("custom_redirection_point", result ? "OnList" : "NotOnList");
-        string exit = result ? "OnList" : "NotOnList";
         Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
         GConnector gc = panel.Outputs.Find(r => r.Name == exit);
         if (gc == null)
