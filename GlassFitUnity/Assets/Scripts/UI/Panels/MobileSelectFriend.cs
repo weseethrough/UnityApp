@@ -108,8 +108,7 @@ public class MobileSelectFriend : MobilePanel
             
             if (list != null)
             {            
-                list.SetParent(this);
-                list.RebuildList();
+                list.SetParent(this);                
             }
         }
     }

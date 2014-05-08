@@ -61,7 +61,6 @@ public class MobileSelectTrack : MobilePanel
             if (list != null)
             {
                 list.SetParent(this);
-                list.RebuildList();
             }
         }
     }
