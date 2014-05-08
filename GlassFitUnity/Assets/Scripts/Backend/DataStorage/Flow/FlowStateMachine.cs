@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using SimpleJSON;
+using Newtonsoft.Json;
 
 /// <summary>
 /// component which is flow manager embedded in prefab. Manages state progression, flowstate stack and many more important flow behaviors and data 
@@ -175,7 +175,7 @@ public class FlowStateMachine : MonoBehaviour
 //                //grabAnalyticsInitialized = true;                
 //            }
 
-            JSONNode gameDetails = new JSONNode();
+            Hashtable gameDetails = new Hashtable();
             object type = DataVault.Get("type");
             object log = DataVault.Get("warning_log");
             //DataVault.Set("warning_log", "");
@@ -190,7 +190,7 @@ public class FlowStateMachine : MonoBehaviour
 
             // Our own internal logging for analytics
             gameDetails.Add("Event type", "Flow state changed");
-            Platform.Instance.LogAnalytics(gameDetails);
+            Platform.Instance.LogAnalytics(JsonConvert.SerializeObject(gameDetails));
 
             if (navigationHistory == null)
             {

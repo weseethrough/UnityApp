@@ -346,6 +346,7 @@ public abstract class Platform : SingletonBase
     /// Json-encoded event values such as current game state, what the user action was etc
     /// </param>
     public virtual void LogAnalytics (string json) {
+        log.warning("Analytics: " + json);
         var e = new RaceYourself.Models.Event(json, sessionId);
         db.StoreObject(e);
     }
