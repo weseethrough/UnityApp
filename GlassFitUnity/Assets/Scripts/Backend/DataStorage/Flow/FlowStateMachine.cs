@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using SimpleJSON;
 
 /// <summary>
 /// component which is flow manager embedded in prefab. Manages state progression, flowstate stack and many more important flow behaviors and data 
@@ -175,21 +176,21 @@ public class FlowStateMachine : MonoBehaviour
 //            }
             
 
-            JSONObject gameDetails = new JSONObject();
+            JSONNode gameDetails = new JSONNode();
             object type = DataVault.Get("type");
             object log = DataVault.Get("warning_log");
             //DataVault.Set("warning_log", "");
 
-            gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
-            gameDetails.AddField("Game type", (string)type);
-            gameDetails.AddField("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
-            gameDetails.AddField("State live", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
-            gameDetails.AddField("Custom Log", (string)log );
+            gameDetails.Add("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
+            gameDetails.Add("Game type", (string)type);
+            gameDetails.Add("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
+            gameDetails.Add("State live", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
+            gameDetails.Add("Custom Log", (string)log );
 
             //GrabBridge.CustomEvent("Flow state changed", gameDetails);
 
             // Our own internal logging for analytics
-            gameDetails.AddField("Event type", "Flow state changed");
+            gameDetails.Add("Event type", "Flow state changed");
             Platform.Instance.LogAnalytics(gameDetails);
 
             if (navigationHistory == null)
