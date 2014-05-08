@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 [Serializable]
 public class MobileChallengePanel : MobilePanel {
 
-	MobileList challengeList;
+	MobileList mobileList;
 	UIGrid challengesGrid;
 	UIButton activeBtn;
 	UIButton communityBtn;
@@ -45,14 +45,14 @@ public class MobileChallengePanel : MobilePanel {
 	public override void EnterStart ()
 	{
 		base.EnterStart ();
-		challengeList = physicalWidgetRoot.GetComponentInChildren<MobileList>();
+		mobileList = physicalWidgetRoot.GetComponentInChildren<MobileList>();
 		challengesGrid = physicalWidgetRoot.GetComponentInChildren<UIGrid>();
 
 		Platform.Instance.Authorize("facebook", "login");
-		if (challengeList != null)
+		if (mobileList != null)
 		{
-			challengeList.SetTitle("");
-			challengeList.SetParent(this);
+			mobileList.SetTitle("");
+			mobileList.SetParent(this);
 		}
 
 		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "iPhoneGreyBlackBackground");
@@ -86,7 +86,7 @@ public class MobileChallengePanel : MobilePanel {
 			activeBtn.defaultColor = new Color(202 / 255f, 202 / 255f, 202 / 255f);
 		}
 	
-		challengeList.RebuildList();
+//		challengeList.RebuildList();
 	}
 
 	public void AddButtons(List<Challenge> challengeList, ListButtonData.ButtonFormat format) {
@@ -105,6 +105,7 @@ public class MobileChallengePanel : MobilePanel {
 			AddButtonData(buttonName, challengeDictionary, "", format, GetBaseButtonConnection());
 
 		}
+//		mobileList.Reset
 	}
 
 	public void ChangeListType(ListButtonData.ButtonFormat format) 
@@ -131,10 +132,10 @@ public class MobileChallengePanel : MobilePanel {
 				}
 				activeChallengeList.RemoveAll(r => r.accepted == false);
 				AddButtons(activeChallengeList, ListButtonData.ButtonFormat.ActiveChallengeButton);
-				if (challengeList != null)
-				{
-					challengeList.RebuildList();
-				}
+//				if (challengeList != null)
+//				{
+//					challengeList.RebuildList();
+//				}
 			}
 			break;
 			
@@ -142,10 +143,10 @@ public class MobileChallengePanel : MobilePanel {
 			Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("challenges", body => {
 				List<Challenge> communityChallengeList = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Challenge>>(body).response;	
 				AddButtons(communityChallengeList, ListButtonData.ButtonFormat.CommunityChallengeButton);
-				if (challengeList != null)
-				{
-					challengeList.RebuildList();
-				}
+//				if (challengeList != null)
+//				{
+//					challengeList.RebuildList();
+//				}
 			})) ;
 			break;
 			
@@ -158,10 +159,10 @@ public class MobileChallengePanel : MobilePanel {
 				}
 				friendChallengeList.RemoveAll(r => r.accepted == true);
 				AddButtons(friendChallengeList, ListButtonData.ButtonFormat.FriendChallengeButton);
-				if (challengeList != null)
-				{
-					challengeList.RebuildList();
-				}
+//				if (challengeList != null)
+//				{
+//					challengeList.RebuildList();
+//				}
 			}
 			break;
 		}
