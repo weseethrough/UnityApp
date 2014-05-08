@@ -290,7 +290,7 @@ namespace RaceYourself
 		/// Null values in explicit arguments are not sent.
 		/// Null values inside profile object cause that key to be deleted.
 		/// </summary>
-		public IEnumerator UpdateUser(string username, string name, char gender, Profile profile) {
+		public IEnumerator UpdateUser(string username, string name, string image, char gender, Profile profile) {
 			log.info(string.Format("UpdateUser({0})", user.email));
 			
 			string ret = "Failed";
@@ -298,6 +298,7 @@ namespace RaceYourself
 				var data = new Hashtable();
 				if (username != null) data.Add("username", username);
 				if (name != null) data.Add("name", name);
+				if (image != null) data.Add("image", image);
 				if (gender != null) data.Add("gender", gender);
 				if (profile != null) data.Add("profile", profile);
 				string body = JsonConvert.SerializeObject(data);
