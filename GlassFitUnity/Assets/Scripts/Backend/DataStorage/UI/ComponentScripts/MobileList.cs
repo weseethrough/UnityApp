@@ -254,6 +254,8 @@ public class MobileList : UIComponentSettings
 
         UIGrid grid = listContent.GetComponent<UIGrid>();
         grid.cellHeight = newItemHeight;
-
+        Vector3 pos = grid.transform.position;
+        pos.y = 0;
+        grid.transform.position = pos;
     }
 }
