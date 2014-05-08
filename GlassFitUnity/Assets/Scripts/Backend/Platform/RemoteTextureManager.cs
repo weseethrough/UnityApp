@@ -17,7 +17,7 @@ public class RemoteTextureManager : MonoBehaviour {
 
 	public void Awake()
 	{
-		log.error("created");
+		log.info("created");
 		Directory.CreateDirectory(CACHE_PATH);
 		DontDestroyOnLoad(gameObject);
 	}
