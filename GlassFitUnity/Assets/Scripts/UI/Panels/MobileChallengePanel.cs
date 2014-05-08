@@ -93,13 +93,13 @@ public class MobileChallengePanel : MobilePanel {
 		for(int i=0; i<challengeList.Count; i++) {
 			string buttonName = format.ToString() + i;
 			Dictionary<string, string> challengeDictionary = new Dictionary<string, string>();
-			challengeDictionary.Add("TitleText", "test name " + i);
-			challengeDictionary.Add("DescriptionText", "test description " + i);
+			challengeDictionary.Add("TitleText", challengeList[i].name);
+			challengeDictionary.Add("DescriptionText", challengeList[i].description);
 			challengeDictionary.Add("DeadlineText", "Challenge expires in " + "5 days");
 			if(format != ListButtonData.ButtonFormat.FriendChallengeButton) {
-				challengeDictionary.Add("PrizePotText", "Prize pot: " + (i * 1000));
+				challengeDictionary.Add("PrizePotText", "Prize pot: " + challengeList[i].points_awarded);
 				if(format == ListButtonData.ButtonFormat.CommunityChallengeButton) {
-					challengeDictionary.Add("ExtraPrizeText", "Extra Prize: "  + "Secret!");
+					challengeDictionary.Add("ExtraPrizeText", "Extra Prize: " + challengeList[i].prize);
 				}
 			}
 			AddButtonData(buttonName, challengeDictionary, "", format, GetBaseButtonConnection());
