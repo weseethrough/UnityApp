@@ -112,11 +112,11 @@ public class MobileChallengePanel : MobilePanel {
 	{
 		if(challengesGrid != null) {
 			if(format == ListButtonData.ButtonFormat.ActiveChallengeButton) {
-				challengesGrid.cellHeight = 350f;
+				mobileList.ResetList(350f);
 			} else {
-				challengesGrid.cellHeight = 190f;
+				mobileList.ResetList(190f);
 			}
-			challengesGrid.RemoveButtons();
+
 		}
 
 		buttonData = new List<ListButtonData>();
