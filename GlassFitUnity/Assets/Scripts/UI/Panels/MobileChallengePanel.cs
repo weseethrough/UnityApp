@@ -120,7 +120,7 @@ public class MobileChallengePanel : MobilePanel {
 		}
 
 		buttonData = new List<ListButtonData>();
-		AddButtonData(format.ToString() + current, "", "", format, GetBaseButtonConnection());
+//		AddButtonData(format.ToString() + current, "", "", format, GetBaseButtonConnection());
 
 		switch(format) {
 		case ListButtonData.ButtonFormat.ActiveChallengeButton:
