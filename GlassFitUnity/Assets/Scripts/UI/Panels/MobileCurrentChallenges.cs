@@ -85,7 +85,6 @@ public class MobileCurrentChallenges : MobilePanel
             if (list != null)
             {
                 list.SetParent(this);
-                list.RebuildList();
             }
             return true;
         }

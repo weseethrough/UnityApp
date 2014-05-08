@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using Sqo.Attributes;
 
 namespace RaceYourself.Models
 {
 	public class Cache
 	{
-		public string id;
+        [MaxLength(255)]
+        public string id;
 		public DateTime expiration;
         public string lastModified;
 

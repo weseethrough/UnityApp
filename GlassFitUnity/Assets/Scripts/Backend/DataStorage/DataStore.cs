@@ -195,8 +195,7 @@ public class DataStore : MonoBehaviour
         if (instance != null && Platform.Instance != null)
         {            
             if (!LoadStorageFromCollection(name))
-            {
-                
+            {                
                 instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));
                 
             }            
