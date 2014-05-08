@@ -59,14 +59,14 @@ public class GraphInspector : Editor
                 {
                     flowDictionary.Set(gc.m_graph, "MainFlow");
                 }
-              */  
+              */
 
-                DataStore.SaveStorage(DataStore.BlobNames.flow);
+                DataStore.SaveStorage(DataStore.BlobNames.flow, true);
             }
             if (GUILayout.Button(new GUIContent("Remove current flow", "You should never remove last flow. If you do it will create noname emply flow for you")))
             {
                 flowDictionary.RemoveAt(flowIndex);
-                DataStore.SaveStorage(DataStore.BlobNames.flow);
+                DataStore.SaveStorage(DataStore.BlobNames.flow, true);
 
                 componentSource.SetSelectedFlowIndex();
                 GraphWindow.Init();
@@ -82,7 +82,7 @@ public class GraphInspector : Editor
                 {
                     GraphData gd = new GraphData();
                     flowDictionary.Add(newFlowName, gd);
-                    DataStore.SaveStorage(DataStore.BlobNames.flow);
+                    DataStore.SaveStorage(DataStore.BlobNames.flow, true);
 
                     componentSource.SetSelectedFlowByLast();                    
                 }
