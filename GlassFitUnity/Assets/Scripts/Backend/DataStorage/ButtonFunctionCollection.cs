@@ -1035,7 +1035,7 @@ public class ButtonFunctionCollection
         Platform plaf = Platform.Instance;
         API api = plaf.api;
 
-        plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, null, firstName + " " + surname, 'U', null, SignUpCallback));
+        plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, email, firstName + " " + surname, 'U', null, SignUpCallback));
 
         // TODO show error and return false if passwords don't match
 
