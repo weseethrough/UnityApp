@@ -236,6 +236,7 @@ namespace RaceYourself
 		/// Coroutine to link a third-party service to the logged in user.
 		/// </summary>
 		public IEnumerator LinkProvider(ProviderToken ptoken) {
+			// TODO: Update POST schema to use JSON path authentications/{provider, uid, access_token}
 			log.info(string.Format("LinkProvider({0})", ptoken.provider));
 
 			string ret = "Failed";
@@ -258,8 +259,23 @@ namespace RaceYourself
 					yield break;
 				}
 
-				IEnumerator e = UpdateAuthentications();
-				while(e.MoveNext()) yield return e.Current;
+				var account = JsonConvert.DeserializeObject<SingleResponse<User>>(post.text);
+				if (account.response.id <= 0) {
+					log.error(string.Format("LinkProvider({0}): received an invalid response: {1}", ptoken.provider, post.text));
+					yield break;
+				}
+				
+				user = account.response;
+				var transaction = db.BeginTransaction();
+				try {
+					if (!db.UpdateObjectBy("id", user)) {
+						db.StoreObject(user);
+					}
+					transaction.Commit();
+				} catch (Exception ex) {
+					transaction.Rollback();
+					throw ex;
+				}
 
 				log.info(string.Format("LinkProvider({0}): succeeded", ptoken.provider));
                 
@@ -268,6 +284,65 @@ namespace RaceYourself
             }
         }
         
+		/// <summary>
+		/// Coroutine to update a user's details.
+		/// 
+		/// Null values in explicit arguments are not sent.
+		/// Null values inside profile object cause that key to be deleted.
+		/// </summary>
+		public IEnumerator UpdateUser(string username, string name, char gender, Profile profile) {
+			log.info(string.Format("UpdateUser({0})", user.email));
+			
+			string ret = "Failed";
+			try {
+				var data = new Hashtable();
+				if (username != null) data.Add("username", username);
+				if (name != null) data.Add("name", name);
+				if (gender != null) data.Add("gender", gender);
+				if (profile != null) data.Add("profile", profile);
+				string body = JsonConvert.SerializeObject(data);
+				
+				var encoding = new System.Text.UTF8Encoding();			
+				var headers = new Hashtable();
+				headers.Add("Content-Type", "application/json");
+				headers.Add("Authorization", "Bearer " + token.access_token);				
+				
+				var post = new WWW(ApiUrl("credentials"), encoding.GetBytes(body), headers);
+				yield return post;
+				
+				if (!post.isDone) {}
+				
+				if (!String.IsNullOrEmpty(post.error)) {
+					log.error(string.Format("UpdateUser({0}) threw error: {1}", user.email, post.error));
+					ret = "Network error";
+					yield break;
+				}
+				
+				var account = JsonConvert.DeserializeObject<SingleResponse<User>>(post.text);
+				if (account.response.id <= 0) {
+					log.error(string.Format("UpdateUser({0}): received an invalid response: {1}", user.email, post.text));
+					yield break;
+				}
+				
+				user = account.response;
+				var transaction = db.BeginTransaction();
+				try {
+					if (!db.UpdateObjectBy("id", user)) {
+						db.StoreObject(user);
+					}
+					transaction.Commit();
+				} catch (Exception ex) {
+					transaction.Rollback();
+					throw ex;
+				}
+				
+				log.info(string.Format("UpdateUser({0}): succeeded", user.email));
+				
+				ret = "Success";
+			} finally {
+			}
+		}
+		
 		/// <summary>
 		/// Coroutine to sign up.
 		/// </summary>
