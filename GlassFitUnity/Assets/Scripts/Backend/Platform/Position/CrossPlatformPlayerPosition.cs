@@ -27,7 +27,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	public override float Bearing { get { return _bearing; } }
 
 	private PositionTracker.PositionTracker positionTracker;
-	private IPositionProvider positionProvider;
+	private CrossPlatformPositionProvider positionProvider;
 	private CrossPlatformSensorProvider sensorProvider;
 
 
@@ -59,7 +59,10 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	// Check if has GPS lock
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public override Boolean HasLock() {
-		return positionTracker.HasPosition;
+		//return positionTracker.HasPosition;
+		//positionTracker only reports that it has a position after tracking has started. This function is used before that point.
+		//Check status of unity location status instead.
+		return (Input.location.status == LocationServiceStatus.Running);
 	}
 	
 	// Stop tracking 
@@ -85,10 +88,24 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		_distance = positionTracker.ElapsedDistance;
 		_pace = positionTracker.CurrentSpeed;
 		if (positionTracker.HasPosition) {
+			//UnityEngine.Debug.Log("Position Tracker has position");
 			_position = positionTracker.CurrentPosition;
+			//log the position to the HUD and console
+			UnityEngine.Debug.Log("PlayerPosition's position: " + _position.latitude + " " + _position.longitude);
+			DataVault.Set("sweat_points_unit", _position.latitude);
+			DataVault.Set("fps", _position.longitude);
+		}
+		else
+		{
+			UnityEngine.Debug.LogWarning("Position Tracker Update - don't have position");
 		}
 		_bearing = positionTracker.CurrentBearing;
 
+
+		UnityEngine.Debug.Log("Position: Position tracker's state: " + positionTracker.CurrentState);
+
+
+		positionProvider.Update();
 		sensorProvider.Update();
 	}
 

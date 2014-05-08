@@ -17,9 +17,11 @@ public class CrossPlatformSensorProvider : MonoBehaviour, ISensorProvider
 		}
 	}
 
+	//Input.acceleration can't be called except from the main thread. So poll this regularly from main thread. PositionTracker reads when it wants from whatever thread.
 	public void Update()
 	{
 		_acceleration = Input.acceleration;
+		//UnityEngine.Debug.Log("Polling accelerometers: " + _acceleration);
 	}
 
 }

@@ -14,6 +14,8 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 
 	private Log log = new Log("CrossPlatformPositionProvider");
 
+	private float timeSinceLastUpdate = 0;
+
 	// Returns true in case of successful registration, false otherwise
 	public bool RegisterPositionListener(IPositionListener posListener) {
 		
@@ -70,8 +72,32 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 
 	public void Update() {
 
-		//TODO - only once a second
-		UpdateLocation();
+		LocationServiceStatus status = Input.location.status;
+		if(status == LocationServiceStatus.Stopped)
+		{
+			UnityEngine.Debug.LogError("Location Service stopped");
+		}
+		if(status == LocationServiceStatus.Failed)
+		{
+			UnityEngine.Debug.LogError("Location Service failed");
+		}
+
+		if(status == LocationServiceStatus.Initializing)
+		{
+			UnityEngine.Debug.LogError("Location Service still initialising");
+		}
+		else
+		{
+			//location service status should be 'Running'
+			if(timeSinceLastUpdate > 1f)
+			{
+				UpdateLocation();
+				timeSinceLastUpdate = 0;
+			}
+		}
+
+		// increment timer
+		timeSinceLastUpdate += Time.deltaTime;
 	}
 
 	//Renamed this to avoid clash with MonoBehaviour's own once-per-frame Update.
@@ -80,12 +106,24 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 			Reset();
 			return;
 		}
-			
+
 		Position pos = new Position(Input.location.lastData.latitude, Input.location.lastData.longitude);
-		
+
+		UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude);
+
+		//drop it on the HUD for debugging
+		//DataVault.Set("sweat_points_unit", pos.latitude);
+		//DataVault.Set("fps", pos.longitude);
+
+		if(positionListeners.Count == 0)
+		{
+			UnityEngine.Debug.LogWarning("Location Updated, but no listeners!");
+		}
+
 		// Notify listeners about new position
 		foreach(IPositionListener posListener in positionListeners) {
 			posListener.OnPositionUpdate(pos);
+			//UnityEngine.Debug.LogWarning("Location Update sent to a listener: " + posListener);
 		}
 	}
 	

@@ -41,7 +41,7 @@ public class IosPlatform : Platform
 	protected override void Initialize ()
 	{
 		//start location service
-		Input.location.Start();
+		Input.location.Start(10, 1);
 
 		UnityEngine.Debug.Log("Creating iOS Platform instance");
 		
