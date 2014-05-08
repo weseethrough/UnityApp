@@ -1397,7 +1397,7 @@ public class GraphWindow : EditorWindow, IDraw
 
     public void SaveGraph()
     {
-        DataStore.SaveStorage(DataStore.BlobNames.flow);
+        DataStore.SaveStorage(DataStore.BlobNames.flow, true);
     }
 
     public void CloneNode(FlowState source)
