@@ -1026,12 +1026,54 @@ public class ButtonFunctionCollection
         Panel panel = (Panel) fs;
         GameObject widgetRoot = panel.physicalWidgetRoot;
         string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
+        string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
+        string firstName = getFieldUiBasiclabelContent(widgetRoot, "ForenameInput");
+        string surname = getFieldUiBasiclabelContent(widgetRoot, "SurnameInput");
+        
+        // TODO work out how to route to CommsError if network failure
+        // U = undisclosed.
+        Platform plaf = Platform.Instance;
+        API api = plaf.api;
 
-        // TODO replace this with API server query
-        bool onList = email == "corrida.simesmo@gmail.com";
+        plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, email, firstName + " " + surname, 'U', null, SignUpCallback));
 
-        DataVault.Set("custom_redirection_point", onList ? "OnList" : "NotOnList");
+        // TODO show error and return false if passwords don't match
+
         return true;
+    }
+    
+    private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
+    {
+        // TODO route to NotOnList if !result (check values of errors as well); route to OnList if result
+
+        string exit = "";
+        var validationErrors = new System.Text.StringBuilder();
+        if (result)
+            exit = "OnList";
+        else if(errors.ContainsKey("invite_code") && errors["invite_code"][0] == "missing")
+            exit = "NotOnList";
+        else
+        {
+            exit = "BlockingError";
+            foreach(KeyValuePair<string, IList<string>> entry in errors)
+            {
+                validationErrors.Append(entry.Key);
+                validationErrors.Append(" => [");
+                //validationErrors.AppendLine(entry.Value.ToString);
+                foreach(string v in entry.Value)
+                {
+                    validationErrors.Append(v);
+                    validationErrors.Append(", ");
+                }
+                validationErrors.AppendLine("]");
+            }
+        }
+        
+        Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+        GConnector gc = panel.Outputs.Find(r => r.Name == exit);
+        if (gc == null)
+            Debug.LogError("Exit not found: " + exit);
+        else panel.parentMachine.FollowConnection(gc);
     }
 
     static public bool InitMobileLogin(FlowButton button, FlowState fs)
