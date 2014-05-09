@@ -46,7 +46,7 @@ namespace RaceYourself
 		
 		private Siaqodb db;
 		
-		private OauthToken token = null;
+		public OauthToken token = null;
 		public User user { get; private set; }
         public PlayerConfig playerConfig { get; private set; }
 
@@ -195,7 +195,7 @@ namespace RaceYourself
 		public IEnumerator UpdateAuthentications() 
 		{
 			if (token == null || token.HasExpired) {
-				log.error("UpdateAuthentications() called with expired or missing token");
+                log.info("UpdateAuthentications() called with expired or missing token (legit pre-sign in on mobile)");
 				yield break;
 			}
 			log.info("UpdateAuthentications()");
@@ -389,7 +389,7 @@ namespace RaceYourself
 		/// </summary>
 		public IEnumerator Sync() {
 			if (token == null || token.HasExpired) {
-				log.error("UpdateAuthentications() called with expired or missing token");
+				log.info("UpdateAuthentications() called with expired or missing token (legit pre-sign in on mobile)");
                 Platform.Instance.NetworkMessageListener.OnSynchronization("Failure");
 				yield break;
 			}
