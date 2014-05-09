@@ -1121,6 +1121,15 @@ public class ButtonFunctionCollection
         return label;
     }
 
+    static public bool CheckRegistered(FlowButton button, FlowState fs)
+    {
+        if (Platform.Instance.User() != null)
+        {
+            DataVault.Set("custom_redirection_point", "Registered");
+        }
+        return true;
+    }
+
     static public bool FacebookLogin(FlowButton button, FlowState panel)
     {
         try
