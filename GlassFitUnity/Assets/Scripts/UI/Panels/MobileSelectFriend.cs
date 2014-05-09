@@ -116,18 +116,6 @@ public class MobileSelectFriend : MobilePanel
             }
         }
     }
-
-	public GConnector GetConnection(string connectionName) {
-		GConnector gc = Outputs.Find(r => r.Name == connectionName);
-		if (gc == null)
-		{
-			UnityEngine.Debug.LogError("MobileSelectPanel: error finding connection - " + connectionName);
-		}
-
-		DataVault.Set("facebook_message", "Connect to Facebook");
-
-		return gc;
-	}
 	
 	public override void OnClick(FlowButton button)
     {
@@ -143,6 +131,7 @@ public class MobileSelectFriend : MobilePanel
 					string prefix = "invite";
 					string index = button.name.Substring(prefix.Length);
 					int i = Convert.ToInt32(index);
+					DataVault.Set("facebook_message", "Connect to Facebook");
 					DataVault.Set("chosen_friend", friendsData[i]);
 					Debug.Log("chosen_friend set to " + friendsData[i].name);
 				} else if(button.name.Contains("challenge")) {

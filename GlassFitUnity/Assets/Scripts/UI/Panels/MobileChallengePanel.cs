@@ -85,27 +85,6 @@ public class MobileChallengePanel : MobilePanel {
 			activeBtn.enabled = false;
 			activeBtn.defaultColor = new Color(202 / 255f, 202 / 255f, 202 / 255f);
 		}
-	
-//		challengeList.RebuildList();
-	}
-
-	public void AddButtons(List<Challenge> challengeList, ListButtonData.ButtonFormat format) {
-		for(int i=0; i<challengeList.Count; i++) {
-			string buttonName = format.ToString() + i;
-			Dictionary<string, string> challengeDictionary = new Dictionary<string, string>();
-			challengeDictionary.Add("TitleText", challengeList[i].name);
-			challengeDictionary.Add("DescriptionText", challengeList[i].description);
-			challengeDictionary.Add("DeadlineText", "Challenge expires in " + "5 days");
-			if(format != ListButtonData.ButtonFormat.FriendChallengeButton) {
-				challengeDictionary.Add("PrizePotText", "Prize pot: " + challengeList[i].points_awarded);
-				if(format == ListButtonData.ButtonFormat.CommunityChallengeButton) {
-					challengeDictionary.Add("ExtraPrizeText", "Extra Prize: " + challengeList[i].prize);
-				}
-			}
-			AddButtonData(buttonName, challengeDictionary, "", format, GetBaseButtonConnection());
-
-		}
-//		mobileList.Reset
 	}
 
 	public void ChangeListType(ListButtonData.ButtonFormat format) 
@@ -120,7 +99,6 @@ public class MobileChallengePanel : MobilePanel {
 		}
 
 		buttonData = new List<ListButtonData>();
-//		AddButtonData(format.ToString() + current, "", "", format, GetBaseButtonConnection());
 
 		switch(format) {
 		case ListButtonData.ButtonFormat.ActiveChallengeButton:
@@ -131,22 +109,14 @@ public class MobileChallengePanel : MobilePanel {
 					activeChallengeList[i] = activeChallengeIList[i];
 				}
 				activeChallengeList.RemoveAll(r => r.accepted == false);
-				AddButtons(activeChallengeList, ListButtonData.ButtonFormat.ActiveChallengeButton);
-//				if (challengeList != null)
-//				{
-//					challengeList.RebuildList();
-//				}
+				AddChallengeButtons(activeChallengeList, ListButtonData.ButtonFormat.ActiveChallengeButton);
 			}
 			break;
 			
 		case ListButtonData.ButtonFormat.CommunityChallengeButton:
 			Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("challenges", body => {
 				List<Challenge> communityChallengeList = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Challenge>>(body).response;	
-				AddButtons(communityChallengeList, ListButtonData.ButtonFormat.CommunityChallengeButton);
-//				if (challengeList != null)
-//				{
-//					challengeList.RebuildList();
-//				}
+				AddChallengeButtons(communityChallengeList, ListButtonData.ButtonFormat.CommunityChallengeButton);
 			})) ;
 			break;
 			
@@ -158,11 +128,7 @@ public class MobileChallengePanel : MobilePanel {
 					friendChallengeList[i] = challengeIList[i];
 				}
 				friendChallengeList.RemoveAll(r => r.accepted == true);
-				AddButtons(friendChallengeList, ListButtonData.ButtonFormat.FriendChallengeButton);
-//				if (challengeList != null)
-//				{
-//					challengeList.RebuildList();
-//				}
+				AddChallengeButtons(friendChallengeList, ListButtonData.ButtonFormat.FriendChallengeButton);
 			}
 			break;
 		}

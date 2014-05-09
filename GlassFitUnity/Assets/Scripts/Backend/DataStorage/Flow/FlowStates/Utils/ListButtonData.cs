@@ -20,13 +20,16 @@ public class ListButtonData : ISerializable
 		ImportButton,
 		ActiveChallengeButton,
 		CommunityChallengeButton,
-		FriendChallengeButton
+		FriendChallengeButton,
+		InvitePromptButton,
+		InvitedButton
     }
 
     public string   buttonName      = string.Empty;    
     public string   textNormal      = string.Empty;
     public string   connectionFunction = string.Empty;
     public string   buttonFormat = ButtonFormat.ButtonNormalPrototype.ToString();
+	public string 	imageName		= string.Empty;
 
 	public Dictionary<string, string> attributeDictionary = new Dictionary<string, string>();
 
@@ -77,6 +80,7 @@ public class ListButtonData : ISerializable
         info.AddValue("textNormal", this.textNormal);
         info.AddValue("connectionFunction", this.connectionFunction);
         info.AddValue("buttonFormat", this.buttonFormat);
+		info.AddValue("imageName", this.imageName);
     }
 
     /// <summary>
@@ -90,6 +94,7 @@ public class ListButtonData : ISerializable
         data.textNormal = textNormal;
         data.connectionFunction = connectionFunction;
         data.buttonFormat = buttonFormat;
+		data.imageName = imageName;
 
         return data;
     }

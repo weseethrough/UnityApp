@@ -212,6 +212,17 @@ public class MobileList : UIComponentSettings
 			}
 		}
 
+		if(data.imageName != string.Empty) 
+		{
+			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
+				Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
+				GameObject foundButton = GameObjectUtils.SearchTreeByName(fs.physicalWidgetRoot, buttonId);
+				if(foundButton != null) {
+					foundButton.GetComponentInChildren<UITexture>().mainTexture = tex;
+				}
+			});
+		}
+
 //                Debug.Log("AddButton " + data.textNormal + " btName: " + buttonData[i].buttonName);
         return button;
 	}

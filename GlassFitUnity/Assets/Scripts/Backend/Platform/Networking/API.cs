@@ -318,13 +318,15 @@ namespace RaceYourself
 			}
 			log.info("Sync()");
 			var start = DateTime.Now;
-			
+
+			if (syncing) {
+				log.info("Sync() already syncing");
+				yield break;
+			}
+
 			string ret = "Failure";
 			try {
-				if (syncing) {
-					log.info("Sync() already syncing");
-					yield break;
-				}
+
 				syncing = true;
 
 				SyncState state = db.Query<SyncState>().LastOrDefault();
