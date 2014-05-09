@@ -1055,10 +1055,11 @@ public class ButtonFunctionCollection
             exit = "BlockingError";
             foreach(KeyValuePair<string, IList<string>> entry in errors)
             {
+                // TODO suspect there's a line of LINQ that would do all this...
                 validationErrors.Append(entry.Key);
                 validationErrors.Append(" => [");
                 //validationErrors.AppendLine(entry.Value.ToString);
-                foreach(string v in entry.Value)
+                foreach (string v in entry.Value)
                 {
                     validationErrors.Append(v);
                     validationErrors.Append(", ");
@@ -1066,7 +1067,7 @@ public class ButtonFunctionCollection
                 validationErrors.AppendLine("]");
             }
         }
-        
+        //BADGER
         FollowExit(exit);
     }
 
@@ -1123,7 +1124,8 @@ public class ButtonFunctionCollection
 
     static public bool CheckRegistered(FlowButton button, FlowState fs)
     {
-        if (Platform.Instance.User() != null)
+        OauthToken token = Platform.Instance.api.token;
+        if (Platform.Instance.User() != null && token != null && !token.HasExpired)
         {
             DataVault.Set("custom_redirection_point", "Registered");
         }
