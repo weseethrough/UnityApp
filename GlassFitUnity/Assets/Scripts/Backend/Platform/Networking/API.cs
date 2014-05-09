@@ -291,7 +291,7 @@ namespace RaceYourself
 		/// Null values in explicit arguments are not sent.
 		/// Null values inside profile object cause that key to be deleted.
 		/// </summary>
-		public IEnumerator UpdateUser(string username, string name, string image, char gender, Profile profile) {
+		public IEnumerator UpdateUser(string username, string name, string image, char gender, int? timezone, Profile profile) {
 			log.info(string.Format("UpdateUser({0})", user.email));
 			
 			string ret = "Failed";
@@ -301,6 +301,7 @@ namespace RaceYourself
 				if (name != null) data.Add("name", name);
 				if (image != null) data.Add("image", image);
 				if (gender != null) data.Add("gender", gender);
+				if (timezone.HasValue) data.Add("timezone", timezone.Value);
 				if (profile != null) data.Add("profile", profile);
 				string body = JsonConvert.SerializeObject(data);
 				
@@ -348,7 +349,7 @@ namespace RaceYourself
 		/// <summary>
 		/// Coroutine to sign up.
 		/// </summary>
-		public IEnumerator SignUp(string email, string password, string inviteCode, string username, string name, char gender, Profile profile, Action<bool, Dictionary<string, IList<string>>> callback)
+		public IEnumerator SignUp(string email, string password, string inviteCode, string username, string name, char gender, string image, int? timezone, Profile profile, Action<bool, Dictionary<string, IList<string>>> callback)
 		{
 			log.info("SignUp()");
 			var encoding = new System.Text.UTF8Encoding();			
@@ -357,7 +358,7 @@ namespace RaceYourself
 			headers.Add("Accept-Charset", "utf-8");
 			headers.Add("Accept-Encoding", "gzip");
 
-			SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, username, name, gender, profile);
+			SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, username, name, gender, image, timezone, profile);
 
 			byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
 			
@@ -378,7 +379,21 @@ namespace RaceYourself
 				callback(false, response.response.errors);
 				yield break;
 			}
-			
+
+			if (response.response.user != null) {
+				user = response.response.user;
+				var transaction = db.BeginTransaction();
+				try {
+					if (!db.UpdateObjectBy("id", user)) {
+						db.StoreObject(user);
+					}
+					transaction.Commit();
+				} catch (Exception ex) {
+					transaction.Rollback();
+					throw ex;
+				}
+			}
+
 			log.info("SignUp() was successful");
 			callback(true, null);
 		}
@@ -963,15 +978,19 @@ namespace RaceYourself
 			public string username;
 			public string name;
 			public char gender;
+			public string image;
+			public int? timezone;
 			public Profile profile;
 
-			public SignUpRequest(string email, string password, string inviteCode, string username, string name, char gender, Profile profile) {
+			public SignUpRequest(string email, string password, string inviteCode, string username, string name, char gender, string image, int? timezone, Profile profile) {
 				this.email = email;
 				this.password = password;
 				this.invite_code = inviteCode;
 				this.username = username;
 				this.name = name;
 				this.gender = gender;
+				this.image = image;
+				this.timezone = timezone;
 				this.profile = profile;
 			}
 		}
@@ -979,6 +998,7 @@ namespace RaceYourself
 		private class SignUpResponse
 		{
 			public bool success = false;
+			public User user;
 			public Dictionary<string, IList<string>> errors;
 		}
 
