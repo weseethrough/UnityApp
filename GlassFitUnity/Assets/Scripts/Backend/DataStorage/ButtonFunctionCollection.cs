@@ -1091,20 +1091,6 @@ public class ButtonFunctionCollection
         return true;
     }
 
-//    private static void LoginCallback(bool result)
-//    {
-//        Debug.LogError("LoginCallback. Result = " + result);
-//        if (result)
-//        {
-//            FollowExit("Exit");
-//        }
-//        else
-//        {
-//            DataVault.Set("login_fail_message", result ? "" : "Failed to login.");
-//            FollowExit("Error");
-//        }
-//    }
-
     static public bool AllowLogin(FlowButton button, FlowState fs)
     {
         Panel panel = (Panel) fs;
@@ -1118,15 +1104,12 @@ public class ButtonFunctionCollection
 
         NetworkMessageListener.OnAuthenticated handler = null;
         handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-            Debug.LogError("LoginCallback. Result = " + authenticated);
             DataVault.Set("login_fail_message", authenticated ? "" : "Failed to login.");
             FollowExit(authenticated ? "Exit" : "Error");
             Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
         });
         Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
 
-        //NetworkMessageListener.OnAuthenticated onAuth = new NetworkMessageListener.OnAuthenticated(LoginCallback);
-        //NetworkMessageListener.OnAuthenticated += LoginCallback;
         plaf.GetMonoBehavioursPartner().StartCoroutine(api.Login(email, password));
 
         return true;

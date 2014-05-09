@@ -145,13 +145,14 @@ namespace RaceYourself
 	            form.AddField("username", username);
 	            form.AddField("password", password);
 				
-				var post = new WWW(AUTH_TOKEN_URL, form);				
+				var post = new WWW(AUTH_TOKEN_URL, form);
 				yield return post;
 						
 				if (!post.isDone) {}
 				
 				if (!String.IsNullOrEmpty(post.error)) {
-					log.error("Login(" + username + ",<password>) threw error: " + post.error);
+					// info, because on mobile, the user may mistype their password - so potentially user error not app/network error.
+                    log.info("Login(" + username + ",<password>) has errors: " + post.error);
 					ret = "Failure";
 					yield break;
 				}
