@@ -129,13 +129,13 @@ public class MobileHomePanel : MobilePanel {
 			}
 			IList<Challenge> challengeIList = Platform.Instance.Challenges();
 			if(challengeIList != null && challengeIList.Count > 0) {
-				List<Challenge> friendChallengeList = new List<Challenge>(challengeIList.Count);
+				List<Challenge> friendChallengeList = new List<Challenge>();
 				for(int i=0; i<challengeIList.Count; i++) {
-					friendChallengeList[i] = challengeIList[i];
+					friendChallengeList.Add(challengeIList[i]);
 				}
 				AddChallengeButtons(friendChallengeList, ListButtonData.ButtonFormat.FriendChallengeButton);
 			} else {
-				AddButtonData("NoChallengeButton", null, "", ListButtonData.ButtonFormat.InvitePromptButton, GetBaseButtonConnection());
+				AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
 			}
 			challengeBtn.enabled = false;
 			break;

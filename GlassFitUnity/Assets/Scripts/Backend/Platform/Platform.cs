@@ -361,7 +361,20 @@ public abstract class Platform : SingletonBase
     }
 
 	public virtual IList<Challenge> Challenges() {
-		return db.LoadAll<Challenge>();
+		IList<DistanceChallenge> distanceList = db.LoadAll<DistanceChallenge>();
+		IList<DurationChallenge> durationList = db.LoadAll<DurationChallenge>();
+		List<Challenge> allChallengeList = new List<Challenge>();
+		if(distanceList != null) {
+			for(int i=0; i<distanceList.Count; i++) {
+				allChallengeList.Add(distanceList[i]);
+			}
+		}
+		if(durationList != null) {
+			for(int i=0; i<durationList.Count; i++) {
+				allChallengeList.Add(durationList[i]);
+			}
+		}
+		return allChallengeList;
 	}
 
     public virtual Track FetchTrack(int deviceId, int trackId) {

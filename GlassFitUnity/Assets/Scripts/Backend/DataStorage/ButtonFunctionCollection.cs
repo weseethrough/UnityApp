@@ -126,6 +126,7 @@ public class ButtonFunctionCollection
 					break;
 
 				case "RacersBtn":
+				case "NoChallengeButton":
 					(panel as MobileHomePanel).ChangeList("friend");
 					break;
 				}
