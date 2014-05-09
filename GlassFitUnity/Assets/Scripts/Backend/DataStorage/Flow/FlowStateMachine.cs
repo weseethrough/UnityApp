@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 /// <summary>
 /// component which is flow manager embedded in prefab. Manages state progression, flowstate stack and many more important flow behaviors and data 
@@ -161,36 +162,18 @@ public class FlowStateMachine : MonoBehaviour
             connection.Link.Count > 0 &&
             connection.Link[0].Parent != null)
         {
-//            if (!grabAnalyticsInitialized)
-//            {
-//                //use this to enable debug output
-//                //GrabBridge.ToggleLog(true);
-//
-//                //GrabBridge.Start("pxeqexpldwfcwdp:faef0c81e352b38894b8df87:R7mg9jl2t4UOOWGxHTDh2Ys3KRHH/NOs0QAy9osBUEE=");
-//
-//                string userid = "tester";
-//                //GrabBridge.FirstLogin(userid);
-//
-//                //grabAnalyticsInitialized = true;                
-//            }
-            
 
-            //JSONObject gameDetails = new JSONObject();
-            //object type = DataVault.Get("type");
-            //object log = DataVault.Get("warning_log");
-            //DataVault.Set("warning_log", "");
-
-//            gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
-//            gameDetails.AddField("Game type", (string)type);
-//            gameDetails.AddField("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
-//            gameDetails.AddField("State live", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
-//            gameDetails.AddField("Custom Log", (string)log );
-
-            //GrabBridge.CustomEvent("Flow state changed", gameDetails);
-
-            // Our own internal logging for analytics
-            //gameDetails.AddField("Event type", "Flow state changed");
-            //Platform.Instance.LogAnalytics(gameDetails);
+            // log analytics
+            Hashtable gameDetails = new Hashtable();
+            object type = DataVault.Get("type");
+            object log = DataVault.Get("warning_log");
+            gameDetails.Add("event_type", "Flow state changed");
+            gameDetails.Add("flow_state", activeFlow[activeFlow.Count - 1].GetDisplayName());
+            gameDetails.Add("game_type", (string)type);
+            gameDetails.Add("time_since_launch", (int)(Time.realtimeSinceStartup * 1000));
+            gameDetails.Add("time_in_state", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
+            gameDetails.Add("custom_log", (string)log );
+            Platform.Instance.LogAnalytics(JsonConvert.SerializeObject(gameDetails));
 
             if (navigationHistory == null)
             {

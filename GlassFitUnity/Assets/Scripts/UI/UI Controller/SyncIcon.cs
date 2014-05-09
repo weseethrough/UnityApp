@@ -4,6 +4,8 @@ using System;
 
 public class SyncIcon : MonoBehaviour {
 	
+    // TODO strip out icon rotation and reference TextureRotation instead.
+
 	private float rotation = 0f;
 	
     private NetworkMessageListener.OnAuthenticated authHandler = null;

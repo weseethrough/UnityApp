@@ -56,7 +56,9 @@ JsonDotNet/JsonDotNet/obj
 *.csproj
 *.apk
 *.unityproj
+*.dll.mdb
 GlassFitUnity.zip
 
 Doxygen/
 .sonar/
+

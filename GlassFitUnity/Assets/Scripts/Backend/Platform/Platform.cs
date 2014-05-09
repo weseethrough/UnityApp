@@ -40,7 +40,7 @@ public abstract class Platform : SingletonBase
     // internal platform tools
     public PlatformPartner partner;  // MonoBehavior that passes unity calls through to platform
     protected static Log log = new Log("Platform");  // for use by subclasses
-    protected Siaqodb db;
+    public Siaqodb db;
     public API api;
 
     // internal platform state
@@ -142,6 +142,8 @@ public abstract class Platform : SingletonBase
 			ConnectSocket();
 		}
 
+        log.info("Starting sync co-routine");
+        GetMonoBehavioursPartner().StartCoroutine(SyncLoop());
 
 		FB.Init(OnInitComplete, OnHideUnity);
 
@@ -344,6 +346,7 @@ public abstract class Platform : SingletonBase
     /// Json-encoded event values such as current game state, what the user action was etc
     /// </param>
     public virtual void LogAnalytics (string json) {
+        log.warning("Analytics: " + json);
         var e = new RaceYourself.Models.Event(json, sessionId);
         db.StoreObject(e);
     }
@@ -422,6 +425,7 @@ public abstract class Platform : SingletonBase
     }
 
     public virtual void SyncToServer() {
+        log.info("SyncToServer called");
         lastSync = DateTime.Now;
         GetMonoBehavioursPartner().StartCoroutine(api.Sync());
     }
@@ -598,11 +602,19 @@ public abstract class Platform : SingletonBase
 	}
 	
 	private void FacebookMeCallback(FBResult result) {
-		if (result.Error == null) {
-			FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
-			log.info("Facebook me: " + JsonConvert.SerializeObject(me));
+        if (result.Error == null) {
+            FacebookMe me = JsonConvert.DeserializeObject<FacebookMe> (result.Text);
+			
+        log.info("Facebook me: " + JsonConvert.SerializeObject(me));
 		}
 	}
 
+    private IEnumerator SyncLoop()
+    {
+        while (true) {
+            SyncToServer ();
+            yield return new WaitForSeconds(10.0f);
+        }
+    }
 	
 }

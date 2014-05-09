@@ -1020,9 +1020,100 @@ public class ButtonFunctionCollection
 		return true;
     }
 
+    static public bool CheckUserIsOnList(FlowButton button, FlowState fs)
+    {
+        //string email = (string) DataVault.Get("signup_email");
+        Panel panel = (Panel) fs;
+        GameObject widgetRoot = panel.physicalWidgetRoot;
+        string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
+        string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
+        string firstName = getFieldUiBasiclabelContent(widgetRoot, "ForenameInput");
+        string surname = getFieldUiBasiclabelContent(widgetRoot, "SurnameInput");
+        
+        // TODO work out how to route to CommsError if network failure
+        // U = undisclosed.
+        Platform plaf = Platform.Instance;
+        API api = plaf.api;
+
+        plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, email, firstName + " " + surname, 'U', null, SignUpCallback));
+
+        // TODO show error and return false if passwords don't match
+
+        return true;
+    }
+    
+    private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
+    {
+        // TODO route to NotOnList if !result (check values of errors as well); route to OnList if result
+
+        string exit = "";
+        var validationErrors = new System.Text.StringBuilder();
+        if (result)
+            exit = "OnList";
+        else if(errors.ContainsKey("invite_code") && errors["invite_code"][0] == "missing")
+            exit = "NotOnList";
+        else
+        {
+            exit = "BlockingError";
+            foreach(KeyValuePair<string, IList<string>> entry in errors)
+            {
+                validationErrors.Append(entry.Key);
+                validationErrors.Append(" => [");
+                //validationErrors.AppendLine(entry.Value.ToString);
+                foreach(string v in entry.Value)
+                {
+                    validationErrors.Append(v);
+                    validationErrors.Append(", ");
+                }
+                validationErrors.AppendLine("]");
+            }
+        }
+        
+        Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+        GConnector gc = panel.Outputs.Find(r => r.Name == exit);
+        if (gc == null)
+            Debug.LogError("Exit not found: " + exit);
+        else panel.parentMachine.FollowConnection(gc);
+    }
+
+    static public bool InitMobileLogin(FlowButton button, FlowState fs)
+    {
+        //Debug.LogError("initmobilelogin");
+        DataVault.Set("login_fail_message", "");
+
+        return true;
+    }
+
+    static public bool AllowLogin(FlowButton button, FlowState fs)
+    {
+        Panel panel = (Panel) fs;
+        GameObject widgetRoot = panel.physicalWidgetRoot;
+
+        string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
+        string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
+
+        if (email == "questionnaire@raceyourself.com")
+           DataVault.Set("custom_redirection_point", "QuestionnaireOutstanding");
+
+        // TODO API call
+
+        bool success = email != "no@raceyourself.com";
+
+        DataVault.Set("login_fail_message", success ? "" : "Failed to login.");
+
+        return success;
+    }
+
+    static private string getFieldUiBasiclabelContent(GameObject widgetRoot, string gameObjectName)
+    {
+        GameObject inputField = GameObjectUtils.SearchTreeByName(widgetRoot, gameObjectName);
+        string label = inputField.GetComponentInChildren<UILabel>().text;
+
+        return label;
+    }
+
     static public bool FacebookLogin(FlowButton button, FlowState panel)
     {
-        // TODO if FB != null && FB.IsLoggedIn, hide button
         try
         {
             FB.Login("", FacebookLoginCallback); // "" = zero permissions
