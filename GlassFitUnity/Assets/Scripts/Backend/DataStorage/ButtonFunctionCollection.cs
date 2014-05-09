@@ -1044,8 +1044,6 @@ public class ButtonFunctionCollection
     
     private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
     {
-        // TODO route to NotOnList if !result (check values of errors as well); route to OnList if result
-
         string exit = "";
         var validationErrors = new System.Text.StringBuilder();
         if (result)
