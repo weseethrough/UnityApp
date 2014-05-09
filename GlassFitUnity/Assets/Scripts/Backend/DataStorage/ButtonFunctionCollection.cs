@@ -94,6 +94,47 @@ public class ButtonFunctionCollection
 		return true;
 	}
 
+	static public bool SetMobileChallengeType(FlowButton fb, FlowState panel) 
+	{
+		if(fb.GetComponent<UIButton>().enabled){
+			if(panel is MobileChallengePanel) {
+				switch(fb.name) {
+				case "ActiveBtn":
+					(panel as MobileChallengePanel).ChangeListType(ListButtonData.ButtonFormat.ActiveChallengeButton);
+					break;
+
+				case "FriendBtn":
+					(panel as MobileChallengePanel).ChangeListType(ListButtonData.ButtonFormat.FriendChallengeButton);
+					break;
+
+				case "CommunityBtn":
+					(panel as MobileChallengePanel).ChangeListType(ListButtonData.ButtonFormat.CommunityChallengeButton);
+					break;
+				}
+			}
+		}
+		return false;
+	}
+
+	static public bool SetMobileHomeTab(FlowButton fb, FlowState panel) 
+	{
+		if(fb.GetComponent<UIButton>().enabled) {
+			if(panel is MobileHomePanel) {
+				switch(fb.name) {
+				case "ChallengeBtn":
+					(panel as MobileHomePanel).ChangeList("challenge");
+					break;
+
+				case "RacersBtn":
+				case "NoChallengeButton":
+					(panel as MobileHomePanel).ChangeList("friend");
+					break;
+				}
+			}
+		}
+		return false;
+	}
+
 	static public bool ImportFacebook(FlowButton fb, FlowState panel) 
 	{
 		NetworkMessageListener.OnAuthenticated networkHandler = null;
@@ -101,6 +142,7 @@ public class ButtonFunctionCollection
 			if (authenticated && Platform.Instance.HasPermissions("facebook", "login")) {
 				NetworkMessageListener.OnSync syncHandler = null;
 				syncHandler = new NetworkMessageListener.OnSync((message) => {
+					UnityEngine.Debug.LogError(message);
 					Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
 					DataVault.Set("facebook_message", "Facebook sync successful!");
 					FlowState.FollowBackLink();

@@ -20,16 +20,20 @@ public class MobileList : UIComponentSettings
     private Dictionary<string, GameObject> buttonPrototypes;
     private GameObject listContent;
     private GameObject listHeader;
-    private string title = "NoTitle";
+
+    private string title = "";
+
     private GraphComponent gComponent;
 
     private Dictionary<string, List<GameObject>> instances = new Dictionary<string, List<GameObject>>();
 
-    private float defayltYOffset;
+    private float defaultYOffset;
 
     void Start()
     {
-        gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+//		UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
+//		if (drag != null) drag.ResetPosition();
+		gComponent = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
         listHeader = GameObjectUtils.SearchTreeByName(gameObject, "ListHeader");
         listContent = GameObjectUtils.SearchTreeByName(gameObject, "ListContent");
         Debug.Log("listHeader " + listHeader);
@@ -37,7 +41,7 @@ public class MobileList : UIComponentSettings
 
         buttonPrototypes = GetPrototypes(listContent);
 
-        defayltYOffset = listContent.GetComponent<UIGrid>().transform.position.y;
+        defaultYOffset = listContent.GetComponent<UIGrid>().transform.position.y;
 
         SetTitle(title);
 
@@ -67,7 +71,7 @@ public class MobileList : UIComponentSettings
 
         Vector3 pos = grid.transform.position;
         float itemHeight = grid.cellHeight;
-        float position = pos.y - defayltYOffset;
+        float position = pos.y - defaultYOffset;
         int start = -itemCountBeforeTop + (int)(position / itemHeight);
 
         Reposition(buttonData, start, itemsToManage);
@@ -75,6 +79,12 @@ public class MobileList : UIComponentSettings
 
     public void Reposition(List<ListButtonData> items, int itemOffset, int itemCount)
     {
+        bool requiresResetMask = false;
+
+        if (previousCount == 0)
+        {
+            requiresResetMask = true;
+        }
 
         int min = Mathf.Min(itemOffset, previousStartIndex);
         int max = Mathf.Max(itemOffset + itemCount, previousStartIndex + previousCount);
@@ -88,7 +98,10 @@ public class MobileList : UIComponentSettings
         int y = 0;*/
         int i;
 
-        for (i = min; i < max; i++)
+//		UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
+//		if (drag != null) drag.ResetPosition();
+		
+		for (i = min; i < max; i++)
         {
             //do not try to manage items off the list
             if (i < 0 || i >= items.Count) continue;
@@ -104,7 +117,8 @@ public class MobileList : UIComponentSettings
             {
                 GameObject item;
 
-                if (i >= previousStartIndex && i < previousStartIndex + previousCount)
+//				if(buttons.Count > 0){
+                if (i >= previousStartIndex && i < previousStartIndex + previousCount && buttons.Count > 0)
                 {
                     item = buttons[0];
                     buttons.RemoveAt(0);
@@ -117,13 +131,14 @@ public class MobileList : UIComponentSettings
 
                 Vector3 p = item.transform.localPosition;
                 p.y = -grid.cellHeight * i;
+                p.x = 0;
 
                 item.transform.localPosition = p;
-
+//				}
             }
             else
             {
-                if (i >= previousStartIndex && i < previousStartIndex + previousCount)
+				if (i >= previousStartIndex && i < previousStartIndex + previousCount && buttons.Count > 0)
                 {
                     buttons[0].SetActive(false);
                     buttons.RemoveAt(0);
@@ -136,8 +151,17 @@ public class MobileList : UIComponentSettings
         previousStartIndex = itemOffset;
         previousCount = itemCount;
 
-        UIDraggablePanel drag = NGUITools.FindInParents<UIDraggablePanel>(gameObject);
-        if (drag != null) drag.UpdateScrollbars(true);
+        UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
+        if (drag != null)
+        {                        
+            if (requiresResetMask)
+            {
+                drag.relativePositionOnReset = Vector2.zero;
+                drag.ResetPosition();
+            }
+
+            drag.UpdateScrollbars(true);            
+        }
     }
 
     private GameObject GetNewButton(ListButtonData data, List<GameObject> newListButtons)
@@ -194,12 +218,37 @@ public class MobileList : UIComponentSettings
             fb.name = data.buttonName;
         }
 
-        GameObjectUtils.SetTextOnLabelInChildren(button, "title", data.textNormal);
-        GameObjectUtils.SetTextOnLabelInChildren(button, "content", data.buttonName);
+		GameObjectUtils.SetTextOnLabelInChildren(button, "title", data.textNormal);
+		GameObjectUtils.SetTextOnLabelInChildren(button, "content", data.buttonName);
 
+		if(data.attributeDictionary != null) {
+			foreach(var key in data.attributeDictionary.Keys) {
+				GameObjectUtils.SetTextOnLabelInChildren(button, key, data.attributeDictionary[key]);
+			}
+		}
+
+		if(data.imageName != string.Empty) 
+		{
+			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
+				Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
+				GameObject foundButton = GameObjectUtils.SearchTreeByName(fs.physicalWidgetRoot, buttonId);
+				if(foundButton != null) {
+					foundButton.GetComponentInChildren<UITexture>().mainTexture = tex;
+				}
+			});
+		}
+
+//                Debug.Log("AddButton " + data.textNormal + " btName: " + buttonData[i].buttonName);
         return button;
-    }
+	}
 
+//            UIGrid grid = listContent.GetComponent<UIGrid>();
+//            if (grid != null)
+//            {
+//                grid.Reposition();
+//            }
+//        }
+//    }    
 
     Dictionary<string, GameObject> GetPrototypes(GameObject root)
     {
@@ -211,5 +260,47 @@ public class MobileList : UIComponentSettings
         }
 
         return collection;
+    }
+
+    public void ResetList(float newItemHeight)
+    {
+
+        foreach (KeyValuePair<string, List<GameObject>> list in instances)
+        {
+            foreach ( GameObject item in list.Value)
+            {
+                Destroy(item);
+            }
+        }
+
+        //clear defaults
+        buttons = new List<GameObject>();
+        instances = new Dictionary<string, List<GameObject>>();
+        previousStartIndex = 0;
+        previousCount = 0;
+
+        UIGrid grid = listContent.GetComponent<UIGrid>();
+        grid.cellHeight = newItemHeight;
+        Vector3 pos = grid.transform.position;
+        pos.y = 0;
+        pos.x = 0;
+        grid.transform.position = pos;        
+        
+       /* UIPanel panel = NGUITools.FindInParents<UIPanel>(gameObject);
+
+        pos = panel.transform.position;
+        pos.x = 0;
+        panel.transform.position = pos;
+
+        UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
+        if (previousCount == 0)
+        {
+            if (drag != null)
+            {
+                drag.relativePositionOnReset = Vector2.zero;
+                drag.ResetPosition();
+            }
+        }*/
+        
     }
 }
