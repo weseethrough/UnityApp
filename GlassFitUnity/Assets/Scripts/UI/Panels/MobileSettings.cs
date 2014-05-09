@@ -50,10 +50,15 @@ public class MobileSettings : MobilePanel
         AddButtonData("Slider2", "Slider2", "S", ListButtonData.ButtonFormat.SliderPrototype);
         AddButtonData("Slider3", "Slider3", "S", ListButtonData.ButtonFormat.SliderPrototype);
         */
+		Dictionary<string, string> dic = new Dictionary<string, string>();
+		dic.Add("title", "slider" );
         for (int k = 0; k < 800; k++ )
         {
-            AddButtonData("Slider"+k, "Slider"+k, "S", ListButtonData.ButtonFormat.SliderPrototype);
-            AddButtonData("Button"+k, "Button"+k, "B", ListButtonData.ButtonFormat.ButtonNormalPrototype, GetBaseButtonConnection());
+			dic["title"] = "slider" +k;
+
+            AddButtonData("Slider"+k, dic, "S", ListButtonData.ButtonFormat.SliderPrototype);
+			dic["title"] = "button" +k;
+            AddButtonData("Button"+k, dic, "B", ListButtonData.ButtonFormat.ButtonNormalPrototype, GetBaseButtonConnection());
         }
 
             if (list != null)

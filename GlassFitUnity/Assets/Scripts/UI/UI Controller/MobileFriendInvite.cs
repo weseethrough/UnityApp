@@ -63,12 +63,6 @@ public class MobileFriendInvite : MonoBehaviour {
 		} else {
 
 		}
+	}
 
-//		JsonConvert.SerializeObject()
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 }
