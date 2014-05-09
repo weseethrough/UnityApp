@@ -79,6 +79,12 @@ public class MobileList : UIComponentSettings
 
     public void Reposition(List<ListButtonData> items, int itemOffset, int itemCount)
     {
+        bool requiresResetMask = false;
+
+        if (previousCount == 0)
+        {
+            requiresResetMask = true;
+        }
 
         int min = Mathf.Min(itemOffset, previousStartIndex);
         int max = Mathf.Max(itemOffset + itemCount, previousStartIndex + previousCount);
@@ -145,8 +151,17 @@ public class MobileList : UIComponentSettings
         previousStartIndex = itemOffset;
         previousCount = itemCount;
 
-		UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
-        if (drag != null) drag.UpdateScrollbars(true);
+        UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
+        if (drag != null)
+        {                        
+            if (requiresResetMask)
+            {
+                drag.relativePositionOnReset = Vector2.zero;
+                drag.ResetPosition();
+            }
+
+            drag.UpdateScrollbars(true);            
+        }
     }
 
     private GameObject GetNewButton(ListButtonData data, List<GameObject> newListButtons)
@@ -249,6 +264,7 @@ public class MobileList : UIComponentSettings
 
     public void ResetList(float newItemHeight)
     {
+
         foreach (KeyValuePair<string, List<GameObject>> list in instances)
         {
             foreach ( GameObject item in list.Value)
@@ -267,6 +283,24 @@ public class MobileList : UIComponentSettings
         grid.cellHeight = newItemHeight;
         Vector3 pos = grid.transform.position;
         pos.y = 0;
-        grid.transform.position = pos;
+        pos.x = 0;
+        grid.transform.position = pos;        
+        
+       /* UIPanel panel = NGUITools.FindInParents<UIPanel>(gameObject);
+
+        pos = panel.transform.position;
+        pos.x = 0;
+        panel.transform.position = pos;
+
+        UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
+        if (previousCount == 0)
+        {
+            if (drag != null)
+            {
+                drag.relativePositionOnReset = Vector2.zero;
+                drag.ResetPosition();
+            }
+        }*/
+        
     }
 }
