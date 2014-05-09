@@ -26,7 +26,7 @@ namespace RaceYourself.Models
         public int points_awarded;
         public string prize;
         public List<int> friends;
-
+         
 		public string type;
 					
 		///  Internal
