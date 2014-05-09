@@ -1069,32 +1069,60 @@ public class ButtonFunctionCollection
         GameObject widgetRoot = panel.physicalWidgetRoot;
         string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
         string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
+        string passwordConfirmation = getFieldUiBasiclabelContent(widgetRoot, "PasswordConfirmInput");
         string firstName = getFieldUiBasiclabelContent(widgetRoot, "ForenameInput");
         string surname = getFieldUiBasiclabelContent(widgetRoot, "SurnameInput");
-        
-        // TODO work out how to route to CommsError if network failure
-        // U = undisclosed.
-        Platform plaf = Platform.Instance;
-        API api = plaf.api;
+        // TODO bool tsAndCsTicked - error unless ticked
+        if (password == passwordConfirmation)
+        {
+            // TODO work out how to route to CommsError if network failure
+            // U = undisclosed.
+            Platform plaf = Platform.Instance;
+            API api = plaf.api;
 
-        plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, email, firstName + " " + surname, 'U', null, SignUpCallback));
+            DataVault.Set("email", email);
+            DataVault.Set("password", password);
 
-        // TODO show error and return false if passwords don't match
+            plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, email, firstName + " " + surname, 'U', null, SignUpCallback));
+            return true;
+        }
+        else
+        {
+            DataVault.Set("login_error", "Passwords don't match!");
+            return false;
+        }
+    }
 
-        return true;
+    private static void SignIn(string email, string password)
+    {
+        NetworkMessageListener.OnAuthenticated handler = null;
+        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+            DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
+            FollowExit(authenticated ? "Exit" : "Error");
+            Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
+        });
+        Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
+
+        plaf.GetMonoBehavioursPartner().StartCoroutine(api.Login(email, password));
     }
     
     private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
     {
         string exit = "";
-        var validationErrors = new System.Text.StringBuilder();
         if (result)
-            exit = "OnList";
+        {
+            string email = DataVault.Get("email");
+            string password = DataVault.Get("password"); // TODO don't do this! Feels wrong...
+
+            SignIn(email, password);
+        }
         else if(errors.ContainsKey("invite_code") && errors["invite_code"][0] == "missing")
-            exit = "NotOnList";
+        {
+            FollowExit("NotOnList");
+        }
         else
         {
-            exit = "BlockingError";
+            var validationErrors = new System.Text.StringBuilder();
             foreach(KeyValuePair<string, IList<string>> entry in errors)
             {
                 // TODO suspect there's a line of LINQ that would do all this...
@@ -1108,9 +1136,10 @@ public class ButtonFunctionCollection
                 }
                 validationErrors.AppendLine("]");
             }
+            DataVault.Set("form_error", validationErrors.ToString());
+
+            FollowExit("BlockingError");
         }
-        //BADGER
-        FollowExit(exit);
     }
 
     static private void FollowExit(string name)
@@ -1124,11 +1153,10 @@ public class ButtonFunctionCollection
             panel.parentMachine.FollowConnection(gc);
     }
 
-    static public bool InitMobileLogin(FlowButton button, FlowState fs)
+    static public bool InitLabels(FlowButton button, FlowState fs)
     {
-        //Debug.LogError("initmobilelogin");
-        DataVault.Set("login_fail_message", "");
-
+        DataVault.Set("form_error", "test");
+        DataVault.Set("player_name", "");
         return true;
     }
 
@@ -1143,15 +1171,9 @@ public class ButtonFunctionCollection
         Platform plaf = Platform.Instance;
         API api = plaf.api;
 
-        NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-            DataVault.Set("login_fail_message", authenticated ? "" : "Failed to login.");
-            FollowExit(authenticated ? "Exit" : "Error");
-            Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
-        });
-        Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
+        SignIn(email, password);
 
-        plaf.GetMonoBehavioursPartner().StartCoroutine(api.Login(email, password));
+
 
         return true;
     }
