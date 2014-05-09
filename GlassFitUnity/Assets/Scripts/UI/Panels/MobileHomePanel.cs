@@ -56,11 +56,17 @@ public class MobileHomePanel : MobilePanel {
 
 		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "iPhoneGreyBlackBackground");
 		
-		GameObjectUtils.SetTextOnLabelInChildren(bkg, "PlayerName", "Amerigo Moscaroli");
+		GameObjectUtils.SetTextOnLabelInChildren(bkg, "PlayerName", Platform.Instance.User().name);
 
 		UITexture profilePicture = bkg.GetComponentInChildren<UITexture>();
-		
+
+
 		// TODO: add functionality for login information
+		if(profilePicture != null) {
+			Platform.Instance.RemoteTextureManager.LoadImage(Platform.Instance.User().image, "", (tex, text) => {
+				profilePicture.mainTexture = tex;
+			});
+		}
 
 //		Platform.Instance.Authorize("facebook", "login");
 

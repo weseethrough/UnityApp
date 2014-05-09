@@ -23,7 +23,24 @@ namespace RaceYourself.Models
         // TOOD: Polymophism
         [JsonProperty("screen_name")]
         public string username;
+
+        public string forename {
+            get {
+                if(!string.IsNullOrEmpty(name)) return name.Split(' ')[0];
+                return "Unknown";
+            }
+        }
         
+        public string surname {
+            get {
+                if(!string.IsNullOrEmpty(name)) {
+                    var split = name.Split(' ');
+                    return split[split.Length - 1];
+                }
+                return "Unknown";
+            }
+        }
+
         public string GenerateCompositeId ()
         {
             this.guid = uid + "_" + provider;

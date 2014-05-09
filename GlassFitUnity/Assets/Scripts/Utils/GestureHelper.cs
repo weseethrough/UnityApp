@@ -182,7 +182,7 @@ public class GestureHelper : MonoBehaviour {
 			}
 			
 			//back = down or backspace or escape
-			if(Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.Backspace) )
+			if(Input.GetKeyDown(KeyCode.DownArrow)) 
 			{
 				if(onBack != null) onBack();
 			}
