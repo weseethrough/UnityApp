@@ -1103,7 +1103,7 @@ public class ButtonFunctionCollection
         });
         Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
 
-        plaf.GetMonoBehavioursPartner().StartCoroutine(api.Login(email, password));
+        Platform.Instance.GetMonoBehavioursPartner().StartCoroutine(Platform.Instance.api.Login(email, password));
     }
     
     private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
@@ -1111,8 +1111,8 @@ public class ButtonFunctionCollection
         string exit = "";
         if (result)
         {
-            string email = DataVault.Get("email");
-            string password = DataVault.Get("password"); // TODO don't do this! Feels wrong...
+            string email = DataVault.Get("email") as string;
+            string password = DataVault.Get("password") as string; // TODO don't do this! Feels wrong...
 
             SignIn(email, password);
         }
@@ -1138,7 +1138,7 @@ public class ButtonFunctionCollection
             }
             DataVault.Set("form_error", validationErrors.ToString());
 
-            FollowExit("BlockingError");
+            FollowExit("Error");
         }
     }
 
