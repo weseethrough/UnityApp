@@ -1088,7 +1088,7 @@ public class ButtonFunctionCollection
         }
         else
         {
-            DataVault.Set("login_error", "Passwords don't match!");
+            DataVault.Set("form_error", "Passwords don't match!");
             return false;
         }
     }
@@ -1126,15 +1126,12 @@ public class ButtonFunctionCollection
             foreach(KeyValuePair<string, IList<string>> entry in errors)
             {
                 // TODO suspect there's a line of LINQ that would do all this...
-                validationErrors.Append(entry.Key);
-                validationErrors.Append(" => [");
-                //validationErrors.AppendLine(entry.Value.ToString);
                 foreach (string v in entry.Value)
                 {
-                    validationErrors.Append(v);
-                    validationErrors.Append(", ");
+                    validationErrors.Append(entry.Key);
+                    validationErrors.Append(" ");
+                    validationErrors.AppendLine(v);
                 }
-                validationErrors.AppendLine("]");
             }
             DataVault.Set("form_error", validationErrors.ToString());
 
@@ -1179,8 +1176,6 @@ public class ButtonFunctionCollection
         API api = plaf.api;
 
         SignIn(email, password);
-
-
 
         return true;
     }
