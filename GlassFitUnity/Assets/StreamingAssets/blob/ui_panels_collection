@@ -53,7 +53,6 @@ ImportFriends
 MobileThanksPendingNotification
 MobileInvite
 MobileInAppBackButton
-New Screen
 LoginOrSignupPrompt
 MobileQuestionnaire1
 MobileQuestionnaire2
@@ -62,3 +61,7 @@ NetworkCall
 MobileNewHome
 MobileNewHomeV2
 MobileSetChallenge
+MobileSummary
+MobileInRun
+MobileLoadScreen
+LoadLevelMobile

@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnityVS.GlassFitUnity.CShar
 EndProject
 Project("{1FAC5C55-277D-4884-94A4-83DBDAF57E56}") = "UnityVS.GlassFitUnity.UnityScript.Editor.Plugins", "UnityVS.GlassFitUnity.UnityScript.Editor.Plugins.unityproj", "{4A74B211-04DB-77B3-66BA-3E0DD4F4ECE3}"
 EndProject
-Project("{1FAC5C55-277D-4884-94A4-83DBDAF57E56}") = "UnityVS.GlassFitUnity.UnityScript", "UnityVS.GlassFitUnity.UnityScript.unityproj", "{F951258F-AB78-95E2-F3D4-907AFAA55C5D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,10 +25,6 @@ Global
 		{4A74B211-04DB-77B3-66BA-3E0DD4F4ECE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A74B211-04DB-77B3-66BA-3E0DD4F4ECE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A74B211-04DB-77B3-66BA-3E0DD4F4ECE3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F951258F-AB78-95E2-F3D4-907AFAA55C5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F951258F-AB78-95E2-F3D4-907AFAA55C5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F951258F-AB78-95E2-F3D4-907AFAA55C5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F951258F-AB78-95E2-F3D4-907AFAA55C5D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
