@@ -112,7 +112,7 @@ public class MobileInRun : MobilePanel {
 		
 		// Update Sprite positions
 		playerSpriteAnchor.relativeOffset.x = playerProgress;
-		opponentSpriteAnchor.relativeOffset.y = opponentProgress;
+		opponentSpriteAnchor.relativeOffset.x = opponentProgress;
 		
 		// check for race finished
 		if(playerDist > targetDistance)
