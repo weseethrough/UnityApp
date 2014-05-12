@@ -31,7 +31,11 @@ public class HUDController : MonoBehaviour {
         TimeSpan span = TimeSpan.FromMilliseconds(Platform.Instance.LocalPlayerPosition.Time);
 						
         DataVault.Set("time_minutes_only", (int)(span.Minutes + span.Hours * 60));
-        DataVault.Set("time_seconds_only", string.Format("{0:00}" ,span.Seconds));	
+        DataVault.Set("time_seconds_only", string.Format("{0:00}" ,span.Seconds));
+
+		int dist = GameBase.getTargetDistance();
+		string distKm = string.Format("{0:0}", dist/1000);
+		DataVault.Set("goal_dist", distKm);
 	}
 
 		
