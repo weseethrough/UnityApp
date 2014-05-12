@@ -48,6 +48,13 @@ public class FlowStateMachine : MonoBehaviour
             }
         }
     }
+
+    public void RemoveFromHistory(FlowState flowState)
+    {
+        int idx = navigationHistory.IndexOf(flowState);
+        if (idx >= 0)
+            navigationHistory.RemoveAt(idx);
+    }
 	
     /// <summary>
     /// static function which allows to restart the state machine through any of the Start node's outputs

@@ -1160,6 +1160,13 @@ public class ButtonFunctionCollection
         return true;
     }
 
+    static public bool RemoveCurrentFromHistory(FlowButton button, FlowState fs)
+    {
+        if (fs != null)
+            fs.parentMachine.RemoveFromHistory(fs);
+        return true;
+    }
+
     static public bool AllowLogin(FlowButton button, FlowState fs)
     {
         Panel panel = (Panel) fs;
