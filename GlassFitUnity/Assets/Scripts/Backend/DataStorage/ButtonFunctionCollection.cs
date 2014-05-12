@@ -1155,7 +1155,7 @@ public class ButtonFunctionCollection
 
     static public bool InitLabels(FlowButton button, FlowState fs)
     {
-        DataVault.Set("form_error", "test");
+        DataVault.Set("form_error", "");
         DataVault.Set("player_name", "");
         return true;
     }
