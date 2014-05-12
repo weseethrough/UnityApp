@@ -1062,14 +1062,21 @@ public class ButtonFunctionCollection
 		return true;
     }
 
-    static public bool CheckUserIsOnList(FlowButton button, FlowState fs)
+    static public bool SignUp(FlowButton button, FlowState fs)
     {
-        //string email = (string) DataVault.Get("signup_email");
+        FacebookMe me = (FacebookMe) DataVault.Get("facebook_me");
+
         Panel panel = (Panel) fs;
         GameObject widgetRoot = panel.physicalWidgetRoot;
         string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
-        string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
-        string passwordConfirmation = getFieldUiBasiclabelContent(widgetRoot, "PasswordConfirmInput");
+
+        string password = null;
+        string passwordConfirmation = null;
+        if (me == null)
+        {
+            password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
+            passwordConfirmation = getFieldUiBasiclabelContent(widgetRoot, "PasswordConfirmInput");
+        }
         string firstName = getFieldUiBasiclabelContent(widgetRoot, "ForenameInput");
         string surname = getFieldUiBasiclabelContent(widgetRoot, "SurnameInput");
         // TODO bool tsAndCsTicked - error unless ticked
@@ -1081,9 +1088,25 @@ public class ButtonFunctionCollection
             API api = plaf.api;
 
             DataVault.Set("email", email);
-            DataVault.Set("password", password);
+            if (password != null)
+                DataVault.Set("password", password);
 
-            plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, email, firstName + " " + surname, 'U', null, null, null, SignUpCallback));
+            string username = email;
+            char gender = 'U';
+            string imageUrl = null;
+
+            if (me != null)
+            {
+                username = me.username;
+                if (me.gender == "male")
+                    gender = 'M';
+                else if (me.gender == "female")
+                    gender = 'F';
+                imageUrl = me.Picture;
+            }
+
+            plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
+                email, password, null, username, firstName + " " + surname, gender, imageUrl, null, null, SignUpCallback));
             return true;
         }
         else
@@ -1252,6 +1275,8 @@ public class ButtonFunctionCollection
                 DataVault.Set("surname", me.last_name);
             if (me.email != null)
                 DataVault.Set("email", me.email);
+
+            DataVault.Set("facebook_me", me);
 
             DataVault.Set("fb", true);
 

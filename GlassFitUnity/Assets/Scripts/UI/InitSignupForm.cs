@@ -49,8 +49,8 @@ public class InitSignupForm : MonoBehaviour
             UIBasiclabel basicLabel = inputField.GetComponent<UIBasiclabel>();
             basicLabel.SetLabel(valOrEmpty);
 
-            UIInput input = inputField.GetComponentInChildren<UIInput>();
-            input.defaultText = "Keep Labels Value";
+//            UIInput input = inputField.GetComponentInChildren<UIInput>();
+//            input.defaultText = "Keep Labels Value";
             
             UILabel label = inputField.GetComponentInChildren<UILabel>();
             label.text = valOrEmpty;
