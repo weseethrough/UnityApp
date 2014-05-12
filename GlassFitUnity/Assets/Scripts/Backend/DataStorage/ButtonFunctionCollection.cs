@@ -1062,14 +1062,21 @@ public class ButtonFunctionCollection
 		return true;
     }
 
-    static public bool CheckUserIsOnList(FlowButton button, FlowState fs)
+    static public bool SignUp(FlowButton button, FlowState fs)
     {
-        //string email = (string) DataVault.Get("signup_email");
+        FacebookMe me = (FacebookMe) DataVault.Get("facebook_me");
+
         Panel panel = (Panel) fs;
         GameObject widgetRoot = panel.physicalWidgetRoot;
         string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
-        string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
-        string passwordConfirmation = getFieldUiBasiclabelContent(widgetRoot, "PasswordConfirmInput");
+
+        string password = null;
+        string passwordConfirmation = null;
+        if (me == null)
+        {
+            password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
+            passwordConfirmation = getFieldUiBasiclabelContent(widgetRoot, "PasswordConfirmInput");
+        }
         string firstName = getFieldUiBasiclabelContent(widgetRoot, "ForenameInput");
         string surname = getFieldUiBasiclabelContent(widgetRoot, "SurnameInput");
         // TODO bool tsAndCsTicked - error unless ticked
@@ -1081,9 +1088,25 @@ public class ButtonFunctionCollection
             API api = plaf.api;
 
             DataVault.Set("email", email);
-            DataVault.Set("password", password);
+            if (password != null)
+                DataVault.Set("password", password);
 
-            plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, email, firstName + " " + surname, 'U', null, null, null, SignUpCallback));
+            string username = email;
+            char gender = 'U';
+            string imageUrl = null;
+
+            if (me != null)
+            {
+                username = me.username;
+                if (me.gender == "male")
+                    gender = 'M';
+                else if (me.gender == "female")
+                    gender = 'F';
+                imageUrl = me.Picture;
+            }
+
+            plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
+                email, password, null, username, firstName + " " + surname, gender, imageUrl, null, null, SignUpCallback));
             return true;
         }
         else
@@ -1202,15 +1225,14 @@ public class ButtonFunctionCollection
     {
         try
         {
-            FB.Login("", FacebookLoginCallback); // "" = zero permissions
-            return true;
+            FB.Login("", FacebookLoginCallback); // "" = default, minimal permissions
         }
         catch (Exception e) {
             // TODO show error to user
             DataVault.Set("facebook_error", e.Message);
             log.error("Facebook: error:\n" + e.Message);
-            return false;
         }
+        return false; // always return false - allow callback to move user to next screen.
     }
     
     private static void FacebookLoginCallback(FBResult result)
@@ -1245,15 +1267,21 @@ public class ButtonFunctionCollection
             FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
             log.info("Facebook me: " + result.Text);
 
-            Panel signupPanel = (Panel) FlowStateMachine.GetCurrentFlowState();
-            GameObject widgetRoot = signupPanel.physicalWidgetRoot;
+            Panel panel = (Panel) FlowStateMachine.GetCurrentFlowState();
 
-            UpdateLabel (widgetRoot, "ForenameInput", me.first_name);
-            UpdateLabel (widgetRoot, "SurnameInput", me.last_name);
-            UpdateLabel (widgetRoot, "EmailInput", me.email);
+            if (me.first_name != null)
+                DataVault.Set("first_name", me.first_name);
+            if (me.last_name != null)
+                DataVault.Set("surname", me.last_name);
+            if (me.email != null)
+                DataVault.Set("email", me.email);
 
-            GameObject facebookButton = GameObject.FindWithTag("FacebookButton");
-            facebookButton.SetActive(false);
+            DataVault.Set("facebook_me", me);
+
+            DataVault.Set("fb", true);
+
+            GConnector gConect = panel.Outputs.Find(r => r.Name == "SignupEmail"); // TODO rename?
+            panel.parentMachine.FollowConnection(gConect);
 
             //GameObject picSprite = GameObject.FindWithTag("FacebookPic");
             //picSprite.SetActive(true);
