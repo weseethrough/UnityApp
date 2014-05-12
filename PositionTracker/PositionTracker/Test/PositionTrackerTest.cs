@@ -23,6 +23,7 @@ namespace PositionTracker
 		}
 		
 		public float[] LinearAcceleration { get; set; }
+		public float Yaw { get; set; }
 		
 	}
 	

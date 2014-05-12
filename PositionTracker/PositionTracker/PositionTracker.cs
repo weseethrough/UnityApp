@@ -29,6 +29,10 @@ namespace PositionTracker
 		// Platform-dependent providers of position and sensors
 		private IPositionProvider positionProvider;
 		private ISensorProvider sensorProvider;
+
+		// Fake position provider - used in indoor mode
+		private FakePositionProvider fakePositionProvider;
+
 		private AccelerationCalculator accCalc;
 		// Callback class for recurrent sensor polling
 		SensorPollTick sensorPollTick;
@@ -55,6 +59,7 @@ namespace PositionTracker
 		public PositionTracker(IPositionProvider positionProvider, ISensorProvider sensorProvider) {
 			this.positionProvider = positionProvider;
 			this.sensorProvider = sensorProvider;
+			fakePositionProvider = new FakePositionProvider(this, sensorProvider);
 			accCalc = new AccelerationCalculator(sensorProvider);
 			speedState.CurrentState = State.STOPPED;
 			MinIndoorSpeed = 0.0f;
@@ -342,9 +347,8 @@ namespace PositionTracker
 	        get; set;
 	    }
 	    
-		// TODO:
 	    public State CurrentState {
-	        get { return State.UNKNOWN; }
+			get { return speedState.CurrentState; }
 	    }
 	
 	    /**
@@ -365,8 +369,11 @@ namespace PositionTracker
 	    public void OnResume() { 
 			if (IndoorMode) {
 				positionProvider.UnregisterPositionListener(this);
-				// TODO: fake GPS update
+				// start fake GPS update
+				fakePositionProvider.RegisterPositionListener (this);
 			} else {
+				// stop fake GPS update
+				fakePositionProvider.UnregisterPositionListener (this);
 				// Try registering listener. If failed, fallback to indoor mode
 				if(!positionProvider.RegisterPositionListener(this)) {
 					IndoorMode = true;
