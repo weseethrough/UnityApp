@@ -118,6 +118,12 @@ public class MobileInRun : MobilePanel {
 		if(playerDist > targetDistance)
 		{
 			//we're done
+			// load new scene
+			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+
+			//progress flow to results
+			FlowState.FollowFlowLinkNamed("Finished");
+
 		}
 	}
 }

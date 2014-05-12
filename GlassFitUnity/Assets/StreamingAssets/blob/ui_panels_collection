@@ -53,7 +53,6 @@ ImportFriends
 MobileThanksPendingNotification
 MobileInvite
 MobileInAppBackButton
-New Screen
 LoginOrSignupPrompt
 MobileQuestionnaire1
 MobileQuestionnaire2
@@ -63,3 +62,4 @@ MobileInRun
 StartRunTest
 MobileLoadLevel
 q
+MobileSummary
