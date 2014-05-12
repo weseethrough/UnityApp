@@ -1202,15 +1202,14 @@ public class ButtonFunctionCollection
     {
         try
         {
-            FB.Login("", FacebookLoginCallback); // "" = zero permissions
-            return true;
+            FB.Login("", FacebookLoginCallback); // "" = default, minimal permissions
         }
         catch (Exception e) {
             // TODO show error to user
             DataVault.Set("facebook_error", e.Message);
             log.error("Facebook: error:\n" + e.Message);
-            return false;
         }
+        return false; // always return false - allow callback to move user to next screen.
     }
     
     private static void FacebookLoginCallback(FBResult result)
@@ -1245,15 +1244,19 @@ public class ButtonFunctionCollection
             FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
             log.info("Facebook me: " + result.Text);
 
-            Panel signupPanel = (Panel) FlowStateMachine.GetCurrentFlowState();
-            GameObject widgetRoot = signupPanel.physicalWidgetRoot;
+            Panel panel = (Panel) FlowStateMachine.GetCurrentFlowState();
 
-            UpdateLabel (widgetRoot, "ForenameInput", me.first_name);
-            UpdateLabel (widgetRoot, "SurnameInput", me.last_name);
-            UpdateLabel (widgetRoot, "EmailInput", me.email);
+            if (me.first_name != null)
+                DataVault.Set("first_name", me.first_name);
+            if (me.last_name != null)
+                DataVault.Set("surname", me.last_name);
+            if (me.email != null)
+                DataVault.Set("email", me.email);
 
-            GameObject facebookButton = GameObject.FindWithTag("FacebookButton");
-            facebookButton.SetActive(false);
+            DataVault.Set("fb", true);
+
+            GConnector gConect = panel.Outputs.Find(r => r.Name == "SignupEmail"); // TODO rename?
+            panel.parentMachine.FollowConnection(gConect);
 
             //GameObject picSprite = GameObject.FindWithTag("FacebookPic");
             //picSprite.SetActive(true);
