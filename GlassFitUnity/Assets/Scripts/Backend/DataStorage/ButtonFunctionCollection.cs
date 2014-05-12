@@ -135,6 +135,11 @@ public class ButtonFunctionCollection
 		return false;
 	}
 
+	static public bool ChallengeMobilePlayer(FlowButton fb, FlowState panel) 
+	{
+		return true;
+	}
+
 	static public bool ImportFacebook(FlowButton fb, FlowState panel) 
 	{
 		NetworkMessageListener.OnAuthenticated networkHandler = null;
