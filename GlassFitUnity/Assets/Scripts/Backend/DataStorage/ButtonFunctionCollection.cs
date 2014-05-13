@@ -1261,7 +1261,7 @@ public class ButtonFunctionCollection
                 log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
                 try
                 {
-                    FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
+                    FB.API("/v1.0/me", Facebook.HttpMethod.GET, FacebookMeCallback);
                 }
                 catch (Exception e)
                 {
