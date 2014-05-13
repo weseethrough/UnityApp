@@ -361,7 +361,8 @@ namespace RaceYourself
 		/// <summary>
 		/// Coroutine to sign up.
 		/// </summary>
-		public IEnumerator SignUp(string email, string password, string inviteCode, string username, string name, char gender, string image, int? timezone, Profile profile, Action<bool, Dictionary<string, IList<string>>> callback)
+		public IEnumerator SignUp(string email, string password, string inviteCode, Profile profile, ProviderToken authentication,
+                                  Action<bool, Dictionary<string, IList<string>>> callback)
 		{
 			log.info("SignUp()");
 			var encoding = new System.Text.UTF8Encoding();			
@@ -370,7 +371,7 @@ namespace RaceYourself
 			headers.Add("Accept-Charset", "utf-8");
 			headers.Add("Accept-Encoding", "gzip");
 
-			SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, username, name, gender, image, timezone, profile);
+            SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, profile, authentication);
 
 			byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
 			
@@ -987,23 +988,15 @@ namespace RaceYourself
 			public string email;
 			public string password;
 			public string invite_code;
-			public string username;
-			public string name;
-			public char gender;
-			public string image;
-			public int? timezone;
 			public Profile profile;
+            public ProviderToken authentication;
 
-			public SignUpRequest(string email, string password, string inviteCode, string username, string name, char gender, string image, int? timezone, Profile profile) {
+			public SignUpRequest(string email, string password, string inviteCode, Profile profile, ProviderToken authentication) {
 				this.email = email;
 				this.password = password;
 				this.invite_code = inviteCode;
-				this.username = username;
-				this.name = name;
-				this.gender = gender;
-				this.image = image;
-				this.timezone = timezone;
 				this.profile = profile;
+                this.authentication = authentication;
 			}
 		}
 

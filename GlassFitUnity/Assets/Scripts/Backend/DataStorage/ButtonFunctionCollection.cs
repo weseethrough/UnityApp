@@ -1107,7 +1107,8 @@ public class ButtonFunctionCollection
             }
 
             plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
-                email, password, null, username, firstName + " " + surname, gender, imageUrl, null, null, SignUpCallback));
+                email, password, null, new Profile(username, firstName, surname, gender, imageUrl, null),
+                new ProviderToken("facebook", FB.AccessToken, FB.UserId), SignUpCallback));
             return true;
         }
         else
@@ -1126,18 +1127,11 @@ public class ButtonFunctionCollection
             Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
         });
         Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
-
+        // TODO if facebook, email = FB.UserId + "@facebook.com"
+        // and password = FB.accessToken
         Platform.Instance.GetMonoBehavioursPartner().StartCoroutine(Platform.Instance.api.Login(email, password));
     }
 
-    private static void LinkProvider(string outcome)
-    {
-        bool authenticated = outcome == "Success";
-        // TODO copy pasta
-        DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
-        FollowExit(authenticated ? "Exit" : "Error");
-    }
-    
     private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
     {
         string exit = "";
