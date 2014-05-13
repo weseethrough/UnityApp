@@ -27,7 +27,7 @@ public class IosPlatform : Platform
     // iOS implementation of services
     private PlayerPoints _playerPoints = new LocalDbPlayerPoints ();
     public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
-    private PlayerPosition _localPlayerPosition = new IosPlayerPosition ();
+    private PlayerPosition _localPlayerPosition = new EditorPlayerPosition ();
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
     private BleController _bleController;
     public override BleController BleController { get { return _bleController; } }

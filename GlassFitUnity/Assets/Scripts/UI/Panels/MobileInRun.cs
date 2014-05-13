@@ -17,9 +17,7 @@ public class MobileInRun : MobilePanel {
 
 	RYWorldObject opponentObj;
 
-	UIAnchor playerSpriteAnchor;
 	UISpriteAnimation playerSpriteAnimation;
-	UIAnchor opponentSpriteAnchor;
 	UISpriteAnimation opponentSpriteAnimation;
 
 	bool bPaused = false;
@@ -92,10 +90,8 @@ public class MobileInRun : MobilePanel {
 
 		//find sprites
 		GameObject playerObject = GameObject.Find("Sprite_Player");
-		playerSpriteAnchor = playerObject.GetComponent<UIAnchor>();
 		playerSpriteAnimation = playerObject.GetComponent<UISpriteAnimation>();
 		GameObject opponentObject = GameObject.Find("Sprite_Opponent");
-		opponentSpriteAnchor = opponentObject.GetComponent<UIAnchor>();
 		opponentSpriteAnimation = opponentObject.GetComponent<UISpriteAnimation>();
 
 		log.info("Found sprites");
@@ -170,12 +166,13 @@ public class MobileInRun : MobilePanel {
 		}
 
 		float opponentProgress = opponentDist / targetDistance;
-		opponentProgressBar.value = opponentDist / targetDistance;
+		opponentProgressBar.value = opponentProgress;
 		
 		// Update Sprite positions
-		playerSpriteAnchor.relativeOffset.x = playerProgress;
-		opponentSpriteAnchor.relativeOffset.x = opponentProgress;
-		
+		float activeWidth = Screen.width * 0.5f;
+		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+
 		// check for race finished
 		if(playerDist > targetDistance)
 		{

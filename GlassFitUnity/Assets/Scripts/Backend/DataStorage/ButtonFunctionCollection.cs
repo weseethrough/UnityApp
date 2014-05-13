@@ -1198,6 +1198,20 @@ public class ButtonFunctionCollection
         return true;
     }
 
+	
+	static public bool SkipGPS(FlowButton button, FlowState fs)
+	{
+		//if we pressed the skip button, switch to indoor mode, before following the link
+		Platform.Instance.LocalPlayerPosition.SetIndoor(true);
+		return true;
+	}
+
+	static public bool QuitGPS(FlowButton button, FlowState fs)
+	{
+		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+		return true;
+	}
+
     static public bool FacebookLogin(FlowButton button, FlowState panel)
     {
         try
@@ -1276,4 +1290,6 @@ public class ButtonFunctionCollection
             inputField.GetComponent<UIBasiclabel>().SetLabel(value == null ? "" : value);
         }
     }
+
+
 }
