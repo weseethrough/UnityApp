@@ -164,7 +164,7 @@ public abstract class Platform : SingletonBase
             }
 		});
 
-        GetMonoBehavioursPartner().StartCoroutine(api.Login("cats", "dogs"));
+        //GetMonoBehavioursPartner().StartCoroutine(api.Login("cats", "dogs"));
 	}
 
 

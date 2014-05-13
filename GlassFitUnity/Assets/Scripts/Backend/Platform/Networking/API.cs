@@ -149,11 +149,19 @@ namespace RaceYourself
 				yield return post;
 						
 				if (!post.isDone) {}
-				
-				if (!String.IsNullOrEmpty(post.error)) {
-					// info, because on mobile, the user may mistype their password - so potentially user error not app/network error.
+
+                if (!String.IsNullOrEmpty(post.error)) {
+                    // info, because on mobile, the user may mistype their password - so potentially user error not app/network error.
                     log.info("Login(" + username + ",<password>) has errors: " + post.error);
-					ret = "Failure";
+
+                    if (post.error.StartsWith("401") || post.error.StartsWith("400"))
+                    {
+                        ret = "Failure";
+                    }
+                    else
+                    {
+                        ret = "CommsFailure";
+                    }
 					yield break;
 				}
 				
