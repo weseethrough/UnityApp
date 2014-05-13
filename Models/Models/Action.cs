@@ -1,12 +1,14 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Sqo.Attributes;
 
 namespace RaceYourself.Models
 {
 	[JsonConverter(typeof(CustomConverter))]
 	public class Action : Jsonable
 	{
+        [MaxLength(1024)]
 		public string json;
 
 		public Action() {}

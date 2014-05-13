@@ -215,4 +215,10 @@ public class MobileHomePanel : MobilePanel {
 		base.OnClick(button);
 	}
 
+	public override void Exited ()
+	{
+		base.Exited ();
+		initialized = false;
+	}
+
 }
