@@ -138,7 +138,8 @@ public class ButtonFunctionCollection
 	static public bool ImportFacebook(FlowButton fb, FlowState panel) 
 	{
 		NetworkMessageListener.OnAuthenticated networkHandler = null;
-		networkHandler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+		networkHandler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
 			if (authenticated && Platform.Instance.HasPermissions("facebook", "login")) {
 				NetworkMessageListener.OnSync syncHandler = null;
 				syncHandler = new NetworkMessageListener.OnSync((message) => {
@@ -755,8 +756,9 @@ public class ButtonFunctionCollection
         GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
 		// Follow connection once authentication has returned asynchronously
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-			if (authenticated) {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
+            if (authenticated) {
 				Platform.Instance.SyncToServer();
 				panel.parentMachine.FollowConnection(gConect);
 			}
@@ -774,8 +776,9 @@ public class ButtonFunctionCollection
 		GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
 		// Follow connection once authentication has returned asynchronously
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-			if (authenticated) {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
+            if (authenticated) {
 				//Platform.Instance.SyncToServer();
 				panel.parentMachine.FollowConnection(gConect);
 			}
@@ -791,8 +794,9 @@ public class ButtonFunctionCollection
     static public bool ShareTrack(FlowButton button, FlowState panel)
 	{
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-			if (authenticated) {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
+            if (authenticated) {
 				Track track = DataVault.Get("track") as Track;
 				Platform.Instance.QueueAction(string.Format(@"{{
 					'action' : 'share',
@@ -1095,7 +1099,7 @@ public class ButtonFunctionCollection
             char gender = 'U';
             string imageUrl = null;
 
-            if (me != null)
+            if (me != null) // if facebook
             {
                 username = me.username;
                 if (me.gender == "male")
@@ -1103,10 +1107,12 @@ public class ButtonFunctionCollection
                 else if (me.gender == "female")
                     gender = 'F';
                 imageUrl = me.Picture;
+                password = Path.GetRandomFileName(); // doesn't actually create a file - just generates a random string
             }
 
             plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
-                email, password, null, username, firstName + " " + surname, gender, imageUrl, null, null, SignUpCallback));
+                email, password, null, new Profile(username, firstName, surname, gender, imageUrl, null),
+                new ProviderToken("facebook", FB.AccessToken, FB.UserId), SignUpCallback));
             return true;
         }
         else
@@ -1119,7 +1125,8 @@ public class ButtonFunctionCollection
     private static void SignIn(string email, string password)
     {
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
             DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
             FollowExit(authenticated ? "Exit" : "Error");
             Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
@@ -1128,14 +1135,26 @@ public class ButtonFunctionCollection
 
         Platform.Instance.GetMonoBehavioursPartner().StartCoroutine(Platform.Instance.api.Login(email, password));
     }
-    
+
     private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
     {
         string exit = "";
         if (result)
         {
-            string email = DataVault.Get("email") as string;
-            string password = DataVault.Get("password") as string; // TODO don't do this! Feels wrong...
+            FacebookMe me = (FacebookMe) DataVault.Get("facebook_me");
+
+            string email;
+            string password;
+            if (me == null)
+            {
+                email = DataVault.Get("email") as string;
+                password = DataVault.Get("password") as string; // FIXME security risk?
+            }
+            else // if facebook
+            {
+                email = FB.UserId + "@facebook.com";
+                password = FB.AccessToken;
+            }
 
             SignIn(email, password);
         }
@@ -1223,43 +1242,45 @@ public class ButtonFunctionCollection
 
     static public bool FacebookLogin(FlowButton button, FlowState panel)
     {
-        try
+        NetworkMessageListener.OnAuthenticated handler = null;
+        handler = new NetworkMessageListener.OnAuthenticated((errors) =>
         {
-            FB.Login("", FacebookLoginCallback); // "" = default, minimal permissions
-        }
-        catch (Exception e) {
-            // TODO show error to user
-            DataVault.Set("facebook_error", e.Message);
-            log.error("Facebook: error:\n" + e.Message);
-        }
+            if (errors.Count == 0) // signed up already; go to main
+            {
+                GConnector gConect = panel.Outputs.Find(r => r.Name == "Registered");
+                //Platform.Instance.SyncToServer(); // TODO remove - handle in flow?
+                panel.parentMachine.FollowConnection(gConect);
+            }
+            else if (errors.ContainsKey("comms") || errors.ContainsKey("band"))
+            {
+                // TODO return to login/signup prompt; show error
+            }
+            else if (errors.ContainsKey("authorization"))
+            {
+                // user not signed up; go to sign up screen
+                log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
+                try
+                {
+                    FB.API("/v1.0/me", Facebook.HttpMethod.GET, FacebookMeCallback);
+                }
+                catch (Exception e)
+                {
+                    DataVault.Set("facebook_error", e.Message);
+                }
+            }
+            else if (errors.ContainsKey("user"))
+            {
+                // TODO user has cancelled; return to login/signup prompt without any error
+            }
+            Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
+        });
+        Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
+        
+        Platform.Instance.Authorize("facebook", "login");
+
         return false; // always return false - allow callback to move user to next screen.
     }
-    
-    private static void FacebookLoginCallback(FBResult result)
-    {
-        if (result.Error != null)
-        {
-            log.error("Facebook: Error Response:\n" + result.Error);
-            DataVault.Set("facebook_error", result.Error);
-        }
-        else if (!FB.IsLoggedIn)
-        {
-            log.info("Facebook: Login cancelled by player");
-        }
-        else
-        {
-            log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
-            try
-            {
-                FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
-            }
-            catch (Exception e)
-            {
-                DataVault.Set("facebook_error", e.Message);
-            }
-        }
-    }
-    
+
     private static void FacebookMeCallback(FBResult result)
     {
         if (result.Error == null)
