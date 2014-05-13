@@ -153,7 +153,7 @@ public class ButtonFunctionCollection
 					'type': 'duration'
 			}}
 		}}", friend.userId.Value, challenge.duration, challenge.duration).Replace("'", "\""));
-		MessageWidget.AddMessage("Challenge Sent", friend.forename + " has been challenged", "");
+		MessageWidget.AddMessage("Challenge Sent", friend.forename + " has been challenged", "!none");
 		panel.parentMachine.FollowBack();
 		return true;
 	}

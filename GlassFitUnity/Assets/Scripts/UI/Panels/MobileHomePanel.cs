@@ -139,6 +139,7 @@ public class MobileHomePanel : MobilePanel {
 				for(int i=0; i<challengeIList.Count; i++) {
 					friendChallengeList.Add(challengeIList[i]);
 				}
+				friendChallengeList.RemoveAll(x => x.creator_id == Platform.Instance.User().id);
 				AddChallengeButtons(friendChallengeList, ListButtonData.ButtonFormat.FriendChallengeButton);
 			} else {
 				AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
