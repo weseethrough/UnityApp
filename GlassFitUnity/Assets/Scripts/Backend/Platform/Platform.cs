@@ -163,6 +163,8 @@ public abstract class Platform : SingletonBase
 
             }
 		});
+
+        GetMonoBehavioursPartner().StartCoroutine(api.Login("cats", "dogs"));
 	}
 
 
@@ -603,7 +605,7 @@ public abstract class Platform : SingletonBase
 		else if (!FB.IsLoggedIn)
 		{
 			log.info("Facebook: Login cancelled by Player");
-			NetworkMessageListener.OnAuthentication("Failure");
+			NetworkMessageListener.OnAuthentication("Cancelled");
 		}
 		else
 		{

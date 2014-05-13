@@ -211,9 +211,11 @@ public class MobileCurrentChallenges : MobilePanel
         {
             // Restart function once authenticated
             NetworkMessageListener.OnAuthenticated handler = null;
-            handler = new NetworkMessageListener.OnAuthenticated((authenticated) =>
+            handler = new NetworkMessageListener.OnAuthenticated((errors) =>
             {
-                    Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
+                bool authenticated = errors.Count == 0;
+
+                Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
                 if (authenticated)
                 {
                     GetChallenges();

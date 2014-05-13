@@ -17,7 +17,9 @@ public class SyncIcon : MonoBehaviour {
 		UnityEngine.Debug.Log("SyncIcon: in start function");
 		if(Platform.Instance.IsPluggedIn() && Platform.Instance.HasInternet()) {
 			UnityEngine.Debug.Log("SyncIcon: setting auth handler");
-            authHandler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+            authHandler = new NetworkMessageListener.OnAuthenticated((errors) => {
+                bool authenticated = errors.Count == 0;
+
                 Platform.Instance.NetworkMessageListener.onAuthenticated -= authHandler;
 
 				UnityEngine.Debug.Log("SyncIcon: checking if authenticated");

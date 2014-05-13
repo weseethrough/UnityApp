@@ -138,7 +138,8 @@ public class ButtonFunctionCollection
 	static public bool ImportFacebook(FlowButton fb, FlowState panel) 
 	{
 		NetworkMessageListener.OnAuthenticated networkHandler = null;
-		networkHandler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+		networkHandler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
 			if (authenticated && Platform.Instance.HasPermissions("facebook", "login")) {
 				NetworkMessageListener.OnSync syncHandler = null;
 				syncHandler = new NetworkMessageListener.OnSync((message) => {
@@ -755,8 +756,9 @@ public class ButtonFunctionCollection
         GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
 		// Follow connection once authentication has returned asynchronously
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-			if (authenticated) {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
+            if (authenticated) {
 				Platform.Instance.SyncToServer();
 				panel.parentMachine.FollowConnection(gConect);
 			}
@@ -774,8 +776,9 @@ public class ButtonFunctionCollection
 		GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
 		// Follow connection once authentication has returned asynchronously
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-			if (authenticated) {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
+            if (authenticated) {
 				//Platform.Instance.SyncToServer();
 				panel.parentMachine.FollowConnection(gConect);
 			}
@@ -791,8 +794,9 @@ public class ButtonFunctionCollection
     static public bool ShareTrack(FlowButton button, FlowState panel)
 	{
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-			if (authenticated) {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
+            if (authenticated) {
 				Track track = DataVault.Get("track") as Track;
 				Platform.Instance.QueueAction(string.Format(@"{{
 					'action' : 'share',
@@ -1121,14 +1125,14 @@ public class ButtonFunctionCollection
     private static void SignIn(string email, string password)
     {
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
             DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
             FollowExit(authenticated ? "Exit" : "Error");
             Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
         });
         Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
-        // TODO if facebook, email = FB.UserId + "@facebook.com"
-        // and password = FB.accessToken
+
         Platform.Instance.GetMonoBehavioursPartner().StartCoroutine(Platform.Instance.api.Login(email, password));
     }
 
@@ -1139,18 +1143,20 @@ public class ButtonFunctionCollection
         {
             FacebookMe me = (FacebookMe) DataVault.Get("facebook_me");
 
+            string email;
+            string password;
             if (me == null)
             {
-                string email = DataVault.Get("email") as string;
-                string password = DataVault.Get("password") as string; // TODO don't do this! Feels wrong...
-
-                SignIn(email, password);
+                email = DataVault.Get("email") as string;
+                password = DataVault.Get("password") as string; // FIXME security risk?
             }
             else // if facebook
             {
-                Platform.Instance.GetMonoBehavioursPartner().StartCoroutine(Platform.Instance.api.LinkProvider(
-                    new ProviderToken("facebook", FB.AccessToken, FB.UserId), LinkProvider));
+                email = FB.UserId + "@facebook.com";
+                password = FB.AccessToken;
             }
+
+            SignIn(email, password);
         }
         else if(errors.ContainsKey("invite_code") && errors["invite_code"][0] == "missing")
         {

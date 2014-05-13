@@ -4,6 +4,7 @@ using RaceYourself.Models;
 using SimpleJSON;
 using Sqo;
 using SiaqodbUtils;
+using System.Collections.Generic;
 
 public class NetworkMessageListener : MonoBehaviour
 {
@@ -11,7 +12,9 @@ public class NetworkMessageListener : MonoBehaviour
     private Siaqodb db = DatabaseFactory.GetInstance();
 
     // Events
-    public delegate void OnAuthenticated(bool success);
+
+    // If fatalErrors is empty, authentication was successful.
+    public delegate void OnAuthenticated(Dictionary<string, IList<string>> fatalErrors);
     public OnAuthenticated onAuthenticated = null;
     public delegate void OnSync(string message);
     public OnSync onSync = null;
@@ -44,15 +47,30 @@ public class NetworkMessageListener : MonoBehaviour
                 if (me != null) MessageWidget.AddMessage("Logged in", "Welcome " + me.name, "settings");
             }
             authenticated = true;
-            if (onAuthenticated != null) onAuthenticated(true);
+            if (onAuthenticated != null) onAuthenticated(
+                new Dictionary<string, IList<string>>() {});
         }
-        if (string.Equals(message, "Failure")) {
-            if (onAuthenticated != null) onAuthenticated(false);
+        else if (string.Equals(message, "Failure")) {
+            if (onAuthenticated != null) onAuthenticated(
+                new Dictionary<string, IList<string>>() {{"authorization", new List<string>() {"not authorized"}}});
         }
-        if (string.Equals(message, "OutOfBand")) {
-            if (onAuthenticated != null) onAuthenticated(false);
+        else if (string.Equals(message, "Cancelled")) {
+            if (onAuthenticated != null) onAuthenticated(
+                new Dictionary<string, IList<string>>() {{"user", new List<string>() {"action cancelled by user"}}});
+        }
+        else if (string.Equals(message, "CommsFailure")) { // XXX hackery; should encode actual error message in 'message'
+            if (onAuthenticated != null) onAuthenticated(
+                new Dictionary<string, IList<string>>() {{"comms", new List<string>() {"network issue"}}});
+        }
+        else if (string.Equals(message, "OutOfBand")) {
+            if (onAuthenticated != null) onAuthenticated(
+                new Dictionary<string, IList<string>>() {{"authorization", new List<string>() {"out of band"}}});
             // TODO: Use confirmation dialog instead of message
             MessageWidget.AddMessage("Notice", "Please use the web interface to link your account to this provider", "settings");
+        }
+        else
+        {
+            throw new ArgumentException(string.Format("Unrecognised message: {0}", message));
         }
         log.info("Authentication response: " + message.ToLower()); 
     }
