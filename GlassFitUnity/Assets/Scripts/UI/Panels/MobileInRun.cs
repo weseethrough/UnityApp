@@ -20,6 +20,8 @@ public class MobileInRun : MobilePanel {
 	UISpriteAnimation playerSpriteAnimation;
 	UISpriteAnimation opponentSpriteAnimation;
 
+	UIWidget AheadBehindBG;
+
 	bool bPaused = false;
 
 	public MobileInRun() { }
@@ -87,6 +89,7 @@ public class MobileInRun : MobilePanel {
 		if(opponentObj == null) { log.error("Couldn't find opponent object"); }
 		else log.info("Found opponent object");
 
+		Platform.Instance.LocalPlayerPosition.Reset();
 
 		//find sprites
 		GameObject playerObject = GameObject.Find("Sprite_Player");
@@ -123,6 +126,12 @@ public class MobileInRun : MobilePanel {
 				fb.name = fb.transform.parent.name;
 			}
 		}
+
+		GameObject bg = GameObject.Find("BG");
+		if(bg != null)
+		{
+			AheadBehindBG = bg.GetComponent<UIWidget>();
+		}
 	}
 	
 	public override void ExitStart ()
@@ -130,6 +139,7 @@ public class MobileInRun : MobilePanel {
 		base.ExitStart ();
 		
 		//stop tracking
+		Platform.Instance.LocalPlayerPosition.Reset();
 	}
 	
 	// Update is called once per frame
@@ -158,6 +168,7 @@ public class MobileInRun : MobilePanel {
 			}
 		}
 
+		//update ahead/behind colour
 
 		float opponentDist = 0;
 		if(opponentObj != null)
@@ -167,7 +178,16 @@ public class MobileInRun : MobilePanel {
 
 		float opponentProgress = opponentDist / targetDistance;
 		opponentProgressBar.value = opponentProgress;
-		
+
+		if(opponentDist > playerDist)
+		{
+			DataVault.Set("mobile_aheadBehind_colour", UIColour.red);
+		}
+		else
+		{
+			DataVault.Set("mobile_aheadBehind_colour", UIColour.green);
+		}
+
 		// Update Sprite positions
 		float activeWidth = Screen.width * 0.5f;
 		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
@@ -182,12 +202,13 @@ public class MobileInRun : MobilePanel {
 
 			//progress flow to results
 			FlowState.FollowFlowLinkNamed("Finished");
-
 		}
 	}
 
 	public override void OnClick (FlowButton button)
 	{
+		if(!Platform.Instance.LocalPlayerPosition.IsTracking) { return; }
+
 		if(button.name == "Paused" || button.name == "Unpaused")
 		{
 			//toggle paused-ness

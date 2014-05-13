@@ -66,3 +66,4 @@ MobileInRun
 MobileLoadScreen
 LoadLevelMobile
 MobileAwaitGPS
+require reload
