@@ -17,6 +17,8 @@ public class NetworkMessageListener : MonoBehaviour
     public OnSync onSync = null;
     public delegate void OnSyncProgress(string message);
     public OnSyncProgress onSyncProgress = null;
+
+    // TODO move OnRegistered out of here - this class is otherwise appropriate as an API for 3rd parties
     public delegate void OnRegistered(string message);
     public OnRegistered onDeviceRegistered = null;
     public delegate void OnGroupCreated(int groupId);

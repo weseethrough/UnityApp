@@ -1095,7 +1095,7 @@ public class ButtonFunctionCollection
             char gender = 'U';
             string imageUrl = null;
 
-            if (me != null)
+            if (me != null) // if facebook
             {
                 username = me.username;
                 if (me.gender == "male")
@@ -1103,6 +1103,7 @@ public class ButtonFunctionCollection
                 else if (me.gender == "female")
                     gender = 'F';
                 imageUrl = me.Picture;
+                password = Path.GetRandomFileName(); // doesn't actually create a file - just generates a random string
             }
 
             plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
@@ -1128,16 +1129,34 @@ public class ButtonFunctionCollection
 
         Platform.Instance.GetMonoBehavioursPartner().StartCoroutine(Platform.Instance.api.Login(email, password));
     }
+
+    private static void LinkProvider(string outcome)
+    {
+        bool authenticated = outcome == "Success";
+        // TODO copy pasta
+        DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
+        FollowExit(authenticated ? "Exit" : "Error");
+    }
     
     private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
     {
         string exit = "";
         if (result)
         {
-            string email = DataVault.Get("email") as string;
-            string password = DataVault.Get("password") as string; // TODO don't do this! Feels wrong...
+            FacebookMe me = (FacebookMe) DataVault.Get("facebook_me");
 
-            SignIn(email, password);
+            if (me == null)
+            {
+                string email = DataVault.Get("email") as string;
+                string password = DataVault.Get("password") as string; // TODO don't do this! Feels wrong...
+
+                SignIn(email, password);
+            }
+            else // if facebook
+            {
+                Platform.Instance.GetMonoBehavioursPartner().StartCoroutine(Platform.Instance.api.LinkProvider(
+                    new ProviderToken("facebook", FB.AccessToken, FB.UserId), LinkProvider));
+            }
         }
         else if(errors.ContainsKey("invite_code") && errors["invite_code"][0] == "missing")
         {

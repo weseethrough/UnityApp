@@ -204,7 +204,7 @@ namespace RaceYourself
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			var request = new WWW(ApiUrl("me"), null, headers);
 			yield return request;
-					
+			
 			if (!request.isDone) {}
 			
 			if (!String.IsNullOrEmpty(request.error)) {
@@ -232,11 +232,11 @@ namespace RaceYourself
 			
 			log.info("UpdateAuthentications() fetched " + user.authentications.Count + " authentications");
 		}
-		
+
 		/// <summary>
 		/// Coroutine to link a third-party service to the logged in user.
 		/// </summary>
-		public IEnumerator LinkProvider(ProviderToken ptoken) {
+        public IEnumerator LinkProvider(ProviderToken ptoken, Action<string> callback) {
 			// TODO: Update POST schema to use JSON path authentications/{provider, uid, access_token}
 			log.info(string.Format("LinkProvider({0})", ptoken.provider));
 
@@ -267,6 +267,7 @@ namespace RaceYourself
 				}
 				
 				user = account.response;
+
 				var transaction = db.BeginTransaction();
 				try {
 					if (!db.UpdateObjectBy("id", user)) {
@@ -276,12 +277,23 @@ namespace RaceYourself
 				} catch (Exception ex) {
 					transaction.Rollback();
 					throw ex;
-				}
+                }
 
-				log.info(string.Format("LinkProvider({0}): succeeded", ptoken.provider));
-                
-                ret = "Success";
-            } finally {
+                ret = "Failed";
+                foreach (Authentication auth in user.authentications)
+                {
+                    if (ptoken.provider == auth.provider)
+                    {
+                        ret = "Success";
+                        break;
+                    }
+                }
+
+                log.info(string.Format("LinkProvider({0}): {1}", ptoken.provider, ret));
+            } finally
+            {
+                if (callback != null)
+                    callback(ret);
             }
         }
         

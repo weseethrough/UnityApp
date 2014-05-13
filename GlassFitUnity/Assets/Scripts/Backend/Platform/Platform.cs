@@ -609,7 +609,7 @@ public abstract class Platform : SingletonBase
 		{
 			log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
 			if (NetworkMessageListener.authenticated) {
-				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId)));
+				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId), null));
 				NetworkMessageListener.OnAuthentication("Success");
 			} else {
 				// OnAuthentication sent from coroutine
