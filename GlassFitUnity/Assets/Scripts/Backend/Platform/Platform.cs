@@ -340,14 +340,43 @@ public abstract class Platform : SingletonBase
     }
 
     /// <summary>
-    /// Use this method to record events for analytics, e.g. a user action.
+    /// Use this method to record key events in the user's journey
     /// </summary>
     /// <param name='json'>
-    /// Json-encoded event values such as current game state, what the user action was etc
+    /// Json-encoded event values. Currently supported:
+        //    Launch app (event_name = "launch")
+        //    Successfully signed up via facebook (event_name = "signup", provider = "facebook")
+        //    Successfully signed up via email (event_name = "signup", provider = "facebook")
+        //    Start race (event_name = "start_race", track_id = "xxx")
+        //    End race (event_name = "end_race", result = "win/loss", track_id="xxx")
+        //    Send challenge (event_name = "send_challenge", challenge_id = "xxx")
+        //    Accept challenge (event_name = "accept_challenge", challenge_id = "xxx")
+        //    Reject challenge (event_name = "reject_challenge", challenge_id = "xxx")
+        //    Invite new user (event_name = "invite", invite_code = "xxx345x", provider = "facebook/email")
+        //    Share (event_name = "share", provider = "facebook/twitter/google+")
+        //    Rate (event_name = "rate", provider = "Apple store / Android store / Like on facebook")
     /// </param>
-    public virtual void LogAnalytics (string json) {
-        log.warning("Analytics: " + json);
-        var e = new RaceYourself.Models.Event(json, sessionId);
+    public virtual void LogAnalyticEvent (string jsonString) {
+        Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
+        jsonObject.Add("event_type", "event");
+        jsonString = JsonConvert.SerializeObject(jsonString);
+        log.warning("Analytic Event: " + jsonString);
+        var e = new RaceYourself.Models.Event(jsonString, sessionId);
+        db.StoreObject(e);
+    }
+
+    /// <summary>
+    /// Use this method to record screen transitions so we can understand how users interact with the app
+    /// </summary>
+    /// <param name='json'>
+    /// Json-encoded event values such as time on screen
+    /// </param>
+    public virtual void LogScreenView (string jsonString) {
+        Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
+        jsonObject.Add("event_type", "screen");
+        jsonString = JsonConvert.SerializeObject(jsonString);
+        log.info("Screen View: " + jsonString);
+        var e = new RaceYourself.Models.Event(jsonString, sessionId);
         db.StoreObject(e);
     }
 

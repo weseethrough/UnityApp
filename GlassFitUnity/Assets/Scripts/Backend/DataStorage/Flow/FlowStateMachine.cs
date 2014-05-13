@@ -170,17 +170,14 @@ public class FlowStateMachine : MonoBehaviour
             connection.Link[0].Parent != null)
         {
 
-            // log analytics
-            Hashtable gameDetails = new Hashtable();
-            object type = DataVault.Get("type");
-            object log = DataVault.Get("warning_log");
-            gameDetails.Add("event_type", "Flow state changed");
-            gameDetails.Add("flow_state", activeFlow[activeFlow.Count - 1].GetDisplayName());
-            gameDetails.Add("game_type", (string)type);
-            gameDetails.Add("time_since_launch", (int)(Time.realtimeSinceStartup * 1000));
-            gameDetails.Add("time_in_state", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
-            gameDetails.Add("custom_log", (string)log );
-            Platform.Instance.LogAnalytics(JsonConvert.SerializeObject(gameDetails));
+            // log screen transition for UX analysis
+            Hashtable screenProperties = new Hashtable();
+            screenProperties.Add("screen_name", activeFlow[activeFlow.Count - 1].GetDisplayName());
+            screenProperties.Add("game_type", (string)DataVault.Get("type"));
+            screenProperties.Add("time_since_launch", (int)(Time.realtimeSinceStartup * 1000));
+            screenProperties.Add("time_in_state", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
+            screenProperties.Add("custom_log", (string)DataVault.Get("warning_log") );
+            Platform.Instance.LogScreenView(JsonConvert.SerializeObject(screenProperties));
 
             if (navigationHistory == null)
             {
