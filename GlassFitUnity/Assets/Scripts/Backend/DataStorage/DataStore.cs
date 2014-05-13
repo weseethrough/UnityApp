@@ -106,7 +106,7 @@ public class DataStore : MonoBehaviour
             if (!LoadStorageFromCollection(bName))
             {
                 Profiler.BeginSample("Test profile");
-                storageBank[name.ToString()] = InitializeBlob(Platform.Instance.LoadBlob(name));
+                storageBank[name.ToString()] = InitializeBlob(Platform.Instance.LoadBlob(name));                
                 Profiler.EndSample();
             }            
 #else
@@ -196,9 +196,7 @@ public class DataStore : MonoBehaviour
         {            
             if (!LoadStorageFromCollection(name))
             {
-                
                 instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));
-                
             }            
         }
 #else

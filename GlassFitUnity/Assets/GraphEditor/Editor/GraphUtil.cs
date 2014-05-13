@@ -2,6 +2,8 @@ using UnityEngine;
 using System.Collections;
 using UnityEditor;
 
+#if UNITY_EDITOR
+
 public class GraphUtil
 {
 	static public void DrawLine(Vector2 a, Vector2 b, Color rgb, float width)
@@ -55,7 +57,7 @@ public class GraphUtil
         Color titleColor;
         Color nodeColor;
         Color lineColor;
-
+        
         if (selected)
         {
             titleColor = style.HighlightColor;
@@ -74,7 +76,7 @@ public class GraphUtil
             nodeColor = style.UnrelatedNodeColor;
             lineColor = style.UnrelatedLineColor;
         }
-
+        
 		GL.Begin(GL.QUADS);
             GL.Color(nodeColor);
 			GL.Vertex3(xr0,y0,0);
@@ -124,20 +126,23 @@ public class GraphUtil
 			GL.Vertex3(x1,yr1,0);
 			GL.Vertex3(xr1,y1,0);
 		GL.End();
-
+        
 		GUI.color = Color.white;
 		GUI.contentColor = Color.white;
-		GUIStyle gstyle = new GUIStyle();
+        
+        GUIStyle gstyle = new GUIStyle();
 		gstyle.normal.textColor = valid? style.TitleTextColor : style.TitleTextIvalidColor; 
 		gstyle.fontStyle = FontStyle.Bold;
 		g.GuiLabel(new Rect(pos.x+16,pos.y+3,128,128),title,gstyle);
+        
 	}
+
 	
 	const int R=8;
 	const int TitleHeight = 24;
 	const int LineHeight = 16;
 
-	static Material TxmMat;
+	/*static Material TxmMat;
 	
 	static Material GetTextureMaterial()
 	{
@@ -150,7 +155,7 @@ public class GraphUtil
 		}
 		return TxmMat;
 	}
-	
+	*/
 	static Material LineMat;
 	
 	public static Material GetLineMaterial()
@@ -181,12 +186,12 @@ public class GraphUtil
 			return;
 		}
 		
-		Material mat = GetTextureMaterial();
+	//	Material mat = GetTextureMaterial();
 		
-		Texture2D txm = highlight ? graph.Style.HighlightTexture : graph.Style.EmptyTexture;
-		if (selected) txm = graph.Style.SelectedTexture;
+	//	Texture2D txm = highlight ? graph.Style.HighlightTexture : graph.Style.EmptyTexture;
+	//	if (selected) txm = graph.Style.SelectedTexture;
 		
-		if (false && txm != null)
+	/*	if (false && txm != null)
 		{
 			mat.SetTexture("_MainTex",txm);
 			mat.SetPass(0);
@@ -204,8 +209,8 @@ public class GraphUtil
 				GL.TexCoord(new Vector3(0,1,0));
 				GL.Vertex3(x0,y1,0);
 			GL.End();
-		}
-		else // draw colored shapes if style does not have custom textures
+		}*/
+	/*	else // draw colored shapes if style does not have custom textures */
 		{
 
             bool haveFunctionAttached = false;
@@ -225,15 +230,7 @@ public class GraphUtil
                 float y0 = cy - Z;
                 float y1 = cy + R / 2;
                 float y2 = cy + R + Z;
-                GL.Color(Color.magenta);
-                /*GL.Vertex3(x0, y1, 0);
-                GL.Vertex3(x1, y0, 0);
-                GL.Vertex3(x1, y0, 0);
-                GL.Vertex3(x2, y1, 0);
-                GL.Vertex3(x2, y1, 0);
-                GL.Vertex3(x1, y2, 0);
-                GL.Vertex3(x1, y2, 0);
-                GL.Vertex3(x0, y1, 0);*/
+                GL.Color(Color.magenta);               
 
                 GL.Vertex3(x0, y1, 0);
                 GL.Vertex3(x1, y0, 0);
@@ -380,12 +377,12 @@ public class GraphUtil
             related = true;
         }
 
-
+        
 		string title = node.GetDisplayName();
 		GStyle style = graph.Style;
 		Vector3 pos = node.Position;
         DrawPanel(g, style, pos, node, nodeSelected, title, related);
-
+        
 		if (node.HasInputs)
 		{
 			for (int i=0; i<node.Inputs.Count; ++i)
@@ -409,6 +406,7 @@ public class GraphUtil
                 DrawOutputConnector(g, graph, node, i, c, selected, highlight, related);
 			}
 		}
+        
 	}
 	
 	static public void DrawLineStrip(Vector2 [] points, Color rgb, float width)
@@ -455,3 +453,4 @@ public class GraphUtil
     					5.0f);
     }*/
 }
+#endif

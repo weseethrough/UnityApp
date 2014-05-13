@@ -6,13 +6,11 @@ using System.Collections.Generic;
 public class GraphComponent : MonoBehaviour
 {
     [System.NonSerialized]
-	public GraphData m_graph;
+	private GraphData m_graph;
     public UIAtlas m_defaultHexagonalAtlas;
     private int selectedFlow = 0;
     private bool initialize = false;
-
     private string nextStartNavigateTo = ""; 
-   
     static private GraphComponent instance;
 
     public GraphData Data
@@ -80,7 +78,7 @@ public class GraphComponent : MonoBehaviour
 	            flowName = "MainFlow";//"MobileUX";
 			}
             SetSelectedFlowByName(flowName);
-#endif
+#endif 
             instance = this;
         }
     }	

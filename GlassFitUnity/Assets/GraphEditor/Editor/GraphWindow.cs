@@ -53,6 +53,7 @@ public class GraphWindow : EditorWindow, IDraw
 	public static void Init ()
 	{       
 		GraphWindow window = GetWindow (typeof(GraphWindow)) as GraphWindow;
+        
 		window.minSize = new Vector2(600.0f, 400.0f);
 		window.wantsMouseMove = true;
 		UnityEngine.Object.DontDestroyOnLoad( window );
@@ -425,6 +426,7 @@ public class GraphWindow : EditorWindow, IDraw
                 DrawNode(g, graph, lineMaterial, child, drawSelection);
             }
         }
+ 
     }
 
 	void DrawGraph(int x, int y, int w, int h)
@@ -436,46 +438,37 @@ public class GraphWindow : EditorWindow, IDraw
 		Material lineMaterial = GraphUtil.GetLineMaterial();
 			
 		lineMaterial.SetPass( 0 );
-
-		// Within the zoom area all coordinates are relative to the top left corner of the zoom area
+        
+        // Within the zoom area all coordinates are relative to the top left corner of the zoom area
         // with the width and height being scaled versions of the original/unzoomed area's width and height.
         EditorZoomArea.Begin(m_zoomScale, _zoomArea);
+		   
+        GL.PushMatrix();
 		
-		GL.PushMatrix();
-		
-		float vleft = ViewPosition.x;
+        float vleft = ViewPosition.x;
         float vright = vleft + w / m_zoomScale;
-		float vtop = ViewPosition.y;
+        float vtop = ViewPosition.y;
         float vbottom = vtop + h / m_zoomScale;
-		GL.LoadPixelMatrix(vleft,vright,vbottom,vtop);
+        GL.LoadPixelMatrix(vleft,vright,vbottom,vtop);
 		
-		GL.Viewport(new Rect(0,0,w,h));
-
-		// Draw Grid
-		/*Color grid = new Color(0.85f,0.85f,0.85f,1);
-		lineMaterial.SetPass( 0 );
-		int full = GridSize*(GridBlocks);
-		for (int i=0; i<=GridBlocks; ++i)
-		{
-			GraphUtil.DrawLine(new Vector2(i*GridSize,0), new Vector2(i*GridSize,full),grid,1);
-			GraphUtil.DrawLine(new Vector2(0,i*GridSize), new Vector2(full,i*GridSize),grid,1);
-		}
-        */
-		GraphData data = (Graph != null) ? Graph.Data : null;
-		if (data != null)
-		{
-			foreach(GNode node in data.Nodes)
-			{
-				if (node != null)
-				{
-					node.ClearEvaluated();
-				}
-			}
+        GL.Viewport(new Rect(0,0,w,h));
+        
+        GraphData data = (Graph != null) ? Graph.Data : null;
+        if (data != null)
+        {
+            
+            foreach(GNode node in data.Nodes)
+            {
+                if (node != null)
+                {
+                    node.ClearEvaluated();
+                }
+            }
 			
-			foreach(GNode node in data.Nodes)
-			{
-				if (node != null)
-				{
+            foreach(GNode node in data.Nodes)
+            {
+                if (node != null)
+                {
                     FlowState fs = node as FlowState;
 
                     if (fs != null)
@@ -489,20 +482,20 @@ public class GraphWindow : EditorWindow, IDraw
                     {
                         DrawNode(this, data, lineMaterial, node, false);
                     }					
-				}
-			}
-
+                }
+            }
+            
             //this is section where we draw selected node to ensure its always on top of the other nodes on graph
             if (m_selection != null)
             {
                 DrawNode(this, data, lineMaterial, m_selection, true);
             }
 
-			lineMaterial.SetPass( 0 );
-			foreach (GConnector c in data.Connections)
-			{                
-				if (c.Link != null)
-				{
+            lineMaterial.SetPass( 0 );
+            foreach (GConnector c in data.Connections)
+            {                
+                if (c.Link != null)
+                {
                     foreach (GConnector dest in c.Link)
                     {
                         Vector2 p1 = c.GetPosition(data);
@@ -538,22 +531,22 @@ public class GraphWindow : EditorWindow, IDraw
 
                         GraphUtil.DrawLineStrip2(strip, lineColor);
                     }
-				}
-			}
-		}
+                }
+            }            
+        }
 		
-		if (m_selectionConnector != null)
-		{
-			Vector2 p1 = m_selectionConnector.GetPosition(data);
-			lineMaterial.SetPass( 0 );
+        if (m_selectionConnector != null)
+        {
+            Vector2 p1 = m_selectionConnector.GetPosition(data);
+            lineMaterial.SetPass( 0 );
             Vector2 p2 = MouseToWorld(m_dragPosition * 1.0f / m_zoomScale);
-			GraphUtil.DrawLine(p1, p2+new Vector2(2,0), data.Style.HighlightConnectionLineColor, 2);
-		}
+            GraphUtil.DrawLine(p1, p2+new Vector2(2,0), data.Style.HighlightConnectionLineColor, 2);
+        }
 		
-		GL.PopMatrix();
-		
-        EditorZoomArea.End();
+        GL.PopMatrix();
         
+        EditorZoomArea.End();
+     
 	}
 	
 	// a = point on the right side of a box
@@ -1283,7 +1276,8 @@ public class GraphWindow : EditorWindow, IDraw
 	}
 
 	void OnGUI ()
-	{       
+	{
+        
 		if (!wantsMouseMove)
 		{
 			// Not sure why the original initialization fails.
@@ -1307,7 +1301,7 @@ public class GraphWindow : EditorWindow, IDraw
 		int divw = 4;
 		
         //_zoom = EditorGUI.Slider(new Rect(0.0f, 50.0f, 600.0f, 25.0f), _zoom, kZoomMin, kZoomMax);
-
+        
 		DrawGraph(0,0,divx,Screen.height-TopHeight);
 		
 		DrawDivider (divx-5,divy,divw,Screen.height);
@@ -1315,6 +1309,7 @@ public class GraphWindow : EditorWindow, IDraw
 		//EditorZoomArea.Begin(1.0f, _zoomArea);
 		DrawSideArea(divx+divw,divy,SideWidth-divw,Screen.height-25);
 		//EditorZoomArea.End();
+        
 	}
 
     /// <summary>
