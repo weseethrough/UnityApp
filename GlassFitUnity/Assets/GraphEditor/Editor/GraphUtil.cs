@@ -137,20 +137,6 @@ public class GraphUtil
 	const int TitleHeight = 24;
 	const int LineHeight = 16;
 
-	static Material TxmMat;
-	
-	static Material GetTextureMaterial()
-	{
-		if (TxmMat == null)
-		{
-			Shader diff = Shader.Find("Unlit/Texture");
-			TxmMat = new Material( diff );
-			TxmMat.hideFlags = HideFlags.HideAndDontSave;
-			TxmMat.shader.hideFlags = HideFlags.HideAndDontSave;
-		}
-		return TxmMat;
-	}
-	
 	static Material LineMat;
 	
 	public static Material GetLineMaterial()
@@ -180,112 +166,76 @@ public class GraphUtil
 			Debug.LogWarning("Graph.Style is null?");
 			return;
 		}
-		
-		Material mat = GetTextureMaterial();
-		
-		Texture2D txm = highlight ? graph.Style.HighlightTexture : graph.Style.EmptyTexture;
-		if (selected) txm = graph.Style.SelectedTexture;
-		
-		if (false && txm != null)
+
+        bool haveFunctionAttached = false;
+        if (con != null && con.EventFunction != null)
+        {
+            haveFunctionAttached = con.EventFunction.Length > 0 && con.EventFunction != "None";
+        }
+
+        if (haveFunctionAttached)
+        {
+            GL.Begin(GL.QUADS);
+            int Z = 3;
+            float x0 = cx - Z;
+            float x1 = cx + R / 2;
+            float x2 = cx + R + Z;
+            float y0 = cy - Z;
+            float y1 = cy + R / 2;
+            float y2 = cy + R + Z;
+            GL.Color(Color.magenta);            
+
+            GL.Vertex3(x0, y1, 0);
+            GL.Vertex3(x1, y0, 0);
+            GL.Vertex3(x2, y1, 0);
+            GL.Vertex3(x1, y2, 0);
+
+            GL.End();
+        }
+
+		GL.Begin(GL.QUADS);
+            GL.Color(Color.white);
+			GL.Vertex3(cx,cy,0);
+			GL.Vertex3(cx+R,cy,0);
+			GL.Vertex3(cx+R,cy+R,0);
+			GL.Vertex3(cx,cy+R,0);
+            GL.Color(selected ? Color.white : Color.gray);
+			GL.Vertex3(cx+1,cy+1,0);
+			GL.Vertex3(cx+R-1,cy+1,0);
+			GL.Vertex3(cx+R-1,cy+R-1,0);
+			GL.Vertex3(cx+1,cy+R-1,0);
+		GL.End();
+		GL.Begin(GL.LINES);
+			GL.Color(Color.gray);
+			GL.Vertex3(cx,cy,0);
+			GL.Vertex3(cx,cy+R,0);
+			GL.Vertex3(cx,cy,0);
+			GL.Vertex3(cx+R,cy,0);
+		GL.End();
+
+
+		if (highlight)
 		{
-			mat.SetTexture("_MainTex",txm);
-			mat.SetPass(0);
-			float x0 = cx +   (highlight ? -2 : 0);
-			float y0 = cy +   (highlight ? -2 : 0);
-			float x1 = cx+R+ (highlight ? +2 : 0);
-			float y1 = cy+R+ (highlight ? +2 : 0);
-			GL.Begin(GL.QUADS);
-				GL.TexCoord(new Vector3(0,0,0));
-				GL.Vertex3(x0,y0,0);
-				GL.TexCoord(new Vector3(1,0,0));
-				GL.Vertex3(x1,y0,0);
-				GL.TexCoord(new Vector3(1,1,0));
-				GL.Vertex3(x1,y1,0);
-				GL.TexCoord(new Vector3(0,1,0));
-				GL.Vertex3(x0,y1,0);
-			GL.End();
-		}
-		else // draw colored shapes if style does not have custom textures
-		{
-
-            bool haveFunctionAttached = false;
-            if (con != null && con.EventFunction != null)
-            {
-                haveFunctionAttached = con.EventFunction.Length > 0 && con.EventFunction != "None";
-            }
-
-
-            if (haveFunctionAttached)
-            {
-                GL.Begin(GL.QUADS);
-                int Z = 3;
-                float x0 = cx - Z;
-                float x1 = cx + R / 2;
-                float x2 = cx + R + Z;
-                float y0 = cy - Z;
-                float y1 = cy + R / 2;
-                float y2 = cy + R + Z;
-                GL.Color(Color.magenta);
-                /*GL.Vertex3(x0, y1, 0);
-                GL.Vertex3(x1, y0, 0);
-                GL.Vertex3(x1, y0, 0);
-                GL.Vertex3(x2, y1, 0);
-                GL.Vertex3(x2, y1, 0);
-                GL.Vertex3(x1, y2, 0);
-                GL.Vertex3(x1, y2, 0);
-                GL.Vertex3(x0, y1, 0);*/
-
-                GL.Vertex3(x0, y1, 0);
-                GL.Vertex3(x1, y0, 0);
-                GL.Vertex3(x2, y1, 0);
-                GL.Vertex3(x1, y2, 0);
-
-                GL.End();
-            }
-
-			GL.Begin(GL.QUADS);
-                GL.Color(Color.white);
-				GL.Vertex3(cx,cy,0);
-				GL.Vertex3(cx+R,cy,0);
-				GL.Vertex3(cx+R,cy+R,0);
-				GL.Vertex3(cx,cy+R,0);
-                GL.Color(selected ? Color.white : Color.gray);
-				GL.Vertex3(cx+1,cy+1,0);
-				GL.Vertex3(cx+R-1,cy+1,0);
-				GL.Vertex3(cx+R-1,cy+R-1,0);
-				GL.Vertex3(cx+1,cy+R-1,0);
-			GL.End();
 			GL.Begin(GL.LINES);
-				GL.Color(Color.gray);
-				GL.Vertex3(cx,cy,0);
-				GL.Vertex3(cx,cy+R,0);
-				GL.Vertex3(cx,cy,0);
-				GL.Vertex3(cx+R,cy,0);
-			GL.End();
-
-
-			if (highlight)
-			{
-				GL.Begin(GL.LINES);
-					int Z=4;
-					float x0 = cx-Z-1;
-					float x1 = cx+R/2;
-					float x2 = cx+R+Z+1;
-					float y0 = cy-Z-1;
-					float y1 = cy+R/2;
-					float y2 = cy+R+Z+1;
-					GL.Color(Color.magenta);
-					GL.Vertex3(x0,y1,0);
-					  GL.Vertex3(x1,y0,0);
+				int Z=4;
+				float x0 = cx-Z-1;
+				float x1 = cx+R/2;
+				float x2 = cx+R+Z+1;
+				float y0 = cy-Z-1;
+				float y1 = cy+R/2;
+				float y2 = cy+R+Z+1;
+				GL.Color(Color.magenta);
+				GL.Vertex3(x0,y1,0);
 					GL.Vertex3(x1,y0,0);
-					  GL.Vertex3(x2,y1,0);
-			  		GL.Vertex3(x2,y1,0);
-				      GL.Vertex3(x1,y2,0);
-					GL.Vertex3(x1,y2,0);
-					  GL.Vertex3(x0,y1,0);
-				GL.End();
-			}
+				GL.Vertex3(x1,y0,0);
+					GL.Vertex3(x2,y1,0);
+			  	GL.Vertex3(x2,y1,0);
+				    GL.Vertex3(x1,y2,0);
+				GL.Vertex3(x1,y2,0);
+					GL.Vertex3(x0,y1,0);
+			GL.End();
 		}
+		
 	}
 	
 	static void DrawLabel(IDraw g, bool isLeft, Rect r, GraphData graph, string text)
