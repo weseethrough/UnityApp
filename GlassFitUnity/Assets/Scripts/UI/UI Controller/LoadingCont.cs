@@ -23,7 +23,9 @@ public class LoadingCont : MonoBehaviour {
 		if (!Platform.Instance.HasPermissions("any", "login")) {			
 			// Restart function once authenticated
             NetworkMessageListener.OnAuthenticated handler = null;
-            handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+            handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+                bool authenticated = errors.Count == 0;
+
                 Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
 				if (authenticated) {
 					AcceptChallenges();

@@ -163,6 +163,8 @@ public abstract class Platform : SingletonBase
 
             }
 		});
+
+        //GetMonoBehavioursPartner().StartCoroutine(api.Login("cats", "dogs"));
 	}
 
 
@@ -632,13 +634,13 @@ public abstract class Platform : SingletonBase
 		else if (!FB.IsLoggedIn)
 		{
 			log.info("Facebook: Login cancelled by Player");
-			NetworkMessageListener.OnAuthentication("Failure");
+			NetworkMessageListener.OnAuthentication("Cancelled");
 		}
 		else
 		{
 			log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
 			if (NetworkMessageListener.authenticated) {
-				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId)));
+				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId), null));
 				NetworkMessageListener.OnAuthentication("Success");
 			} else {
 				// OnAuthentication sent from coroutine

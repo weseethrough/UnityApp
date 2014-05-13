@@ -5,7 +5,7 @@ namespace RaceYourself
 	{
 		public string id;
 		public string email;
-		public string username;
+		public string username; // TODO seems to be always null...
 		public string first_name;
 		public string last_name;
 		public string name;
