@@ -83,7 +83,13 @@ public class RaceGame : GameBase {
 	public void SetActorType(ActorType targ) {
 		currentActorType = targ;
 	}
-	
+
+	protected override double GetDistBehindForHud ()
+	{
+		RYWorldObject opponentWorldObj = opponent.GetComponent<RYWorldObject>();
+		return opponentWorldObj.getRealWorldPos().z - (float)Platform.Instance.LocalPlayerPosition.Distance;
+	}
+
 	protected void UpdateLeaderboard() {
 		double distance = Platform.Instance.LocalPlayerPosition.Distance;
 		// TODO: Decide if we are allowed to sort in place or need to make a copy

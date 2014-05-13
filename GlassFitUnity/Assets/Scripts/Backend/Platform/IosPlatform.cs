@@ -297,7 +297,13 @@ public class IosPlatform : Platform
 		//Not entirely sure what this is supposed to do. Wil do nothing for now. AH
 		return;
 	}
-	
+
+	public override void ResetTargets ()
+	{
+		//
+		return;
+	}
+
 	public override void EraseBlob (String id)
 	{
 		throw new NotImplementedException ();

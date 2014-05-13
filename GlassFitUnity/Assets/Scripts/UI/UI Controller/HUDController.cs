@@ -8,10 +8,13 @@ using System;
 /// Responsible for 
 /// </summary>
 public class HUDController : MonoBehaviour {
-	
+
+	int goal_dist = 0;
 	// Use this for initialization
 	void Start () {
-	
+		goal_dist = GameBase.getTargetDistance();
+		string distKm = string.Format("{0:0}", goal_dist/1000);
+		DataVault.Set("goal_dist", distKm);
 	}
 	
 	// Update is called once per frame
