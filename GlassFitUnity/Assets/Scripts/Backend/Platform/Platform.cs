@@ -110,7 +110,7 @@ public abstract class Platform : SingletonBase
 
 
 
-		//Input.location.Start();
+		Input.location.Start();
 
 		// Set initialised=true in overriden method
 	}

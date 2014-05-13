@@ -88,6 +88,7 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 		}
 		else
 		{
+			// UnityEngine.Debug.LogError("Location Service Running, timeSinceLastUpdate: " + timeSinceLastUpdate);
 			//location service status should be 'Running'
 			if(timeSinceLastUpdate > 1f)
 			{

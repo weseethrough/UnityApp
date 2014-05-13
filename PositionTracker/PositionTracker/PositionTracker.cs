@@ -63,7 +63,7 @@ namespace PositionTracker
 			accCalc = new AccelerationCalculator(sensorProvider);
 			speedState.CurrentState = State.STOPPED;
 			MinIndoorSpeed = 0.0f;
-			
+			MaxIndoorSpeed = 4.16f; // speed to fake with continuous stimulation
 			OnResume();
 		}
 		

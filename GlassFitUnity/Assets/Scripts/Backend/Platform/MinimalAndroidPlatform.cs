@@ -58,7 +58,7 @@ public class MinimalAndroidPlatform : Platform
             log.info("Native android classes created OK");
 
             log.info("Initializing AndroidPlayerPosition");
-            _localPlayerPosition = new AndroidPlayerPosition();
+			//_localPlayerPosition = new AndroidPlayerPosition();
 
             log.info("Initializing BleControllerAndroid");
             _bleController= new BleControllerAndroid (context);

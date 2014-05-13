@@ -62,6 +62,8 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		//return positionTracker.HasPosition;
 		//positionTracker only reports that it has a position after tracking has started. This function is used before that point.
 		//Check status of unity location status instead.
+		UnityEngine.Debug.LogError("CrossPlatformPlayerPosition: HasLock status: " + Input.location.status);
+
 		return (Input.location.status == LocationServiceStatus.Running);
 	}
 	
@@ -102,8 +104,9 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		_bearing = positionTracker.CurrentBearing;
 
 
-		UnityEngine.Debug.Log("Position: Position tracker's state: " + positionTracker.CurrentState);
-
+		UnityEngine.Debug.Log("Position: Position tracker's state: " + positionTracker.CurrentState + ", speed: " + positionTracker.CurrentSpeed);
+		UnityEngine.Debug.Log("Position: LinearAcceleration: " + sensorProvider.LinearAcceleration[0] + "," 
+						+ sensorProvider.LinearAcceleration[1] + "," + sensorProvider.LinearAcceleration[2]);
 
 		positionProvider.Update();
 		sensorProvider.Update();

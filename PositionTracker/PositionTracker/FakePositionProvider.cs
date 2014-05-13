@@ -50,8 +50,8 @@ namespace PositionTracker
 			// logic / state machine as outdoor mode)
 			// TODO:
 			if (bearing == -1) {
-				// fix bearing at initial device yaw
-				bearing = -sensorProvider.Yaw % 360;
+				// fix bearing at initial device compass heading
+				bearing = sensorProvider.CompassHeading;
 			}
 			drift[0] += (positionTracker.ElapsedDistance - lastElapsedDistance) * Math.Cos(bearing) / 111229d;
 			drift[1] += (positionTracker.ElapsedDistance - lastElapsedDistance) * Math.Sin(bearing) / 111229d;

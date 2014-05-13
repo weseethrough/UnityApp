@@ -6,19 +6,19 @@ public class CrossPlatformSensorProvider : MonoBehaviour, ISensorProvider
 {
 	private Vector3 _acceleration = Vector3.zero;
 
+
 	public float[] LinearAcceleration { 
 		get {
 			float[] acc = new float[3];
 			acc[0] = _acceleration.x;
 			acc[1] = _acceleration.y;
 			acc[2] = _acceleration.z;
-
 			return acc;
 		}
 	}
 
 
-	public float Yaw {
+	public float CompassHeading {
 		get; set;
 	}
 
@@ -26,7 +26,15 @@ public class CrossPlatformSensorProvider : MonoBehaviour, ISensorProvider
 	public void Update()
 	{
 		_acceleration = Input.acceleration;
-		Yaw = Input.compass.trueHeading;
+			
+		// clamp acceleration vector to unit sphere
+		if (_acceleration.sqrMagnitude > 1)
+			_acceleration.Normalize();
+
+		// Convert to m/s2
+		_acceleration *= 9.81f;
+
+		CompassHeading = Input.compass.trueHeading;
 		//UnityEngine.Debug.Log("Polling accelerometers: " + _acceleration);
 	}
 
