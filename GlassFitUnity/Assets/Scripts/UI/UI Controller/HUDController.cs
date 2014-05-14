@@ -10,11 +10,17 @@ using System;
 public class HUDController : MonoBehaviour {
 
 	int goal_dist = 0;
+	int goal_time = 0;
+
 	// Use this for initialization
 	void Start () {
 		goal_dist = GameBase.getTargetDistance();
-		string distKm = string.Format("{0:0}", goal_dist/1000);
+		string distKm = UnitsHelper.SiDistanceUnitless(goal_dist, string.Empty);
 		DataVault.Set("goal_dist", distKm);
+
+		goal_time = GameBase.getTargetTime();
+		string timeString = UnitsHelper.TimestampMMSSfromMillis(goal_time * 1000);
+		DataVault.Set("finish_time", distKm);
 	}
 	
 	// Update is called once per frame
@@ -37,9 +43,12 @@ public class HUDController : MonoBehaviour {
         DataVault.Set("time_minutes_only", (int)(span.Minutes + span.Hours * 60));
         DataVault.Set("time_seconds_only", string.Format("{0:00}" ,span.Seconds));
 
-		string distKm = string.Format("{0:0}", goal_dist/1000);
+		goal_dist = GameBase.getTargetDistance();
+		string distKm = UnitsHelper.SiDistance(goal_dist);
 		DataVault.Set("goal_dist", distKm);
-	}
 
-		
+		float millisecondsRemaining = goal_time * 1000 - Platform.Instance.LocalPlayerPosition.Time;
+		string timeRemainingString = UnitsHelper.TimestampMMSSdd((long)millisecondsRemaining);
+		DataVault.Set("time_remaining", timeRemainingString);
+	}
 }

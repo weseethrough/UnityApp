@@ -15,6 +15,14 @@ using RaceYourself.Models;
 /// </summary>
 public class GameBase : MonoBehaviour {
 		
+	public enum RunGoalType
+	{
+		Distance,
+		Time
+	}
+
+	private RunGoalType goalType = RunGoalType.Distance;
+
 	//constant values for states. New states should be added here or in a subclass in the same manner.
 	public const string GAMESTATE_AWAITING_USER_READY = "awaiting_ready";
 	public const string GAMESTATE_COUNTING_DOWN = "counting_down";
@@ -37,7 +45,8 @@ public class GameBase : MonoBehaviour {
 	
 	// Distance the player wants to run
 	protected int finish;
-	
+	protected int finishTime;
+
 	// Start tracking and 3-2-1 countdown variables
 	protected bool started = false;
 	
@@ -65,8 +74,6 @@ public class GameBase : MonoBehaviour {
 
 	public static int getTargetDistance()
 	{
-		if(Application.isEditor) 
-			return 500;
 
 		Track selectedTrack = (Track)DataVault.Get("current_track");
 
@@ -77,12 +84,12 @@ public class GameBase : MonoBehaviour {
 		}
 		else
 		{
-			int distInt = 0;
-			object dist = DataVault.Get("finish");
-			if(dist != null)
+
+			object o = DataVault.Get("finish");
+			if(o != null)
 			{
-				distInt = (int)dist;
-				return distInt;
+				int dist = (int)DataVault.Get("finish");
+				return dist;
 			}
 			else
 			{
@@ -94,6 +101,35 @@ public class GameBase : MonoBehaviour {
 			}
 		}
 	}
+
+	public static int getTargetTime()
+	{
+		if(Application.isEditor)
+			return 60;
+
+		Track selectedTrack = (Track)DataVault.Get("current_track");
+
+		if(selectedTrack != null)
+		{
+			return (int)selectedTrack.time;
+		}
+		else
+		{
+			//check datavault
+			int timeInt = 0;
+			object time = DataVault.Get("finish_time_seconds");
+			if(time != null)
+			{
+				timeInt = (int)time;
+				return timeInt;
+			}
+			else
+			{
+				return 60;
+			}
+		}
+	}
+
 
 
 	/// <summary>
@@ -107,7 +143,31 @@ public class GameBase : MonoBehaviour {
 		DataVault.Set("distance_position", " ");
 		DataVault.Set("target_units", "");
 		DataVault.Set("ahead_box", " ");
-		
+
+		//determine goal type
+		string goalTypeString = (string)DataVault.Get("goal_type");
+		if(goalTypeString == null)
+		{
+			UnityEngine.Debug.LogWarning("GameBase: No goal type set. Using distance.");
+			goalType = RunGoalType.Distance;
+		}
+		else
+		{
+			switch(goalTypeString)
+			{
+			case "distance":
+				goalType = RunGoalType.Distance;
+				break;
+			case "time":
+				goalType = RunGoalType.Time;
+				break;
+			default:
+				UnityEngine.Debug.LogError("GameBase: Unrecognised goal type. Using Distance");
+				goalType = RunGoalType.Distance;
+				break;
+			}
+		}
+
 		//gesture handlers. All gestures should be handled by these delegates by editing/extending the GameHandleXXXX method.
 		tapHandler = new GestureHelper.OnTap(() => {
 			GameHandleTap();
@@ -138,8 +198,20 @@ public class GameBase : MonoBehaviour {
 		//Get target distance
 		UnityEngine.Debug.Log("GameBase: getting track");
 		selectedTrack = (Track)DataVault.Get("current_track");
-		
-		finish = GameBase.getTargetDistance();
+
+		switch (goalType)
+		{
+		case RunGoalType.Distance:
+			finish = GameBase.getTargetDistance();
+			break;
+		case RunGoalType.Time:
+			finishTime = (int)GameBase.getTargetTime();
+			break;
+		default:
+			UnityEngine.Debug.LogError("GameBase: Unhandled goal type");
+			finish = GameBase.getTargetDistance();
+			break;
+		}
 	
 		
 #if RY_INDOOR
@@ -148,7 +220,8 @@ public class GameBase : MonoBehaviour {
 #endif
 		//set distance with units for the menu cards
 		DataVault.Set("finish_km", UnitsHelper.SiDistanceUnitless(finish, string.Empty) );
-	
+		DataVault.Set("finish_time", UnitsHelper.TimestampMMSSnearestTenSecs(finishTime) );
+
 		UnityEngine.Debug.Log("GameBase: resetting platform");
 		//Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
 		Platform.Instance.LocalPlayerPosition.Reset();
@@ -572,24 +645,37 @@ public class GameBase : MonoBehaviour {
 				
 			UpdateIndoorPrompts();
 				
-			//check for finished
-			if(Platform.Instance.LocalPlayerPosition.Distance >= finish)
+			//check for finished, and other goaltype specific logic.
+			switch(goalType)
 			{
-				
-				SetGameState(GAMESTATE_FINISHED);
-			}
-			
-			// Award the player points for running certain milestones
-			if(Platform.Instance.LocalPlayerPosition.Distance >= bonusTarget)
-			{
-				int targetToKm = bonusTarget / 1000;
-				if(bonusTarget < finish) 
+			case RunGoalType.Distance:
+				if(Platform.Instance.LocalPlayerPosition.Distance >= finish)
 				{
-					MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
+					SetGameState(GAMESTATE_FINISHED);
 				}
-				bonusTarget += 1000;
+
+				// Award the player points for running certain milestones - distance based only for now
+				if(Platform.Instance.LocalPlayerPosition.Distance >= bonusTarget)
+				{
+					int targetToKm = bonusTarget / 1000;
+					if(bonusTarget < finish) 
+					{
+						MessageWidget.AddMessage("Bonus Points!", "You reached " + targetToKm.ToString() + "km! 1000pts", "trophy copy");
+					}
+					bonusTarget += 1000;
+				}
+				break;
+			case RunGoalType.Time:
+				if(Platform.Instance.LocalPlayerPosition.Time >= finishTime * 1000)
+				{
+					SetGameState(GAMESTATE_FINISHED);
+				}
+				break;
+			default:
+				//unrecognised mode, but don't spam the log with errors
+				break;
 			}
-			
+
 			//update ahead for HUD			
 			UpdateAhead();
 
