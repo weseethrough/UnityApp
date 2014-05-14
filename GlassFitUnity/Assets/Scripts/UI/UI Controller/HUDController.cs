@@ -43,7 +43,7 @@ public class HUDController : MonoBehaviour {
         DataVault.Set("time_seconds_only", string.Format("{0:00}" ,span.Seconds));
 
 		goal_dist = GameBase.getTargetDistance();
-		string distKm = string.Format("{0:0}", goal_dist/1000);
+		string distKm = UnitsHelper.SiDistance(goal_dist);
 		DataVault.Set("goal_dist", distKm);
 
 		float millisecondsRemaining = goal_time * 1000 - Platform.Instance.LocalPlayerPosition.Time;

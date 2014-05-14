@@ -13,7 +13,7 @@ public class MobileInRun : MobilePanel {
 	UISlider playerProgressBar;
 	UISlider opponentProgressBar;
 
-	float targetDistance = 0;
+	int targetDistance = 0;
 	float targetTime = 0;
 
 	RYWorldObject opponentObj;
@@ -158,6 +158,14 @@ public class MobileInRun : MobilePanel {
 
 		// Fill progress bar based on player distance 
 		float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
+
+		//reset the goal distance if the player has exceeded the challenge track distance
+		if(playerDist > targetDistance)
+		{
+			targetDistance = Mathf.FloorToInt(playerDist);
+			DataVault.Set("finish", targetDistance);
+		}
+
 		float playerProgress = playerDist / targetDistance;
 		playerProgressBar.value = playerProgress;
 		
