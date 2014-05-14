@@ -229,8 +229,8 @@ public class MobileInRun : MobilePanel {
 		if(time > targetTime * 1000)
 		{
 			//calculate average pace for player and opponent
-			float time = Platform.Instance.LocalPlayerPosition.Time;
-			float playerSpeed = playerDist / time;
+			float elapsedTime = Platform.Instance.LocalPlayerPosition.Time;
+			float playerSpeed = playerDist / elapsedTime;
 			float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);
 			string playerPaceString = UnitsHelper.kmPaceToString(playerKmPace);
 			DataVault.Set("player_average_pace", playerPaceString);
