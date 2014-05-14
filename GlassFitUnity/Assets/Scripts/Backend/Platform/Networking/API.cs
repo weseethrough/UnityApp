@@ -147,7 +147,7 @@ namespace RaceYourself
 				
 				var post = new WWW(AUTH_TOKEN_URL, form);
 				yield return post;
-						
+				
 				if (!post.isDone) {}
 
                 if (!String.IsNullOrEmpty(post.error)) {
@@ -396,7 +396,18 @@ namespace RaceYourself
 			
 			var response = JsonConvert.DeserializeObject<SingleResponse<SignUpResponse>>(post.text);
 			if (!response.response.success) {
-				log.error("SignUp() failed");
+                var errors = new System.Text.StringBuilder();
+                foreach (KeyValuePair<string, IList<string>> entry in response.response.errors)
+                {
+                    foreach (string v in entry.Value)
+                    {
+                        errors.Append(entry.Key);
+                        errors.Append(" ");
+                        errors.AppendLine(v);
+                    }
+                }
+
+				log.error("SignUp() failed. Errors: " + errors);
 				callback(false, response.response.errors);
 				yield break;
 			}

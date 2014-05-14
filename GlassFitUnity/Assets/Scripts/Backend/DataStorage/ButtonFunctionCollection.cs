@@ -1124,7 +1124,7 @@ public class ButtonFunctionCollection
 
             if (me != null) // if facebook
             {
-                username = me.username;
+                username = me.username == null ? "" : me.username;
                 if (me.gender == "male")
                     gender = 'M';
                 else if (me.gender == "female")
@@ -1175,7 +1175,7 @@ public class ButtonFunctionCollection
             }
             else // if facebook
             {
-                email = FB.UserId + "@facebook.com";
+                email = FB.UserId + "@facebook";
                 password = FB.AccessToken;
             }
 
