@@ -130,10 +130,15 @@ public class IosPlatform : Platform
 		if(NotificationServices.remoteNotificationCount > 0)
 		{
 			log.info("New remote push notification received.");
-			//clear it straight away for now.
-			// TODO raise some event in non-platform code (NetworkMessageListener?) which will inform that there's a new notification, 
+
 			// trigger a sync to get the full details, and do whatever else is necessary.
+			NetworkMessageListener.OnPushNotification();
+
+			//maybe trigger a local notification if the user isn't currently looking at the challenge list?
+
+			//clear it straight away for now.
 			NotificationServices.ClearRemoteNotifications();
+			NotificationServices.ClearLocalNotifications();
 		}
 
     }
