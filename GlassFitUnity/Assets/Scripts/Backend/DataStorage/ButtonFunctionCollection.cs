@@ -1121,7 +1121,7 @@ public class ButtonFunctionCollection
             string username = email;
             char gender = 'U';
             string imageUrl = null;
-
+            ProviderToken providerToken = null;
             if (me != null) // if facebook
             {
                 username = me.username == null ? "" : me.username;
@@ -1131,11 +1131,12 @@ public class ButtonFunctionCollection
                     gender = 'F';
                 imageUrl = me.Picture;
                 password = Path.GetRandomFileName(); // doesn't actually create a file - just generates a random string
+                providerToken = new ProviderToken("facebook", FB.AccessToken, FB.UserId);
             }
 
             plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
                 email, password, null, new Profile(username, firstName, surname, gender, imageUrl, null),
-                new ProviderToken("facebook", FB.AccessToken, FB.UserId), SignUpCallback));
+                providerToken, SignUpCallback));
             return true;
         }
         else
