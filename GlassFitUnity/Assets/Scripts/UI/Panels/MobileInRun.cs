@@ -17,8 +17,8 @@ public class MobileInRun : MobilePanel {
 
 	RYWorldObject opponentObj;
 
-	UISpriteAnimation playerSpriteAnimation;
-	UISpriteAnimation opponentSpriteAnimation;
+	RunnerSpriteAnimation playerSpriteAnimation;
+	RunnerSpriteAnimation opponentSpriteAnimation;
 
 	UIWidget AheadBehindBG;
 
@@ -93,9 +93,12 @@ public class MobileInRun : MobilePanel {
 
 		//find sprites
 		GameObject playerObject = GameObject.Find("Sprite_Player");
-		playerSpriteAnimation = playerObject.GetComponent<UISpriteAnimation>();
+		playerSpriteAnimation = playerObject.GetComponent<RunnerSpriteAnimation>();
+		playerSpriteAnimation.stationary = true;
+
 		GameObject opponentObject = GameObject.Find("Sprite_Opponent");
-		opponentSpriteAnimation = opponentObject.GetComponent<UISpriteAnimation>();
+		opponentSpriteAnimation = opponentObject.GetComponent<RunnerSpriteAnimation>();
+		opponentSpriteAnimation.stationary = true;
 
 		log.info("Found sprites");
 
@@ -191,7 +194,11 @@ public class MobileInRun : MobilePanel {
 		// Update Sprite positions
 		float activeWidth = Screen.width * 0.5f;
 		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+		playerSpriteAnimation.stationary = Platform.Instance.LocalPlayerPosition.Pace < 1.0f || !Platform.Instance.LocalPlayerPosition.IsTracking;
+
 		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+		//no convenient interface to get opponent speed atm, just make it always run for now
+		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking;
 
 		// check for race finished
 		if(playerDist > targetDistance)
