@@ -1231,8 +1231,13 @@ public class ButtonFunctionCollection
 
     static public bool InitLabels(FlowButton button, FlowState fs)
     {
+        FacebookMe me = (FacebookMe) DataVault.Get("facebook_me");
+        string playerName = "";
+        if (me != null)
+            playerName = me.name;
+
+        DataVault.Set("player_name", playerName);
         DataVault.Set("form_error", "");
-        DataVault.Set("player_name", "");
         return true;
     }
 
