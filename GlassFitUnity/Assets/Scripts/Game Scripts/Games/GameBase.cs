@@ -261,6 +261,7 @@ public class GameBase : MonoBehaviour {
 			//start the countdown
 			UnityEngine.Debug.Log("GameBase: About to start countdown");
 			StartCoroutine("DoCountDown");
+			DataVault.Set("counting_down", true);
 			break;
 		case GAMESTATE_FINISHED:
 			FinishGame();
@@ -281,6 +282,7 @@ public class GameBase : MonoBehaviour {
 		{
 		case GAMESTATE_COUNTING_DOWN:
 			//start the race
+			DataVault.Set("counting_down", false);
 			StartRace();
 			break;
 		case GAMESTATE_PAUSED:
