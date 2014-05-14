@@ -108,9 +108,7 @@ public abstract class Platform : SingletonBase
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();
 
-		Hashtable eventProperties = new Hashtable();
-		eventProperties.Add("event_name", "launch");
-		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
 		//Input.location.Start();
 
 		// Set initialised=true in overriden method
@@ -120,6 +118,10 @@ public abstract class Platform : SingletonBase
     {
         log.info("Starting PostInit");
         
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "launch");
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
         if (Application.isPlaying) {
             db = DatabaseFactory.GetInstance();
             api = new API(db);
