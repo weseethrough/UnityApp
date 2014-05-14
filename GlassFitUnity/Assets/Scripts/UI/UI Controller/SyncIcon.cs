@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class SyncIcon : MonoBehaviour {
@@ -24,6 +25,18 @@ public class SyncIcon : MonoBehaviour {
 
 				UnityEngine.Debug.Log("SyncIcon: checking if authenticated");
 				if (!authenticated) {
+                    var errorDetail = new System.Text.StringBuilder();
+                    foreach (KeyValuePair<string, IList<string>> entry in errors)
+                    {
+                        foreach (string v in entry.Value)
+                        {
+                            errorDetail.Append(entry.Key);
+                            errorDetail.Append(" ");
+                            errorDetail.AppendLine(v);
+                        }
+                    }
+                    UnityEngine.Debug.LogError("SyncIcon: auth failure: " + errorDetail);
+
 					MessageWidget.AddMessage("ERROR", "Could not authenticate", "settings");
 					GoToGame();
 					return;

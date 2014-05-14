@@ -60,7 +60,7 @@ namespace RaceYourself
 			db = database;
 			user = db.Query<User>().LastOrDefault();
 			token = db.Query<OauthToken>().LastOrDefault();
-			if (user != null && token != null) {
+            if (user != null && token != null) {
 				if (user.id != token.userId) {
 					log.error("Token in database does not belong to user in database!");
 					// TODO: Allow storage of multiple users or delete old data on id mismatch?
@@ -69,6 +69,7 @@ namespace RaceYourself
 				} else {
 					if (!token.HasExpired) {
 						log.info("Still logged in as " + user.DisplayName + "/" + user.id);
+                        Platform.Instance.NetworkMessageListener.authenticated = true;
 					}
 				}
 			} else {
