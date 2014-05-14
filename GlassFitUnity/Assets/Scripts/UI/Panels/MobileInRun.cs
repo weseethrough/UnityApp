@@ -17,8 +17,12 @@ public class MobileInRun : MobilePanel {
 
 	RYWorldObject opponentObj;
 
-	UIAnchor playerSpriteAnchor;
-	UIAnchor opponentSpriteAnchor;
+	RunnerSpriteAnimation playerSpriteAnimation;
+	RunnerSpriteAnimation opponentSpriteAnimation;
+
+	UIWidget AheadBehindBG;
+
+	bool bPaused = false;
 
 	public MobileInRun() { }
 	public MobileInRun(SerializationInfo info, StreamingContext ctxt)
@@ -63,39 +67,89 @@ public class MobileInRun : MobilePanel {
 		{
 			log.error("Couldn't find player progress bar");
 		}
+		else log.info("Found player progress bar");
+
 		opponentProgressBar = GameObject.Find("Progress Bar Opponent").GetComponent<UISlider>();
 		if(opponentProgressBar == null)
 		{
 			log.error("Couldn't find opponent progress bar");
 		}
+		else log.info("Found opponent progress bar");
 		
 		targetDistance = GameBase.getTargetDistance();
 
+		log.info("Got target distance");
+
 		//find opponent object
-		opponentObj = GameObject.Find("DavidRealWalk").GetComponent<RYWorldObject>();
+		GameObject opp = GameObject.Find("DavidRealWalk");
+		if(opp != null)
+		{
+			opponentObj = opp.GetComponent<RYWorldObject>();
+		}
 		if(opponentObj == null) { log.error("Couldn't find opponent object"); }
+		else log.info("Found opponent object");
+
+		Platform.Instance.LocalPlayerPosition.Reset();
 
 		//find sprites
-		playerSpriteAnchor = GameObject.Find("Sprite_Player").GetComponent<UIAnchor>();
-		opponentSpriteAnchor = GameObject.Find("Sprite_Opponent").GetComponent<UIAnchor>();
+		GameObject playerObject = GameObject.Find("Sprite_Player");
+		playerSpriteAnimation = playerObject.GetComponent<RunnerSpriteAnimation>();
+		playerSpriteAnimation.stationary = true;
+
+		GameObject opponentObject = GameObject.Find("Sprite_Opponent");
+		opponentSpriteAnimation = opponentObject.GetComponent<RunnerSpriteAnimation>();
+		opponentSpriteAnimation.stationary = true;
+
+		log.info("Found sprites");
 
 		//find the run and start it
 		GameBase game = GameObject.FindObjectOfType<GameBase>();
-		game.TriggerUserReady();
-	}
+		if(game == null) { log.error("Couldn't find game base"); }
+		else
+		{
+			game.TriggerUserReady();
+			log.info("started run");
+		}
 
+		DataVault.Set("paused", false);
+
+		//Add flowbuttons to each uiimagebutton
+		Component[] buttons = physicalWidgetRoot.GetComponentsInChildren(typeof(UIImageButton), true);
+		if (buttons != null && buttons.Length > 0)
+		{
+			foreach (UIImageButton bScript in buttons)
+			{
+				FlowButton fb = bScript.GetComponent<FlowButton>();
+				if (fb == null)
+				{
+					fb = bScript.gameObject.AddComponent<FlowButton>();
+				}
+				
+				fb.owner = this;
+				fb.name = fb.transform.parent.name;
+			}
+		}
+
+		GameObject bg = GameObject.Find("BG");
+		if(bg != null)
+		{
+			AheadBehindBG = bg.GetComponent<UIWidget>();
+		}
+	}
+	
 	public override void ExitStart ()
 	{
 		base.ExitStart ();
-
+		
 		//stop tracking
+		Platform.Instance.LocalPlayerPosition.Reset();
 	}
-
+	
 	// Update is called once per frame
 	void Update () {
 		//use stateUpdate()
 	}
-
+	
 	public override void StateUpdate ()
 	{
 		base.StateUpdate ();
@@ -106,14 +160,46 @@ public class MobileInRun : MobilePanel {
 		playerProgressBar.value = playerProgress;
 		
 		// Fill progress bar based on opponent distance
-		float opponentDist = opponentObj.getRealWorldPos().z;
+		if(opponentObj == null)
+		{
+			GameObject opp = GameObject.Find("DavidRealWalk");
+			if(opp == null) { /*log.error("Couldn't find opponent object in real world");*/ }
+			else
+			{
+				opponentObj = opp.GetComponent<RYWorldObject>();
+				log.info("Found opponent object in state update");
+			}
+		}
+
+		//update ahead/behind colour
+
+		float opponentDist = 0;
+		if(opponentObj != null)
+		{ 
+			 opponentDist = opponentObj.getRealWorldPos().z;
+		}
+
 		float opponentProgress = opponentDist / targetDistance;
-		opponentProgressBar.value = opponentDist / targetDistance;
-		
+		opponentProgressBar.value = opponentProgress;
+
+		if(opponentDist > playerDist)
+		{
+			DataVault.Set("mobile_aheadBehind_colour", UIColour.red);
+		}
+		else
+		{
+			DataVault.Set("mobile_aheadBehind_colour", UIColour.green);
+		}
+
 		// Update Sprite positions
-		playerSpriteAnchor.relativeOffset.x = playerProgress;
-		opponentSpriteAnchor.relativeOffset.x = opponentProgress;
-		
+		float activeWidth = Screen.width * 0.5f;
+		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+		playerSpriteAnimation.stationary = Platform.Instance.LocalPlayerPosition.Pace < 1.0f || !Platform.Instance.LocalPlayerPosition.IsTracking;
+
+		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+		//no convenient interface to get opponent speed atm, just make it always run for now
+		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking;
+
 		// check for race finished
 		if(playerDist > targetDistance)
 		{
@@ -123,8 +209,38 @@ public class MobileInRun : MobilePanel {
 
 			//progress flow to results
 			FlowState.FollowFlowLinkNamed("Finished");
-
 		}
+	}
+
+	public override void OnClick (FlowButton button)
+	{
+		if(!Platform.Instance.LocalPlayerPosition.IsTracking) { return; }
+
+		if(button.name == "Paused" || button.name == "Unpaused")
+		{
+			//toggle paused-ness
+			if(!bPaused)
+			{
+				Platform.Instance.LocalPlayerPosition.StopTrack();		
+				bPaused = true;
+				//set in datavault to control visibility of items
+				DataVault.Set("paused", true);
+				//pause the runners
+				playerSpriteAnimation.framesPerSecond = 0;
+				opponentSpriteAnimation.framesPerSecond = 0;
+			}
+			else
+			{
+				Platform.Instance.LocalPlayerPosition.StartTrack();
+				bPaused = false;
+				//set in datavault to control visibility of items
+				DataVault.Set("paused", false);
+				//resume the runners
+				playerSpriteAnimation.framesPerSecond = 10;
+				opponentSpriteAnimation.framesPerSecond = 10;
+			}
+		}
+		base.OnClick (button);
 	}
 }
 
