@@ -129,16 +129,21 @@ public class IosPlatform : Platform
 		//check for new notifications
 		if(NotificationServices.remoteNotificationCount > 0)
 		{
-			log.info("New remote push notification received.");
-
 			// trigger a sync to get the full details, and do whatever else is necessary.
-			NetworkMessageListener.OnPushNotification();
+			NetworkMessageListener.OnPushNotification(NotificationServices.remoteNotificationCount + " new push notifications received");
 
-			//maybe trigger a local notification if the user isn't currently looking at the challenge list?
+			for(int i=0; i<NotificationServices.remoteNotificationCount; i++)
+			{
+				RemoteNotification notification = NotificationServices.GetRemoteNotification(i);
+				log.info("New Push Notification: " + notification);
+			}
+			NotificationServices.ClearRemoteNotifications();
+
+			//TODO maybe trigger a local notification if the user isn't currently looking at the challenge list?
 
 			//clear it straight away for now.
-			NotificationServices.ClearRemoteNotifications();
 			NotificationServices.ClearLocalNotifications();
+
 		}
 
     }
