@@ -58,10 +58,10 @@ public class MobileResultsPanel : MobilePanel {
 		}
 
 		string button = "test";
-		obj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
-		if(obj != null) {
+		GameObject playerPicObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
+		if(playerPicObj != null) {
 			Platform.Instance.RemoteTextureManager.LoadImage(Platform.Instance.User().image, button, (tex, empty) => {
-				UITexture playerPic = obj.GetComponentInChildren<UITexture>();
+				UITexture playerPic = playerPicObj.GetComponentInChildren<UITexture>();
 				if(playerPic != null) {
 					playerPic.mainTexture = tex;
 				}
@@ -94,10 +94,11 @@ public class MobileResultsPanel : MobilePanel {
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceText", opponentDistance);
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceUnitsText", opponentDistanceUnits);
 
+		string timeText = (string)DataVault.Get("finish_time");
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "TimeText", timeText);
 
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "TimeText", "10");
-
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "AveragePaceText", "1.8");
+		string playerAveragePace = (string)DataVault.Get ("player_average_pace");
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "AveragePaceText", playerAveragePace);
 
 		string aheadDistance = (string)DataVault.Get("distance_position") ;
 		string aheadDistanceUnits = (string)DataVault.Get("target_units");
