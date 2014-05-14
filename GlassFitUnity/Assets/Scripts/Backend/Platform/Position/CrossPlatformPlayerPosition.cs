@@ -93,9 +93,9 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 			//UnityEngine.Debug.Log("Position Tracker has position");
 			_position = positionTracker.CurrentPosition;
 			//log the position to the HUD and console
-			UnityEngine.Debug.Log("PlayerPosition's position: " + _position.latitude + " " + _position.longitude);
-			DataVault.Set("sweat_points_unit", _position.latitude);
-			DataVault.Set("fps", _position.longitude);
+			//UnityEngine.Debug.Log("PlayerPosition's position: " + _position.latitude + " " + _position.longitude);
+			//DataVault.Set("sweat_points_unit", _position.latitude);
+			//DataVault.Set("fps", _position.longitude);
 		}
 		else
 		{
@@ -104,9 +104,9 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		_bearing = positionTracker.CurrentBearing;
 
 
-		UnityEngine.Debug.Log("Position: Position tracker's state: " + positionTracker.CurrentState + ", speed: " + positionTracker.CurrentSpeed);
-		UnityEngine.Debug.Log("Position: LinearAcceleration: " + sensorProvider.LinearAcceleration[0] + "," 
-						+ sensorProvider.LinearAcceleration[1] + "," + sensorProvider.LinearAcceleration[2]);
+		//UnityEngine.Debug.Log("Position: Position tracker's state: " + positionTracker.CurrentState + ", speed: " + positionTracker.CurrentSpeed);
+		//UnityEngine.Debug.Log("Position: LinearAcceleration: " + sensorProvider.LinearAcceleration[0] + "," 
+		//				+ sensorProvider.LinearAcceleration[1] + "," + sensorProvider.LinearAcceleration[2]);
 
 		positionProvider.Update();
 		sensorProvider.Update();
