@@ -281,7 +281,7 @@ public class UISlider : UIWidgetContainer
 	{
 		if (!mInitDone) Init();
 		
-		UnityEngine.Debug.Log("Slider: Set called");
+		//UnityEngine.Debug.Log("Slider: Set called");
 
 		// Clamp the input
 		float val = Mathf.Clamp01(input);

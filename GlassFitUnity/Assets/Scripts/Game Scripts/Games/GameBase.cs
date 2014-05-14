@@ -77,10 +77,12 @@ public class GameBase : MonoBehaviour {
 		}
 		else
 		{
-			int dist = (int)DataVault.Get("finish");
-			if(dist > 0)
+			int distInt = 0;
+			object dist = DataVault.Get("finish");
+			if(dist != null)
 			{
-				return dist;
+				distInt = (int)dist;
+				return distInt;
 			}
 			else
 			{
@@ -88,7 +90,7 @@ public class GameBase : MonoBehaviour {
 				{
 					UnityEngine.Debug.LogError("GameBase: Don't have distance stored for this run");
 				}
-				return 5000;
+				return 500;
 			}
 		}
 	}
@@ -259,6 +261,7 @@ public class GameBase : MonoBehaviour {
 			//start the countdown
 			UnityEngine.Debug.Log("GameBase: About to start countdown");
 			StartCoroutine("DoCountDown");
+			DataVault.Set("counting_down", true);
 			break;
 		case GAMESTATE_FINISHED:
 			FinishGame();
@@ -279,6 +282,7 @@ public class GameBase : MonoBehaviour {
 		{
 		case GAMESTATE_COUNTING_DOWN:
 			//start the race
+			DataVault.Set("counting_down", false);
 			StartRace();
 			break;
 		case GAMESTATE_PAUSED:
