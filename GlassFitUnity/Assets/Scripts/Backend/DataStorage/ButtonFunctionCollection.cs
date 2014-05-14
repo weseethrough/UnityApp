@@ -153,6 +153,13 @@ public class ButtonFunctionCollection
 					'type': 'duration'
 			}}
 		}}", friend.userId.Value, challenge.duration, challenge.duration).Replace("'", "\""));
+
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "send_challenge");
+		eventProperties.Add("challenge_id", challenge.id);
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
+
 		MessageWidget.AddMessage("Challenge Sent", friend.forename + " has been challenged", "!none");
 		panel.parentMachine.FollowBack();
 		return true;
@@ -1137,6 +1144,12 @@ public class ButtonFunctionCollection
             plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
                 email, password, null, new Profile(username, firstName, surname, gender, imageUrl, null),
                 providerToken, SignUpCallback));
+
+			Hashtable eventProperties = new Hashtable();
+			eventProperties.Add("event_name", "signup");
+			eventProperties.Add("provider", "email");
+			Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
             return true;
         }
         else
@@ -1287,7 +1300,12 @@ public class ButtonFunctionCollection
             {
                 GConnector gConect = panel.Outputs.Find(r => r.Name == "Registered");
                 //Platform.Instance.SyncToServer(); // TODO remove - handle in flow?
-                panel.parentMachine.FollowConnection(gConect);
+				Hashtable eventProperties = new Hashtable();
+				eventProperties.Add("event_name", "signup");
+				eventProperties.Add("provider", "facebook");
+				Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
+				panel.parentMachine.FollowConnection(gConect);
             }
             else if (errors.ContainsKey("comms") || errors.ContainsKey("band"))
             {
@@ -1363,6 +1381,5 @@ public class ButtonFunctionCollection
             inputField.GetComponent<UIBasiclabel>().SetLabel(value == null ? "" : value);
         }
     }
-
 
 }

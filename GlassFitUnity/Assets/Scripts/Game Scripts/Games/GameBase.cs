@@ -5,6 +5,7 @@ using System.Threading;
 using System;
 
 using RaceYourself.Models;
+using Newtonsoft.Json;
 
 /// <summary>
 /// Game base. Base Game class which will handle aspects common to all games. Including
@@ -524,7 +525,7 @@ public class GameBase : MonoBehaviour {
 			//wait half a second
 			yield return new WaitForSeconds(1.0f);
 		}
-		
+
 		//start the game
 		DataVault.Set("countdown_subtitle", " ");
 		SetGameState(GAMESTATE_RUNNING);

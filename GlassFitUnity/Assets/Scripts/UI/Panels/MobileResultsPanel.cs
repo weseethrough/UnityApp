@@ -108,6 +108,7 @@ public class MobileResultsPanel : MobilePanel {
 		} else {
 			aheadDistanceUnits = aheadDistanceUnits.ToUpper() + " Behind";
 		}
+		
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceAheadUnitsText", aheadDistanceUnits);
 	}
 }

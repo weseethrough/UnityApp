@@ -108,7 +108,9 @@ public abstract class Platform : SingletonBase
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();
 
-		
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "launch");
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 		//Input.location.Start();
 
 		// Set initialised=true in overriden method

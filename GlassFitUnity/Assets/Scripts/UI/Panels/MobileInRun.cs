@@ -5,6 +5,9 @@ using System.Threading;
 using System;
 using System.Collections.Generic;
 
+using RaceYourself.Models;
+using Newtonsoft.Json;
+
 [Serializable]
 public class MobileInRun : MobilePanel {
 
@@ -25,6 +28,8 @@ public class MobileInRun : MobilePanel {
 	bool bPaused = false;
 
 	bool bPlayerAhead = true;
+
+	Track track;
 
 	public MobileInRun() { }
 	public MobileInRun(SerializationInfo info, StreamingContext ctxt)
@@ -137,19 +142,36 @@ public class MobileInRun : MobilePanel {
 		{
 			AheadBehindBG = bg.GetComponent<UIWidget>();
 		}
+
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "start_race");
+		track = game.selectedTrack;
+		if(track != null) {
+			eventProperties.Add("track_id", track.trackId.ToString());
+		}
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
 	}
 	
 	public override void ExitStart ()
 	{
 		base.ExitStart ();
-		
+
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "end_race");
+		bool result = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
+		if(result) {
+			eventProperties.Add("result", "win");
+		} else {
+			eventProperties.Add("result", "loss");
+		}
+		if(track != null) {
+			eventProperties.Add("track_id", track.trackId.ToString());
+		}
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
 		//stop tracking
 		Platform.Instance.LocalPlayerPosition.Reset();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		//use stateUpdate()
 	}
 	
 	public override void StateUpdate ()
