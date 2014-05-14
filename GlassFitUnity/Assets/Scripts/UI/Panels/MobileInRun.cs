@@ -20,6 +20,8 @@ public class MobileInRun : MobilePanel {
 	UIAnchor playerSpriteAnchor;
 	UIAnchor opponentSpriteAnchor;
 
+	bool bPlayerAhead = true;
+
 	public MobileInRun() { }
 	public MobileInRun(SerializationInfo info, StreamingContext ctxt)
 		: base(info, ctxt)
@@ -107,6 +109,20 @@ public class MobileInRun : MobilePanel {
 		
 		// Fill progress bar based on opponent distance
 		float opponentDist = opponentObj.getRealWorldPos().z;
+
+		//string for HUD / results screen
+		string opponentDistString = UnitsHelper.SiDistanceUnitless(opponentDist, "opponent_distance_units");
+		DataVault.Set("opponent_distance", opponentDistString);
+
+		//keep track of winner in datavault
+		bool bPlayerAheadNow = (playerDist >= opponentDist);
+		if( bPlayerAhead != bPlayerAheadNow )
+		{
+			bPlayerAhead = bPlayerAheadNow;
+			DataVault.Set("player_is_ahead", bPlayerAhead);
+		}
+
+		//prog bar
 		float opponentProgress = opponentDist / targetDistance;
 		opponentProgressBar.value = opponentDist / targetDistance;
 		
@@ -117,6 +133,18 @@ public class MobileInRun : MobilePanel {
 		// check for race finished
 		if(playerDist > targetDistance)
 		{
+			//calculate average pace for player and opponent
+			float time = Platform.Instance.LocalPlayerPosition.Time;
+			float playerSpeed = playerDist / time;
+			float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);
+			string playerPaceString = UnitsHelper.kmPaceToString(playerKmPace);
+			DataVault.Set("player_average_pace", playerPaceString);
+
+			float opponentSpeed = opponentDist / time;
+			float opponentKmPace = UnitsHelper.SpeedToKmPace(opponentSpeed);
+			string opponentPaceString = UnitsHelper.kmPaceToString(opponentKmPace);
+			DataVault.Set("opponent_average_pace", opponentPaceString);
+
 			//we're done
 			// load new scene
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
