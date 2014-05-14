@@ -14,6 +14,7 @@ public class MobileInRun : MobilePanel {
 	UISlider opponentProgressBar;
 
 	float targetDistance = 0;
+	float targetTime = 0;
 
 	RYWorldObject opponentObj;
 
@@ -76,9 +77,10 @@ public class MobileInRun : MobilePanel {
 		}
 		else log.info("Found opponent progress bar");
 		
+		targetTime = GameBase.getTargetTime();
 		targetDistance = GameBase.getTargetDistance();
 
-		log.info("Got target distance");
+		//log.info("Got target distance");
 
 		//find opponent object
 		GameObject opp = GameObject.Find("DavidRealWalk");
@@ -201,7 +203,8 @@ public class MobileInRun : MobilePanel {
 		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking;
 
 		// check for race finished
-		if(playerDist > targetDistance)
+		float time = Platform.Instance.LocalPlayerPosition.Time;
+		if(time > targetTime * 1000)
 		{
 			//we're done
 			// load new scene

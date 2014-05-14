@@ -30,11 +30,10 @@ public class MobileLoadingScreen : MonoBehaviour {
 
 		StartCoroutine("LoadLevel");
 
-		//set the distance here, if we haven't got it yet
-		object distanceObj = DataVault.Get("finish");
-		if(distanceObj == null);
-		DataVault.Set("finish", 500);
-		
+		//set that we're doing a time-based goal here
+		// TODO move this to where the challenge is pressed
+		DataVault.Set("goal_type", "time");
+
 	}
 	
 	IEnumerator LoadLevel() {
