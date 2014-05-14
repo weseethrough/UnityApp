@@ -118,9 +118,6 @@ public abstract class Platform : SingletonBase
     {
         log.info("Starting PostInit");
         
-		Hashtable eventProperties = new Hashtable();
-		eventProperties.Add("event_name", "launch");
-		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 
         if (Application.isPlaying) {
             db = DatabaseFactory.GetInstance();
@@ -167,6 +164,10 @@ public abstract class Platform : SingletonBase
 
             }
 		});
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "launch");
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
 
         //GetMonoBehavioursPartner().StartCoroutine(api.Login("cats", "dogs"));
 	}
