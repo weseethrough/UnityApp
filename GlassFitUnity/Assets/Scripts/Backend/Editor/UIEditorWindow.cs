@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;
+using System.IO;
 
 /// <summary>
 /// Main Ui management editor window
@@ -15,6 +16,10 @@ public class UIEditorWindow : EditorWindow
 	private int index = 0;
     private string screenName = "require reload";
     private bool foreceRefresh = false;
+
+    private Dictionary<string, string> panelData = new Dictionary<string, string>();
+    private string[] panelList = {"No Screen"};
+
 
     /// <summary>
     /// default static unity function called to show window using window type reference
@@ -99,6 +104,40 @@ public class UIEditorWindow : EditorWindow
                 foreceRefresh = true;
             }        
         GUILayout.EndHorizontal();
+
+        
+        foreach (string name in panelList)
+        {
+            UnityEngine.Object obj = null;
+            GUILayout.BeginHorizontal();                
+                obj = EditorGUILayout.ObjectField( obj, typeof(GameObject), GUILayout.MaxWidth(35.0f));
+                GUILayout.Label("name:", GUILayout.MaxWidth(60.0f));
+                GUILayout.TextField(name, GUILayout.MaxWidth(100.0f));
+                GUILayout.Label("path:", GUILayout.MaxWidth(60.0f));
+                if (panelData.ContainsKey(name))
+                {
+                    panelData[name] = GUILayout.TextField(panelData[name]);
+                }
+                else
+                {
+                    panelData[name] = GUILayout.TextField("");
+                }
+                
+            GUILayout.EndHorizontal();
+
+            if (obj is GameObject)
+            {
+                string path = AssetDatabase.GetAssetPath(obj);
+                panelData[name] = SerializedNode.GetResourcePath(path);
+            }
+        }
+
+        if (GUILayout.Button("+"))
+        {
+            panelData.Add("NoName", "");
+            BuildList();
+        }
+        
 	}
 	
 	/// <summary>
@@ -253,4 +292,72 @@ public class UIEditorWindow : EditorWindow
         }
     }
     
+
+    //New UI panel system
+
+    void LoadPanelData()
+    {
+        byte[] data = Platform.Instance.LoadBlob("newPanels");
+        MemoryStream ms = new MemoryStream(data);
+        StreamReader r = new StreamReader(ms);
+
+        panelData = new Dictionary<string, string>();
+
+        while (true)
+        {
+            string key = r.ReadLine();
+            if (key != null || key.Length < 0)
+            {
+                break;
+            }
+
+            string value = r.ReadLine();
+            if (value != null || value.Length < 0)
+            {
+                break;
+            }
+
+            panelData[key] = value;
+        }
+
+        BuildList();
+    }
+    
+    void SavePanelData()
+    {
+        MemoryStream ms = new MemoryStream();
+        StreamWriter w = new StreamWriter(ms);
+        
+
+        foreach (KeyValuePair<string, string> k in panelData)
+        {
+            w.WriteLine(k.Key);
+            w.WriteLine(k.Value);            
+        }
+            
+        Platform.Instance.StoreBlob("newPanels", ms.GetBuffer());
+
+    }
+
+    void BuildList()
+    {
+        MemoryStream ms = new MemoryStream();
+        StreamWriter w = new StreamWriter(ms);
+
+        List<string> list = new List<string>();
+
+        foreach (KeyValuePair<string, string> k in panelData)
+        {
+            list.Add(k.Key);            
+        }
+
+        panelList = list.ToArray();
+
+        if (panelList.Length == 0)
+        {
+            list.Add("No Screen");
+            panelList = list.ToArray();
+        }
+
+    }
 }
