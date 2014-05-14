@@ -86,7 +86,7 @@ public class MobileResultsPanel : MobilePanel {
 		string playerDistanceUnits = (string)DataVault.Get("distance_units");
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceTravelledText", playerDistance);
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceText", playerDistance);
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceTravelledUnitsText", playerDistanceUnits);
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceTravelledUnitsText", playerDistanceUnits.ToUpper());
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceUnitsText", playerDistanceUnits);
 
 		string opponentDistance = (string)DataVault.Get("opponent_distance");
@@ -100,9 +100,14 @@ public class MobileResultsPanel : MobilePanel {
 		string playerAveragePace = (string)DataVault.Get ("player_average_pace");
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "AveragePaceText", playerAveragePace);
 
-		string aheadDistance = (string)DataVault.Get("distance_position") ;
+		string aheadDistance = (string)DataVault.Get("ahead_box") ;
 		string aheadDistanceUnits = (string)DataVault.Get("target_units");
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceAheadText", aheadDistance);
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceAheadTextUnits", aheadDistanceUnits);
+		if(isAhead) {
+			aheadDistanceUnits = aheadDistanceUnits.ToUpper() + " Ahead";
+		} else {
+			aheadDistanceUnits = aheadDistanceUnits.ToUpper() + " Behind";
+		}
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceAheadUnitsText", aheadDistanceUnits);
 	}
 }

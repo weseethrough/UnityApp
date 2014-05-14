@@ -26,8 +26,6 @@ public class MobileInRun : MobilePanel {
 
 	bool bPlayerAhead = true;
 
-	bool bPlayerAhead = true;
-
 	public MobileInRun() { }
 	public MobileInRun(SerializationInfo info, StreamingContext ctxt)
 		: base(info, ctxt)
