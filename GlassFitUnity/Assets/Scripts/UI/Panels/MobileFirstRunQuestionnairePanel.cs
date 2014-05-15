@@ -43,9 +43,15 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
         {
             string fitnessLevel = buttonNameToFitnessLevel[button.name];
             DataVault.Set("fitness_level", fitnessLevel);
+
+            GConnector gc = Outputs.Find(r => r.Name == "Exit");
+            if (gc != null)
+            {
+                parentMachine.FollowConnection(gc);
+            }
         }
     }
-
+    
     void GetMatches()
     {
         Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("matches", body => {
