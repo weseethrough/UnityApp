@@ -131,7 +131,7 @@ public class MobileHomePanel : MobilePanel {
 		switch(type) {
 		case "challenge":
 			if(initialized) {
-				mobileList.ResetList(190f);
+				mobileList.ResetList(300f);
 			}
 			IList<Challenge> challengeIList = Platform.Instance.Challenges();
 			if(challengeIList != null && challengeIList.Count > 0) {
@@ -148,7 +148,7 @@ public class MobileHomePanel : MobilePanel {
 			break;
 
 		case "friend":
-			mobileList.ResetList(90f);
+			mobileList.ResetList(155f);
 			if(Platform.Instance.HasPermissions("facebook", "login") && friendsData != null && friendsData.Count > 0) {
 				if(betaFriends != null && betaFriends.Count > 0) {
 					for(int i=0; i<betaFriends.Count; i++) {
