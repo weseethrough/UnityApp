@@ -651,11 +651,11 @@ public class AndroidPlatform : Platform
 	{
 		try
 		{
-                        Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
-                        jsonObject.Add("event_type", "event");
-                        jsonString = JsonConvert.SerializeObject(jsonString);
-                        helper.CallStatic("logEvent", jsonString);
-                        UnityEngine.Debug.Log("Platform: logged analytic event " + jsonString);
+			Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
+			jsonObject.Add("event_type", "event");
+			jsonString = JsonConvert.SerializeObject(jsonObject);
+			helper.CallStatic("logEvent", jsonString);
+			UnityEngine.Debug.Log("Platform: logged analytic event " + jsonString);
 		}
 		catch (Exception e)
 		{

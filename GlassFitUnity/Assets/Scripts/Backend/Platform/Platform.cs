@@ -366,7 +366,7 @@ public abstract class Platform : SingletonBase
     public virtual void LogAnalyticEvent (string jsonString) {
         Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
         jsonObject.Add("event_type", "event");
-        jsonString = JsonConvert.SerializeObject(jsonString);
+		jsonString = JsonConvert.SerializeObject(jsonObject);
         log.warning("Analytic Event: " + jsonString);
         var e = new RaceYourself.Models.Event(jsonString, sessionId);
         db.StoreObject(e);
@@ -381,7 +381,7 @@ public abstract class Platform : SingletonBase
     public virtual void LogScreenView (string jsonString) {
         Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
         jsonObject.Add("event_type", "screen");
-        jsonString = JsonConvert.SerializeObject(jsonString);
+		jsonString = JsonConvert.SerializeObject(jsonObject);
         log.info("Screen View: " + jsonString);
         var e = new RaceYourself.Models.Event(jsonString, sessionId);
         db.StoreObject(e);
