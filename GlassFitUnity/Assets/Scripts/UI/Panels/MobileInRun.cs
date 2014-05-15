@@ -145,8 +145,38 @@ public class MobileInRun : MobilePanel {
 	{
 		base.ExitStart ();
 		
+
+		float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
+		float opponentDist = opponentObj.getRealWorldPos().z;
+
+		//calculate average pace for player and opponent
+		float elapsedTime = Platform.Instance.LocalPlayerPosition.Time / 1000;
+		float playerSpeed = playerDist / elapsedTime;
+		float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);
+		string playerPaceString = UnitsHelper.kmPaceToString(playerKmPace);
+		DataVault.Set("player_average_pace", playerPaceString);
+		
+		float opponentSpeed = opponentDist / elapsedTime;
+		float opponentKmPace = UnitsHelper.SpeedToKmPace(opponentSpeed);
+		string opponentPaceString = UnitsHelper.kmPaceToString(opponentKmPace);
+		DataVault.Set("opponent_average_pace", opponentPaceString);
+
+		//no longer than original target
+		elapsedTime = Mathf.Min(elapsedTime, elapsedTime);
+
+		string timeString = UnitsHelper.TimestampMMSSfromMillis((long)elapsedTime * 1000);
+		DataVault.Set("finish_time", timeString);
+
+		int minutes = Mathf.FloorToInt( elapsedTime / 60f );
+		string timeMinutes = minutes.ToString();
+		DataVault.Set("finish_time_minutes", timeMinutes);
+		
 		//stop tracking
 		Platform.Instance.LocalPlayerPosition.Reset();
+
+		// load new scene
+		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+
 	}
 	
 	// Update is called once per frame
@@ -228,21 +258,7 @@ public class MobileInRun : MobilePanel {
 		float time = Platform.Instance.LocalPlayerPosition.Time;
 		if(time > targetTime * 1000)
 		{
-			//calculate average pace for player and opponent
-			float elapsedTime = Platform.Instance.LocalPlayerPosition.Time;
-			float playerSpeed = playerDist / elapsedTime;
-			float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);
-			string playerPaceString = UnitsHelper.kmPaceToString(playerKmPace);
-			DataVault.Set("player_average_pace", playerPaceString);
-
-			float opponentSpeed = opponentDist / time;
-			float opponentKmPace = UnitsHelper.SpeedToKmPace(opponentSpeed);
-			string opponentPaceString = UnitsHelper.kmPaceToString(opponentKmPace);
-			DataVault.Set("opponent_average_pace", opponentPaceString);
-
 			//we're done
-			// load new scene
-			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 
 			//progress flow to results
 			FlowState.FollowFlowLinkNamed("Finished");
