@@ -58,8 +58,9 @@ namespace PositionPredictor
 		    Position [] p = new Position[ points.Length + 2 ];
 		    List<Position> path = new List<Position>();
 			path.AddRange(points);
-		    //System.arraycopy( points, 0, p, 1, points.Length );
-		    calcBoundaryPositions(p);
+			Array.Copy(points, 0, p, 1, points.Length); 
+
+			calcBoundaryPositions(p);
 		
 		    //System.out.printf("\nPNT[0]: %f,%f\n" ,p[0].latitude, p[0].longitude);
 		    //System.out.printf("PNT[N+1]: %f,%f\n" ,p[points.length+1].latitude, p[points.length+1].longitude);
@@ -70,7 +71,8 @@ namespace PositionPredictor
 		    {
 		      for( int j=0; j<NPOINTS; j++ )
 		      {
-		        double x = p[i].longitude * B0[j]
+		        Console.Out.WriteLine("CardinalSplit: " + PositionUtils.ToString(p[i]));
+				double x = p[i].longitude * B0[j]
 		                 + (p[i].longitude+(p[i+1].longitude-p[i-1].longitude)*0.1666667)*B1[j]
 		                 + (p[i+1].longitude-(p[i+2].longitude-p[i].longitude)*0.1666667)*B2[j]
 		                 + (p[i+1].longitude*B3[j]);
