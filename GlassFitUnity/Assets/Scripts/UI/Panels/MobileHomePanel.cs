@@ -19,6 +19,10 @@ public class MobileHomePanel : MobilePanel {
 	List<Friend> friendsData;
 	List<Friend> betaFriends;
 
+	List<Challenge> friendChallengeList;
+
+	GameObject challengeNotification;
+
 	bool initialized = false;
 
 	public MobileHomePanel() { }
@@ -84,6 +88,20 @@ public class MobileHomePanel : MobilePanel {
 			challengeBtn.defaultColor = new Color(202 / 255f, 202 / 255f, 202 / 255f);
 		}
 
+		IList<Challenge> challengeIList = Platform.Instance.Challenges();
+		if(challengeIList != null && challengeIList.Count > 0) {
+			friendChallengeList = new List<Challenge>();
+			for(int i=0; i<challengeIList.Count; i++) {
+				friendChallengeList.Add(challengeIList[i]);
+			}
+			friendChallengeList.RemoveAll(x => x.creator_id == Platform.Instance.User().id);
+			if(friendChallengeList.Count > 0) {
+				DataVault.Set("new_challenges", friendChallengeList.Count);
+			}
+		}
+
+		challengeNotification = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "ChallengeNotification");
+		
 		ChangeList("challenge");
 
 		GetFriends();
@@ -95,7 +113,20 @@ public class MobileHomePanel : MobilePanel {
 			
 			List<Invite> invites = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Invite>>(body).response;	
 			DataVault.Set("invite_codes", invites);
+			int numUnused = 0;
+
+			List<Invite> unusedInvites = invites.FindAll(r => r.used_at == null);
+			if(unusedInvites != null && unusedInvites.Count > 0) {
+				DataVault.Set("number_invites", unusedInvites.Count);
+			} else {
+				GameObject obj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "InviteNotification");
+				if(obj != null) {
+					obj.SetActive(false);
+				}
+			}
 		})) ;
+		
+
 	}
 
 	public void GetFriends() {
@@ -135,11 +166,15 @@ public class MobileHomePanel : MobilePanel {
 			}
 			IList<Challenge> challengeIList = Platform.Instance.Challenges();
 			if(challengeIList != null && challengeIList.Count > 0) {
-				List<Challenge> friendChallengeList = new List<Challenge>();
+				friendChallengeList = new List<Challenge>();
 				for(int i=0; i<challengeIList.Count; i++) {
 					friendChallengeList.Add(challengeIList[i]);
 				}
 				friendChallengeList.RemoveAll(x => x.creator_id == Platform.Instance.User().id);
+				if(challengeNotification != null) {
+					challengeNotification.SetActive(false);
+
+				}
 				AddChallengeButtons(friendChallengeList, ListButtonData.ButtonFormat.FriendChallengeButton);
 			} else {
 				AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
@@ -149,6 +184,11 @@ public class MobileHomePanel : MobilePanel {
 
 		case "friend":
 			mobileList.ResetList(155f);
+			racersBtn.enabled = false;
+			if(challengeNotification != null) {
+				challengeNotification.SetActive(true);
+				DataVault.Set("new_challenges", friendChallengeList.Count);
+			}
 			if(Platform.Instance.HasPermissions("facebook", "login") && friendsData != null && friendsData.Count > 0) {
 				if(betaFriends != null && betaFriends.Count > 0) {
 					for(int i=0; i<betaFriends.Count; i++) {
@@ -174,7 +214,7 @@ public class MobileHomePanel : MobilePanel {
 				GetFriends();
 				AddButtonData ("ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
 			}
-			racersBtn.enabled = false;
+
 			break;
 
 		default:
