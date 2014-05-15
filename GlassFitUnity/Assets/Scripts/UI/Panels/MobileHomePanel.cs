@@ -161,6 +161,9 @@ public class MobileHomePanel : MobilePanel {
 		buttonData = new List<ListButtonData>();
 		switch(type) {
 		case "challenge":
+			if(challengeNotification != null) {
+				challengeNotification.SetActive(false);
+			}
 			if(initialized) {
 				mobileList.ResetList(300f);
 			}
@@ -171,10 +174,7 @@ public class MobileHomePanel : MobilePanel {
 					friendChallengeList.Add(challengeIList[i]);
 				}
 				friendChallengeList.RemoveAll(x => x.creator_id == Platform.Instance.User().id);
-				if(challengeNotification != null) {
-					challengeNotification.SetActive(false);
 
-				}
 				AddChallengeButtons(friendChallengeList, ListButtonData.ButtonFormat.FriendChallengeButton);
 			} else {
 				AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
@@ -185,7 +185,7 @@ public class MobileHomePanel : MobilePanel {
 		case "friend":
 			mobileList.ResetList(155f);
 			racersBtn.enabled = false;
-			if(challengeNotification != null) {
+			if(challengeNotification != null && friendChallengeList.Count > 0) {
 				challengeNotification.SetActive(true);
 				DataVault.Set("new_challenges", friendChallengeList.Count);
 			}
