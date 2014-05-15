@@ -106,7 +106,7 @@ public class IosPlatform : Platform
 
 	public override void Update ()
     {
-		updateFlingDetection();
+		//updateFlingDetection();
 
 		//log.info("IosPlatform.Update");
 		try {

@@ -441,8 +441,9 @@ public class GameBase : MonoBehaviour {
 	}
 	
 	//handle a tap. Default is just to pause/unpause but games (especially tutorial, can customise this by overriding)
+	// only for Glass
 	public virtual void GameHandleTap() {
-		if(started)
+		if(started && Platform.Instance.OnGlass())
 		{
 			UnityEngine.Debug.Log("GameBase: tap detected");
 			SoundManager.PlaySound(SoundManager.Sounds.Tap);

@@ -291,20 +291,21 @@ public class MobileInRun : MobilePanel {
 
 	public override void OnClick (FlowButton button)
 	{
-		if(!Platform.Instance.LocalPlayerPosition.IsTracking) { return; }
+
 
 		if(button.name == "Paused" || button.name == "Unpaused")
 		{
 			//toggle paused-ness
-			if(!bPaused)
+			if(!bPaused && Platform.Instance.LocalPlayerPosition.IsTracking)
 			{
 				Platform.Instance.LocalPlayerPosition.StopTrack();		
 				bPaused = true;
 				//set in datavault to control visibility of items
 				DataVault.Set("paused", true);
 				//pause the runners
-				playerSpriteAnimation.framesPerSecond = 0;
-				opponentSpriteAnimation.framesPerSecond = 0;
+				Time.timeScale = 0.0f;
+				//playerSpriteAnimation.framesPerSecond = 0;
+				//opponentSpriteAnimation.framesPerSecond = 0;
 			}
 			else
 			{
@@ -312,9 +313,10 @@ public class MobileInRun : MobilePanel {
 				bPaused = false;
 				//set in datavault to control visibility of items
 				DataVault.Set("paused", false);
+				Time.timeScale = 1.0f;
 				//resume the runners
-				playerSpriteAnimation.framesPerSecond = 10;
-				opponentSpriteAnimation.framesPerSecond = 10;
+				//playerSpriteAnimation.framesPerSecond = 10;
+				//opponentSpriteAnimation.framesPerSecond = 10;
 			}
 		}
 		base.OnClick (button);

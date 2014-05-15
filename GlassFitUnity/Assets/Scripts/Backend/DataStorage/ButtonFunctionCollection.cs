@@ -1304,7 +1304,7 @@ public class ButtonFunctionCollection
 
 	static public bool TwitterShare(FlowButton button, FlowState fs) 
 	{
-		Application.OpenURL(string.Format("https://twitter.com/intent/tweet?url={0}&text={1}&via=Race_Yourself", "http://www.raceyourself.com", "I duddits!"));
+		Application.OpenURL(string.Format("https://twitter.com/intent/tweet?url={0}&text={1}&via=Race_Yourself", "http://www.raceyourself.com", "I%20duddits!"));
 		return false;
 	}
 	
