@@ -1296,7 +1296,19 @@ public class ButtonFunctionCollection
 		return true;
 	}
 
-    static public bool FacebookLogin(FlowButton button, FlowState panel)
+	static public bool FacebookShare(FlowButton button, FlowState fs) 
+	{
+		FB.Feed("", "http://www.raceyourself.com", "Race Yourself", "Race yoself, foo!", "Describe yourself, foo!");
+		return false;
+	}
+
+	static public bool TwitterShare(FlowButton button, FlowState fs) 
+	{
+		Application.OpenURL(string.Format("https://twitter.com/intent/tweet?url={0}&text={1}&via=Race_Yourself", "http://www.raceyourself.com", "I duddits!"));
+		return false;
+	}
+	
+	static public bool FacebookLogin(FlowButton button, FlowState panel)
     {
         NetworkMessageListener.OnAuthenticated handler = null;
         handler = new NetworkMessageListener.OnAuthenticated((errors) =>
