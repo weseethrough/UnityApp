@@ -25,7 +25,8 @@ namespace RaceYourself.Models
 		public bool @public;
 		public double distance;
 		public long time;
-
+        [JsonProperty("user_id")]
+        public int? userId;
 		public List<Position> positions; // Embedded positions for explicit track fetch
 
 		public DateTime? deleted_at;
