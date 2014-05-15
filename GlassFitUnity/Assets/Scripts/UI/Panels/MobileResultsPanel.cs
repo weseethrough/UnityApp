@@ -60,12 +60,17 @@ public class MobileResultsPanel : MobilePanel {
 		string button = "test";
 		GameObject playerPicObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
 		if(playerPicObj != null) {
-			Platform.Instance.RemoteTextureManager.LoadImage(Platform.Instance.User().image, button, (tex, empty) => {
-				UITexture playerPic = playerPicObj.GetComponentInChildren<UITexture>();
-				if(playerPic != null) {
-					playerPic.mainTexture = tex;
-				}
-			});
+			User user = Platform.Instance.User();
+			if(user != null)
+			{
+				Platform.Instance.RemoteTextureManager.LoadImage(user.image, button, (tex, empty) => {
+					UITexture playerPic = playerPicObj.GetComponentInChildren<UITexture>();
+					if(playerPic != null) {
+						playerPic.mainTexture = tex;
+					}
+				});
+			}
+			else { UnityEngine.Debug.LogError("MobileResults: No user"); }
 		}
 
 		obj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
@@ -94,7 +99,7 @@ public class MobileResultsPanel : MobilePanel {
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceText", opponentDistance);
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceUnitsText", opponentDistanceUnits);
 
-		string timeText = (string)DataVault.Get("finish_time");
+		string timeText = (string)DataVault.Get("finish_time_minutes");
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "TimeText", timeText);
 
 		string playerAveragePace = (string)DataVault.Get ("player_average_pace");
