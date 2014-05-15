@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{56380157-1FD5-470B-B0AE-FBAA7105BE13}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -35,12 +35,8 @@
       <HintPath>..\..\GlassFitUnity\Assets\Scripts\Backend\Platform\Models\Models.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="MathNet.Numerics">
-      <HintPath>External\MathNet.Numerics.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\Common\nunit.framework.dll</HintPath>
-      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -57,16 +53,25 @@
     <Compile Include="ISensorProvider.cs" />
     <Compile Include="DescriptiveStatistics.cs" />
     <Compile Include="IPositionProvider.cs" />
-    <Compile Include="Test\SpeedStateTest.cs" />
-    <Compile Include="Test\PositionTrackerTest.cs" />
     <Compile Include="SpeedState.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="AccelerationCalculator.cs" />
+    <Compile Include="Numerics\Beta.cs" />
+    <Compile Include="Numerics\Constants.cs" />
+    <Compile Include="Numerics\Erf.cs" />
+    <Compile Include="Numerics\Gamma.cs" />
+    <Compile Include="Numerics\Precision.cs" />
+    <Compile Include="Numerics\StudentT.cs" />
+    <Compile Include="Test\PositionPredictorTest.cs" />
+    <Compile Include="Test\PositionTrackerTest.cs" />
+    <Compile Include="Test\SpeedStateTest.cs" />
+    <Compile Include="FakePositionProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="PositionPredictor\" />
     <Folder Include="Kml\" />
+    <Folder Include="Numerics\" />
     <Folder Include="Test\" />
   </ItemGroup>
   <ItemGroup>

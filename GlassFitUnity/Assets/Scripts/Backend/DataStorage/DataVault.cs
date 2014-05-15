@@ -51,7 +51,7 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     void Start()
     {
-        Initialize();
+        Initialize(true);
     }
 
     /// <summary>
@@ -86,47 +86,7 @@ public class DataVault : MonoBehaviour
         }
 
         db.StoreObject(vault);
-        return;
-        /*
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.persistent);
-        if (s == null) return;
-
-        //process all stored types and write them into 
-        StorageDictionaryBase<int> intStorage       = new StorageDictionaryBase<int>();
-        StorageDictionaryBase<bool> boolStorage     = new StorageDictionaryBase<bool>();
-        StorageDictionaryBase<double> doubleStorage = new StorageDictionaryBase<double>();       
-        StorageDictionaryBase<string> stringStorage = new StorageDictionaryBase<string>();
-
-        foreach (var pair in data)
-        {
-            DataEntry de = pair.Value;
-            if (de.persistent)
-            {
-                if (de.storedValue.GetType() == typeof(int))
-                {
-                    intStorage.Set(pair.Key, Convert.ToInt32(de.storedValue));
-                }
-                else if (de.storedValue.GetType() == typeof(bool))
-                {
-                    boolStorage.Set(pair.Key, Convert.ToBoolean(de.storedValue));
-                }
-                else if (de.storedValue.GetType() == typeof(double) || de.storedValue.GetType() == typeof(float))
-                {
-                    doubleStorage.Set(pair.Key, Convert.ToDouble(de.storedValue));
-                }
-                else if (de.storedValue.GetType() == typeof(string))
-                {
-                    stringStorage.Set(pair.Key, Convert.ToString(de.storedValue));
-                }
-            }
-        }
-
-        s.dictionary.Set(Types.Integer.ToString(), intStorage    );
-        s.dictionary.Set(Types.Double .ToString(), doubleStorage );
-        s.dictionary.Set(Types.Boolean.ToString(), boolStorage   );
-        s.dictionary.Set(Types.String .ToString(), stringStorage );
-
-        DataStore.SaveStorage(DataStore.BlobNames.persistent);*/
+        return;        
     }
 
     /// <summary>
@@ -135,8 +95,18 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     static public void Initialize()
     {
+        Initialize(false);
+    }
 
-        if (data != null) return;
+    /// <summary>
+    /// loads data form current datastore and prepares easy to search dictionaries
+    /// </summary>
+    /// <param name="forced"></param>
+    /// <returns></returns>
+    static public void Initialize(bool forced)
+    {
+
+        if (data != null && !forced) return;
 
         registeredListeners = new Dictionary<string, List<UIComponentSettings>>();
         registrationRecord = new Dictionary<UIComponentSettings, List<string>>();
@@ -174,73 +144,6 @@ public class DataVault : MonoBehaviour
 
             return;
         }
-
-        /*
-
-        Storage s = DataStore.GetStorage(DataStore.BlobNames.persistent);
-        if (s == null) return;
-
-        //process all stored types and write them into 
-        StorageDictionaryBase<int> intStorage = s.dictionary.Get(Types.Integer.ToString()) as StorageDictionaryBase<int>;
-        if (intStorage != null)
-        {
-            for (int i = 0; i < intStorage.Length(); i++)
-            {
-                string name;
-                int value;
-                intStorage.Get(i, out name, out value);
-                if (name.Length > 0)
-                {
-                    data[name] = new DataEntry(value, true);
-                }
-            }
-        }
-
-        StorageDictionaryBase<bool> boolStorage = s.dictionary.Get(Types.Boolean.ToString()) as StorageDictionaryBase<bool>;
-        if (intStorage != null)
-        {
-            for (int i = 0; i < boolStorage.Length(); i++)
-            {
-                string name;
-                bool value;
-                boolStorage.Get(i, out name, out value);
-                if (name.Length > 0)
-                {
-                    data[name] = new DataEntry(value, true);
-                }
-            }
-        }
-
-        StorageDictionaryBase<double> doubleStorage = s.dictionary.Get(Types.Double.ToString()) as StorageDictionaryBase<double>;
-        if (doubleStorage != null)
-        {
-            for (int i = 0; i < doubleStorage.Length(); i++)
-            {
-                string name;
-                double value;
-                doubleStorage.Get(i, out name, out value);
-                if (name.Length > 0)
-                {
-                    data[name] = new DataEntry(value, true);
-                }
-            }
-        }
-
-        StorageDictionaryBase<string> stringStorage = s.dictionary.Get(Types.String.ToString()) as StorageDictionaryBase<string>;
-        if (stringStorage != null)
-        {
-            for (int i = 0; i < stringStorage.Length(); i++)
-            {
-                string name;
-                string value;
-                stringStorage.Get(i, out name, out value);
-                if (name.Length > 0)
-                {
-                    data[name] = new DataEntry(value, true);
-                }
-            }
-        }   
-        */
     }
 
     /// <summary>
@@ -282,7 +185,7 @@ public class DataVault : MonoBehaviour
             data[name] = new DataEntry(value, false);
         }
 
-        if (registeredListeners.ContainsKey(name))
+        if (Application.isPlaying && registeredListeners.ContainsKey(name))
         {
             List<UIComponentSettings> list = registeredListeners[name];
             if (list != null)
@@ -393,7 +296,7 @@ public class DataVault : MonoBehaviour
     /// <returns>translated values</returns>    
     static public string Translate(string source, int startingPoint, UIComponentSettings registerForUpdates)
     {
-        if (startingPoint >= source.Length) return source;
+        if (!Application.isPlaying || startingPoint >= source.Length) return source;
 
         int start = source.IndexOf(STARTING_BRACKET, startingPoint);
         int end;
@@ -444,7 +347,8 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     static public void RegisterListner(UIComponentSettings listner, string identifier)
     {
-        if (registeredListeners != null && registrationRecord != null &&
+        if (Application.isPlaying &&
+            registeredListeners != null && registrationRecord != null &&
             listner != null && identifier != null && identifier.Length > 0)
         {
             if (!registeredListeners.ContainsKey(identifier))

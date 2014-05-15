@@ -94,11 +94,7 @@ public class GameBase : MonoBehaviour {
 			}
 			else
 			{
-				if(!Application.isEditor)
-				{
-					UnityEngine.Debug.LogError("GameBase: Don't have distance stored for this run");
-				}
-				return 500;
+				return 5000;
 			}
 		}
 	}
@@ -106,7 +102,7 @@ public class GameBase : MonoBehaviour {
 	public static int getTargetTime()
 	{
 		if(Application.isEditor)
-			return 60;
+			return 600;
 
 		Track selectedTrack = (Track)DataVault.Get("current_track");
 

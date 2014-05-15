@@ -43,6 +43,7 @@ public class HUDController : MonoBehaviour {
         DataVault.Set("time_minutes_only", (int)(span.Minutes + span.Hours * 60));
         DataVault.Set("time_seconds_only", string.Format("{0:00}" ,span.Seconds));
 
+		//todo - subscribe to changes to the datavault, don't poll every update
 		goal_dist = GameBase.getTargetDistance();
 		string distKm = UnitsHelper.SiDistance(goal_dist);
 		DataVault.Set("goal_dist", distKm);

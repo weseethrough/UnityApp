@@ -7,7 +7,7 @@ namespace PositionTracker
     	private float ACCELERATE_THRESHOLD = 0.45f;
         private float DECELERATE_THRESHOLD = 0.35f;
 		
-		private PositionTracker.State currentState;
+		private PositionTracker.State currentState = PositionTracker.State.STOPPED;
 		
 		public PositionTracker.State CurrentState { 
 			get { return currentState; }

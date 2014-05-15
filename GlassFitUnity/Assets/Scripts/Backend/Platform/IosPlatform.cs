@@ -27,13 +27,25 @@ public class IosPlatform : Platform
     // iOS implementation of services
     private PlayerPoints _playerPoints = new LocalDbPlayerPoints ();
     public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
-    private PlayerPosition _localPlayerPosition = new EditorPlayerPosition ();
+    private PlayerPosition _localPlayerPosition = new CrossPlatformPlayerPosition ();
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
     private BleController _bleController;
     public override BleController BleController { get { return _bleController; } }
 	private bool sentDeviceToken = false;
 
 	Log log = new Log("IosPlatform");
+
+	/// <summary>
+	///Dummy function to hint AOT compilation. Add any methods here which need hinting for AOT compilation on iOS (i.e. throw errors about attempting JIT compilation)
+	/// </summary>q
+	static void AotHintDummyFunction()
+	{
+		StorageDictionaryBase<bool> b = new StorageDictionaryBase<bool>();
+		StorageDictionaryBase<int> i = new StorageDictionaryBase<int>();
+		StorageDictionaryBase<double> d = new StorageDictionaryBase<double>();
+		StorageDictionaryBase<string> s = new StorageDictionaryBase<string>();
+	}
+
 
 	/// <summary>
 	/// Initialize this instance.
