@@ -38,8 +38,14 @@ public class MobileFriendInvite : MonoBehaviour {
 			InviteAction action = new InviteAction("invite", chosenFriend.provider, chosenFriend.uid, unusedInvite.code);
 			Platform.Instance.QueueAction(JsonConvert.SerializeObject(action));
 
-
 			Platform.Instance.SyncToServer();
+
+			Hashtable eventProperties = new Hashtable();
+			eventProperties.Add("event_name", "invite");
+			eventProperties.Add("invite_code", unusedInvite.code);
+			eventProperties.Add("provider", "facebook");
+			Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
 
 			string[] toFriend = new string[1];
 			toFriend[0] = chosenFriend.uid;

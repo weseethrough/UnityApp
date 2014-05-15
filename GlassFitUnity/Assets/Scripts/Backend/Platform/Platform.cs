@@ -108,7 +108,7 @@ public abstract class Platform : SingletonBase
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();
 
-		
+
 		//Input.location.Start();
 
 		// Set initialised=true in overriden method
@@ -118,6 +118,7 @@ public abstract class Platform : SingletonBase
     {
         log.info("Starting PostInit");
         
+
         if (Application.isPlaying) {
             db = DatabaseFactory.GetInstance();
             api = new API(db);
@@ -163,6 +164,10 @@ public abstract class Platform : SingletonBase
 
             }
 		});
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "launch");
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
 
         //GetMonoBehavioursPartner().StartCoroutine(api.Login("cats", "dogs"));
 	}

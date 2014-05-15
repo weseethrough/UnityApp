@@ -5,6 +5,9 @@ using System.Threading;
 using System;
 using System.Collections.Generic;
 
+using RaceYourself.Models;
+using Newtonsoft.Json;
+
 [Serializable]
 public class MobileInRun : MobilePanel {
 
@@ -26,6 +29,8 @@ public class MobileInRun : MobilePanel {
 	bool bPaused = false;
 
 	bool bPlayerAhead = true;
+
+	Track track;
 
 	public MobileInRun() { }
 	public MobileInRun(SerializationInfo info, StreamingContext ctxt)
@@ -139,13 +144,35 @@ public class MobileInRun : MobilePanel {
 		{
 			AheadBehindBG = bg.GetComponent<UIWidget>();
 		}
+
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "start_race");
+		track = game.selectedTrack;
+		if(track != null) {
+			eventProperties.Add("track_id", track.trackId.ToString());
+		}
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
 	}
 	
 	public override void ExitStart ()
 	{
 		base.ExitStart ();
-		
 
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "end_race");
+		bool result = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
+		if(result) {
+			eventProperties.Add("result", "win");
+		} else {
+			eventProperties.Add("result", "loss");
+		}
+		if(track != null) {
+			eventProperties.Add("track_id", track.trackId.ToString());
+		}
+		
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+		
 		float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		float opponentDist = opponentObj.getRealWorldPos().z;
 
@@ -155,6 +182,7 @@ public class MobileInRun : MobilePanel {
 		float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);
 		string playerPaceString = UnitsHelper.kmPaceToString(playerKmPace);
 		DataVault.Set("player_average_pace", playerPaceString);
+		
 		
 		float opponentSpeed = opponentDist / elapsedTime;
 		float opponentKmPace = UnitsHelper.SpeedToKmPace(opponentSpeed);
@@ -171,17 +199,13 @@ public class MobileInRun : MobilePanel {
 		string timeMinutes = minutes.ToString();
 		DataVault.Set("finish_time_minutes", timeMinutes);
 		
-		//stop tracking
-		Platform.Instance.LocalPlayerPosition.Reset();
 
 		// load new scene
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		//use stateUpdate()
+
+		//stop tracking
+		Platform.Instance.LocalPlayerPosition.Reset();
 	}
 	
 	public override void StateUpdate ()
