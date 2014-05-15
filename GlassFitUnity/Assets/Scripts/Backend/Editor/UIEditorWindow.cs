@@ -17,9 +17,8 @@ public class UIEditorWindow : EditorWindow
     private string screenName = "require reload";
     private bool foreceRefresh = false;
 
-    private Dictionary<string, string> panelData = new Dictionary<string, string>();
-    private string[] panelList = {"No Screen"};
-
+    static public Dictionary<string, string>    panelData = new Dictionary<string, string>();
+    static public string[]                      panelList = {"No Screen"};
 
     /// <summary>
     /// default static unity function called to show window using window type reference
@@ -105,16 +104,31 @@ public class UIEditorWindow : EditorWindow
             }        
         GUILayout.EndHorizontal();
 
-        
+        bool refresh = false;
         foreach (string name in panelList)
         {
             UnityEngine.Object obj = null;
             GUILayout.BeginHorizontal();                
                 obj = EditorGUILayout.ObjectField( obj, typeof(GameObject), GUILayout.MaxWidth(35.0f));
                 GUILayout.Label("name:", GUILayout.MaxWidth(60.0f));
-                GUILayout.TextField(name, GUILayout.MaxWidth(100.0f));
+                string newName = GUILayout.TextField(name, GUILayout.MaxWidth(100.0f));
                 GUILayout.Label("path:", GUILayout.MaxWidth(60.0f));
-                if (panelData.ContainsKey(name))
+
+                if (newName != name)
+                {
+                    if (panelData.ContainsKey(name))
+                    {
+                        panelData[newName] = GUILayout.TextField(panelData[name]);
+                    }
+                    else
+                    {
+                        panelData[newName] = GUILayout.TextField("");
+                    }
+
+                    panelData.Remove(name);
+                    refresh = true;
+                }
+                else if (panelData.ContainsKey(name))
                 {
                     panelData[name] = GUILayout.TextField(panelData[name]);
                 }

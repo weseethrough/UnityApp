@@ -48,7 +48,7 @@ public class GraphWindow : EditorWindow, IDraw
     Vector2 m_dragPosition;
 
     FlowState m_storedCopy;
-	
+    
 	[MenuItem("Window/Image Graph Editor")]
 	public static void Init ()
 	{       
@@ -1341,19 +1341,30 @@ public class GraphWindow : EditorWindow, IDraw
         }
 
         StorageDictionary screensDictionary = Panel.GetPanelDictionary();
+        
+        int countA = UIEditorWindow.panelList.Length;
+        int countB = screensDictionary == null ? 0 : screensDictionary.Length();
 
-        int count                           = screensDictionary == null ? 0 : screensDictionary.Length();
-        string[]  screens                   = count > 0 ? new string[count] : null;
+        string[]  screens                   = (countA + countB) > 0 ? new string[countA + countB] : null;
 
         selected = -1;
 
-        for (int i = 0; i < count; i++)
+        for (int i = 0; i < countA; i++)
+        {
+            screens[i] = UIEditorWindow.panelList[i];
+            if (selectedName == screens[i])
+            {
+                selected = i;
+            }
+        }
+
+        for (int i = 0; i < countB; i++)
         {
             string screenName;
             ISerializable screen;
             screensDictionary.Get(i, out screenName, out screen);
-            screens[i] = screenName;
-            if (selectedName == screens[i])
+            screens[i + countA] = screenName;
+            if (selectedName == screens[i + countA])
             {
                 selected = i;
             }
