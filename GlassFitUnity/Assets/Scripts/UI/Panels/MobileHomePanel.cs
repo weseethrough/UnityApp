@@ -109,6 +109,10 @@ public class MobileHomePanel : MobilePanel {
 		initialized = true;
 
 		DataVault.Remove("invite_codes");
+		GameObject inviteObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "InviteNotification");
+		if(inviteObj != null) {
+			inviteObj.SetActive(false);
+		}
 		Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("invites", body => {
 			
 			List<Invite> invites = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Invite>>(body).response;	
@@ -118,10 +122,8 @@ public class MobileHomePanel : MobilePanel {
 			List<Invite> unusedInvites = invites.FindAll(r => r.used_at == null);
 			if(unusedInvites != null && unusedInvites.Count > 0) {
 				DataVault.Set("number_invites", unusedInvites.Count);
-			} else {
-				GameObject obj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "InviteNotification");
-				if(obj != null) {
-					obj.SetActive(false);
+				if(inviteObj != null) {
+					inviteObj.SetActive(true);
 				}
 			}
 		})) ;
@@ -156,7 +158,6 @@ public class MobileHomePanel : MobilePanel {
 	public void ChangeList(string type) {
 		racersBtn.enabled = true;
 		challengeBtn.enabled = true;
-
 
 		buttonData = new List<ListButtonData>();
 		switch(type) {
