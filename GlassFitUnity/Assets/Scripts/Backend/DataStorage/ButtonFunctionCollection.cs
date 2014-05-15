@@ -1399,4 +1399,27 @@ public class ButtonFunctionCollection
         }
     }
 
+    /// <summary>
+    /// Once the desired race duration and fitness level have been chosen, this function will retrieve an appropriate track from
+    /// what's available.
+    /// </summary>
+    /// <returns><c>true</c>, if track was fetched, <c>false</c> otherwise.</returns>
+    /// <param name="button">Button.</param>
+    /// <param name="fs">Fs.</param>
+    static public bool FetchTrack(FlowButton button, FlowState fs)
+    {
+        int runTime = (int) DataVault.Get("run_time");
+        string fitnessLevel = (string) DataVault.Get ("fitness_level");
+        var matches = (IDictionary<string,IDictionary<string,IList<Track>>>) DataVault.Get("matches");
+
+        IList<Track> tracks = matches[fitnessLevel][runTime.ToString()];
+        int trackIdx = UnityEngine.Random.Range(0, tracks.Count);
+        Track track = tracks[trackIdx];
+        // TODO is it legitimate to cast int? -> int in this context?
+        User competitor = Platform.Instance.GetUser((int) track.userId);
+
+        DataVault.Set("track_to_run", track);
+        DataVault.Set("competitor", competitor);
+        return true;
+    }
 }
