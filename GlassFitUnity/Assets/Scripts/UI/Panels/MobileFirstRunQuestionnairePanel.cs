@@ -38,7 +38,10 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
     }
 
 	// Use this for initialization
-	void Start () {
+    public override void Entered()
+    {
+        base.Entered();
+        
         GetMatches();
         platform = Platform.Instance;
         api = platform.api;
