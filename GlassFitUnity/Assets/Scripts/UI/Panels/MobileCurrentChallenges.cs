@@ -248,7 +248,7 @@ public class MobileCurrentChallenges : MobilePanel
                     try
                     {
                         UnityEngine.Debug.Log("ChallengePanel: getting notifications");
-                        Notification[] notifications = Platform.Instance.Notifications();
+                        List<Notification> notifications = Platform.Instance.Notifications();
                         UnityEngine.Debug.Log("ChallengePanel: notifications obtained");
                         foreach (Notification notification in notifications)
                         {
