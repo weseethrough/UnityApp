@@ -314,12 +314,6 @@ public class IosPlatform : Platform
 		return;
 	}
 
-	public override void ResetTargets ()
-	{
-		//
-		return;
-	}
-
 	public override void EraseBlob (String id)
 	{
 		throw new NotImplementedException ();

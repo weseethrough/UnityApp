@@ -550,7 +550,8 @@ public abstract class Platform : SingletonBase
     }
 
     public virtual void ResetTargets() {
-        throw new NotImplementedException();
+        //No longer need this function
+		//TODO remove
     }
 
     // Returns the target tracker
