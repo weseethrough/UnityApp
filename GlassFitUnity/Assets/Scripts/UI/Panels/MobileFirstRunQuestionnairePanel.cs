@@ -4,6 +4,7 @@ using RaceYourself;
 using RaceYourself.Models;
 using Newtonsoft.Json;
 using System;
+using System.Runtime.Serialization;
 
 [Serializable]
 public class MobileFirstRunQuestionnaire : MobilePanel {
@@ -17,6 +18,24 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
         {"AthleticButton", "athletic"},
         {"EliteButton", "elite"}
     };
+    
+    /// <summary>
+    /// default constructor
+    /// </summary>
+    /// <returns></returns>
+    public MobileFirstRunQuestionnaire() : base() {}
+    
+    /// <summary>
+    /// deserialziation constructor
+    /// </summary>
+    /// <param name="info">seirilization info conataining class data</param>
+    /// <param name="ctxt">serialization context </param>
+    /// <returns></returns>
+    public MobileFirstRunQuestionnaire(SerializationInfo info, StreamingContext ctxt)
+        : base(info, ctxt)
+    {    
+        
+    }
 
 	// Use this for initialization
 	void Start () {
