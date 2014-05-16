@@ -1418,7 +1418,7 @@ public class ButtonFunctionCollection
         // TODO is it legitimate to cast int? -> int in this context?
         User competitor = Platform.Instance.GetUser((int) track.userId);
 
-        DataVault.Set("track_to_run", track);
+        DataVault.Set("current_track", track);
         DataVault.Set("competitor", competitor);
         return true;
     }

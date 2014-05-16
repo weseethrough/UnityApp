@@ -621,7 +621,6 @@ namespace RaceYourself
 			headers.Add("Accept-Encoding", "gzip");
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			if (cache != null && cache.lastModified != null) {
-				log.error("DEBUG: ifs " + cache.lastModified);
 				headers["If-Modified-Since"] = cache.lastModified;
 			}
 			
