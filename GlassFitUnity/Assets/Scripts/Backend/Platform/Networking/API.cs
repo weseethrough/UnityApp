@@ -432,6 +432,41 @@ namespace RaceYourself
 		}
 		
 		/// <summary>
+		/// Coroutine to upload a profile image to the server.
+		/// </summary>
+		public IEnumerator UploadProfileImage(byte[] image, Action<string> callback) {
+			log.info("UploadProfileImage");
+			
+			string ret = "Failed";
+			try {
+				WWWForm form = new WWWForm();
+				form.AddBinaryData("image", image, "ignored.jpg", "image/jpeg");
+
+				var data = form.data;
+				var headers = form.headers;
+				headers.Add("Authorization", "Bearer " + token.access_token);				
+				
+				var post = new WWW(ApiUrl("credentials"), form.data, headers);
+				yield return post;
+				
+				if (!post.isDone) {}
+				
+				if (!String.IsNullOrEmpty(post.error)) {
+					log.error(string.Format("UploadProfileImage threw error: {0}", post.error));
+					ret = "Network error";
+					yield break;
+				}
+				
+				ret = "Success";
+				log.info(string.Format("UploadProfileImage: {0}", ret));
+			} finally
+			{
+				if (callback != null)
+					callback(ret);
+			}
+		}
+		
+		/// <summary>
 		/// Coroutine to sync the database to the server and back.
 		/// Triggers Platform.OnSynchronization upon completion.
 		/// </summary>
