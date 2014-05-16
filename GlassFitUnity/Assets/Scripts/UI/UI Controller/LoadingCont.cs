@@ -60,7 +60,7 @@ public class LoadingCont : MonoBehaviour {
 						List<Challenge> relevant = new List<Challenge>();		
 						int? finish = null;
 						
-						Notification[] notifications = Platform.Instance.Notifications();
+						List<Notification> notifications = Platform.Instance.Notifications();
 						foreach (Notification notification in notifications) {
 							if (notification.read) continue;
 							if (string.Equals(notification.message.type, "challenge")) {

@@ -9,6 +9,7 @@ namespace RaceYourself.Models
 
 		// TODO: Polymorphism
 		public int from;
+        public int to;
         public int challenge_id;
 		public string taunt;
 	}

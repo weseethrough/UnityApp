@@ -328,12 +328,12 @@ public abstract class Platform : SingletonBase
         return new List<Friend>(db.LoadAll<Friend>());
     }
 
-    public virtual Notification[] Notifications () {
+    public virtual List<Notification> Notifications () {
         // TODO: Change signature to IList<Notification>
-        var list = db.LoadAll<Notification>();
-        var array = new Notification[list.Count];
-        list.CopyTo(array, 0);
-        return array;
+		var list = new List<Notification>(db.LoadAll<Notification>());
+		//        var array = new Notification[list.Count];
+//        list.CopyTo(array, 0);
+        return list;
     }
 
     public virtual void ReadNotification (int id) {
@@ -341,6 +341,8 @@ public abstract class Platform : SingletonBase
         foreach (Notification note in notifications) {
             if (note.id == id) {
                 note.read = true;
+				note.dirty = true;
+				db.UpdateObjectBy("id", note);
             }
         }
     }
