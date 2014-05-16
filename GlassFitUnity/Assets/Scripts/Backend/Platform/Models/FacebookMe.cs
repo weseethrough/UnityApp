@@ -1,4 +1,6 @@
 using System;
+using Newtonsoft.Json;
+
 namespace RaceYourself
 {
 	public class FacebookMe
@@ -13,16 +15,30 @@ namespace RaceYourself
 		public string locale;
 		public string updated_time;
 		public bool? verified;
-
-		public string Picture {
-			get {
-				return string.Format("http://graph.facebook.com/{0}/picture", id);
-			}
-		}
+        public int timezone;
+        public FbData picture;
 
 		public FacebookMe() {
 			this.verified = false;
 		}
+
+        public string Picture
+        {
+            get
+            {
+                return picture.data.url;
+            }
+        }
 	}
+
+    public class FbData
+    {
+        public FbImage data;
+    }
+
+    public class FbImage
+    {
+        public string url;
+    }
 }
 
