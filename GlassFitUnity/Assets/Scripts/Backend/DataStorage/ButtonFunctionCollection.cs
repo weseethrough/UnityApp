@@ -1136,7 +1136,7 @@ public class ButtonFunctionCollection
                     gender = 'M';
                 else if (me.gender == "female")
                     gender = 'F';
-                imageUrl = me.Picture;
+                imageUrl = me.picture.data.url;
                 password = Path.GetRandomFileName(); // doesn't actually create a file - just generates a random string
                 providerToken = new ProviderToken("facebook", FB.AccessToken, FB.UserId);
             }
@@ -1334,10 +1334,11 @@ public class ButtonFunctionCollection
                 log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
                 try
                 {
-                    FB.API("/v1.0/me", Facebook.HttpMethod.GET, FacebookMeCallback);
+                    FB.API("/v1.0/me?fields=id,email,username,first_name,last_name,name,gender,locale,updated_time,verified,timezone,picture.width(256).height(256)", Facebook.HttpMethod.GET, FacebookMeCallback);
                 }
                 catch (Exception e)
                 {
+                    // TODO put on screen
                     DataVault.Set("facebook_error", e.Message);
                 }
             }
