@@ -46,6 +46,9 @@ public class IosPlatform : Platform
 		StorageDictionaryBase<string> s = new StorageDictionaryBase<string>();
 	}
 
+	//native code to set the badge number on the app icon
+	[DllImport("__Internal")]
+	private static extern void _setBadgeNumber(int number);
 
 	/// <summary>
 	/// Initialize this instance.
@@ -98,11 +101,12 @@ public class IosPlatform : Platform
 		string p = fbme.Picture;
 	}
 
-    /// <summary>
-    /// Called every frame by PlatformPartner to update internal state
-    /// </summary>
 	[DllImport("__Internal")]
 	private static extern void _Update();
+
+	/// <summary>
+    /// Called every frame by PlatformPartner to update internal state
+    /// </summary>
 
 	public override void Update ()
     {
@@ -353,6 +357,24 @@ public class IosPlatform : Platform
     public override bool ProvidesBackButton()
 	{
 		return false;
+	}
+
+	public override void ReadNotification (int id)
+	{
+		base.ReadNotification(id);
+
+		//check how many unread notifications we now have and update the badge
+		Notification[] notifications = Notifications();
+
+		int unread = 0;
+		foreach(Notification n in notifications)
+		{
+			if(!n.read)
+			{
+				unread++;
+			}
+		}
+		_setBadgeNumber(unread);
 	}
 
 	protected void updateFlingDetection()

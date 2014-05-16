@@ -36,6 +36,10 @@ extern "C" {
         return result;
     }
     
+    void _setBadgeNumber(int number) {
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:number];
+    }
+    
 }
 
 
