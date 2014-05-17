@@ -11,6 +11,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class UIManager : MonoBehaviour 
 {
     static public string UIPannels = "UIPannels";
+
+    static public Dictionary<string, string>    panelData = new Dictionary<string, string>();
+    static public string[]                      panelList = { "No Screen" };
 		
 	/// <summary>
 	/// default unity initialziation function which prepares this class to not be destroyed upon leaving scene
@@ -95,6 +98,35 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="panelID"></param>
+    /// <param name="cloneInstanceName"></param>
+    /// <returns></returns>
+    public GameObject LoadPrefabPanel( string panelID, string cloneInstanceName )
+    {
+        if (panelData.ContainsKey(panelID))
+        {            
+            GameObject root = GameObjectUtils.SearchTreeByName( gameObject , cloneInstanceName);
+
+            if (root != null)
+            {
+                GameObject instanceRoot = (GameObject)GameObject.Instantiate(root);
+                instanceRoot.transform.parent = root.transform.parent;
+
+                string path = panelData[panelID];
+                GameObject prefab = Resources.Load(path) as GameObject;
+                GameObject instance = (GameObject)GameObject.Instantiate(prefab);
+                instance.transform.parent = instanceRoot.transform;
+
+                return instanceRoot;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// rebuilds structure using serializable nodes as a child of "parent", allows to clone instance of the the selected gameobject creating widget root
     /// </summary>
     /// <param name="parent">paretn transform to attach evertyhing to</param>
@@ -141,5 +173,72 @@ public class UIManager : MonoBehaviour
 			}
         }
         return searchedInstance;
+    }
+
+    //New UI panel system
+    public static void LoadPanelData()
+    {
+        byte[] data = Platform.Instance.LoadBlob("newPanels");
+        MemoryStream ms = new MemoryStream(data);
+        StreamReader r = new StreamReader(ms);
+
+        panelData = new Dictionary<string, string>();
+
+        while (true)
+        {
+            string key = r.ReadLine();
+            if (key != null || key.Length < 0)
+            {
+                break;
+            }
+
+            string value = r.ReadLine();
+            if (value != null || value.Length < 0)
+            {
+                break;
+            }
+
+            panelData[key] = value;
+        }
+
+        BuildList();
+    }
+
+    public static void SavePanelData()
+    {
+        MemoryStream ms = new MemoryStream();
+        StreamWriter w = new StreamWriter(ms);
+
+
+        foreach (KeyValuePair<string, string> k in panelData)
+        {
+            w.WriteLine(k.Key);
+            w.WriteLine(k.Value);
+        }
+
+        Platform.Instance.StoreBlob("newPanels", ms.GetBuffer());
+
+    }
+
+    public static void BuildList()
+    {
+        MemoryStream ms = new MemoryStream();
+        StreamWriter w = new StreamWriter(ms);
+
+        List<string> list = new List<string>();
+
+        foreach (KeyValuePair<string, string> k in panelData)
+        {
+            list.Add(k.Key);
+        }
+
+        panelList = list.ToArray();
+
+        if (panelList.Length == 0)
+        {
+            list.Add("No Screen");
+            panelList = list.ToArray();
+        }
+
     }
 }

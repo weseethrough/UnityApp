@@ -40,8 +40,7 @@ public class MobileList : UIComponentSettings
         Debug.Log("listContent " + listContent);
 
         buttonPrototypes = GetPrototypes(listContent);
-
-        defaultYOffset = listContent.GetComponent<UIGrid>().transform.position.y;
+        defaultYOffset = listContent.GetComponent<UIGrid>().transform.localPosition.y;
 
         SetTitle(title);
 
@@ -69,7 +68,7 @@ public class MobileList : UIComponentSettings
         List<ListButtonData> buttonData = parent.GetButtonData();
         UIGrid grid = listContent.GetComponent<UIGrid>();
 
-        Vector3 pos = grid.transform.position;
+        Vector3 pos = grid.transform.localPosition;
         float itemHeight = grid.cellHeight;
         float position = pos.y - defaultYOffset;
         int start = -itemCountBeforeTop + (int)(position / itemHeight);
@@ -90,7 +89,7 @@ public class MobileList : UIComponentSettings
         int max = Mathf.Max(itemOffset + itemCount, previousStartIndex + previousCount);
 
         UIGrid grid = listContent.GetComponent<UIGrid>();
-        Transform transform = grid.transform;
+        //Transform transform = grid.transform;
 
         List<GameObject> newButtons = new List<GameObject>();
 
@@ -281,10 +280,10 @@ public class MobileList : UIComponentSettings
 
         UIGrid grid = listContent.GetComponent<UIGrid>();
         grid.cellHeight = newItemHeight;
-        Vector3 pos = grid.transform.position;
+        Vector3 pos = grid.transform.localPosition;
         pos.y = 0;
         pos.x = 0;
-        grid.transform.position = pos;        
+        grid.transform.localPosition = pos;        
         
        /* UIPanel panel = NGUITools.FindInParents<UIPanel>(gameObject);
 

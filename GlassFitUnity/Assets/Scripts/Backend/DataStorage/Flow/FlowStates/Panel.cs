@@ -97,8 +97,6 @@ public class Panel : FlowState
     /// <returns></returns>
     public override void RebuildConnections()
     {        
-
-        //Inputs.Clear();
         if (Outputs != null) Outputs.Clear();        
 
         GParameter gType = Parameters.Find(r => r.Key == "Type");
@@ -214,9 +212,14 @@ public class Panel : FlowState
             GParameter gType = Parameters.Find(r => r.Key == "Type");
             ISerializable data = screensDictionary.Get(gType.Value);
             if (data != null)
-            {                
+            {
                 GParameter gName = Parameters.Find(r => r.Key == "Name");
-                physicalWidgetRoot = script.LoadScene((SerializedNode)data, GetWidgetRootName(), panelNodeData);
+                physicalWidgetRoot = script.LoadPrefabPanel(gName.Value, GetWidgetRootName());
+                if (physicalWidgetRoot == null)
+                {
+                    physicalWidgetRoot = script.LoadScene((SerializedNode)data, GetWidgetRootName(), panelNodeData);
+                }
+
                 if (physicalWidgetRoot != null)
                 {
                     physicalWidgetRoot.name = GetWidgetRootName() + "_" + gType.Value + "_" + gName.Value;

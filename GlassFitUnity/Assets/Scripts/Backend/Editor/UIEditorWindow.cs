@@ -149,7 +149,7 @@ public class UIEditorWindow : EditorWindow
         if (GUILayout.Button("+"))
         {
             panelData.Add("NoName", "");
-            BuildList();
+            UIManager.BuildList();
         }
         
 	}
@@ -306,72 +306,4 @@ public class UIEditorWindow : EditorWindow
         }
     }
     
-
-    //New UI panel system
-
-    void LoadPanelData()
-    {
-        byte[] data = Platform.Instance.LoadBlob("newPanels");
-        MemoryStream ms = new MemoryStream(data);
-        StreamReader r = new StreamReader(ms);
-
-        panelData = new Dictionary<string, string>();
-
-        while (true)
-        {
-            string key = r.ReadLine();
-            if (key != null || key.Length < 0)
-            {
-                break;
-            }
-
-            string value = r.ReadLine();
-            if (value != null || value.Length < 0)
-            {
-                break;
-            }
-
-            panelData[key] = value;
-        }
-
-        BuildList();
-    }
-    
-    void SavePanelData()
-    {
-        MemoryStream ms = new MemoryStream();
-        StreamWriter w = new StreamWriter(ms);
-        
-
-        foreach (KeyValuePair<string, string> k in panelData)
-        {
-            w.WriteLine(k.Key);
-            w.WriteLine(k.Value);            
-        }
-            
-        Platform.Instance.StoreBlob("newPanels", ms.GetBuffer());
-
-    }
-
-    void BuildList()
-    {
-        MemoryStream ms = new MemoryStream();
-        StreamWriter w = new StreamWriter(ms);
-
-        List<string> list = new List<string>();
-
-        foreach (KeyValuePair<string, string> k in panelData)
-        {
-            list.Add(k.Key);            
-        }
-
-        panelList = list.ToArray();
-
-        if (panelList.Length == 0)
-        {
-            list.Add("No Screen");
-            panelList = list.ToArray();
-        }
-
-    }
 }
