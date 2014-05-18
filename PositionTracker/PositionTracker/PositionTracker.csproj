@@ -41,6 +41,11 @@
     <Reference Include="SharpKml">
       <HintPath>..\..\GlassFitUnity\Assets\Scripts\Backend\Platform\PositionTracker\SharpKml.dll</HintPath>
     </Reference>
+    <Reference Include="Ionic.Zip.Reduced">
+      <HintPath>..\..\GlassFitUnity\Assets\Scripts\Backend\Platform\PositionTracker\Ionic.Zip.Reduced.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PositionPredictor\AssemblyInfo.cs" />

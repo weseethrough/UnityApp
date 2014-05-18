@@ -3,12 +3,18 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PositionTracker", "PositionTracker\PositionTracker.csproj", "{56380157-1FD5-470B-B0AE-FBAA7105BE13}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpKml", "SharpKml\SharpKml.csproj", "{53F12A60-E9CC-44BC-8366-1AE3AB2B547D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{53F12A60-E9CC-44BC-8366-1AE3AB2B547D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53F12A60-E9CC-44BC-8366-1AE3AB2B547D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53F12A60-E9CC-44BC-8366-1AE3AB2B547D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53F12A60-E9CC-44BC-8366-1AE3AB2B547D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{56380157-1FD5-470B-B0AE-FBAA7105BE13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{56380157-1FD5-470B-B0AE-FBAA7105BE13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56380157-1FD5-470B-B0AE-FBAA7105BE13}.Release|Any CPU.ActiveCfg = Release|Any CPU
