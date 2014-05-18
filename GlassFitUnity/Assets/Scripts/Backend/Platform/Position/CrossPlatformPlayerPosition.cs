@@ -63,6 +63,8 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		//positionTracker only reports that it has a position after tracking has started. This function is used before that point.
 		//Check status of unity location status instead.
 		UnityEngine.Debug.LogError("CrossPlatformPlayerPosition: HasLock status: " + Input.location.status);
+		UnityEngine.Debug.LogError("CrossPlatformPlayerPosition: Folder:  " +  Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData));
+
 
 		return (Input.location.status == LocationServiceStatus.Running);
 	}
@@ -70,6 +72,8 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	// Stop tracking 
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public override Track StopTrack() {
+		UnityEngine.Debug.LogError("CrossPlatformPlayerPosition: Calling StopTrack  ");
+
 		positionTracker.StopTracking();
 		return positionTracker.Track;
 	}

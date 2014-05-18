@@ -357,7 +357,7 @@ namespace PositionTracker
 	     * @return cumulative time in milliseconds
 	     */
 	    public long ElapsedTime {
-	        get; set;
+			get { return trackStopwatch.ElapsedMilliseconds; }
 	    }
 		
 	    /**

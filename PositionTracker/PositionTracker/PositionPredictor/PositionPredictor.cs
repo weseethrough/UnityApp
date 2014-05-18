@@ -6,8 +6,8 @@ namespace PositionPredictor
 {
 	public class PositionPredictor
 	{
-		// private bool LOG_KML = false;
-		//private GFKml kml = new GFKml();
+		private bool LOG_KML = false;
+		private GFKml kml = new GFKml();
 	    // Constant used to optimize calculations
 	    private double INV_DELTA_TIME_MS = CardinalSpline.getNumberPoints() / 1000.0; // delta time between predictions
 	    // Positions below this speed threshold will be discarded in bearing computation
@@ -51,7 +51,7 @@ namespace PositionPredictor
 	        if (aLastGpsPos == null || aLastGpsPos.bearing == null) {
 	            return null;
 	        }
-	        //if(LOG_KML) kml.addPosition(GFKml.PathType.GPS, aLastGpsPos);
+	        if(LOG_KML) kml.addPosition(GFKml.PathType.GPS, aLastGpsPos);
 	        // Need at least 3 positions
 	        if (recentPredictedPositions.Count < 2) {
 	            recentPredictedPositions.Add(aLastGpsPos);
@@ -70,7 +70,7 @@ namespace PositionPredictor
 	        
 	        // predict next user position (in 1 sec) based on current speed and bearing
 	        Position nextPos = extrapolatePosition(recentPredictedPositions[recentPredictedPositions.Count-1], 1);
-	        //if(LOG_KML) kml.addPosition(GFKml.PathType.EXTRAPOLATED, nextPos);
+	        if(LOG_KML) kml.addPosition(GFKml.PathType.EXTRAPOLATED, nextPos);
 	
 	        // Update number static positions
 	        numStaticPos = (aLastGpsPos.speed < SPEED_THRESHOLD_MS) ? numStaticPos+1 : 0;
@@ -129,27 +129,20 @@ namespace PositionPredictor
 	        if (index < 0 || index >= interpPath.Length) {
 	            return null;
 	        }
-	        //if(LOG_KML) kml.addPosition(GFKml.PathType.PREDICTION, interpPath[index]);
+	        if(LOG_KML) kml.addPosition(GFKml.PathType.PREDICTION, interpPath[index]);
 	
 	        return interpPath[index];
 	    }
 	
 	    public void stopTracking() {
-	    	/* Dump KML
+			/* Dump KML */
 	        if(LOG_KML) {
-	            String fileName = Environment.getExternalStorageDirectory().getPath()+"/Downloads/track_" + 
-	            		RandomStringUtils.randomAlphanumeric(16) + ".kml";
+				string fileName = /*Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)*/ "/sdcard/Downloads/" + "track_" + 
+					".kml";
 	            //System.out.println("Dumping KML: " + fileName); 
-				/*
-	            FileOutputStream out;
-				try {
-					out = new FileOutputStream(fileName);
-		            kml.write(out);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-	        } */
+				System.IO.StreamWriter fileStream = new System.IO.StreamWriter(fileName);
+				kml.write (fileStream.BaseStream);
+	        } 
 	        bearingCalculator.reset();
 	    }
 	    

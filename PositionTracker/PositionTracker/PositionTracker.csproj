@@ -38,6 +38,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\Common\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="SharpKml">
+      <HintPath>..\..\GlassFitUnity\Assets\Scripts\Backend\Platform\PositionTracker\SharpKml.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PositionPredictor\AssemblyInfo.cs" />
@@ -66,6 +69,7 @@
     <Compile Include="Test\PositionTrackerTest.cs" />
     <Compile Include="Test\SpeedStateTest.cs" />
     <Compile Include="FakePositionProvider.cs" />
+    <Compile Include="Kml\GFKml.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
