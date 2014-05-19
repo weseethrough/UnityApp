@@ -110,7 +110,7 @@ public abstract class Platform : SingletonBase
 
 
 
-		Input.location.Start();
+		Input.location.Start(5f, 0.5f); // accuracy: 5m, update distance: 0.5
 
 		// Set initialised=true in overriden method
 	}
