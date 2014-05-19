@@ -87,6 +87,9 @@ public class IosPlatform : Platform
 		// TODO when we have an area to view challenges, don't clear this until they have been viewed
 		NotificationServices.ClearRemoteNotifications();
 
+		//start uxcam
+		startUXCam();
+
 	}
 
 	/// <summary>
@@ -97,6 +100,8 @@ public class IosPlatform : Platform
 		string s = fbme.id;
 		string p = fbme.Picture;
 	}
+
+	
 
     /// <summary>
     /// Called every frame by PlatformPartner to update internal state
@@ -353,6 +358,37 @@ public class IosPlatform : Platform
     public override bool ProvidesBackButton()
 	{
 		return false;
+	}
+
+	// UXCam methods
+
+	[DllImport("__Internal")]
+	private static extern void _StartUXCam();
+
+	// UXCam methods
+	public override void startUXCam()
+	{
+		log.info("Attempting to start UXCam");
+		_StartUXCam();
+		return;
+	}
+
+	[DllImport("__Internal")]
+	private static extern void _StopUXCamAndUploadData();
+
+	public override void stopUXCam()
+	{
+		_StopUXCamAndUploadData();
+		return;
+	}
+
+	[DllImport("__Internal")]
+	private static extern void _UXCamTagScreenName(string screenName);
+
+	public override void tagScreenForUXCam(string tag)
+	{
+		_UXCamTagScreenName(tag);
+		return;
 	}
 
 	protected void updateFlingDetection()

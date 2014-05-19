@@ -273,6 +273,9 @@ public class FlowStateMachine : MonoBehaviour
 //        gameDetails.AddField("Event type", "Flow state changed");
 //        Platform.Instance.LogAnalytics(gameDetails);
 
+		//tag the new state as the screen name for UXCam
+		Platform.Instance.tagScreenForUXCam(activeFlow[activeFlow.Count - 1].GetDisplayName());
+
         ForbidBack();
         targetState = state;
         targetStateConnector = null;

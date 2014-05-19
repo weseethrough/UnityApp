@@ -8,6 +8,8 @@
 
 #import "Platform.h"
 #import <sys/utsname.h>
+#import <UXCam/UXCam.h>
+
 
 
 @implementation Platform
@@ -35,6 +37,20 @@ extern "C" {
         
         return result;
     }
+    
+    void _StartUXCam() {
+        [UXCam startApplicationWithKey:@"13c4e2543331265"];
+    }
+    
+    void _StopUXCamAndUploadData() {
+        [UXCam stopApplicationAndUploadData];
+    }
+    
+    void _UXCamTagScreenName(char* screenName) {
+        NSString* sName = [NSString stringWithCString:screenName encoding:NSUTF8StringEncoding];
+        [UXCam tagScreenName:sName];
+    }
+    
     
 }
 

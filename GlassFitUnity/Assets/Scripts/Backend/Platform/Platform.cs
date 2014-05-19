@@ -670,5 +670,24 @@ public abstract class Platform : SingletonBase
             yield return new WaitForSeconds(10.0f);
         }
     }
+
+	// UXCam methods
+	public virtual void startUXCam()
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void stopUXCam()
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void tagScreenForUXCam(string tag)
+	{
+		//do nothing, except on iOS
+		return;
+	}
 	
 }
