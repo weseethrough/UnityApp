@@ -1,0 +1,53 @@
+﻿using UnityEngine;
+using System;
+using System.Runtime.Serialization;
+using System.Collections;
+using RaceYourself.Models;
+
+[Serializable]
+public class OpponentMatchedPanel : MobilePanel {
+
+    public OpponentMatchedPanel() { }
+    public OpponentMatchedPanel(SerializationInfo info, StreamingContext ctxt)
+        : base(info, ctxt)
+    {
+    }
+    
+    /// <summary>
+    /// Gets display name of the node, helps with node identification in editor
+    /// </summary>
+    /// <returns>name of the node</returns>
+    public override string GetDisplayName()
+    {
+        base.GetDisplayName();
+        
+        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        if (gName != null)
+        {
+            return "OpponentMatchedPanel: " + gName.Value;
+        }
+        return "OpponentMatchedPanel: Uninitialized";
+    }
+
+    public override void EnterStart ()
+    {
+        base.EnterStart ();
+
+        GameObject rivalGo = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
+
+        User rivalUser = (User) DataVault.Get("competitor");
+
+        GameObjectUtils.SetTextOnLabelInChildren(rivalGo, "PlayerName", rivalUser.name);
+        
+        UITexture profilePicture = rivalGo.GetComponentInChildren<UITexture>();
+
+        // TODO: add functionality for login information
+        if(profilePicture != null)
+        {
+            Platform.Instance.RemoteTextureManager.LoadImage(rivalUser.image, "", (tex, text) =>
+            {
+                profilePicture.mainTexture = tex;
+            });
+        }
+    }
+}
