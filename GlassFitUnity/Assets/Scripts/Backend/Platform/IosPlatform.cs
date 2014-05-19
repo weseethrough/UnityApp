@@ -358,7 +358,7 @@ public class IosPlatform : Platform
 		base.ReadNotification(id);
 
 		//check how many unread notifications we now have and update the badge
-		Notification[] notifications = Notifications();
+		List<Notification> notifications = Notifications();
 
 		int unread = 0;
 		foreach(Notification n in notifications)
