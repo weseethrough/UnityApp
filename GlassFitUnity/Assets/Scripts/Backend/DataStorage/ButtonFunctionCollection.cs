@@ -94,6 +94,11 @@ public class ButtonFunctionCollection
 		return true;
 	}
 
+	static public bool GoBack(FlowButton fb, Panel panel) {
+		panel.parentMachine.FollowBack();
+		return false;
+	}
+
 	static public bool SetMobileChallengeType(FlowButton fb, FlowState panel) 
 	{
 		if(fb.GetComponent<UIButton>().enabled){
