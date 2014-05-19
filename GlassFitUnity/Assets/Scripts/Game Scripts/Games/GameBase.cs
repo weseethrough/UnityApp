@@ -101,8 +101,8 @@ public class GameBase : MonoBehaviour {
 
 	public static int getTargetTime()
 	{
-		if(Application.isEditor)
-			return 600;
+//		if(Application.isEditor)
+//			return 600;
 
 		Track selectedTrack = (Track)DataVault.Get("current_track");
 
