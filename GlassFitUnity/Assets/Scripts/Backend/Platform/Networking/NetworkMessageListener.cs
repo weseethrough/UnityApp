@@ -119,6 +119,11 @@ public class NetworkMessageListener : MonoBehaviour
         }
     } 
 
+	public void OnPushNotification(string message) {
+		//trigger a sync so we retrieve the full detail of the new challenge
+		Platform.Instance.api.Sync();
+	}
+
     public string GetIntent()
     {
         return intent;
