@@ -6,7 +6,7 @@ namespace PositionPredictor
 {
 	public class PositionPredictor
 	{
-		private bool LOG_KML = true;
+		private bool LOG_KML = false;
 		private GFKml kml = new GFKml();
 	    // Constant used to optimize calculations
 	    private double INV_DELTA_TIME_MS = CardinalSpline.getNumberPoints() / 1000.0; // delta time between predictions

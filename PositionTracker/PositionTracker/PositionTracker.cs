@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Collections;
 using System.Threading;
+using System.IO;
 
 
 using RaceYourself.Models;
@@ -38,7 +39,9 @@ namespace PositionTracker
 		SensorPollTick sensorPollTick;
 		// Sensor poll timer
 		Timer sensorPollTimer;
-		
+
+		public StreamWriter log;
+
 		private static float MAX_TOLERATED_POSITION_ERROR = 21; // 21 metres
 	    private static float EPE_SCALING = 0.5f; // if predicted positions lie within 0.5*EPE circle
                                                    // of reported GPS position, no need to store GPS pos.
@@ -62,12 +65,16 @@ namespace PositionTracker
 			fakePositionProvider = new FakePositionProvider(this, sensorProvider);
 			accCalc = new AccelerationCalculator(sensorProvider);
 			speedState.CurrentState = State.STOPPED;
+
+			log = File.AppendText ("/sdcard/Downloads/position_tracker.log");
+
 			MinIndoorSpeed = 0.0f;
 			MaxIndoorSpeed = 4.16f; // speed to fake with continuous stimulation
 			OnResume();
 		}
 		
 		public void OnPositionUpdate(Position position) { 
+			Utils.Log (log, "OnPositionUpdate: " + position.latitude + "," + position.longitude);
 	        // get the latest GPS position
 	        //Position tempPosition = new Position(track, location);
 	        //Log.i("GPSTracker", "New position with error " + tempPosition.getEpe());
@@ -198,6 +205,7 @@ namespace PositionTracker
 	        recentPositions.Clear();
 	        
 	        track = null;
+			Utils.Log (log, "StartNewTrack()");
 
 		}
 		
@@ -261,6 +269,7 @@ namespace PositionTracker
 	        interpolationStopwatch.Stop();
 	        positionPredictor.stopTracking();
 
+			Utils.Log (log, "StopTrack()");
 		
 		}
 	    
@@ -444,6 +453,11 @@ namespace PositionTracker
 	            float sdTotalAcc = (float)taStats.StandardDeviation;
 	            gpsSpeed = positionTracker.GpsSpeed;
 	            
+
+				Utils.Log (positionTracker.log, "SensorPollTick::Run: gpsSpeed: " + gpsSpeed + ", state before: " + positionTracker.speedState.CurrentState 
+					+ ", current speed: " + positionTracker.CurrentSpeed);
+				Utils.Log (positionTracker.log, "Before GpsDistance " + positionTracker.GpsDistance + ", ExtrapGpsDistance: " + positionTracker.ExtrapolatedGpsDistance );
+
 	            // update state
 	            // gpsSpeed = -1.0 for indoorMode to prevent entry into
 	            // STEADY_GPS_SPEED (just want sensor_acc/dec)
@@ -497,6 +511,8 @@ namespace PositionTracker
 	                    }
 	                    break;
 	            }
+				Utils.Log (positionTracker.log, "SensorPollTick::Run: current speed after: " + outdoorSpeed + ", state after: " + positionTracker.speedState.CurrentState );
+
 				positionTracker.CurrentSpeed = outdoorSpeed;
 	            // update distance travelled
 	            if (positionTracker.Tracking) {
@@ -519,13 +535,16 @@ namespace PositionTracker
 	                if (positionTracker.speedState.CurrentState != lastState) 
 						positionTracker.notifyPositionListeners(positionTracker.speedState.CurrentState);
 	                
+					Utils.Log (positionTracker.log, "After GpsDistance " + positionTracker.GpsDistance + ", ExtrapGpsDistance: " + positionTracker.ExtrapolatedGpsDistance );
+
 	            }
 	            
 	            lastTickTime = tickTime;
 	        }
-    	}
-		
+    	}	
 	}
+
+
 
 }
 
