@@ -63,38 +63,34 @@ namespace PositionPredictor
 	    private Dictionary<PathType, Path> pathMap = new Dictionary<PathType, Path>();
 	    
 	    public GFKml() { 
-	        document.setFeatureList( new Vector<Feature>());
-	        document.setStyleSelector(new ArrayList<StyleSelector>());
-	
-	        kml.setFeature(document);
+	        kml.Feature = document;
 	    }
 	            
 	    // Add position to KML as a placemark. The path is created on the first call
 	    public bool addPosition(PathType pathType, Position pos) {
-	        if (pathMap.get(pathType) == null) {
+	        if (!pathMap.ContainsKey(pathType)) {
 	            startPath(pathType);
 	        }
 	        
 	        // Position mark holds all data about a position 
 	        PositionMark pm = new PositionMark(pos);
 	        // Add placemark to the current path        
-	        pathMap.Item[pathType].addPlacemark(pm.getPlacemark());
+	        pathMap[pathType].addPlacemark(pm.getPlacemark());
 	        return true;
 	
 	    }  
 	    
 	    // Write KML file
-	  /*  public void write(java.io.OutputStream out) {
-	        Serializer serializer = new Serializer();
-	        serializer.write(kml, out);
-	    } */
+		public void write(System.IO.Stream outFile) {
+			KmlFile kmlFile = KmlFile.Create(kml, true);
+			kmlFile.Save (outFile);
+	    } 
 	    
 	    // Start new position's path. Sequential calls to addPosition will add positions
 	    // to this path
 	    private void startPath(PathType pathType) {
 	        Path path = new Path(document, pathType);
 	        pathMap.Add(pathType, path);
-	        path.initStyles(document.getStyleSelector());
 	        // TODO: choose style
 	    }
 	             
@@ -113,50 +109,48 @@ namespace PositionPredictor
 	        
 	        public Path(Document doc, PathType pathType) {
 	            folder = new Folder();
-	            folder.setName(pathType.pathName());
-	            folder.setFeatureList(new Vector<Feature>());
-	            doc.getFeatureList().add(folder);
-	            // Init styles
+				folder.Name = pathType.PathName;
+				doc.AddFeature(folder);
+				// TODO: initStyles(doc);
+
 	            this.pathType = pathType;
 	
 	        }
 	        // Adds placemark (position) to the path
 	        public void addPlacemark(Placemark pm) {
 	            // Set style & name
-	            pm.setStyleUrl("#" + style);
-	            pm.setName("Point " + Integer.toString(++positionId));
+				pm.StyleUrl = new Uri("#" + style, UriKind.Relative);
+				pm.Name = ("Point " + (++positionId).ToString());
 	            // Add placemark to the current path        
-	            folder.getFeatureList().add(pm);
+	            folder.AddFeature(pm);
 	        }
 	
 	        // Initialize KML styles for the path 
-	        public void initStyles(List<StyleSelector> styleSelector) {
-	            Pair normStylePair = initStyle(pathType.color(), "normalPositionStyle" + pathType.colorName(), false);
-	            Pair hiliStylePair = initStyle(pathType.color(), "hiliPositionStyle" + pathType.colorName(), true);
+			public void initStyles(Document doc) {
+				Pair normStylePair = initStyle(pathType.Color, "normalPositionStyle" + pathType.ColorName, false);
+				Pair hiliStylePair = initStyle(pathType.Color, "hiliPositionStyle" + pathType.ColorName, true);
 	            
-	            StyleMap styleMap = new StyleMap();
-	            styleId = "generalPositionStyle" + pathType.colorName();
-	            styleMap.setId(style);
+				StyleMapCollection styleMap = new StyleMapCollection();
+				styleId = "generalPositionStyle" + pathType.ColorName;
+				styleMap.Id = styleId;
 	            // TODO: bug in XML writing of StyleMap, using normal style instead
-	            style = "normalPositionStyle"  + pathType.colorName();
-	            List<Pair> lp = new ArrayList<Pair>();
-	            lp.add(normStylePair);
-	            lp.add(hiliStylePair);
-	            styleMap.setPairList(lp);
+				style = "normalPositionStyle"  + pathType.ColorName;
+
+				styleMap.Add(normStylePair);
+				styleMap.Add(hiliStylePair);
 	            
-	            styleSelector.add(normStylePair.getStyle());
-	            styleSelector.add(hiliStylePair.getStyle());
-	            styleSelector.add(styleMap);
+				doc.AddStyle(normStylePair.Selector);
+				doc.AddStyle(hiliStylePair.Selector);
 	            
 	            // FIXME: workaround to avoid duplicated styles
-	            normStylePair.setStyle(null);
-	            hiliStylePair.setStyle(null);            
+				//normStylePair.setStyle(null);
+				//hiliStylePair.setStyle(null);            
 	        }
 	        
 	        private Pair initStyle(String color, String id, bool isHiLi) {
-	            String href;
+				string href;
 	            float scale;
-	            String pairKey;
+				string pairKey;
 	            if (isHiLi) {
 	                href = "http://maps.google.com/mapfiles/kml/shapes/arrow.png";
 	                scale = (float)0.0;
@@ -164,33 +158,33 @@ namespace PositionPredictor
 	                
 	            } else {
 	                href = "http://maps.google.com/mapfiles/kml/shapes/shaded_dot.png";
-	                scale = pathType.scale();
+					scale = pathType.Scale;
 	                pairKey = "normal";
 	            }
 	            
 	            // Icon style
-	            IconStyle is = new IconStyle();
-	            is.setColor(color);
-	            Icon ic = new Icon();        
-	            ic.setHref(href);
-	            is.setIcon(ic);
-	            // Label style
+				IconStyle ics = new IconStyle();
+				ics.Color = Color32.Parse(color);
+				IconStyle.IconLink ic = new IconStyle.IconLink(new Uri(href, UriKind.Absolute));        
+				ics.Icon = ic;
+
+				// Label style
 	            LabelStyle ls = new LabelStyle();
-	            ls.setScale(scale);
+				ls.Scale = scale;
 	            // Line style
 	            LineStyle lis = new LineStyle();
-	            is.setColor(color);
+				lis.Color = Color32.Parse(color);
 	            // Construct style itself
-	            Style st = new Style();
-	            st.setId(id);
-	            st.setIconStyle(is);
-	            st.setLabelStyle(ls);
-	            st.setLineStyle(lis);
+				Style st = new Style();
+				st.Id = id;
+				st.Icon = ics;
+				st.Label = ls;
+				st.Line = lis;
 	            
 	            Pair stylePair = new Pair();
-	            stylePair.setKey(pairKey);
-	            stylePair.setStyleUrl(id);
-	            stylePair.setStyle(st);
+				stylePair.Id = pairKey;
+				stylePair.StyleUrl = new Uri(id, UriKind.Relative);
+				stylePair.Selector = st;
 	            return stylePair;
 	            
 	        }
@@ -203,7 +197,7 @@ namespace PositionPredictor
 	        
 	        //private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 	        
-	        PositionMark(Position pos) {
+			public PositionMark(Position pos) {
 	            this.position = pos;
 	            // Fill placemark with position's details
 	            addTime();
@@ -215,94 +209,85 @@ namespace PositionPredictor
 	        
 	        private void addTime() {
 	            // Add timestamp. TODO: choose between Gps and Device timestamp according to path type
-	            Date date = new Date();
-	            date.setTime(position.getDeviceTimestamp());
-	            TimeStamp ts = new TimeStamp();
-	            //ts.setWhen(dateFormat.format(date));
-	            placemark.setTimePrimitive(ts);
+				Timestamp ts = new Timestamp();
+				ts.When = Date.FromUnixTime(position.device_ts);
+				placemark.Time = ts;
 	        }
 	        
 	        // Define geometry of the placemark
 	        private void addGeometry() {
-	            // Geometry list of the placemark
-	            List<Geometry> lg = new Vector<Geometry>();
-	            placemark.setGeometryList(lg);
 	            // Multigeometry will hold point and heading line
-	            MultiGeometry mg = new MultiGeometry();
-	            mg.setGeometryList(new Vector<Geometry>());
-	            lg.add(mg);
+				MultipleGeometry mg = new MultipleGeometry();
+
 	            // Add point
-	            Point pt = new Point();
-	            pt.setCoordinates(positionToCoordinate(position));
-	            mg.getGeometryList().add(pt);
-	            // Add heading as a line from given to predicted position
+				Vector vec = new Vector();
+				vec.Latitude = position.latitude;
+				vec.Longitude = position.longitude;
+
+				Point pt = new Point();
+				pt.Coordinate = vec;
+				mg.AddGeometry(pt);
+
+				// Add heading as a line from given to predicted position
 	            LineString heading = addHeading();
 	            if (heading != null) {
-	                mg.getGeometryList().add(heading);
+					mg.AddGeometry(heading);
 	            }
+				placemark.Geometry = mg;
 	        }
 	        
 	        // Draw line from current towards predicted position
 	        private LineString addHeading() {
-	            Position predictedPos = Position.predictPosition(position, 300); // milliseconds
+				Position predictedPos = PositionUtils.predictPosition(position, 300); // milliseconds
 	            if (predictedPos == null) {
 	                return null;
 	            }
-	            ArrayList<Coordinate> coordList = new ArrayList<Coordinate>();
-	            coordList.add(positionToCoordinate(position));
-	            coordList.add(positionToCoordinate(predictedPos));
-	
-	            Coordinates coords = new Coordinates(positionToString(position));
-	            coords.setList(coordList);
-	            
-	            LineString ls = new LineString();        
-	            ls.setCoordinates(coords);
+
+	            LineString ls = new LineString();  
+				ls.Coordinates = new CoordinateCollection ();
+				ls.Coordinates.Add(positionToCoordinate(position));
+				ls.Coordinates.Add(positionToCoordinate(predictedPos));
 	            return ls;
 	        }
 	        
 	        // Add data displayed in the popup when clicking on the placemark
 	        private void addDisplayData() {
-	            List<Data> ld = new ArrayList<Data>();
+				ExtendedData ed = new ExtendedData();
 	            
 	            Data d = new Data();
-	
-	            d.setDisplayName("DeviceTs");
-	            //d.setValue(dateFormat.format(position.getDeviceTimestamp()));
-	            ld.add(d);
-	            
-	            d = new Data();
-	            d.setDisplayName("Speed");
-	            d.setValue(Float.toString(position.getSpeed()));
-	            ld.add(d);
-	
-	            if (position.getEpe() != null) {
-	                d = new Data();
-	                d.setDisplayName("Accuracy");
-	                d.setValue(Float.toString(position.getEpe()));
-	                ld.add(d);
-	            }
-	            
-	            if (position.getBearing() != null) {
-	            	d = new Data();
-	                d.setDisplayName("Bearing");
-	                d.setValue(Float.toString(position.getBearing()));
-	                ld.add(d);	
-	            }
-	             
-	            ExtendedData ed = new ExtendedData();
-	            ed.setDataList(ld);
-	            placemark.setExtendedData(ed);
+				d.DisplayName = "DeviceTs";
+				d.Value = DateTime.FromFileTime(position.device_ts).ToShortDateString();
+				ed.AddData(d);
+
+				d = new Data ();
+				d.DisplayName = "Speed";
+				d.Value = position.speed.ToString();
+				ed.AddData(d);
+
+				d = new Data ();
+				d.DisplayName = "Accuracy";
+				d.Value = position.epe.ToString();
+				ed.AddData(d);
+
+				d = new Data ();
+				d.DisplayName = "Bearing";
+				d.Value = position.bearing.ToString();
+				ed.AddData(d);
+
+				placemark.ExtendedData = ed;
 	            
 	        }
 	        
-	        private Point positionToCoordinate(Position pos) {
-	            Point p = new Point();
-				p.Coordinate = new Vector(pos.getLngx(), pos.getLatx(), pos.getAltitude());
+			private Vector positionToCoordinate(Position pos) {
+				Vector p = new Vector();
+				p.Latitude = pos.latitude;
+				p.Longitude = pos.longitude;
+				p.Altitude = pos.alt;
 				return p;
 	        }
 	    
 	        private String positionToString(Position pos) {
-	            return positionToCoordinate(pos).toString();
+				return positionToCoordinate(pos).ToString();
 	        }
 	
 	    }
