@@ -107,8 +107,12 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 			Reset();
 			return;
 		}
-
+		// Create and fill position object
 		Position pos = new Position(Input.location.lastData.latitude, Input.location.lastData.longitude);
+		pos.device_ts = PositionTracker.Utils.CurrentTimeMillis ();
+		pos.gps_ts = (long)Input.location.lastData.timestamp*1000; // convert to milliseconds
+		pos.epe = Input.location.lastData.horizontalAccuracy;
+		pos.alt = Input.location.lastData.altitude;
 
 		UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude);
 
