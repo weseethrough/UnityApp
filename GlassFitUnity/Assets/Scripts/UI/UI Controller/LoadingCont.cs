@@ -70,24 +70,28 @@ public class LoadingCont : MonoBehaviour {
 								Debug.Log("AcceptChallenges: " + challengeId + " from " + challengerId);
 								
 								DataVault.Set("loading", "Please wait while we fetch a challenge");
-								Challenge potential = Platform.Instance.FetchChallenge(challengeId);
-								if (potential == null) continue;
-								if (potential is DistanceChallenge) {
-									DistanceChallenge challenge = potential as DistanceChallenge;					
-									
-									DataVault.Set("loading", "Please wait while we fetch a track");
-									var attempt = challenge.attempts.Find(a => a.user_id == challengerId);
-									if (attempt != null) {
-										var track = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id); // Make sure we have the track in the local db
-										TargetTracker tracker = Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
-										User challenger = Platform.Instance.GetUser(challengerId);
-										tracker.name = challenger.username;
-										if (tracker.name == null || tracker.name.Length == 0) tracker.name = challenger.name;
-									} // else race leader/friends/creator?
-				
-									relevant.Add(challenge); 					
-									if (!finish.HasValue || finish.Value < challenge.distance) finish = challenge.distance;					
-								}
+								Platform.Instance.FetchChallenge(challengeId, (potential) => {
+									if (potential != null) {
+										if (potential is DistanceChallenge) {
+											DistanceChallenge challenge = potential as DistanceChallenge;					
+											
+											DataVault.Set("loading", "Please wait while we fetch a track");
+											var attempt = challenge.attempts.Find(a => a.user_id == challengerId);
+											if (attempt != null) {
+												var track = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id); // Make sure we have the track in the local db
+												TargetTracker tracker = Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
+												User challenger = Platform.Instance.GetUser(challengerId);
+												tracker.name = challenger.username;
+												if (tracker.name == null || tracker.name.Length == 0) tracker.name = challenger.name;
+											} // else race leader/friends/creator?
+											
+											relevant.Add(challenge); 					
+											if (!finish.HasValue || finish.Value < challenge.distance) finish = challenge.distance;					
+										}
+									}
+								});
+
+
 							}
 						}		
 						if (!finish.HasValue || relevant.Count == 0) {

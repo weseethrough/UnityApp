@@ -63,6 +63,8 @@ public class MobileChallengeInfoPanel : MobilePanel {
 				rival = Platform.Instance.GetUser(challengeNotification.message.to);
 			}
 
+			DataVault.Set("chosen_user", rival);
+
 			GameObject rivalPicture = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
 			string empty = "test";
 			if(rivalPicture != null) {
@@ -92,71 +94,73 @@ public class MobileChallengeInfoPanel : MobilePanel {
 
 			DataVault.Set("result", "");
 
-			Challenge challenge = Platform.Instance.FetchChallenge(challengeNotification.message.challenge_id);
-
-			if(challenge != null) {
-				int duration = (challenge as DurationChallenge).duration;
-				if(duration > 120) {
-					duration /= 60;
-				}
-				DataVault.Set("duration", duration.ToString());
-				DataVault.Set("finish_time_seconds", duration*60);
-
-				GameObject playerReward = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerReward");
-				if(playerReward != null) {
-					playerReward.SetActive(false);
-				}
-
-				GameObject rivalReward = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalReward");
-				if(rivalReward != null) {
-					rivalReward.SetActive(false);
-				}
-
-				List<Challenge.Attempt> attempts = challenge.attempts;
-
-				playerDistance = 0;
-				rivalDistance = 0;
-
-				bool playerComplete = false;
-				bool rivalComplete = false;
-
-				if(attempts != null && attempts.Count > 0) {
-					foreach(Challenge.Attempt attempt in attempts) {
-						if(attempt.user_id == player.id) {
-							GameObject raceNowBtn = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RaceNowBtn");
-							if(raceNowBtn != null) {
-								raceNowBtn.SetActive(false);
+			Platform.Instance.FetchChallenge(challengeNotification.message.challenge_id, (challenge) => {
+				if(challenge != null) {
+					int duration = (challenge as DurationChallenge).duration;
+					if(duration > 120) {
+						duration /= 60;
+					}
+					DataVault.Set("duration", duration.ToString());
+					DataVault.Set("finish_time_seconds", duration*60);
+					
+					GameObject playerReward = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerReward");
+					if(playerReward != null) {
+						playerReward.SetActive(false);
+					}
+					
+					GameObject rivalReward = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalReward");
+					if(rivalReward != null) {
+						rivalReward.SetActive(false);
+					}
+					
+					List<Challenge.Attempt> attempts = challenge.attempts;
+					
+					playerDistance = 0;
+					rivalDistance = 0;
+					
+					bool playerComplete = false;
+					bool rivalComplete = false;
+					
+					if(attempts != null && attempts.Count > 0) {
+						foreach(Challenge.Attempt attempt in attempts) {
+							if(attempt.user_id == player.id) {
+								GameObject raceNowBtn = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RaceNowBtn");
+								if(raceNowBtn != null) {
+									raceNowBtn.SetActive(false);
+								}
+								playerComplete = true;
+								playerTrack = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id);
+								if(playerTrack != null) {
+									playerDistance = playerTrack.distance;
+									GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceText", (playerDistance / 1000).ToString("f2"));
+								}
+							} else if(attempt.user_id == rival.id) {
+								rivalComplete = true;
+								rivalTrack = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id);
+								if(rivalTrack != null) {
+									rivalDistance = rivalTrack.distance;
+									DataVault.Set("current_track", rivalTrack);
+									GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceText", (rivalDistance / 1000).ToString("f2"));
+								}
 							}
-							playerComplete = true;
-							playerTrack = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id);
-							if(playerTrack != null) {
-								playerDistance = playerTrack.distance;
-								GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceText", (playerDistance / 1000).ToString("f2"));
+						}
+					}
+					
+					if(playerComplete && rivalComplete) {
+						if(playerDistance > rivalDistance) {
+							if(playerReward != null) {
+								playerReward.SetActive(true);
 							}
-						} else if(attempt.user_id == rival.id) {
-							rivalComplete = true;
-							rivalTrack = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id);
-							if(rivalTrack != null) {
-								rivalDistance = rivalTrack.distance;
-								DataVault.Set("current_track", rivalTrack);
-								GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceText", (rivalDistance / 1000).ToString("f2"));
+						} else {
+							if(rivalReward != null) {
+								rivalReward.SetActive(true);
 							}
 						}
 					}
 				}
+			});
 
-				if(playerComplete && rivalComplete) {
-					if(playerDistance > rivalDistance) {
-						if(playerReward != null) {
-							playerReward.SetActive(true);
-						}
-					} else {
-						if(rivalReward != null) {
-							rivalReward.SetActive(true);
-						}
-					}
-				}
-			}
+
 
 		}
 	}

@@ -116,36 +116,13 @@ public class MobileHomePanel : MobilePanel {
 			challengeBtn.defaultColor = new Color(202 / 255f, 202 / 255f, 202 / 255f);
 		}
 
-		GetChallenges();
-
-//		newChallenges.RemoveAll(x => x.creator_id == Platform.Instance.User().id);
-//		incompleteChallenges.RemoveAll(x => x.creator_id == Platform.Instance.User().id);
-
-		Platform.Instance.SyncToServer();
-		
-//		// Get the list of challenges
-//		IList<Challenge> challengeIList = Platform.Instance.Challenges();
-//		if(challengeIList != null && challengeIList.Count > 0) {
-//			// Initialise the friendChallengeList
-//			friendChallengeList = new List<Challenge>();
-//			// Add the challenges to that list
-//			for(int i=0; i<challengeIList.Count; i++) {
-//				friendChallengeList.Add(challengeIList[i]);
-//			}
-//			// Remove the challenges set by the user
-//			friendChallengeList.RemoveAll(x => x.creator_id == Platform.Instance.User().id);
-//			// Set the number of challenges
-//			// TODO: change this to only unviewed challenges
-//			if(friendChallengeList.Count > 0) {
-//				DataVault.Set("new_challenges", friendChallengeList.Count);
-//			}
-//		}
-
 		// Find the ChallengeNotification game object
 		challengeNotification = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "ChallengeNotification");
 
 		// Change the list to the challenge list
 		ChangeList("challenge");
+
+		Platform.Instance.SyncToServer();		
 
 		// Remove previous invite codes from the DataVault
 		DataVault.Remove("invite_codes");
@@ -177,35 +154,66 @@ public class MobileHomePanel : MobilePanel {
 		initialized = true;
 	}
 
+	private IEnumerator LoadChallenges()
+	{
+		List<Notification> filteredNotifications = notifications.FindAll(r => r.message.type == "challenge");
+		if(filteredNotifications != null) {
+			filteredNotifications = filteredNotifications.FindAll(r => r.message.challenge_type == "duration");
+		}
+
+		if(filteredNotifications != null && filteredNotifications.Count > 0){
+			List<Notification> newNotifications = filteredNotifications.FindAll(r => r.read == false);
+			if(newNotifications != null && newNotifications.Count > 0) {
+				DataVault.Set("new_challenges", newNotifications.Count);
+			}
+			foreach(Notification notification in filteredNotifications) {
+				int challengerId = notification.message.from;
+				int challengeId = notification.message.challenge_id;
+				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (potential, note) => {
+					if (potential is DurationChallenge)
+					{
+						User user = Platform.Instance.GetUser(note.message.from);
+						if(!note.read) {
+							newChallenges.Add(potential);
+							Dictionary<string, string> dictionary = new Dictionary<string, string>();
+							dictionary.Add("TitleText", user.name);
+							dictionary.Add("DurationText", (potential as DurationChallenge).duration.ToString());
+							AddButtonData("NewChallenges" + potential.id, dictionary, "", user.image, ListButtonData.ButtonFormat.NewChallengeButton, GetConnection("ChallengeExit"));
+
+							Platform.Instance.ReadNotification(notification.id);
+						}
+						else {
+							incompleteChallenges.Add(potential);
+							Dictionary<string, string> dictionary = new Dictionary<string, string>();
+							dictionary.Add("TitleText", user.name);
+							int duration = (potential as DurationChallenge).duration;
+							if(duration > 120) {
+								duration /= 60;
+							}
+							dictionary.Add("DurationText", duration.ToString());
+							AddButtonData("IncompleteChallenges" + potential.id, dictionary, "", user.image, ListButtonData.ButtonFormat.ActiveChallengeButton, GetConnection("ChallengeExit"));
+								
+						}
+					}
+				}));
+					
+			}
+		} else {
+			AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
+		}
+	}
+
+
+
 	/// <summary>
 	/// Gets the challenges.
 	/// </summary>
 	public void GetChallenges() {
 		notifications = Platform.Instance.Notifications();
+		notifications.RemoveAll(x => x.message.from == Platform.Instance.User().id);
 		newChallenges = new List<Challenge>();
 		incompleteChallenges = new List<Challenge>();
-		foreach(Notification notification in notifications) {
-			if (string.Equals(notification.message.type, "challenge"))
-			{
-				int challengerId = notification.message.from;
-				int challengeId = notification.message.challenge_id;
-				Challenge potential = Platform.Instance.FetchChallenge(challengeId);
-				if (potential is DurationChallenge)
-				{
-					if(!notification.read) {
-						newChallenges.Add(potential);
-						Platform.Instance.ReadNotification(notification.id);
-					}
-					else {
-						incompleteChallenges.Add(potential);
-					}
-				}
-			}
-		}
-		
-		if(newChallenges.Count > 0) {
-			DataVault.Set("new_challenges", newChallenges.Count);
-		}
+		Platform.Instance.partner.StartCoroutine(LoadChallenges());
 	}
 
 	/// <summary>
@@ -290,50 +298,6 @@ public class MobileHomePanel : MobilePanel {
 			// Get the challenges
 			GetChallenges();
 
-			if(notifications != null) {
-				// If there are challenges
-				if(newChallenges != null && newChallenges.Count > 0) {
-					// Add the challenge buttons using the list
-					for(int i=0; i<newChallenges.Count; i++) {
-						Notification note = notifications.Find(x => x.message.challenge_id == newChallenges[i].id);
-						if(note != null){
-							User user = Platform.Instance.GetUser(note.message.from);
-							if(user.id == Platform.Instance.User().id) {
-								user = Platform.Instance.GetUser(note.message.to);
-							}
-							Dictionary<string, string> dictionary = new Dictionary<string, string>();
-							dictionary.Add("TitleText", user.name);
-							
-							dictionary.Add("DurationText", (newChallenges[i] as DurationChallenge).duration.ToString());
-							AddButtonData("NewChallenges" + i, dictionary, "", user.image, ListButtonData.ButtonFormat.NewChallengeButton, GetConnection("ChallengeExit"));
-						}
-					}
-				} 
-				
-				if(incompleteChallenges != null && incompleteChallenges.Count > 0) {
-					for(int i=0; i<incompleteChallenges.Count; i++){
-						Notification incompleteNote = notifications.Find(x => x.message.challenge_id == incompleteChallenges[i].id);
-						if(incompleteNote != null){
-							User user = Platform.Instance.GetUser(incompleteNote.message.from);
-							if(user.id == Platform.Instance.User().id) {
-								user = Platform.Instance.GetUser(incompleteNote.message.to);
-							}
-							Dictionary<string, string> dictionary = new Dictionary<string, string>();
-							dictionary.Add("TitleText", user.name);
-							int duration = (incompleteChallenges[i] as DurationChallenge).duration;
-							if(duration > 120) {
-								duration /= 60;
-							}
-							dictionary.Add("DurationText", duration.ToString());
-							AddButtonData("IncompleteChallenges" + i, dictionary, "", user.image, ListButtonData.ButtonFormat.ActiveChallengeButton, GetConnection("ChallengeExit"));
-						}
-					}
-				}
-			}
-
-			if(buttonData == null || buttonData.Count < 1){
-				AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
-			}
 			// Disable the challenge button to make it go black
 			challengeBtn.enabled = false;
 			break;
@@ -350,6 +314,7 @@ public class MobileHomePanel : MobilePanel {
 //				// Set the number of challenges for the notification
 //				DataVault.Set("new_challenges", friendChallengeList.Count);
 //			}
+
 			// If the user has facebook permissions and friends
 			if(Platform.Instance.HasPermissions("facebook", "login") && friendsData != null && friendsData.Count > 0) {
 				// If there are beta friends
@@ -453,22 +418,22 @@ public class MobileHomePanel : MobilePanel {
 			} else if(button.name.Contains("NewChallenges")) {
 				string prefix = "NewChallenges";
 				string index = button.name.Substring(prefix.Length);
-				int i = Convert.ToInt32(index);
+				int challengeId = Convert.ToInt32(index);
 
-				Notification note = notifications.Find(x => x.message.challenge_id == newChallenges[i].id);
+				Notification note = notifications.Find(x => x.message.challenge_id == challengeId);
 				if(note != null) {
 					UnityEngine.Debug.Log("MobileHomePanel: notification found");
 					DataVault.Set("challenge_notification", note);
 				} else {
-					UnityEngine.Debug.LogError("MobileHomePanel: notification not found");
+					UnityEngine.Debug.LogError("MobileHomePanel: notification not found " + challengeId);
 				}
 
 			} else if(button.name.Contains("IncompleteChallenges")) {
 				string prefix = "IncompleteChallenges";
 				string index = button.name.Substring(prefix.Length);
-				int i = Convert.ToInt32(index);
+				int incompleteChallengeId = Convert.ToInt32(index);
 				
-				Notification note = notifications.Find(x => x.message.challenge_id == incompleteChallenges[i].id);
+				Notification note = notifications.Find(x => x.message.challenge_id == incompleteChallengeId);
 				if(note != null) {
 					UnityEngine.Debug.Log("MobileHomePanel: notification found");
 					DataVault.Set("challenge_notification", note);

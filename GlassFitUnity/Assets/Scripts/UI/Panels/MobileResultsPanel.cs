@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 [Serializable]
 public class MobileResultsPanel : MobilePanel {
 
-	Friend chosenFriend;
+	User chosenUser;
 
 	public MobileResultsPanel() { }
 	public MobileResultsPanel(SerializationInfo info, StreamingContext ctxt)
@@ -40,7 +40,10 @@ public class MobileResultsPanel : MobilePanel {
 	{
 		base.EnterStart ();
 
-		chosenFriend = (Friend)DataVault.Get("chosen_friend");
+		Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
+
+		chosenUser = (User)DataVault.Get("chosen_user");
+
 		bool isAhead = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
 		GameObject obj;
 		if(!isAhead) {
@@ -56,6 +59,8 @@ public class MobileResultsPanel : MobilePanel {
 				obj.SetActive(false);
 			}
 		}
+
+
 
 		string button = "test";
 		GameObject playerPicObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
@@ -74,17 +79,17 @@ public class MobileResultsPanel : MobilePanel {
 		}
 
 		obj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
-		if(obj != null && chosenFriend != null) {
+		if(obj != null && chosenUser != null) {
 			UITexture rivalPicture = obj.GetComponentInChildren<UITexture>();
 			if(rivalPicture != null) {
 
-				Platform.Instance.RemoteTextureManager.LoadImage(chosenFriend.image, button, (tex, empty) => {
+				Platform.Instance.RemoteTextureManager.LoadImage(chosenUser.image, button, (tex, empty) => {
 					rivalPicture.mainTexture = tex;
 				});
 			}
 			UIBasiclabel friendName = obj.GetComponent<UIBasiclabel>();
 			if(friendName != null) {
-				friendName.SetLabel(chosenFriend.forename);
+				friendName.SetLabel(chosenUser.forename);
 			}
 		}
 		string playerDistance = (string)DataVault.Get("distance");
@@ -115,5 +120,12 @@ public class MobileResultsPanel : MobilePanel {
 		}
 		
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceAheadUnitsText", aheadDistanceUnits);
+	}
+
+	public override void Exited ()
+	{
+		base.Exited ();
+		DataVault.Remove("chosen_user");
+		DataVault.Remove("challenge_notification");
 	}
 }
