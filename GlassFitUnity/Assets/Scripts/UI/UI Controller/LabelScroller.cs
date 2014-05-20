@@ -38,7 +38,7 @@ public class LabelScroller : MonoBehaviour
             
             velocity = offset.y*25;
         }
-		//touch input
+		//touch input. TODO test on iOS, Android mobile and Glass
 		else if (Platform.Instance.GetTouchCount() >= 1) {
 			Vector2? touch = Platform.Instance.GetTouchInput();
 			if (touch.HasValue) {
