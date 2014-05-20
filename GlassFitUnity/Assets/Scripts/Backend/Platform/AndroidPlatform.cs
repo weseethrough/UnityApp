@@ -280,15 +280,16 @@ public class AndroidPlatform : Platform
 		return null;
 	}
 	
-	public override Challenge FetchChallenge(int id) {
+	public override void FetchChallenge(int id, Action<Challenge> callback) {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching challenge");
 			using (AndroidJavaObject rawch = helper_class.CallStatic<AndroidJavaObject>("fetchChallenge", id)) {
-				return JsonConvert.DeserializeObject<Challenge>(rawch.Get<string>("json"));
+				Challenge challenge = JsonConvert.DeserializeObject<Challenge>(rawch.Get<string>("json"));
+				callback(challenge);
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
-			return null;
+			callback(new DistanceChallenge());
 		}
 	}
 	

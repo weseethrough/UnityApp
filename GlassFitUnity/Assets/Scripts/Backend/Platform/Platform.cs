@@ -388,15 +388,26 @@ public abstract class Platform : SingletonBase
         db.StoreObject(e);
     }
 
-    public virtual Challenge FetchChallenge(int id) {
+    public virtual void FetchChallenge(int id, Action<Challenge> callback) {
         Challenge challenge = null;
-        IEnumerator e = api.get("challenges/" + id, (body) => {
+        Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
             challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
-        });
-        while(e.MoveNext()) {}; // block until finished
-        return challenge;
+//			UnityEngine.Debug.LogError(body);
+        	callback(challenge);
+		}));
     }
 
+	public virtual IEnumerator FetchChallengeFromNotification(int id, Notification note, Action<Challenge, Notification> callback) {
+		Challenge challenge = null;
+		yield return Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
+//			log.error(body);
+			challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+
+//			log.profile(body);
+			callback(challenge, note);
+		}));
+	}
+	
 	public virtual IList<Challenge> Challenges() {
 		IList<DistanceChallenge> distanceList = db.LoadAll<DistanceChallenge>();
 		IList<DurationChallenge> durationList = db.LoadAll<DurationChallenge>();
