@@ -41,7 +41,7 @@ public class OpponentMatchedPanel : MobilePanel {
         
         UITexture profilePicture = rivalGo.GetComponentInChildren<UITexture>();
 
-        // TODO: add functionality for login information
+        // TODO load image on transition from previous page with a 'please wait' dialog
         if(profilePicture != null)
         {
             Platform.Instance.RemoteTextureManager.LoadImage(rivalUser.image, "", (tex, text) =>
