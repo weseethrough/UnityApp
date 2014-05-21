@@ -77,8 +77,8 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
     void GetMatches()
     {
         Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("matches", body => {
-            IDictionary<string,IDictionary<string,IList<Track>>> matches = JsonConvert.DeserializeObject<
-                RaceYourself.API.SingleResponse<IDictionary<string,IDictionary<string,IList<Track>>>>>(body).response;
+            Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
+                RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(body).response;
             DataVault.Set("matches", matches);
         }));
     }

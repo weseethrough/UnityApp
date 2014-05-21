@@ -44,6 +44,11 @@ public class IosPlatform : Platform
 		StorageDictionaryBase<int> i = new StorageDictionaryBase<int>();
 		StorageDictionaryBase<double> d = new StorageDictionaryBase<double>();
 		StorageDictionaryBase<string> s = new StorageDictionaryBase<string>();
+		Dictionary<string,Dictionary<string,List<Track>>> dict = new Dictionary<string,Dictionary<string,List<Track>>>();
+		string s1 = dict.ToString();
+		Dictionary<string, List<Track>> t = dict["test"];
+		string s2 = t.ToString();
+		List<Track> ts = t["test"];
 	}
 
 	//native code to set the badge number on the app icon
