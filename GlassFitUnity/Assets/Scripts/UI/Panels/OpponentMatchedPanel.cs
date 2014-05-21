@@ -7,6 +7,8 @@ using RaceYourself.Models;
 [Serializable]
 public class OpponentMatchedPanel : MobilePanel {
 
+	bool haveOpponentDetails = false;
+
     public OpponentMatchedPanel() { }
     public OpponentMatchedPanel(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
@@ -32,22 +34,43 @@ public class OpponentMatchedPanel : MobilePanel {
     public override void EnterStart ()
     {
         base.EnterStart ();
-
-        GameObject rivalGo = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
-
-        User rivalUser = (User) DataVault.Get("competitor");
-
-        GameObjectUtils.SetTextOnLabelInChildren(rivalGo, "PlayerName", rivalUser.name);
-        
-        UITexture profilePicture = rivalGo.GetComponentInChildren<UITexture>();
-
-        // TODO load image on transition from previous page with a 'please wait' dialog
-        if(profilePicture != null)
-        {
-            Platform.Instance.RemoteTextureManager.LoadImage(rivalUser.image, "", (tex, text) =>
-            {
-                profilePicture.mainTexture = tex;
-            });
-        }
+		haveOpponentDetails = FillInOpponentDetails();
     }
+
+	public override void StateUpdate()
+	{
+		base.StateUpdate();
+
+		if(!haveOpponentDetails)
+		{
+			haveOpponentDetails = FillInOpponentDetails();
+		}
+	}
+
+	private bool FillInOpponentDetails()
+	{
+		User rivalUser = (User) DataVault.Get("competitor");
+		if(rivalUser != null)
+		{
+			GameObject rivalGo = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
+			
+			GameObjectUtils.SetTextOnLabelInChildren(rivalGo, "PlayerName", rivalUser.name);
+			
+			UITexture profilePicture = rivalGo.GetComponentInChildren<UITexture>();
+			
+			// TODO load image on transition from previous page with a 'please wait' dialog
+			if(profilePicture != null)
+			{
+				Platform.Instance.RemoteTextureManager.LoadImage(rivalUser.image, "", (tex, text) => {
+					profilePicture.mainTexture = tex;
+				});
+			}
+
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }
