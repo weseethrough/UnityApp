@@ -49,13 +49,14 @@ public class OpponentMatchedPanel : MobilePanel {
 
 	private bool FillInOpponentDetails()
 	{
+		GameObject rivalGo = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
+
 		User rivalUser = (User) DataVault.Get("competitor");
+
 		if(rivalUser != null)
 		{
-			GameObject rivalGo = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
-			
 			GameObjectUtils.SetTextOnLabelInChildren(rivalGo, "PlayerName", rivalUser.name);
-			
+
 			UITexture profilePicture = rivalGo.GetComponentInChildren<UITexture>();
 			
 			// TODO load image on transition from previous page with a 'please wait' dialog
@@ -70,6 +71,7 @@ public class OpponentMatchedPanel : MobilePanel {
 		}
 		else
 		{
+			GameObjectUtils.SetTextOnLabelInChildren(rivalGo, "PlayerName", "?");
 			return false;
 		}
 	}
