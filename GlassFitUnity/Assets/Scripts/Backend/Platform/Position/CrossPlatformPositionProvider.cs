@@ -16,6 +16,8 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 
 	private float timeSinceLastUpdate = 0;
 
+	private Position lastPosition;
+
 	// Returns true in case of successful registration, false otherwise
 	public bool RegisterPositionListener(IPositionListener posListener) {
 		
@@ -107,14 +109,25 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 			Reset();
 			return;
 		}
+
+		if (Input.location.lastData.latitude == 0f && Input.location.lastData.longitude == 0f) {
+			// invalid position, just return
+			return;
+		}
+
 		// Create and fill position object
 		Position pos = new Position(Input.location.lastData.latitude, Input.location.lastData.longitude);
 		pos.device_ts = PositionTracker.Utils.CurrentTimeMillis ();
-		pos.gps_ts = (long)Input.location.lastData.timestamp*1000; // convert to milliseconds
+		pos.gps_ts = (long)(Input.location.lastData.timestamp*1000); // convert to milliseconds
 		pos.epe = Input.location.lastData.horizontalAccuracy;
 		pos.alt = Input.location.lastData.altitude;
+		// TODO: take speed & bearing from native provider
+		// Temporary calculate speed according to distance/time between 2 last positions
+		if (lastPosition != null) {
+			pos.speed = (float)PositionUtils.distanceBetween (pos, lastPosition) / ((pos.gps_ts - lastPosition.gps_ts) / 1000); 
+		}
 
-		UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude);
+		UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude + ", device_ts: " + pos.device_ts + ", speed: " + pos.speed);
 
 		//drop it on the HUD for debugging
 		//DataVault.Set("sweat_points_unit", pos.latitude);
@@ -130,6 +143,7 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 			posListener.OnPositionUpdate(pos);
 			//UnityEngine.Debug.LogWarning("Location Update sent to a listener: " + posListener);
 		}
+		lastPosition = pos;
 	}
 	
 	private void Reset() {
