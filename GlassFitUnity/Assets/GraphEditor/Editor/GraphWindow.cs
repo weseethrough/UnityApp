@@ -1225,7 +1225,7 @@ public class GraphWindow : EditorWindow, IDraw
 
 			// Note: EditorGUILayout works for static buttons
 			// GUI.Button is required if button visibility changes
-        	if (GUILayout.Button( displayName, GUILayout.Height(18) ))
+        	if (GUILayout.Button( displayName, GUILayout.Height(12) ))
 			{
 				GraphComponent gc = Graph;
 				if (gc != null)
@@ -1342,7 +1342,7 @@ public class GraphWindow : EditorWindow, IDraw
 
         StorageDictionary screensDictionary = Panel.GetPanelDictionary();
         
-        int countA = UIEditorWindow.panelList.Length;
+		int countA = UIManager.panelList.Length;
         int countB = screensDictionary == null ? 0 : screensDictionary.Length();
 
         string[]  screens                   = (countA + countB) > 0 ? new string[countA + countB] : null;
@@ -1351,7 +1351,7 @@ public class GraphWindow : EditorWindow, IDraw
 
         for (int i = 0; i < countA; i++)
         {
-            screens[i] = UIEditorWindow.panelList[i];
+			screens[i] = UIManager.panelList[i];
             if (selectedName == screens[i])
             {
                 selected = i;
@@ -1366,7 +1366,7 @@ public class GraphWindow : EditorWindow, IDraw
             screens[i + countA] = screenName;
             if (selectedName == screens[i + countA])
             {
-                selected = i;
+				selected = countA+i;
             }
         }
 

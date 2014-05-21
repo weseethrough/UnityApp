@@ -17,8 +17,8 @@ public class UIEditorWindow : EditorWindow
     private string screenName = "require reload";
     private bool foreceRefresh = false;
 
-    static public Dictionary<string, string>    panelData = new Dictionary<string, string>();
-    static public string[]                      panelList = {"No Screen"};
+    //static public Dictionary<string, string>    panelData = new Dictionary<string, string>();
+    //static public string[]                      panelList = {"No Screen"};
 
     /// <summary>
     /// default static unity function called to show window using window type reference
@@ -87,7 +87,7 @@ public class UIEditorWindow : EditorWindow
             if (GUILayout.Button("Clone to"))
             {
                 SaveScreen(false);
-            }             
+            }            
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
             if (GUILayout.Button("Save"))
@@ -95,62 +95,82 @@ public class UIEditorWindow : EditorWindow
                 SaveScreen(false);
                 DataStore.SaveStorage(DataStore.BlobNames.ui_panels, true);
                 RefreshFromSource();
+
+				UIManager.SavePanelData();
             }
             if (GUILayout.Button("Load"))
             {
                 DataStore.instance.Initialize();
                 RefreshFromSource();
                 foreceRefresh = true;
+
+				UIManager.LoadPanelData();
             }        
         GUILayout.EndHorizontal();
 
         bool refresh = false;
-        foreach (string name in panelList)
+		foreach (string name in UIManager.panelList)
         {
             UnityEngine.Object obj = null;
             GUILayout.BeginHorizontal();                
                 obj = EditorGUILayout.ObjectField( obj, typeof(GameObject), GUILayout.MaxWidth(35.0f));
                 GUILayout.Label("name:", GUILayout.MaxWidth(60.0f));
-                string newName = GUILayout.TextField(name, GUILayout.MaxWidth(100.0f));
+				GUILayout.Label(name, GUILayout.MaxWidth(100.0f));
                 GUILayout.Label("path:", GUILayout.MaxWidth(60.0f));
+		
+				string newName = name; 
+				if (obj is GameObject)
+				{
+					string path = AssetDatabase.GetAssetPath(obj);
+					UIManager.panelData[name] = SerializedNode.GetResourcePath(path);
+					newName = obj.name;
+					refresh = true;
+				}
 
                 if (newName != name)
                 {
-                    if (panelData.ContainsKey(name))
+					if (UIManager.panelData.ContainsKey(name))
                     {
-                        panelData[newName] = GUILayout.TextField(panelData[name]);
+						UIManager.panelData[newName] = GUILayout.TextField(UIManager.panelData[name]);
                     }
                     else
                     {
-                        panelData[newName] = GUILayout.TextField("");
+						UIManager.panelData[newName] = GUILayout.TextField("");
                     }
 
-                    panelData.Remove(name);
+					UIManager.panelData.Remove(name);
                     refresh = true;
                 }
-                else if (panelData.ContainsKey(name))
+				else if (UIManager.panelData.ContainsKey(name))
                 {
-                    panelData[name] = GUILayout.TextField(panelData[name]);
+					string path = GUILayout.TextField(UIManager.panelData[name]);
+					if ( UIManager.panelData[name] != path)
+					{
+						UIManager.panelData[name] = path;
+						refresh = true;
+					}
                 }
                 else
                 {
-                    panelData[name] = GUILayout.TextField("");
+					UIManager.panelData[name] = GUILayout.TextField("");
                 }
                 
             GUILayout.EndHorizontal();
 
-            if (obj is GameObject)
-            {
-                string path = AssetDatabase.GetAssetPath(obj);
-                panelData[name] = SerializedNode.GetResourcePath(path);
-            }
+            
         }
 
         if (GUILayout.Button("+"))
         {
-            panelData.Add("NoName", "");
+			UIManager.panelData.Add("NoName"+UIManager.panelData.Count, "");
             UIManager.BuildList();
+			UIManager.SavePanelData();
         }
+		else if (refresh)
+		{
+			UIManager.BuildList();
+			UIManager.SavePanelData();
+		}
         
 	}
 	

@@ -4,7 +4,6 @@ Track Select
 Complete
 HexInfo
 RegisterDevice
-Master
 Pause Screen
 Quit Screen
 IndoorText
@@ -46,14 +45,12 @@ MobileChallengeChoice
 MobileEndChallengeSelect
 MobileDescription
 MobileLogin
-MobileSignup
 MobileNotOnList
 MobileFriendList
 ImportFriends
 MobileThanksPendingNotification
 MobileInvite
 MobileInAppBackButton
-LoginOrSignupPrompt
 MobileQuestionnaire1
 MobileQuestionnaire2
 MobileQuestionnaire3

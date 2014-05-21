@@ -105,6 +105,10 @@ public class UIManager : MonoBehaviour
     /// <returns></returns>
     public GameObject LoadPrefabPanel( string panelID, string cloneInstanceName )
     {
+		if (panelData.Count ==0)
+		{
+			LoadPanelData();
+		}
         if (panelData.ContainsKey(panelID))
         {            
             GameObject root = GameObjectUtils.SearchTreeByName( gameObject , cloneInstanceName);
@@ -187,13 +191,13 @@ public class UIManager : MonoBehaviour
         while (true)
         {
             string key = r.ReadLine();
-            if (key != null || key.Length < 0)
+            if (key == null || key.Length <= 0)
             {
                 break;
             }
 
             string value = r.ReadLine();
-            if (value != null || value.Length < 0)
+            if (value == null || value.Length <= 0)
             {
                 break;
             }
@@ -215,7 +219,7 @@ public class UIManager : MonoBehaviour
             w.WriteLine(k.Key);
             w.WriteLine(k.Value);
         }
-
+		w.Flush();
         Platform.Instance.StoreBlob("newPanels", ms.GetBuffer());
 
     }
