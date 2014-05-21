@@ -207,10 +207,9 @@ public class MobileInRun : MobilePanel {
 				Platform.Instance.QueueAction(string.Format(@"{{'action': 'challenge_attempt', 
 												'challenge_id': {0}, 
 												'track_id' : [
-													{{'device_id' : {1}, 'track_id' : {2}
+													{1}, {2}
 												]
-										}}
-									}}", challengeNotification.message.challenge_id, current.deviceId, current.id).Replace("'", "\""));
+									}}", challengeNotification.message.challenge_id, current.deviceId, current.trackId).Replace("'", "\""));
 			}
 		}
 
