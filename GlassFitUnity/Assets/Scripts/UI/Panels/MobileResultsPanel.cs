@@ -60,8 +60,6 @@ public class MobileResultsPanel : MobilePanel {
 			}
 		}
 
-
-
 		string button = "test";
 		GameObject playerPicObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
 		if(playerPicObj != null) {
