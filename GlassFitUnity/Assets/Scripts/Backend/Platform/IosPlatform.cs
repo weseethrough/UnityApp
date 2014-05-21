@@ -87,8 +87,10 @@ public class IosPlatform : Platform
 		// TODO when we have an area to view challenges, don't clear this until they have been viewed
 		NotificationServices.ClearRemoteNotifications();
 
+#if UXCAM
 		//start uxcam
 		startUXCam();
+#endif
 
 	}
 
@@ -388,6 +390,15 @@ public class IosPlatform : Platform
 	public override void tagScreenForUXCam(string tag)
 	{
 		_UXCamTagScreenName(tag);
+		return;
+	}
+
+	[DllImport("__Internal")]
+	private static extern void _UXCamTagUserName(string screenName, string additionalData);
+
+	public override void tagUserForUXCam (string tag, string additionalData)
+	{
+		_UXCamTagUserName(tag, additionalData);
 		return;
 	}
 
