@@ -147,24 +147,25 @@ public abstract class FlowState : GNode
         m_enterTimeStamp = Time.realtimeSinceStartup; 
         Debug.Log("Enter state: " + this.ToString());
 
-		//log for analytics
-		Platform.Instance.tagScreenForUXCam(GetDisplayName());
-
-		Hashtable gameDetails = new Hashtable();
-		object type = DataVault.Get("type");
-		object log = DataVault.Get("warning_log");
-		DataVault.Set("warning_log", "");
-		
-      	gameDetails.Add("Flow state", GetDisplayName());
-        gameDetails.Add("Game type", (string)type);
-        gameDetails.Add("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
-        gameDetails.Add("State live", (int)((Time.realtimeSinceStartup - GetStartingTimeStamp()) * 1000));
-        gameDetails.Add("Custom Log", (string)log);
-
-        //GrabBridge.CustomEvent("Flow state changed", gameDetails);
-
-        // Our own internal logging for analytics
-        gameDetails.Add("Event type", "Flow state changed");
+		//turns out this is in FlowStateMachine after all
+//		//log for analytics
+//		Platform.Instance.tagScreenForUXCam(GetDisplayName());
+//
+//		Hashtable gameDetails = new Hashtable();
+//		object type = DataVault.Get("type");
+//		object log = DataVault.Get("warning_log");
+//		DataVault.Set("warning_log", "");
+//		
+//      	gameDetails.Add("Flow state", GetDisplayName());
+//        gameDetails.Add("Game type", (string)type);
+//        gameDetails.Add("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
+//        gameDetails.Add("State live", (int)((Time.realtimeSinceStartup - GetStartingTimeStamp()) * 1000));
+//        gameDetails.Add("Custom Log", (string)log);
+//
+//        //GrabBridge.CustomEvent("Flow state changed", gameDetails);
+//
+//        // Our own internal logging for analytics
+//        gameDetails.Add("Event type", "Flow state changed");
         //Platform.Instance.LogAnalytics(gameDetails);
 	}
     virtual public bool EnterUpdate() { return true; }

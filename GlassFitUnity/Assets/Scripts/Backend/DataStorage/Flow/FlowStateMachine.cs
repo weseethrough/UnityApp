@@ -172,13 +172,15 @@ public class FlowStateMachine : MonoBehaviour
 
             // log screen transition for UX analysis
             Hashtable screenProperties = new Hashtable();
-            screenProperties.Add("screen_name", activeFlow[activeFlow.Count - 1].GetDisplayName());
+			string screenName = activeFlow[activeFlow.Count - 1].GetDisplayName();
+			Platform.Instance.tagScreenForUXCam(screenName);
+
+            screenProperties.Add("screen_name", screenName);
             screenProperties.Add("game_type", (string)DataVault.Get("type"));
             screenProperties.Add("time_since_launch", (int)(Time.realtimeSinceStartup * 1000));
             screenProperties.Add("time_in_state", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
             screenProperties.Add("custom_log", (string)DataVault.Get("warning_log") );
             Platform.Instance.LogScreenView(JsonConvert.SerializeObject(screenProperties));
-
             if (navigationHistory == null)
             {
                 navigationHistory = new List<FlowState>();
