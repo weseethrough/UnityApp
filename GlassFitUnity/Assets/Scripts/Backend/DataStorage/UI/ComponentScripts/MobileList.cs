@@ -41,7 +41,7 @@ public class MobileList : UIComponentSettings
 
         buttonPrototypes = GetPrototypes(listContent);
 
-        defaultYOffset = listContent.GetComponent<UIGrid>().transform.position.y;
+        defaultYOffset = listContent.GetComponent<UIGrid>().transform.localPosition.y;
 
         SetTitle(title);
 
@@ -296,10 +296,12 @@ public class MobileList : UIComponentSettings
 
         UIGrid grid = listContent.GetComponent<UIGrid>();
         grid.cellHeight = newItemHeight;
-        Vector3 pos = grid.transform.position;
-        pos.y = 0;
+        Vector3 pos = grid.transform.localPosition;
+        pos.y = defaultYOffset;
         pos.x = 0;
-        grid.transform.position = pos;        
+		grid.transform.localPosition = pos;    
+
+//		defaultYOffset = 
         
        /* UIPanel panel = NGUITools.FindInParents<UIPanel>(gameObject);
 

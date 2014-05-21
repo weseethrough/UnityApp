@@ -227,7 +227,7 @@ public class FriendList : UIComponentSettings
                     try
                     {
                         UnityEngine.Debug.Log("ChallengePanel: getting notifications");
-                        Notification[] notifications = Platform.Instance.Notifications();
+                        List<Notification> notifications = Platform.Instance.Notifications();
                         UnityEngine.Debug.Log("ChallengePanel: notifications obtained");
                         foreach (Notification notification in notifications)
                         {
@@ -242,21 +242,24 @@ public class FriendList : UIComponentSettings
                             {
                                 int challengerId = notification.message.from;
                                 int challengeId = notification.message.challenge_id;
-                                Challenge potential = Platform.Instance.FetchChallenge(challengeId);
-                                if (potential is DistanceChallenge)
-                                {
-                                    User user = Platform.Instance.GetUser(challengerId);
-                                    //			UnityEngine.Debug.Log("ChallengeNotification: getting first track");
-                                    UnityEngine.Debug.Log("ChallengePanel: getting track");
-									Challenge.Attempt attempt = potential.attempts.Find(a => a.user_id == user.id);
-                                    UnityEngine.Debug.Log("ChallengePanel: fetching track using previous");
-                                    if (attempt == null) continue;
-                                    Track realTrack = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id);
-
-                                    UnityEngine.Debug.Log("ChallengePanel: creating challenge notification");
-                                    ChallengeNotification challengeNot = new ChallengeNotification(notification, potential, user, realTrack);
-                                    challengeNotifications.Add(challengeNot);
-                                }
+                                Platform.Instance.FetchChallenge(challengeId, (potential) => {
+									if (potential is DistanceChallenge)
+									{
+										User user = Platform.Instance.GetUser(challengerId);
+										//			UnityEngine.Debug.Log("ChallengeNotification: getting first track");
+										UnityEngine.Debug.Log("ChallengePanel: getting track");
+										Challenge.Attempt attempt = potential.attempts.Find(a => a.user_id == user.id);
+										UnityEngine.Debug.Log("ChallengePanel: fetching track using previous");
+										if (attempt != null) {
+											Track realTrack = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id);
+											
+											UnityEngine.Debug.Log("ChallengePanel: creating challenge notification");
+											ChallengeNotification challengeNot = new ChallengeNotification(notification, potential, user, realTrack);
+											challengeNotifications.Add(challengeNot);
+										}
+									}
+								});
+                                
                             }
                         }
                     }

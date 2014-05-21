@@ -28,6 +28,10 @@ public class HUDController : MonoBehaviour {
 		DataVault.Set("distance", "0");
 		DataVault.Set("time", "");
 
+		float millisecondsRemaining = goal_time * 1000;
+		string timeRemainingString = UnitsHelper.TimestampMMSSdd((long)millisecondsRemaining);
+		DataVault.Set("time_remaining", timeRemainingString);
+
 	}
 	
 	// Update is called once per frame

@@ -21,6 +21,7 @@ public class ListButtonData : ISerializable
 		ActiveChallengeButton,
 		CommunityChallengeButton,
 		FriendChallengeButton,
+		NewChallengeButton,
 		InvitePromptButton,
 		InvitedButton
     }
