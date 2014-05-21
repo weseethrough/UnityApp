@@ -72,15 +72,15 @@ public class MobileHomePanel : MobilePanel {
 		mobileList = physicalWidgetRoot.GetComponentInChildren<MobileList>();
 		if (mobileList != null)
 		{
-			mobileList.SetTitle("");
+//			mobileList.SetTitle("");
 			mobileList.SetParent(this);
 		}
 
 		// Get the iPhone background 
-		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "iPhoneGreyBlackBackground");
+		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "iPhoneGreyWhiteBackground");
 
 		// Set the player's name
-		GameObjectUtils.SetTextOnLabelInChildren(bkg, "PlayerName", Platform.Instance.User().name);
+//		GameObjectUtils.SetTextOnLabelInChildren(bkg, "PlayerName", Platform.Instance.User().name);
 
 		// Get the texture for the profile picture
 		UITexture profilePicture = bkg.GetComponentInChildren<UITexture>();
@@ -155,52 +155,128 @@ public class MobileHomePanel : MobilePanel {
 		initialized = true;
 	}
 
+	/// <summary>
+	/// Coroutine that loads all challenges
+	/// </summary>
+	/// <returns>Yields while fetching individual challenges.</returns>
 	private IEnumerator LoadChallenges()
 	{
+		// Find all challenge notifications
 		List<Notification> filteredNotifications = notifications.FindAll(r => r.message.type == "challenge");
 		if(filteredNotifications != null) {
+			// Remove all challenges that aren't duration based
 			filteredNotifications = filteredNotifications.FindAll(r => r.message.challenge_type == "duration");
 		}
 
+		// If we actually have any challenges
 		if(filteredNotifications != null && filteredNotifications.Count > 0){
+			// Find all new notifications
 			List<Notification> newNotifications = filteredNotifications.FindAll(r => r.read == false);
+			// Set the number of new challenges in the DataVault
 			if(newNotifications != null && newNotifications.Count > 0) {
 				DataVault.Set("new_challenges", newNotifications.Count);
 			}
 
+			// Remove all unread notifications from the filtered notifications
 			filteredNotifications.RemoveAll(x => x.read == false);
 			 
+			// Loop through all new notifications
 			foreach(Notification notification in newNotifications) {
+				// Get the challenger and challenge ID
 				int challengerId = notification.message.from;
 				int challengeId = notification.message.challenge_id;
+
+				// Start fetching the challenge
 				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (potential, note) => {
+					// Get the rival for the challenge
 					User user = Platform.Instance.GetUser(note.message.from);
+					// Add the challenge to the list
 					newChallenges.Add(potential);
+					// Create a button name
+					string newButtonName = "NewChallenges" + potential.id;
+
+					// Create a new dictionary for the text fields
 					Dictionary<string, string> dictionary = new Dictionary<string, string>();
+					// Add the title and description
 					dictionary.Add("TitleText", user.name);
-//					dictionary.Add("DurationText", (potential as DurationChallenge).duration.ToString());
+					dictionary.Add("DescriptionText", "challenges you");
+					// Change the duration to minutes and add to the dictionary
 					int duration = (potential as DurationChallenge).duration / 60;
 					dictionary.Add("DurationText", duration.ToString());
+					TimeSpan? difference = DateTime.Now - potential.stop_time;
+					if(difference != null) {
+						dictionary.Add("TimeRemainingText", string.Format("{0:00}:{1:00}:{2:00}", difference.Value.Days,difference.Value.Hours, difference.Value.Minutes));
+					}
+					// Create a new dictionary for the textures
 					Dictionary<string, Dictionary<string, string>> newChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+					// Create an inner dictionary for the previous dictionary
+					Dictionary<string, string> innerNewDictionary = new Dictionary<string, string>();
+					// Add the location of the texture object and the button name
+					innerNewDictionary.Add("texture", "PlayerPicture");
+					innerNewDictionary.Add("name", newButtonName);
+					// Add the data to the main dictionary for the player's image
+					newChallengeImageDictionary.Add(Platform.Instance.User().image, innerNewDictionary);
 
-					AddButtonData("NewChallenges" + potential.id, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.NewChallengeButton, GetConnection("ChallengeExit"));
-					
+					// Re-initialize the dictionary
+					innerNewDictionary = new Dictionary<string, string>();
+					// Add the name and texture again
+					innerNewDictionary.Add("name", newButtonName);
+					innerNewDictionary.Add("texture", "RivalPicture");
+					// Add the data to the main dictionary for the rival's image
+					newChallengeImageDictionary.Add(user.image, innerNewDictionary);
+					// Finally add the button to the list
+					AddButtonData(newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+
+					// Set the notification as read
 					Platform.Instance.ReadNotification(notification.id);
 				}));
 			}
 
+			// Loop through the normal notifications
 			foreach(Notification notification in filteredNotifications) {
+				// Get the challenger and challenge ID
 				int challengerId = notification.message.from;
 				int challengeId = notification.message.challenge_id;
+
+				// Start the coroutine to fetch the challenge
 				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (potential, note) => {
+					// Get the rival user
 					User user = Platform.Instance.GetUser(note.message.from);
+					// Set the name of the button
+					string activeButtonName = "IncompleteChallenges" + potential.id;
+					// Add the button to the list
 					incompleteChallenges.Add(potential);
+
+					// Initialize the dictionary
 					Dictionary<string, string> dictionary = new Dictionary<string, string>();
+					// Add the title and description for the challenge
 					dictionary.Add("TitleText", user.name);
+					dictionary.Add("DescriptionText", "challenged you");
+					// Convert the duration to minutes and add it to the dictionary
 					int duration = (potential as DurationChallenge).duration / 60;
 					dictionary.Add("DurationText", duration.ToString());
+					TimeSpan? difference = DateTime.Now - potential.stop_time;
+					if(difference != null) {
+						dictionary.Add("TimeRemainingText", string.Format("{0:00}:{1:00}:{2:00}", difference.Value.Days,difference.Value.Hours, difference.Value.Minutes));
+					}
+					// Create the image dictionary
 					Dictionary<string, Dictionary<string, string>> activeChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
-					AddButtonData("IncompleteChallenges" + potential.id, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.ActiveChallengeButton, GetConnection("ChallengeExit"));
+					// Create the inner dictionary for the images
+					Dictionary<string, string> innerActiveDictionary = new Dictionary<string, string>();
+					// Add the texture and name for the player's picture
+					innerActiveDictionary.Add("texture", "PlayerPicture");
+					innerActiveDictionary.Add("name", activeButtonName);
+					// Add the player's texture information to the dictionary
+					activeChallengeImageDictionary.Add(Platform.Instance.User().image, innerActiveDictionary);
+					// Re-initialize the inner dictionary for the rival
+					innerActiveDictionary = new Dictionary<string, string>();
+					// Add the attributes for the rival's button name and texture name
+					innerActiveDictionary.Add("name", activeButtonName);
+					innerActiveDictionary.Add("texture", "RivalPicture");
+					// Add the rival picture to the dictionary
+					activeChallengeImageDictionary.Add(user.image, innerActiveDictionary);
+					// Add the button
+					AddButtonData(activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 				}));
 			}
 		} else {
@@ -356,7 +432,7 @@ public class MobileHomePanel : MobilePanel {
 						Dictionary<string, string> innerInvitedDictionary = new Dictionary<string, string>();
 						innerInvitedDictionary.Add("texture", "InvitedProfilePicture");
 						innerInvitedDictionary.Add("name", invitedButtonName);
-						invitedImageDictionary.Add(friendsData[i].image, innerInvitedDictionary);
+						invitedImageDictionary.Add(invitedFriends[i].image, innerInvitedDictionary);
 						AddButtonData(invitedButtonName, invitedDictionary, "", invitedImageDictionary, ListButtonData.ButtonFormat.InvitedButton, GetConnection ("InvitedButton"));
 					}
 				}
@@ -374,7 +450,7 @@ public class MobileHomePanel : MobilePanel {
 						friendDictionary.Add("Name", friendsData[i].name);
 						Dictionary<string, Dictionary<string, string>> friendImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 						Dictionary<string, string> innerDictionary = new Dictionary<string, string>();
-						innerDictionary.Add("texture", "InvitedProfilePicture");
+						innerDictionary.Add("texture", "InviteProfilePicture");
 						innerDictionary.Add("name", buttonName);
 						friendImageDictionary.Add(friendsData[i].image, innerDictionary);
 						AddButtonData(buttonName, friendDictionary, "", friendImageDictionary, ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
