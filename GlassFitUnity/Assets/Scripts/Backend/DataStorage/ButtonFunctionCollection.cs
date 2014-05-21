@@ -1409,18 +1409,72 @@ public class ButtonFunctionCollection
     /// <param name="fs">Fs.</param>
     static public bool FetchTrack(FlowButton button, FlowState fs)
     {
+
         int runTime = (int) DataVault.Get("run_time");
         string fitnessLevel = (string) DataVault.Get ("fitness_level");
-        var matches = (IDictionary<string,IDictionary<string,IList<Track>>>) DataVault.Get("matches");
+		Dictionary<string,Dictionary<string,List<Track>>> matches = (Dictionary<string,Dictionary<string,List<Track>>>) DataVault.Get("matches");
+		//Dictionary<string, List<Track>> allTracksDict = matches[fitnessLevel];
 
-        IList<Track> tracks = matches[fitnessLevel][runTime.ToString()];
-        int trackIdx = UnityEngine.Random.Range(0, tracks.Count);
+		log.info("User's fitness level: " + fitnessLevel);
+
+		//output this info for debug purposes
+//		string dictInfo = "";
+//		foreach (string key in matches.Keys)
+//		{
+//			log.info("Tracks for Fitness level: " + key);
+//
+//			Dictionary<string, List<Track>> dict = matches[key];
+//			foreach( string trackKey in dict.Keys )
+//			{
+//				List<Track> tt = dict[trackKey];
+//				log.info("Time: " + trackKey + " has " + tt.Count + " tracks.");
+//			}
+//		}
+
+		log.info("Getting tracks for this user's fitness level");
+
+        List<Track> tracks = matches[fitnessLevel][runTime.ToString()];
+		
+		log.info("Got tracks for this user's fitness level");
+
+        int trackIdx = UnityEngine.Random.Range(0, tracks.Count-1);
+
+		log.info("randomly chosen track index = " + trackIdx + " out of " + tracks.Count);
+
         Track track = tracks[trackIdx];
+
+		log.info("Got track");
+
         // TODO is it legitimate to cast int? -> int in this context?
-        User competitor = Platform.Instance.GetUser((int) track.userId);
+		// NO - causes a crash on iPhone
+        //User competitor = Platform.Instance.GetUser((int) track.userId);
+
+		User competitor = null;
+		if(track.userId.HasValue)
+		{
+			int user = track.userId.Value;
+			log.info("user ID = " + user);
+			Platform.Instance.GetUser(user, (u) => {
+				if(u != null)
+				{
+					DataVault.Set("competitor", u);
+					log.info("Got competitor " + u.DisplayName);
+				}
+				else
+				{
+					log.error("Failed to find competitor");
+				}
+			});
+//			competitor = Platform.Instance.GetUser(user);
+		}
+		else
+		{
+			log.error("No user ID for track");
+		}
+
 
         DataVault.Set("current_track", track);
-        DataVault.Set("competitor", competitor);
+        //DataVault.Set("competitor", competitor);
         return true;
     }
 }

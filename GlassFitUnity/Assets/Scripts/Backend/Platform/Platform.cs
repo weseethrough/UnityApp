@@ -285,8 +285,20 @@ public abstract class Platform : SingletonBase
         return cfg;
     }
 
+	public virtual void GetUser(int userId, Action<User> callback)
+	{
+		User user = null;
+		Platform.Instance.partner.StartCoroutine(api.get("users/" + userId, (body) => {
+			UnityEngine.Debug.Log("Got users/userid from json: " + body);
+			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+			UnityEngine.Debug.Log("extracted user from json");
+			callback(user);
+		}));
+	}
+
     public virtual User GetUser(int userId)
     {
+		log.info("Getting user " + userId);
         User user = null;
         IEnumerator e = api.get("users/" + userId, (body) => {
             user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
