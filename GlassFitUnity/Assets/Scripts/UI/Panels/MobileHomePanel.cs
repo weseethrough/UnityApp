@@ -64,10 +64,10 @@ public class MobileHomePanel : MobilePanel {
 
 		UITexture profilePicture = bkg.GetComponentInChildren<UITexture>();
 
-
+		string empty = "";
 		// TODO: add functionality for login information
 		if(profilePicture != null) {
-			Platform.Instance.RemoteTextureManager.LoadImage(Platform.Instance.User().image, "", (tex, text) => {
+			Platform.Instance.RemoteTextureManager.LoadImage(Platform.Instance.User().image, empty, (tex, text) => {
 				profilePicture.mainTexture = tex;
 			});
 		}
@@ -85,7 +85,7 @@ public class MobileHomePanel : MobilePanel {
 
 		if(challengeBtn != null) {
 			challengeBtn.enabled = false;
-			challengeBtn.defaultColor = new Color(202 / 255f, 202 / 255f, 202 / 255f);
+			challengeBtn.defaultColor = new Color(68 / 255f, 68 / 255f, 68 / 255f);
 		}
 
 		IList<Challenge> challengeIList = Platform.Instance.Challenges();
@@ -196,7 +196,12 @@ public class MobileHomePanel : MobilePanel {
 						string betaButtonName = "challenge" + i;
 						Dictionary<string, string> betaFriendDictionary = new Dictionary<string, string>();
 						betaFriendDictionary.Add("Name", betaFriends[i].name);
-						AddButtonData(betaButtonName, betaFriendDictionary, "", betaFriends[i].image, ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
+						Dictionary<string, Dictionary<string, string>> betaImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+						Dictionary<string, string> innerBetaDictionary = new Dictionary<string, string>();
+						innerBetaDictionary.Add("texture", "ChallengePlayerPicture");
+						innerBetaDictionary.Add("name", betaButtonName);
+						betaImageDictionary.Add(betaFriends[i].image, innerBetaDictionary);
+						AddButtonData(betaButtonName, betaFriendDictionary, "", betaImageDictionary, ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
 					}
 				}
 
@@ -207,7 +212,12 @@ public class MobileHomePanel : MobilePanel {
 						string buttonName = "uninvited" + i;
 						Dictionary<string, string> friendDictionary = new Dictionary<string, string>();
 						friendDictionary.Add("Name", friendsData[i].name);
-						AddButtonData(buttonName, friendDictionary, "", friendsData[i].image, ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
+						Dictionary<string, Dictionary<string, string>> friendImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+						Dictionary<string, string> innerDictionary = new Dictionary<string, string>();
+						innerDictionary.Add("texture", "InvitedProfilePicture");
+						innerDictionary.Add("name", buttonName);
+						friendImageDictionary.Add(friendsData[i].image, innerDictionary);
+						AddButtonData(buttonName, friendDictionary, "", friendImageDictionary, ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
 					}
 				}
 

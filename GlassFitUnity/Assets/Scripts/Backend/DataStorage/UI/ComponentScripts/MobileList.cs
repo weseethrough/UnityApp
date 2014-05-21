@@ -221,21 +221,36 @@ public class MobileList : UIComponentSettings
 		GameObjectUtils.SetTextOnLabelInChildren(button, "title", data.textNormal);
 		GameObjectUtils.SetTextOnLabelInChildren(button, "content", data.buttonName);
 
-		if(data.attributeDictionary != null) {
-			foreach(var key in data.attributeDictionary.Keys) {
-				GameObjectUtils.SetTextOnLabelInChildren(button, key, data.attributeDictionary[key]);
+		if(data.textDictionary != null) {
+			foreach(var key in data.textDictionary.Keys) {
+				GameObjectUtils.SetTextOnLabelInChildren(button, key, data.textDictionary[key]);
 			}
 		}
 
-		if(data.imageName != string.Empty) 
+		if(data.imageDictionary != null) 
 		{
-			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
-				Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
-				GameObject foundButton = GameObjectUtils.SearchTreeByName(fs.physicalWidgetRoot, buttonId);
-				if(foundButton != null) {
-					foundButton.GetComponentInChildren<UITexture>().mainTexture = tex;
-				}
-			});
+			Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+			foreach(var key in data.imageDictionary.Keys) {
+				string textureUrl = key;
+				Platform.Instance.RemoteTextureManager.LoadImage(textureUrl, data.imageDictionary[key], (tex, callbackArgument) => {
+					var dictionary = callbackArgument as Dictionary<string, string>;
+					GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
+					if(buttonObj != null) {
+						GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
+						UITexture texture = textureObj.GetComponent<UITexture>();
+						if(texture != null) {				
+							texture.mainTexture = tex;
+						}
+					}
+				});
+			}
+//			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
+//				Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
+//				GameObject foundButton = GameObjectUtils.SearchTreeByName(fs.physicalWidgetRoot, buttonId);
+//				if(foundButton != null) {
+//					foundButton.GetComponentInChildren<UITexture>().mainTexture = tex;
+//				}
+//			});
 		}
 
 //                Debug.Log("AddButton " + data.textNormal + " btName: " + buttonData[i].buttonName);
