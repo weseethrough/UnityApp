@@ -60,7 +60,7 @@ public abstract class Platform : SingletonBase
 	protected List<Game> gameList;
 	public List<TargetTracker> targetTrackers { get; protected set; }
 	
-
+	bool hasRegisteredUserForUXCam = false;
 
 	/// <summary>
 	/// Gets the single instance of the right kind of platform for the OS we're running on,
@@ -167,6 +167,13 @@ public abstract class Platform : SingletonBase
 		eventProperties.Add("event_name", "launch");
 		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 
+		//tag the user for UXCam - will only do anything on iOS for now
+		User user = User();
+		if(user != null)
+		{
+			tagUserForUXCam(user.username, user.DisplayName);
+			hasRegisteredUserForUXCam = true;
+		}
 
         //GetMonoBehavioursPartner().StartCoroutine(api.Login("cats", "dogs"));
 	}
@@ -177,8 +184,19 @@ public abstract class Platform : SingletonBase
     /// Called every frame by PlatformPartner to update internal state
     /// </summary>
     public virtual void Update() {
-        // nothing, but overridden in subclasses to update orientation
-    }   
+        // overridden in subclasses to update orientation
+
+		// see if we've got the user yet. Consider moving this to a periodic check, not per frame.
+		if(!hasRegisteredUserForUXCam)
+		{
+			User user = User();
+			if(user != null)
+			{
+				tagUserForUXCam(user.username, user.DisplayName);
+				hasRegisteredUserForUXCam = true;
+			}
+		}
+	}   
 
     /// <summary>
     /// Called every frame DURING A RACE by RaceGame to update position, speed etc
@@ -669,5 +687,30 @@ public abstract class Platform : SingletonBase
             yield return new WaitForSeconds(10.0f);
         }
     }
+
+	// UXCam methods
+	public virtual void startUXCam()
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void stopUXCam()
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void tagScreenForUXCam(string tag)
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void tagUserForUXCam(string tag, string additionalData)
+	{
+		//do nothing, except on iOS
+		return;
+	}
 	
 }
