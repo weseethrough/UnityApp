@@ -22,7 +22,7 @@ namespace RaceYourself.Models
 		public Event() {}
 		public Event(string data, int session_id) {
 			this.version = VERSION;
-			this.ts = Date.UnixTime.Milliseconds;
+            this.ts = (long)Date.UnixTime.TotalMilliseconds;
 			this.data = data;
 			this.sessionId = session_id;
 		}
