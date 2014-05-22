@@ -213,7 +213,7 @@ public class MobileHomePanel : MobilePanel {
 					int duration = (potential as DurationChallenge).duration / 60;
 					dictionary.Add("DurationText", duration.ToString());
 					TimeSpan? difference = potential.stop_time - DateTime.Now;
-					if(difference != null && difference.Value.Minutes > 0) {
+					if(difference != null && difference.Value.TotalMinutes > 0) {
 						dictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
 					} else 
 					{
@@ -270,7 +270,7 @@ public class MobileHomePanel : MobilePanel {
 					int duration = (potential as DurationChallenge).duration / 60;
 					playerDictionary.Add("DurationText", duration.ToString());
 					TimeSpan? difference = potential.stop_time - DateTime.Now;
-					if(difference != null && difference.Value.Minutes > 0) {
+					if(difference != null && difference.Value.TotalMinutes > 0) {
 						playerDictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
 					} else 
 					{
@@ -326,7 +326,7 @@ public class MobileHomePanel : MobilePanel {
 					int duration = (potential as DurationChallenge).duration / 60;
 					dictionary.Add("DurationText", duration.ToString());
 					TimeSpan? difference = potential.stop_time - DateTime.Now;
-					if(difference != null && difference.Value.Minutes > 0) {
+					if(difference != null && difference.Value.TotalMinutes > 0) {
 						dictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
 					} else 
 					{

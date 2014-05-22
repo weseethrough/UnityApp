@@ -61,10 +61,11 @@ Shader "CircleShader" {
 				fixed4 fragmentProgram (vertexToFragment input) : COLOR
 				{
 					fixed4 computedColor = tex2D(_MainTex, input.textureCoordinate) * input.color;
-					fixed4 alphaGuide = tex2D(_AlphaTex, input.textureCoordinate);
- 
-					if (alphaGuide.a < computedColor.a) computedColor.a = alphaGuide.a;
- 
+					
+					float d = distance(input.textureCoordinate, float2(0.5, 0.5));
+					if (d > 0.45) computedColor.a = 0;
+					else computedColor.a = 1.0;
+					
 					return computedColor;
 				}
 			ENDCG

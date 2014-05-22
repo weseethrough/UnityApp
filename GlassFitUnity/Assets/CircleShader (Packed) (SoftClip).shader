@@ -69,12 +69,14 @@ Shader "CircleShader (Packed) (SoftClip)"
 				// Softness factor
 				float2 factor = (float2(1.0, 1.0) - abs(IN.worldPos)) * _ClipSharpness;
 			
+				
+			
 				// Sample the texture
 				half4 col = tex2D(_MainTex, IN.texcoord) * IN.color;
+				float d = distance(IN.texcoord, float2(0.5, 0.5));
+				if (d > 0.45) col.a = 0;
+				else col.a = 1.0;
 				col.a *= clamp( min(factor.x, factor.y), 0.0, 1.0);
-				
-				fixed4 alphaGuide = tex2D(_AlphaTex, IN.texcoord);
-				if(alphaGuide.a < col.a) col.a = alphaGuide.a;
 				
 				return col;
 			}
