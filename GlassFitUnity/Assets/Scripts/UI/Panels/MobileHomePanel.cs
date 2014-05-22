@@ -26,6 +26,7 @@ public class MobileHomePanel : MobilePanel {
 	// List of challenges for buttons - new challenges, not-ran-yet and player-completed 
 	List<Challenge> newChallenges;
 	List<Challenge> incompleteChallenges;
+	List<Challenge> playerChallenges;
 
 	// List of invites
 	List<Invite> invites;
@@ -170,6 +171,14 @@ public class MobileHomePanel : MobilePanel {
 
 		// If we actually have any challenges
 		if(filteredNotifications != null && filteredNotifications.Count > 0){
+			// Get the player challenges
+			List<Notification> playerNotifications = filteredNotifications.FindAll(r => r.message.from == Platform.Instance.User().id);
+
+
+
+			// Remove all the player's sent challenges from the notifications
+			filteredNotifications.RemoveAll(x => x.message.from == Platform.Instance.User().id);
+
 			// Find all new notifications
 			List<Notification> newNotifications = filteredNotifications.FindAll(r => r.read == false);
 			// Set the number of new challenges in the DataVault
@@ -203,10 +212,15 @@ public class MobileHomePanel : MobilePanel {
 					// Change the duration to minutes and add to the dictionary
 					int duration = (potential as DurationChallenge).duration / 60;
 					dictionary.Add("DurationText", duration.ToString());
-					TimeSpan? difference = DateTime.Now - potential.stop_time;
-					if(difference != null) {
-						dictionary.Add("TimeRemainingText", string.Format("{0:00}:{1:00}:{2:00}", difference.Value.Days,difference.Value.Hours, difference.Value.Minutes));
+					TimeSpan? difference = potential.stop_time - DateTime.Now;
+					if(difference != null && difference.Value.Minutes > 0) {
+						dictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
+					} else 
+					{
+						dictionary.Add("TimeRemainingText", "Expired");
+						dictionary.Add("TimeLeftText", "");
 					}
+
 					// Create a new dictionary for the textures
 					Dictionary<string, Dictionary<string, string>> newChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 					// Create an inner dictionary for the previous dictionary
@@ -227,6 +241,62 @@ public class MobileHomePanel : MobilePanel {
 					// Finally add the button to the list
 					AddButtonData(newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 
+					// Set the notification as read
+					Platform.Instance.ReadNotification(notification.id);
+				}));
+			}
+
+			foreach(Notification notification in playerNotifications) 
+			{
+				// Get the challenger and challenge ID
+				int challengerId = notification.message.from;
+				int challengeId = notification.message.challenge_id;
+				
+				// Start fetching the challenge
+				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (potential, note) => {
+					// Get the rival for the challenge
+					User user = Platform.Instance.GetUser(note.message.to);
+					// Add the challenge to the list
+					newChallenges.Add(potential);
+					// Create a button name
+					string newButtonName = "PlayerChallenges" + potential.id;
+					
+					// Create a new dictionary for the text fields
+					Dictionary<string, string> playerDictionary = new Dictionary<string, string>();
+					// Add the title and description
+					playerDictionary.Add("TitleText", "You challenge");
+					playerDictionary.Add("DescriptionText", user.name);
+					// Change the duration to minutes and add to the dictionary
+					int duration = (potential as DurationChallenge).duration / 60;
+					playerDictionary.Add("DurationText", duration.ToString());
+					TimeSpan? difference = potential.stop_time - DateTime.Now;
+					if(difference != null && difference.Value.Minutes > 0) {
+						playerDictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
+					} else 
+					{
+						playerDictionary.Add("TimeRemainingText", "Expired");
+						playerDictionary.Add("TimeLeftText", "");
+					}
+					// Create a new dictionary for the textures
+					Dictionary<string, Dictionary<string, string>> playerChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+					// Create an inner dictionary for the previous dictionary
+					Dictionary<string, string> innerPlayerDictionary = new Dictionary<string, string>();
+					// Add the location of the texture object and the button name
+					innerPlayerDictionary.Add("texture", "PlayerPicture");
+					innerPlayerDictionary.Add("name", newButtonName);
+					// Add the data to the main dictionary for the player's image
+					playerChallengeImageDictionary.Add(Platform.Instance.User().image, innerPlayerDictionary);
+					
+					// Re-initialize the dictionary
+					innerPlayerDictionary = new Dictionary<string, string>();
+					// Add the name and texture again
+					innerPlayerDictionary.Add("name", newButtonName);
+					innerPlayerDictionary.Add("texture", "RivalPicture");
+					// Add the data to the main dictionary for the rival's image
+					playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
+					// Finally add the button to the list
+					AddButtonData(newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+					
 					// Set the notification as read
 					Platform.Instance.ReadNotification(notification.id);
 				}));
@@ -255,9 +325,13 @@ public class MobileHomePanel : MobilePanel {
 					// Convert the duration to minutes and add it to the dictionary
 					int duration = (potential as DurationChallenge).duration / 60;
 					dictionary.Add("DurationText", duration.ToString());
-					TimeSpan? difference = DateTime.Now - potential.stop_time;
-					if(difference != null) {
-						dictionary.Add("TimeRemainingText", string.Format("{0:00}:{1:00}:{2:00}", difference.Value.Days,difference.Value.Hours, difference.Value.Minutes));
+					TimeSpan? difference = potential.stop_time - DateTime.Now;
+					if(difference != null && difference.Value.Minutes > 0) {
+						dictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
+					} else 
+					{
+						dictionary.Add("TimeRemainingText", "Expired");
+						dictionary.Add("TimeLeftText", "");
 					}
 					// Create the image dictionary
 					Dictionary<string, Dictionary<string, string>> activeChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
@@ -291,9 +365,9 @@ public class MobileHomePanel : MobilePanel {
 	/// </summary>
 	public void GetChallenges() {
 		notifications = Platform.Instance.Notifications();
-		notifications.RemoveAll(x => x.message.from == Platform.Instance.User().id);
 		newChallenges = new List<Challenge>();
 		incompleteChallenges = new List<Challenge>();
+		playerChallenges = new List<Challenge>();
 		Platform.Instance.partner.StartCoroutine(LoadChallenges());
 	}
 
@@ -373,7 +447,7 @@ public class MobileHomePanel : MobilePanel {
 
 			// If the panel is initialized reset the mobile list and set the cell size to 300
 			if(initialized) {
-				mobileList.ResetList(350f);
+				mobileList.ResetList(250f);
 			}
 
 			// Get the challenges
@@ -495,41 +569,38 @@ public class MobileHomePanel : MobilePanel {
 					return;
 				}
 				// Remove the prefix to find the friend index
-				string prefix = "uninvited";
-				string index = button.name.Substring(prefix.Length);
-				int i = Convert.ToInt32(index);
+				int i = GetIndex("uninvited", button.name);
 				// Using this index, get the friend and set it in the DataVault
 				DataVault.Set("chosen_friend", friendsData[i]);
-				Debug.Log("chosen_friend set to " + friendsData[i].name);
 			} else if(button.name.Contains("challenge")) {
 				// For a challenge button, remove the "challenge" prefix and get the index
-				string prefix = "challenge";
-				string index = button.name.Substring(prefix.Length);
-				int i = Convert.ToInt32(index);
+				int i = GetIndex("challenge", button.name);
 				// Using this index get the friend and set it in the DataVault
 				DataVault.Set("chosen_friend", betaFriends[i]);
-				Debug.Log("beta chosen_friend set to " + betaFriends[i].name);
 			} else if(button.name.Contains("NewChallenges")) {
-				string prefix = "NewChallenges";
-				string index = button.name.Substring(prefix.Length);
-				int challengeId = Convert.ToInt32(index);
+				int challengeId = GetIndex("NewChallenges", button.name);
 
 				Notification note = notifications.Find(x => x.message.challenge_id == challengeId);
 				if(note != null) {
-					UnityEngine.Debug.Log("MobileHomePanel: notification found");
 					DataVault.Set("challenge_notification", note);
 				} else {
 					UnityEngine.Debug.LogError("MobileHomePanel: notification not found " + challengeId);
 				}
 
 			} else if(button.name.Contains("IncompleteChallenges")) {
-				string prefix = "IncompleteChallenges";
-				string index = button.name.Substring(prefix.Length);
-				int incompleteChallengeId = Convert.ToInt32(index);
+				int incompleteChallengeId = GetIndex("IncompleteChallenges", button.name);
 				
 				Notification note = notifications.Find(x => x.message.challenge_id == incompleteChallengeId);
 				if(note != null) {
-					UnityEngine.Debug.Log("MobileHomePanel: notification found");
+					DataVault.Set("challenge_notification", note);
+				} else {
+					UnityEngine.Debug.LogError("MobileHomePanel: notification not found");
+				}
+			} else if(button.name.Contains("PlayerChallenges")) {
+				int challengeId = GetIndex("PlayerChallenges", button.name);
+
+				Notification note = notifications.Find(x => x.message.challenge_id == challengeId);
+				if(note != null) {
 					DataVault.Set("challenge_notification", note);
 				} else {
 					UnityEngine.Debug.LogError("MobileHomePanel: notification not found");
@@ -542,6 +613,11 @@ public class MobileHomePanel : MobilePanel {
 		}
 		
 		base.OnClick(button);
+	}
+
+	private int GetIndex(string prefix, string buttonName) {
+		string index = buttonName.Substring(prefix.Length);
+		return Convert.ToInt32(index);
 	}
 
 	/// <summary>
