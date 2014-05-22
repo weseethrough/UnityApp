@@ -77,13 +77,13 @@ public class MobileHomePanel : MobilePanel {
 		}
 
 		// Get the iPhone background 
-		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "iPhoneGreyWhiteBackground");
+		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "MainProfilePicture");
 
 		// Set the player's name
 //		GameObjectUtils.SetTextOnLabelInChildren(bkg, "PlayerName", Platform.Instance.User().name);
 
 		// Get the texture for the profile picture
-		UITexture profilePicture = bkg.GetComponentInChildren<UITexture>();
+		UITexture profilePicture = bkg.GetComponent<UITexture>();
 
 		string empty = "";
 		// Load the profile picture and set it
