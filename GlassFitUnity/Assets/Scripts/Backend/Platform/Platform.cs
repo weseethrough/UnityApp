@@ -12,6 +12,7 @@ using Sqo;
 using RaceYourself.Models;
 using Newtonsoft.Json;
 using System.Collections;
+using System.IO;
 
 public abstract class Platform : SingletonBase
 {
@@ -725,5 +726,21 @@ public abstract class Platform : SingletonBase
 		//do nothing, except on iOS
 		return;
 	}
-	
+
+	public virtual byte[] ReadAssets(string filename) 
+	{
+		string assetspath = Application.streamingAssetsPath;
+		if (assetspath.Contains("://")) {
+			var www = new WWW(Path.Combine(assetspath, filename));
+			while(!www.isDone) {}; // block until finished
+			return www.bytes;
+		} else {
+			return File.ReadAllBytes(Path.Combine(assetspath, filename));			
+		}
+	}
+
+	public string ReadAssetsString(string filename) 
+	{
+		return new System.Text.UTF8Encoding().GetString(ReadAssets(filename));
+	}
 }
