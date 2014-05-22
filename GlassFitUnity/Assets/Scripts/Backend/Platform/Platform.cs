@@ -12,6 +12,7 @@ using Sqo;
 using RaceYourself.Models;
 using Newtonsoft.Json;
 using System.Collections;
+using System.IO;
 
 public abstract class Platform : SingletonBase
 {
@@ -60,7 +61,7 @@ public abstract class Platform : SingletonBase
 	protected List<Game> gameList;
 	public List<TargetTracker> targetTrackers { get; protected set; }
 	
-
+	bool hasRegisteredUserForUXCam = false;
 
 	/// <summary>
 	/// Gets the single instance of the right kind of platform for the OS we're running on,
@@ -167,6 +168,13 @@ public abstract class Platform : SingletonBase
 		eventProperties.Add("event_name", "launch");
 		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 
+		//tag the user for UXCam - will only do anything on iOS for now
+		User user = User();
+		if(user != null)
+		{
+			tagUserForUXCam(user.username, user.DisplayName);
+			hasRegisteredUserForUXCam = true;
+		}
 
         //GetMonoBehavioursPartner().StartCoroutine(api.Login("cats", "dogs"));
 	}
@@ -177,8 +185,19 @@ public abstract class Platform : SingletonBase
     /// Called every frame by PlatformPartner to update internal state
     /// </summary>
     public virtual void Update() {
-        // nothing, but overridden in subclasses to update orientation
-    }   
+        // overridden in subclasses to update orientation
+
+		// see if we've got the user yet. Consider moving this to a periodic check, not per frame.
+		if(!hasRegisteredUserForUXCam)
+		{
+			User user = User();
+			if(user != null)
+			{
+				tagUserForUXCam(user.username, user.DisplayName);
+				hasRegisteredUserForUXCam = true;
+			}
+		}
+	}   
 
     /// <summary>
     /// Called every frame DURING A RACE by RaceGame to update position, speed etc
@@ -267,8 +286,20 @@ public abstract class Platform : SingletonBase
         return cfg;
     }
 
+	public virtual void GetUser(int userId, Action<User> callback)
+	{
+		User user = null;
+		Platform.Instance.partner.StartCoroutine(api.get("users/" + userId, (body) => {
+			UnityEngine.Debug.Log("Got users/userid from json: " + body);
+			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+			UnityEngine.Debug.Log("extracted user from json");
+			callback(user);
+		}));
+	}
+
     public virtual User GetUser(int userId)
     {
+		log.info("Getting user " + userId);
         User user = null;
         IEnumerator e = api.get("users/" + userId, (body) => {
             user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
@@ -280,6 +311,7 @@ public abstract class Platform : SingletonBase
     public virtual List<Track> GetTracks()
     {
         // TODO: Change signature to IList<Track>
+		//	Actually, best not to, iOS doesn't deal with generics.
         var tracks = new List<Track>(db.LoadAll<Track>());
         foreach (var track in tracks) {
             IncludePositions(track);
@@ -669,5 +701,46 @@ public abstract class Platform : SingletonBase
             yield return new WaitForSeconds(10.0f);
         }
     }
-	
+
+	// UXCam methods
+	public virtual void startUXCam()
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void stopUXCam()
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void tagScreenForUXCam(string tag)
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void tagUserForUXCam(string tag, string additionalData)
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual byte[] ReadAssets(string filename) 
+	{
+		string assetspath = Application.streamingAssetsPath;
+		if (assetspath.Contains("://")) {
+			var www = new WWW(Path.Combine(assetspath, filename));
+			while(!www.isDone) {}; // block until finished
+			return www.bytes;
+		} else {
+			return File.ReadAllBytes(Path.Combine(assetspath, filename));			
+		}
+	}
+
+	public string ReadAssetsString(string filename) 
+	{
+		return new System.Text.UTF8Encoding().GetString(ReadAssets(filename));
+	}
 }

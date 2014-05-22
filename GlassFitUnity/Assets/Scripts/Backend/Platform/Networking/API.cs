@@ -609,8 +609,12 @@ namespace RaceYourself
 		/// Returns cached data or null if missing
 		/// </summary>
 		public string getCached(string route) {
+			return getCached(route, true);
+		}
+
+		public string getCached(string route, bool checkExpiry) {
 			var cache = db.Query<Models.Cache>().Where<Models.Cache>(c => c.id == route).LastOrDefault();
-			if (cache == null || cache.Expired) return null;
+			if (cache == null || (checkExpiry && cache.Expired)) return null;
 			try {
 				return File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
 			} catch (Exception ex) {

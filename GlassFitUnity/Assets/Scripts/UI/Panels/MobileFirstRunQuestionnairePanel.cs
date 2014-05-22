@@ -76,10 +76,24 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
     
     void GetMatches()
     {
-        Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("matches", body => {
-            IDictionary<string,IDictionary<string,IList<Track>>> matches = JsonConvert.DeserializeObject<
-                RaceYourself.API.SingleResponse<IDictionary<string,IDictionary<string,IList<Track>>>>>(body).response;
-            DataVault.Set("matches", matches);
-        }));
+		string cached = Platform.Instance.api.getCached("matches", false);
+		if (cached != null) {
+			Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
+				RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(cached).response;
+			DataVault.Set("matches", matches);
+		} else {
+			Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("matches", body => {
+				if (body == null) {
+					UnityEngine.Debug.LogError("Could not get matches from server. Using bundled matches");
+					body = Platform.Instance.ReadAssetsString("default_matches.json");
+				}
+
+	            Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
+	                RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(body).response;
+	            DataVault.Set("matches", matches);
+	        }));
+		}
     }
+
+
 }
