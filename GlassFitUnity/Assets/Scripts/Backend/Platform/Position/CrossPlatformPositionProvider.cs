@@ -124,10 +124,13 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 		// TODO: take speed & bearing from native provider
 		// Temporary calculate speed according to distance/time between 2 last positions
 		if (lastPosition != null) {
-			pos.speed = (float)PositionUtils.distanceBetween (pos, lastPosition) / ((pos.gps_ts - lastPosition.gps_ts) / 1000); 
+			pos.speed = CalcSpeed(pos); 
 		}
 
-		UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude + ", device_ts: " + pos.device_ts + ", speed: " + pos.speed);
+		UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude + 
+			", device_ts: " + pos.device_ts + 
+			", gps_ts: " + pos.gps_ts + 
+			", speed: " + pos.speed);
 
 		//drop it on the HUD for debugging
 		//DataVault.Set("sweat_points_unit", pos.latitude);
@@ -145,7 +148,15 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 		}
 		lastPosition = pos;
 	}
-	
+
+	private float CalcSpeed(Position pos) {
+		float speed = (float)PositionUtils.distanceBetween (pos, lastPosition) / ((pos.device_ts - lastPosition.device_ts) / 1000); 
+		if (float.IsNaN(speed)) {
+			speed = 0f;
+		}
+		return speed;
+	}
+
 	private void Reset() {
 		positionListeners.Clear();
 		//CancelInvoke("UpdateLocation");
