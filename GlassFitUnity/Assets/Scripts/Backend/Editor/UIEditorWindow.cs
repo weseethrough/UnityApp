@@ -16,9 +16,7 @@ public class UIEditorWindow : EditorWindow
 	private int index = 0;
     private string screenName = "require reload";
     private bool foreceRefresh = false;
-
-    //static public Dictionary<string, string>    panelData = new Dictionary<string, string>();
-    //static public string[]                      panelList = {"No Screen"};
+	private Vector2 panelScroller = new Vector2();
 
     /// <summary>
     /// default static unity function called to show window using window type reference
@@ -108,15 +106,27 @@ public class UIEditorWindow : EditorWindow
             }        
         GUILayout.EndHorizontal();
 
+		panelScroller = GUILayout.BeginScrollView(panelScroller);
+
         bool refresh = false;
 		foreach (string name in UIManager.panelList)
         {
             UnityEngine.Object obj = null;
             GUILayout.BeginHorizontal();                
                 obj = EditorGUILayout.ObjectField( obj, typeof(GameObject), GUILayout.MaxWidth(35.0f));
-                GUILayout.Label("name:", GUILayout.MaxWidth(60.0f));
-				GUILayout.Label(name, GUILayout.MaxWidth(100.0f));
-                GUILayout.Label("path:", GUILayout.MaxWidth(60.0f));
+                if ( GUILayout.Button("e", GUILayout.MaxWidth(20.0f)))
+			    {
+					//
+				}
+				GUI.color = Color.red;
+				if ( GUILayout.Button("x", GUILayout.MaxWidth(20.0f)))
+				{
+					//
+				}
+				GUI.color = Color.white;
+				
+				GUILayout.Label(name, GUILayout.MinWidth(150.0f));
+               // GUILayout.Label("path:", GUILayout.MaxWidth(60.0f));
 		
 				string newName = name; 
 				if (obj is GameObject)
@@ -131,11 +141,11 @@ public class UIEditorWindow : EditorWindow
                 {
 					if (UIManager.panelData.ContainsKey(name))
                     {
-						UIManager.panelData[newName] = GUILayout.TextField(UIManager.panelData[name]);
+					UIManager.panelData[newName] = GUILayout.TextField(UIManager.panelData[name], GUILayout.MaxWidth(150.0f));
                     }
                     else
                     {
-						UIManager.panelData[newName] = GUILayout.TextField("");
+					UIManager.panelData[newName] = GUILayout.TextField("", GUILayout.MaxWidth(150.0f));
                     }
 
 					UIManager.panelData.Remove(name);
@@ -143,7 +153,7 @@ public class UIEditorWindow : EditorWindow
                 }
 				else if (UIManager.panelData.ContainsKey(name))
                 {
-					string path = GUILayout.TextField(UIManager.panelData[name]);
+					string path = GUILayout.TextField(UIManager.panelData[name], GUILayout.MaxWidth(150.0f));
 					if ( UIManager.panelData[name] != path)
 					{
 						UIManager.panelData[name] = path;
@@ -152,17 +162,17 @@ public class UIEditorWindow : EditorWindow
                 }
                 else
                 {
-					UIManager.panelData[name] = GUILayout.TextField("");
+					UIManager.panelData[name] = GUILayout.TextField("", GUILayout.MaxWidth(150.0f));
                 }
                 
             GUILayout.EndHorizontal();
-
-            
         }
+
+		GUILayout.EndScrollView();
 
         if (GUILayout.Button("+"))
         {
-			UIManager.panelData.Add("NoName"+UIManager.panelData.Count, "");
+			UIManager.panelData.Add("!!NoName"+UIManager.panelData.Count, "");
             UIManager.BuildList();
 			UIManager.SavePanelData();
         }
@@ -180,7 +190,6 @@ public class UIEditorWindow : EditorWindow
 	/// <returns></returns>
 	void BuildScreenList()
 	{
-
         StorageDictionary screensDictionary = Panel.GetPanelDictionary();
 
         int count = screensDictionary == null ? 0 : screensDictionary.Length();
