@@ -27,12 +27,21 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	public override float Bearing { get { return _bearing; } }
 
 	private PositionTracker.PositionTracker positionTracker;
-	private CrossPlatformPositionProvider positionProvider;
+	private IPositionProvider positionProvider;
 	private CrossPlatformSensorProvider sensorProvider;
 
 
 	public CrossPlatformPlayerPosition() {
-		positionProvider = new CrossPlatformPositionProvider();
+
+	//need to use a bespoke implementation for iOS since Unity's location input doesn't provide a heading.
+	//On Android, until there's an Android position provider, we'll just use the original AndroidPlayerPosition wholesale
+		GameObject platform = GameObject.Find("Platform");
+#if UNITY_IOS
+		positionProvider = platform.AddComponent<IosPositionProvider>();
+#endif
+#if	UNITY_ANDROID
+		PositionProvider = platform.AddComponent<CrossPlatformPositionProvider>();
+#endif
 		sensorProvider = new CrossPlatformSensorProvider();
 
 		//Note - unity complains that PositionTracker is a namespace
@@ -107,7 +116,8 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		//UnityEngine.Debug.Log("Position: LinearAcceleration: " + sensorProvider.LinearAcceleration[0] + "," 
 		//				+ sensorProvider.LinearAcceleration[1] + "," + sensorProvider.LinearAcceleration[2]);
 
-		positionProvider.Update();
+		// Position Provider should arrange its own updates if it needs them. In the case of iOSPositionProvider, it's a MonoBehaviour so gets Unity's Update() call.
+		//positionProvider.Update();
 		sensorProvider.Update();
 	}
 

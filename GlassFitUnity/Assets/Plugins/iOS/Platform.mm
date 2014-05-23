@@ -9,7 +9,7 @@
 #import "Platform.h"
 #import <sys/utsname.h>
 #import <UXCam/UXCam.h>
-
+#import "RY_GPS.h"
 
 
 @implementation Platform
@@ -17,15 +17,15 @@
 extern "C" {
     
     void _Poll() {
-//        NSLog(@"Platform Poll native call");
+        //        NSLog(@"Platform Poll native call");
     }
     
     void _Update() {
-//        NSLog(@"Platform Update native call");
+        //        NSLog(@"Platform Update native call");
     }
     
     void _IsPluggedIn() {
-//        NSLog(@"Platform IsPluggedIn native call");
+        //        NSLog(@"Platform IsPluggedIn native call");
     }
     
     const char* _getDeviceInfo() {
@@ -62,6 +62,7 @@ extern "C" {
         [UXCam tagUsersName:sUser additionalData:sData];
         NSLog(@"Tagged user for UXCam as %@, with data %@", sUser, sData);
     }
+   
 }
 
 
