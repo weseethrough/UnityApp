@@ -596,9 +596,12 @@ namespace RaceYourself
 				});
 				backgroundThread.Start();
 				while (backgroundThread.IsAlive) yield return null;
-
-				if (ret.Equals("full") || ret.Equals("partial")) log.info("Sync() completed successfully in " + (DateTime.Now - start));
-			} finally {
+			} finally {				
+				if (ret.Equals("full") || ret.Equals("partial")) {
+					log.info("Sync() completed successfully in " + (DateTime.Now - start));
+				} else {
+					log.error("Sync() failed with " + ret + " after " + (DateTime.Now - start));
+				}
 				syncing = false;
                 Platform.Instance.NetworkMessageListener.OnSynchronization(ret);
 			}
@@ -773,7 +776,8 @@ namespace RaceYourself
             public List<Models.Event> events;
     		
 			public Data(Siaqodb db, Device self) {
-				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
+				devices = new List<Models.Device>();
+				devices.Add(self);
 				tracks = new List<Models.Track>(db.Query<Models.Track>().Where<Models.Track>(t => t.dirty == true));
 				positions = new List<Models.Position>(db.Query<Models.Position>().Where<Models.Position>(p => p.dirty == true));
 				notifications = new List<Models.Notification>(db.Query<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));

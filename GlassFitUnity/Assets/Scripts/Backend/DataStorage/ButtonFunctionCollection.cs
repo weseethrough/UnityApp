@@ -1446,6 +1446,11 @@ public class ButtonFunctionCollection
 		
 		log.info("Got tracks for this user's fitness level");
 
+		if (tracks.Count == 0) {
+			log.error("No tracks available for fitness level " + fitnessLevel);
+			return false;
+		}
+
         int trackIdx = UnityEngine.Random.Range(0, tracks.Count-1);
 
 		log.info("randomly chosen track index = " + trackIdx + " out of " + tracks.Count);
