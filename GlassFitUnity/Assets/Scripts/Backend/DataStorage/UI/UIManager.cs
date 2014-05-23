@@ -183,6 +183,8 @@ public class UIManager : MonoBehaviour
     //New UI panel system
     public static void LoadPanelData()
     {
+		float startTime = Time.realtimeSinceStartup;
+
         byte[] data = Platform.Instance.LoadBlob("newPanels");
         MemoryStream ms = new MemoryStream(data);
         StreamReader r = new StreamReader(ms);
@@ -207,6 +209,9 @@ public class UIManager : MonoBehaviour
         }
 
         BuildList();
+
+		float endTime = Time.realtimeSinceStartup;
+		Debug.Log("NEW SYSTEM: Loading time for newPanels took " + (float)(endTime - startTime));
     }
 
     public static void SavePanelData()

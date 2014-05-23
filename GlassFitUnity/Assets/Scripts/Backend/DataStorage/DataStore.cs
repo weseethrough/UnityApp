@@ -96,10 +96,19 @@ public class DataStore : MonoBehaviour
         //load data blobs from drive
         
         for (int i = 0; i < (int)BlobNames.maxItem; i++ )
-        {
-            float startTime = Time.realtimeSinceStartup;
-            BlobNames bName = (BlobNames)i;
-            string name = bName.ToString();
+		{
+			BlobNames bName = (BlobNames)i;
+			string name = bName.ToString();
+
+			if (bName == BlobNames.ui_panels)
+			{
+				storageBank[name] = new Storage();
+				UIManager.LoadPanelData();
+				continue;
+			}
+
+			float startTime = Time.realtimeSinceStartup;
+            
 #if UNITY_EDITOR
             if (!LoadStorageFromCollection(bName))
             {
@@ -121,6 +130,7 @@ public class DataStore : MonoBehaviour
             float endTime = Time.realtimeSinceStartup;
 
             Debug.Log("Loading time for " + name + " took " + (float)(endTime - startTime));
+
         }
         
 	}
