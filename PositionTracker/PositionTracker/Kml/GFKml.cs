@@ -210,7 +210,7 @@ namespace PositionPredictor
 	        private void addTime() {
 	            // Add timestamp. TODO: choose between Gps and Device timestamp according to path type
 				DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-				dt.AddMilliseconds (position.device_ts);
+				dt = dt.AddMilliseconds (position.device_ts);
 
 				Timestamp ts = new Timestamp();
 				ts.When = dt;
@@ -260,7 +260,7 @@ namespace PositionPredictor
 	            Data d = new Data();
 				d.DisplayName = "DeviceTs";
 				DateTime dt = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-				dt.AddMilliseconds (position.device_ts);
+				dt = dt.AddMilliseconds (position.device_ts);
 				d.Value = dt.ToShortDateString();
 				ed.AddData(d);
 

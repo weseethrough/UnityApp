@@ -97,7 +97,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 			//UnityEngine.Debug.Log("Position Tracker has position");
 			_position = positionTracker.CurrentPosition;
 			//log the position to the HUD and console
-			//UnityEngine.Debug.Log("PlayerPosition's position: " + _position.latitude + " " + _position.longitude);
+			UnityEngine.Debug.Log("PlayerPosition's position: " + _position.latitude + " " + _position.longitude);
 			//DataVault.Set("sweat_points_unit", _position.latitude);
 			//DataVault.Set("fps", _position.longitude);
 		}
