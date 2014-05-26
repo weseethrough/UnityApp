@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 /// <summary>
 /// component which is flow manager embedded in prefab. Manages state progression, flowstate stack and many more important flow behaviors and data 
@@ -46,6 +47,13 @@ public class FlowStateMachine : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void RemoveFromHistory(FlowState flowState)
+    {
+        int idx = navigationHistory.IndexOf(flowState);
+        if (idx >= 0)
+            navigationHistory.RemoveAt(idx);
     }
 	
     /// <summary>
@@ -161,37 +169,18 @@ public class FlowStateMachine : MonoBehaviour
             connection.Link.Count > 0 &&
             connection.Link[0].Parent != null)
         {
-//            if (!grabAnalyticsInitialized)
-//            {
-//                //use this to enable debug output
-//                //GrabBridge.ToggleLog(true);
-//
-//                //GrabBridge.Start("pxeqexpldwfcwdp:faef0c81e352b38894b8df87:R7mg9jl2t4UOOWGxHTDh2Ys3KRHH/NOs0QAy9osBUEE=");
-//
-//                string userid = "tester";
-//                //GrabBridge.FirstLogin(userid);
-//
-//                //grabAnalyticsInitialized = true;                
-//            }
-            
 
-            //JSONObject gameDetails = new JSONObject();
-            //object type = DataVault.Get("type");
-            //object log = DataVault.Get("warning_log");
-            //DataVault.Set("warning_log", "");
+            // log screen transition for UX analysis
+            Hashtable screenProperties = new Hashtable();
+			string screenName = activeFlow[activeFlow.Count - 1].GetDisplayName();
+			Platform.Instance.tagScreenForUXCam(screenName);
 
-//            gameDetails.AddField("Flow state", activeFlow[activeFlow.Count - 1].GetDisplayName());
-//            gameDetails.AddField("Game type", (string)type);
-//            gameDetails.AddField("Time since launch", (int)(Time.realtimeSinceStartup * 1000));
-//            gameDetails.AddField("State live", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
-//            gameDetails.AddField("Custom Log", (string)log );
-
-            //GrabBridge.CustomEvent("Flow state changed", gameDetails);
-
-            // Our own internal logging for analytics
-            //gameDetails.AddField("Event type", "Flow state changed");
-            //Platform.Instance.LogAnalytics(gameDetails);
-
+            screenProperties.Add("screen_name", screenName);
+            screenProperties.Add("game_type", (string)DataVault.Get("type"));
+            screenProperties.Add("time_since_launch", (int)(Time.realtimeSinceStartup * 1000));
+            screenProperties.Add("time_in_state", (int)( (Time.realtimeSinceStartup - activeFlow[activeFlow.Count - 1].GetStartingTimeStamp()) * 1000 ) );
+            screenProperties.Add("custom_log", (string)DataVault.Get("warning_log") );
+            Platform.Instance.LogScreenView(JsonConvert.SerializeObject(screenProperties));
             if (navigationHistory == null)
             {
                 navigationHistory = new List<FlowState>();
@@ -285,6 +274,9 @@ public class FlowStateMachine : MonoBehaviour
 //        // Our own internal logging for analytics
 //        gameDetails.AddField("Event type", "Flow state changed");
 //        Platform.Instance.LogAnalytics(gameDetails);
+
+		//tag the new state as the screen name for UXCam
+//		Platform.Instance.tagScreenForUXCam(activeFlow[activeFlow.Count - 1].GetDisplayName());
 
         ForbidBack();
         targetState = state;

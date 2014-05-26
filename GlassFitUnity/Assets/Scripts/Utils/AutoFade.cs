@@ -96,7 +96,8 @@ public class AutoFade : MonoBehaviour {
             DrawQuad(aColor,t);
         }
 		
-#if !UNITY_EDITOR
+//#if !UNITY_EDITOR
+#if true
 		// The level is then loaded based on the name or number given
         if (mLevelName != "")
             Application.LoadLevel(mLevelName);

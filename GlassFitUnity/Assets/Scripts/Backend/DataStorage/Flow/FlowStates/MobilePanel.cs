@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Reflection;
 
+using RaceYourself.Models;
+
 /// <summary>
 /// basic panel which allows to show ui
 /// </summary>
@@ -98,7 +100,8 @@ public class MobilePanel : Panel
     /// <returns></returns>
     protected void AddBackButtonData()
     {
-        AddButtonData("buttonBack", "Back", "FollowBack");        
+//		Dictionary<string, string> dictionary = 
+//        AddButtonData("buttonBack", "Back", "FollowBack");        
     }
 
     /// <summary>
@@ -108,9 +111,9 @@ public class MobilePanel : Panel
     /// <param name="title"></param>
     /// <param name="function"></param>    
     /// <returns></returns>
-    protected void AddButtonData(string buttonName, string title, string function)
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function)
     {
-        AddButtonData(buttonName, title, function, ListButtonData.ButtonFormat.ButtonPrototype, null);
+		AddButtonData(buttonName, buttonDictionary, function, string.Empty, ListButtonData.ButtonFormat.ButtonPrototype, null);
     }
 
     /// <summary>
@@ -121,9 +124,9 @@ public class MobilePanel : Panel
     /// <param name="function"></param>
     /// <param name="buttonFormat"></param>
     /// <returns></returns>
-    protected void AddButtonData(string buttonName, string title, string function, ListButtonData.ButtonFormat buttonFormat)
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat)
     {
-        AddButtonData(buttonName, title, function, buttonFormat, null);
+        AddButtonData(buttonName, buttonDictionary, function, string.Empty, buttonFormat, null);
     }
 
     /// <summary>
@@ -135,28 +138,39 @@ public class MobilePanel : Panel
     /// <param name="buttonFormat"></param>
     /// <param name="cloneFirstLinkage"></param>
     /// <returns></returns>
-    protected void AddButtonData(string buttonName, string title, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
     {       
-        ListButtonData data = new ListButtonData();
-        data.textNormal = title;
-        data.buttonName = buttonName;
-        data.connectionFunction = function;
-        data.buttonFormat = buttonFormat.ToString();
+		AddButtonData(buttonName, buttonDictionary, function, string.Empty, buttonFormat, cloneFirstLinkage);
+	}   
+	
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, string imageName, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+	{
+		ListButtonData data = new ListButtonData();
+		//        data.textNormal = title;
+		data.buttonName = buttonName;
+		data.connectionFunction = function;
+		data.buttonFormat = buttonFormat.ToString();
+		data.attributeDictionary = buttonDictionary;
+		data.imageName = imageName;
 
-        buttonData.Add(data);
-
-        GConnector gc = NewOutput(buttonName, "Flow");
-        gc.EventFunction = function;
-        gc.Name = buttonName;
-        if (GraphComponent.GetInstance() != null && cloneFirstLinkage != null)
-        {
-            if (cloneFirstLinkage.Link.Count > 0)
-            {
-                GraphComponent.GetInstance().Data.Connect(gc, cloneFirstLinkage.Link[0]);
-            }
-            gc.EventFunction = cloneFirstLinkage.EventFunction;
-        }        
-    }   
+		buttonData.Add(data);
+		
+		GConnector gc = NewOutput(buttonName, "Flow");
+		gc.EventFunction = function;
+		gc.Name = buttonName;
+		if (GraphComponent.GetInstance() != null && cloneFirstLinkage != null)
+		{
+			if (cloneFirstLinkage.Link.Count > 0)
+			{
+				GraphComponent.GetInstance().Data.Connect(gc, cloneFirstLinkage.Link[0]);
+			}
+			gc.EventFunction = cloneFirstLinkage.EventFunction;
+		}    
+	}
+	
+	//	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string CallStaticFunction, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage) {
+//
+//	}
 
     /// <summary>
     /// 
@@ -173,4 +187,34 @@ public class MobilePanel : Panel
 
         return gc;
     }
+
+	public void AddChallengeButtons(List<Challenge> challengeList, ListButtonData.ButtonFormat format) {
+		for(int i=0; i<challengeList.Count; i++) {
+			string buttonName = format.ToString() + i;
+			Dictionary<string, string> challengeDictionary = new Dictionary<string, string>();
+			challengeDictionary.Add("TitleText", challengeList[i].name);
+			challengeDictionary.Add("DescriptionText", challengeList[i].description);
+			challengeDictionary.Add("DeadlineText", "Challenge expires in " + "5 days");
+			if(format != ListButtonData.ButtonFormat.FriendChallengeButton) {
+				challengeDictionary.Add("PrizePotText", "Prize pot: " + challengeList[i].points_awarded);
+				if(format == ListButtonData.ButtonFormat.CommunityChallengeButton) {
+					challengeDictionary.Add("ExtraPrizeText", "Extra Prize: " + challengeList[i].prize);
+				}
+			}
+			AddButtonData(buttonName, challengeDictionary, "", format, GetBaseButtonConnection());
+			
+		}
+	}
+
+	public GConnector GetConnection(string connectionName) {
+		GConnector gc = Outputs.Find(r => r.Name == connectionName);
+		if (gc == null)
+		{
+			UnityEngine.Debug.LogError("MobileSelectPanel: error finding connection - " + connectionName);
+		}
+		
+//		DataVault.Set("facebook_message", "Connect to Facebook");
+		
+		return gc;
+	}
 }

@@ -647,12 +647,15 @@ public class AndroidPlatform : Platform
 	/// <param name='json'>
 	/// Json-encoded event values such as current game state, what the user action was etc
 	/// </param>
-	public override void LogAnalytics(string json)
+    public override void LogAnalyticEvent(string jsonString)
 	{
 		try
 		{
-			helper.CallStatic("logEvent", json);
-			UnityEngine.Debug.Log("Platform: logged analytic event " + json.ToString());
+			Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
+			jsonObject.Add("event_type", "event");
+			jsonString = JsonConvert.SerializeObject(jsonObject);
+			helper.CallStatic("logEvent", jsonString);
+			UnityEngine.Debug.Log("Platform: logged analytic event " + jsonString);
 		}
 		catch (Exception e)
 		{

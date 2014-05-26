@@ -26,11 +26,11 @@ namespace RaceYourself.Models
 		public float latitude;
 		[JsonProperty("lng")]
 		public float longitude;
-		public float alt;
+        public float? alt;
 		public float bearing;
-		public float corrected_bearing;
-		public float corrected_bearing_R;
-		public float corrected_bearing_significance;
+        public float? corrected_bearing;
+        public float? corrected_bearing_R;
+        public float? corrected_bearing_significance;
 		public float speed;
 		public float epe;
 		public string nmea;

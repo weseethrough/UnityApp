@@ -11,8 +11,8 @@ using RaceYourself.Models;
 [Serializable]
 public class MobileSelectFriend : MobilePanel 
 {
-	List<RaceYourself.Models.Friend> betaFriends;
-    List<RaceYourself.Models.Friend> friendsData;
+	List<Friend> betaFriends;
+    List<Friend> friendsData;
 
     public MobileSelectFriend() { }
     public MobileSelectFriend(SerializationInfo info, StreamingContext ctxt)
@@ -54,7 +54,7 @@ public class MobileSelectFriend : MobilePanel
 
         friendsData = Platform.Instance.Friends();
 
-		betaFriends = new List<RaceYourself.Models.Friend>();
+		betaFriends = new List<Friend>();
 
 		if(friendsData != null) {
 			for(int i=0; i<friendsData.Count; i++) {
@@ -69,8 +69,10 @@ public class MobileSelectFriend : MobilePanel
 		if(betaFriends != null && betaFriends.Count > 0) {
 			for(int i=0; i<betaFriends.Count; i++) {
 				string betaButtonName = "challenge" + i;
-				AddButtonData(betaButtonName, betaFriends[i].name, "", ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
-				Platform.Instance.RemoteTextureManager.LoadImage("http://graph.facebook.com/" + betaFriends[i].uid + "/picture", betaButtonName, (tex, buttonId) => {
+				Dictionary<string, string> betaFriendDictionary = new Dictionary<string, string>();
+				betaFriendDictionary.Add("title", betaButtonName);
+				AddButtonData(betaButtonName, betaFriendDictionary, "", ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
+				Platform.Instance.RemoteTextureManager.LoadImage(betaFriends[i].image, betaButtonName, (tex, buttonId) => {
 					
 					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
 					if(button != null) {
@@ -94,8 +96,10 @@ public class MobileSelectFriend : MobilePanel
             for (int i = 0; i < friendsData.Count; i++)
             {
 				string buttonName = "invite" + i;
-				AddButtonData(buttonName, friendsData[i].name, "", ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
-				Platform.Instance.RemoteTextureManager.LoadImage("http://graph.facebook.com/" + friendsData[i].uid + "/picture", buttonName, (tex, buttonId) => {
+				Dictionary<string, string> friendDictionary = new Dictionary<string, string>();
+				friendDictionary.Add("title", buttonName);
+				AddButtonData(buttonName, friendDictionary, "", ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
+				Platform.Instance.RemoteTextureManager.LoadImage(friendsData[i].image, buttonName, (tex, buttonId) => {
 
 					GameObject button = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, buttonId);
 					if(button != null) {
@@ -104,27 +108,14 @@ public class MobileSelectFriend : MobilePanel
 				});
             }
 
-			AddButtonData ("ImportButton", "", "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
+			AddButtonData ("ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
             
             if (list != null)
             {            
-                list.SetParent(this);
-                list.RebuildList();
+                list.SetParent(this);                
             }
         }
     }
-
-	public GConnector GetConnection(string connectionName) {
-		GConnector gc = Outputs.Find(r => r.Name == connectionName);
-		if (gc == null)
-		{
-			UnityEngine.Debug.LogError("MobileSelectPanel: error finding connection - " + connectionName);
-		}
-
-		DataVault.Set("facebook_message", "Connect to Facebook");
-
-		return gc;
-	}
 	
 	public override void OnClick(FlowButton button)
     {
@@ -140,6 +131,7 @@ public class MobileSelectFriend : MobilePanel
 					string prefix = "invite";
 					string index = button.name.Substring(prefix.Length);
 					int i = Convert.ToInt32(index);
+					DataVault.Set("facebook_message", "Connect to Facebook");
 					DataVault.Set("chosen_friend", friendsData[i]);
 					Debug.Log("chosen_friend set to " + friendsData[i].name);
 				} else if(button.name.Contains("challenge")) {

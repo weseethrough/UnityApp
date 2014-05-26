@@ -42,6 +42,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	// Starts recording player's position
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public override void StartTrack() {
+		base.StartTrack();
 		positionTracker.StartTracking();
 	}
 
@@ -72,8 +73,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	// Stop tracking 
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public override Track StopTrack() {
-		UnityEngine.Debug.LogError("CrossPlatformPlayerPosition: Calling StopTrack  ");
-
+		base.StopTrack();
 		positionTracker.StopTracking();
 		return positionTracker.Track;
 	}
@@ -81,12 +81,9 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	// Reset GPS tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public override void Reset() {
-		//positionTracker.Reset();
-
-		//There doesn't appear to be a Reset method in the position tracker class.
-		//Should we use StartNewTrack() instead?
-		UnityEngine.Debug.LogError("CrossPlatformPlayerPosition: no reset method in PositionTracker. Use StartNewTrack()?");
-		throw new NotImplementedException();
+		base.Reset();
+		positionTracker.StartNewTrack();
+		log.info("Starting new position track");
 	}
 
 	public override void Update() {

@@ -13,14 +13,18 @@ namespace RaceYourself.Models
 		public string email;
 		public string token;
 		public string name;
+//        public string forename;
+//        public string surname;
 		public DateTime created_at;
 		public DateTime updated_at;
 		public bool admin;
 		public int sync_key;
 		public DateTime? sync_timestamp;
-		public string gender;
+		public char? gender;
 		public int points;
 		public List<Authentication> authentications;
+        [MaxLength(255)]
+        public string image;
 		
 		public string DisplayName {
 			get {
@@ -29,6 +33,23 @@ namespace RaceYourself.Models
 				return email;
 			}
 		}
+
+        public string forename {
+            get {
+                if(!string.IsNullOrEmpty(name)) return name.Split(' ')[0];
+                return "Unknown";
+            }
+        }
+
+        public string surname {
+            get {
+                if(!string.IsNullOrEmpty(name)) {
+                    var split = name.Split(' ');
+                    return split[split.Length - 1];
+                }
+                return "Unknown";
+            }
+        }
 	}
 	
 	public class Authentication 

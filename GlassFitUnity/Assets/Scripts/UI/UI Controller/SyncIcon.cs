@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 
 public class SyncIcon : MonoBehaviour {
 	
+    // TODO strip out icon rotation and reference TextureRotation instead.
+
 	private float rotation = 0f;
 	
     private NetworkMessageListener.OnAuthenticated authHandler = null;
@@ -15,11 +18,25 @@ public class SyncIcon : MonoBehaviour {
 		UnityEngine.Debug.Log("SyncIcon: in start function");
 		if(Platform.Instance.IsPluggedIn() && Platform.Instance.HasInternet()) {
 			UnityEngine.Debug.Log("SyncIcon: setting auth handler");
-            authHandler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+            authHandler = new NetworkMessageListener.OnAuthenticated((errors) => {
+                bool authenticated = errors.Count == 0;
+
                 Platform.Instance.NetworkMessageListener.onAuthenticated -= authHandler;
 
 				UnityEngine.Debug.Log("SyncIcon: checking if authenticated");
 				if (!authenticated) {
+                    var errorDetail = new System.Text.StringBuilder();
+                    foreach (KeyValuePair<string, IList<string>> entry in errors)
+                    {
+                        foreach (string v in entry.Value)
+                        {
+                            errorDetail.Append(entry.Key);
+                            errorDetail.Append(" ");
+                            errorDetail.AppendLine(v);
+                        }
+                    }
+                    UnityEngine.Debug.LogError("SyncIcon: auth failure: " + errorDetail);
+
 					MessageWidget.AddMessage("ERROR", "Could not authenticate", "settings");
 					GoToGame();
 					return;

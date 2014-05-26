@@ -195,8 +195,7 @@ public class DataStore : MonoBehaviour
         if (instance != null && Platform.Instance != null)
         {            
             if (!LoadStorageFromCollection(name))
-            {
-                
+            {                
                 instance.storageBank[name.ToString()] = instance.InitializeBlob(Platform.Instance.LoadBlob(name.ToString()));
                 
             }            
@@ -243,7 +242,7 @@ public class DataStore : MonoBehaviour
 
                     if (instanceName == null) break;
 
-                    byte[] instanceData = Platform.Instance.LoadBlob("z_" + instanceName);
+                    byte[] instanceData = Platform.Instance.LoadBlob(blobName + "_" + instanceName);
 
                     if (instanceData.Length == 0) break;
                  		        
@@ -336,7 +335,7 @@ public class DataStore : MonoBehaviour
     /// </summary>
     /// <param name="name">name of the blob to be saved</param>
     /// <returns></returns>
-    static public void SaveStorageAsCollection(BlobNames name)
+    static private void SaveStorageAsCollection(BlobNames name)
     {
 #if UNITY_EDITOR
         if (instance != null && Platform.Instance != null)
@@ -372,7 +371,7 @@ public class DataStore : MonoBehaviour
 
                 MemoryStream ms = new MemoryStream();
                 bformatter.Serialize(ms, data);
-                Platform.Instance.StoreBlob("z_" + dataName, ms.GetBuffer());
+                Platform.Instance.StoreBlob(blobName + "_" + dataName, ms.GetBuffer());
 
                 writter.WriteLine(dataName);                
             }

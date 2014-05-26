@@ -41,7 +41,7 @@ public class MobileSettings : MobilePanel
             list.SetTitle("Select Track");
         }
 
-        AddButtonData("Button0", "Button0", "B", ListButtonData.ButtonFormat.ButtonNormalPrototype, GetBaseButtonConnection());
+        /*AddButtonData("Button0", "Button0", "B", ListButtonData.ButtonFormat.ButtonNormalPrototype, GetBaseButtonConnection());
         AddButtonData("Button1", "Button1", "B", ListButtonData.ButtonFormat.ButtonNormalPrototype, GetBaseButtonConnection());
         AddButtonData("Button2", "Button2", "B", ListButtonData.ButtonFormat.ButtonNormalPrototype, GetBaseButtonConnection());
         AddButtonData("Button3", "Button3", "B", ListButtonData.ButtonFormat.ButtonNormalPrototype, GetBaseButtonConnection());        
@@ -49,13 +49,22 @@ public class MobileSettings : MobilePanel
         AddButtonData("Slider1", "Slider1", "S", ListButtonData.ButtonFormat.SliderPrototype);
         AddButtonData("Slider2", "Slider2", "S", ListButtonData.ButtonFormat.SliderPrototype);
         AddButtonData("Slider3", "Slider3", "S", ListButtonData.ButtonFormat.SliderPrototype);
-
-            
-        if (list != null)
+        */
+		Dictionary<string, string> dic = new Dictionary<string, string>();
+		dic.Add("title", "slider" );
+        for (int k = 0; k < 800; k++ )
         {
-            list.SetParent(this);
-            list.RebuildList();
+			dic["title"] = "slider" +k;
+
+            AddButtonData("Slider"+k, dic, "S", ListButtonData.ButtonFormat.SliderPrototype);
+			dic["title"] = "button" +k;
+            AddButtonData("Button"+k, dic, "B", ListButtonData.ButtonFormat.ButtonNormalPrototype, GetBaseButtonConnection());
         }
+
+            if (list != null)
+            {
+                list.SetParent(this);
+            }
         
     }
 

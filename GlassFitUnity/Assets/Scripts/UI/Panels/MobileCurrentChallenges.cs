@@ -73,7 +73,9 @@ public class MobileCurrentChallenges : MobilePanel
             
             for (int i = 0; i < challengeNotifications.Count; i++)
             {
-                AddButtonData("button" + i, challengeNotifications[i].GetName(), "", ListButtonData.ButtonFormat.ButtonNormalPrototype, baseConnection);
+				Dictionary<string, string> challengeDictionary = new Dictionary<string, string>();
+				challengeDictionary.Add("title", challengeNotifications[i].GetName());
+                AddButtonData("button" + i, challengeDictionary, "", ListButtonData.ButtonFormat.ButtonNormalPrototype, baseConnection);
 
                 ListButtonData data = new ListButtonData();
                 data.textNormal = challengeNotifications[i].GetName();
@@ -85,7 +87,6 @@ public class MobileCurrentChallenges : MobilePanel
             if (list != null)
             {
                 list.SetParent(this);
-                list.RebuildList();
             }
             return true;
         }
@@ -210,9 +211,11 @@ public class MobileCurrentChallenges : MobilePanel
         {
             // Restart function once authenticated
             NetworkMessageListener.OnAuthenticated handler = null;
-            handler = new NetworkMessageListener.OnAuthenticated((authenticated) =>
+            handler = new NetworkMessageListener.OnAuthenticated((errors) =>
             {
-                    Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
+                bool authenticated = errors.Count == 0;
+
+                Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
                 if (authenticated)
                 {
                     GetChallenges();

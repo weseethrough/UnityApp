@@ -36,13 +36,30 @@ public class IosPlatform : Platform
 	Log log = new Log("IosPlatform");
 
 	/// <summary>
+	///Dummy function to hint AOT compilation. Add any methods here which need hinting for AOT compilation on iOS (i.e. throw errors about attempting JIT compilation)
+	/// </summary>q
+	static void AotHintDummyFunction()
+	{
+		StorageDictionaryBase<bool> b = new StorageDictionaryBase<bool>();
+		StorageDictionaryBase<int> i = new StorageDictionaryBase<int>();
+		StorageDictionaryBase<double> d = new StorageDictionaryBase<double>();
+		StorageDictionaryBase<string> s = new StorageDictionaryBase<string>();
+		Dictionary<string,Dictionary<string,List<Track>>> dict = new Dictionary<string,Dictionary<string,List<Track>>>();
+		string s1 = dict.ToString();
+		Dictionary<string, List<Track>> t = dict["test"];
+		string s2 = t.ToString();
+		List<Track> ts = t["test"];
+	}
+
+	//native code to set the badge number on the app icon
+	[DllImport("__Internal")]
+	private static extern void _setBadgeNumber(int number);
+
+	/// <summary>
 	/// Initialize this instance.
 	/// </summary>
 	protected override void Initialize ()
 	{
-		//start location service
-		Input.location.Start(10, 1);
-
 		UnityEngine.Debug.Log("Creating iOS Platform instance");
 		
 		blobstore = Path.Combine(Application.persistentDataPath, blobstore);
@@ -78,6 +95,11 @@ public class IosPlatform : Platform
 		// TODO when we have an area to view challenges, don't clear this until they have been viewed
 		NotificationServices.ClearRemoteNotifications();
 
+#if UXCAM
+		//start uxcam
+		startUXCam();
+#endif
+
 	}
 
 	/// <summary>
@@ -89,15 +111,19 @@ public class IosPlatform : Platform
 		string p = fbme.Picture;
 	}
 
-    /// <summary>
+	
+
+
+	/// <summary>
     /// Called every frame by PlatformPartner to update internal state
     /// </summary>
+    
 	[DllImport("__Internal")]
 	private static extern void _Update();
 
 	public override void Update ()
     {
-		updateFlingDetection();
+		//updateFlingDetection();
 
 		//log.info("IosPlatform.Update");
 		try {
@@ -106,10 +132,6 @@ public class IosPlatform : Platform
 			UnityEngine.Debug.LogException(e);
 		}
         base.Update();
-
-		//TODO, if this is successful, move to base Platform
-		Quaternion orientation = Input.gyro.attitude;
-		playerOrientation.Update(orientation);
 
 
 		//check for device token
@@ -136,11 +158,21 @@ public class IosPlatform : Platform
 		//check for new notifications
 		if(NotificationServices.remoteNotificationCount > 0)
 		{
-			log.info("New remote push notification received.");
-			//clear it straight away for now.
-			// TODO raise some event in non-platform code (NetworkMessageListener?) which will inform that there's a new notification, 
 			// trigger a sync to get the full details, and do whatever else is necessary.
+			NetworkMessageListener.OnPushNotification(NotificationServices.remoteNotificationCount + " new push notifications received");
+
+			for(int i=0; i<NotificationServices.remoteNotificationCount; i++)
+			{
+				RemoteNotification notification = NotificationServices.GetRemoteNotification(i);
+				log.info("New Push Notification: " + notification);
+			}
 			NotificationServices.ClearRemoteNotifications();
+
+			//TODO maybe trigger a local notification if the user isn't currently looking at the challenge list?
+
+			//clear it straight away for now.
+			NotificationServices.ClearLocalNotifications();
+
 		}
 
     }
@@ -304,7 +336,7 @@ public class IosPlatform : Platform
 		//Not entirely sure what this is supposed to do. Wil do nothing for now. AH
 		return;
 	}
-	
+
 	public override void EraseBlob (String id)
 	{
 		throw new NotImplementedException ();
@@ -342,6 +374,65 @@ public class IosPlatform : Platform
     public override bool ProvidesBackButton()
 	{
 		return false;
+	}
+
+	public override void ReadNotification (int id)
+	{
+		base.ReadNotification(id);
+
+		//check how many unread notifications we now have and update the badge
+		Notification[] notifications = Notifications();
+
+		int unread = 0;
+		foreach(Notification n in notifications)
+		{
+			if(!n.read)
+			{
+				unread++;
+			}
+		}
+		_setBadgeNumber(unread);	
+	}
+	
+	
+	// UXCam methods
+
+	[DllImport("__Internal")]
+	private static extern void _StartUXCam();
+
+	// UXCam methods
+	public override void startUXCam()
+	{
+		log.info("Attempting to start UXCam");
+		_StartUXCam();
+		return;
+	}
+
+	[DllImport("__Internal")]
+	private static extern void _StopUXCamAndUploadData();
+
+	public override void stopUXCam()
+	{
+		_StopUXCamAndUploadData();
+		return;
+	}
+
+	[DllImport("__Internal")]
+	private static extern void _UXCamTagScreenName(string screenName);
+
+	public override void tagScreenForUXCam(string tag)
+	{
+		_UXCamTagScreenName(tag);
+		return;
+	}
+
+	[DllImport("__Internal")]
+	private static extern void _UXCamTagUserName(string screenName, string additionalData);
+
+	public override void tagUserForUXCam (string tag, string additionalData)
+	{
+		_UXCamTagUserName(tag, additionalData);
+		return;
 	}
 
 	protected void updateFlingDetection()

@@ -46,7 +46,7 @@ namespace RaceYourself
 		
 		private Siaqodb db;
 		
-		private OauthToken token = null;
+		public OauthToken token = null;
 		public User user { get; private set; }
         public PlayerConfig playerConfig { get; private set; }
 
@@ -60,7 +60,7 @@ namespace RaceYourself
 			db = database;
 			user = db.Query<User>().LastOrDefault();
 			token = db.Query<OauthToken>().LastOrDefault();
-			if (user != null && token != null) {
+            if (user != null && token != null) {
 				if (user.id != token.userId) {
 					log.error("Token in database does not belong to user in database!");
 					// TODO: Allow storage of multiple users or delete old data on id mismatch?
@@ -69,6 +69,7 @@ namespace RaceYourself
 				} else {
 					if (!token.HasExpired) {
 						log.info("Still logged in as " + user.DisplayName + "/" + user.id);
+                        Platform.Instance.NetworkMessageListener.authenticated = true;
 					}
 				}
 			} else {
@@ -145,14 +146,23 @@ namespace RaceYourself
 	            form.AddField("username", username);
 	            form.AddField("password", password);
 				
-				var post = new WWW(AUTH_TOKEN_URL, form);				
+				var post = new WWW(AUTH_TOKEN_URL, form);
 				yield return post;
-						
-				if (!post.isDone) {}
 				
-				if (!String.IsNullOrEmpty(post.error)) {
-					log.error("Login(" + username + ",<password>) threw error: " + post.error);
-					ret = "Failure";
+				if (!post.isDone) {}
+
+                if (!String.IsNullOrEmpty(post.error)) {
+                    // info, because on mobile, the user may mistype their password - so potentially user error not app/network error.
+                    log.info("Login(" + username + ",<password>) has errors: " + post.error);
+
+                    if (post.error.StartsWith("401") || post.error.StartsWith("400"))
+                    {
+                        ret = "Failure";
+                    }
+                    else
+                    {
+                        ret = "CommsFailure";
+                    }
 					yield break;
 				}
 				
@@ -194,7 +204,7 @@ namespace RaceYourself
 		public IEnumerator UpdateAuthentications() 
 		{
 			if (token == null || token.HasExpired) {
-				log.error("UpdateAuthentications() called with expired or missing token");
+                log.info("UpdateAuthentications() called with expired or missing token (legit pre-sign in on mobile)");
 				yield break;
 			}
 			log.info("UpdateAuthentications()");
@@ -203,7 +213,7 @@ namespace RaceYourself
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			var request = new WWW(ApiUrl("me"), null, headers);
 			yield return request;
-					
+			
 			if (!request.isDone) {}
 			
 			if (!String.IsNullOrEmpty(request.error)) {
@@ -231,11 +241,12 @@ namespace RaceYourself
 			
 			log.info("UpdateAuthentications() fetched " + user.authentications.Count + " authentications");
 		}
-		
+
 		/// <summary>
 		/// Coroutine to link a third-party service to the logged in user.
 		/// </summary>
-		public IEnumerator LinkProvider(ProviderToken ptoken) {
+        public IEnumerator LinkProvider(ProviderToken ptoken, Action<string> callback) {
+			// TODO: Update POST schema to use JSON path authentications/{provider, uid, access_token}
 			log.info(string.Format("LinkProvider({0})", ptoken.provider));
 
 			string ret = "Failed";
@@ -258,20 +269,109 @@ namespace RaceYourself
 					yield break;
 				}
 
-				IEnumerator e = UpdateAuthentications();
-				while(e.MoveNext()) yield return e.Current;
+				var account = JsonConvert.DeserializeObject<SingleResponse<User>>(post.text);
+				if (account.response.id <= 0) {
+					log.error(string.Format("LinkProvider({0}): received an invalid response: {1}", ptoken.provider, post.text));
+					yield break;
+				}
+				
+				user = account.response;
 
-				log.info(string.Format("LinkProvider({0}): succeeded", ptoken.provider));
-                
-                ret = "Success";
-            } finally {
+				var transaction = db.BeginTransaction();
+				try {
+					if (!db.UpdateObjectBy("id", user)) {
+						db.StoreObject(user);
+					}
+					transaction.Commit();
+				} catch (Exception ex) {
+					transaction.Rollback();
+					throw ex;
+                }
+
+                ret = "Failed";
+                foreach (Authentication auth in user.authentications)
+                {
+                    if (ptoken.provider == auth.provider)
+                    {
+                        ret = "Success";
+                        break;
+                    }
+                }
+
+                log.info(string.Format("LinkProvider({0}): {1}", ptoken.provider, ret));
+            } finally
+            {
+                if (callback != null)
+                    callback(ret);
             }
         }
         
 		/// <summary>
+		/// Coroutine to update a user's details.
+		/// 
+		/// Null values in explicit arguments are not sent.
+		/// Null values inside profile object cause that key to be deleted.
+		/// </summary>
+		public IEnumerator UpdateUser(string username, string name, string image, char gender, int? timezone, Profile profile) {
+			log.info(string.Format("UpdateUser({0})", user.email));
+			
+			string ret = "Failed";
+			try {
+				var data = new Hashtable();
+				if (username != null) data.Add("username", username);
+				if (name != null) data.Add("name", name);
+				if (image != null) data.Add("image", image);
+				if (gender != null) data.Add("gender", gender);
+				if (timezone.HasValue) data.Add("timezone", timezone.Value);
+				if (profile != null) data.Add("profile", profile);
+				string body = JsonConvert.SerializeObject(data);
+				
+				var encoding = new System.Text.UTF8Encoding();			
+				var headers = new Hashtable();
+				headers.Add("Content-Type", "application/json");
+				headers.Add("Authorization", "Bearer " + token.access_token);				
+				
+				var post = new WWW(ApiUrl("credentials"), encoding.GetBytes(body), headers);
+				yield return post;
+				
+				if (!post.isDone) {}
+				
+				if (!String.IsNullOrEmpty(post.error)) {
+					log.error(string.Format("UpdateUser({0}) threw error: {1}", user.email, post.error));
+					ret = "Network error";
+					yield break;
+				}
+				
+				var account = JsonConvert.DeserializeObject<SingleResponse<User>>(post.text);
+				if (account.response.id <= 0) {
+					log.error(string.Format("UpdateUser({0}): received an invalid response: {1}", user.email, post.text));
+					yield break;
+				}
+				
+				user = account.response;
+				var transaction = db.BeginTransaction();
+				try {
+					if (!db.UpdateObjectBy("id", user)) {
+						db.StoreObject(user);
+					}
+					transaction.Commit();
+				} catch (Exception ex) {
+					transaction.Rollback();
+					throw ex;
+				}
+				
+				log.info(string.Format("UpdateUser({0}): succeeded", user.email));
+				
+				ret = "Success";
+			} finally {
+			}
+		}
+		
+		/// <summary>
 		/// Coroutine to sign up.
 		/// </summary>
-		public IEnumerator SignUp(string email, string password, string inviteCode, string username, string name, char gender, Profile profile, Action<bool, Dictionary<string, string>> callback)
+		public IEnumerator SignUp(string email, string password, string inviteCode, Profile profile, ProviderToken authentication,
+                                  Action<bool, Dictionary<string, IList<string>>> callback)
 		{
 			log.info("SignUp()");
 			var encoding = new System.Text.UTF8Encoding();			
@@ -280,7 +380,7 @@ namespace RaceYourself
 			headers.Add("Accept-Charset", "utf-8");
 			headers.Add("Accept-Encoding", "gzip");
 
-			SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, username, name, gender, profile);
+            SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, profile, authentication);
 
 			byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
 			
@@ -291,19 +391,79 @@ namespace RaceYourself
 			
 			if (!String.IsNullOrEmpty(post.error)) {
 				log.error("SignUp() threw error: " + post.error);
-				callback(false, new Dictionary<string, string>() {{"network",post.error}});
+                callback(false, new Dictionary<string, IList<string>>() {{"network", new List<string> {post.error}}});
 				yield break;
 			}
 			
 			var response = JsonConvert.DeserializeObject<SingleResponse<SignUpResponse>>(post.text);
 			if (!response.response.success) {
-				log.error("SignUp() failed");
+                var errors = new System.Text.StringBuilder();
+                foreach (KeyValuePair<string, IList<string>> entry in response.response.errors)
+                {
+                    foreach (string v in entry.Value)
+                    {
+                        errors.Append(entry.Key);
+                        errors.Append(" ");
+                        errors.AppendLine(v);
+                    }
+                }
+
+				log.error("SignUp() failed. Errors: " + errors);
 				callback(false, response.response.errors);
 				yield break;
 			}
-			
+
+			if (response.response.user != null) {
+				user = response.response.user;
+				var transaction = db.BeginTransaction();
+				try {
+					if (!db.UpdateObjectBy("id", user)) {
+						db.StoreObject(user);
+					}
+					transaction.Commit();
+				} catch (Exception ex) {
+					transaction.Rollback();
+					throw ex;
+				}
+			}
+
 			log.info("SignUp() was successful");
 			callback(true, null);
+		}
+		
+		/// <summary>
+		/// Coroutine to upload a profile image to the server.
+		/// </summary>
+		public IEnumerator UploadProfileImage(byte[] image, Action<string> callback) {
+			log.info("UploadProfileImage");
+			
+			string ret = "Failed";
+			try {
+				WWWForm form = new WWWForm();
+				form.AddBinaryData("image", image, "ignored.jpg", "image/jpeg");
+
+				var data = form.data;
+				var headers = form.headers;
+				headers.Add("Authorization", "Bearer " + token.access_token);				
+				
+				var post = new WWW(ApiUrl("credentials"), form.data, headers);
+				yield return post;
+				
+				if (!post.isDone) {}
+				
+				if (!String.IsNullOrEmpty(post.error)) {
+					log.error(string.Format("UploadProfileImage threw error: {0}", post.error));
+					ret = "Network error";
+					yield break;
+				}
+				
+				ret = "Success";
+				log.info(string.Format("UploadProfileImage: {0}", ret));
+			} finally
+			{
+				if (callback != null)
+					callback(ret);
+			}
 		}
 		
 		/// <summary>
@@ -312,19 +472,21 @@ namespace RaceYourself
 		/// </summary>
 		public IEnumerator Sync() {
 			if (token == null || token.HasExpired) {
-				log.error("UpdateAuthentications() called with expired or missing token");
+				log.info("UpdateAuthentications() called with expired or missing token (legit pre-sign in on mobile)");
                 Platform.Instance.NetworkMessageListener.OnSynchronization("Failure");
 				yield break;
 			}
 			log.info("Sync()");
 			var start = DateTime.Now;
-			
+
+			if (syncing) {
+				log.info("Sync() already syncing");
+				yield break;
+			}
+
 			string ret = "Failure";
 			try {
-				if (syncing) {
-					log.info("Sync() already syncing");
-					yield break;
-				}
+
 				syncing = true;
 
 				SyncState state = db.Query<SyncState>().LastOrDefault();
@@ -434,9 +596,12 @@ namespace RaceYourself
 				});
 				backgroundThread.Start();
 				while (backgroundThread.IsAlive) yield return null;
-
-				if (ret.Equals("full") || ret.Equals("partial")) log.info("Sync() completed successfully in " + (DateTime.Now - start));
-			} finally {
+			} finally {				
+				if (ret.Equals("full") || ret.Equals("partial")) {
+					log.info("Sync() completed successfully in " + (DateTime.Now - start));
+				} else {
+					log.error("Sync() failed with " + ret + " after " + (DateTime.Now - start));
+				}
 				syncing = false;
                 Platform.Instance.NetworkMessageListener.OnSynchronization(ret);
 			}
@@ -447,8 +612,12 @@ namespace RaceYourself
 		/// Returns cached data or null if missing
 		/// </summary>
 		public string getCached(string route) {
+			return getCached(route, true);
+		}
+
+		public string getCached(string route, bool checkExpiry) {
 			var cache = db.Query<Models.Cache>().Where<Models.Cache>(c => c.id == route).LastOrDefault();
-			if (cache == null || cache.Expired) return null;
+			if (cache == null || (checkExpiry && cache.Expired)) return null;
 			try {
 				return File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
 			} catch (Exception ex) {
@@ -494,7 +663,6 @@ namespace RaceYourself
 			headers.Add("Accept-Encoding", "gzip");
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			if (cache != null && cache.lastModified != null) {
-				log.error("DEBUG: ifs " + cache.lastModified);
 				headers["If-Modified-Since"] = cache.lastModified;
 			}
 			
@@ -608,7 +776,8 @@ namespace RaceYourself
             public List<Models.Event> events;
     		
 			public Data(Siaqodb db, Device self) {
-				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
+				devices = new List<Models.Device>();
+				devices.Add(self);
 				tracks = new List<Models.Track>(db.Query<Models.Track>().Where<Models.Track>(t => t.dirty == true));
 				positions = new List<Models.Position>(db.Query<Models.Position>().Where<Models.Position>(p => p.dirty == true));
 				notifications = new List<Models.Notification>(db.Query<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
@@ -881,26 +1050,23 @@ namespace RaceYourself
 			public string email;
 			public string password;
 			public string invite_code;
-			public string username;
-			public string name;
-			public char gender;
 			public Profile profile;
+            public ProviderToken authentication;
 
-			public SignUpRequest(string email, string password, string inviteCode, string username, string name, char gender, Profile profile) {
+			public SignUpRequest(string email, string password, string inviteCode, Profile profile, ProviderToken authentication) {
 				this.email = email;
 				this.password = password;
 				this.invite_code = inviteCode;
-				this.username = username;
-				this.name = name;
-				this.gender = gender;
 				this.profile = profile;
+                this.authentication = authentication;
 			}
 		}
 
 		private class SignUpResponse
 		{
 			public bool success = false;
-			public Dictionary<string, string> errors;
+			public User user;
+			public Dictionary<string, IList<string>> errors;
 		}
 
 		private static string LengthOrNull(IList list) {

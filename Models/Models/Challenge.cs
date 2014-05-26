@@ -20,7 +20,13 @@ namespace RaceYourself.Models
 		public DateTime? stop_time;
 		public List<double> location;
 		public bool @public;
-
+        public bool? accepted;
+        public string name;
+        public string description;
+        public int points_awarded;
+        public string prize;
+        public List<int> friends;
+         
 		public string type;
 					
 		///  Internal
