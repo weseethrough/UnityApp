@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using RaceYourself.Models;
 using PositionTracker;
 
-public class CrossPlatformPositionProvider : IPositionProvider {
+public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 	
 	// List of listeners
 	private List<IPositionListener> positionListeners = new List<IPositionListener>();
@@ -109,7 +109,6 @@ public class CrossPlatformPositionProvider : IPositionProvider {
 		}
 
 		Position pos = new Position(Input.location.lastData.latitude, Input.location.lastData.longitude);
-
 		UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude);
 
 		//drop it on the HUD for debugging
