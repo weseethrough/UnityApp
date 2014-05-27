@@ -826,7 +826,12 @@ namespace RaceYourself
 					updates++;
 				}
                 foreach (Models.Notification n in notifications) {
-                    n.dirty = false;
+					if (n.deleted_at.HasValue) {
+						db.Delete(n);
+						deletes++;
+						continue;
+					}
+					n.dirty = false;
                     db.StoreObject(n); // Store non-transient object by OID
                     updates++;
                 }
@@ -1016,6 +1021,10 @@ namespace RaceYourself
 				if (notifications != null) {
 					db.StartBulkInsert(typeof(Models.Notification));
 					foreach (Models.Notification notification in notifications) {
+						if(notification.deleted_at != null) {
+							if(db.DeleteObjectBy("id", notification)) deletes++;
+								continue;
+						}
 						if (!db.UpdateObjectBy("id", notification)) {
 							db.StoreObject(notification);
 							inserts++;
