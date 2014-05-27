@@ -230,11 +230,14 @@ public class UIManager : MonoBehaviour
 
     }
 
+	public static void RemovePanel(string key)
+	{
+		panelData.Remove(key);
+		BuildList();
+	}
+
     public static void BuildList()
     {
-        MemoryStream ms = new MemoryStream();
-        StreamWriter w = new StreamWriter(ms);
-
         List<string> list = new List<string>();
 
         foreach (KeyValuePair<string, string> k in panelData)

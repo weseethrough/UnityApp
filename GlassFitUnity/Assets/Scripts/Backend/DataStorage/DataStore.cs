@@ -104,7 +104,7 @@ public class DataStore : MonoBehaviour
 			{
 				storageBank[name] = new Storage();
 				UIManager.LoadPanelData();
-				continue;
+			//	continue;
 			}
 
 			float startTime = Time.realtimeSinceStartup;

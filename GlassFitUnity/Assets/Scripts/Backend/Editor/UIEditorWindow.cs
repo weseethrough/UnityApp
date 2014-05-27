@@ -94,6 +94,10 @@ public class UIEditorWindow : EditorWindow
                 DataStore.SaveStorage(DataStore.BlobNames.ui_panels, true);
                 RefreshFromSource();
 
+				if (UIManager.panelData.Count < 2)
+				{
+					UIManager.LoadPanelData();
+				}
 				UIManager.SavePanelData();
             }
             if (GUILayout.Button("Load"))
@@ -116,12 +120,15 @@ public class UIEditorWindow : EditorWindow
                 obj = EditorGUILayout.ObjectField( obj, typeof(GameObject), GUILayout.MaxWidth(35.0f));
                 if ( GUILayout.Button("e", GUILayout.MaxWidth(20.0f)))
 			    {
-					//
+					if (UIManager.panelData.ContainsKey(name))
+					{
+						EditPanel(UIManager.panelData[name]);
+					}
 				}
 				GUI.color = Color.red;
 				if ( GUILayout.Button("x", GUILayout.MaxWidth(20.0f)))
 				{
-					//
+					UIManager.RemovePanel(name);
 				}
 				GUI.color = Color.white;
 				
@@ -172,6 +179,10 @@ public class UIEditorWindow : EditorWindow
 
         if (GUILayout.Button("+"))
         {
+			if (UIManager.panelData.Count < 2)
+			{
+				UIManager.LoadPanelData();
+			}
 			UIManager.panelData.Add("!!NoName"+UIManager.panelData.Count, "");
             UIManager.BuildList();
 			UIManager.SavePanelData();
@@ -252,6 +263,22 @@ public class UIEditorWindow : EditorWindow
             }
         }
     }
+
+	void EditPanel(string path)
+	{
+		UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
+
+		if (script == null)
+		{
+			Debug.LogError("Scene requires to have UIManager in its root");                
+		}            
+		else
+		{
+			ClearCurrentStage(script.transform);
+			//script.LoadPrefabPanel(path, );
+
+		}
+	}
 
     /// <summary>
     /// clears current ui structure
