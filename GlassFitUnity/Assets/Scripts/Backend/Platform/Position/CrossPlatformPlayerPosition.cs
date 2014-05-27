@@ -40,7 +40,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		positionProvider = platform.AddComponent<IosPositionProvider>();
 #endif
 #if	UNITY_ANDROID
-		PositionProvider = platform.AddComponent<CrossPlatformPositionProvider>();
+		positionProvider = platform.AddComponent<CrossPlatformPositionProvider>();
 #endif
 		sensorProvider = new CrossPlatformSensorProvider();
 

@@ -91,7 +91,7 @@ public class MinimalAndroidPlatform : Platform
 
         base.Poll();
 
-        log.info("Getting yaw over JNI");
+//        log.info("Getting yaw over JNI");
         try {
             yaw = helper.Call<float>("getAzimuth");
         } catch (Exception e) {

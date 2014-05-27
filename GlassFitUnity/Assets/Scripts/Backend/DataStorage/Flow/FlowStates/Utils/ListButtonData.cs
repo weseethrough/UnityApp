@@ -21,6 +21,7 @@ public class ListButtonData : ISerializable
 		ActiveChallengeButton,
 		CommunityChallengeButton,
 		FriendChallengeButton,
+		NewChallengeButton,
 		InvitePromptButton,
 		InvitedButton
     }
@@ -29,9 +30,9 @@ public class ListButtonData : ISerializable
     public string   textNormal      = string.Empty;
     public string   connectionFunction = string.Empty;
     public string   buttonFormat = ButtonFormat.ButtonNormalPrototype.ToString();
-	public string 	imageName		= string.Empty;
 
-	public Dictionary<string, string> attributeDictionary = new Dictionary<string, string>();
+	public Dictionary<string, Dictionary<string, string>> imageDictionary		= new Dictionary<string, Dictionary<string, string>>();
+	public Dictionary<string, string> textDictionary 							= new Dictionary<string, string>();
 
     /// <summary>
     /// default constructor
@@ -80,7 +81,6 @@ public class ListButtonData : ISerializable
         info.AddValue("textNormal", this.textNormal);
         info.AddValue("connectionFunction", this.connectionFunction);
         info.AddValue("buttonFormat", this.buttonFormat);
-		info.AddValue("imageName", this.imageName);
     }
 
     /// <summary>
@@ -94,7 +94,8 @@ public class ListButtonData : ISerializable
         data.textNormal = textNormal;
         data.connectionFunction = connectionFunction;
         data.buttonFormat = buttonFormat;
-		data.imageName = imageName;
+		data.imageDictionary = imageDictionary;
+		data.textDictionary = textDictionary;
 
         return data;
     }

@@ -94,6 +94,11 @@ public class ButtonFunctionCollection
 		return true;
 	}
 
+	static public bool GoBack(FlowButton fb, Panel panel) {
+		panel.parentMachine.FollowBack();
+		return false;
+	}
+
 	static public bool SetMobileChallengeType(FlowButton fb, FlowState panel) 
 	{
 		if(fb.GetComponent<UIButton>().enabled){
@@ -695,7 +700,7 @@ public class ButtonFunctionCollection
 		if (challenges != null && challenges.Count > 0) {
 			double? distance = DataVault.Get("rawdistance") as double?;
 			long? time = DataVault.Get("rawtime") as long?;
-			Notification[] notifications = Platform.Instance.Notifications();
+			List<Notification> notifications = Platform.Instance.Notifications();
 			
 			if (track != null && track.positions.Count > 0) {
 				User me = Platform.Instance.User();
