@@ -11,6 +11,15 @@ using System.IO;
 /// </summary>
 public class UIEditorWindow : EditorWindow
 {
+	enum GUILayer
+	{
+		unknown,
+		e2D,
+		e3D
+	}
+
+	static private string stageRoot = "UIComponents/StageRoot";
+
     static private string NEW_SCREEN = "New Screen";
 	private string[] screens = {NEW_SCREEN};
 	private int index = 0;
@@ -275,9 +284,41 @@ public class UIEditorWindow : EditorWindow
 		else
 		{
 			ClearCurrentStage(script.transform);
+			GameObject stage = Instantiate( Resources.Load(stageRoot));
+			GameObject source = Instantiate( Resources.Load(path));
+
+			stage.transform.parent = script.transform;
+
+			GUILayer l = GetTransformLayer(source);
+
+
 			//script.LoadPrefabPanel(path, );
 
 		}
+	}
+
+	GUILayer GetTransformLayer(Transform root)
+	{
+		int layer = root.gameObject.layer; 
+		if (layer == LayerMask.NameToLayer("GUI"))
+		{
+			return GUILayer.e2D;
+		}
+		else
+		{
+			return GUILayer.e3D;
+		}
+
+		foreach (Transform t in root)
+		{
+			GUILayer l = GetTransformLayer(t);
+			if (l != GUILayer.unknown)
+			{
+				return l;
+			}
+		}
+
+		return GUILayer.unknown;
 	}
 
     /// <summary>
