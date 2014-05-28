@@ -56,31 +56,38 @@ public class MobileChallengeInfoPanel : MobilePanel {
 
 		Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
 
+		string empty = "test";
+
 		if(challengeNotification != null) {
 			User player = Platform.Instance.User();
-			User rival = Platform.Instance.GetUser(challengeNotification.message.from);
-			if(rival.id == player.id) {
-				rival = Platform.Instance.GetUser(challengeNotification.message.to);
+			//User rival = null; 
+
+			int rivalID = challengeNotification.message.from;
+			if(rivalID == player.id)
+			{
+				rivalID = challengeNotification.message.to;
 			}
 
-			DataVault.Set("chosen_user", rival);
+			Platform.Instance.GetUser(rivalID, (rival) => {
 
-			GameObject rivalPicture = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
-			string empty = "test";
-			if(rivalPicture != null) {
-				UIBasiclabel rivalName = rivalPicture.GetComponent<UIBasiclabel>();
-				if(rivalName != null) {
-					rivalName.SetLabel(rival.forename);
-				}
+				DataVault.Set("chosen_user", rival);
 
-				UITexture rivalPictureTex = rivalPicture.GetComponentInChildren<UITexture>();
-//				UnityEngine.Debug.LogError(Platform.Instance.User().name);
-				if(rivalPictureTex != null) {
-					Platform.Instance.RemoteTextureManager.LoadImage(rival.image, empty, (tex, button) => {
-						rivalPictureTex.mainTexture = tex;
-					});
+				GameObject rivalPicture = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
+				if(rivalPicture != null) {
+					UIBasiclabel rivalName = rivalPicture.GetComponent<UIBasiclabel>();
+					if(rivalName != null) {
+						rivalName.SetLabel(rival.forename);
+					}
+
+					UITexture rivalPictureTex = rivalPicture.GetComponentInChildren<UITexture>();
+	//				UnityEngine.Debug.LogError(Platform.Instance.User().name);
+					if(rivalPictureTex != null) {
+						Platform.Instance.RemoteTextureManager.LoadImage(rival.image, "test", (tex, button) => {
+							rivalPictureTex.mainTexture = tex;
+						});
+					}
 				}
-			}
+			});
 
 			GameObject userPicture = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
 			if(userPicture != null) {
@@ -134,7 +141,7 @@ public class MobileChallengeInfoPanel : MobilePanel {
 									playerDistance = playerTrack.distance;
 									GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceText", (playerDistance / 1000).ToString("f2"));
 								}
-							} else if(attempt.user_id == rival.id) {
+							} else if(attempt.user_id == rivalID) {
 								rivalComplete = true;
 								rivalTrack = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id);
 								if(rivalTrack != null) {
