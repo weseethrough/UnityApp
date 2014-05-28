@@ -1306,7 +1306,11 @@ public class ButtonFunctionCollection
         string platform = Application.platform.ToString();
         if (Platform.Instance.OnGlass())
             platform = "Glass";
-        Application.OpenURL("http://www.surveygizmo.com/s3/1658631/Raceyourself-Beta-SignUp?ry_platform=" + platform);
+#if PRODUCTION
+		Application.OpenURL("http://www.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+#else
+		Application.OpenURL("http://staging.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+#endif
         return false;
     }
     
