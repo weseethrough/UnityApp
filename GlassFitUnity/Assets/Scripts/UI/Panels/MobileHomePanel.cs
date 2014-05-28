@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -480,6 +480,17 @@ public class MobileHomePanel : MobilePanel {
 		}
 	}
 
+	bool getHasFriends()
+	{
+		//check they have at least one friend in one of the lists
+		if( (friendsData != null) && (friendsData.Count > 0) ) { return true; }
+		if( (betaFriends != null) && (betaFriends.Count > 0) ) { return true; }
+		if( (invitedFriends != null) && (invitedFriends.Count > 0 ) ) { return true; }
+
+		// no friends
+		return false;
+	}
+
 	/// <summary>
 	/// Changes the list to either "challenge" or "friend".
 	/// </summary>
@@ -526,7 +537,15 @@ public class MobileHomePanel : MobilePanel {
 //			}
 
 			// If the user has facebook permissions and friends
-			if(Platform.Instance.HasPermissions("facebook", "login") && friendsData != null && friendsData.Count > 0) {
+			bool hasFriends = getHasFriends();
+
+			if(!hasFriends)
+			{
+				GetFriends();
+				hasFriends = getHasFriends();
+			}
+
+			if(Platform.Instance.HasPermissions("facebook", "login") && hasFriends) {
 				// If there are beta friends
 				if(betaFriends != null && betaFriends.Count > 0) {
 					// Loop through all beta friends
@@ -587,8 +606,6 @@ public class MobileHomePanel : MobilePanel {
 				}
 
 			} else {
-				// If there are no friends, attempt to get the list of friends
-				GetFriends();
 				// Add an import friends button
 				AddButtonData ("ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
 			}
