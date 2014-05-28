@@ -284,12 +284,12 @@ public class UIEditorWindow : EditorWindow
 		else
 		{
 			ClearCurrentStage(script.transform);
-			GameObject stage = Instantiate( Resources.Load(stageRoot));
-			GameObject source = Instantiate( Resources.Load(path));
+            GameObject stage = (GameObject)Instantiate(Resources.Load(stageRoot));
+            GameObject source = (GameObject)Instantiate(Resources.Load(path));
 
 			stage.transform.parent = script.transform;
 
-			GUILayer l = GetTransformLayer(source);
+			//GUILayer l = GetTransformLayer(source);
 
 
 			//script.LoadPrefabPanel(path, );
