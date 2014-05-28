@@ -676,11 +676,16 @@ namespace RaceYourself
 			if (cache != null && cache.lastModified != null) {
 				headers["If-Modified-Since"] = cache.lastModified;
 			}
-			
+
 			var www = new WWW(ApiUrl(route), null, headers);
-			yield return www;
-			
-			while (!www.isDone) {}
+
+			//yield return www;
+
+			//this way to wait works better on iOS
+			while (!www.isDone && www.error == null) 
+			{ 
+				yield return 0; 
+			}
 				
 			if (!String.IsNullOrEmpty(www.error)) {
 				log.error("get(" + route + ") threw error: " + www.error);
