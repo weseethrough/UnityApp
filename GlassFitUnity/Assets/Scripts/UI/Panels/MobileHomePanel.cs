@@ -359,13 +359,9 @@ public class MobileHomePanel : MobilePanel {
 				User user = null;
 				yield return Platform.Instance.partner.StartCoroutine(
 					Platform.Instance.GetUserCoroutine(notification.message.from, (u) => {
-					if(user != null)
+					if(u != null)
 					{
 						user = u;
-					}
-					else
-					{
-						UnityEngine.Debug.Log("Couldn't find user");
 					}
 				}));
 
