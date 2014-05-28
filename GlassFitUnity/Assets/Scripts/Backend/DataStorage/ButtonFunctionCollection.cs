@@ -1166,10 +1166,20 @@ public class ButtonFunctionCollection
 
     private static void SignIn(string email, string password)
     {
+		UnityEngine.Debug.Log("Loggin in as: " + email + "/" + password);
+
         NetworkMessageListener.OnAuthenticated handler = null;
         handler = new NetworkMessageListener.OnAuthenticated((errors) => {
-            bool authenticated = errors.Count == 0;
+			bool authenticated = errors.Count == 0;
             DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
+			if(authenticated)
+			{
+				UnityEngine.Debug.Log("authenticated successfully");
+			}
+			else
+			{
+				UnityEngine.Debug.Log("authentication failed with errors: " + errors.Values);
+			}
             FollowExit(authenticated ? "Exit" : "Error");
             Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
         });
