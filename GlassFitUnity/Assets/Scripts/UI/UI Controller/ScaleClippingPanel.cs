@@ -7,21 +7,37 @@ public class ScaleClippingPanel : MonoBehaviour {
 	float defaultYClipping = 0;
 	float currentHeight;
 	UIPanel panel;
+	UISprite whiteBkg;
 
 	// Use this for initialization
 	void Start () {
 		panel = GetComponent<UIPanel>();
 		RYOrthoCamera camera = (RYOrthoCamera)Component.FindObjectOfType(typeof(RYOrthoCamera));
+		Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
+		GameObject bkg = GameObjectUtils.SearchTreeByName(fs.physicalWidgetRoot, "WhiteBkg");
+		if(bkg != null) {
+			whiteBkg = bkg.GetComponent<UISprite>();
+		}
 		if(panel != null && camera != null) {
 			Vector4 clipping = panel.clipRange;
-			clipping.x = 0;
 			defaultYClipping = clipping.w;
-			float scaledHeight = Screen.height * ((float)camera.mCam.orthographicSize / 640);
-			UnityEngine.Debug.Log("ScaleClippingPanel: current size is " + camera.mCam.orthographicSize);
-			float heightDifference = defaultHeight - scaledHeight;
-			float newYClipping = defaultYClipping - heightDifference;
+
+			float iphoneAspect = 1136f / 640;
+			float phoneAspect = (float)Screen.height / Screen.width;
+			float aspectDifference = iphoneAspect / phoneAspect;
+
+			float headerHeight = (402f + (70)) * aspectDifference;
+
+			float scrollableHeight = defaultHeight - headerHeight;
+
+			float newYClipping = scrollableHeight / aspectDifference;
+
 			clipping.w = newYClipping;
-			
+
+			if(whiteBkg != null) {
+				whiteBkg.height = (int)newYClipping;
+			}
+
 			panel.clipRange = clipping;
 		}
 	}

@@ -174,8 +174,6 @@ public class MobileHomePanel : MobilePanel {
 			// Get the player challenges
 			List<Notification> playerNotifications = filteredNotifications.FindAll(r => r.message.from == Platform.Instance.User().id);
 
-
-
 			// Remove all the player's sent challenges from the notifications
 			filteredNotifications.RemoveAll(x => x.message.from == Platform.Instance.User().id);
 
@@ -293,7 +291,9 @@ public class MobileHomePanel : MobilePanel {
 					innerPlayerDictionary.Add("name", newButtonName);
 					innerPlayerDictionary.Add("texture", "RivalPicture");
 					// Add the data to the main dictionary for the rival's image
-					playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
+					if(playerChallengeImageDictionary.ContainsKey(user.image)) {
+						playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
+					}
 					// Finally add the button to the list
 					AddButtonData(newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 					
