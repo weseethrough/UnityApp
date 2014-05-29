@@ -212,6 +212,7 @@ namespace RaceYourself
 			var headers = new Hashtable();
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			var request = new WWW(ApiUrl("me"), null, headers);
+
 			yield return request;
 			
 			if (!request.isDone) {}
@@ -378,7 +379,7 @@ namespace RaceYourself
 			var headers = new Hashtable();
 			headers.Add("Content-Type", "application/json");
 			headers.Add("Accept-Charset", "utf-8");
-			headers.Add("Accept-Encoding", "gzip");
+			//headers.Add("Accept-Encoding", "gzip");
 
             SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, profile, authentication);
 
@@ -394,7 +395,11 @@ namespace RaceYourself
                 callback(false, new Dictionary<string, IList<string>>() {{"network", new List<string> {post.error}}});
 				yield break;
 			}
-			
+
+			log.info(post.text);
+
+			//TODO decompress gzip content
+
 			var response = JsonConvert.DeserializeObject<SingleResponse<SignUpResponse>>(post.text);
 			if (!response.response.success) {
                 var errors = new System.Text.StringBuilder();
@@ -509,7 +514,7 @@ namespace RaceYourself
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
 				headers.Add("Accept-Charset", "utf-8");
-				headers.Add("Accept-Encoding", "gzip");
+				//headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
 				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
@@ -537,6 +542,8 @@ namespace RaceYourself
 						responseEncoding = post.responseHeaders[key];
 						break;
 					}
+					string headerString = post.responseHeaders[key].ToString();
+					//log.info("Sync response header: " + key + ":" + headerString);
 				}
 				log.info("Sync() received " + (post.bytesDownloaded/1000) + "kB " + responseEncoding);
 				
@@ -551,13 +558,17 @@ namespace RaceYourself
 							throw new Exception("Sync() bytes is null");
 						}
 
-						if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(bytes));
+						//log.info("Sync() response body is " + post.text);
+
+						if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(DecompressGZipBuffer(bytes));
 						else responseBody = encoding.GetString(bytes);
 
-						log.info("Sync() response body is " + responseBody);
 						if(responseBody == null) {
 							throw new Exception("Sync() responsebody is null");
 						}
+
+	
+
 						response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
 					} catch (Exception ex) {
 						ret = "Failure";
@@ -660,16 +671,21 @@ namespace RaceYourself
 			var start = DateTime.Now;
 			var headers = new Hashtable();
 			headers.Add("Accept-Charset", "utf-8");
-			headers.Add("Accept-Encoding", "gzip");
+			//headers.Add("Accept-Encoding", "gzip");
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			if (cache != null && cache.lastModified != null) {
 				headers["If-Modified-Since"] = cache.lastModified;
 			}
-			
+
 			var www = new WWW(ApiUrl(route), null, headers);
-			yield return www;
-			
-			while (!www.isDone) {}
+
+			//yield return www;
+
+			//this way to wait works better on iOS
+			while (!www.isDone && www.error == null) 
+			{ 
+				yield return 0; 
+			}
 				
 			if (!String.IsNullOrEmpty(www.error)) {
 				log.error("get(" + route + ") threw error: " + www.error);
@@ -712,15 +728,19 @@ namespace RaceYourself
 				if (key.ToLower().Equals("date")) {
 					date = www.responseHeaders[key];
 				}
+				//log.info("Get Response Header:" + key + ":" + www.responseHeaders[key]);
 			}
 			if (lastModified == null && date != null) lastModified = date;
 			if (lastModified == null && maxAge == 0) maxAge = 60;
 
 			var encoding = new System.Text.UTF8Encoding();
-			string body = null;			
-			if (responseEncoding.ToLower().Equals("gzip")) body = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(www.bytes));
+			string body = null;
+
+			if (responseEncoding.ToLower().Equals("gzip")) body = encoding.GetString(DecompressGZipBuffer(www.bytes));
 			else body = encoding.GetString(www.bytes);
-			
+
+			//log.info("Get response body: " + body);
+
 			cache = new Models.Cache(route, maxAge, lastModified);
 			if (maxAge > 0 || lastModified != null) {
 				if (!db.UpdateObjectBy("id", cache)) {
@@ -745,7 +765,22 @@ namespace RaceYourself
 		{
 			return SCHEME + API_HOST + "/api/1/" + path;
 		}
-				
+			
+		/// <summary>
+		/// Decompresses the G zip buffer.
+		/// Use this method rather than calling the Ionic libs directly, since data is automatically unzipped on iOS
+		/// </summary>
+		/// <returns>The G zip buffer.</returns>
+		/// <param name="bytes">Bytes.</param>
+		public static byte[] DecompressGZipBuffer(byte[] bytes)
+		{
+#if UNITY_IOS
+			return bytes;
+#else
+			return Ionic.Zlib.GZipStream.UncompressBuffer(bytes);
+#endif
+		}
+
 		public class SingleResponse<T> 
 		{
 			public T response;
@@ -826,7 +861,12 @@ namespace RaceYourself
 					updates++;
 				}
                 foreach (Models.Notification n in notifications) {
-                    n.dirty = false;
+					if (n.deleted_at.HasValue) {
+						db.Delete(n);
+						deletes++;
+						continue;
+					}
+					n.dirty = false;
                     db.StoreObject(n); // Store non-transient object by OID
                     updates++;
                 }
@@ -1016,6 +1056,10 @@ namespace RaceYourself
 				if (notifications != null) {
 					db.StartBulkInsert(typeof(Models.Notification));
 					foreach (Models.Notification notification in notifications) {
+						if(notification.deleted_at != null) {
+							if(db.DeleteObjectBy("id", notification)) deletes++;
+								continue;
+						}
 						if (!db.UpdateObjectBy("id", notification)) {
 							db.StoreObject(notification);
 							inserts++;

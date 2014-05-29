@@ -34,11 +34,7 @@ public class MobileFriendInvite : MonoBehaviour {
 		Invite unusedInvite = invites.Find(x => x.used_at == null);
 
 		if(unusedInvite != null) {
-			unusedInvite.used_at = DateTime.Now;
-			InviteAction action = new InviteAction("invite", chosenFriend.provider, chosenFriend.uid, unusedInvite.code);
-			Platform.Instance.QueueAction(JsonConvert.SerializeObject(action));
 
-			Platform.Instance.SyncToServer();
 
 			Hashtable eventProperties = new Hashtable();
 			eventProperties.Add("event_name", "invite");
@@ -64,6 +60,12 @@ public class MobileFriendInvite : MonoBehaviour {
 					if(inviteRemainLabel != null) {
 						inviteRemainLabel.SetActive(true);
 					}
+					// Invite will only be linked to the identity after a sync
+					unusedInvite.used_at = DateTime.Now;
+					InviteAction action = new InviteAction("invite", chosenFriend.provider, chosenFriend.uid, unusedInvite.code);
+					Platform.Instance.QueueAction(JsonConvert.SerializeObject(action));
+					
+					Platform.Instance.SyncToServer();
 				}
 			});
 		} else {

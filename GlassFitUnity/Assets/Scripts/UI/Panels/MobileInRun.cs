@@ -182,8 +182,7 @@ public class MobileInRun : MobilePanel {
 		float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);
 		string playerPaceString = UnitsHelper.kmPaceToString(playerKmPace);
 		DataVault.Set("player_average_pace", playerPaceString);
-		
-		
+
 		float opponentSpeed = opponentDist / elapsedTime;
 		float opponentKmPace = UnitsHelper.SpeedToKmPace(opponentSpeed);
 		string opponentPaceString = UnitsHelper.kmPaceToString(opponentKmPace);
@@ -198,11 +197,24 @@ public class MobileInRun : MobilePanel {
 		int minutes = Mathf.FloorToInt( elapsedTime / 60f );
 		string timeMinutes = minutes.ToString();
 		DataVault.Set("finish_time_minutes", timeMinutes);
-		
+
+		string duration = (string)DataVault.Get("duration");
+		if(timeMinutes.Equals(duration)) {
+			// log attempt
+			Track current = Platform.Instance.LocalPlayerPosition.StopTrack();
+			Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
+			if(current != null && challengeNotification != null) {
+				Platform.Instance.QueueAction(string.Format(@"{{'action': 'challenge_attempt', 
+												'challenge_id': {0}, 
+												'track_id' : [
+													{1}, {2}
+												]
+									}}", challengeNotification.message.challenge_id, current.deviceId, current.trackId).Replace("'", "\""));
+			}
+		}
 
 		// load new scene
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
-
 
 		//stop tracking
 		Platform.Instance.LocalPlayerPosition.Reset();

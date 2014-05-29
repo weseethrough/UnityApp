@@ -14,6 +14,8 @@ namespace RaceYourself.Models
 		public bool read;
 		public Message message;
 
+        public DateTime? deleted_at;
+
 		[JsonIgnore]
 		public bool dirty = false;
 	}

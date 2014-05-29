@@ -5,7 +5,7 @@
 [RequireComponent(typeof(Camera))]
 public class RYOrthoCamera : MonoBehaviour
 {
-	Camera mCam;
+	public Camera mCam;
 	Transform mTrans;
 
 	int minPixelPerfectResolution = 480;
