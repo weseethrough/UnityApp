@@ -16,7 +16,7 @@ public class TimeUpdater : MonoBehaviour {
 		label = GetComponent<UILabel>();
 		if(label != null) {
 			currentLabelString = label.text;
-			if(!string.IsNullOrEmpty(currentLabelString) && !currentLabelString.Contains("Expired")) {
+			if(!string.IsNullOrEmpty(currentLabelString)) {
 				challengeTime = DateTime.ParseExact(currentLabelString, "O", CultureInfo.InvariantCulture);
 				DateTime currentTime = DateTime.Now;
 				timeDifference = challengeTime - currentTime;
@@ -33,6 +33,8 @@ public class TimeUpdater : MonoBehaviour {
 					}
 					
 				} 
+			} else {
+				label.text = "Expired";
 			}
 		}
 	}
@@ -64,8 +66,11 @@ public class TimeUpdater : MonoBehaviour {
 //	}
 	
 	void Update() {
-		if(challengeTime != null && timeDifference.Minutes > 0) {
+		if(challengeTime != null && !label.text.Contains("Expired")) {
 			DateTime currentTime = System.DateTime.Now;
+			if(challengeTime.Year < 2013) {
+				challengeTime = DateTime.ParseExact(label.text, "O", CultureInfo.InvariantCulture);
+			}
 			TimeSpan newDifference = challengeTime - currentTime;
 			string previousText = label.text;
 			string currentText = string.Format("{0:00}:{1:00}:{2:00}",newDifference.Days, newDifference.Hours, newDifference.Minutes);

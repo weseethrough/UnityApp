@@ -291,7 +291,7 @@ public class MobileHomePanel : MobilePanel {
 					innerPlayerDictionary.Add("name", newButtonName);
 					innerPlayerDictionary.Add("texture", "RivalPicture");
 					// Add the data to the main dictionary for the rival's image
-					if(playerChallengeImageDictionary.ContainsKey(user.image)) {
+					if(!playerChallengeImageDictionary.ContainsKey(user.image)) {
 						playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
 					}
 					// Finally add the button to the list
