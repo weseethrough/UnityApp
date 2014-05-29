@@ -1324,6 +1324,16 @@ public class ButtonFunctionCollection
         return false;
     }
     
+    static public bool PasswordReset(FlowButton button, FlowState fs)
+    {
+        #if PRODUCTION
+        Application.OpenURL("http://www.raceyourself.com/users/password/new");
+        #else
+        Application.OpenURL("http://a.staging.raceyourself.com/users/password/new");
+        #endif
+        return false;
+    }
+
     static public bool FacebookShare(FlowButton button, FlowState fs) 
     {
         FB.Feed("", "http://www.raceyourself.com", "Race Yourself", "Race yoself, foo!", "Describe yourself, foo!");
