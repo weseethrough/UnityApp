@@ -129,7 +129,7 @@ public class SerializedNode : ISerializable
     /// </summary>
     /// <param name="source">source path sctring</param>
     /// <returns></returns>
-    public string GetResourcePath(string source)
+    public static string GetResourcePath(string source)
     {
         string resourcesFolder = "Resources/";
         string dot = ".";
