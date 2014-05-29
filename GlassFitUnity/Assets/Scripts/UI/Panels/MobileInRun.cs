@@ -38,6 +38,8 @@ public class MobileInRun : MobilePanel {
 	{
 	}
 
+	float elapsedTime = 0;
+
 	/// <summary>
 	/// Gets display name of the node, helps with node identification in editor
 	/// </summary>
@@ -67,7 +69,8 @@ public class MobileInRun : MobilePanel {
 	{
 		base.EnterStart();
 
-		
+		DataVault.Set("elapased_time", 0f);
+
 		log.info("Starting in game panel");
 		
 		playerProgressBar = GameObject.Find("Progress Bar Player").GetComponent<UISlider>();
@@ -177,7 +180,7 @@ public class MobileInRun : MobilePanel {
 		float opponentDist = opponentObj.getRealWorldPos().z;
 
 		//calculate average pace for player and opponent
-		float elapsedTime = Platform.Instance.LocalPlayerPosition.Time / 1000;
+		//float elapsedTime = Platform.Instance.LocalPlayerPosition.Time / 1000;
 		float playerSpeed = playerDist / elapsedTime;
 		float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);
 		string playerPaceString = UnitsHelper.kmPaceToString(playerKmPace);
@@ -223,6 +226,15 @@ public class MobileInRun : MobilePanel {
 	public override void StateUpdate ()
 	{
 		base.StateUpdate ();
+
+		if(Platform.Instance.LocalPlayerPosition.IsTracking)
+		{
+			//update elapsed time. Assuming this update ultimately comes from a per-frame update.
+			elapsedTime += Time.deltaTime;
+
+			//set in data vault
+			DataVault.Set("elapased_time", elapsedTime);
+		}
 
 		// Fill progress bar based on player distance 
 		float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
@@ -291,8 +303,8 @@ public class MobileInRun : MobilePanel {
 		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking;
 
 		// check for race finished
-		float time = Platform.Instance.LocalPlayerPosition.Time;
-		if(time > targetTime * 1000)
+		float time = elapsedTime;
+		if(time > targetTime)
 		{
 			//we're done
 

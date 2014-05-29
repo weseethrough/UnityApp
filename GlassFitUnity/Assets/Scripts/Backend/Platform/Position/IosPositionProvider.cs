@@ -10,6 +10,8 @@ using RaceYourself.Models;
 #if UNITY_IPHONE
 public class IosPositionProvider : MonoBehaviour, IPositionProvider {
 
+	int currentAuthorisationStatus = 0;
+
 	float timeSinceLastPositionCheck = 0;
 	bool gpsRunning = false;
 	private List<IPositionListener> positionListeners = new List<IPositionListener>();
@@ -68,8 +70,45 @@ public class IosPositionProvider : MonoBehaviour, IPositionProvider {
 		_startGPS();
 	}
 
+	/// <summary>
+	/// gets the authorisation status. Value reflects apple's values:
+	///    kCLAuthorizationStatusNotDetermined = 0,
+	///    kCLAuthorizationStatusRestricted,
+	///    kCLAuthorizationStatusDenied,
+	///    kCLAuthorizationStatusAuthorized
+	/// </summary>
+	[DllImport("__Internal")]
+	private static extern int _getAuthorisationStatus();
+
 	//// Update is called once per frame
 	public void Update () {
+		
+		//check status, and set a message if appropriate
+		int newStatus = _getAuthorisationStatus();
+		if(currentAuthorisationStatus != newStatus)
+		{
+			currentAuthorisationStatus = newStatus;
+			switch(newStatus)
+			{
+			case 0:
+				// not determined
+				DataVault.Set("location_service_status_message", "Location service status undetermined");
+				break;
+			case 1:
+				//Restricted - and user cannot enable. e.g. parental controls
+				DataVault.Set("location_service_status_message", "Location service not available");
+				break;
+			case 2:
+				//Denied - and user can enable
+				UnityEngine.Debug.Log("iOS Location service disabled");
+				DataVault.Set("location_service_status_message", "Please enable location services for Race Yourself in Settings");
+				break;
+			case 3:
+				//Authorised
+				DataVault.Set("location_service_status_message", "Location service enabled");
+				break;
+
+
 		if(!Platform.Instance.LocalPlayerPosition.IsTracking)
 		{
 			return;
@@ -86,6 +125,8 @@ public class IosPositionProvider : MonoBehaviour, IPositionProvider {
 			{
 				listener.OnPositionUpdate(latestPos);
 			}
+		}
+}
 		}
 	}
 
