@@ -83,7 +83,7 @@ public class GraphComponent : MonoBehaviour
 			else
 			{
                 DataVault.Set("custom_redirection_point", "Exit");
-	            flowName = "MainFlow";//"MobileUX";
+				flowName = "MobileUX";//"MainFlow";//"MobileUX";
 			}
             SetSelectedFlowByName(flowName);
 #endif
