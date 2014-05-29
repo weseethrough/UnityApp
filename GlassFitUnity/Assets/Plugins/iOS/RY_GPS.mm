@@ -114,7 +114,7 @@ extern "C" {
     {
         if(lastPosition != nil)
         {
-            [lastPosition release]
+            [lastPosition release];
         }
         lastPosition = [location retain];
     }
