@@ -40,6 +40,7 @@ public class MobileList : UIComponentSettings
         Debug.Log("listContent " + listContent);
 
         buttonPrototypes = GetPrototypes(listContent);
+
         defaultYOffset = listContent.GetComponent<UIGrid>().transform.localPosition.y;
 
         SetTitle(title);
@@ -68,7 +69,7 @@ public class MobileList : UIComponentSettings
         List<ListButtonData> buttonData = parent.GetButtonData();
         UIGrid grid = listContent.GetComponent<UIGrid>();
 
-        Vector3 pos = grid.transform.localPosition;
+        Vector3 pos = grid.transform.position;
         float itemHeight = grid.cellHeight;
         float position = pos.y - defaultYOffset;
         int start = -itemCountBeforeTop + (int)(position / itemHeight);
@@ -89,7 +90,7 @@ public class MobileList : UIComponentSettings
         int max = Mathf.Max(itemOffset + itemCount, previousStartIndex + previousCount);
 
         UIGrid grid = listContent.GetComponent<UIGrid>();
-        //Transform transform = grid.transform;
+        Transform transform = grid.transform;
 
         List<GameObject> newButtons = new List<GameObject>();
 
@@ -220,21 +221,36 @@ public class MobileList : UIComponentSettings
 		GameObjectUtils.SetTextOnLabelInChildren(button, "title", data.textNormal);
 		GameObjectUtils.SetTextOnLabelInChildren(button, "content", data.buttonName);
 
-		if(data.attributeDictionary != null) {
-			foreach(var key in data.attributeDictionary.Keys) {
-				GameObjectUtils.SetTextOnLabelInChildren(button, key, data.attributeDictionary[key]);
+		if(data.textDictionary != null) {
+			foreach(var key in data.textDictionary.Keys) {
+				GameObjectUtils.SetTextOnLabelInChildren(button, key, data.textDictionary[key]);
 			}
 		}
 
-		if(data.imageName != string.Empty) 
+		if(data.imageDictionary != null) 
 		{
-			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
-				Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
-				GameObject foundButton = GameObjectUtils.SearchTreeByName(fs.physicalWidgetRoot, buttonId);
-				if(foundButton != null) {
-					foundButton.GetComponentInChildren<UITexture>().mainTexture = tex;
-				}
-			});
+			Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+			foreach(var key in data.imageDictionary.Keys) {
+				string textureUrl = key;
+				Platform.Instance.RemoteTextureManager.LoadImage(textureUrl, data.imageDictionary[key], (tex, callbackArgument) => {
+					var dictionary = callbackArgument as Dictionary<string, string>;
+					GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
+					if(buttonObj != null) {
+						GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
+						UITexture texture = textureObj.GetComponent<UITexture>();
+						if(texture != null) {				
+							texture.mainTexture = tex;
+						}
+					}
+				});
+			}
+//			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
+//				Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
+//				GameObject foundButton = GameObjectUtils.SearchTreeByName(fs.physicalWidgetRoot, buttonId);
+//				if(foundButton != null) {
+//					foundButton.GetComponentInChildren<UITexture>().mainTexture = tex;
+//				}
+//			});
 		}
 
 //                Debug.Log("AddButton " + data.textNormal + " btName: " + buttonData[i].buttonName);
@@ -281,9 +297,11 @@ public class MobileList : UIComponentSettings
         UIGrid grid = listContent.GetComponent<UIGrid>();
         grid.cellHeight = newItemHeight;
         Vector3 pos = grid.transform.localPosition;
-        pos.y = 0;
+        pos.y = defaultYOffset;
         pos.x = 0;
-        grid.transform.localPosition = pos;        
+		grid.transform.localPosition = pos;    
+
+//		defaultYOffset = 
         
        /* UIPanel panel = NGUITools.FindInParents<UIPanel>(gameObject);
 

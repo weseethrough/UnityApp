@@ -113,7 +113,7 @@ public class MobilePanel : Panel
     /// <returns></returns>
 	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function)
     {
-		AddButtonData(buttonName, buttonDictionary, function, string.Empty, ListButtonData.ButtonFormat.ButtonPrototype, null);
+		AddButtonData(buttonName, buttonDictionary, function, null, ListButtonData.ButtonFormat.ButtonPrototype, null);
     }
 
     /// <summary>
@@ -126,7 +126,7 @@ public class MobilePanel : Panel
     /// <returns></returns>
 	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat)
     {
-        AddButtonData(buttonName, buttonDictionary, function, string.Empty, buttonFormat, null);
+        AddButtonData(buttonName, buttonDictionary, function, null, buttonFormat, null);
     }
 
     /// <summary>
@@ -140,18 +140,17 @@ public class MobilePanel : Panel
     /// <returns></returns>
 	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
     {       
-		AddButtonData(buttonName, buttonDictionary, function, string.Empty, buttonFormat, cloneFirstLinkage);
+		AddButtonData(buttonName, buttonDictionary, function, null, buttonFormat, cloneFirstLinkage);
 	}   
 	
-	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, string imageName, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, Dictionary<string, Dictionary<string, string>> imageDictionary, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
 	{
 		ListButtonData data = new ListButtonData();
-		//        data.textNormal = title;
 		data.buttonName = buttonName;
 		data.connectionFunction = function;
 		data.buttonFormat = buttonFormat.ToString();
-		data.attributeDictionary = buttonDictionary;
-		data.imageName = imageName;
+		data.textDictionary = buttonDictionary;
+		data.imageDictionary = imageDictionary;
 
 		buttonData.Add(data);
 		

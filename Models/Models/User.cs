@@ -20,7 +20,7 @@ namespace RaceYourself.Models
 		public bool admin;
 		public int sync_key;
 		public DateTime? sync_timestamp;
-		public char gender;
+		public char? gender;
 		public int points;
 		public List<Authentication> authentications;
         [MaxLength(255)]

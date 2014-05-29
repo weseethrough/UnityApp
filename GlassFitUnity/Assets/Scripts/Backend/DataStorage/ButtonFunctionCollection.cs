@@ -94,6 +94,11 @@ public class ButtonFunctionCollection
 		return true;
 	}
 
+	static public bool GoBack(FlowButton fb, Panel panel) {
+		panel.parentMachine.FollowBack();
+		return false;
+	}
+
 	static public bool SetMobileChallengeType(FlowButton fb, FlowState panel) 
 	{
 		if(fb.GetComponent<UIButton>().enabled){
@@ -135,10 +140,41 @@ public class ButtonFunctionCollection
 		return false;
 	}
 
+	static public bool ChallengeMobilePlayer(FlowButton fb, FlowState panel) 
+	{
+		int duration = (int)DataVault.Get("run_time") * 60;
+		DurationChallenge challenge = new DurationChallenge(duration, 0);
+		Friend friend = (Friend)DataVault.Get("chosen_friend");
+		Platform.Instance.QueueAction(string.Format(@"{{
+			'action' : 'challenge',
+			'target' : {0},
+			'taunt' : 'Try beating my track!',
+			'challenge' : {{
+					'distance': {1},
+					'duration': {2},
+					'public': true,
+					'start_time': null,
+					'stop_time': null,
+					'type': 'duration'
+			}}
+		}}", friend.userId.Value, challenge.duration, challenge.duration).Replace("'", "\""));
+
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "send_challenge");
+		eventProperties.Add("challenge_id", challenge.id);
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
+
+		MessageWidget.AddMessage("Challenge Sent", friend.forename + " has been challenged", "!none");
+		panel.parentMachine.FollowBack();
+		return true;
+	}
+
 	static public bool ImportFacebook(FlowButton fb, FlowState panel) 
 	{
 		NetworkMessageListener.OnAuthenticated networkHandler = null;
-		networkHandler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+		networkHandler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
 			if (authenticated && Platform.Instance.HasPermissions("facebook", "login")) {
 				NetworkMessageListener.OnSync syncHandler = null;
 				syncHandler = new NetworkMessageListener.OnSync((message) => {
@@ -664,7 +700,7 @@ public class ButtonFunctionCollection
 		if (challenges != null && challenges.Count > 0) {
 			double? distance = DataVault.Get("rawdistance") as double?;
 			long? time = DataVault.Get("rawtime") as long?;
-			Notification[] notifications = Platform.Instance.Notifications();
+			List<Notification> notifications = Platform.Instance.Notifications();
 			
 			if (track != null && track.positions.Count > 0) {
 				User me = Platform.Instance.User();
@@ -755,8 +791,9 @@ public class ButtonFunctionCollection
         GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
 		// Follow connection once authentication has returned asynchronously
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-			if (authenticated) {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
+            if (authenticated) {
 				Platform.Instance.SyncToServer();
 				panel.parentMachine.FollowConnection(gConect);
 			}
@@ -774,8 +811,9 @@ public class ButtonFunctionCollection
 		GConnector gConect = panel.Outputs.Find(r => r.Name == fb.name);
 		// Follow connection once authentication has returned asynchronously
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-			if (authenticated) {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
+            if (authenticated) {
 				//Platform.Instance.SyncToServer();
 				panel.parentMachine.FollowConnection(gConect);
 			}
@@ -791,8 +829,9 @@ public class ButtonFunctionCollection
     static public bool ShareTrack(FlowButton button, FlowState panel)
 	{
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
-			if (authenticated) {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+            bool authenticated = errors.Count == 0;
+            if (authenticated) {
 				Track track = DataVault.Get("track") as Track;
 				Platform.Instance.QueueAction(string.Format(@"{{
 					'action' : 'share',
@@ -1062,14 +1101,21 @@ public class ButtonFunctionCollection
 		return true;
     }
 
-    static public bool CheckUserIsOnList(FlowButton button, FlowState fs)
+    static public bool SignUp(FlowButton button, FlowState fs)
     {
-        //string email = (string) DataVault.Get("signup_email");
+        FacebookMe me = (FacebookMe) DataVault.Get("facebook_me");
+
         Panel panel = (Panel) fs;
         GameObject widgetRoot = panel.physicalWidgetRoot;
         string email = getFieldUiBasiclabelContent(widgetRoot, "EmailInput");
-        string password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
-        string passwordConfirmation = getFieldUiBasiclabelContent(widgetRoot, "PasswordConfirmInput");
+
+        string password = null;
+        string passwordConfirmation = null;
+        if (me == null)
+        {
+            password = getFieldUiBasiclabelContent(widgetRoot, "PasswordInput");
+            passwordConfirmation = getFieldUiBasiclabelContent(widgetRoot, "PasswordConfirmInput");
+        }
         string firstName = getFieldUiBasiclabelContent(widgetRoot, "ForenameInput");
         string surname = getFieldUiBasiclabelContent(widgetRoot, "SurnameInput");
         // TODO bool tsAndCsTicked - error unless ticked
@@ -1081,9 +1127,34 @@ public class ButtonFunctionCollection
             API api = plaf.api;
 
             DataVault.Set("email", email);
-            DataVault.Set("password", password);
+            if (password != null)
+                DataVault.Set("password", password);
 
-            plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(email, password, null, email, firstName + " " + surname, 'U', null, null, null, SignUpCallback));
+            string username = email;
+            char gender = 'U';
+            string imageUrl = null;
+            ProviderToken providerToken = null;
+            if (me != null) // if facebook
+            {
+                username = me.username == null ? "" : me.username;
+                if (me.gender == "male")
+                    gender = 'M';
+                else if (me.gender == "female")
+                    gender = 'F';
+                imageUrl = me.picture.data.url;
+                password = Path.GetRandomFileName(); // doesn't actually create a file - just generates a random string
+                providerToken = new ProviderToken("facebook", FB.AccessToken, FB.UserId);
+            }
+
+            plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
+                email, password, null, new Profile(username, firstName, surname, gender, imageUrl, null),
+                providerToken, SignUpCallback));
+
+			Hashtable eventProperties = new Hashtable();
+			eventProperties.Add("event_name", "signup");
+			eventProperties.Add("provider", "email");
+			Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
             return true;
         }
         else
@@ -1095,9 +1166,20 @@ public class ButtonFunctionCollection
 
     private static void SignIn(string email, string password)
     {
+		UnityEngine.Debug.Log("Loggin in as: " + email + "/" + password);
+
         NetworkMessageListener.OnAuthenticated handler = null;
-        handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+        handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+			bool authenticated = errors.Count == 0;
             DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
+			if(authenticated)
+			{
+				UnityEngine.Debug.Log("authenticated successfully");
+			}
+			else
+			{
+				UnityEngine.Debug.Log("authentication failed with errors: " + errors.Values);
+			}
             FollowExit(authenticated ? "Exit" : "Error");
             Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
         });
@@ -1105,14 +1187,26 @@ public class ButtonFunctionCollection
 
         Platform.Instance.GetMonoBehavioursPartner().StartCoroutine(Platform.Instance.api.Login(email, password));
     }
-    
+
     private static void SignUpCallback(bool result, Dictionary<string, IList<string>> errors)
     {
         string exit = "";
         if (result)
         {
-            string email = DataVault.Get("email") as string;
-            string password = DataVault.Get("password") as string; // TODO don't do this! Feels wrong...
+            FacebookMe me = (FacebookMe) DataVault.Get("facebook_me");
+
+            string email;
+            string password;
+            if (me == null)
+            {
+                email = DataVault.Get("email") as string;
+                password = DataVault.Get("password") as string; // FIXME security risk?
+            }
+            else // if facebook
+            {
+                email = FB.UserId + "@facebook";
+                password = FB.AccessToken;
+            }
 
             SignIn(email, password);
         }
@@ -1152,8 +1246,13 @@ public class ButtonFunctionCollection
 
     static public bool InitLabels(FlowButton button, FlowState fs)
     {
+        FacebookMe me = (FacebookMe) DataVault.Get("facebook_me");
+        string playerName = "";
+        if (me != null)
+            playerName = me.name;
+
+        DataVault.Set("player_name", playerName);
         DataVault.Set("form_error", "");
-        DataVault.Set("player_name", "");
         return true;
     }
 
@@ -1198,46 +1297,92 @@ public class ButtonFunctionCollection
         return true;
     }
 
-    static public bool FacebookLogin(FlowButton button, FlowState panel)
+	
+	static public bool SkipGPS(FlowButton button, FlowState fs)
+	{
+		//if we pressed the skip button, switch to indoor mode, before following the link
+		Platform.Instance.LocalPlayerPosition.SetIndoor(true);
+		return true;
+	}
+
+	static public bool QuitGPS(FlowButton button, FlowState fs)
+	{
+		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
+		return true;
+	}
+    
+    static public bool WebsiteSignup(FlowButton button, FlowState fs)
     {
-        try
-        {
-            FB.Login("", FacebookLoginCallback); // "" = zero permissions
-            return true;
-        }
-        catch (Exception e) {
-            // TODO show error to user
-            DataVault.Set("facebook_error", e.Message);
-            log.error("Facebook: error:\n" + e.Message);
-            return false;
-        }
+        string platform = Application.platform.ToString();
+        if (Platform.Instance.OnGlass())
+            platform = "Glass";
+#if PRODUCTION
+		Application.OpenURL("http://www.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+#else
+		Application.OpenURL("http://staging.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+#endif
+        return false;
     }
     
-    private static void FacebookLoginCallback(FBResult result)
+    static public bool FacebookShare(FlowButton button, FlowState fs) 
     {
-        if (result.Error != null)
-        {
-            log.error("Facebook: Error Response:\n" + result.Error);
-            DataVault.Set("facebook_error", result.Error);
-        }
-        else if (!FB.IsLoggedIn)
-        {
-            log.info("Facebook: Login cancelled by player");
-        }
-        else
-        {
-            log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
-            try
-            {
-                FB.API("/me", Facebook.HttpMethod.GET, FacebookMeCallback);
-            }
-            catch (Exception e)
-            {
-                DataVault.Set("facebook_error", e.Message);
-            }
-        }
+        FB.Feed("", "http://www.raceyourself.com", "Race Yourself", "Race yoself, foo!", "Describe yourself, foo!");
+        return false;
     }
-    
+
+    static public bool TwitterShare(FlowButton button, FlowState fs) 
+	{
+		Application.OpenURL(string.Format("https://twitter.com/intent/tweet?url={0}&text={1}&via=Race_Yourself", "http://www.raceyourself.com", "I%20duddits!"));
+		return false;
+	}
+	
+	static public bool FacebookLogin(FlowButton button, FlowState panel)
+    {
+        NetworkMessageListener.OnAuthenticated handler = null;
+        handler = new NetworkMessageListener.OnAuthenticated((errors) =>
+        {
+            if (errors.Count == 0) // signed up already; go to main
+            {
+                GConnector gConect = panel.Outputs.Find(r => r.Name == "Registered");
+                //Platform.Instance.SyncToServer(); // TODO remove - handle in flow?
+				Hashtable eventProperties = new Hashtable();
+				eventProperties.Add("event_name", "signup");
+				eventProperties.Add("provider", "facebook");
+				Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
+				panel.parentMachine.FollowConnection(gConect);
+            }
+            else if (errors.ContainsKey("comms") || errors.ContainsKey("band"))
+            {
+                // TODO return to login/signup prompt; show error
+            }
+            else if (errors.ContainsKey("authorization"))
+            {
+                // user not signed up; go to sign up screen
+                log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
+                try
+                {
+                    FB.API("/v1.0/me?fields=id,email,username,first_name,last_name,name,gender,locale,updated_time,verified,timezone,picture.width(256).height(256)", Facebook.HttpMethod.GET, FacebookMeCallback);
+                }
+                catch (Exception e)
+                {
+                    // TODO put on screen
+                    DataVault.Set("facebook_error", e.Message);
+                }
+            }
+            else if (errors.ContainsKey("user"))
+            {
+                // TODO user has cancelled; return to login/signup prompt without any error
+            }
+            Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
+        });
+        Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
+        
+        Platform.Instance.Authorize("facebook", "login");
+
+        return false; // always return false - allow callback to move user to next screen.
+    }
+
     private static void FacebookMeCallback(FBResult result)
     {
         if (result.Error == null)
@@ -1245,15 +1390,21 @@ public class ButtonFunctionCollection
             FacebookMe me = JsonConvert.DeserializeObject<FacebookMe>(result.Text);
             log.info("Facebook me: " + result.Text);
 
-            Panel signupPanel = (Panel) FlowStateMachine.GetCurrentFlowState();
-            GameObject widgetRoot = signupPanel.physicalWidgetRoot;
+            Panel panel = (Panel) FlowStateMachine.GetCurrentFlowState();
 
-            UpdateLabel (widgetRoot, "ForenameInput", me.first_name);
-            UpdateLabel (widgetRoot, "SurnameInput", me.last_name);
-            UpdateLabel (widgetRoot, "EmailInput", me.email);
+            if (me.first_name != null)
+                DataVault.Set("first_name", me.first_name);
+            if (me.last_name != null)
+                DataVault.Set("surname", me.last_name);
+            if (me.email != null)
+                DataVault.Set("email", me.email);
 
-            GameObject facebookButton = GameObject.FindWithTag("FacebookButton");
-            facebookButton.SetActive(false);
+            DataVault.Set("facebook_me", me);
+
+            DataVault.Set("fb", true);
+
+            GConnector gConect = panel.Outputs.Find(r => r.Name == "SignupEmail"); // TODO rename?
+            panel.parentMachine.FollowConnection(gConect);
 
             //GameObject picSprite = GameObject.FindWithTag("FacebookPic");
             //picSprite.SetActive(true);
@@ -1275,5 +1426,88 @@ public class ButtonFunctionCollection
         {
             inputField.GetComponent<UIBasiclabel>().SetLabel(value == null ? "" : value);
         }
+    }
+
+    /// <summary>
+    /// Once the desired race duration and fitness level have been chosen, this function will retrieve an appropriate track from
+    /// what's available.
+    /// </summary>
+    /// <returns><c>true</c>, if track was fetched, <c>false</c> otherwise.</returns>
+    /// <param name="button">Button.</param>
+    /// <param name="fs">Fs.</param>
+    static public bool FetchTrack(FlowButton button, FlowState fs)
+    {
+
+        int runTime = (int) DataVault.Get("run_time");
+        string fitnessLevel = (string) DataVault.Get ("fitness_level");
+		Dictionary<string,Dictionary<string,List<Track>>> matches = (Dictionary<string,Dictionary<string,List<Track>>>) DataVault.Get("matches");
+		//Dictionary<string, List<Track>> allTracksDict = matches[fitnessLevel];
+
+		log.info("User's fitness level: " + fitnessLevel);
+
+		//output this info for debug purposes
+//		string dictInfo = "";
+//		foreach (string key in matches.Keys)
+//		{
+//			log.info("Tracks for Fitness level: " + key);
+//
+//			Dictionary<string, List<Track>> dict = matches[key];
+//			foreach( string trackKey in dict.Keys )
+//			{
+//				List<Track> tt = dict[trackKey];
+//				log.info("Time: " + trackKey + " has " + tt.Count + " tracks.");
+//			}
+//		}
+
+		log.info("Getting tracks for this user's fitness level");
+
+        List<Track> tracks = matches[fitnessLevel][runTime.ToString()];
+		
+		log.info("Got tracks for this user's fitness level");
+
+		if (tracks.Count == 0) {
+			log.error("No tracks available for fitness level " + fitnessLevel);
+			return false;
+		}
+
+        int trackIdx = UnityEngine.Random.Range(0, tracks.Count-1);
+
+		log.info("randomly chosen track index = " + trackIdx + " out of " + tracks.Count);
+
+        Track track = tracks[trackIdx];
+
+		log.info("Got track");
+
+        // TODO is it legitimate to cast int? -> int in this context?
+		// NO - causes a crash on iPhone
+        //User competitor = Platform.Instance.GetUser((int) track.userId);
+
+		User competitor = null;
+		if(track.userId.HasValue)
+		{
+			int user = track.userId.Value;
+			log.info("user ID = " + user);
+			Platform.Instance.GetUser(user, (u) => {
+				if(u != null)
+				{
+					DataVault.Set("competitor", u);
+					log.info("Got competitor " + u.DisplayName);
+				}
+				else
+				{
+					log.error("Failed to find competitor");
+				}
+			});
+//			competitor = Platform.Instance.GetUser(user);
+		}
+		else
+		{
+			log.error("No user ID for track");
+		}
+
+
+        DataVault.Set("current_track", track);
+        //DataVault.Set("competitor", competitor);
+        return true;
     }
 }

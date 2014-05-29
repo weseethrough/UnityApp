@@ -61,12 +61,16 @@ public class RaceGame : GameBase {
 
 		opponent.SetActive(true);
 
-		TargetTracker tracker;
+//		TargetTracker tracker;
 		if(selectedTrack != null) {
 			//create a target tracker position controller component and add it to the runner
-			tracker = Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
-			TargetTrackerPositionController posController = opponent.AddComponent<TargetTrackerPositionController>();
-			posController.tracker = tracker;
+
+			//			tracker = Platform.Instance.CreateTargetTracker(selectedTrack.deviceId, selectedTrack.trackId);
+//			TargetTrackerPositionController posController = opponent.AddComponent<TargetTrackerPositionController>();
+//			posController.tracker = tracker;
+
+			TrackPositionController posController = opponent.AddComponent<TrackPositionController>();
+			posController.setTrack(selectedTrack);
 		} 
 		else {
 			//create a fixed velocity target tracker
@@ -83,7 +87,13 @@ public class RaceGame : GameBase {
 	public void SetActorType(ActorType targ) {
 		currentActorType = targ;
 	}
-	
+
+	protected override double GetDistBehindForHud ()
+	{
+		RYWorldObject opponentWorldObj = opponent.GetComponent<RYWorldObject>();
+		return opponentWorldObj.getRealWorldPos().z - (float)Platform.Instance.LocalPlayerPosition.Distance;
+	}
+
 	protected void UpdateLeaderboard() {
 		double distance = Platform.Instance.LocalPlayerPosition.Distance;
 		// TODO: Decide if we are allowed to sort in place or need to make a copy

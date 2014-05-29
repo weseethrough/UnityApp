@@ -8,6 +8,8 @@
 
 #import "Platform.h"
 #import <sys/utsname.h>
+#import <UXCam/UXCam.h>
+#import "RY_GPS.h"
 
 
 @implementation Platform
@@ -15,15 +17,15 @@
 extern "C" {
     
     void _Poll() {
-//        NSLog(@"Platform Poll native call");
+        //        NSLog(@"Platform Poll native call");
     }
     
     void _Update() {
-//        NSLog(@"Platform Update native call");
+        //        NSLog(@"Platform Update native call");
     }
     
     void _IsPluggedIn() {
-//        NSLog(@"Platform IsPluggedIn native call");
+        //        NSLog(@"Platform IsPluggedIn native call");
     }
     
     const char* _getDeviceInfo() {
@@ -36,6 +38,31 @@ extern "C" {
         return result;
     }
     
+    void _setBadgeNumber(int number) {
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber:number];
+    }
+    
+    void _StartUXCam() {
+        [UXCam startApplicationWithKey:@"13c4e2543331265"];
+    }
+    
+    void _StopUXCamAndUploadData() {
+        [UXCam stopApplicationAndUploadData];
+    }
+    
+    void _UXCamTagScreenName(char* screenName) {
+        NSString* sName = [NSString stringWithCString:screenName encoding:NSUTF8StringEncoding];
+        [UXCam tagScreenName:sName];
+        NSLog(@"Tagged screen name for UXCam as: %@", sName);
+    }
+    
+    void _UXCamTagUserName(char* userName, char* additionalData) {
+        NSString* sUser = [NSString stringWithCString:userName encoding:NSUTF8StringEncoding];
+        NSString* sData = [NSString stringWithCString:additionalData encoding:NSUTF8StringEncoding];
+        [UXCam tagUsersName:sUser additionalData:sData];
+        NSLog(@"Tagged user for UXCam as %@, with data %@", sUser, sData);
+    }
+   
 }
 
 

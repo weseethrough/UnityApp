@@ -60,7 +60,7 @@ namespace RaceYourself
 			db = database;
 			user = db.Query<User>().LastOrDefault();
 			token = db.Query<OauthToken>().LastOrDefault();
-			if (user != null && token != null) {
+            if (user != null && token != null) {
 				if (user.id != token.userId) {
 					log.error("Token in database does not belong to user in database!");
 					// TODO: Allow storage of multiple users or delete old data on id mismatch?
@@ -69,6 +69,7 @@ namespace RaceYourself
 				} else {
 					if (!token.HasExpired) {
 						log.info("Still logged in as " + user.DisplayName + "/" + user.id);
+                        Platform.Instance.NetworkMessageListener.authenticated = true;
 					}
 				}
 			} else {
@@ -147,13 +148,21 @@ namespace RaceYourself
 				
 				var post = new WWW(AUTH_TOKEN_URL, form);
 				yield return post;
-						
-				if (!post.isDone) {}
 				
-				if (!String.IsNullOrEmpty(post.error)) {
-					// info, because on mobile, the user may mistype their password - so potentially user error not app/network error.
+				if (!post.isDone) {}
+
+                if (!String.IsNullOrEmpty(post.error)) {
+                    // info, because on mobile, the user may mistype their password - so potentially user error not app/network error.
                     log.info("Login(" + username + ",<password>) has errors: " + post.error);
-					ret = "Failure";
+
+                    if (post.error.StartsWith("401") || post.error.StartsWith("400"))
+                    {
+                        ret = "Failure";
+                    }
+                    else
+                    {
+                        ret = "CommsFailure";
+                    }
 					yield break;
 				}
 				
@@ -203,8 +212,9 @@ namespace RaceYourself
 			var headers = new Hashtable();
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			var request = new WWW(ApiUrl("me"), null, headers);
+
 			yield return request;
-					
+			
 			if (!request.isDone) {}
 			
 			if (!String.IsNullOrEmpty(request.error)) {
@@ -232,11 +242,11 @@ namespace RaceYourself
 			
 			log.info("UpdateAuthentications() fetched " + user.authentications.Count + " authentications");
 		}
-		
+
 		/// <summary>
 		/// Coroutine to link a third-party service to the logged in user.
 		/// </summary>
-		public IEnumerator LinkProvider(ProviderToken ptoken) {
+        public IEnumerator LinkProvider(ProviderToken ptoken, Action<string> callback) {
 			// TODO: Update POST schema to use JSON path authentications/{provider, uid, access_token}
 			log.info(string.Format("LinkProvider({0})", ptoken.provider));
 
@@ -267,6 +277,7 @@ namespace RaceYourself
 				}
 				
 				user = account.response;
+
 				var transaction = db.BeginTransaction();
 				try {
 					if (!db.UpdateObjectBy("id", user)) {
@@ -276,12 +287,23 @@ namespace RaceYourself
 				} catch (Exception ex) {
 					transaction.Rollback();
 					throw ex;
-				}
+                }
 
-				log.info(string.Format("LinkProvider({0}): succeeded", ptoken.provider));
-                
-                ret = "Success";
-            } finally {
+                ret = "Failed";
+                foreach (Authentication auth in user.authentications)
+                {
+                    if (ptoken.provider == auth.provider)
+                    {
+                        ret = "Success";
+                        break;
+                    }
+                }
+
+                log.info(string.Format("LinkProvider({0}): {1}", ptoken.provider, ret));
+            } finally
+            {
+                if (callback != null)
+                    callback(ret);
             }
         }
         
@@ -349,16 +371,17 @@ namespace RaceYourself
 		/// <summary>
 		/// Coroutine to sign up.
 		/// </summary>
-		public IEnumerator SignUp(string email, string password, string inviteCode, string username, string name, char gender, string image, int? timezone, Profile profile, Action<bool, Dictionary<string, IList<string>>> callback)
+		public IEnumerator SignUp(string email, string password, string inviteCode, Profile profile, ProviderToken authentication,
+                                  Action<bool, Dictionary<string, IList<string>>> callback)
 		{
 			log.info("SignUp()");
 			var encoding = new System.Text.UTF8Encoding();			
 			var headers = new Hashtable();
 			headers.Add("Content-Type", "application/json");
 			headers.Add("Accept-Charset", "utf-8");
-			headers.Add("Accept-Encoding", "gzip");
+			//headers.Add("Accept-Encoding", "gzip");
 
-			SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, username, name, gender, image, timezone, profile);
+            SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, profile, authentication);
 
 			byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
 			
@@ -372,10 +395,25 @@ namespace RaceYourself
                 callback(false, new Dictionary<string, IList<string>>() {{"network", new List<string> {post.error}}});
 				yield break;
 			}
-			
+
+			log.info(post.text);
+
+			//TODO decompress gzip content
+
 			var response = JsonConvert.DeserializeObject<SingleResponse<SignUpResponse>>(post.text);
 			if (!response.response.success) {
-				log.error("SignUp() failed");
+                var errors = new System.Text.StringBuilder();
+                foreach (KeyValuePair<string, IList<string>> entry in response.response.errors)
+                {
+                    foreach (string v in entry.Value)
+                    {
+                        errors.Append(entry.Key);
+                        errors.Append(" ");
+                        errors.AppendLine(v);
+                    }
+                }
+
+				log.error("SignUp() failed. Errors: " + errors);
 				callback(false, response.response.errors);
 				yield break;
 			}
@@ -396,6 +434,41 @@ namespace RaceYourself
 
 			log.info("SignUp() was successful");
 			callback(true, null);
+		}
+		
+		/// <summary>
+		/// Coroutine to upload a profile image to the server.
+		/// </summary>
+		public IEnumerator UploadProfileImage(byte[] image, Action<string> callback) {
+			log.info("UploadProfileImage");
+			
+			string ret = "Failed";
+			try {
+				WWWForm form = new WWWForm();
+				form.AddBinaryData("image", image, "ignored.jpg", "image/jpeg");
+
+				var data = form.data;
+				var headers = form.headers;
+				headers.Add("Authorization", "Bearer " + token.access_token);				
+				
+				var post = new WWW(ApiUrl("credentials"), form.data, headers);
+				yield return post;
+				
+				if (!post.isDone) {}
+				
+				if (!String.IsNullOrEmpty(post.error)) {
+					log.error(string.Format("UploadProfileImage threw error: {0}", post.error));
+					ret = "Network error";
+					yield break;
+				}
+				
+				ret = "Success";
+				log.info(string.Format("UploadProfileImage: {0}", ret));
+			} finally
+			{
+				if (callback != null)
+					callback(ret);
+			}
 		}
 		
 		/// <summary>
@@ -441,7 +514,7 @@ namespace RaceYourself
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
 				headers.Add("Accept-Charset", "utf-8");
-				headers.Add("Accept-Encoding", "gzip");
+				//headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
 				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
@@ -469,6 +542,8 @@ namespace RaceYourself
 						responseEncoding = post.responseHeaders[key];
 						break;
 					}
+					string headerString = post.responseHeaders[key].ToString();
+					//log.info("Sync response header: " + key + ":" + headerString);
 				}
 				log.info("Sync() received " + (post.bytesDownloaded/1000) + "kB " + responseEncoding);
 				
@@ -483,13 +558,17 @@ namespace RaceYourself
 							throw new Exception("Sync() bytes is null");
 						}
 
-						if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(bytes));
+						//log.info("Sync() response body is " + post.text);
+
+						if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(DecompressGZipBuffer(bytes));
 						else responseBody = encoding.GetString(bytes);
 
-						log.info("Sync() response body is " + responseBody);
 						if(responseBody == null) {
 							throw new Exception("Sync() responsebody is null");
 						}
+
+	
+
 						response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
 					} catch (Exception ex) {
 						ret = "Failure";
@@ -528,9 +607,12 @@ namespace RaceYourself
 				});
 				backgroundThread.Start();
 				while (backgroundThread.IsAlive) yield return null;
-
-				if (ret.Equals("full") || ret.Equals("partial")) log.info("Sync() completed successfully in " + (DateTime.Now - start));
-			} finally {
+			} finally {				
+				if (ret.Equals("full") || ret.Equals("partial")) {
+					log.info("Sync() completed successfully in " + (DateTime.Now - start));
+				} else {
+					log.error("Sync() failed with " + ret + " after " + (DateTime.Now - start));
+				}
 				syncing = false;
                 Platform.Instance.NetworkMessageListener.OnSynchronization(ret);
 			}
@@ -541,8 +623,12 @@ namespace RaceYourself
 		/// Returns cached data or null if missing
 		/// </summary>
 		public string getCached(string route) {
+			return getCached(route, true);
+		}
+
+		public string getCached(string route, bool checkExpiry) {
 			var cache = db.Query<Models.Cache>().Where<Models.Cache>(c => c.id == route).LastOrDefault();
-			if (cache == null || cache.Expired) return null;
+			if (cache == null || (checkExpiry && cache.Expired)) return null;
 			try {
 				return File.ReadAllText(Path.Combine(CACHE_PATH, Regex.Replace(route, "[^a-zA-Z0-9._-]", "_")));
 			} catch (Exception ex) {
@@ -585,17 +671,21 @@ namespace RaceYourself
 			var start = DateTime.Now;
 			var headers = new Hashtable();
 			headers.Add("Accept-Charset", "utf-8");
-			headers.Add("Accept-Encoding", "gzip");
+			//headers.Add("Accept-Encoding", "gzip");
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			if (cache != null && cache.lastModified != null) {
-				log.error("DEBUG: ifs " + cache.lastModified);
 				headers["If-Modified-Since"] = cache.lastModified;
 			}
-			
+
 			var www = new WWW(ApiUrl(route), null, headers);
-			yield return www;
-			
-			while (!www.isDone) {}
+
+			//yield return www;
+
+			//this way to wait works better on iOS
+			while (!www.isDone && www.error == null) 
+			{ 
+				yield return 0; 
+			}
 				
 			if (!String.IsNullOrEmpty(www.error)) {
 				log.error("get(" + route + ") threw error: " + www.error);
@@ -638,15 +728,19 @@ namespace RaceYourself
 				if (key.ToLower().Equals("date")) {
 					date = www.responseHeaders[key];
 				}
+				//log.info("Get Response Header:" + key + ":" + www.responseHeaders[key]);
 			}
 			if (lastModified == null && date != null) lastModified = date;
 			if (lastModified == null && maxAge == 0) maxAge = 60;
 
 			var encoding = new System.Text.UTF8Encoding();
-			string body = null;			
-			if (responseEncoding.ToLower().Equals("gzip")) body = encoding.GetString(Ionic.Zlib.GZipStream.UncompressBuffer(www.bytes));
+			string body = null;
+
+			if (responseEncoding.ToLower().Equals("gzip")) body = encoding.GetString(DecompressGZipBuffer(www.bytes));
 			else body = encoding.GetString(www.bytes);
-			
+
+			//log.info("Get response body: " + body);
+
 			cache = new Models.Cache(route, maxAge, lastModified);
 			if (maxAge > 0 || lastModified != null) {
 				if (!db.UpdateObjectBy("id", cache)) {
@@ -671,7 +765,22 @@ namespace RaceYourself
 		{
 			return SCHEME + API_HOST + "/api/1/" + path;
 		}
-				
+			
+		/// <summary>
+		/// Decompresses the G zip buffer.
+		/// Use this method rather than calling the Ionic libs directly, since data is automatically unzipped on iOS
+		/// </summary>
+		/// <returns>The G zip buffer.</returns>
+		/// <param name="bytes">Bytes.</param>
+		public static byte[] DecompressGZipBuffer(byte[] bytes)
+		{
+#if UNITY_IOS
+			return bytes;
+#else
+			return Ionic.Zlib.GZipStream.UncompressBuffer(bytes);
+#endif
+		}
+
 		public class SingleResponse<T> 
 		{
 			public T response;
@@ -702,7 +811,8 @@ namespace RaceYourself
             public List<Models.Event> events;
     		
 			public Data(Siaqodb db, Device self) {
-				devices = new List<Models.Device>(db.LoadAll<Models.Device>());
+				devices = new List<Models.Device>();
+				devices.Add(self);
 				tracks = new List<Models.Track>(db.Query<Models.Track>().Where<Models.Track>(t => t.dirty == true));
 				positions = new List<Models.Position>(db.Query<Models.Position>().Where<Models.Position>(p => p.dirty == true));
 				notifications = new List<Models.Notification>(db.Query<Models.Notification>().Where<Models.Notification>(n => n.dirty == true));
@@ -751,7 +861,12 @@ namespace RaceYourself
 					updates++;
 				}
                 foreach (Models.Notification n in notifications) {
-                    n.dirty = false;
+					if (n.deleted_at.HasValue) {
+						db.Delete(n);
+						deletes++;
+						continue;
+					}
+					n.dirty = false;
                     db.StoreObject(n); // Store non-transient object by OID
                     updates++;
                 }
@@ -941,6 +1056,10 @@ namespace RaceYourself
 				if (notifications != null) {
 					db.StartBulkInsert(typeof(Models.Notification));
 					foreach (Models.Notification notification in notifications) {
+						if(notification.deleted_at != null) {
+							if(db.DeleteObjectBy("id", notification)) deletes++;
+								continue;
+						}
 						if (!db.UpdateObjectBy("id", notification)) {
 							db.StoreObject(notification);
 							inserts++;
@@ -975,23 +1094,15 @@ namespace RaceYourself
 			public string email;
 			public string password;
 			public string invite_code;
-			public string username;
-			public string name;
-			public char gender;
-			public string image;
-			public int? timezone;
 			public Profile profile;
+            public ProviderToken authentication;
 
-			public SignUpRequest(string email, string password, string inviteCode, string username, string name, char gender, string image, int? timezone, Profile profile) {
+			public SignUpRequest(string email, string password, string inviteCode, Profile profile, ProviderToken authentication) {
 				this.email = email;
 				this.password = password;
 				this.invite_code = inviteCode;
-				this.username = username;
-				this.name = name;
-				this.gender = gender;
-				this.image = image;
-				this.timezone = timezone;
 				this.profile = profile;
+                this.authentication = authentication;
 			}
 		}
 

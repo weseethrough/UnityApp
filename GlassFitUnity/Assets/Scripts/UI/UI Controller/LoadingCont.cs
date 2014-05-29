@@ -23,7 +23,9 @@ public class LoadingCont : MonoBehaviour {
 		if (!Platform.Instance.HasPermissions("any", "login")) {			
 			// Restart function once authenticated
             NetworkMessageListener.OnAuthenticated handler = null;
-            handler = new NetworkMessageListener.OnAuthenticated((authenticated) => {
+            handler = new NetworkMessageListener.OnAuthenticated((errors) => {
+                bool authenticated = errors.Count == 0;
+
                 Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
 				if (authenticated) {
 					AcceptChallenges();
@@ -58,7 +60,7 @@ public class LoadingCont : MonoBehaviour {
 						List<Challenge> relevant = new List<Challenge>();		
 						int? finish = null;
 						
-						Notification[] notifications = Platform.Instance.Notifications();
+						List<Notification> notifications = Platform.Instance.Notifications();
 						foreach (Notification notification in notifications) {
 							if (notification.read) continue;
 							if (string.Equals(notification.message.type, "challenge")) {
@@ -68,24 +70,28 @@ public class LoadingCont : MonoBehaviour {
 								Debug.Log("AcceptChallenges: " + challengeId + " from " + challengerId);
 								
 								DataVault.Set("loading", "Please wait while we fetch a challenge");
-								Challenge potential = Platform.Instance.FetchChallenge(challengeId);
-								if (potential == null) continue;
-								if (potential is DistanceChallenge) {
-									DistanceChallenge challenge = potential as DistanceChallenge;					
-									
-									DataVault.Set("loading", "Please wait while we fetch a track");
-									var attempt = challenge.attempts.Find(a => a.user_id == challengerId);
-									if (attempt != null) {
-										var track = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id); // Make sure we have the track in the local db
-										TargetTracker tracker = Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
-										User challenger = Platform.Instance.GetUser(challengerId);
-										tracker.name = challenger.username;
-										if (tracker.name == null || tracker.name.Length == 0) tracker.name = challenger.name;
-									} // else race leader/friends/creator?
-				
-									relevant.Add(challenge); 					
-									if (!finish.HasValue || finish.Value < challenge.distance) finish = challenge.distance;					
-								}
+								Platform.Instance.FetchChallenge(challengeId, (potential) => {
+									if (potential != null) {
+										if (potential is DistanceChallenge) {
+											DistanceChallenge challenge = potential as DistanceChallenge;					
+											
+											DataVault.Set("loading", "Please wait while we fetch a track");
+											var attempt = challenge.attempts.Find(a => a.user_id == challengerId);
+											if (attempt != null) {
+												var track = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id); // Make sure we have the track in the local db
+												TargetTracker tracker = Platform.Instance.CreateTargetTracker(track.deviceId, track.trackId);
+												User challenger = Platform.Instance.GetUser(challengerId);
+												tracker.name = challenger.username;
+												if (tracker.name == null || tracker.name.Length == 0) tracker.name = challenger.name;
+											} // else race leader/friends/creator?
+											
+											relevant.Add(challenge); 					
+											if (!finish.HasValue || finish.Value < challenge.distance) finish = challenge.distance;					
+										}
+									}
+								});
+
+
 							}
 						}		
 						if (!finish.HasValue || relevant.Count == 0) {

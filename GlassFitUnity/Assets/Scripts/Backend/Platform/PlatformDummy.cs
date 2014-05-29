@@ -462,7 +462,7 @@ public class PlatformDummy : Platform
 	
 	public override Device DeviceInformation() 
 	{
-		return new Device("Unknown", "Device");
+		return new Device(SystemInfo.deviceType.ToString(), SystemInfo.operatingSystem);
 	}	 
 
     public override float Yaw()

@@ -280,15 +280,16 @@ public class AndroidPlatform : Platform
 		return null;
 	}
 	
-	public override Challenge FetchChallenge(int id) {
+	public override void FetchChallenge(int id, Action<Challenge> callback) {
 		try {
 			UnityEngine.Debug.Log("Platform: fetching challenge");
 			using (AndroidJavaObject rawch = helper_class.CallStatic<AndroidJavaObject>("fetchChallenge", id)) {
-				return JsonConvert.DeserializeObject<Challenge>(rawch.Get<string>("json"));
+				Challenge challenge = JsonConvert.DeserializeObject<Challenge>(rawch.Get<string>("json"));
+				callback(challenge);
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting Track: " + e.Message);
-			return null;
+			callback(new DistanceChallenge());
 		}
 	}
 	
@@ -469,39 +470,40 @@ public class AndroidPlatform : Platform
 		return new List<Friend>();
 	}
 	
-	public override Notification[] Notifications() {
+	public override List<Notification> Notifications() {
 		try {
 			UnityEngine.Debug.Log("Platform: getting notifications");
+//			List<Notification> notifications = new List<Notification>();
 			using(AndroidJavaObject list = helper_class.CallStatic<AndroidJavaObject>("getNotifications")) {
 				int length = list.Call<int>("size");
-				Notification[] notifications = new Notification[length];
+				List<Notification> notifications = new List<Notification>();
 				for (int i=0;i<length;i++) {
 					AndroidJavaObject p = list.Call<AndroidJavaObject>("get", i);
 					notifications[i] = new AndroidNotification{id = p.Get<int>("id"), read = p.Get<bool>("read"), message = JsonConvert.DeserializeObject<Message>(p.Get<string>("message")), ajo = p};
 				}
-				UnityEngine.Debug.Log("Platform: " + notifications.Length + " notifications fetched");
+				UnityEngine.Debug.Log("Platform: " + notifications.Count + " notifications fetched");
 				return notifications;
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Friends() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
-		return new Notification[0];
+		return new List<Notification>();
 	}
 	
-	public override void ReadNotification(int id) {
-		var notifications = Notifications();
-		foreach (Notification note in notifications) {
-			if (note.id == id) {
-				if (note is AndroidNotification) {
-					var n = note as AndroidNotification;
-					n.ajo.Call("setRead", true);
-					n.ajo.Call<int>("save");
-					n.read = true;
-				} else base.ReadNotification(id);
-			}
-		}
-	}
+//	public override void ReadNotification(int id) {
+//		var notifications = Notifications();
+//		foreach (Notification note in notifications) {
+//			if (note.id == id) {
+//				if (note is AndroidNotification) {
+//					var n = note as AndroidNotification;
+//					n.ajo.Call("setRead", true);
+//					n.ajo.Call<int>("save");
+//					n.read = true;
+//				} else base.ReadNotification(id);
+//			}
+//		}
+//	}
 		
 	// Store the blob
 	public override void StoreBlob(string id, byte[] blob) {
@@ -647,12 +649,15 @@ public class AndroidPlatform : Platform
 	/// <param name='json'>
 	/// Json-encoded event values such as current game state, what the user action was etc
 	/// </param>
-	public override void LogAnalytics(string json)
+    public override void LogAnalyticEvent(string jsonString)
 	{
 		try
 		{
-			helper.CallStatic("logEvent", json);
-			UnityEngine.Debug.Log("Platform: logged analytic event " + json.ToString());
+			Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
+			jsonObject.Add("event_type", "event");
+			jsonString = JsonConvert.SerializeObject(jsonObject);
+			helper.CallStatic("logEvent", jsonString);
+			UnityEngine.Debug.Log("Platform: logged analytic event " + jsonString);
 		}
 		catch (Exception e)
 		{

@@ -12,6 +12,7 @@ using Sqo;
 using RaceYourself.Models;
 using Newtonsoft.Json;
 using System.Collections;
+using System.IO;
 
 public abstract class Platform : SingletonBase
 {
@@ -60,7 +61,7 @@ public abstract class Platform : SingletonBase
 	protected List<Game> gameList;
 	public List<TargetTracker> targetTrackers { get; protected set; }
 	
-
+	bool hasRegisteredUserForUXCam = false;
 
 	/// <summary>
 	/// Gets the single instance of the right kind of platform for the OS we're running on,
@@ -108,8 +109,7 @@ public abstract class Platform : SingletonBase
 		connected = false;
 	    targetTrackers = new List<TargetTracker>();
 
-		
-		//Input.location.Start();
+		Input.location.Start(10,1);
 
 		// Set initialised=true in overriden method
 	}
@@ -118,6 +118,7 @@ public abstract class Platform : SingletonBase
     {
         log.info("Starting PostInit");
         
+
         if (Application.isPlaying) {
             db = DatabaseFactory.GetInstance();
             api = new API(db);
@@ -163,6 +164,19 @@ public abstract class Platform : SingletonBase
 
             }
 		});
+		Hashtable eventProperties = new Hashtable();
+		eventProperties.Add("event_name", "launch");
+		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
+		//tag the user for UXCam - will only do anything on iOS for now
+		User user = User();
+		if(user != null)
+		{
+			tagUserForUXCam(user.username, user.DisplayName);
+			hasRegisteredUserForUXCam = true;
+		}
+
+        //GetMonoBehavioursPartner().StartCoroutine(api.Login("cats", "dogs"));
 	}
 
 
@@ -171,8 +185,19 @@ public abstract class Platform : SingletonBase
     /// Called every frame by PlatformPartner to update internal state
     /// </summary>
     public virtual void Update() {
-        // nothing, but overridden in subclasses to update orientation
-    }   
+        // overridden in subclasses to update orientation
+
+		// see if we've got the user yet. Consider moving this to a periodic check, not per frame.
+		if(!hasRegisteredUserForUXCam)
+		{
+			User user = User();
+			if(user != null)
+			{
+				tagUserForUXCam(user.username, user.DisplayName);
+				hasRegisteredUserForUXCam = true;
+			}
+		}
+	}   
 
     /// <summary>
     /// Called every frame DURING A RACE by RaceGame to update position, speed etc
@@ -250,8 +275,11 @@ public abstract class Platform : SingletonBase
         return api.user;
     }
     
+	[Obsolete]
     public virtual PlayerConfig GetPlayerConfig()
     {
+		log.error("GetPlayerConfig(): Illegal call to synchronous method. Need to use Asynchronous GetUser(int userId, Action<User> callback)");
+
         // TODO put in synchronise call.
         PlayerConfig cfg = null;
         IEnumerator e = api.get("configurations/unity", (body) => {
@@ -261,19 +289,54 @@ public abstract class Platform : SingletonBase
         return cfg;
     }
 
+	public virtual void GetUser(int userId, Action<User> callback)
+	{
+		User user = null;
+		Platform.Instance.partner.StartCoroutine(api.get("users/" + userId, (body) => {
+			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+			callback(user);
+		}));
+	}
+
+	public virtual IEnumerator GetUserCoroutine(int userId, Action<User> callback)
+	{
+		User user = null;
+		UnityEngine.Debug.Log("Platform Getting user in coroutine");
+		Coroutine e = Platform.Instance.partner.StartCoroutine( api.get ("users/" + userId, (body) => {
+			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+		} ));
+		yield return e;
+		if(user != null)
+		{
+//			UnityEngine.Debug.Log("Platform got user " + userId + " from coroutine: " + user.DisplayName);
+		}
+		else
+		{
+			log.error("Couldn't get user: " + userId);
+		}
+		callback(user);
+	}
+
+	[Obsolete]
     public virtual User GetUser(int userId)
     {
-        User user = null;
+		log.error("GetUser(): Illegal call to synchronous method. Need to use Asynchronous GetUser(int userId, Action<User> callback)");
+
+		User user = null;
         IEnumerator e = api.get("users/" + userId, (body) => {
             user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
         });
-        while(e.MoveNext()) {}; // block until finished
+		while(e.MoveNext()) {}; // block until finished
         return user;
     }
 
+	[Obsolete]
     public virtual List<Track> GetTracks()
     {
+		log.error("GetTracks(): Illegal call to synchronous method. Need to use Asynchronous GetUser(int userId, Action<User> callback)");
+
         // TODO: Change signature to IList<Track>
+		//	Actually, best not to, iOS doesn't deal well with generics.
         var tracks = new List<Track>(db.LoadAll<Track>());
         foreach (var track in tracks) {
             IncludePositions(track);
@@ -322,12 +385,12 @@ public abstract class Platform : SingletonBase
         return new List<Friend>(db.LoadAll<Friend>());
     }
 
-    public virtual Notification[] Notifications () {
+    public virtual List<Notification> Notifications () {
         // TODO: Change signature to IList<Notification>
-        var list = db.LoadAll<Notification>();
-        var array = new Notification[list.Count];
-        list.CopyTo(array, 0);
-        return array;
+		var list = new List<Notification>(db.LoadAll<Notification>());
+		//        var array = new Notification[list.Count];
+//        list.CopyTo(array, 0);
+        return list;
     }
 
     public virtual void ReadNotification (int id) {
@@ -335,31 +398,76 @@ public abstract class Platform : SingletonBase
         foreach (Notification note in notifications) {
             if (note.id == id) {
                 note.read = true;
+				note.dirty = true;
+				db.UpdateObjectBy("id", note);
             }
         }
     }
 
     /// <summary>
-    /// Use this method to record events for analytics, e.g. a user action.
+    /// Use this method to record key events in the user's journey
     /// </summary>
     /// <param name='json'>
-    /// Json-encoded event values such as current game state, what the user action was etc
+    /// Json-encoded event values. Currently supported:
+        //    Launch app (event_name = "launch")
+        //    Successfully signed up via facebook (event_name = "signup", provider = "facebook")
+        //    Successfully signed up via email (event_name = "signup", provider = "facebook")
+        //    Start race (event_name = "start_race", track_id = "xxx")
+        //    End race (event_name = "end_race", result = "win/loss", track_id="xxx")
+        //    Send challenge (event_name = "send_challenge", challenge_id = "xxx")
+        //    Accept challenge (event_name = "accept_challenge", challenge_id = "xxx")
+        //    Reject challenge (event_name = "reject_challenge", challenge_id = "xxx")
+        //    Invite new user (event_name = "invite", invite_code = "xxx345x", provider = "facebook/email")
+        //    Share (event_name = "share", provider = "facebook/twitter/google+")
+        //    Rate (event_name = "rate", provider = "Apple store / Android store / Like on facebook")
     /// </param>
-    public virtual void LogAnalytics (string json) {
-        log.warning("Analytics: " + json);
-        var e = new RaceYourself.Models.Event(json, sessionId);
+    public virtual void LogAnalyticEvent (string jsonString) {
+        Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
+        jsonObject.Add("event_type", "event");
+		jsonString = JsonConvert.SerializeObject(jsonObject);
+        log.warning("Analytic Event: " + jsonString);
+        var e = new RaceYourself.Models.Event(jsonString, sessionId);
         db.StoreObject(e);
     }
 
-    public virtual Challenge FetchChallenge(int id) {
-        Challenge challenge = null;
-        IEnumerator e = api.get("challenges/" + id, (body) => {
-            challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
-        });
-        while(e.MoveNext()) {}; // block until finished
-        return challenge;
+    /// <summary>
+    /// Use this method to record screen transitions so we can understand how users interact with the app
+    /// </summary>
+    /// <param name='json'>
+    /// Json-encoded event values such as time on screen
+    /// </param>
+    public virtual void LogScreenView (string jsonString) {
+        Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(jsonString);
+        jsonObject.Add("event_type", "screen");
+		jsonString = JsonConvert.SerializeObject(jsonObject);
+        log.info("Screen View: " + jsonString);
+        var e = new RaceYourself.Models.Event(jsonString, sessionId);
+        db.StoreObject(e);
     }
 
+    public virtual void FetchChallenge(int id, Action<Challenge> callback) {
+        Challenge challenge = null;
+        Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
+            challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+
+			callback(challenge);
+		}));
+    }
+
+	public virtual IEnumerator FetchChallengeFromNotification(int id, Notification note, Action<Challenge, Notification> callback) {
+		Challenge challenge = null;
+
+		yield return Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
+
+			if(body != null)
+			{
+				challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+			}
+
+			callback(challenge, note);
+		}));
+	}
+	
 	public virtual IList<Challenge> Challenges() {
 		IList<DistanceChallenge> distanceList = db.LoadAll<DistanceChallenge>();
 		IList<DurationChallenge> durationList = db.LoadAll<DurationChallenge>();
@@ -377,6 +485,7 @@ public abstract class Platform : SingletonBase
 		return allChallengeList;
 	}
 
+	[Obsolete]
     public virtual Track FetchTrack(int deviceId, int trackId) {
         // Check db
         Track track = db.Cast<Track>().Where<Track>(t => t.deviceId == deviceId && t.trackId == trackId).FirstOrDefault();
@@ -385,6 +494,8 @@ public abstract class Platform : SingletonBase
             return track;
         }
         // or fetch from API
+		log.error("Illegal call to synchronous method. Need to use Asynchronous GetUser(int userId, Action<User> callback)");
+
         IEnumerator e = api.get("tracks/" + deviceId + "-" + trackId, (body) => {
             track = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Track>>(body).response;
         });
@@ -515,7 +626,8 @@ public abstract class Platform : SingletonBase
     }
 
     public virtual void ResetTargets() {
-        throw new NotImplementedException();
+        //No longer need this function
+		//TODO remove
     }
 
     // Returns the target tracker
@@ -603,13 +715,13 @@ public abstract class Platform : SingletonBase
 		else if (!FB.IsLoggedIn)
 		{
 			log.info("Facebook: Login cancelled by Player");
-			NetworkMessageListener.OnAuthentication("Failure");
+			NetworkMessageListener.OnAuthentication("Cancelled");
 		}
 		else
 		{
 			log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
 			if (NetworkMessageListener.authenticated) {
-				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId)));
+				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId), null));
 				NetworkMessageListener.OnAuthentication("Success");
 			} else {
 				// OnAuthentication sent from coroutine
@@ -633,5 +745,46 @@ public abstract class Platform : SingletonBase
             yield return new WaitForSeconds(10.0f);
         }
     }
-	
+
+	// UXCam methods
+	public virtual void startUXCam()
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void stopUXCam()
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void tagScreenForUXCam(string tag)
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual void tagUserForUXCam(string tag, string additionalData)
+	{
+		//do nothing, except on iOS
+		return;
+	}
+
+	public virtual byte[] ReadAssets(string filename) 
+	{
+		string assetspath = Application.streamingAssetsPath;
+		if (assetspath.Contains("://")) {
+			var www = new WWW(Path.Combine(assetspath, filename));
+			while(!www.isDone) {}; // block until finished
+			return www.bytes;
+		} else {
+			return File.ReadAllBytes(Path.Combine(assetspath, filename));			
+		}
+	}
+
+	public string ReadAssetsString(string filename) 
+	{
+		return new System.Text.UTF8Encoding().GetString(ReadAssets(filename));
+	}
 }

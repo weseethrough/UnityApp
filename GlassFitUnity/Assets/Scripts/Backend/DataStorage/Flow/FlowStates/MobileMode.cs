@@ -5,8 +5,12 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 
 /// <summary>
+/// This state attempts to toggle the orientation to what it previously was on exit, however this is having some issues.
+/// Also the app's default orientation on mobile should be portrait, so that the splash screen appears that way - landscape is the exceptional case
 /// 
+/// Better to instead to default orientation to portrait and use a LandscapeState, which forces to Landscape during the state, and back to Portrait afterwards.
 /// </summary>
+
 [Serializable]
 public class MobileMode : FlowState 
 {
@@ -70,9 +74,11 @@ public class MobileMode : FlowState
     public override void Entered()
     {
         base.Entered();
+
         defaultOrientation = Screen.orientation;
         Screen.orientation = ScreenOrientation.Portrait;
-    }
+
+	}
 
     /// <summary>
     /// restore orientation

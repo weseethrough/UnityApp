@@ -6,7 +6,7 @@ namespace PositionPredictor
 {
 	public class PositionPredictor
 	{
-		private bool LOG_KML = false;
+		// private bool LOG_KML = false;
 		//private GFKml kml = new GFKml();
 	    // Constant used to optimize calculations
 	    private double INV_DELTA_TIME_MS = CardinalSpline.getNumberPoints() / 1000.0; // delta time between predictions
@@ -102,6 +102,8 @@ namespace PositionPredictor
 	        
 	        int i = 0;
 	        foreach (Position p in recentPredictedPositions) {
+				Console.Out.WriteLine("PositionPredictor: ctl  position: " + PositionUtils.ToString(p));
+
 	            points[i++] = p;
 	            //System.out.printf("CTL POINTS: points[%d], %.15f,,%.15f, bearing: %f\n",	i, p.getLngx(), p.getLatx(), p.getBearing());
 	        }

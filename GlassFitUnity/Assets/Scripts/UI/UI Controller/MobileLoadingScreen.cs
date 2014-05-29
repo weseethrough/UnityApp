@@ -29,13 +29,23 @@ public class MobileLoadingScreen : MonoBehaviour {
 		UnityEngine.Debug.Log("MobileLoadingScreen: Attempting to load level: " + levelName);
 
 		StartCoroutine("LoadLevel");
-		
+
+		//set that we're doing a time-based goal here
+		// TODO move this to where the challenge is pressed
+		DataVault.Set("goal_type", "time");
+
 	}
 	
 	IEnumerator LoadLevel() {
 		async = Application.LoadLevelAsync(levelName);
-		
+
+		//yield execution until the load is complete
 		yield return async;
+
+		//wait a short time so that the scene can start properly before proceeding to the menu
+		yield return new WaitForSeconds(0.2f);
+
+		FlowState.FollowFlowLinkNamed("RaceExit");
 	}
 	
 	// Update is called once per frame
@@ -50,12 +60,9 @@ public class MobileLoadingScreen : MonoBehaviour {
 				slider.Set(progress / 100f, false);
 			}
 			UnityEngine.Debug.Log("LoadingScreen: Loading - " + progress.ToString("f0") + "%");
-			
-			if(async.isDone) {
-				FlowState fs = FlowStateMachine.GetCurrentFlowState();
-				FlowState.FollowFlowLinkNamed("RaceExit");
-			} 
+
 		}
 		
 	}
+	
 }
