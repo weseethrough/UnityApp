@@ -52,7 +52,9 @@ public class HUDController : MonoBehaviour {
 			DataVault.Set("rawtime", Platform.Instance.LocalPlayerPosition.Time);
 	        DataVault.Set("sweat_points", string.Format("{0:N0}", Platform.Instance.PlayerPoints.CurrentActivityPoints));
 
-	        TimeSpan span = TimeSpan.FromMilliseconds(Platform.Instance.LocalPlayerPosition.Time);
+//	        TimeSpan span = TimeSpan.FromMilliseconds(Platform.Instance.LocalPlayerPosition.Time);
+			float elapsedTime = (float)DataVault.Get("elapased_time");
+			TimeSpan span = TimeSpan.FromSeconds(elapsedTime);
 							
 	        DataVault.Set("time_minutes_only", (int)(span.Minutes + span.Hours * 60));
 	        DataVault.Set("time_seconds_only", string.Format("{0:00}" ,span.Seconds));
@@ -62,7 +64,7 @@ public class HUDController : MonoBehaviour {
 			string distKm = UnitsHelper.SiDistance(goal_dist);
 			DataVault.Set("goal_dist", distKm);
 
-			float millisecondsRemaining = goal_time * 1000 - Platform.Instance.LocalPlayerPosition.Time;
+			float millisecondsRemaining = goal_time * 1000 - elapsedTime * 1000;
 			string timeRemainingString = UnitsHelper.TimestampMMSSdd((long)millisecondsRemaining);
 			DataVault.Set("time_remaining", timeRemainingString);
 		}
