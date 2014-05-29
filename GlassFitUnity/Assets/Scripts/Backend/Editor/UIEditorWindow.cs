@@ -131,7 +131,7 @@ public class UIEditorWindow : EditorWindow
 			    {
 					if (UIManager.panelData.ContainsKey(name))
 					{
-						EditPanel(UIManager.panelData[name]);
+						EditPanel(name, UIManager.panelData[name]);
 					}
 				}
 				GUI.color = Color.red;
@@ -273,7 +273,7 @@ public class UIEditorWindow : EditorWindow
         }
     }
 
-	void EditPanel(string path)
+	void EditPanel(string panelName, string path)
 	{
 		UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
 
@@ -284,16 +284,25 @@ public class UIEditorWindow : EditorWindow
 		else
 		{
 			ClearCurrentStage(script.transform);
-            GameObject stage = (GameObject)Instantiate(Resources.Load(stageRoot));
-            GameObject source = (GameObject)Instantiate(Resources.Load(path));
+			GameObject stage = PrefabUtility.InstantiatePrefab(Resources.Load(stageRoot)) as GameObject;
+            GameObject source = Resources.Load(path)as GameObject;
 
 			stage.transform.parent = script.transform;
 
-			//GUILayer l = GetTransformLayer(source);
+			GUILayer l = GetTransformLayer(source.transform);
+			script.LoadPrefabPanel(panelName, GetContainerName(l), stage);
+		}
+	}
 
-
-			//script.LoadPrefabPanel(path, );
-
+	string GetContainerName(GUILayer layer)
+	{
+		switch (layer)
+		{
+		case GUILayer.e3D:
+			return "Widgets Container3D";
+		case GUILayer.e2D:
+		default:
+			return "Widgets Container";
 		}
 	}
 

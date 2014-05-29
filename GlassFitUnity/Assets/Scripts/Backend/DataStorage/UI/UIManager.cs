@@ -98,13 +98,17 @@ public class UIManager : MonoBehaviour
         return structureParent;
     }
 
+	public GameObject LoadPrefabPanel( string panelID, string cloneInstanceName )
+	{
+		return LoadPrefabPanel(panelID, cloneInstanceName, gameObject);
+	}
     /// <summary>
     /// 
     /// </summary>
     /// <param name="panelID"></param>
     /// <param name="cloneInstanceName"></param>
     /// <returns></returns>
-    public GameObject LoadPrefabPanel( string panelID, string cloneInstanceName )
+    public GameObject LoadPrefabPanel( string panelID, string cloneInstanceName, GameObject rootPoint )
     {
 		if (panelData.Count ==0)
 		{
@@ -112,7 +116,7 @@ public class UIManager : MonoBehaviour
 		}
         if (panelData.ContainsKey(panelID))
         {            
-            GameObject root = GameObjectUtils.SearchTreeByName( gameObject , cloneInstanceName);
+			GameObject root = GameObjectUtils.SearchTreeByName( rootPoint , cloneInstanceName);
 
             if (root != null)
             {
