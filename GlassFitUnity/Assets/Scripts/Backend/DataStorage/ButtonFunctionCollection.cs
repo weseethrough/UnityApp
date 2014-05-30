@@ -1453,6 +1453,7 @@ public class ButtonFunctionCollection
 		//set this value in the datavault for use by mobileInRun, GameBase.
 		DataVault.Set("finish_time_seconds", runTime*60);
 
+		DataVault.Set("duration", runTime.ToString());
         string fitnessLevel = (string) DataVault.Get ("fitness_level");
 		Dictionary<string,Dictionary<string,List<Track>>> matches = (Dictionary<string,Dictionary<string,List<Track>>>) DataVault.Get("matches");
 		//Dictionary<string, List<Track>> allTracksDict = matches[fitnessLevel];

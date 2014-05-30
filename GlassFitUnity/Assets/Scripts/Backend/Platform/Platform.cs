@@ -454,6 +454,15 @@ public abstract class Platform : SingletonBase
 		}));
     }
 
+	public virtual IEnumerator FetchChallengeCoroutine(int id, Action<Challenge> callback) {
+		Challenge challenge = null;
+		Coroutine e = Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body => {
+			challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+		}) ));
+		yield return e;
+		callback(challenge);
+	}
+
 	public virtual IEnumerator FetchChallengeFromNotification(int id, Notification note, Action<Challenge, Notification> callback) {
 		Challenge challenge = null;
 
@@ -483,6 +492,36 @@ public abstract class Platform : SingletonBase
 			}
 		}
 		return allChallengeList;
+	}
+
+	public virtual void FetchTrack(int deviceId, int trackId, Action<Track> callback)
+	{
+		Track track = db.Cast<Track>().Where<Track>(t => t.deviceId == deviceId && t.trackId == trackId).FirstOrDefault();
+		if (track != null) {
+			IncludePositions(track);
+			callback(track);
+		}
+		else
+		{
+			Platform.Instance.partner.StartCoroutine(api.get("tracks/" + deviceId + "-" + trackId, (body) => {
+				track = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Track>>(body).response;
+				callback(track);
+			}));
+		}
+		// or fetch from API
+//		log.error("Illegal call to synchronous method. Need to use Asynchronous GetUser(int userId, Action<User> callback)");
+
+
+	}
+
+	public virtual IEnumerator FetchTrackCoroutine(int deviceId, int trackId, Action<Track> callback)
+	{
+		Track track = null;
+		Coroutine e = Platform.Instance.partner.StartCoroutine(api.get("tracks/" + deviceId + "-" + trackId, (body) => {
+			track = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Track>>(body).response;
+		}));
+		yield return e;
+		callback(track);
 	}
 
 	[Obsolete]

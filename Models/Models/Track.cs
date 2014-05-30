@@ -11,6 +11,7 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
+        [JsonIgnore]
         public long id = 0;
 
 		[JsonProperty("device_id")]		
@@ -27,6 +28,7 @@ namespace RaceYourself.Models
 		public long time;
         [JsonProperty("user_id")]
         public int? userId;
+        [Ignore]
 		public List<Position> positions; // Embedded positions for explicit track fetch
 
 		public DateTime? deleted_at;
@@ -44,12 +46,19 @@ namespace RaceYourself.Models
             if (this.id <= 0)
                 GenerateCompositeId ();
 
+            this.dirty = true;
+
             if (!db.UpdateObjectBy ("id", this))
             {
                 db.StoreObject (this);
             }
         }
-        
+
+        public bool ShouldSerializepositions() 
+        {
+            return false;
+        }
+
         public long GenerateCompositeId ()
         {
             long high = deviceId;
@@ -60,6 +69,7 @@ namespace RaceYourself.Models
             return this.id;
         }
 
+        [JsonIgnore]
 		public DateTime date
         {
 			get

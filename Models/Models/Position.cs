@@ -10,6 +10,7 @@ namespace RaceYourself.Models
 	{
 		[Index]
 		[UniqueConstraint]
+        [JsonIgnore]
         public long id = 0;
 
 		[JsonProperty("device_id")]
@@ -57,6 +58,8 @@ namespace RaceYourself.Models
             if (this.id <= 0)
                 GenerateCompositeId ();
                 
+            this.dirty = true;
+
             if (!db.UpdateObjectBy ("id", this)) {
                 db.StoreObject (this);
             }

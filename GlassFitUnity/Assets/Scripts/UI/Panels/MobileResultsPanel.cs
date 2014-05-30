@@ -40,25 +40,7 @@ public class MobileResultsPanel : MobilePanel {
 	{
 		base.EnterStart ();
 
-		Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
-
 		chosenUser = (User)DataVault.Get("chosen_user");
-
-		bool isAhead = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
-		GameObject obj;
-		if(!isAhead) {
-			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerResultText", "You Lost!");
-			obj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerReward");
-			if(obj != null){
-				obj.SetActive(false);
-			}
-		} else {
-			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerResultText", "You Won!");
-			obj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalReward");
-			if(obj != null) {
-				obj.SetActive(false);
-			}
-		}
 
 		string button = "test";
 		GameObject playerPicObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
@@ -68,28 +50,32 @@ public class MobileResultsPanel : MobilePanel {
 			{
 				Platform.Instance.RemoteTextureManager.LoadImage(user.image, button, (tex, empty) => {
 					UITexture playerPic = playerPicObj.GetComponentInChildren<UITexture>();
-					if(playerPic != null) {
+					if(playerPic != null) 
+					{
 						playerPic.mainTexture = tex;
 					}
 				});
 			}
-			else { UnityEngine.Debug.LogError("MobileResults: No user"); }
+			else 
+			{ 
+				UnityEngine.Debug.LogError("MobileResults: No user"); 
+			}
 		}
 
-		obj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
-		if(obj != null && chosenUser != null) {
+		GameObject obj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
+		if(obj != null && chosenUser != null) 
+		{
 			UITexture rivalPicture = obj.GetComponentInChildren<UITexture>();
-			if(rivalPicture != null) {
+			if(rivalPicture != null) 
+			{
 
 				Platform.Instance.RemoteTextureManager.LoadImage(chosenUser.image, button, (tex, empty) => {
 					rivalPicture.mainTexture = tex;
 				});
 			}
-			UIBasiclabel friendName = obj.GetComponent<UIBasiclabel>();
-			if(friendName != null) {
-				friendName.SetLabel(chosenUser.forename);
-			}
+			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalName", chosenUser.forename);
 		}
+
 		string playerDistance = (string)DataVault.Get("distance");
 		string playerDistanceUnits = (string)DataVault.Get("distance_units");
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceTravelledText", playerDistance);
@@ -97,27 +83,77 @@ public class MobileResultsPanel : MobilePanel {
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceTravelledUnitsText", playerDistanceUnits.ToUpper());
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceUnitsText", playerDistanceUnits);
 
-		string opponentDistance = (string)DataVault.Get("opponent_distance");
-		string opponentDistanceUnits = (string)DataVault.Get("opponent_distance_units");
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceText", opponentDistance);
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceUnitsText", opponentDistanceUnits);
+		GameObject playerDistanceObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerDistance");
+		UITexture playerCircle = playerDistanceObj.GetComponentInChildren<UITexture>();
+
+		playerCircle.color = new Color(57/255f, 188/255f, 60/255f);
+
+		GameObject rivalDistanceObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalDistance");
+		UITexture rivalCircle = rivalDistanceObj.GetComponentInChildren<UITexture>();
 
 		string timeText = (string)DataVault.Get("finish_time_minutes");
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "TimeText", timeText);
+		string durationText = (string)DataVault.Get("duration");
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DurationText", timeText);
+		if(!timeText.Equals(durationText)) 
+		{
+			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "Challenge incomplete - try again!");
+		} 
+		else
+		{
+			Track track = (Track)DataVault.Get("current_track");
+			
+			if(track != null) 
+			{
+				string opponentDistance = (track.distance / 1000f).ToString("f2");
+				string opponentDistanceUnits = "KM";
+				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceText", opponentDistance);
+				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceUnitsText", opponentDistanceUnits);
+				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalQuestionText", "");
+				
+				bool isAhead = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
+				GameObject reward = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "Reward");
+				if(reward != null)
+				{
+					UIAnchor rewardAnchor = reward.GetComponent<UIAnchor>();
+					if(rewardAnchor != null) 
+					{
+						if(isAhead) 
+						{
+							rewardAnchor.relativeOffset = new Vector2(-0.15f, 0.35f);
+							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "You Won!");
+							if(playerCircle != null) 
+							{
+								playerCircle.color = new Color(255/255f, 204/255f, 0);
+							} 
+							if(rivalCircle != null) 
+							{
+								rivalCircle.color = new Color(255/255f, 69/255f, 28/255f);
+							}
+						} else 
+						{
+							rewardAnchor.relativeOffset = new Vector2(0.15f, 0.35f);
+							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "You Lost!");
+							if(playerCircle != null) 
+							{
+								playerCircle.color = new Color(255/255f, 69/255f, 28/255f);
+							} 
+							if(rivalCircle != null) 
+							{
+								rivalCircle.color = new Color(255/255f, 204/255f, 0);
+							}
+						}
+					}
+				}
+			}
+			else 
+			{
+				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "Awaiting friend's challenge attempt");
+			}
+		}
 
 		string playerAveragePace = (string)DataVault.Get ("player_average_pace");
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "AveragePaceText", playerAveragePace);
 
-		string aheadDistance = (string)DataVault.Get("ahead_box") ;
-		string aheadDistanceUnits = (string)DataVault.Get("target_units");
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceAheadText", aheadDistance);
-		if(isAhead) {
-			aheadDistanceUnits = aheadDistanceUnits.ToUpper() + " Ahead";
-		} else {
-			aheadDistanceUnits = aheadDistanceUnits.ToUpper() + " Behind";
-		}
-		
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DistanceAheadUnitsText", aheadDistanceUnits);
 	}
 
 	public override void Exited ()
@@ -125,5 +161,6 @@ public class MobileResultsPanel : MobilePanel {
 		base.Exited ();
 		DataVault.Remove("chosen_user");
 		DataVault.Remove("challenge_notification");
+		DataVault.Remove("current_track");
 	}
 }

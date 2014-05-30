@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -283,7 +283,7 @@ public class MobileHomePanel : MobilePanel {
 				//User user = Platform.Instance.GetUser(note.message.to);
 				User user = null;
 				//retrieve the user
-				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.GetUserCoroutine(notification.message.from, (u) => {
+				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.GetUserCoroutine(notification.message.to, (u) => {
 					user = u;
 				}));
 
@@ -631,52 +631,67 @@ public class MobileHomePanel : MobilePanel {
 		if (button != null)
 		{
 			// If the button is for an uninvited friend
-			if(button.name.Contains("uninvited")) {
+			if(button.name.Contains("uninvited")) 
+			{
 				// Get the list of invites
 				List<Invite> invites = (List<Invite>)DataVault.Get("invite_codes");
 				// Check if there are any unused invites
 				Invite unusedInvite = invites.Find(x => x.used_at == null);
 				// If there are none don't proceed through the exit
-				if(unusedInvite == null) {
+				if(unusedInvite == null) 
+				{
 					return;
 				}
 				// Remove the prefix to find the friend index
 				int i = GetIndex("uninvited", button.name);
 				// Using this index, get the friend and set it in the DataVault
 				DataVault.Set("chosen_friend", friendsData[i]);
-			} else if(button.name.Contains("challenge")) {
+			} else if(button.name.Contains("challenge")) 
+			{
 				// For a challenge button, remove the "challenge" prefix and get the index
 				int i = GetIndex("challenge", button.name);
 				// Using this index get the friend and set it in the DataVault
 				DataVault.Set("chosen_friend", betaFriends[i]);
-			} else if(button.name.Contains("NewChallenges")) {
+			} else if(button.name.Contains("NewChallenges")) 
+			{
 				int challengeId = GetIndex("NewChallenges", button.name);
 
 				Notification note = notifications.Find(x => x.message.challenge_id == challengeId);
-				if(note != null) {
+				if(note != null) 
+				{
 					DataVault.Set("challenge_notification", note);
-				} else {
+				} else 
+				{
 					UnityEngine.Debug.LogError("MobileHomePanel: notification not found " + challengeId);
 				}
 
-			} else if(button.name.Contains("IncompleteChallenges")) {
+			} else if(button.name.Contains("IncompleteChallenges")) 
+			{
 				int incompleteChallengeId = GetIndex("IncompleteChallenges", button.name);
 				
 				Notification note = notifications.Find(x => x.message.challenge_id == incompleteChallengeId);
-				if(note != null) {
+				if(note != null) 
+				{
 					DataVault.Set("challenge_notification", note);
-				} else {
+				} else 
+				{
 					UnityEngine.Debug.LogError("MobileHomePanel: notification not found");
 				}
-			} else if(button.name.Contains("PlayerChallenges")) {
+			} else if(button.name.Contains("PlayerChallenges")) 
+			{
 				int challengeId = GetIndex("PlayerChallenges", button.name);
 
 				Notification note = notifications.Find(x => x.message.challenge_id == challengeId);
-				if(note != null) {
+				if(note != null) 
+				{
 					DataVault.Set("challenge_notification", note);
-				} else {
+				} else 
+				{
 					UnityEngine.Debug.LogError("MobileHomePanel: notification not found");
 				}
+			} else if(button.name.Contains("ImportButton")) 
+			{
+				DataVault.Set("facebook_message", "Connect to Facebook");
 			}
 		}
 		else
