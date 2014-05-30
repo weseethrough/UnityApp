@@ -206,13 +206,21 @@ public class MobileInRun : MobilePanel {
 			// log attempt
 			Track current = Platform.Instance.LocalPlayerPosition.StopTrack();
 			Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
-			if(current != null && challengeNotification != null) {
+			Device device = Platform.Instance.Device();
+			if(current != null && challengeNotification != null && device != null) {
+				UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
+				UnityEngine.Debug.Log("MobileInRun: Device ID is " + device.id);
+				UnityEngine.Debug.Log("MobileInRun: Track ID is " + current.trackId);
+
 				Platform.Instance.QueueAction(string.Format(@"{{'action': 'challenge_attempt', 
 												'challenge_id': {0}, 
 												'track_id' : [
 													{1}, {2}
 												]
-									}}", challengeNotification.message.challenge_id, current.deviceId, current.trackId).Replace("'", "\""));
+									}}", challengeNotification.message.challenge_id, device.id, current.trackId).Replace("'", "\""));
+			} else
+			{
+				UnityEngine.Debug.LogError("MobileInRun: No track or notification!");
 			}
 		}
 

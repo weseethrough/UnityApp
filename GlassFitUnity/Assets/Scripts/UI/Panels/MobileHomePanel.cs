@@ -283,7 +283,7 @@ public class MobileHomePanel : MobilePanel {
 				//User user = Platform.Instance.GetUser(note.message.to);
 				User user = null;
 				//retrieve the user
-				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.GetUserCoroutine(notification.message.from, (u) => {
+				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.GetUserCoroutine(notification.message.to, (u) => {
 					user = u;
 				}));
 

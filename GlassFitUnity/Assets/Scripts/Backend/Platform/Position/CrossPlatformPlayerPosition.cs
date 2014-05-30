@@ -93,6 +93,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	public override Track StopTrack() {
 		base.StopTrack();
 		positionTracker.StopTracking();
+		positionTracker.Track.save(Platform.Instance.db);
 		return positionTracker.Track;
 	}
 
