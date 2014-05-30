@@ -1425,6 +1425,7 @@ public class ButtonFunctionCollection
     {
 
         int runTime = (int) DataVault.Get("run_time");
+		DataVault.Set("duration", runTime.ToString());
         string fitnessLevel = (string) DataVault.Get ("fitness_level");
 		Dictionary<string,Dictionary<string,List<Track>>> matches = (Dictionary<string,Dictionary<string,List<Track>>>) DataVault.Get("matches");
 		//Dictionary<string, List<Track>> allTracksDict = matches[fitnessLevel];
