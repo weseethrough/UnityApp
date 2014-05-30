@@ -220,47 +220,44 @@ public class MobileHomePanel : MobilePanel {
 
 				if(newChallenges == null) { UnityEngine.Debug.LogError("newchallenges is null"); }
 
-				// Add the challenge to the list
-				newChallenges.Add(potential);
-				// Create a button name
-				string newButtonName = "NewChallenges" + potential.id;
-
-				// Create a new dictionary for the text fields
-				Dictionary<string, string> dictionary = new Dictionary<string, string>();
-				// Add the title and description
-				dictionary.Add("TitleText", user.name);
-				dictionary.Add("DescriptionText", "challenges you");
-				// Change the duration to minutes and add to the dictionary
-				int duration = (potential as DurationChallenge).duration / 60;
-				dictionary.Add("DurationText", duration.ToString());
 				TimeSpan? difference = potential.stop_time - DateTime.Now;
 				if(difference != null && difference.Value.TotalMinutes > 0) {
+					// Add the challenge to the list
+					newChallenges.Add(potential);
+					// Create a button name
+					string newButtonName = "NewChallenges" + potential.id;
+
+					// Create a new dictionary for the text fields
+					Dictionary<string, string> dictionary = new Dictionary<string, string>();
+					// Add the title and description
+					dictionary.Add("TitleText", user.name);
+					dictionary.Add("DescriptionText", "challenges you");
+					// Change the duration to minutes and add to the dictionary
+					int duration = (potential as DurationChallenge).duration / 60;
+					dictionary.Add("DurationText", duration.ToString());
+
 					dictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
-				} else 
-				{
-					dictionary.Add("TimeRemainingText", "Expired");
-					dictionary.Add("TimeLeftText", "");
+				
+					// Create a new dictionary for the textures
+					Dictionary<string, Dictionary<string, string>> newChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+					// Create an inner dictionary for the previous dictionary
+					Dictionary<string, string> innerNewDictionary = new Dictionary<string, string>();
+					// Add the location of the texture object and the button name
+					innerNewDictionary.Add("texture", "PlayerPicture");
+					innerNewDictionary.Add("name", newButtonName);
+					// Add the data to the main dictionary for the player's image
+					newChallengeImageDictionary.Add(Platform.Instance.User().image, innerNewDictionary);
+
+					// Re-initialize the dictionary
+					innerNewDictionary = new Dictionary<string, string>();
+					// Add the name and texture again
+					innerNewDictionary.Add("name", newButtonName);
+					innerNewDictionary.Add("texture", "RivalPicture");
+					// Add the data to the main dictionary for the rival's image
+					newChallengeImageDictionary.Add(user.image, innerNewDictionary);
+					// Finally add the button to the list
+					AddButtonData(newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 				}
-
-				// Create a new dictionary for the textures
-				Dictionary<string, Dictionary<string, string>> newChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
-				// Create an inner dictionary for the previous dictionary
-				Dictionary<string, string> innerNewDictionary = new Dictionary<string, string>();
-				// Add the location of the texture object and the button name
-				innerNewDictionary.Add("texture", "PlayerPicture");
-				innerNewDictionary.Add("name", newButtonName);
-				// Add the data to the main dictionary for the player's image
-				newChallengeImageDictionary.Add(Platform.Instance.User().image, innerNewDictionary);
-
-				// Re-initialize the dictionary
-				innerNewDictionary = new Dictionary<string, string>();
-				// Add the name and texture again
-				innerNewDictionary.Add("name", newButtonName);
-				innerNewDictionary.Add("texture", "RivalPicture");
-				// Add the data to the main dictionary for the rival's image
-				newChallengeImageDictionary.Add(user.image, innerNewDictionary);
-				// Finally add the button to the list
-				AddButtonData(newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 
 				// Set the notification as read
 				Platform.Instance.ReadNotification(notification.id);
@@ -293,51 +290,56 @@ public class MobileHomePanel : MobilePanel {
 					continue;
 				}
 
-				// Add the challenge to the list
-				newChallenges.Add(potential);
-				// Create a button name
-				string newButtonName = "PlayerChallenges" + potential.id;
-				
-				// Create a new dictionary for the text fields
-				Dictionary<string, string> playerDictionary = new Dictionary<string, string>();
-				// Add the title and description
-				playerDictionary.Add("TitleText", "You challenge");
-				playerDictionary.Add("DescriptionText", user.name);
-				// Change the duration to minutes and add to the dictionary
-				int duration = (potential as DurationChallenge).duration / 60;
-				playerDictionary.Add("DurationText", duration.ToString());
-				TimeSpan? difference = potential.stop_time - DateTime.Now;
-				if(difference != null && difference.Value.TotalMinutes > 0) {
-					playerDictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
-				} else 
-				{
-					playerDictionary.Add("TimeRemainingText", "Expired");
-					playerDictionary.Add("TimeLeftText", "");
+				TimeSpan? difference;
+				if(potential.stop_time.HasValue) {
+					difference = potential.stop_time - DateTime.Now;
+				} else {
+					difference = TimeSpan.Zero;
 				}
-				// Create a new dictionary for the textures
-				Dictionary<string, Dictionary<string, string>> playerChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
-				// Create an inner dictionary for the previous dictionary
-				Dictionary<string, string> innerPlayerDictionary = new Dictionary<string, string>();
-				// Add the location of the texture object and the button name
-				innerPlayerDictionary.Add("texture", "PlayerPicture");
-				innerPlayerDictionary.Add("name", newButtonName);
-				// Add the data to the main dictionary for the player's image
-				playerChallengeImageDictionary.Add(Platform.Instance.User().image, innerPlayerDictionary);
-				
-				// Re-initialize the dictionary
-				innerPlayerDictionary = new Dictionary<string, string>();
-				// Add the name and texture again
-				innerPlayerDictionary.Add("name", newButtonName);
-				innerPlayerDictionary.Add("texture", "RivalPicture");
-				// Add the data to the main dictionary for the rival's image
 
-				if(!playerChallengeImageDictionary.ContainsKey(user.image))
-				{
-					playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
-				}
-				// Finally add the button to the list
-				AddButtonData(newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+				if(difference != null && difference.Value.TotalMinutes > 0) {
+
+					// Add the challenge to the list
+					playerChallenges.Add(potential);
+					// Create a button name
+					string newButtonName = "PlayerChallenges" + potential.id;
+					
+					// Create a new dictionary for the text fields
+					Dictionary<string, string> playerDictionary = new Dictionary<string, string>();
+					// Add the title and description
+					playerDictionary.Add("TitleText", "You challenge");
+					playerDictionary.Add("DescriptionText", user.name);
+					// Change the duration to minutes and add to the dictionary
+					int duration = (potential as DurationChallenge).duration / 60;
+					playerDictionary.Add("DurationText", duration.ToString());
+
+					playerDictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
 				
+					// Create a new dictionary for the textures
+					Dictionary<string, Dictionary<string, string>> playerChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+					// Create an inner dictionary for the previous dictionary
+					Dictionary<string, string> innerPlayerDictionary = new Dictionary<string, string>();
+					// Add the location of the texture object and the button name
+					innerPlayerDictionary.Add("texture", "PlayerPicture");
+					innerPlayerDictionary.Add("name", newButtonName);
+					// Add the data to the main dictionary for the player's image
+					playerChallengeImageDictionary.Add(Platform.Instance.User().image, innerPlayerDictionary);
+					
+					// Re-initialize the dictionary
+					innerPlayerDictionary = new Dictionary<string, string>();
+					// Add the name and texture again
+					innerPlayerDictionary.Add("name", newButtonName);
+					innerPlayerDictionary.Add("texture", "RivalPicture");
+					// Add the data to the main dictionary for the rival's image
+
+					if(!playerChallengeImageDictionary.ContainsKey(user.image))
+					{
+						playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
+					}
+					// Finally add the button to the list
+					AddButtonData(newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+
+				}
 				// Set the notification as read
 				Platform.Instance.ReadNotification(notification.id);
 			}
@@ -367,46 +369,44 @@ public class MobileHomePanel : MobilePanel {
 
 				if(null == user) { continue; }
 
-				// Set the name of the button
-				string activeButtonName = "IncompleteChallenges" + potential.id;
-				// Add the button to the list
-				incompleteChallenges.Add(potential);
-
-				// Initialize the dictionary
-				Dictionary<string, string> dictionary = new Dictionary<string, string>();
-				// Add the title and description for the challenge
-				dictionary.Add("TitleText", user.name);
-				dictionary.Add("DescriptionText", "challenged you");
-				// Convert the duration to minutes and add it to the dictionary
-				int duration = (potential as DurationChallenge).duration / 60;
-				dictionary.Add("DurationText", duration.ToString());
 				TimeSpan? difference = potential.stop_time - DateTime.Now;
 				if(difference != null && difference.Value.TotalMinutes > 0) {
-					dictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
-				} else 
-				{
-					dictionary.Add("TimeRemainingText", "Expired");
-					dictionary.Add("TimeLeftText", "");
-				}
-				// Create the image dictionary
-				Dictionary<string, Dictionary<string, string>> activeChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
-				// Create the inner dictionary for the images
-				Dictionary<string, string> innerActiveDictionary = new Dictionary<string, string>();
-				// Add the texture and name for the player's picture
-				innerActiveDictionary.Add("texture", "PlayerPicture");
-				innerActiveDictionary.Add("name", activeButtonName);
-				// Add the player's texture information to the dictionary
-				activeChallengeImageDictionary.Add(Platform.Instance.User().image, innerActiveDictionary);
-				// Re-initialize the inner dictionary for the rival
-				innerActiveDictionary = new Dictionary<string, string>();
-				// Add the attributes for the rival's button name and texture name
-				innerActiveDictionary.Add("name", activeButtonName);
-				innerActiveDictionary.Add("texture", "RivalPicture");
-				// Add the rival picture to the dictionary
-				activeChallengeImageDictionary.Add(user.image, innerActiveDictionary);
-				// Add the button
-				AddButtonData(activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 
+					// Set the name of the button
+					string activeButtonName = "IncompleteChallenges" + potential.id;
+					// Add the button to the list
+					incompleteChallenges.Add(potential);
+
+					// Initialize the dictionary
+					Dictionary<string, string> dictionary = new Dictionary<string, string>();
+					// Add the title and description for the challenge
+					dictionary.Add("TitleText", user.name);
+					dictionary.Add("DescriptionText", "challenged you");
+					// Convert the duration to minutes and add it to the dictionary
+					int duration = (potential as DurationChallenge).duration / 60;
+					dictionary.Add("DurationText", duration.ToString());
+
+					dictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
+				
+					// Create the image dictionary
+					Dictionary<string, Dictionary<string, string>> activeChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+					// Create the inner dictionary for the images
+					Dictionary<string, string> innerActiveDictionary = new Dictionary<string, string>();
+					// Add the texture and name for the player's picture
+					innerActiveDictionary.Add("texture", "PlayerPicture");
+					innerActiveDictionary.Add("name", activeButtonName);
+					// Add the player's texture information to the dictionary
+					activeChallengeImageDictionary.Add(Platform.Instance.User().image, innerActiveDictionary);
+					// Re-initialize the inner dictionary for the rival
+					innerActiveDictionary = new Dictionary<string, string>();
+					// Add the attributes for the rival's button name and texture name
+					innerActiveDictionary.Add("name", activeButtonName);
+					innerActiveDictionary.Add("texture", "RivalPicture");
+					// Add the rival picture to the dictionary
+					activeChallengeImageDictionary.Add(user.image, innerActiveDictionary);
+					// Add the button
+					AddButtonData(activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+				}
 			}
 		} else {
 			AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
