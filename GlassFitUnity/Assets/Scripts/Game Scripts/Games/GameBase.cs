@@ -108,6 +108,7 @@ public class GameBase : MonoBehaviour {
 
 		if(selectedTrack != null)
 		{
+			UnityEngine.Debug.Log("Getting target time. Track " + selectedTrack.trackId + ". Time:" + (int)selectedTrack.time);
 			return (int)selectedTrack.time;
 		}
 		else

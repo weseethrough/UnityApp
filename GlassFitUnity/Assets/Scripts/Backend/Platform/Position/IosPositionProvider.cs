@@ -107,7 +107,8 @@ public class IosPositionProvider : MonoBehaviour, IPositionProvider {
 				//Authorised
 				DataVault.Set("location_service_status_message", "Location service enabled");
 				break;
-
+			}
+		}
 
 		if(!Platform.Instance.LocalPlayerPosition.IsTracking)
 		{
@@ -125,8 +126,6 @@ public class IosPositionProvider : MonoBehaviour, IPositionProvider {
 			{
 				listener.OnPositionUpdate(latestPos);
 			}
-		}
-}
 		}
 	}
 

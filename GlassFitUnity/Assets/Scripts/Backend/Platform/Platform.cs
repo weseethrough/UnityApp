@@ -742,7 +742,7 @@ public abstract class Platform : SingletonBase
     {
         while (true) {
             SyncToServer ();
-            yield return new WaitForSeconds(10.0f);
+            yield return new WaitForSeconds(60.0f);
         }
     }
 

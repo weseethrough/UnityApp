@@ -118,7 +118,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		}
 		else
 		{
-			UnityEngine.Debug.LogWarning("Position Tracker Update - don't have position");
+			//UnityEngine.Debug.LogWarning("Position Tracker Update - don't have position");
 		}
 		_bearing = positionTracker.CurrentBearing;
 

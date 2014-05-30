@@ -9,6 +9,7 @@ public class TrackPositionController : PositionController {
 	private long trackStartTimestamp;
 	private float elapsedtime;
 	private double cumulativeDistance;
+	private Log log = new Log("TrackPositionController");
 
 //	private bool started = false;
 
@@ -22,6 +23,12 @@ public class TrackPositionController : PositionController {
 		track = t;
 		//check start time of track
 		trackStartTimestamp = track.positions[0].device_ts;
+
+		Position lastPos = track.positions[track.positions.Count-1];
+
+		long duration = lastPos.device_ts - trackStartTimestamp;
+
+		log.info("Starting Track " + track.trackId + ". Duration:" + duration + ", Distance:" + track.distance);
 	}
 
 //	public void Begin() {
@@ -47,16 +54,31 @@ public class TrackPositionController : PositionController {
 			Position nextPos;
 
 			prevPos = track.positions[currentPosIndex];
-			nextPos = track.positions[currentPosIndex+1];
+			int nextPosIndex = currentPosIndex+1;
+			if(nextPosIndex >= track.positions.Count)
+			{
+				UnityEngine.Debug.LogError("TrackPositionController went too far into track");
+				nextPosIndex = 0;
+			}
+			nextPos = track.positions[nextPosIndex];
 
 			//elapsedtime = Platform.Instance.LocalPlayerPosition.Time;
 			elapsedtime += Time.deltaTime;
 			//until we're at the right index
 			float nextPosTime = (float)(nextPos.device_ts - trackStartTimestamp);
-			while(elapsedtime > nextPosTime)
+			while(elapsedtime > nextPosTime && currentPosIndex < track.positions.Count)
 			{
 				//shuffle index
 				currentPosIndex++;
+				if(currentPosIndex >= track.positions.Count)
+				{
+					currentPosIndex--;
+					log.error("TrackPositionController went too far into track");
+					break;
+				}
+
+				long timeDelta = nextPos.device_ts - trackStartTimestamp;
+				log.info("Moved to next pos in track: " + currentPosIndex + "/" + track.positions.Count + ". Time:" + timeDelta + "/" + elapsedtime);
 
 				//increment distance
 				double extraDistance = PositionUtils.distanceBetween(prevPos, nextPos);
@@ -64,7 +86,14 @@ public class TrackPositionController : PositionController {
 
 				//update positions in use
 				prevPos = nextPos;
-				nextPos = track.positions[currentPosIndex+1];
+				nextPosIndex = currentPosIndex+1;
+				if(nextPosIndex >= track.positions.Count)
+				{
+					UnityEngine.Debug.LogError("TrackPositionController went too far into track");
+					nextPosIndex = currentPosIndex;
+					break;
+				}
+				nextPos = track.positions[nextPosIndex];
 				nextPosTime = (float)(nextPos.device_ts - trackStartTimestamp);
 			}
 
