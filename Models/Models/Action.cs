@@ -8,7 +8,7 @@ namespace RaceYourself.Models
 	[JsonConverter(typeof(CustomConverter))]
 	public class Action : Jsonable
 	{
-        [MaxLength(1024)]
+        [Text]
 		public string json;
 
 		public Action() {}
