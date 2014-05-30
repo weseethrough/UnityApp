@@ -157,6 +157,7 @@ public class MobileChallengeInfoPanel : MobilePanel {
 										GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceText", (playerDistance / 1000).ToString("f2"));
 										GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceUnitsText", "KM");
 										GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerQuestionText", "");
+										GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "Awaiting friend's challenge attempt");
 										if(playerCircle != null) {
 											playerCircle.color = new Color(57/255f, 188/255f, 60/255f);
 										}
