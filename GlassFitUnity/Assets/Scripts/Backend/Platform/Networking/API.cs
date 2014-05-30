@@ -64,7 +64,7 @@ namespace RaceYourself
 			this.partner = partner;
             db = database;
 			user = db.Query<User>().LastOrDefault();
-			token = db.Query<OauthToken>().LastOrDefault();
+            token = db.Query<OauthToken>().LastOrDefault();
             if (user != null && token != null) {
 				if (user.id != token.userId) {
 					log.error("Token in database does not belong to user in database!");
@@ -323,7 +323,7 @@ namespace RaceYourself
 		/// Null values in explicit arguments are not sent.
 		/// Null values inside profile object cause that key to be deleted.
 		/// </summary>
-		public IEnumerator UpdateUser(string username, string name, string image, char gender, int? timezone, Profile profile) {
+		public IEnumerator UpdateUser(string username, string name, string image, char? gender, int? timezone, Hashtable profile) {
 			log.info(string.Format("UpdateUser({0})", user.email));
 			
 			string ret = "Failed";

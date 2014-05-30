@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using RaceYourself;
 using RaceYourself.Models;
 using Newtonsoft.Json;
@@ -8,9 +9,6 @@ using System.Runtime.Serialization;
 
 [Serializable]
 public class MobileFirstRunQuestionnaire : MobilePanel {
-
-    private API api;
-    private Platform platform;
 
     private IDictionary<string, string> buttonNameToFitnessLevel = new Dictionary<string, string>() {
         {"OutOfShapeButton", "out of shape"},
@@ -33,18 +31,9 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
     /// <returns></returns>
     public MobileFirstRunQuestionnaire(SerializationInfo info, StreamingContext ctxt)
         : base(info, ctxt)
-    {    
+    {
         
     }
-
-	// Use this for initialization
-    public override void Entered()
-    {
-        base.Entered();
-        
-        platform = Platform.Instance;
-        api = platform.api;
-	}
 
     public override string GetDisplayName()
     {
@@ -63,7 +52,34 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
         if (button != null)
         {
             string fitnessLevel = buttonNameToFitnessLevel[button.name];
-            DataVault.Set("fitness_level", fitnessLevel);
+            if (fitnessLevel == null)
+                return; // user didn't click on a button.
+
+            Profile profile = Platform.Instance.api.user.profile;
+            switch (fitnessLevel)
+            {
+                // Data from survey has initial capitals. Matching this here for consistency.
+                // TODO define coherent data mapping strategy or make uniform throughout all layers.
+                case "out of shape":
+                    profile.runningFitness = "Out Of Shape";
+                    break;
+                case "average":
+                    profile.runningFitness = "Average";
+                    break;
+                case "athletic":
+                    profile.runningFitness = "Athletic";
+                    break;
+                case "elite":
+                    profile.runningFitness = "Elite";
+                    break;
+            }
+
+            var profileHash = new Hashtable();
+            profileHash["running_fitness"] = profile.runningFitness;
+
+            Platform.Instance.partner.StartCoroutine(Platform.Instance.api.UpdateUser(null, null, null, null, null, profileHash));
+
+            DataVault.Set("fitness_level", fitnessLevel); // TODO find refs, replace with profile
 
             GConnector gc = Outputs.Find(r => r.Name == "Exit");
             if (gc != null)
@@ -72,5 +88,4 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
             }
         }
     }
-    
 }

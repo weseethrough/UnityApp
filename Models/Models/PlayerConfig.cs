@@ -19,7 +19,7 @@ namespace RaceYourself.Models
         public string type; // ignore
 
         /// Is the player a beta tester? Used to determine whether we should prompt them for feedback.
-        public Dictionary<String, bool> configuration;
+        public Dictionary<String, String> configuration;
 
         public DateTime? created_at;
 
@@ -30,14 +30,14 @@ namespace RaceYourself.Models
 
         }
 
-        public PlayerConfig(Dictionary<String, bool> configuration)
+        public PlayerConfig(Dictionary<String, String> configuration)
         {
             this.configuration = configuration;
         }
 
         public bool Test()
         {
-            return configuration["test"];
+            return configuration.ContainsKey("test") && Convert.ToBoolean(configuration["test"]);
         }
     }
 }
