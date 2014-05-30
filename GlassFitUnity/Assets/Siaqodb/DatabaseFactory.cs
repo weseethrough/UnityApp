@@ -69,5 +69,10 @@ namespace SiaqodbUtils
 				CloseDatabase();
 			}
 		}
+
+		public static void ReIndex() {
+			var db = GetInstance(); // Populate siaqodbPath
+			SiaqodbUtil.ReIndex(siaqodbPath);
+		}
     }
 }

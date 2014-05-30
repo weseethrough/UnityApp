@@ -634,10 +634,12 @@ namespace RaceYourself
 		/// Populates the auto-match matrix from the app bundle.
 		/// </summary>
         public void PopulateAutoMatchMatrixFromBundle() {
-			if (db.Query<TrackBucket>().FirstOrDefault() != null) return; // Do not overwrite existing values
-
+            if (db.Query<TrackBucket>().FirstOrDefault() != null) return; // Do not overwrite existing values
+			log.warning("PopulateAutoMatchMatrixFromBundle");
+            
 // TODO: Remove old logic and default_matches.json when stable
-#if OLD_LOGIC
+// TODO: Fix new logic: populate db on load or make sure we can trigger a reload of all db handles
+#if true
 			// Populate from json
 			var body = Platform.Instance.ReadAssetsString("default_matches.json");
 			Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
@@ -670,14 +672,19 @@ namespace RaceYourself
 			log.warning("Populated " + db.Count<Track>() + " tracks from json");
 #else
 			// Populate from read-only database
-			db.DropType(typeof(MatchedTrack)); // Clear
-            var tracks = new List<Track>(db.LoadAll<Track>()); // Merge
-			db.DropType(typeof(Track));
-			db.DropType(typeof(TrackBucket)); // debug, should always be inexistant
-            DatabaseFactory.PopulateFromBundle("RaceYourself.Models.TrackBucket. Models.sqo"); // TrackBucket
-			DatabaseFactory.PopulateFromBundle("RaceYourself.Models.Track. Models.sqo"); // Tracks
-			db = DatabaseFactory.GetInstance();
-			Platform.Instance.db = db; // TODO: Something less icky!
+			var tracks = new List<Track>(db.LoadAll<Track>()); // Merge
+			lock (db) {
+				db.DropType(typeof(MatchedTrack)); // Clear
+				db.DropType(typeof(Track));
+				db.DropType(typeof(TrackBucket)); // debug, should always be inexistant
+	            DatabaseFactory.PopulateFromBundle("RaceYourself.Models.TrackBucket. Models.sqo"); // TrackBucket
+				DatabaseFactory.PopulateFromBundle("RaceYourself.Models.Track. Models.sqo"); // Tracks
+				DatabaseFactory.ReIndex();
+				db = DatabaseFactory.GetInstance();
+				Platform.Instance.db = db; // TODO: Something less icky!
+				// TODO: Everywhere else needs to refresh the connection too
+				// NOTE: THIS DOES NOT WORK ATM
+			}
 			log.warning("Populated " + db.Count<TrackBucket>() + " buckets from bundle");
             log.warning("Populated " + db.Count<Track>() + " tracks from bundle");
             foreach (var track in tracks) {

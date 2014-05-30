@@ -1455,8 +1455,6 @@ public class ButtonFunctionCollection
 
 		DataVault.Set("duration", runTime.ToString());
         string fitnessLevel = (string) DataVault.Get ("fitness_level");
-		Dictionary<string,Dictionary<string,List<Track>>> matches = (Dictionary<string,Dictionary<string,List<Track>>>) DataVault.Get("matches");
-		//Dictionary<string, List<Track>> allTracksDict = matches[fitnessLevel];
 
 		log.info("User's fitness level: " + fitnessLevel);
 
@@ -1476,7 +1474,11 @@ public class ButtonFunctionCollection
 
 		log.info("Getting tracks for this user's fitness level");
 
-        List<Track> tracks = matches[fitnessLevel][runTime.ToString()];
+		TrackBucket bucket = Platform.Instance.api.AutoMatch(fitnessLevel, runTime);
+		List<Track> tracks = bucket.tracks;
+		if (tracks.Count == 0) {
+			tracks = bucket.all;
+		}
 		
 		log.info("Got tracks for this user's fitness level");
 

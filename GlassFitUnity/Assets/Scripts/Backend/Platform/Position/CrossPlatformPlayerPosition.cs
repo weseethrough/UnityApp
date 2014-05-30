@@ -53,7 +53,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 #if	UNITY_ANDROID
 		positionProvider = platform.AddComponent<CrossPlatformPositionProvider>();
 #endif
-		sensorProvider = new CrossPlatformSensorProvider();
+		sensorProvider = platform.AddComponent<CrossPlatformSensorProvider>();
 
 		//Note - unity complains that PositionTracker is a namespace
 		positionTracker = new PositionTracker.PositionTracker(positionProvider, sensorProvider);
