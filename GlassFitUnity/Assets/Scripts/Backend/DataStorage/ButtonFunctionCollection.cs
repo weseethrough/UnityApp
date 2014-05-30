@@ -1147,7 +1147,7 @@ public class ButtonFunctionCollection
             }
 
             plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
-                email, password, null, new Profile(username, firstName, surname, gender, imageUrl, null),
+                email, password, null, new Profile(username, firstName, surname, gender, imageUrl, null, null, null, null, null),
                 providerToken, SignUpCallback));
 
 			Hashtable eventProperties = new Hashtable();
@@ -1447,7 +1447,6 @@ public class ButtonFunctionCollection
     /// <param name="fs">Fs.</param>
     static public bool FetchTrack(FlowButton button, FlowState fs)
     {
-
         int runTime = (int) DataVault.Get("run_time");
         string fitnessLevel = (string) DataVault.Get ("fitness_level");
 		Dictionary<string,Dictionary<string,List<Track>>> matches = (Dictionary<string,Dictionary<string,List<Track>>>) DataVault.Get("matches");
@@ -1519,5 +1518,46 @@ public class ButtonFunctionCollection
         DataVault.Set("current_track", track);
         //DataVault.Set("competitor", competitor);
         return true;
+    }
+
+    static public bool CheckFitnessLevel(FlowButton button, FlowState fs)
+    {
+        GetMatches(); // TODO refactor. Cheeky side-effect programming... a secondary action we want to execute on this click
+
+        // retrieve from DB
+        // set in data vault - or just change references to use object (better)
+        string fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
+
+        if(fitnessLevel != null && fitnessLevel != "") {
+            DataVault.Set("custom_redirection_point", "RaceNowDurationPoint");
+        } else {
+            DataVault.Set("custom_redirection_point", "FitnessLevelPoint");
+        }
+        return UseCustomRedirection(button, fs);
+    }
+    
+    static void GetMatches()
+    {
+        string cached = Platform.Instance.api.getCached("matches", false);
+        if (cached != null)
+        {
+            Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
+                RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(cached).response;
+            DataVault.Set("matches", matches);
+        } else
+        {
+            Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("matches", body =>
+                                                                               {
+                if (body == null)
+                {
+                    UnityEngine.Debug.LogError("Could not get matches from server. Using bundled matches");
+                    body = Platform.Instance.ReadAssetsString("default_matches.json");
+                }
+                
+                Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
+                    RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(body).response;
+                DataVault.Set("matches", matches);
+            }));
+        }
     }
 }

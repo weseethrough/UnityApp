@@ -69,6 +69,7 @@
     <Compile Include="Compatibility\ConcurrentDictionary.cs" />
     <Compile Include="Models\InviteAction.cs" />
     <Compile Include="Models\Invite.cs" />
+    <Compile Include="Models\Profile.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="siaqodb">

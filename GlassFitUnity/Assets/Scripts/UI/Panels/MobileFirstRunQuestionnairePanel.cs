@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 using RaceYourself;
 using RaceYourself.Models;
 using Newtonsoft.Json;
@@ -8,9 +9,6 @@ using System.Runtime.Serialization;
 
 [Serializable]
 public class MobileFirstRunQuestionnaire : MobilePanel {
-
-    private API api;
-    private Platform platform;
 
     private IDictionary<string, string> buttonNameToFitnessLevel = new Dictionary<string, string>() {
         {"OutOfShapeButton", "out of shape"},
@@ -37,16 +35,6 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
         
     }
 
-	// Use this for initialization
-    public override void Entered()
-    {
-        base.Entered();
-        
-        GetMatches();
-        platform = Platform.Instance;
-        api = platform.api;
-	}
-
     public override string GetDisplayName()
     {
         base.GetDisplayName();
@@ -64,7 +52,29 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
         if (button != null)
         {
             string fitnessLevel = buttonNameToFitnessLevel[button.name];
-            DataVault.Set("fitness_level", fitnessLevel);
+
+            Profile profile = Platform.Instance.api.user.profile;
+            switch (fitnessLevel)
+            {
+                case "out of shape":
+                    profile.runningFitness = "Out Of Shape";
+                    break;
+                case "average":
+                    profile.runningFitness = "Average";
+                    break;
+                case "athletic":
+                    profile.runningFitness = "Athletic";
+                    break;
+                case "elite":
+                    profile.runningFitness = "Elite";
+                    break;
+            }
+            var profileHash = new Hashtable();
+            profileHash["running_fitness"] = profile.runningFitness;
+
+            Platform.Instance.partner.StartCoroutine(Platform.Instance.api.UpdateUser(null, null, null, null, null, profileHash));
+
+            DataVault.Set("fitness_level", fitnessLevel); // TODO find refs, replace with profile
 
             GConnector gc = Outputs.Find(r => r.Name == "Exit");
             if (gc != null)
@@ -73,27 +83,4 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
             }
         }
     }
-    
-    void GetMatches()
-    {
-		string cached = Platform.Instance.api.getCached("matches", false);
-		if (cached != null) {
-			Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
-				RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(cached).response;
-			DataVault.Set("matches", matches);
-		} else {
-			Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("matches", body => {
-				if (body == null) {
-					UnityEngine.Debug.LogError("Could not get matches from server. Using bundled matches");
-					body = Platform.Instance.ReadAssetsString("default_matches.json");
-				}
-
-	            Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
-	                RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(body).response;
-	            DataVault.Set("matches", matches);
-	        }));
-		}
-    }
-
-
 }
