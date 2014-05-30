@@ -40,8 +40,6 @@ public class MobileResultsPanel : MobilePanel {
 	{
 		base.EnterStart ();
 
-		Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
-
 		chosenUser = (User)DataVault.Get("chosen_user");
 
 		string button = "test";
@@ -146,6 +144,10 @@ public class MobileResultsPanel : MobilePanel {
 						}
 					}
 				}
+			}
+			else 
+			{
+				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "Awaiting friend's challenge attempt");
 			}
 		}
 
