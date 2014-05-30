@@ -30,6 +30,8 @@ public class MobileInRun : MobilePanel {
 
 	bool bPlayerAhead = true;
 
+	UISprite pauseButtonImage = null;
+
 	Track track;
 
 	public MobileInRun() { }
@@ -156,6 +158,13 @@ public class MobileInRun : MobilePanel {
 		}
 		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 
+		//find the pause button sprite
+		GameObject pb = GameObject.Find("PauseButtonImage");
+		pauseButtonImage = pb.GetComponent<UISprite>();
+		if(pauseButtonImage == null)
+		{
+			log.error("couldn't find pause button sprite");
+		}
 	}
 	
 	public override void ExitStart ()
@@ -330,6 +339,7 @@ public class MobileInRun : MobilePanel {
 				Time.timeScale = 0.0f;
 				//playerSpriteAnimation.framesPerSecond = 0;
 				//opponentSpriteAnimation.framesPerSecond = 0;
+				pauseButtonImage.spriteName = "mobile_resume";
 			}
 			else
 			{
@@ -341,6 +351,7 @@ public class MobileInRun : MobilePanel {
 				//resume the runners
 				//playerSpriteAnimation.framesPerSecond = 10;
 				//opponentSpriteAnimation.framesPerSecond = 10;
+				pauseButtonImage.spriteName = "mobile_pause";
 			}
 		}
 		base.OnClick (button);
