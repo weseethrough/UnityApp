@@ -18,7 +18,8 @@ public class HUDController : MonoBehaviour {
 		string distKm = UnitsHelper.SiDistanceUnitless(goal_dist, string.Empty);
 		DataVault.Set("goal_dist", distKm);
 
-		goal_time = GameBase.getTargetTime();
+		//goal_time = GameBase.getTargetTime();
+		goal_time = (int)DataVault.Get("finish_time_seconds");
 		string timeString = UnitsHelper.TimestampMMSSfromMillis(goal_time * 1000);
 		DataVault.Set("finish_time", distKm);
 

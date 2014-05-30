@@ -89,7 +89,8 @@ public class MobileInRun : MobilePanel {
 		}
 		else log.info("Found opponent progress bar");
 		
-		targetTime = GameBase.getTargetTime();
+		//targetTime = GameBase.getTargetTime();
+		targetTime = (float)(int)DataVault.Get("finish_time_seconds");
 		targetDistance = GameBase.getTargetDistance();
 
 		//log.info("Got target distance");
