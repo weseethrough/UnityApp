@@ -1166,10 +1166,20 @@ public class ButtonFunctionCollection
 
     private static void SignIn(string email, string password)
     {
+		UnityEngine.Debug.Log("Loggin in as: " + email + "/" + password);
+
         NetworkMessageListener.OnAuthenticated handler = null;
         handler = new NetworkMessageListener.OnAuthenticated((errors) => {
-            bool authenticated = errors.Count == 0;
+			bool authenticated = errors.Count == 0;
             DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
+			if(authenticated)
+			{
+				UnityEngine.Debug.Log("authenticated successfully");
+			}
+			else
+			{
+				UnityEngine.Debug.Log("authentication failed with errors: " + errors.Values);
+			}
             FollowExit(authenticated ? "Exit" : "Error");
             Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
         });
@@ -1306,10 +1316,24 @@ public class ButtonFunctionCollection
         string platform = Application.platform.ToString();
         if (Platform.Instance.OnGlass())
             platform = "Glass";
-        Application.OpenURL("http://www.surveygizmo.com/s3/1658631/Raceyourself-Beta-SignUp?ry_platform=" + platform);
+#if PRODUCTION
+		Application.OpenURL("http://www.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+#else
+		Application.OpenURL("http://staging.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+#endif
         return false;
     }
     
+    static public bool PasswordReset(FlowButton button, FlowState fs)
+    {
+        #if PRODUCTION
+        Application.OpenURL("http://www.raceyourself.com/users/password/new");
+        #else
+        Application.OpenURL("http://a.staging.raceyourself.com/users/password/new");
+        #endif
+        return false;
+    }
+
     static public bool FacebookShare(FlowButton button, FlowState fs) 
     {
         FB.Feed("", "http://www.raceyourself.com", "Race Yourself", "Race yoself, foo!", "Describe yourself, foo!");

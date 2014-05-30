@@ -4,17 +4,28 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Runtime.Serialization;
+using System.IO;
 
 /// <summary>
 /// Main Ui management editor window
 /// </summary>
 public class UIEditorWindow : EditorWindow
 {
+	enum GUILayer
+	{
+		unknown,
+		e2D,
+		e3D
+	}
+
+	static private string stageRoot = "UIComponents/StageRoot";
+
     static private string NEW_SCREEN = "New Screen";
 	private string[] screens = {NEW_SCREEN};
 	private int index = 0;
     private string screenName = "require reload";
     private bool foreceRefresh = false;
+	private Vector2 panelScroller = new Vector2();
 
     /// <summary>
     /// default static unity function called to show window using window type reference
@@ -83,7 +94,7 @@ public class UIEditorWindow : EditorWindow
             if (GUILayout.Button("Clone to"))
             {
                 SaveScreen(false);
-            }             
+            }            
         GUILayout.EndHorizontal();
         GUILayout.BeginHorizontal();
             if (GUILayout.Button("Save"))
@@ -91,14 +102,106 @@ public class UIEditorWindow : EditorWindow
                 SaveScreen(false);
                 DataStore.SaveStorage(DataStore.BlobNames.ui_panels, true);
                 RefreshFromSource();
+
+				if (UIManager.panelData.Count < 2)
+				{
+					UIManager.LoadPanelData();
+				}
+				UIManager.SavePanelData();
             }
             if (GUILayout.Button("Load"))
             {
                 DataStore.instance.Initialize();
                 RefreshFromSource();
                 foreceRefresh = true;
+
+				UIManager.LoadPanelData();
             }        
         GUILayout.EndHorizontal();
+
+		panelScroller = GUILayout.BeginScrollView(panelScroller);
+
+        bool refresh = false;
+		foreach (string name in UIManager.panelList)
+        {
+            UnityEngine.Object obj = null;
+            GUILayout.BeginHorizontal();                
+                obj = EditorGUILayout.ObjectField( obj, typeof(GameObject), GUILayout.MaxWidth(35.0f));
+                if ( GUILayout.Button("e", GUILayout.MaxWidth(20.0f)))
+			    {
+					if (UIManager.panelData.ContainsKey(name))
+					{
+						EditPanel(name, UIManager.panelData[name]);
+					}
+				}
+				GUI.color = Color.red;
+				if ( GUILayout.Button("x", GUILayout.MaxWidth(20.0f)))
+				{
+					UIManager.RemovePanel(name);
+				}
+				GUI.color = Color.white;
+				
+				GUILayout.Label(name, GUILayout.MinWidth(150.0f));
+               // GUILayout.Label("path:", GUILayout.MaxWidth(60.0f));
+		
+				string newName = name; 
+				if (obj is GameObject)
+				{
+					string path = AssetDatabase.GetAssetPath(obj);
+					UIManager.panelData[name] = SerializedNode.GetResourcePath(path);
+					newName = obj.name;
+					refresh = true;
+				}
+
+                if (newName != name)
+                {
+					if (UIManager.panelData.ContainsKey(name))
+                    {
+					UIManager.panelData[newName] = GUILayout.TextField(UIManager.panelData[name], GUILayout.MaxWidth(150.0f));
+                    }
+                    else
+                    {
+					UIManager.panelData[newName] = GUILayout.TextField("", GUILayout.MaxWidth(150.0f));
+                    }
+
+					UIManager.panelData.Remove(name);
+                    refresh = true;
+                }
+				else if (UIManager.panelData.ContainsKey(name))
+                {
+					string path = GUILayout.TextField(UIManager.panelData[name], GUILayout.MaxWidth(150.0f));
+					if ( UIManager.panelData[name] != path)
+					{
+						UIManager.panelData[name] = path;
+						refresh = true;
+					}
+                }
+                else
+                {
+					UIManager.panelData[name] = GUILayout.TextField("", GUILayout.MaxWidth(150.0f));
+                }
+                
+            GUILayout.EndHorizontal();
+        }
+
+		GUILayout.EndScrollView();
+
+        if (GUILayout.Button("+"))
+        {
+			if (UIManager.panelData.Count < 2)
+			{
+				UIManager.LoadPanelData();
+			}
+			UIManager.panelData.Add("!!NoName"+UIManager.panelData.Count, "");
+            UIManager.BuildList();
+			UIManager.SavePanelData();
+        }
+		else if (refresh)
+		{
+			UIManager.BuildList();
+			UIManager.SavePanelData();
+		}
+        
 	}
 	
 	/// <summary>
@@ -107,7 +210,6 @@ public class UIEditorWindow : EditorWindow
 	/// <returns></returns>
 	void BuildScreenList()
 	{
-
         StorageDictionary screensDictionary = Panel.GetPanelDictionary();
 
         int count = screensDictionary == null ? 0 : screensDictionary.Length();
@@ -170,6 +272,63 @@ public class UIEditorWindow : EditorWindow
             }
         }
     }
+
+	void EditPanel(string panelName, string path)
+	{
+		UIManager script = (UIManager)FindObjectOfType(typeof(UIManager));
+
+		if (script == null)
+		{
+			Debug.LogError("Scene requires to have UIManager in its root");                
+		}            
+		else
+		{
+			ClearCurrentStage(script.transform);
+			GameObject stage = PrefabUtility.InstantiatePrefab(Resources.Load(stageRoot)) as GameObject;
+            GameObject source = Resources.Load(path)as GameObject;
+
+			stage.transform.parent = script.transform;
+
+			GUILayer l = GetTransformLayer(source.transform);
+			script.LoadPrefabPanel(panelName, GetContainerName(l), stage);
+		}
+	}
+
+	string GetContainerName(GUILayer layer)
+	{
+		switch (layer)
+		{
+		case GUILayer.e3D:
+			return "Widgets Container3D";
+		case GUILayer.e2D:
+		default:
+			return "Widgets Container";
+		}
+	}
+
+	GUILayer GetTransformLayer(Transform root)
+	{
+		int layer = root.gameObject.layer; 
+		if (layer == LayerMask.NameToLayer("GUI"))
+		{
+			return GUILayer.e2D;
+		}
+		else
+		{
+			return GUILayer.e3D;
+		}
+
+		foreach (Transform t in root)
+		{
+			GUILayer l = GetTransformLayer(t);
+			if (l != GUILayer.unknown)
+			{
+				return l;
+			}
+		}
+
+		return GUILayer.unknown;
+	}
 
     /// <summary>
     /// clears current ui structure

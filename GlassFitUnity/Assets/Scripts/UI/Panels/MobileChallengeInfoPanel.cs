@@ -65,7 +65,9 @@ public class MobileChallengeInfoPanel : MobilePanel {
 				rival = Platform.Instance.GetUser(challengeNotification.message.to);
 			}
 
-			DataVault.Set("chosen_user", rival);
+			Platform.Instance.GetUser(rivalID, (rival) => {
+
+				DataVault.Set("chosen_user", rival);
 
 			GameObject rivalPicture = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
 			string empty = "test";

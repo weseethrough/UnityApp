@@ -46,6 +46,11 @@ extern "C" {
     {
         [[RY_GPS sharedInstance] stopGPS];
     }
+    
+    int _getAuthorisationStatus()
+    {
+        return [CLLocationManager authorizationStatus];
+    }
 }
 
 +(RY_GPS *)sharedInstance
@@ -114,7 +119,7 @@ extern "C" {
     {
         if(lastPosition != nil)
         {
-            [lastPosition release]
+            [lastPosition release];
         }
         lastPosition = [location retain];
     }
@@ -167,6 +172,7 @@ extern "C" {
 
 -(void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
+    NSLog(@"Location Manager did fail with error %@", error);
 //    const char* errorMessage = [[[error.userInfo objectForKey:NSLocalizedDescriptionKey] localizedDescription] UTF8String];
 //    UnitySendMessage("Platform", "OnLocationError", errorMessage);
 }

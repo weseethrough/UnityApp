@@ -275,8 +275,11 @@ public abstract class Platform : SingletonBase
         return api.user;
     }
     
+	[Obsolete]
     public virtual PlayerConfig GetPlayerConfig()
     {
+		log.error("GetPlayerConfig(): Illegal call to synchronous method. Need to use Asynchronous GetUser(int userId, Action<User> callback)");
+
         // TODO put in synchronise call.
         PlayerConfig cfg = null;
         IEnumerator e = api.get("configurations/unity", (body) => {
@@ -290,28 +293,50 @@ public abstract class Platform : SingletonBase
 	{
 		User user = null;
 		Platform.Instance.partner.StartCoroutine(api.get("users/" + userId, (body) => {
-			UnityEngine.Debug.Log("Got users/userid from json: " + body);
 			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
-			UnityEngine.Debug.Log("extracted user from json");
 			callback(user);
 		}));
 	}
 
+	public virtual IEnumerator GetUserCoroutine(int userId, Action<User> callback)
+	{
+		User user = null;
+		UnityEngine.Debug.Log("Platform Getting user in coroutine");
+		Coroutine e = Platform.Instance.partner.StartCoroutine( api.get ("users/" + userId, (body) => {
+			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+		} ));
+		yield return e;
+		if(user != null)
+		{
+//			UnityEngine.Debug.Log("Platform got user " + userId + " from coroutine: " + user.DisplayName);
+		}
+		else
+		{
+			log.error("Couldn't get user: " + userId);
+		}
+		callback(user);
+	}
+
+	[Obsolete]
     public virtual User GetUser(int userId)
     {
-		log.info("Getting user " + userId);
-        User user = null;
+		log.error("GetUser(): Illegal call to synchronous method. Need to use Asynchronous GetUser(int userId, Action<User> callback)");
+
+		User user = null;
         IEnumerator e = api.get("users/" + userId, (body) => {
             user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
         });
-        while(e.MoveNext()) {}; // block until finished
+		while(e.MoveNext()) {}; // block until finished
         return user;
     }
 
+	[Obsolete]
     public virtual List<Track> GetTracks()
     {
+		log.error("GetTracks(): Illegal call to synchronous method. Need to use Asynchronous GetUser(int userId, Action<User> callback)");
+
         // TODO: Change signature to IList<Track>
-		//	Actually, best not to, iOS doesn't deal with generics.
+		//	Actually, best not to, iOS doesn't deal well with generics.
         var tracks = new List<Track>(db.LoadAll<Track>());
         foreach (var track in tracks) {
             IncludePositions(track);
@@ -424,18 +449,21 @@ public abstract class Platform : SingletonBase
         Challenge challenge = null;
         Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
             challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
-//			UnityEngine.Debug.LogError(body);
-        	callback(challenge);
+
+			callback(challenge);
 		}));
     }
 
 	public virtual IEnumerator FetchChallengeFromNotification(int id, Notification note, Action<Challenge, Notification> callback) {
 		Challenge challenge = null;
-		yield return Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
-//			log.error(body);
-			challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
 
-//			log.profile(body);
+		yield return Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
+
+			if(body != null)
+			{
+				challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+			}
+
 			callback(challenge, note);
 		}));
 	}
@@ -457,6 +485,7 @@ public abstract class Platform : SingletonBase
 		return allChallengeList;
 	}
 
+	[Obsolete]
     public virtual Track FetchTrack(int deviceId, int trackId) {
         // Check db
         Track track = db.Cast<Track>().Where<Track>(t => t.deviceId == deviceId && t.trackId == trackId).FirstOrDefault();
@@ -465,6 +494,8 @@ public abstract class Platform : SingletonBase
             return track;
         }
         // or fetch from API
+		log.error("Illegal call to synchronous method. Need to use Asynchronous GetUser(int userId, Action<User> callback)");
+
         IEnumerator e = api.get("tracks/" + deviceId + "-" + trackId, (body) => {
             track = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Track>>(body).response;
         });

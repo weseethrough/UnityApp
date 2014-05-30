@@ -25,10 +25,8 @@ public class DataStore : MonoBehaviour
             }
             DataStore ds = (DataStore)GameObject.FindObjectOfType(typeof(DataStore));
             if (ds != null)
-            {
-              //  Profiler.BeginSample("_oOo_DataStore_oOo_");
-                ds.MakeAwake();
-            //    Profiler.EndSample();
+            {              
+                ds.MakeAwake();            
             }
             return _instance;
         }        
@@ -98,10 +96,19 @@ public class DataStore : MonoBehaviour
         //load data blobs from drive
         
         for (int i = 0; i < (int)BlobNames.maxItem; i++ )
-        {
-            float startTime = Time.realtimeSinceStartup;
-            BlobNames bName = (BlobNames)i;
-            string name = bName.ToString();
+		{
+			BlobNames bName = (BlobNames)i;
+			string name = bName.ToString();
+
+			if (bName == BlobNames.ui_panels)
+			{
+				storageBank[name] = new Storage();
+				UIManager.LoadPanelData();
+			//	continue;
+			}
+
+			float startTime = Time.realtimeSinceStartup;
+            
 #if UNITY_EDITOR
             if (!LoadStorageFromCollection(bName))
             {
@@ -123,6 +130,7 @@ public class DataStore : MonoBehaviour
             float endTime = Time.realtimeSinceStartup;
 
             Debug.Log("Loading time for " + name + " took " + (float)(endTime - startTime));
+
         }
         
 	}

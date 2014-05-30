@@ -15,7 +15,18 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	public override Position PredictedPosition { get { return _predictedPosition; } }
 
 	private long _time = 0;
-	public override long Time { get { return _time; } }
+	public override long Time { get 
+		{
+			//Should return _time. However, that's not currently working, so temp workaround to try to retrieve from the datavault. Will only work on mobile atm.
+			try {
+				float time_seconds = (float)DataVault.Get("elapsed_time");
+				long time_milliseconds = (long)(time_seconds * 1000);
+				return time_milliseconds;
+			} catch (Exception e) {
+				return 0;
+			}
+
+		} }
 
 	private double _distance = 0.0;
 	public override double Distance { get { return _distance; } }
