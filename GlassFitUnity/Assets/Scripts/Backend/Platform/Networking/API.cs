@@ -653,6 +653,9 @@ namespace RaceYourself
 			foreach (var fitnessLevel in matches.Keys) {
 				var buckets = matches[fitnessLevel];
 				foreach (var duration in buckets.Keys) {
+					if (buckets[duration].Count == 0) {
+						log.error("Track bucket[" + fitnessLevel + "," + duration + "] is empty!");
+					}
 					var tracks = new List<Track>();
 					foreach (var track in buckets[duration]) {
 						track.GenerateCompositeId();
@@ -670,7 +673,8 @@ namespace RaceYourself
 			db.EndBulkInsert(types);
 			log.warning("Populated " + db.Count<TrackBucket>() + " buckets from json");
 			log.warning("Populated " + db.Count<Track>() + " tracks from json");
-#else
+			log.warning("Populated " + db.Count<Position>() + " positions from json");
+            #else
 			// Populate from read-only database
 			var tracks = new List<Track>(db.LoadAll<Track>()); // Merge
 			lock (db) {
@@ -725,6 +729,9 @@ namespace RaceYourself
 					foreach (var fitnessLevel in matches.Keys) {
 						var buckets = matches[fitnessLevel];
 						foreach (var duration in buckets.Keys) {
+							if (buckets[duration].Count == 0) {
+								log.error("Track bucket[" + fitnessLevel + "," + duration + "] is empty!");
+                            }
 							var tracks = new List<Track>();
 							foreach (var track in buckets[duration]) {
 								track.GenerateCompositeId();
@@ -742,8 +749,9 @@ namespace RaceYourself
                     db.EndBulkInsert(types);
 					log.warning("Populated " + db.Count<TrackBucket>() + " buckets from network");
                     log.warning("Populated " + db.Count<Track>() + " tracks from network");
+					log.warning("Populated " + db.Count<Position>() + " positions from network");
 
-					matching = false;
+                    matching = false;
 					var p = new Parameter("matches", "fetched");
 					if (!db.UpdateObjectBy("key", p)) db.StoreObject(p);
 				});
