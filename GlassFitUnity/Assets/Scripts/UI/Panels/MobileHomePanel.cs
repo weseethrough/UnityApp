@@ -137,6 +137,11 @@ public class MobileHomePanel : MobilePanel {
 			DataVault.Set("invite_codes", invites);
 			// Initialize the number of unused invites
 			int numUnused = 0;
+
+//			if(Platform.Instance.HasPermissions("facebook", "login")) {
+//				Platform.Instance.Authorize("facebook", "login");
+//			}
+
 			// Get the friends, needs the invites
 			GetFriends();	
 			// Find all the unused invites
