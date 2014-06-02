@@ -78,9 +78,7 @@ public class MobileFirstRunQuestionnaire : MobilePanel {
             profileHash["running_fitness"] = profile.runningFitness;
 
             Platform.Instance.partner.StartCoroutine(Platform.Instance.api.UpdateUser(null, null, null, null, null, profileHash));
-
-            DataVault.Set("fitness_level", fitnessLevel); // TODO find refs, replace with profile
-
+            
             GConnector gc = Outputs.Find(r => r.Name == "Exit");
             if (gc != null)
             {

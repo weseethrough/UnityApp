@@ -1289,6 +1289,9 @@ public class ButtonFunctionCollection
 
     static public bool CheckRegistered(FlowButton button, FlowState fs)
     {
+        // Dodgy side-effect programming... hide secondary input box above keyboard on device.
+        TouchScreenKeyboard.hideInput = true;
+
         OauthToken token = Platform.Instance.api.token;
         if (Platform.Instance.User() != null && token != null && !token.HasExpired)
         {
