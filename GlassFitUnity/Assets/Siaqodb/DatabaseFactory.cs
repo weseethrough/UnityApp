@@ -18,15 +18,17 @@ namespace SiaqodbUtils
         {
             if (instance == null)
             {
-              
+                #if UNITY_ANDROID              
                 //if ANDROID:
                 siaqodbPath = Application.persistentDataPath;
+                #elif UNITY_EDITOR
                 //if Windows or MAC
-                //siaqodbPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + @"database";
-                
+                siaqodbPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + @"database";
+                #elif UNITY_IPHONE
                 //if iOS (iPhone /iPad)
-                //siaqodbPath =Application.dataPath;
-		
+                siaqodbPath = Application.dataPath;
+                #endif
+
                 if (!Directory.Exists(siaqodbPath))
                 {
                     Directory.CreateDirectory(siaqodbPath);

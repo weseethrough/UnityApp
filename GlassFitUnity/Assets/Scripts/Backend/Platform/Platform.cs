@@ -83,7 +83,6 @@ public abstract class Platform : SingletonBase
 #elif UNITY_IPHONE
             return (Platform)GetInstance<IosPlatform>();
 #endif
-            return null;
         }
     }
    

@@ -10,6 +10,7 @@ using SiaqodbUtils;
 using UnityEngine;
 using RaceYourself.Models;
 using System.Runtime.CompilerServices;
+using Ionic.Zip;
 
 namespace RaceYourself
 {
@@ -969,7 +970,7 @@ namespace RaceYourself
 		/// <param name="bytes">Bytes.</param>
 		public static byte[] DecompressGZipBuffer(byte[] bytes)
 		{
-#if UNITY_IOS
+#if UNITY_IPHONE
 			return bytes;
 #else
 			return Ionic.Zlib.GZipStream.UncompressBuffer(bytes);
