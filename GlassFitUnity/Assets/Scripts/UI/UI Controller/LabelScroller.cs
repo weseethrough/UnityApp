@@ -69,7 +69,14 @@ public class LabelScroller : MonoBehaviour
 			position.y = labelOffset-margin;
 			velocity = margin;
 		}
-		transform.position = position;
+        if(Platform.Instance.GetTouchCount() >= 1)
+        {
+            Vector2? touch = Platform.Instance.GetTouchInput();
+            transform.position = (touch.Value - draggingStartPos.Value);
+        }
+        else{
+            transform.position = position;
+        }
 	}
 	
 }
