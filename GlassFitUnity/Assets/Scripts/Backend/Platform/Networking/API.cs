@@ -84,8 +84,8 @@ namespace RaceYourself
 			Device self = db.Query<Device>().Where(d => d.self == true).FirstOrDefault();
 			if (self == null) {
 				self = Platform.Instance.DeviceInformation();
+				log.info("Unregistered device: " + self.manufacturer + " " + self.model);
 				db.StoreObject(self);
-				log.info("Unregistered device");
 			} else {
 				if (self.id != 0) log.info("Device registered as " + self.id);
 				else log.info("Device waiting to be registered");
@@ -645,32 +645,36 @@ namespace RaceYourself
 			Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
 				RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(body).response;
 
-			var t = db.BeginTransaction();
-			foreach (var bucket in db.LoadAll<TrackBucket>()) db.Delete(bucket, t);
-			foreach (var match in db.LoadAll<MatchedTrack>()) db.Delete(match, t);
+			Type[] types = new Type[] {typeof(Track), typeof(Position), typeof(TrackBucket)};
+			db.StartBulkInsert(types);
+			foreach (var bucket in db.LoadAll<TrackBucket>()) db.Delete(bucket);
+			foreach (var match in db.LoadAll<MatchedTrack>()) db.Delete(match);
 
 			foreach (var fitnessLevel in matches.Keys) {
 				var buckets = matches[fitnessLevel];
 				foreach (var duration in buckets.Keys) {
+					if (buckets[duration].Count == 0) {
+						log.error("Track bucket[" + fitnessLevel + "," + duration + "] is empty!");
+					}
 					var tracks = new List<Track>();
-					foreach (var transient in buckets[duration]) {
-						var track = db.Query<Track>().Where(x => x.deviceId == transient.deviceId && x.trackId == transient.trackId).FirstOrDefault();
-						if (track == null) {
-							track = transient;
-							// Store straight away so it can be queried for uniqueness
-							track.GenerateCompositeId();
-							db.StoreObject(track);
-						}
-						tracks.Add(track);
+					foreach (var track in buckets[duration]) {
+						track.GenerateCompositeId();
+						if (!db.UpdateObjectBy("id", track)) db.StoreObject(track);
+						foreach (var position in track.positions) {
+							position.GenerateCompositeId();
+							if (!db.UpdateObjectBy("id", position)) db.StoreObject(position);
+                        }
+                        tracks.Add(track);
 					}
 					TrackBucket bucket = new TrackBucket(fitnessLevel, int.Parse(duration), tracks);
-					db.StoreObject(bucket, t);
+					db.StoreObject(bucket);
 				}
 			}
-			t.Commit();
+			db.EndBulkInsert(types);
 			log.warning("Populated " + db.Count<TrackBucket>() + " buckets from json");
 			log.warning("Populated " + db.Count<Track>() + " tracks from json");
-#else
+			log.warning("Populated " + db.Count<Position>() + " positions from json");
+            #else
 			// Populate from read-only database
 			var tracks = new List<Track>(db.LoadAll<Track>()); // Merge
 			lock (db) {
@@ -679,6 +683,7 @@ namespace RaceYourself
 				db.DropType(typeof(TrackBucket)); // debug, should always be inexistant
 	            DatabaseFactory.PopulateFromBundle("RaceYourself.Models.TrackBucket. Models.sqo"); // TrackBucket
 				DatabaseFactory.PopulateFromBundle("RaceYourself.Models.Track. Models.sqo"); // Tracks
+				// TODO: Track positions
 				DatabaseFactory.ReIndex();
 				db = DatabaseFactory.GetInstance();
 				Platform.Instance.db = db; // TODO: Something less icky!
@@ -690,6 +695,7 @@ namespace RaceYourself
             foreach (var track in tracks) {
 				try {
 					db.StoreObject(track);
+
 				} catch (Exception e) { 
 					// Ignore
 				}
@@ -715,33 +721,37 @@ namespace RaceYourself
                     Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
 						RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(body).response;
 
-					var t = db.BeginTransaction();
-					foreach (var bucket in db.LoadAll<TrackBucket>()) db.Delete(bucket, t);
-					foreach (var match in db.LoadAll<MatchedTrack>()) db.Delete(match, t);
+					Type[] types = new Type[] {typeof(Track), typeof(Position), typeof(TrackBucket)};
+					db.StartBulkInsert(types);
+					foreach (var bucket in db.LoadAll<TrackBucket>()) db.Delete(bucket);
+					foreach (var match in db.LoadAll<MatchedTrack>()) db.Delete(match);
 					
 					foreach (var fitnessLevel in matches.Keys) {
 						var buckets = matches[fitnessLevel];
 						foreach (var duration in buckets.Keys) {
+							if (buckets[duration].Count == 0) {
+								log.error("Track bucket[" + fitnessLevel + "," + duration + "] is empty!");
+                            }
 							var tracks = new List<Track>();
-							foreach (var transient in buckets[duration]) {
-								var track = db.Query<Track>().Where(x => x.deviceId == transient.deviceId && x.trackId == transient.trackId).FirstOrDefault();
-								if (track == null) {
-									track = transient;
-									// Store straight away so it can be queried for uniqueness
-									track.GenerateCompositeId();
-									db.StoreObject(track);
-								}
+							foreach (var track in buckets[duration]) {
+								track.GenerateCompositeId();
+								if (!db.UpdateObjectBy("id", track)) db.StoreObject(track);
+								foreach (var position in track.positions) {
+									position.GenerateCompositeId();
+									if (!db.UpdateObjectBy("id", position)) db.StoreObject(position);
+                                }
                                 tracks.Add(track);
                             }
                             TrackBucket bucket = new TrackBucket(fitnessLevel, int.Parse(duration), tracks);
-                            db.StoreObject(bucket, t);
+                            db.StoreObject(bucket);
                         }
                     }
-                    t.Commit();
-                    log.warning("Populated " + db.Count<TrackBucket>() + " buckets from network");
+                    db.EndBulkInsert(types);
+					log.warning("Populated " + db.Count<TrackBucket>() + " buckets from network");
                     log.warning("Populated " + db.Count<Track>() + " tracks from network");
+					log.warning("Populated " + db.Count<Position>() + " positions from network");
 
-					matching = false;
+                    matching = false;
 					var p = new Parameter("matches", "fetched");
 					if (!db.UpdateObjectBy("key", p)) db.StoreObject(p);
 				});
@@ -764,6 +774,7 @@ namespace RaceYourself
 			bucket.tracks = new List<Track>(bucket.all.Count);
 			foreach (var track in bucket.all) {
 				if (db.Query<MatchedTrack>().Where(mt => mt.deviceId == track.deviceId && mt.trackId == track.trackId).FirstOrDefault() == null) {
+					track.positions = new List<Position>(db.Query<Position>().Where(p => p.deviceId == track.deviceId && p.trackId == track.trackId));
 					bucket.tracks.Add(track);
 				}
 			}

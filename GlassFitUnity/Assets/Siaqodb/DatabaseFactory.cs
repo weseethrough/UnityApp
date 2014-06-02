@@ -5,7 +5,7 @@ using System.Text;
 using System.IO;
 using Sqo;
 using UnityEngine;
-using Ionic.Zip;
+//using Ionic.Zip;
 
 namespace SiaqodbUtils
 {
@@ -50,17 +50,17 @@ namespace SiaqodbUtils
 			var db = GetInstance(); // Populate siaqodbPath
 			lock(db) {
 				var bundlePath = Path.Combine(Path.Combine(Application.streamingAssetsPath, "database"), filename);
-				if (bundlePath.Contains("://")) {
-					var basePath = siaqodbPath;
-
-					var jarFile = Application.dataPath;
-					var zipFile = new ZipFile(jarFile);
-					foreach (var zipEntry in zipFile)
-					{
-						if (zipEntry.FileName == filename) {
-							zipEntry.Extract(basePath);
-						}
-					}
+                if (false && bundlePath.Contains("://")) {
+//					var basePath = siaqodbPath;
+//
+//					var jarFile = Application.dataPath;
+//					var zipFile = new ZipFile(jarFile);
+//					foreach (var zipEntry in zipFile)
+//					{
+//						if (zipEntry.FileName == filename) {
+//							zipEntry.Extract(basePath);
+//						}
+//					}
 					
 				} else {
 					File.Copy(bundlePath, Path.Combine(siaqodbPath, filename));

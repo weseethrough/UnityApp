@@ -16,6 +16,8 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 
 	private float timeSinceLastUpdate = 0;
 
+	private LocationServiceStatus previousStatus = LocationServiceStatus.Stopped;
+
 	// Returns true in case of successful registration, false otherwise
 	public bool RegisterPositionListener(IPositionListener posListener) {
 		
@@ -75,16 +77,16 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		LocationServiceStatus status = Input.location.status;
 		if(status == LocationServiceStatus.Stopped)
 		{
-			UnityEngine.Debug.LogError("Location Service stopped");
+			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service stopped");
 		}
 		if(status == LocationServiceStatus.Failed)
 		{
-			UnityEngine.Debug.LogError("Location Service failed");
+			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service failed");
 		}
 
 		if(status == LocationServiceStatus.Initializing)
 		{
-			UnityEngine.Debug.LogError("Location Service still initialising");
+			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service still initialising");
 		}
 		else
 		{
@@ -99,6 +101,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 
 		// increment timer
 		timeSinceLastUpdate += Time.deltaTime;
+		previousStatus = status;
 	}
 
 	//Renamed this to avoid clash with MonoBehaviour's own once-per-frame Update.

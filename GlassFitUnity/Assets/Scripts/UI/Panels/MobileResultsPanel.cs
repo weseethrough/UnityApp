@@ -68,7 +68,6 @@ public class MobileResultsPanel : MobilePanel {
 			UITexture rivalPicture = obj.GetComponentInChildren<UITexture>();
 			if(rivalPicture != null) 
 			{
-
 				Platform.Instance.RemoteTextureManager.LoadImage(chosenUser.image, button, (tex, empty) => {
 					rivalPicture.mainTexture = tex;
 				});
@@ -105,19 +104,25 @@ public class MobileResultsPanel : MobilePanel {
 			if(track != null) 
 			{
 				string opponentDistance = (track.distance / 1000f).ToString("f2");
-				string opponentDistanceUnits = "KM";
+				string opponentDistanceUnits = "km";
 				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceText", opponentDistance);
 				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceUnitsText", opponentDistanceUnits);
 				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalQuestionText", "");
-				
-				bool isAhead = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
+
 				GameObject reward = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "Reward");
 				if(reward != null)
 				{
 					UIAnchor rewardAnchor = reward.GetComponent<UIAnchor>();
 					if(rewardAnchor != null) 
 					{
-						if(isAhead) 
+						double playerRawDistance = (double)DataVault.Get("rawdistance");
+						string playerRawDistanceUnits = (string)DataVault.Get("distance_units");
+						if(playerRawDistanceUnits == "m") 
+						{
+							playerRawDistance /= 1000;
+						}		
+
+						if(playerRawDistance > track.distance) 
 						{
 							rewardAnchor.relativeOffset = new Vector2(-0.15f, 0.35f);
 							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "You Won!");
@@ -129,7 +134,8 @@ public class MobileResultsPanel : MobilePanel {
 							{
 								rivalCircle.color = new Color(255/255f, 69/255f, 28/255f);
 							}
-						} else 
+						} 
+						else 
 						{
 							rewardAnchor.relativeOffset = new Vector2(0.15f, 0.35f);
 							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "You Lost!");

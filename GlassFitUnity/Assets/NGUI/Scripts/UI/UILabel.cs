@@ -621,15 +621,23 @@ public class UILabel : UIWidget
 					if (mShowLastChar)
 					{
 						for (int i = 0, imax = mText.Length - 1; i < imax; ++i)
-							mProcessedText += "*";
+#if UNITY_IPHONE
+                            mProcessedText += "\u25cf";
+#else
+                            mProcessedText += "*";
+#endif
 						if (mText.Length > 0)
 							mProcessedText += mText[mText.Length - 1];
 					}
 					else
 					{
 						for (int i = 0, imax = mText.Length; i < imax; ++i)
-							mProcessedText += "*";
-					}
+#if UNITY_IPHONE
+                            mProcessedText += "\u25cf";
+#else
+                            mProcessedText += "*";
+#endif
+                    }
 					
 					fits = mFont.WrapText(mProcessedText, out mProcessedText, pw, ph, mMaxLineCount, false, UIFont.SymbolStyle.None);
 				}
