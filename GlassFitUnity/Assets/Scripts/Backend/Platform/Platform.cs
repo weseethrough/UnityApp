@@ -121,7 +121,7 @@ public abstract class Platform : SingletonBase
 
         if (Application.isPlaying) {
             db = DatabaseFactory.GetInstance();
-            api = new API(db);
+            api = new API(db, GetMonoBehavioursPartner());
             sessionId = Sequences.Instance.Next("session", db);
         }
 

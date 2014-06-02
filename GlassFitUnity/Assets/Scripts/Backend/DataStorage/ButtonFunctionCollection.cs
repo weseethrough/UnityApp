@@ -1147,7 +1147,7 @@ public class ButtonFunctionCollection
             }
 
             plaf.GetMonoBehavioursPartner().StartCoroutine(api.SignUp(
-                email, password, null, new Profile(username, firstName, surname, gender, imageUrl, null),
+                email, password, null, new Profile(username, firstName, surname, gender, imageUrl, null, null, null, null, null),
                 providerToken, SignUpCallback));
 
 			Hashtable eventProperties = new Hashtable();
@@ -1447,16 +1447,13 @@ public class ButtonFunctionCollection
     /// <param name="fs">Fs.</param>
     static public bool FetchTrack(FlowButton button, FlowState fs)
     {
-
         int runTime = (int) DataVault.Get("run_time");
 
 		//set this value in the datavault for use by mobileInRun, GameBase.
 		DataVault.Set("finish_time_seconds", runTime*60);
 
 		DataVault.Set("duration", runTime.ToString());
-        string fitnessLevel = (string) DataVault.Get ("fitness_level");
-		Dictionary<string,Dictionary<string,List<Track>>> matches = (Dictionary<string,Dictionary<string,List<Track>>>) DataVault.Get("matches");
-		//Dictionary<string, List<Track>> allTracksDict = matches[fitnessLevel];
+        string fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
 
 		log.info("User's fitness level: " + fitnessLevel);
 
@@ -1476,7 +1473,11 @@ public class ButtonFunctionCollection
 
 		log.info("Getting tracks for this user's fitness level");
 
-        List<Track> tracks = matches[fitnessLevel][runTime.ToString()];
+		TrackBucket bucket = Platform.Instance.api.AutoMatch(fitnessLevel.ToLower(), runTime);
+		List<Track> tracks = bucket.tracks;
+		if (tracks.Count == 0) {
+			tracks = bucket.all;
+		}
 		
 		log.info("Got tracks for this user's fitness level");
 
@@ -1524,5 +1525,20 @@ public class ButtonFunctionCollection
         DataVault.Set("current_track", track);
         //DataVault.Set("competitor", competitor);
         return true;
+    }
+
+    static public bool CheckFitnessLevel(FlowButton button, FlowState fs)
+    {
+        // retrieve from DB
+        string fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
+
+        if(fitnessLevel != null && fitnessLevel != "")
+        {
+            DataVault.Set("custom_redirection_point", "RaceNowDurationPoint");
+        } else
+        {
+            DataVault.Set("custom_redirection_point", "FitnessLevelPoint");
+        }
+        return UseCustomRedirection(button, fs);
     }
 }

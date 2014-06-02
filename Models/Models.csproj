@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3DBF27EA-A683-4B50-BFBA-32A2B012863B}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -69,6 +69,10 @@
     <Compile Include="Compatibility\ConcurrentDictionary.cs" />
     <Compile Include="Models\InviteAction.cs" />
     <Compile Include="Models\Invite.cs" />
+    <Compile Include="Models\MatchedTrack.cs" />
+    <Compile Include="Models\TrackBucket.cs" />
+    <Compile Include="Models\Parameter.cs" />
+    <Compile Include="Models\Profile.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="siaqodb">

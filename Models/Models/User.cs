@@ -25,6 +25,9 @@ namespace RaceYourself.Models
 		public List<Authentication> authentications;
         [MaxLength(255)]
         public string image;
+        public Profile profile;
+
+        public User() {}
 		
 		public string DisplayName {
 			get {

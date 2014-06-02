@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Sqo;
+using SiaqodbUtils;
 using UnityEngine;
 using RaceYourself.Models;
+using System.Runtime.CompilerServices;
 
 namespace RaceYourself
 {
@@ -45,21 +47,24 @@ namespace RaceYourself
 		private readonly string CACHE_PATH = Path.Combine(Application.persistentDataPath, "www-cache");
 		
 		private Siaqodb db;
+		private MonoBehaviour partner;
 		
 		public OauthToken token = null;
 		public User user { get; private set; }
         public PlayerConfig playerConfig { get; private set; }
 
 		private bool syncing = false;
+		private bool matching = false;
 
 		protected static Log log = new Log("API");  // for use by subclasses
 
-		public API(Siaqodb database) 
+		public API(Siaqodb database, MonoBehaviour partner) 
 		{
 			log.info("created");
-			db = database;
+			this.partner = partner;
+            db = database;
 			user = db.Query<User>().LastOrDefault();
-			token = db.Query<OauthToken>().LastOrDefault();
+            token = db.Query<OauthToken>().LastOrDefault();
             if (user != null && token != null) {
 				if (user.id != token.userId) {
 					log.error("Token in database does not belong to user in database!");
@@ -85,8 +90,14 @@ namespace RaceYourself
 				if (self.id != 0) log.info("Device registered as " + self.id);
 				else log.info("Device waiting to be registered");
 			}
+			// TODO: Move to post-sign in flow
+			PopulateAutoMatchMatrixFromBundle();
 		}
-		
+
+		private Coroutine StartCoroutine(IEnumerator routine) {
+			return partner.StartCoroutine(routine);
+		}
+
 		/// <summary>
 		/// Coroutine to retrieve a globally unique device id from the server.
 		/// Triggers Platform.OnRegistration upon completion.
@@ -176,9 +187,8 @@ namespace RaceYourself
 				log.info("Login(" + username + ",<password>) received an access token");
 				
 				token = response;
-				IEnumerator e = UpdateAuthentications();
-				while(e.MoveNext()) yield return e.Current;
-				
+				yield return StartCoroutine(UpdateAuthentications());
+
 				token.userId = user.id;
 				var transaction = db.BeginTransaction();
 				try {
@@ -313,7 +323,7 @@ namespace RaceYourself
 		/// Null values in explicit arguments are not sent.
 		/// Null values inside profile object cause that key to be deleted.
 		/// </summary>
-		public IEnumerator UpdateUser(string username, string name, string image, char gender, int? timezone, Profile profile) {
+		public IEnumerator UpdateUser(string username, string name, string image, char? gender, int? timezone, Hashtable profile) {
 			log.info(string.Format("UpdateUser({0})", user.email));
 			
 			string ret = "Failed";
@@ -491,7 +501,6 @@ namespace RaceYourself
 
 			string ret = "Failure";
 			try {
-
 				syncing = true;
 
 				SyncState state = db.Query<SyncState>().LastOrDefault();
@@ -502,8 +511,7 @@ namespace RaceYourself
 				// Register device if it doesn't have an id
 				Device self = db.Query<Device>().Where(d => d.self == true).First();
 				if (self.id <= 0) {
-					IEnumerator e = RegisterDevice(self);
-					while(e.MoveNext()) yield return e.Current;
+					yield return StartCoroutine(RegisterDevice(self));
 					self = db.Query<Device>().Where(d => d.self == true).First();
 				}
 				var gatherStart = DateTime.Now;
@@ -606,7 +614,11 @@ namespace RaceYourself
 					else ret = "full";
 				});
 				backgroundThread.Start();
-				while (backgroundThread.IsAlive) yield return null;
+				while (backgroundThread.IsAlive) yield return new WaitForSeconds(0.25f);
+
+				if (db.Query<Parameter>().Where(p => p.key == "matches" && p.value == "bundled").FirstOrDefault() != null) {
+					yield return StartCoroutine(PopulateAutoMatchMatrix());
+				}
 			} finally {				
 				if (ret.Equals("full") || ret.Equals("partial")) {
 					log.info("Sync() completed successfully in " + (DateTime.Now - start));
@@ -618,6 +630,178 @@ namespace RaceYourself
 			}
 		}
 
+		/// <summary>
+		/// Populates the auto-match matrix from the app bundle.
+		/// </summary>
+        public void PopulateAutoMatchMatrixFromBundle() {
+            if (db.Query<TrackBucket>().FirstOrDefault() != null) return; // Do not overwrite existing values
+			log.warning("PopulateAutoMatchMatrixFromBundle");
+            
+// TODO: Remove old logic and default_matches.json when stable
+// TODO: Fix new logic: populate db on load or make sure we can trigger a reload of all db handles
+#if true
+			// Populate from json
+			var body = Platform.Instance.ReadAssetsString("default_matches.json");
+			Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
+				RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(body).response;
+
+			var t = db.BeginTransaction();
+			foreach (var bucket in db.LoadAll<TrackBucket>()) db.Delete(bucket, t);
+			foreach (var match in db.LoadAll<MatchedTrack>()) db.Delete(match, t);
+
+			foreach (var fitnessLevel in matches.Keys) {
+				var buckets = matches[fitnessLevel];
+				foreach (var duration in buckets.Keys) {
+					var tracks = new List<Track>();
+					foreach (var transient in buckets[duration]) {
+						var track = db.Query<Track>().Where(x => x.deviceId == transient.deviceId && x.trackId == transient.trackId).FirstOrDefault();
+						if (track == null) {
+							track = transient;
+							// Store straight away so it can be queried for uniqueness
+							track.GenerateCompositeId();
+							db.StoreObject(track);
+						}
+						tracks.Add(track);
+					}
+					TrackBucket bucket = new TrackBucket(fitnessLevel, int.Parse(duration), tracks);
+					db.StoreObject(bucket, t);
+				}
+			}
+			t.Commit();
+			log.warning("Populated " + db.Count<TrackBucket>() + " buckets from json");
+			log.warning("Populated " + db.Count<Track>() + " tracks from json");
+#else
+			// Populate from read-only database
+			var tracks = new List<Track>(db.LoadAll<Track>()); // Merge
+			lock (db) {
+				db.DropType(typeof(MatchedTrack)); // Clear
+				db.DropType(typeof(Track));
+				db.DropType(typeof(TrackBucket)); // debug, should always be inexistant
+	            DatabaseFactory.PopulateFromBundle("RaceYourself.Models.TrackBucket. Models.sqo"); // TrackBucket
+				DatabaseFactory.PopulateFromBundle("RaceYourself.Models.Track. Models.sqo"); // Tracks
+				DatabaseFactory.ReIndex();
+				db = DatabaseFactory.GetInstance();
+				Platform.Instance.db = db; // TODO: Something less icky!
+				// TODO: Everywhere else needs to refresh the connection too
+				// NOTE: THIS DOES NOT WORK ATM
+			}
+			log.warning("Populated " + db.Count<TrackBucket>() + " buckets from bundle");
+            log.warning("Populated " + db.Count<Track>() + " tracks from bundle");
+            foreach (var track in tracks) {
+				try {
+					db.StoreObject(track);
+				} catch (Exception e) { 
+					// Ignore
+				}
+			}
+#endif
+			var p = new Parameter("matches", "bundled");
+			if (!db.UpdateObjectBy("key", p)) db.StoreObject(p);
+        }
+
+		/// <summary>
+		/// Populates the auto match matrix from the server.
+		/// </summary>
+		public IEnumerator PopulateAutoMatchMatrix() {
+            if (matching) yield break;
+			matching = true;
+			yield return StartCoroutine(get("matches", body => {
+				if (body == null) {
+					matching = false;
+					return;
+				}
+
+                Thread backgroundThread = new Thread(() => {
+                    Dictionary<string,Dictionary<string,List<Track>>> matches = JsonConvert.DeserializeObject<
+						RaceYourself.API.SingleResponse<Dictionary<string,Dictionary<string,List<Track>>>>>(body).response;
+
+					var t = db.BeginTransaction();
+					foreach (var bucket in db.LoadAll<TrackBucket>()) db.Delete(bucket, t);
+					foreach (var match in db.LoadAll<MatchedTrack>()) db.Delete(match, t);
+					
+					foreach (var fitnessLevel in matches.Keys) {
+						var buckets = matches[fitnessLevel];
+						foreach (var duration in buckets.Keys) {
+							var tracks = new List<Track>();
+							foreach (var transient in buckets[duration]) {
+								var track = db.Query<Track>().Where(x => x.deviceId == transient.deviceId && x.trackId == transient.trackId).FirstOrDefault();
+								if (track == null) {
+									track = transient;
+									// Store straight away so it can be queried for uniqueness
+									track.GenerateCompositeId();
+									db.StoreObject(track);
+								}
+                                tracks.Add(track);
+                            }
+                            TrackBucket bucket = new TrackBucket(fitnessLevel, int.Parse(duration), tracks);
+                            db.StoreObject(bucket, t);
+                        }
+                    }
+                    t.Commit();
+                    log.warning("Populated " + db.Count<TrackBucket>() + " buckets from network");
+                    log.warning("Populated " + db.Count<Track>() + " tracks from network");
+
+					matching = false;
+					var p = new Parameter("matches", "fetched");
+					if (!db.UpdateObjectBy("key", p)) db.StoreObject(p);
+				});
+				backgroundThread.Start();
+            }));
+        }
+            
+            /// <summary>
+            /// Return a bucket of tracks for auto-matching
+		/// 
+		/// Will throw an exception if db buckets haven't been populated.
+		/// </summary>
+		/// <returns>The track bucket</returns>
+		/// <param name="fitnessLevel">Fitness level.</param>
+		/// <param name="duration">Duration.</param>
+		public TrackBucket AutoMatch(string fitnessLevel, int duration) {
+			TrackBucket bucket = db.Query<TrackBucket>().Where(tb => tb.fitnessLevel == fitnessLevel && tb.duration == duration).First();
+
+			// Populate unmatched track list
+			bucket.tracks = new List<Track>(bucket.all.Count);
+			foreach (var track in bucket.all) {
+				if (db.Query<MatchedTrack>().Where(mt => mt.deviceId == track.deviceId && mt.trackId == track.trackId).FirstOrDefault() == null) {
+					bucket.tracks.Add(track);
+				}
+			}
+
+			return bucket;
+		}
+
+		/// <summary>
+		/// Marks an auto-matched track as matched so that it isn't matched again.
+		/// </summary>
+		/// <returns><c>true</c>, if track was marked as matched, <c>false</c> otherwise.</returns>
+		/// <param name="track">Track</param>
+		public bool MarkTrackAsMatched(Track track) {
+			return MarkTrackAsMatched(track.deviceId, track.trackId);
+		}
+
+		/// <summary>
+		/// Marks an auto-matched track as matched so that it isn't matched again.
+		/// </summary>
+		/// <returns><c>true</c>, if track was marked as matched, <c>false</c> otherwise.</returns>
+		/// <param name="deviceId">Track device identifier.</param>
+		/// <param name="trackId">Track track identifier.</param>
+		[MethodImpl(MethodImplOptions.Synchronized)]
+		public bool MarkTrackAsMatched(int deviceId, int trackId) {
+			// Always queue action as server db might have been cleared
+			Platform.Instance.QueueAction(string.Format(@"{
+                                                          'action' : 'matched_track',
+                                                          'device_id' : '{0}',
+                                                          'track_id' : '{1}'
+                                                        }".Replace("'", "\""), deviceId, trackId));
+
+			if (db.Query<MatchedTrack>().Where(mt => mt.deviceId == deviceId && mt.trackId == trackId).FirstOrDefault() != null) return false;
+
+			db.StoreObject(new MatchedTrack(deviceId, trackId));
+
+			return true;
+		}
+		
 		/// <summary>
 		/// Fetch cached data from API
 		/// Returns cached data or null if missing

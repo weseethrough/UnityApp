@@ -5,34 +5,34 @@ using System.Text;
 using System.IO;
 using Sqo;
 using UnityEngine;
+using Ionic.Zip;
 
 namespace SiaqodbUtils
 {
     public class DatabaseFactory
     {
-        public static string siaoqodbPath;
+        public static string siaqodbPath;
         private static Siaqodb instance;
-
-
+		
         public static Siaqodb GetInstance()
         {
             if (instance == null)
             {
               
                 //if ANDROID:
-                siaoqodbPath = Application.persistentDataPath;
+                siaqodbPath = Application.persistentDataPath;
                 //if Windows or MAC
-                //siaoqodbPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + @"database";
+                //siaqodbPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + @"database";
                 
                 //if iOS (iPhone /iPad)
-                //siaoqodbPath =Application.dataPath;
+                //siaqodbPath =Application.dataPath;
 		
-                if (!Directory.Exists(siaoqodbPath))
+                if (!Directory.Exists(siaqodbPath))
                 {
-                    Directory.CreateDirectory(siaoqodbPath);
+                    Directory.CreateDirectory(siaqodbPath);
                 }
-                instance = new Siaqodb(siaoqodbPath);
-				UnityEngine.Debug.Log("Siaqo path: " + siaoqodbPath);
+                instance = new Siaqodb(siaqodbPath);
+				UnityEngine.Debug.Log("Siaqo path: " + siaqodbPath);
             }
             return instance;
         }
@@ -44,5 +44,35 @@ namespace SiaqodbUtils
                 instance = null;
             }
         }
+
+		public static void PopulateFromBundle(string filename) 
+		{
+			var db = GetInstance(); // Populate siaqodbPath
+			lock(db) {
+				var bundlePath = Path.Combine(Path.Combine(Application.streamingAssetsPath, "database"), filename);
+				if (bundlePath.Contains("://")) {
+					var basePath = siaqodbPath;
+
+					var jarFile = Application.dataPath;
+					var zipFile = new ZipFile(jarFile);
+					foreach (var zipEntry in zipFile)
+					{
+						if (zipEntry.FileName == filename) {
+							zipEntry.Extract(basePath);
+						}
+					}
+					
+				} else {
+					File.Copy(bundlePath, Path.Combine(siaqodbPath, filename));
+				}
+
+				CloseDatabase();
+			}
+		}
+
+		public static void ReIndex() {
+			var db = GetInstance(); // Populate siaqodbPath
+			SiaqodbUtil.ReIndex(siaqodbPath);
+		}
     }
 }
