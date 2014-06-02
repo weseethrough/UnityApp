@@ -10,6 +10,7 @@ public class GraphWindow : EditorWindow, IDraw
 {
 	// Allow user to drag viewport to see graph
 	Vector2 ViewPosition;
+    Vector2 NodeScroller;
 
     bool m_dirtySave = false;
     public bool dirtySave
@@ -1213,6 +1214,7 @@ public class GraphWindow : EditorWindow, IDraw
 		//GUILayout.FlexibleSpace();
 		EditorGUILayout.EndHorizontal();
 
+        NodeScroller = EditorGUILayout.BeginScrollView(NodeScroller);
 		for (int i=0; i<m_types.Count; ++i)
 		{
 			System.Type it = m_types[i];
@@ -1225,7 +1227,7 @@ public class GraphWindow : EditorWindow, IDraw
 
 			// Note: EditorGUILayout works for static buttons
 			// GUI.Button is required if button visibility changes
-        	if (GUILayout.Button( displayName, GUILayout.Height(12) ))
+        	if (GUILayout.Button( displayName, GUILayout.Height(18) ))
 			{
 				GraphComponent gc = Graph;
 				if (gc != null)
@@ -1247,6 +1249,8 @@ public class GraphWindow : EditorWindow, IDraw
 				}
 			}
 		}
+
+        EditorGUILayout.EndScrollView();
 
         //change layout only during proper event. We don't want to change it during repaint as it will error
         if (m_drawInfo == false && Event.current.type == EventType.Layout)
