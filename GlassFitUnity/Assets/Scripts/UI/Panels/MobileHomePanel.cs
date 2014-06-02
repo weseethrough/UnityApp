@@ -315,7 +315,7 @@ public class MobileHomePanel : MobilePanel {
 						// Create a new dictionary for the text fields
 						Dictionary<string, string> playerDictionary = new Dictionary<string, string>();
 						// Add the title and description
-						playerDictionary.Add("TitleText", "You challenge");
+						playerDictionary.Add("TitleText", "You challenged");
 						playerDictionary.Add("DescriptionText", user.name);
 						// Change the duration to minutes and add to the dictionary
 						int duration = (potential as DurationChallenge).duration / 60;
