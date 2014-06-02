@@ -534,6 +534,9 @@ public class MobileHomePanel : MobilePanel {
 		case "friend":
 			// Reset the mobile list with cell size of 155
 			mobileList.ResetList(155f);
+
+			Platform.Instance.partner.StopCoroutine("LoadChallenges");
+
 			// Disable the racers button to make it go black
 			racersBtn.enabled = false;
 			// If there is a challenge notification and there are challenges
