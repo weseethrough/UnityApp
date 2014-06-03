@@ -43,6 +43,8 @@ public class MobileHomePanel : MobilePanel {
 	// Boolean to check if screen has been initialized
 	bool initialized = false;
 
+	bool loadingChallengeIncomplete = false;
+
 	public MobileHomePanel() { }
 	public MobileHomePanel(SerializationInfo info, StreamingContext ctxt)
 		: base(info, ctxt)
@@ -68,6 +70,8 @@ public class MobileHomePanel : MobilePanel {
 	public override void EnterStart ()
 	{
 		base.EnterStart ();
+
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
 		// Find the mobile list, set the title and parent
 		mobileList = physicalWidgetRoot.GetComponentInChildren<MobileList>();
@@ -167,6 +171,8 @@ public class MobileHomePanel : MobilePanel {
 	/// <returns>Yields while fetching individual challenges.</returns>
 	private IEnumerator LoadChallenges()
 	{
+		loadingChallengeIncomplete = true;
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
 		// Find all challenge notifications
 		List<Notification> filteredNotifications = notifications.FindAll(r => r.message.type == "challenge");
 		if(filteredNotifications != null) {
@@ -315,11 +321,13 @@ public class MobileHomePanel : MobilePanel {
 						// Add the button to the list
 						incompleteChallenges.Add(challengeNote);
 					}
-
 				}
 			}
+
 			CreateChallengeButtons();
 		}
+		loadingChallengeIncomplete = false;
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 	}
 
 	private void CreateChallengeButtons() 
@@ -459,7 +467,7 @@ public class MobileHomePanel : MobilePanel {
 	/// </summary>
 	public void GetChallenges() {
 		notifications = Platform.Instance.Notifications();
-		if(newChallenges != null && incompleteChallenges != null && playerChallenges != null) 
+		if(newChallenges != null && incompleteChallenges != null && playerChallenges != null && !loadingChallengeIncomplete) 
 		{
 			if(newChallenges.Count > 0)
 			{
@@ -594,6 +602,8 @@ public class MobileHomePanel : MobilePanel {
 		case "friend":
 			// Reset the mobile list with cell size of 155
 			mobileList.ResetList(155f);
+
+			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
 			Platform.Instance.partner.StopCoroutine("LoadChallenges");
 

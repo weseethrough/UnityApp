@@ -27,8 +27,6 @@ public class MobileList : UIComponentSettings
 
     private Dictionary<string, List<GameObject>> instances = new Dictionary<string, List<GameObject>>();
 
-	private Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
-
     private float defaultYOffset;
 
     void Start()
@@ -142,6 +140,11 @@ public class MobileList : UIComponentSettings
             {
 				if (i >= previousStartIndex && i < previousStartIndex + previousCount && buttons.Count > 0)
                 {
+					UITexture[] textures = buttons[0].GetComponentsInChildren<UITexture>();
+					foreach(UITexture texture in textures)
+					{
+						texture.mainTexture = null;
+					}
                     buttons[0].SetActive(false);
                     buttons.RemoveAt(0);
                 }
@@ -234,33 +237,21 @@ public class MobileList : UIComponentSettings
 			Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
 			foreach(var key in data.imageDictionary.Keys) {
 				string textureUrl = key;
-				if (textureCache.ContainsKey(key)) {
-					UnityEngine.Debug.LogError("cache hit");
-					var dictionary = data.imageDictionary[key];
-					GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
-					if(buttonObj != null) {
-						GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
-						UITexture texture = textureObj.GetComponent<UITexture>();
-						if(texture != null) {				
-							texture.mainTexture = textureCache[key];
-
-						}
-					}
-					continue;
-				}
-
-				UnityEngine.Debug.LogError("cache miss");
 				Platform.Instance.RemoteTextureManager.LoadImage(textureUrl, data.imageDictionary[key], (tex, callbackArgument) => {
 					var dictionary = callbackArgument as Dictionary<string, string>;
-					textureCache[key] = tex;
-					GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
-					if(buttonObj != null) {
-						GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
-						UITexture texture = textureObj.GetComponent<UITexture>();
-						if(texture != null) {				
-							texture.mainTexture = tex;
-						}
-					}
+                                        try {
+                                            GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
+                                            if(buttonObj != null) {
+                                                GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
+                                                UITexture texture = textureObj.GetComponent<UITexture>();
+                                                if(texture != null) {                               
+                                                    texture.mainTexture = tex;
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            // probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
+                                            Debug.LogWarning("MobileList.getNewButton() " + e.Message);
+                                        }
 				});
 			}
 //			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {

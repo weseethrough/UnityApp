@@ -105,8 +105,8 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 			//location service status should be 'Running'
 			if(timeSinceLastUpdate > 1f)
 			{
-				UpdateLocation();
 				timeSinceLastUpdate = 0;
+				UpdateLocation();
 			}
 		}
 
@@ -123,7 +123,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		}
 
 		Position pos = new Position(Input.location.lastData.latitude, Input.location.lastData.longitude);
-		UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude);
+        //UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude);
 
 		//drop it on the HUD for debugging
 		//DataVault.Set("sweat_points_unit", pos.latitude);
@@ -131,7 +131,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 
 		if(positionListeners.Count == 0)
 		{
-			UnityEngine.Debug.LogWarning("Location Updated, but no listeners!");
+            //UnityEngine.Debug.LogWarning("Location Updated, but no listeners!");
 		}
 
 		// Notify listeners about new position

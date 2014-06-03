@@ -29,6 +29,10 @@ namespace RaceYourself.Models
          
 		public string type;
 					
+        public DateTime? created_at;
+        public DateTime? updated_at;
+        public DateTime? deleted_at;
+
 		///  Internal
 
 		void Jsonable.WriteJson(JsonWriter writer, JsonSerializer serializer) {

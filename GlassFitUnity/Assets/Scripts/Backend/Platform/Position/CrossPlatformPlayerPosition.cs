@@ -49,10 +49,9 @@ public class CrossPlatformPlayerPosition : PlayerPosition
 	//need to use a bespoke implementation for iOS since Unity's location input doesn't provide a heading.
 	//On Android, until there's an Android position provider, we'll just use the original AndroidPlayerPosition wholesale
 		GameObject platform = GameObject.Find("Platform");
-#if UNITY_IOS
+#if UNITY_IPHONE
 		positionProvider = platform.AddComponent<IosPositionProvider>();
-#endif
-#if	UNITY_ANDROID
+#elif UNITY_ANDROID
 		positionProvider = platform.AddComponent<CrossPlatformPositionProvider>();
 #endif
 		sensorProvider = platform.AddComponent<CrossPlatformSensorProvider>();

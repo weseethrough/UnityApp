@@ -14,11 +14,13 @@ namespace RaceYourself.Models
         public long id = 0;
 
 		[JsonProperty("device_id")]
+        [Index]
 		public int deviceId;
 		[JsonProperty("position_id")]
         public int positionId;
 
 		[JsonProperty("track_id")]
+        [Index]
 		public int trackId;
 		public int state_id;
 		public long gps_ts;
