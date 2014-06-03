@@ -105,8 +105,8 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 			//location service status should be 'Running'
 			if(timeSinceLastUpdate > 1f)
 			{
-				UpdateLocation();
 				timeSinceLastUpdate = 0;
+				UpdateLocation();
 			}
 		}
 

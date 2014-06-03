@@ -50,7 +50,7 @@ public abstract class Platform : SingletonBase
     private int sessionId = 0;
     public bool connected { get; protected set; }
     public int syncInterval = 10;  // Other components may change this to disable sync temporarily?
-    public DateTime lastSync = new DateTime(0);
+	public DateTime lastSync = DateTime.Now;
 
     // TODO: fields that almost certainly want removing
     protected float yaw = -999.0f;

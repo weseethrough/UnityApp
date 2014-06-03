@@ -769,6 +769,7 @@ namespace RaceYourself
 		/// <param name="fitnessLevel">Fitness level.</param>
 		/// <param name="duration">Duration.</param>
 		public TrackBucket AutoMatch(string fitnessLevel, int duration) {
+			var start = DateTime.Now;
 			TrackBucket bucket = db.Query<TrackBucket>().Where(tb => tb.fitnessLevel == fitnessLevel && tb.duration == duration).First();
 
 			// Populate unmatched track list
@@ -783,6 +784,7 @@ namespace RaceYourself
 				}
 			}
 
+			log.info(string.Format("AutoMatch({0},{1}): gathered in " + (DateTime.Now - start), fitnessLevel, duration));
 			return bucket;
 		}
 
