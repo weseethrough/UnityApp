@@ -321,7 +321,6 @@ public class MobileHomePanel : MobilePanel {
 						// Add the button to the list
 						incompleteChallenges.Add(challengeNote);
 					}
-
 				}
 			}
 
@@ -603,6 +602,8 @@ public class MobileHomePanel : MobilePanel {
 		case "friend":
 			// Reset the mobile list with cell size of 155
 			mobileList.ResetList(155f);
+
+			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
 			Platform.Instance.partner.StopCoroutine("LoadChallenges");
 
