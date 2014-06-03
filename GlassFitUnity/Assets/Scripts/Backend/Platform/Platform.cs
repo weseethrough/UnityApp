@@ -449,26 +449,48 @@ public abstract class Platform : SingletonBase
         db.StoreObject(e);
     }
 
+	public virtual Challenge GetChallenge(int id) {
+		Challenge challenge = db.Query<DistanceChallenge>().Where(ch => ch.id == id).FirstOrDefault();
+		if (challenge != null) return challenge;
+		challenge = db.Query<DurationChallenge>().Where(ch => ch.id == id).FirstOrDefault();
+		return challenge;
+	}
+
     public virtual void FetchChallenge(int id, Action<Challenge> callback) {
-        Challenge challenge = null;
-        Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
-            challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+		Challenge challenge = GetChallenge(id);
+		if (challenge != null) {
+			callback(challenge);
+			return;
+		}
+		Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
+			if (body != null) challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
 
 			callback(challenge);
 		}));
     }
 
 	public virtual IEnumerator FetchChallengeCoroutine(int id, Action<Challenge> callback) {
-		Challenge challenge = null;
+		Challenge challenge = GetChallenge(id);
+		if (challenge != null) {
+			callback(challenge);
+			yield break;
+		}
 		Coroutine e = Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body => {
-			challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+			if (body != null) challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
 		}) ));
 		yield return e;
 		callback(challenge);
 	}
 
 	public virtual IEnumerator FetchChallengeFromNotification(int id, Notification note, Action<Challenge, Notification> callback) {
-		Challenge challenge = null;
+		Challenge challenge = GetChallenge(id);
+		if (challenge != null) {
+			SyncState state = db.Query<SyncState>().LastOrDefault();
+			if (state != null && Date.FromUnixTime(state.sync_timestamp*1000) >= note.updated_at) {
+				callback(challenge, note);
+				yield break;
+			}
+		}
 
 		yield return Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
 

@@ -281,7 +281,7 @@ public sealed class InteractiveConsole : MonoBehaviour
     private Texture2D lastResponseTexture;
 
     private Vector2 scrollPosition = Vector2.zero;
-#if UNITY_IOS || UNITY_ANDROID || UNITY_WP8
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
     int buttonHeight = 60;
     int mainWindowWidth = Screen.width - 30;
     int mainWindowFullWidth = Screen.width;
@@ -295,7 +295,7 @@ public sealed class InteractiveConsole : MonoBehaviour
     {
         get
         {
-#if UNITY_IOS || UNITY_ANDROID || UNITY_WP8
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
             return IsHorizontalLayout() ? Screen.height : 85;
 #else
         return Screen.height;
@@ -325,7 +325,7 @@ public sealed class InteractiveConsole : MonoBehaviour
         GUILayout.Space(5);
         GUILayout.Box("Status: " + status, GUILayout.MinWidth(mainWindowWidth));
 
-#if UNITY_IOS || UNITY_ANDROID || UNITY_WP8
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
         if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
         {
             scrollPosition.y += Input.GetTouch(0).deltaPosition.y;
@@ -350,7 +350,7 @@ public sealed class InteractiveConsole : MonoBehaviour
             status = "Login called";
         }
 
-#if UNITY_IOS || UNITY_ANDROID || UNITY_WP8
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
         GUI.enabled = FB.IsLoggedIn;
         if (Button("Logout"))
         {
@@ -361,7 +361,7 @@ public sealed class InteractiveConsole : MonoBehaviour
 #endif
         GUILayout.EndHorizontal();
 
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_IPHONE || UNITY_ANDROID
         if (Button("Publish Install"))
         {
             CallFBPublishInstall();
@@ -461,7 +461,7 @@ public sealed class InteractiveConsole : MonoBehaviour
         {
             CallFBGetDeepLink();
         }
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_IPHONE || UNITY_ANDROID
         if (Button("Log FB App Event"))
         {
             status = "Logged FB.AppEvent";
@@ -585,7 +585,7 @@ public sealed class InteractiveConsole : MonoBehaviour
 
     private bool IsHorizontalLayout()
     {
-#if UNITY_IOS || UNITY_ANDROID || UNITY_WP8
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8
         return Screen.orientation == ScreenOrientation.Landscape;
 #else
         return true;
