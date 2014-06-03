@@ -217,11 +217,11 @@ namespace RaceYourself
                 log.info("UpdateAuthentications() called with expired or missing token (legit pre-sign in on mobile)");
 				yield break;
 			}
-			log.info("UpdateAuthentications()");
+            log.info("UpdateAuthentications() " + token.access_token);
 			
 			var headers = new Hashtable();
 			headers.Add("Authorization", "Bearer " + token.access_token);
-			var request = new WWW(ApiUrl("me"), null, headers);
+            var request = new WWW(ApiUrl("me"), new Byte[4], headers);
 
 			yield return request;
 			
