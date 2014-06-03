@@ -140,6 +140,11 @@ public class MobileList : UIComponentSettings
             {
 				if (i >= previousStartIndex && i < previousStartIndex + previousCount && buttons.Count > 0)
                 {
+					UITexture[] textures = buttons[0].GetComponentsInChildren<UITexture>();
+					foreach(UITexture texture in textures)
+					{
+						texture.mainTexture = null;
+					}
                     buttons[0].SetActive(false);
                     buttons.RemoveAt(0);
                 }

@@ -1329,10 +1329,14 @@ public class ButtonFunctionCollection
     
     static public bool PasswordReset(FlowButton button, FlowState fs)
     {
+        Panel p = (Panel) fs;
+
+        string email = getFieldUiBasiclabelContent(p.physicalWidgetRoot, "EmailInput");
+
         #if PRODUCTION
-        Application.OpenURL("http://www.raceyourself.com/users/password/new");
+        Application.OpenURL("http://www.raceyourself.com/users/password/new?email=" + email);
         #else
-        Application.OpenURL("http://a.staging.raceyourself.com/users/password/new");
+        Application.OpenURL("http://a.staging.raceyourself.com/users/password/new?email=" + email);
         #endif
         return false;
     }
