@@ -18,6 +18,13 @@ public class ChallengeNotification {
 		this.user = user;
 		this.track = track;
 	}
+	public ChallengeNotification(Notification notification, Challenge challenge, User user) 
+	{
+		this.notification = notification;
+		this.challenge = challenge;
+		this.user = user;
+		this.track = null;
+	}
 	
 	public string GetName() 
 	{
@@ -33,6 +40,42 @@ public class ChallengeNotification {
 			return notification.id;
 		} else {
 			return -1;
+		}
+	}
+
+	public User GetUser() {
+		if(user != null) {
+			return user;
+		} 
+		else 
+		{
+			UnityEngine.Debug.LogError("ChallengeNotification: user is null");
+			return null;
+		}
+	}
+
+	public Notification GetNotification()
+	{
+		if(notification != null) 
+		{
+			return notification;
+		}
+		else
+		{
+			UnityEngine.Debug.LogError("ChallengeNotification: notification is null");
+			return null;
+		}
+	}
+
+	public Challenge GetChallenge() {
+		if(challenge != null)
+		{
+			return challenge;
+		}
+		else
+		{
+			UnityEngine.Debug.LogError("ChallengeNotification: challenge is null");
+			return null;
 		}
 	}
 	
@@ -55,6 +98,25 @@ public class ChallengeNotification {
 			return 0;
 		}
 	}
+
+	public int GetDuration() {
+		if(challenge != null) 
+		{
+			if(challenge is DurationChallenge) 
+			{
+				DurationChallenge chall = challenge as DurationChallenge;
+				return chall.duration;
+			} 
+			else
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			return 0;
+		}
+	}
 	
 	public int GetTime() {
 		if(challenge != null)
@@ -68,7 +130,8 @@ public class ChallengeNotification {
 			{
 				return 0;
 			}
-		} else 
+		} 
+		else 
 		{
 			return 0;
 		}

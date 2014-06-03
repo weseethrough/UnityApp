@@ -303,7 +303,11 @@ public abstract class Platform : SingletonBase
 		User user = null;
 		UnityEngine.Debug.Log("Platform Getting user in coroutine");
 		Coroutine e = Platform.Instance.partner.StartCoroutine( api.get ("users/" + userId, (body) => {
-			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+			if(body == null) user = null;
+			else {
+				user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+			}
+
 		} ));
 		yield return e;
 		if(user != null)
