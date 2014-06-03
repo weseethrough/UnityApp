@@ -876,7 +876,7 @@ namespace RaceYourself
 				headers["If-Modified-Since"] = cache.lastModified;
 			}
 
-			var www = new WWW(ApiUrl(route), null, headers);
+            var www = new WWW(ApiUrl(route), new byte[4] , headers);
 
 			//yield return www;
 
@@ -973,7 +973,7 @@ namespace RaceYourself
 		/// <param name="bytes">Bytes.</param>
 		public static byte[] DecompressGZipBuffer(byte[] bytes)
 		{
-#if UNITY_IOS
+#if UNITY_IPHONE
 			return bytes;
 #else
 			return Ionic.Zlib.GZipStream.UncompressBuffer(bytes);
