@@ -7,7 +7,7 @@ namespace Facebook
     class IOSFacebook : AbstractFacebook, IFacebook
     {
         private const string CancelledResponse = "{\"cancelled\":true}";
-#if UNITY_IOS
+#if UNITY_IPHONE
         [DllImport ("__Internal")] private static extern void iosInit(bool cookie, bool logging, bool status, bool frictionlessRequests, string urlSuffix);
         [DllImport ("__Internal")] private static extern void iosLogin(string scope);
         [DllImport ("__Internal")] private static extern void iosLogout();
