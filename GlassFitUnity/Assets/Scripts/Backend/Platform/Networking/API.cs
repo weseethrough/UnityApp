@@ -503,10 +503,11 @@ namespace RaceYourself
 			try {
 				syncing = true;
 
+				var encoding = new System.Text.UTF8Encoding();			
 				SyncState state = db.Query<SyncState>().LastOrDefault();
 				if (state == null) state = new SyncState(0);
 				Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
-						+ " tail: " + state.tail_timestamp + "#" + state.tail_skip);
+				           + " tail: " + state.tail_timestamp + "#" + state.tail_skip);
 				
 				// Register device if it doesn't have an id
 				Device self = db.Query<Device>().Where(d => d.self == true).First();
@@ -514,18 +515,27 @@ namespace RaceYourself
 					yield return StartCoroutine(RegisterDevice(self));
 					self = db.Query<Device>().Where(d => d.self == true).First();
 				}
-				var gatherStart = DateTime.Now;
-				DataWrapper wrapper = new DataWrapper(db, self);
-				log.info("Sync() gathered " + wrapper.data.ToString() + " in " + (DateTime.Now - gatherStart));
-				
-				var encoding = new System.Text.UTF8Encoding();			
+
+				DataWrapper wrapper = null;
+				byte[] body = null;
+				Thread backgroundThread = new Thread(() => {
+					var gatherStart = DateTime.Now;
+					wrapper = new DataWrapper(db, self);
+					log.info("Sync() gathered " + wrapper.data.ToString() + " in " + (DateTime.Now - gatherStart));
+
+					var encodeStart = DateTime.Now;
+					body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
+					log.info("Sync() encoded push data in " + (DateTime.Now - encodeStart));
+				});
+				backgroundThread.Start();
+				while (backgroundThread.IsAlive) yield return new WaitForSeconds(0.1f);
+
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
 				headers.Add("Accept-Charset", "utf-8");
 				//headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
 				
-				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
 				log.info("Sync() pushing " + (body.Length/1000) + "kB");
 				
 				var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
@@ -557,7 +567,7 @@ namespace RaceYourself
 				
 				// Run slow ops in a background thread
 				var bytes = post.bytes;				
-				Thread backgroundThread = new Thread(() => {
+				backgroundThread = new Thread(() => {
 					ResponseWrapper response = null;
 					var parseStart = DateTime.Now;
 					try {
@@ -614,7 +624,7 @@ namespace RaceYourself
 					else ret = "full";
 				});
 				backgroundThread.Start();
-				while (backgroundThread.IsAlive) yield return new WaitForSeconds(0.25f);
+				while (backgroundThread.IsAlive) yield return new WaitForSeconds(0.1f);
 
 				if (db.Query<Parameter>().Where(p => p.key == "matches" && p.value == "bundled").FirstOrDefault() != null) {
 					yield return StartCoroutine(PopulateAutoMatchMatrix());

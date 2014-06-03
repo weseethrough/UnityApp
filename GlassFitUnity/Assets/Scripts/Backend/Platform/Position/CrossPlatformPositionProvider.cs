@@ -23,11 +23,13 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		
 		if (!Input.location.isEnabledByUser) {
 			log.warning("Location not enabled by user");
+			DataVault.Set("location_service_status_message", "Location services enabled");
 			return false;
 		}
 
 		if (Input.location.status == LocationServiceStatus.Failed) {
 			log.warning("Unable to determine device location");
+			DataVault.Set("location_service_status_message", "Please enable location services for Race Yourself in Settings");
 			return false;
 		}
 
@@ -77,16 +79,25 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		LocationServiceStatus status = Input.location.status;
 		if(status == LocationServiceStatus.Stopped)
 		{
-			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service stopped");
+			if (status != previousStatus) 
+			{
+				UnityEngine.Debug.LogWarning("Location Service stopped");
+			}
+			DataVault.Set("location_service_status_message", "Location services stopped");
 		}
 		if(status == LocationServiceStatus.Failed)
 		{
-			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service failed");
+			if (status != previousStatus)
+			{ 
+				UnityEngine.Debug.LogWarning("Location Service failed");
+			}
+			DataVault.Set("location_service_status_message", "Please enable location services for Race Yourself in Settings");
 		}
 
 		if(status == LocationServiceStatus.Initializing)
 		{
 			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service still initialising");
+			DataVault.Set("location_service_status_message", "Location services initialising");
 		}
 		else
 		{
