@@ -1193,7 +1193,6 @@ namespace RaceYourself
 							db.StoreObject(friendship.friend);
 							inserts++;
 						} else updates++;
-						log.info(friendship.friend.guid);	
 					}
 					db.EndBulkInsert(typeof(Models.Friend));
 				}
