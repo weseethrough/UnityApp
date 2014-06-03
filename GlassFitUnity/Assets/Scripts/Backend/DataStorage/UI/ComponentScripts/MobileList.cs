@@ -234,14 +234,19 @@ public class MobileList : UIComponentSettings
 				string textureUrl = key;
 				Platform.Instance.RemoteTextureManager.LoadImage(textureUrl, data.imageDictionary[key], (tex, callbackArgument) => {
 					var dictionary = callbackArgument as Dictionary<string, string>;
-					GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
-					if(buttonObj != null) {
-						GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
-						UITexture texture = textureObj.GetComponent<UITexture>();
-						if(texture != null) {				
-							texture.mainTexture = tex;
-						}
-					}
+                                        try {
+                                            GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
+                                            if(buttonObj != null) {
+                                                GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
+                                                UITexture texture = textureObj.GetComponent<UITexture>();
+                                                if(texture != null) {                               
+                                                    texture.mainTexture = tex;
+                                                }
+                                            }
+                                        } catch (Exception e) {
+                                            // probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
+                                            Debug.LogWarning("MobileList.getNewButton() " + e.Message);
+                                        }
 				});
 			}
 //			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
