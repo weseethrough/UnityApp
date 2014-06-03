@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using RaceYourself.Models;
 using PositionTracker;
 
-public class CrossPlatformPlayerPosition : PlayerPosition {
+public class CrossPlatformPlayerPosition : PlayerPosition
+{
+    private static Log log = new Log("CrossPlatformPlayerPosition");
 
 	private Position _position = null;
 	public override Position Position { get { return _position; } }
@@ -83,7 +85,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		//return positionTracker.HasPosition;
 		//positionTracker only reports that it has a position after tracking has started. This function is used before that point.
 		//Check status of unity location status instead.
-		UnityEngine.Debug.LogError("CrossPlatformPlayerPosition: HasLock status: " + Input.location.status);
+        log.info("HasLock status: " + Input.location.status);
 
 		return (Input.location.status == LocationServiceStatus.Running);
 	}

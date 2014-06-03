@@ -217,11 +217,11 @@ namespace RaceYourself
                 log.info("UpdateAuthentications() called with expired or missing token (legit pre-sign in on mobile)");
 				yield break;
 			}
-			log.info("UpdateAuthentications()");
+            log.info("UpdateAuthentications() " + token.access_token);
 			
 			var headers = new Hashtable();
 			headers.Add("Authorization", "Bearer " + token.access_token);
-			var request = new WWW(ApiUrl("me"), null, headers);
+            var request = new WWW(ApiUrl("me"), new Byte[4], headers);
 
 			yield return request;
 			
@@ -524,7 +524,8 @@ namespace RaceYourself
 				headers.Add("Accept-Charset", "utf-8");
 				//headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
-				
+                log.info("Sync() headers made ok");
+
 				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
 				log.info("Sync() pushing " + (body.Length/1000) + "kB");
 				
@@ -773,8 +774,11 @@ namespace RaceYourself
 			// Populate unmatched track list
 			bucket.tracks = new List<Track>(bucket.all.Count);
 			foreach (var track in bucket.all) {
-				if (db.Query<MatchedTrack>().Where(mt => mt.deviceId == track.deviceId && mt.trackId == track.trackId).FirstOrDefault() == null) {
-					track.positions = new List<Position>(db.Query<Position>().Where(p => p.deviceId == track.deviceId && p.trackId == track.trackId));
+                                int deviceId = track.deviceId;
+                int trackId = track.trackId;
+
+                if (db.Query<MatchedTrack>().Where(mt => mt.deviceId == deviceId && mt.trackId == trackId).FirstOrDefault() == null) {
+					track.positions = new List<Position>(db.Query<Position>().Where(p => p.deviceId == deviceId && p.trackId == trackId));
 					bucket.tracks.Add(track);
 				}
 			}
