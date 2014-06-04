@@ -15,13 +15,15 @@ public class UIManager : MonoBehaviour
     static public Dictionary<string, string>    panelData = new Dictionary<string, string>();
     static public string[]                      panelList = { "No Screen" };
 
-		
+    static public UIManager                     instance;
+	
 	/// <summary>
 	/// default unity initialziation function which prepares this class to not be destroyed upon leaving scene
 	/// </summary>
 	/// <returns></returns>
 	void Awake() {
 		DontDestroyOnLoad(transform.gameObject);
+        instance = this;
 	}
 	
 	/// <summary>
@@ -258,5 +260,10 @@ public class UIManager : MonoBehaviour
             panelList = list.ToArray();
         }
 
+    }
+
+    void OnExit()
+    {
+        instance = null;
     }
 }

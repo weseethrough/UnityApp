@@ -67,6 +67,21 @@ public class MobileHomePanel : MobilePanel {
 		return "MobileHomePanel: Uninitialized";
 	}
 
+    public override void StateUpdate()
+    {
+        base.StateUpdate();
+        if ( Convert.ToBoolean ( DataVault.Get("NewChallengeNotification") ) )
+        {
+            // if challenge button is unavailable we are showing challenges atm
+            if (challengeBtn.enabled == false)
+            {
+                ChangeList("friend");                
+                ChangeList("challenge");                                    
+            }            
+            DataVault.Set("NewChallengeNotification", false);
+        }
+    }
+
 	public override void EnterStart ()
 	{
 		base.EnterStart ();
@@ -377,6 +392,11 @@ public class MobileHomePanel : MobilePanel {
 			Platform.Instance.ReadNotification(challengeNote.GetID());
 		}
 
+        List<ListButtonData> dataA = buttonData;
+        buttonData = new List<ListButtonData>();
+
+        dataA.Sort(delegate(ListButtonData c1, ListButtonData c2) { return (c1.textDictionary["TimeRemainingText"]).CompareTo(c2.textDictionary["TimeRemainingText"]); }); 
+
 		foreach(ChallengeNotification challengeNote in playerChallenges)
 		{
 			Challenge challenge = challengeNote.GetChallenge();
@@ -421,6 +441,12 @@ public class MobileHomePanel : MobilePanel {
 			AddButtonData(newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 		}
 
+        List<ListButtonData> dataB = buttonData;
+        buttonData = new List<ListButtonData>();
+
+        dataB.Sort(delegate(ListButtonData c1, ListButtonData c2) { return (c1.textDictionary["TimeRemainingText"]).CompareTo(c2.textDictionary["TimeRemainingText"]); }); 
+
+
 		foreach(ChallengeNotification challengeNote in incompleteChallenges)
 		{
 			Challenge challenge = challengeNote.GetChallenge();
@@ -457,7 +483,16 @@ public class MobileHomePanel : MobilePanel {
 			// Add the button
 			AddButtonData(activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 		}
-	
+
+        List<ListButtonData> dataC = buttonData;
+        buttonData = new List<ListButtonData>();
+
+        dataC.Sort(delegate(ListButtonData c1, ListButtonData c2) { return (c1.textDictionary["TimeRemainingText"]).CompareTo(c2.textDictionary["TimeRemainingText"]); });
+
+        buttonData.AddRange(dataA);
+        buttonData.AddRange(dataB);
+        buttonData.AddRange(dataC);
+
 		if(buttonData.Count == 0) {
 			AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
 		}

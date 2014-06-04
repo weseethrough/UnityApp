@@ -29,6 +29,8 @@ public class MobileList : UIComponentSettings
 
     private float defaultYOffset;
 
+    private bool forceRefresh = false;
+
     void Start()
     {
 //		UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
@@ -46,6 +48,12 @@ public class MobileList : UIComponentSettings
         SetTitle(title);
 
         initialized = true;
+    }
+
+    public void SetGliphCount(int headingItemCount, int overallGlyphCout)
+    {
+        itemCountBeforeTop = headingItemCount;
+        itemsToManage = overallGlyphCout;
     }
 
     public void SetTitle(string title)
@@ -85,6 +93,21 @@ public class MobileList : UIComponentSettings
         {
             requiresResetMask = true;
         }
+        else if (forceRefresh == true)
+        {
+            while (buttons.Count > 0)
+            {
+                UITexture[] textures = buttons[0].GetComponentsInChildren<UITexture>();
+                foreach (UITexture texture in textures)
+                {
+                    texture.mainTexture = null;
+                }
+                buttons[0].SetActive(false);
+                buttons.RemoveAt(0);
+            }
+        }
+
+        forceRefresh = false;
 
         int min = Mathf.Min(itemOffset, previousStartIndex);
         int max = Mathf.Max(itemOffset + itemCount, previousStartIndex + previousCount);
@@ -285,6 +308,11 @@ public class MobileList : UIComponentSettings
         }
 
         return collection;
+    }
+
+    public void ForceRefresh()
+    {
+        forceRefresh = true;
     }
 
     public void ResetList(float newItemHeight)
