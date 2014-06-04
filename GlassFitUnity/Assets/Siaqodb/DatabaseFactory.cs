@@ -12,8 +12,26 @@ namespace SiaqodbUtils
     public class DatabaseFactory
     {
         public static string siaqodbPath;
+        public static string siaqodbStreamingPath;
         private static Siaqodb instance;
-		
+        private static Siaqodb instanceStreamed;
+
+        public static Siaqodb GetStreamingInstance()
+        {
+            if (instanceStreamed == null)
+            {
+                siaqodbStreamingPath = Application.streamingAssetsPath;
+
+                if (!Directory.Exists(siaqodbStreamingPath))
+                {
+                    Directory.CreateDirectory(siaqodbStreamingPath);
+                }
+                instanceStreamed = new Siaqodb(siaqodbStreamingPath);
+                UnityEngine.Debug.Log("Siaqo streming path: " + siaqodbStreamingPath);
+            }
+            return instanceStreamed;
+        }
+
         public static Siaqodb GetInstance()
         {
             if (instance == null)
@@ -42,6 +60,12 @@ namespace SiaqodbUtils
             {
                 instance.Close();
                 instance = null;
+            }
+
+            if (instanceStreamed != null)
+            {
+                instanceStreamed.Close();
+                instanceStreamed = null;
             }
         }
 
