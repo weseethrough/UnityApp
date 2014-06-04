@@ -38,9 +38,23 @@ public class TimeUpdater : MonoBehaviour {
 			}
 			TimeSpan newDifference = challengeTime - currentTime;
 			string previousText = label.text;
-            string currentText = string.Format("{0:00}d {1:00}h {2:00}m", newDifference.Days, newDifference.Hours, newDifference.Minutes);
+			string currentText;
+			if(newDifference.Days > 0)
+            	currentText = string.Format("{0:00}d {1:00}h {2:00}m", newDifference.Days, newDifference.Hours, newDifference.Minutes);
+			else {
+				currentText = string.Format("{0:00}h {1:00}m", newDifference.Hours, newDifference.Minutes);
+			}
+
 			if(!previousText.Equals(currentText))
 			{ 
+				if(newDifference.Days > 0)
+				{
+					label.color = Color.black;
+				}
+				else
+				{
+					label.color = Color.red;
+				}
 				timeDifference = newDifference;
 
 				if(timeDifference.TotalMinutes > 0) {
