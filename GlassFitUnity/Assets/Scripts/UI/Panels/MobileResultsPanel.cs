@@ -93,9 +93,11 @@ public class MobileResultsPanel : MobilePanel {
 		string timeText = (string)DataVault.Get("finish_time_minutes");
 		string durationText = (string)DataVault.Get("duration");
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DurationText", timeText);
+		DataVault.Set("social_description", "I just ran " + playerDistance + playerDistanceUnits + " in " + durationText + "mins!");
 		if(!timeText.Equals(durationText)) 
 		{
 			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "Challenge incomplete - try again!");
+
 		} 
 		else
 		{
