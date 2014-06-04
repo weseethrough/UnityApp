@@ -60,7 +60,7 @@ public class DataVault : MonoBehaviour
     /// <returns></returns>
     static public void SaveToBlob()
     {
-        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetInstance();
+        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStreamingInstance();
 
         ISqoQuery<RaceYourself.Models.Blob.PersistentData> q = db.Query<RaceYourself.Models.Blob.PersistentData>();
 
@@ -113,7 +113,7 @@ public class DataVault : MonoBehaviour
 
         data = new Dictionary<string, DataEntry>();
 
-        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetInstance();
+        Siaqodb db = SiaqodbUtils.DatabaseFactory.GetStreamingInstance();
         ISqoQuery<RaceYourself.Models.Blob.PersistentData> q = db.Query<RaceYourself.Models.Blob.PersistentData>();
 
         RaceYourself.Models.Blob.PersistentData vault = q.FirstOrDefault();
