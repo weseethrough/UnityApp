@@ -84,7 +84,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition
 		//return positionTracker.HasPosition;
 		//positionTracker only reports that it has a position after tracking has started. This function is used before that point.
 		//Check status of unity location status instead.
-        log.info("HasLock status: " + Input.location.status);
+//        log.info("HasLock status: " + Input.location.status);
 
 		return (Input.location.status == LocationServiceStatus.Running);
 	}
