@@ -1350,7 +1350,8 @@ public class ButtonFunctionCollection
 	static public bool ShareResultFacebook(FlowButton button, FlowState fs)
 	{
 		string description = (string)DataVault.Get("social_description");
-		FB.Feed("", "http://www.raceyourself.com", description, "challenge result");
+		string result = (string)DataVault.Get("social_result");
+		FB.Feed("", "http://www.raceyourself.com", description, result);
 		return false;
 	}
 
