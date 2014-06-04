@@ -373,7 +373,9 @@ public class MobileHomePanel : MobilePanel {
 			AddButtonData(newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 
 			// Set the notification as read
-			Platform.Instance.ReadNotification(challengeNote.GetID());
+//			Platform.Instance.ReadNotification(challengeNote.GetID());
+			challengeNote.SetRead();
+			challengeNote.GetNotification().read = true;
 		}
 
 		foreach(ChallengeNotification challengeNote in playerChallenges)
@@ -472,20 +474,20 @@ public class MobileHomePanel : MobilePanel {
 			if(newChallenges.Count > 0)
 			{
 				User player = Platform.Instance.User();
-				foreach(ChallengeNotification challengeNote in newChallenges)
+				for(int i=newChallenges.Count-1; i>=0; i--)
 				{
-					Notification note = challengeNote.GetNotification();
+					Notification note = newChallenges[i].GetNotification();
 					if(note.read)
 					{
 						if(note.message.from == player.id)
 						{
-							playerChallenges.Add(challengeNote);
+							playerChallenges.Add(newChallenges[i]);
 						}
 						else
 						{
-							incompleteChallenges.Add(challengeNote);
+							incompleteChallenges.Add(newChallenges[i]);
 						}
-						newChallenges.Remove(challengeNote);
+						newChallenges.Remove(newChallenges[i]);
 					}
 				}
 

@@ -101,6 +101,15 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		}
 		else
 		{
+			if(Platform.Instance.LocalPlayerPosition.HasLock()) 
+			{
+				DataVault.Set("location_service_status_message", "GPS Found!");
+			}
+			else
+			{
+				DataVault.Set("location_service_status_message", "Searching for GPS");
+			}
+
 			// UnityEngine.Debug.LogError("Location Service Running, timeSinceLastUpdate: " + timeSinceLastUpdate);
 			//location service status should be 'Running'
 			if(timeSinceLastUpdate > 1f)
