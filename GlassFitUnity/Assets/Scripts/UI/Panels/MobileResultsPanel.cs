@@ -93,9 +93,11 @@ public class MobileResultsPanel : MobilePanel {
 		string timeText = (string)DataVault.Get("finish_time_minutes");
 		string durationText = (string)DataVault.Get("duration");
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DurationText", timeText);
+		DataVault.Set("social_description", "I just ran " + playerDistance + playerDistanceUnits + " in " + timeText + "mins!");
 		if(!timeText.Equals(durationText)) 
 		{
 			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "Challenge incomplete - try again!");
+			DataVault.Set("social_result", "I didn't complete my challenge against " + chosenUser.forename);
 		} 
 		else
 		{
@@ -126,6 +128,7 @@ public class MobileResultsPanel : MobilePanel {
 						{
 							rewardAnchor.relativeOffset = new Vector2(-0.15f, 0.35f);
 							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "You Won!");
+							DataVault.Set("social_result", "I beat " + chosenUser.forename + "!");
 							if(playerCircle != null) 
 							{
 								playerCircle.color = new Color(255/255f, 204/255f, 0);
@@ -139,6 +142,7 @@ public class MobileResultsPanel : MobilePanel {
 						{
 							rewardAnchor.relativeOffset = new Vector2(0.15f, 0.35f);
 							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "You Lost!");
+							DataVault.Set("social_result", chosenUser.forename + " beat me");
 							if(playerCircle != null) 
 							{
 								playerCircle.color = new Color(255/255f, 69/255f, 28/255f);
