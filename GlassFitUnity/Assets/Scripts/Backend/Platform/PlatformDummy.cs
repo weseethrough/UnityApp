@@ -195,18 +195,7 @@ public class PlatformDummy : Platform
 	
 			UnityEngine.Debug.Log("Creating Platform Dummy instance");
 			
-			blobstore = Path.Combine(Application.persistentDataPath, blobstore);
-			blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
-			var tag = "Player";
-			if (!Application.isPlaying) {
-				// Save to blob assets in editor
-				blobstore = blobassets;
-				tag = "Editor";
-			}
-			Directory.CreateDirectory(blobstore);
-			UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
-			if (Application.isEditor) Directory.CreateDirectory(blobassets);
-			UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
+			// blobstore init moved to getBlob
 		
 			if (!initialised) {
 				playerOrientation.Update(Quaternion.FromToRotation(Vector3.down,Vector3.forward));
@@ -329,7 +318,21 @@ public class PlatformDummy : Platform
 
 	protected string getBlobStorePath()
 	{
-		if(Application.isEditor)// && !Application.isPlaying)
+        // TODO - this ought to be done just once in initialize, but seems to get called before initialize completes
+        blobstore = Path.Combine(Application.persistentDataPath, blobstore);
+        blobassets = Path.Combine(Application.streamingAssetsPath, blobassets);
+        var tag = "Player";
+        if (!Application.isPlaying) {
+            // Save to blob assets in editor
+            blobstore = blobassets;
+            tag = "Editor";
+        }
+        Directory.CreateDirectory(blobstore);
+        UnityEngine.Debug.Log(tag + " blobstore: " + blobstore);
+        if (Application.isEditor) Directory.CreateDirectory(blobassets);
+        UnityEngine.Debug.Log(tag + " blobassets: " + blobassets);
+
+        if(Application.isEditor)// && !Application.isPlaying)
 		{
 			//modify the actual assets directly in the editor
 			return blobassets;
