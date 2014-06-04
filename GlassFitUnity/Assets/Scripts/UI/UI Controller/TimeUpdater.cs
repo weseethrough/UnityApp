@@ -40,9 +40,9 @@ public class TimeUpdater : MonoBehaviour {
 			string previousText = label.text;
 			string currentText;
 			if(newDifference.Days > 0)
-            	currentText = string.Format("{0:00}d {1:00}h {2:00}m", newDifference.Days, newDifference.Hours, newDifference.Minutes);
+            	currentText = string.Format("{0:0}d {1:0}h", newDifference.Days, newDifference.Hours, newDifference.Minutes);
 			else {
-				currentText = string.Format("{0:00}h {1:00}m", newDifference.Hours, newDifference.Minutes);
+				currentText = string.Format("{0:0}h {1:0}m", newDifference.Hours, newDifference.Minutes);
 			}
 
 			if(!previousText.Equals(currentText))
