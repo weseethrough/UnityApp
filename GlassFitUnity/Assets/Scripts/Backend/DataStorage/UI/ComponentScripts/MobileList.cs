@@ -28,6 +28,8 @@ public class MobileList : UIComponentSettings
     private Dictionary<string, List<GameObject>> instances = new Dictionary<string, List<GameObject>>();
 	private Dictionary<string, Texture2D> textureCache = new Dictionary<string, Texture2D>();
 
+	private Texture2D defaultProfile = null;
+
     private float defaultYOffset;
 
     void Start()
@@ -45,6 +47,8 @@ public class MobileList : UIComponentSettings
         defaultYOffset = listContent.GetComponent<UIGrid>().transform.localPosition.y;
 
         SetTitle(title);
+
+		defaultProfile = Resources.Load("Reticle", typeof(Texture2D)) as Texture2D;
 
         initialized = true;
     }
@@ -164,11 +168,101 @@ public class MobileList : UIComponentSettings
             {
                 drag.relativePositionOnReset = Vector2.zero;
                 drag.ResetPosition();
-            }
+				LoadImages();
+			}
 
-            drag.UpdateScrollbars(true);            
+            drag.UpdateScrollbars(true);       
+			if (drag.onDragFinished == null) {
+				drag.onDragFinished = LoadImages;
+				LoadImages();
+			}
         }
     }
+
+	private void LoadImages() 
+	{
+		StopCoroutine("LoadImagesCoroutine");
+		StartCoroutine("LoadImagesCoroutine");
+	}
+
+	private IEnumerator LoadImagesCoroutine() 
+	{
+		yield return new WaitForSeconds(0.5f);
+
+		int min = Math.Max(0, previousStartIndex);
+		int max = previousStartIndex + previousCount;
+		
+		UnityEngine.Debug.Log(string.Format("MobileList: LoadImages({0}..{1})", min, max));
+
+		List<ListButtonData> items = parent.GetButtonData();
+
+		for (int i = min; i < max; i++) 
+		{
+			//do not try to manage items off the list
+			if (i < 0 || i >= items.Count) continue;
+			var data = items[i];
+
+			if(data.imageDictionary != null) 
+			{
+				Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+				foreach(var key in data.imageDictionary.Keys) {
+					if (key == null || key.Length == 0) continue;
+
+					string textureUrl = key;
+					if (textureCache.ContainsKey(key)) {
+//						UnityEngine.Debug.Log("MobileList: cache hit for " + key);
+						var dictionary = data.imageDictionary[key];
+						try {
+							GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
+							if(buttonObj != null) {
+								GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
+								UITexture texture = textureObj.GetComponent<UITexture>();
+								if(texture != null) {				
+									texture.mainTexture = textureCache[key];
+									
+								}
+							}
+						} catch (Exception e) {
+							// probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
+							Debug.LogWarning("MobileList.getNewButton() " + e.Message);
+						}
+						continue;
+					}
+					
+					UnityEngine.Debug.Log("MobileList: cache miss for " + key);
+					textureCache[key] = defaultProfile;
+					data.imageDictionary[key]["url"] = textureUrl;
+					Platform.Instance.RemoteTextureManager.LoadImage(textureUrl, data.imageDictionary[key], (tex, callbackArgument) => {
+						var dictionary = callbackArgument as Dictionary<string, string>;
+						textureCache[dictionary["url"]] = tex;
+						try {
+							GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
+							if(buttonObj != null) {
+								GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
+								UITexture texture = textureObj.GetComponent<UITexture>();
+								if(texture != null) {                               
+									texture.mainTexture = tex;
+								}
+							}
+						} catch (Exception e) {
+							// probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
+							Debug.LogWarning("MobileList.getNewButton() " + e.Message);
+						}
+					});
+				}
+				//			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
+				//				Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
+				//				GameObject foundButton = GameObjectUtils.SearchTreeByName(fs.physicalWidgetRoot, buttonId);
+				//				if(foundButton != null) {
+				//					foundButton.GetComponentInChildren<UITexture>().mainTexture = tex;
+				//				}
+				//			});
+				
+			}
+			yield return null;
+		}
+		UnityEngine.Debug.Log("MobileList: Loaded images");
+	}
 
     private GameObject GetNewButton(ListButtonData data, List<GameObject> newListButtons)
     {
@@ -231,58 +325,6 @@ public class MobileList : UIComponentSettings
 			foreach(var key in data.textDictionary.Keys) {
 				GameObjectUtils.SetTextOnLabelInChildren(button, key, data.textDictionary[key]);
 			}
-		}
-
-		if(data.imageDictionary != null) 
-		{
-			Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
-			foreach(var key in data.imageDictionary.Keys) {
-				string textureUrl = key;
-				if (textureCache.ContainsKey(key)) {
-					var dictionary = data.imageDictionary[key];
-					try {
-						GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
-						if(buttonObj != null) {
-							GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
-							UITexture texture = textureObj.GetComponent<UITexture>();
-							if(texture != null) {				
-								texture.mainTexture = textureCache[key];
-								
-							}
-						}
-					} catch (Exception e) {
-						// probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
-						Debug.LogWarning("MobileList.getNewButton() " + e.Message);
-					}
-					continue;
-				}
-
-				Platform.Instance.RemoteTextureManager.LoadImage(textureUrl, data.imageDictionary[key], (tex, callbackArgument) => {
-					var dictionary = callbackArgument as Dictionary<string, string>;
-					textureCache[key] = tex;
-                    try {
-                    	GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
-                        if(buttonObj != null) {
-                        	GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
-                            UITexture texture = textureObj.GetComponent<UITexture>();
-                            if(texture != null) {                               
-                            	texture.mainTexture = tex;
-                            }
-                        }
-                    } catch (Exception e) {
-                    	// probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
-                        Debug.LogWarning("MobileList.getNewButton() " + e.Message);
-                    }
-				});
-			}
-//			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
-//				Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
-//				GameObject foundButton = GameObjectUtils.SearchTreeByName(fs.physicalWidgetRoot, buttonId);
-//				if(foundButton != null) {
-//					foundButton.GetComponentInChildren<UITexture>().mainTexture = tex;
-//				}
-//			});
-
 		}
 
 //                Debug.Log("AddButton " + data.textNormal + " btName: " + buttonData[i].buttonName);
