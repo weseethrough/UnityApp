@@ -221,7 +221,7 @@ namespace RaceYourself
 			
 			var headers = new Hashtable();
 			headers.Add("Authorization", "Bearer " + token.access_token);
-            var request = new WWW(ApiUrl("me"), new Byte[4], headers);
+            var request = new WWW(ApiUrl("me"), null, headers);
 
 			yield return request;
 			
@@ -878,7 +878,7 @@ namespace RaceYourself
 				headers["If-Modified-Since"] = cache.lastModified;
 			}
 
-            var www = new WWW(ApiUrl(route), new byte[4] , headers);
+            var www = new WWW(ApiUrl(route), null , headers);
 
 			//yield return www;
 

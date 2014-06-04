@@ -43,6 +43,8 @@ public class MobileHomePanel : MobilePanel {
 	// Boolean to check if screen has been initialized
 	bool initialized = false;
 
+	bool stopped = false;
+
 	bool loadingChallengeIncomplete = false;
 
 	public MobileHomePanel() { }
@@ -201,6 +203,8 @@ public class MobileHomePanel : MobilePanel {
 			// Remove all unread notifications from the filtered notifications
 			filteredNotifications.RemoveAll(x => x.read == false);
 
+			newChallenges = new List<ChallengeNotification>();
+
 			// Loop through all new notifications
 			foreach(Notification notification in newNotifications) {
 				UnityEngine.Debug.Log("processing notification from:" + notification.message.from);
@@ -242,6 +246,8 @@ public class MobileHomePanel : MobilePanel {
 
 				}
 			}
+
+			playerChallenges = new List<ChallengeNotification>();
 
 			foreach(Notification notification in playerNotifications) 
 			{
@@ -287,6 +293,8 @@ public class MobileHomePanel : MobilePanel {
 				}
 			}
 
+			incompleteChallenges = new List<ChallengeNotification>();
+
 			// Loop through the normal notifications
 			foreach(Notification notification in filteredNotifications) 
 			{
@@ -324,7 +332,14 @@ public class MobileHomePanel : MobilePanel {
 				}
 			}
 
-			CreateChallengeButtons();
+			if(!stopped)
+			{
+				CreateChallengeButtons();
+			} 
+			else 
+			{
+				stopped = false;
+			}
 		}
 		loadingChallengeIncomplete = false;
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
@@ -496,10 +511,11 @@ public class MobileHomePanel : MobilePanel {
 		} 
 		else
 		{
-			newChallenges = new List<ChallengeNotification>();
-			incompleteChallenges = new List<ChallengeNotification>();
-			playerChallenges = new List<ChallengeNotification>();
-			Platform.Instance.partner.StartCoroutine(LoadChallenges());
+			if(stopped) {
+				stopped = false;
+			} else {
+				Platform.Instance.partner.StartCoroutine(LoadChallenges());
+			}
 		}
 
 	}
@@ -605,9 +621,11 @@ public class MobileHomePanel : MobilePanel {
 			// Reset the mobile list with cell size of 155
 			mobileList.ResetList(155f);
 
+			stopped = true;
+
 			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
-			Platform.Instance.partner.StopCoroutine("LoadChallenges");
+//			Platform.Instance.partner.StopCoroutine("LoadChallenges");
 
 			// Disable the racers button to make it go black
 			racersBtn.enabled = false;
