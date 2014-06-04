@@ -90,8 +90,6 @@ namespace RaceYourself
 				if (self.id != 0) log.info("Device registered as " + self.id);
 				else log.info("Device waiting to be registered");
 			}
-			// TODO: Move to post-sign in flow
-			PopulateAutoMatchMatrixFromBundle();
 		}
 
 		private Coroutine StartCoroutine(IEnumerator routine) {
@@ -389,7 +387,7 @@ namespace RaceYourself
 			var headers = new Hashtable();
 			headers.Add("Content-Type", "application/json");
 			headers.Add("Accept-Charset", "utf-8");
-			//headers.Add("Accept-Encoding", "gzip");
+			headers.Add("Accept-Encoding", "gzip");
 
             SignUpRequest wrapper = new SignUpRequest(email, password, inviteCode, profile, authentication);
 
@@ -406,12 +404,22 @@ namespace RaceYourself
 				yield break;
 			}
 
-			log.info(post.text);
-
-			//TODO decompress gzip content
-
-			var response = JsonConvert.DeserializeObject<SingleResponse<SignUpResponse>>(post.text);
-			if (!response.response.success) {
+			string responseEncoding = "uncompressed";
+			foreach (string key in post.responseHeaders.Keys) {
+				if (key.ToLower().Equals("content-encoding") && post.responseHeaders[key] != null) {
+					responseEncoding = post.responseHeaders[key];
+					break;
+				}
+				string headerString = post.responseHeaders[key].ToString();
+				//log.info("Sync response header: " + key + ":" + headerString);
+            }
+            
+			string responseBody = null;
+            if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(DecompressGZipBuffer(post.bytes));
+			else responseBody = encoding.GetString(post.bytes);
+            
+			var response = JsonConvert.DeserializeObject<SingleResponse<SignUpResponse>>(responseBody);
+            if (!response.response.success) {
                 var errors = new System.Text.StringBuilder();
                 foreach (KeyValuePair<string, IList<string>> entry in response.response.errors)
                 {
@@ -522,7 +530,7 @@ namespace RaceYourself
 				var headers = new Hashtable();
 				headers.Add("Content-Type", "application/json");
 				headers.Add("Accept-Charset", "utf-8");
-				//headers.Add("Accept-Encoding", "gzip");
+				headers.Add("Accept-Encoding", "gzip");
 				headers.Add("Authorization", "Bearer " + token.access_token);				
                 log.info("Sync() headers made ok");
 
@@ -614,11 +622,12 @@ namespace RaceYourself
 					if (response.response.tail_timestamp.HasValue && response.response.tail_timestamp.Value > 0) ret = "partial";
 					else ret = "full";
 				});
-				backgroundThread.Start();
+				backgroundThread.Priority = System.Threading.ThreadPriority.Lowest;
+                backgroundThread.Start();
 				while (backgroundThread.IsAlive) yield return new WaitForSeconds(0.25f);
 
-				if (db.Query<Parameter>().Where(p => p.key == "matches" && p.value == "bundled").FirstOrDefault() != null) {
-					yield return StartCoroutine(PopulateAutoMatchMatrix());
+				if (db.Query<Parameter>().Where(p => p.key == "matches" && p.value == "fetched").FirstOrDefault() == null) {
+					StartCoroutine(PopulateAutoMatchMatrix());
 				}
 			} finally {				
 				if (ret.Equals("full") || ret.Equals("partial")) {
@@ -756,21 +765,27 @@ namespace RaceYourself
 					var p = new Parameter("matches", "fetched");
 					if (!db.UpdateObjectBy("key", p)) db.StoreObject(p);
 				});
+				backgroundThread.Priority = System.Threading.ThreadPriority.Lowest;
 				backgroundThread.Start();
             }));
         }
             
-            /// <summary>
-            /// Return a bucket of tracks for auto-matching
+        /// <summary>
+        /// Return a bucket of tracks for auto-matching
 		/// 
-		/// Will throw an exception if db buckets haven't been populated.
+		/// Will block if db buckets haven't been populated.
 		/// </summary>
 		/// <returns>The track bucket</returns>
 		/// <param name="fitnessLevel">Fitness level.</param>
 		/// <param name="duration">Duration.</param>
 		public TrackBucket AutoMatch(string fitnessLevel, int duration) {
 			var start = DateTime.Now;
-			TrackBucket bucket = db.Query<TrackBucket>().Where(tb => tb.fitnessLevel == fitnessLevel && tb.duration == duration).First();
+			TrackBucket bucket = db.Query<TrackBucket>().Where(tb => tb.fitnessLevel == fitnessLevel && tb.duration == duration).FirstOrDefault();
+			if (bucket == null) {
+				log.error("Auto-match matrix is empty! Populating from bundle");
+				PopulateAutoMatchMatrixFromBundle();
+				return AutoMatch(fitnessLevel, duration);
+			}
 
 			// Populate unmatched track list
 			bucket.tracks = new List<Track>(bucket.all.Count);
@@ -872,15 +887,17 @@ namespace RaceYourself
 			var start = DateTime.Now;
 			var headers = new Hashtable();
 			headers.Add("Accept-Charset", "utf-8");
-			//headers.Add("Accept-Encoding", "gzip");
+			headers.Add("Accept-Encoding", "gzip");
 			headers.Add("Authorization", "Bearer " + token.access_token);
 			if (cache != null && cache.lastModified != null) {
 				headers["If-Modified-Since"] = cache.lastModified;
 			}
 
-            var www = new WWW(ApiUrl(route), null , headers);
+            var www = new WWW(ApiUrl(route), null, headers);
 
-			//yield return www;
+#if !UNITY_IPHONE
+			yield return www;
+#endif
 
 			//this way to wait works better on iOS
             while (!www.isDone && String.IsNullOrEmpty(www.error)) 
