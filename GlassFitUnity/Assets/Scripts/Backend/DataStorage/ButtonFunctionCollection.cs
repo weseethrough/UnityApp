@@ -1537,7 +1537,9 @@ public class ButtonFunctionCollection
     static public bool CheckFitnessLevel(FlowButton button, FlowState fs)
     {
         // retrieve from DB
-        string fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
+        string fitnessLevel = null;
+        if (Platform.Instance.api.user.profile != null)
+            fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
 
         if(fitnessLevel != null && fitnessLevel != "")
         {
