@@ -1329,10 +1329,14 @@ public class ButtonFunctionCollection
     
     static public bool PasswordReset(FlowButton button, FlowState fs)
     {
+        Panel p = (Panel) fs;
+
+        string email = getFieldUiBasiclabelContent(p.physicalWidgetRoot, "EmailInput");
+
         #if PRODUCTION
-        Application.OpenURL("http://www.raceyourself.com/users/password/new");
+        Application.OpenURL("http://www.raceyourself.com/users/password/new?email=" + email);
         #else
-        Application.OpenURL("http://a.staging.raceyourself.com/users/password/new");
+        Application.OpenURL("http://a.staging.raceyourself.com/users/password/new?email=" + email);
         #endif
         return false;
     }
@@ -1533,7 +1537,9 @@ public class ButtonFunctionCollection
     static public bool CheckFitnessLevel(FlowButton button, FlowState fs)
     {
         // retrieve from DB
-        string fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
+        string fitnessLevel = null;
+        if (Platform.Instance.api.user.profile != null)
+            fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
 
         if(fitnessLevel != null && fitnessLevel != "")
         {

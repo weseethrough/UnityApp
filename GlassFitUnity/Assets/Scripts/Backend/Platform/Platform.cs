@@ -50,7 +50,7 @@ public abstract class Platform : SingletonBase
     private int sessionId = 0;
     public bool connected { get; protected set; }
     public int syncInterval = 10;  // Other components may change this to disable sync temporarily?
-    public DateTime lastSync = new DateTime(0);
+	public DateTime lastSync = DateTime.Now;
 
     // TODO: fields that almost certainly want removing
     protected float yaw = -999.0f;
@@ -303,7 +303,11 @@ public abstract class Platform : SingletonBase
 		User user = null;
 		UnityEngine.Debug.Log("Platform Getting user in coroutine");
 		Coroutine e = Platform.Instance.partner.StartCoroutine( api.get ("users/" + userId, (body) => {
-			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+			if(body == null) user = null;
+			else {
+				user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
+			}
+
 		} ));
 		yield return e;
 		if(user != null)
@@ -445,26 +449,48 @@ public abstract class Platform : SingletonBase
         db.StoreObject(e);
     }
 
+	public virtual Challenge GetChallenge(int id) {
+		Challenge challenge = db.Query<DistanceChallenge>().Where(ch => ch.id == id).FirstOrDefault();
+		if (challenge != null) return challenge;
+		challenge = db.Query<DurationChallenge>().Where(ch => ch.id == id).FirstOrDefault();
+		return challenge;
+	}
+
     public virtual void FetchChallenge(int id, Action<Challenge> callback) {
-        Challenge challenge = null;
-        Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
-            challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+		Challenge challenge = GetChallenge(id);
+		if (challenge != null) {
+			callback(challenge);
+			return;
+		}
+		Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
+			if (body != null) challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
 
 			callback(challenge);
 		}));
     }
 
 	public virtual IEnumerator FetchChallengeCoroutine(int id, Action<Challenge> callback) {
-		Challenge challenge = null;
+		Challenge challenge = GetChallenge(id);
+		if (challenge != null) {
+			callback(challenge);
+			yield break;
+		}
 		Coroutine e = Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body => {
-			challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
+			if (body != null) challenge = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.Challenge>>(body).response;
 		}) ));
 		yield return e;
 		callback(challenge);
 	}
 
 	public virtual IEnumerator FetchChallengeFromNotification(int id, Notification note, Action<Challenge, Notification> callback) {
-		Challenge challenge = null;
+		Challenge challenge = GetChallenge(id);
+		if (challenge != null) {
+			SyncState state = db.Query<SyncState>().LastOrDefault();
+			if (state != null && Date.FromUnixTime(state.sync_timestamp*1000) >= note.updated_at) {
+				callback(challenge, note);
+				yield break;
+			}
+		}
 
 		yield return Platform.Instance.partner.StartCoroutine(api.get("challenges/" + id, (body) => {
 

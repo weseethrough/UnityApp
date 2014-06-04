@@ -23,11 +23,13 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		
 		if (!Input.location.isEnabledByUser) {
 			log.warning("Location not enabled by user");
+			DataVault.Set("location_service_status_message", "Location services enabled");
 			return false;
 		}
 
 		if (Input.location.status == LocationServiceStatus.Failed) {
 			log.warning("Unable to determine device location");
+			DataVault.Set("location_service_status_message", "Please enable location services for Race Yourself in Settings");
 			return false;
 		}
 
@@ -77,25 +79,43 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		LocationServiceStatus status = Input.location.status;
 		if(status == LocationServiceStatus.Stopped)
 		{
-			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service stopped");
+			if (status != previousStatus) 
+			{
+				UnityEngine.Debug.LogWarning("Location Service stopped");
+			}
+			DataVault.Set("location_service_status_message", "Location services stopped");
 		}
 		if(status == LocationServiceStatus.Failed)
 		{
-			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service failed");
+			if (status != previousStatus)
+			{ 
+				UnityEngine.Debug.LogWarning("Location Service failed");
+			}
+			DataVault.Set("location_service_status_message", "Please enable location services for Race Yourself in Settings");
 		}
 
 		if(status == LocationServiceStatus.Initializing)
 		{
 			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service still initialising");
+			DataVault.Set("location_service_status_message", "Location services initialising");
 		}
 		else
 		{
+			if(Platform.Instance.LocalPlayerPosition.HasLock()) 
+			{
+				DataVault.Set("location_service_status_message", "GPS Found!");
+			}
+			else
+			{
+				DataVault.Set("location_service_status_message", "Searching for GPS");
+			}
+
 			// UnityEngine.Debug.LogError("Location Service Running, timeSinceLastUpdate: " + timeSinceLastUpdate);
 			//location service status should be 'Running'
 			if(timeSinceLastUpdate > 1f)
 			{
-				UpdateLocation();
 				timeSinceLastUpdate = 0;
+				UpdateLocation();
 			}
 		}
 
@@ -112,7 +132,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		}
 
 		Position pos = new Position(Input.location.lastData.latitude, Input.location.lastData.longitude);
-		UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude);
+        //UnityEngine.Debug.Log("New location: " + pos.latitude + " " + pos.longitude);
 
 		//drop it on the HUD for debugging
 		//DataVault.Set("sweat_points_unit", pos.latitude);
@@ -120,7 +140,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 
 		if(positionListeners.Count == 0)
 		{
-			UnityEngine.Debug.LogWarning("Location Updated, but no listeners!");
+            //UnityEngine.Debug.LogWarning("Location Updated, but no listeners!");
 		}
 
 		// Notify listeners about new position

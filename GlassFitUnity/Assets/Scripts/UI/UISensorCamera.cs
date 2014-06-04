@@ -15,7 +15,9 @@ public class UISensorCamera : MonoBehaviour {
 	private GestureHelper.OnSwipeLeft backHandler = null;
 	
 	private GestureHelper.TwoFingerTap twoTapHandler = null;
-	
+
+	private Texture reticleTex = null;
+
 	/// <summary>
 	/// Start this instance. Sets the scale for OnGUI
 	/// </summary>
@@ -36,7 +38,9 @@ public class UISensorCamera : MonoBehaviour {
 		GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
     	gc.GoToFlow("IndoorFlow");	
 #endif
-		
+
+		reticleTex = Resources.Load("Reticle", typeof(Texture)) as Texture;
+
 		LoadingTextComponent.SetVisibility(false);
 	}
 	
@@ -67,13 +71,14 @@ public class UISensorCamera : MonoBehaviour {
             started = true;
 		}
 
-		
+#if !RACEYOURSELF_MOBILE		
 		//draw a reticle if we're in the hex menu
 		if(FindObjectOfType(typeof(DynamicHexList)))
 		{
 			DrawReticle();
 		}
-		
+#endif
+
 //		// Delete the save for the training mode
 //		if(GUI.Button(new Rect(730, 450, 70, 50), "Reset Save")) {
 //			PlayerPrefs.DeleteAll();
@@ -83,12 +88,11 @@ public class UISensorCamera : MonoBehaviour {
 	
 	void DrawReticle()
 	{
-		Texture tex = Resources.Load("Reticle", typeof(Texture)) as Texture;
 		float width = 800;
 		float height = 500;
 		float boxHalfSize = 10;
 		Rect textureRect = new Rect(width/2.0f - boxHalfSize, height/2.0f - boxHalfSize, 2*boxHalfSize, 2*boxHalfSize);
-		GUI.DrawTexture(textureRect, tex, ScaleMode.ScaleToFit, true);
+		GUI.DrawTexture(textureRect, reticleTex, ScaleMode.ScaleToFit, true);
 	}
 	
 	/// <summary>

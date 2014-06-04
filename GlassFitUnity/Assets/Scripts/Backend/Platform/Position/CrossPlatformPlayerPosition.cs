@@ -6,7 +6,9 @@ using System.Collections.Generic;
 using RaceYourself.Models;
 using PositionTracker;
 
-public class CrossPlatformPlayerPosition : PlayerPosition {
+public class CrossPlatformPlayerPosition : PlayerPosition
+{
+    private static Log log = new Log("CrossPlatformPlayerPosition");
 
 	private Position _position = null;
 	public override Position Position { get { return _position; } }
@@ -47,10 +49,9 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	//need to use a bespoke implementation for iOS since Unity's location input doesn't provide a heading.
 	//On Android, until there's an Android position provider, we'll just use the original AndroidPlayerPosition wholesale
 		GameObject platform = GameObject.Find("Platform");
-#if UNITY_IOS
+#if UNITY_IPHONE
 		positionProvider = platform.AddComponent<IosPositionProvider>();
-#endif
-#if	UNITY_ANDROID
+#elif UNITY_ANDROID
 		positionProvider = platform.AddComponent<CrossPlatformPositionProvider>();
 #endif
 		sensorProvider = platform.AddComponent<CrossPlatformSensorProvider>();
@@ -83,7 +84,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 		//return positionTracker.HasPosition;
 		//positionTracker only reports that it has a position after tracking has started. This function is used before that point.
 		//Check status of unity location status instead.
-		UnityEngine.Debug.LogError("CrossPlatformPlayerPosition: HasLock status: " + Input.location.status);
+//        log.info("HasLock status: " + Input.location.status);
 
 		return (Input.location.status == LocationServiceStatus.Running);
 	}

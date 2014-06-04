@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 
 public class MobileFriendInvite : MonoBehaviour {
 
-	GameObject hex;
 	GameObject inviteRemainLabel;
 
 	// Use this for initialization
@@ -19,12 +18,15 @@ public class MobileFriendInvite : MonoBehaviour {
 
 		DataVault.Set("invite_status", "Sending");
 
+		UITexture texture = GetComponentInChildren<UITexture>();
+
+		Platform.Instance.RemoteTextureManager.LoadImage(chosenFriend.image, texture, (tex, finalTexture) => {
+			UITexture actualTexture = finalTexture as UITexture;
+			actualTexture.mainTexture = tex;
+		});
+
 		Panel currentPanel = (Panel)FlowStateMachine.GetCurrentFlowState();
 
-		hex = GameObjectUtils.SearchTreeByName(currentPanel.physicalWidgetRoot, "InviteHex");
-		if(hex != null) {
-			hex.SetActive(false);
-		}
 		inviteRemainLabel = GameObjectUtils.SearchTreeByName(currentPanel.physicalWidgetRoot, "InviteRemainLabel");
 		if(inviteRemainLabel != null) {
 			inviteRemainLabel.SetActive(false);
@@ -34,14 +36,11 @@ public class MobileFriendInvite : MonoBehaviour {
 		Invite unusedInvite = invites.Find(x => x.used_at == null);
 
 		if(unusedInvite != null) {
-
-
 			Hashtable eventProperties = new Hashtable();
 			eventProperties.Add("event_name", "invite");
 			eventProperties.Add("invite_code", unusedInvite.code);
 			eventProperties.Add("provider", "facebook");
 			Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
-
 
 			string[] toFriend = new string[1];
 			toFriend[0] = chosenFriend.uid;
@@ -51,12 +50,9 @@ public class MobileFriendInvite : MonoBehaviour {
 					UnityEngine.Debug.Log("MobileFriendInvite: FB error - " + result.Error);
 					DataVault.Set("invite_status", "Error!");
 				} else {
-					DataVault.Set("invite_status", "Invite sent");
+					DataVault.Set("invite_status", "Invite sent!");
 					int numInvites = invites.FindAll(x => x.used_at == null).Count;
-					DataVault.Set ("invites_remain", numInvites);
-					if(hex != null) {
-						hex.SetActive(true);
-					}
+					DataVault.Set ("invites_remain", numInvites.ToString() + " invites remaining");
 					if(inviteRemainLabel != null) {
 						inviteRemainLabel.SetActive(true);
 					}

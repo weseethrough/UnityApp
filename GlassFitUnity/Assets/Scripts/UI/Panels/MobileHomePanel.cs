@@ -24,9 +24,9 @@ public class MobileHomePanel : MobilePanel {
 	List<Friend> betaFriends;
 
 	// List of challenges for buttons - new challenges, not-ran-yet and player-completed 
-	List<Challenge> newChallenges;
-	List<Challenge> incompleteChallenges;
-	List<Challenge> playerChallenges;
+	List<ChallengeNotification> newChallenges;
+	List<ChallengeNotification> incompleteChallenges;
+	List<ChallengeNotification> playerChallenges;
 
 	// List of invites
 	List<Invite> invites;
@@ -42,6 +42,10 @@ public class MobileHomePanel : MobilePanel {
 
 	// Boolean to check if screen has been initialized
 	bool initialized = false;
+
+	bool stopped = false;
+
+	bool loadingChallengeIncomplete = false;
 
 	public MobileHomePanel() { }
 	public MobileHomePanel(SerializationInfo info, StreamingContext ctxt)
@@ -68,6 +72,8 @@ public class MobileHomePanel : MobilePanel {
 	public override void EnterStart ()
 	{
 		base.EnterStart ();
+
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
 		// Find the mobile list, set the title and parent
 		mobileList = physicalWidgetRoot.GetComponentInChildren<MobileList>();
@@ -167,6 +173,8 @@ public class MobileHomePanel : MobilePanel {
 	/// <returns>Yields while fetching individual challenges.</returns>
 	private IEnumerator LoadChallenges()
 	{
+		loadingChallengeIncomplete = true;
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
 		// Find all challenge notifications
 		List<Notification> filteredNotifications = notifications.FindAll(r => r.message.type == "challenge");
 		if(filteredNotifications != null) {
@@ -174,10 +182,11 @@ public class MobileHomePanel : MobilePanel {
 			filteredNotifications = filteredNotifications.FindAll(r => r.message.challenge_type == "duration");
 		}
 
-		UnityEngine.Debug.Log("Got " + filteredNotifications.Count + " challenges");
+		UnityEngine.Debug.Log("MobileHomePanel: Got " + filteredNotifications.Count + " challenges");
 
 		// If we actually have any challenges
-		if(filteredNotifications != null && filteredNotifications.Count > 0){
+		if(filteredNotifications != null && filteredNotifications.Count > 0)
+		{
 			// Get the player challenges
 			List<Notification> playerNotifications = filteredNotifications.FindAll(r => r.message.from == Platform.Instance.User().id);
 
@@ -193,6 +202,8 @@ public class MobileHomePanel : MobilePanel {
 
 			// Remove all unread notifications from the filtered notifications
 			filteredNotifications.RemoveAll(x => x.read == false);
+
+			newChallenges = new List<ChallengeNotification>();
 
 			// Loop through all new notifications
 			foreach(Notification notification in newNotifications) {
@@ -228,47 +239,15 @@ public class MobileHomePanel : MobilePanel {
 
 					TimeSpan? difference = potential.stop_time - DateTime.Now;
 					if(difference != null && difference.Value.TotalMinutes > 0) {
+						ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
 						// Add the challenge to the list
-						newChallenges.Add(potential);
-						// Create a button name
-						string newButtonName = "NewChallenges" + potential.id;
-
-						// Create a new dictionary for the text fields
-						Dictionary<string, string> dictionary = new Dictionary<string, string>();
-						// Add the title and description
-						dictionary.Add("TitleText", user.name);
-						dictionary.Add("DescriptionText", "challenges you");
-						// Change the duration to minutes and add to the dictionary
-						int duration = (potential as DurationChallenge).duration / 60;
-						dictionary.Add("DurationText", duration.ToString());
-
-						dictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
-					
-						// Create a new dictionary for the textures
-						Dictionary<string, Dictionary<string, string>> newChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
-						// Create an inner dictionary for the previous dictionary
-						Dictionary<string, string> innerNewDictionary = new Dictionary<string, string>();
-						// Add the location of the texture object and the button name
-						innerNewDictionary.Add("texture", "PlayerPicture");
-						innerNewDictionary.Add("name", newButtonName);
-						// Add the data to the main dictionary for the player's image
-						newChallengeImageDictionary.Add(Platform.Instance.User().image, innerNewDictionary);
-
-						// Re-initialize the dictionary
-						innerNewDictionary = new Dictionary<string, string>();
-						// Add the name and texture again
-						innerNewDictionary.Add("name", newButtonName);
-						innerNewDictionary.Add("texture", "RivalPicture");
-						// Add the data to the main dictionary for the rival's image
-						newChallengeImageDictionary.Add(user.image, innerNewDictionary);
-						// Finally add the button to the list
-						AddButtonData(newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+						newChallenges.Add(challengeNote);
 					}
 
-					// Set the notification as read
-					Platform.Instance.ReadNotification(notification.id);
 				}
 			}
+
+			playerChallenges = new List<ChallengeNotification>();
 
 			foreach(Notification notification in playerNotifications) 
 			{
@@ -306,52 +285,19 @@ public class MobileHomePanel : MobilePanel {
 					}
 
 					if(difference != null && difference.Value.TotalMinutes > 0) {
-
+						ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
 						// Add the challenge to the list
-						playerChallenges.Add(potential);
-						// Create a button name
-						string newButtonName = "PlayerChallenges" + potential.id;
-						
-						// Create a new dictionary for the text fields
-						Dictionary<string, string> playerDictionary = new Dictionary<string, string>();
-						// Add the title and description
-						playerDictionary.Add("TitleText", "You challenged");
-						playerDictionary.Add("DescriptionText", user.name);
-						// Change the duration to minutes and add to the dictionary
-						int duration = (potential as DurationChallenge).duration / 60;
-						playerDictionary.Add("DurationText", duration.ToString());
+						playerChallenges.Add(challengeNote);
 
-						playerDictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
-					
-						// Create a new dictionary for the textures
-						Dictionary<string, Dictionary<string, string>> playerChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
-						// Create an inner dictionary for the previous dictionary
-						Dictionary<string, string> innerPlayerDictionary = new Dictionary<string, string>();
-						// Add the location of the texture object and the button name
-						innerPlayerDictionary.Add("texture", "PlayerPicture");
-						innerPlayerDictionary.Add("name", newButtonName);
-						// Add the data to the main dictionary for the player's image
-						playerChallengeImageDictionary.Add(Platform.Instance.User().image, innerPlayerDictionary);
-						
-						// Re-initialize the dictionary
-						innerPlayerDictionary = new Dictionary<string, string>();
-						// Add the name and texture again
-						innerPlayerDictionary.Add("name", newButtonName);
-						innerPlayerDictionary.Add("texture", "RivalPicture");
-						// Add the data to the main dictionary for the rival's image
-
-						if(!playerChallengeImageDictionary.ContainsKey(user.image))
-						{
-							playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
-						}
-						// Finally add the button to the list
-						AddButtonData(newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 					}
 				}
 			}
 
+			incompleteChallenges = new List<ChallengeNotification>();
+
 			// Loop through the normal notifications
-			foreach(Notification notification in filteredNotifications) {
+			foreach(Notification notification in filteredNotifications) 
+			{
 				// Get the challenger and challenge ID
 				int challengerId = notification.message.from;
 				int challengeId = notification.message.challenge_id;
@@ -377,61 +323,212 @@ public class MobileHomePanel : MobilePanel {
 					if(null == user) { continue; }
 
 					TimeSpan? difference = potential.stop_time - DateTime.Now;
-					if(difference != null && difference.Value.TotalMinutes > 0) {
-
-						// Set the name of the button
-						string activeButtonName = "IncompleteChallenges" + potential.id;
+					if(difference != null && difference.Value.TotalMinutes > 0) 
+					{
+						ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
 						// Add the button to the list
-						incompleteChallenges.Add(potential);
-
-						// Initialize the dictionary
-						Dictionary<string, string> dictionary = new Dictionary<string, string>();
-						// Add the title and description for the challenge
-						dictionary.Add("TitleText", user.name);
-						dictionary.Add("DescriptionText", "challenged you");
-						// Convert the duration to minutes and add it to the dictionary
-						int duration = (potential as DurationChallenge).duration / 60;
-						dictionary.Add("DurationText", duration.ToString());
-
-						dictionary.Add("TimeRemainingText", potential.stop_time.Value.ToString("O"));
-					
-						// Create the image dictionary
-						Dictionary<string, Dictionary<string, string>> activeChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
-						// Create the inner dictionary for the images
-						Dictionary<string, string> innerActiveDictionary = new Dictionary<string, string>();
-						// Add the texture and name for the player's picture
-						innerActiveDictionary.Add("texture", "PlayerPicture");
-						innerActiveDictionary.Add("name", activeButtonName);
-						// Add the player's texture information to the dictionary
-						activeChallengeImageDictionary.Add(Platform.Instance.User().image, innerActiveDictionary);
-						// Re-initialize the inner dictionary for the rival
-						innerActiveDictionary = new Dictionary<string, string>();
-						// Add the attributes for the rival's button name and texture name
-						innerActiveDictionary.Add("name", activeButtonName);
-						innerActiveDictionary.Add("texture", "RivalPicture");
-						// Add the rival picture to the dictionary
-						activeChallengeImageDictionary.Add(user.image, innerActiveDictionary);
-						// Add the button
-						AddButtonData(activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+						incompleteChallenges.Add(challengeNote);
 					}
 				}
 			}
-		} else {
+
+			if(!stopped)
+			{
+				CreateChallengeButtons();
+			} 
+			else 
+			{
+				stopped = false;
+			}
+		}
+		loadingChallengeIncomplete = false;
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
+	}
+
+	private void CreateChallengeButtons() 
+	{
+		User player = Platform.Instance.User();
+		foreach(ChallengeNotification challengeNote in newChallenges)
+		{
+			Challenge challenge = challengeNote.GetChallenge();
+			User user = challengeNote.GetUser();
+
+			TimeSpan? difference = challenge.stop_time - DateTime.Now;
+			if(difference != null && difference.Value.TotalMinutes > 0)
+			{
+				// Create a button name
+				string newButtonName = "NewChallenges" + challenge.id;
+
+				// Create a new dictionary for the text fields
+				Dictionary<string, string> dictionary = new Dictionary<string, string>();
+				// Add the title and description
+				dictionary.Add("TitleText", user.name);
+				dictionary.Add("DescriptionText", "challenges you");
+				// Change the duration to minutes and add to the dictionary
+				int duration = challengeNote.GetDuration() / 60;
+				dictionary.Add("DurationText", duration.ToString());
+				
+				dictionary.Add("TimeRemainingText", challenge.stop_time.Value.ToString("O"));
+				
+				// Create a new dictionary for the textures
+				Dictionary<string, Dictionary<string, string>> newChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+				// Create an inner dictionary for the previous dictionary
+				Dictionary<string, string> innerNewDictionary = new Dictionary<string, string>();
+				// Add the location of the texture object and the button name
+				innerNewDictionary.Add("texture", "PlayerPicture");
+				innerNewDictionary.Add("name", newButtonName);
+				// Add the data to the main dictionary for the player's image
+				newChallengeImageDictionary.Add(player.image, innerNewDictionary);
+				
+				// Re-initialize the dictionary
+				innerNewDictionary = new Dictionary<string, string>();
+				// Add the name and texture again
+				innerNewDictionary.Add("name", newButtonName);
+				innerNewDictionary.Add("texture", "RivalPicture");
+				// Add the data to the main dictionary for the rival's image
+				newChallengeImageDictionary.Add(user.image, innerNewDictionary);
+				// Finally add the button to the list
+				AddButtonData(newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+			}
+			// Set the notification as read
+//			Platform.Instance.ReadNotification(challengeNote.GetID());
+			challengeNote.SetRead();
+			challengeNote.GetNotification().read = true;
+		}
+
+		foreach(ChallengeNotification challengeNote in playerChallenges)
+		{
+			Challenge challenge = challengeNote.GetChallenge();
+			User user = challengeNote.GetUser();
+
+			TimeSpan? difference = challenge.stop_time - DateTime.Now;
+			if(difference != null && difference.Value.TotalMinutes > 0)
+			{
+				// Create a button name
+				string newButtonName = "PlayerChallenges" + challenge.id;
+				
+				// Create a new dictionary for the text fields
+				Dictionary<string, string> playerDictionary = new Dictionary<string, string>();
+				// Add the title and description
+				playerDictionary.Add("TitleText", "You challenged");
+				playerDictionary.Add("DescriptionText", user.name);
+				// Change the duration to minutes and add to the dictionary
+				int duration = challengeNote.GetDuration() / 60;
+				playerDictionary.Add("DurationText", duration.ToString());
+				
+				playerDictionary.Add("TimeRemainingText", challenge.stop_time.Value.ToString("O"));
+				
+				// Create a new dictionary for the textures
+				Dictionary<string, Dictionary<string, string>> playerChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+				// Create an inner dictionary for the previous dictionary
+				Dictionary<string, string> innerPlayerDictionary = new Dictionary<string, string>();
+				// Add the location of the texture object and the button name
+				innerPlayerDictionary.Add("texture", "PlayerPicture");
+				innerPlayerDictionary.Add("name", newButtonName);
+				// Add the data to the main dictionary for the player's image
+				playerChallengeImageDictionary.Add(player.image, innerPlayerDictionary);
+				
+				// Re-initialize the dictionary
+				innerPlayerDictionary = new Dictionary<string, string>();
+				// Add the name and texture again
+				innerPlayerDictionary.Add("name", newButtonName);
+				innerPlayerDictionary.Add("texture", "RivalPicture");
+				// Add the data to the main dictionary for the rival's image
+				
+				if(!playerChallengeImageDictionary.ContainsKey(user.image))
+				{
+					playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
+				}
+				// Finally add the button to the list
+				AddButtonData(newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+			}
+		}
+
+		foreach(ChallengeNotification challengeNote in incompleteChallenges)
+		{
+			Challenge challenge = challengeNote.GetChallenge();
+			User user = challengeNote.GetUser();
+
+			TimeSpan? difference = challenge.stop_time - DateTime.Now;
+			if(difference != null && difference.Value.TotalMinutes > 0)
+			{	
+				string activeButtonName = "IncompleteChallenges" + challenge.id;		
+				// Initialize the dictionary
+				Dictionary<string, string> dictionary = new Dictionary<string, string>();
+				// Add the title and description for the challenge
+				dictionary.Add("TitleText", user.name);
+				dictionary.Add("DescriptionText", "challenged you");
+				// Convert the duration to minutes and add it to the dictionary
+				int duration = challengeNote.GetDuration() / 60;
+				dictionary.Add("DurationText", duration.ToString());
+				
+				dictionary.Add("TimeRemainingText", challenge.stop_time.Value.ToString("O"));
+				
+				// Create the image dictionary
+				Dictionary<string, Dictionary<string, string>> activeChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
+				// Create the inner dictionary for the images
+				Dictionary<string, string> innerActiveDictionary = new Dictionary<string, string>();
+				// Add the texture and name for the player's picture
+				innerActiveDictionary.Add("texture", "PlayerPicture");
+				innerActiveDictionary.Add("name", activeButtonName);
+				// Add the player's texture information to the dictionary
+				activeChallengeImageDictionary.Add(player.image, innerActiveDictionary);
+				// Re-initialize the inner dictionary for the rival
+				innerActiveDictionary = new Dictionary<string, string>();
+				// Add the attributes for the rival's button name and texture name
+				innerActiveDictionary.Add("name", activeButtonName);
+				innerActiveDictionary.Add("texture", "RivalPicture");
+				// Add the rival picture to the dictionary
+				activeChallengeImageDictionary.Add(user.image, innerActiveDictionary);
+				// Add the button
+				AddButtonData(activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+			}
+		}
+	
+		if(buttonData.Count == 0) {
 			AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
 		}
 	}
-
-
 
 	/// <summary>
 	/// Gets the challenges.
 	/// </summary>
 	public void GetChallenges() {
 		notifications = Platform.Instance.Notifications();
-		newChallenges = new List<Challenge>();
-		incompleteChallenges = new List<Challenge>();
-		playerChallenges = new List<Challenge>();
-		Platform.Instance.partner.StartCoroutine(LoadChallenges());
+		if(newChallenges != null && incompleteChallenges != null && playerChallenges != null && !loadingChallengeIncomplete) 
+		{
+			if(newChallenges.Count > 0)
+			{
+				User player = Platform.Instance.User();
+				for(int i=newChallenges.Count-1; i>=0; i--)
+				{
+					Notification note = newChallenges[i].GetNotification();
+					if(note.read)
+					{
+						if(note.message.from == player.id)
+						{
+							playerChallenges.Add(newChallenges[i]);
+						}
+						else
+						{
+							incompleteChallenges.Add(newChallenges[i]);
+						}
+						newChallenges.Remove(newChallenges[i]);
+					}
+				}
+
+			}
+			CreateChallengeButtons();
+		} 
+		else
+		{
+			if(stopped) {
+				stopped = false;
+			} else {
+				Platform.Instance.partner.StartCoroutine(LoadChallenges());
+			}
+		}
+
 	}
 
 	/// <summary>
@@ -535,17 +632,12 @@ public class MobileHomePanel : MobilePanel {
 			// Reset the mobile list with cell size of 155
 			mobileList.ResetList(155f);
 
-			Platform.Instance.partner.StopCoroutine("LoadChallenges");
+			stopped = true;
+
+			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
 			// Disable the racers button to make it go black
 			racersBtn.enabled = false;
-			// If there is a challenge notification and there are challenges
-//			if(challengeNotification != null && newChallenges.Count > 0) {
-//				// Make the challenge notification active
-//				challengeNotification.SetActive(true);
-//				// Set the number of challenges for the notification
-//				DataVault.Set("new_challenges", friendChallengeList.Count);
-//			}
 
 			// If the user has facebook permissions and friends
 			bool hasFriends = getHasFriends();
