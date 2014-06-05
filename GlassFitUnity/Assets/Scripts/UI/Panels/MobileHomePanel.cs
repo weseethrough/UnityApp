@@ -129,7 +129,7 @@ public class MobileHomePanel : MobilePanel {
 		// If the challenge button exists, disable it and set the default colour
 		if(challengeBtn != null) {
 			challengeBtn.enabled = false;
-			challengeBtn.defaultColor = new Color(68 / 255f, 68 / 255f, 68 / 255f);
+			challengeBtn.defaultColor = new Color(255 / 255f, 255 / 255f, 255 / 255f, 40/255f);
 		}
 
 		// Find the ChallengeNotification game object
@@ -648,7 +648,7 @@ public class MobileHomePanel : MobilePanel {
 
 		case "friend":
 			// Reset the mobile list with cell size of 155
-			mobileList.ResetList(155f);
+			mobileList.ResetList(115f);
 
 			stopped = true;
 
