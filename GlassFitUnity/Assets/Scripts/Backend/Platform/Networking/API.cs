@@ -899,7 +899,8 @@ namespace RaceYourself
 			yield return www;
 #endif
 
-			while (!www.isDone && www.error == null) 
+			//this way to wait works better on iOS
+            while (!www.isDone && String.IsNullOrEmpty(www.error)) 
 			{ 
 				yield return 0; 
 			}
