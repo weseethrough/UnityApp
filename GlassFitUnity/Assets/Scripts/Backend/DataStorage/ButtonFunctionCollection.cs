@@ -1347,6 +1347,21 @@ public class ButtonFunctionCollection
         return false;
     }
 
+	static public bool ShareResultFacebook(FlowButton button, FlowState fs)
+	{
+		string description = (string)DataVault.Get("social_description");
+		string result = (string)DataVault.Get("social_result");
+		FB.Feed("", "http://www.raceyourself.com", description, result);
+		return false;
+	}
+
+	static public bool ShareResultTwitter(FlowButton fb, FlowState fs)
+	{
+		string description = (string)DataVault.Get("social_description");
+		Application.OpenURL(string.Format("https://twitter.com/intent/tweet?url={0}&text={1}&via=Race_Yourself", "http://www.raceyourself.com", description));
+		return false;
+	}
+
     static public bool TwitterShare(FlowButton button, FlowState fs) 
 	{
 		Application.OpenURL(string.Format("https://twitter.com/intent/tweet?url={0}&text={1}&via=Race_Yourself", "http://www.raceyourself.com", "I%20duddits!"));
