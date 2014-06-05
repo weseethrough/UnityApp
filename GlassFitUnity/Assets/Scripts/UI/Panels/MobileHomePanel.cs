@@ -142,6 +142,7 @@ public class MobileHomePanel : MobilePanel {
 		syncHandler = new NetworkMessageListener.OnSync((message) => {
 			if(message == "full" || message == "partial")
 			{
+				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 				if(syncIcon != null)
 				{
 					syncIcon.SetActive(false);
