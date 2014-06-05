@@ -1166,7 +1166,7 @@ public class ButtonFunctionCollection
 
     private static void SignIn(string email, string password)
     {
-		UnityEngine.Debug.Log("Loggin in as: " + email + "/" + password);
+		//UnityEngine.Debug.Log("Logging in as: " + email + "/" + password);
 
         NetworkMessageListener.OnAuthenticated handler = null;
         handler = new NetworkMessageListener.OnAuthenticated((errors) => {
@@ -1175,12 +1175,16 @@ public class ButtonFunctionCollection
 			if(authenticated)
 			{
 				UnityEngine.Debug.Log("authenticated successfully");
+                FollowExit("Exit");
 			}
 			else
 			{
 				UnityEngine.Debug.Log("authentication failed with errors: " + errors.Values);
+
+                Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+                DataVault.Set("email", email);
+                panel.parentMachine.FollowBack();
 			}
-            FollowExit(authenticated ? "Exit" : "Error");
             Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
         });
         Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
@@ -1253,6 +1257,7 @@ public class ButtonFunctionCollection
 
         DataVault.Set("player_name", playerName);
         DataVault.Set("form_error", "");
+        DataVault.Set("email", "");
         return true;
     }
 
