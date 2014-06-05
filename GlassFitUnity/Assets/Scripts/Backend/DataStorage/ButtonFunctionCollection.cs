@@ -1565,4 +1565,14 @@ public class ButtonFunctionCollection
         }
         return UseCustomRedirection(button, fs);
     }
+
+	static public bool IsLoggedIntoFacebook(FlowButton button, FlowState fs)
+	{
+		if (FB.IsLoggedIn) {
+			return true;
+		}
+
+		Platform.Instance.Authorize("facebook", "any");
+		return false;
+	}
 }
