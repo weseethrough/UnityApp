@@ -52,6 +52,7 @@ public class UISensorCamera : MonoBehaviour {
 	/// <summary>
 	/// Raises the GU event. Displays buttons to reset gyros and save
 	/// </summary>
+#if !RACEYOURSELF_MOBILE && !RY_MOBILE	
 	void OnGUI()
 	{
 		// Set the attributes for the OnGUI elements
@@ -71,13 +72,11 @@ public class UISensorCamera : MonoBehaviour {
             started = true;
 		}
 
-#if !RACEYOURSELF_MOBILE		
 		//draw a reticle if we're in the hex menu
 		if(FindObjectOfType(typeof(DynamicHexList)))
 		{
 			DrawReticle();
 		}
-#endif
 
 //		// Delete the save for the training mode
 //		if(GUI.Button(new Rect(730, 450, 70, 50), "Reset Save")) {
@@ -85,7 +84,8 @@ public class UISensorCamera : MonoBehaviour {
 //		}
 		GUI.matrix = Matrix4x4.identity;
 	}
-	
+#endif
+
 	void DrawReticle()
 	{
 		float width = 800;
