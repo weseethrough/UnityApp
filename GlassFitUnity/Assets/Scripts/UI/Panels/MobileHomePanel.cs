@@ -140,47 +140,44 @@ public class MobileHomePanel : MobilePanel {
 		syncIcon = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "SyncIcon");
 
 		syncHandler = new NetworkMessageListener.OnSync((message) => {
-			if(message == "full" || message == "partial")
+			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
+			if(syncIcon != null)
 			{
-				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
-				if(syncIcon != null)
-				{
-					syncIcon.SetActive(false);
-				}
-				Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
-				// Change the list to the challenge list
-				ChangeList("challenge");
-
-				// Remove previous invite codes from the DataVault
-				DataVault.Remove("invite_codes");
-				
-				// Start the coroutine that retrieves the invites
-				Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("invites", body => {
-					// Deserialize the JSON for the invites
-					invites = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Invite>>(body).response;	
-					// Set the invite codes in the DataVault
-					DataVault.Set("invite_codes", invites);
-					// Initialize the number of unused invites
-					int numUnused = 0;
-
-					// Get the friends, needs the invites
-					GetFriends();	
-					// Find all the unused invites
-					List<Invite> unusedInvites = invites.FindAll(r => r.used_at == null);
-					// If there are any unused invites
-					if(unusedInvites != null && unusedInvites.Count > 0) {
-						// Set the number in the DataVault
-						DataVault.Set("number_invites", unusedInvites.Count);
-						// Make the InviteNotification object active
-						if(inviteObj != null) {
-							inviteObj.SetActive(true);
-						}
-					}
-				})) ;
-				
-				// Set initialized to true
-				initialized = true;
+				syncIcon.SetActive(false);
 			}
+			Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
+			// Change the list to the challenge list
+			ChangeList("challenge");
+
+			// Remove previous invite codes from the DataVault
+			DataVault.Remove("invite_codes");
+			
+			// Start the coroutine that retrieves the invites
+			Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("invites", body => {
+				// Deserialize the JSON for the invites
+				invites = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Invite>>(body).response;	
+				// Set the invite codes in the DataVault
+				DataVault.Set("invite_codes", invites);
+				// Initialize the number of unused invites
+				int numUnused = 0;
+
+				// Get the friends, needs the invites
+				GetFriends();	
+				// Find all the unused invites
+				List<Invite> unusedInvites = invites.FindAll(r => r.used_at == null);
+				// If there are any unused invites
+				if(unusedInvites != null && unusedInvites.Count > 0) {
+					// Set the number in the DataVault
+					DataVault.Set("number_invites", unusedInvites.Count);
+					// Make the InviteNotification object active
+					if(inviteObj != null) {
+						inviteObj.SetActive(true);
+					}
+				}
+			})) ;
+				
+			// Set initialized to true
+			initialized = true;
 		});
 		Platform.Instance.NetworkMessageListener.onSync += syncHandler;
 
