@@ -129,7 +129,7 @@ public class MobileHomePanel : MobilePanel {
 		// If the challenge button exists, disable it and set the default colour
 		if(challengeBtn != null) {
 			challengeBtn.enabled = false;
-			challengeBtn.defaultColor = new Color(255 / 255f, 255 / 255f, 255 / 255f, 40/255f);
+			challengeBtn.defaultColor = new Color(255 / 255f, 255 / 255f, 255 / 255f, 100/255f);
 		}
 
 		// Find the ChallengeNotification game object
