@@ -10,8 +10,8 @@ using System.Threading;
 public class MobileList : UIComponentSettings
 {
     MobilePanel parent;
-    private int itemCountBeforeTop = 4;
-    private int itemsToManage = 14;
+    private int itemCountBeforeTop = 100;
+    private int itemsToManage = 200;
 
     private List<GameObject> buttons = new List<GameObject>();
     private int previousStartIndex = 0;
@@ -129,6 +129,9 @@ public class MobileList : UIComponentSettings
                     item = GetNewButton(items[i], newButtons);
                 }
                 newButtons.Add(item);
+
+                GameObject[] theList = newButtons.ToArray();
+                StaticBatchingUtility.Combine(theList, listHeader);
 
                 Vector3 p = item.transform.localPosition;
                 p.y = -grid.cellHeight * i;
