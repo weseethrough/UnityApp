@@ -145,19 +145,19 @@ public class ButtonFunctionCollection
 		int duration = (int)DataVault.Get("run_time") * 60;
 		DurationChallenge challenge = new DurationChallenge(duration, 0);
 		Friend friend = (Friend)DataVault.Get("chosen_friend");
-		Platform.Instance.QueueAction(string.Format(@"{{
-			'action' : 'challenge',
-			'target' : {0},
-			'taunt' : 'Try beating my track!',
-			'challenge' : {{
-					'distance': {1},
-					'duration': {2},
-					'public': true,
-					'start_time': null,
-					'stop_time': null,
-					'type': 'duration'
-			}}
-		}}", friend.userId.Value, challenge.duration, challenge.duration).Replace("'", "\""));
+        Platform.Instance.QueueAction(string.Format(@"{{
+            ""action"" : ""challenge"",
+            ""target"" : {0},
+            ""taunt"" : ""Try beating my track!"",
+            ""challenge"" : {{
+                    ""distance"": {1},
+                    ""duration"": {2},
+                    ""public"": true,
+                    ""start_time"": null,
+                    ""stop_time"": null,
+                    ""type"": ""duration""
+            }}
+        }}", friend.userId.Value, challenge.duration, challenge.duration));
 
 		Hashtable eventProperties = new Hashtable();
 		eventProperties.Add("event_name", "send_challenge");
