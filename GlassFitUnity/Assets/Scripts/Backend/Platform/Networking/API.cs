@@ -493,153 +493,160 @@ namespace RaceYourself
 		/// Coroutine to sync the database to the server and back.
 		/// Triggers Platform.OnSynchronization upon completion.
 		/// </summary>
-		public IEnumerator Sync() {
-			if (token == null || token.HasExpired) {
-				log.info("UpdateAuthentications() called with expired or missing token (legit pre-sign in on mobile)");
+        public IEnumerator Sync() {
+            if (token == null || token.HasExpired) {
+                log.info("UpdateAuthentications() called with expired or missing token (legit pre-sign in on mobile)");
                 Platform.Instance.NetworkMessageListener.OnSynchronization("Failure");
-				yield break;
-			}
-			log.info("Sync()");
-			var start = DateTime.Now;
-
-			if (syncing) {
-				log.info("Sync() already syncing");
-				yield break;
-			}
-
-			string ret = "Failure";
-			try {
-				syncing = true;
-
-				SyncState state = db.Query<SyncState>().LastOrDefault();
-				if (state == null) state = new SyncState(0);
-				Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
-						+ " tail: " + state.tail_timestamp + "#" + state.tail_skip);
-				
-				// Register device if it doesn't have an id
-				Device self = db.Query<Device>().Where(d => d.self == true).First();
-				if (self.id <= 0) {
-					yield return StartCoroutine(RegisterDevice(self));
-					self = db.Query<Device>().Where(d => d.self == true).First();
-				}
-				var gatherStart = DateTime.Now;
-				DataWrapper wrapper = new DataWrapper(db, self);
-				log.info("Sync() gathered " + wrapper.data.ToString() + " in " + (DateTime.Now - gatherStart));
-				
-				var encoding = new System.Text.UTF8Encoding();			
-				var headers = new Hashtable();
-				headers.Add("Content-Type", "application/json");
-				headers.Add("Accept-Charset", "utf-8");
-				headers.Add("Accept-Encoding", "gzip");
-				headers.Add("Authorization", "Bearer " + token.access_token);				
-                log.info("Sync() headers made ok");
-
-				byte[] body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
-				log.info("Sync() pushing " + (body.Length/1000) + "kB");
-				
-				var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
-				yield return post;
-				
-				if (!post.isDone) {}
-				
-				if (!String.IsNullOrEmpty(post.error)) {
-					log.error("Sync() threw error: " + post.error);
-					if (post.error.ToLower().Contains("401 unauthorized")) {
-						db.Delete(token);
-						token = null;
-						ret = "Unauthorized";
-					} else {
-						ret = "Network error";
-					}
-					yield break;
-				}
-				string responseEncoding = "uncompressed";
-				foreach (string key in post.responseHeaders.Keys) {
-					if (key.ToLower().Equals("content-encoding") && post.responseHeaders[key] != null) {
-						responseEncoding = post.responseHeaders[key];
-						break;
-					}
-					string headerString = post.responseHeaders[key].ToString();
-					//log.info("Sync response header: " + key + ":" + headerString);
-				}
-				log.info("Sync() received " + (post.bytesDownloaded/1000) + "kB " + responseEncoding);
-				
-				// Run slow ops in a background thread
-				var bytes = post.bytes;				
-				Thread backgroundThread = new Thread(() => {
-					ResponseWrapper response = null;
-					var parseStart = DateTime.Now;
-					try {
-						string responseBody = null;
-						if(bytes == null) {
-							throw new Exception("Sync() bytes is null");
-						}
-
-						//log.info("Sync() response body is " + post.text);
-
-						if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(DecompressGZipBuffer(bytes));
-						else responseBody = encoding.GetString(bytes);
-
-						if(responseBody == null) {
-							throw new Exception("Sync() responsebody is null");
-						}
-
-	
-
-						response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
-					} catch (Exception ex) {
-						ret = "Failure";
-						log.error("Sync() threw exception " + ex.ToString());
-						log.error(ex, "Sync() exception stack");
-						throw ex;
-					}
-					log.info("Sync() parsed " + response.response.ToString() + " in " + (DateTime.Now - parseStart));
-					if (response.response.errors.Count > 0) {
-						log.error("Sync(): server reported " + response.response.errors.Count + " errors: " + string.Join("\n", response.response.errors.ToArray()));
+                yield break;
+            }
+            log.info("Sync()");
+            var start = DateTime.Now;
+            
+            if (syncing) {
+                log.info("Sync() already syncing");
+                yield break;
+            }
+            
+            string ret = "Failure";
+            try {
+                syncing = true;
+                
+                var encoding = new System.Text.UTF8Encoding();          
+                SyncState state = db.Query<SyncState>().LastOrDefault();
+                if (state == null) state = new SyncState(0);
+                Debug.Log ("API: Sync() " + "head: " + state.sync_timestamp
+                           + " tail: " + state.tail_timestamp + "#" + state.tail_skip);
+                
+                // Register device if it doesn't have an id
+                Device self = db.Query<Device>().Where(d => d.self == true).First();
+                if (self.id <= 0) {
+                    yield return StartCoroutine(RegisterDevice(self));
+                    self = db.Query<Device>().Where(d => d.self == true).First();
+                }
+                DataWrapper wrapper = null;
+                byte[] body = null;
+                Thread backgroundThread = new Thread(() => {
+                    var gatherStart = DateTime.Now;
+                    wrapper = new DataWrapper(db, self);
+                    log.info("Sync() gathered " + wrapper.data.ToString() + " in " + (DateTime.Now - gatherStart));
+                    
+                    var encodeStart = DateTime.Now;
+                    body = encoding.GetBytes(JsonConvert.SerializeObject(wrapper));
+                    log.info("Sync() encoded push data in " + (DateTime.Now - encodeStart));
+                });
+                backgroundThread.Priority = System.Threading.ThreadPriority.Lowest;
+                backgroundThread.Start();
+                while (backgroundThread.IsAlive) yield return new WaitForSeconds(0.1f);
+                
+                var headers = new Hashtable();
+                headers.Add("Content-Type", "application/json");
+                headers.Add("Accept-Charset", "utf-8");
+                headers.Add("Accept-Encoding", "gzip");
+                headers.Add("Authorization", "Bearer " + token.access_token);               
+                
+                log.info("Sync() pushing " + (body.Length/1000) + "kB");
+                
+                var post = new WWW(ApiUrl("sync/" + state.sync_timestamp), body, headers);
+                yield return post;
+                
+                if (!post.isDone) {}
+                
+                if (!String.IsNullOrEmpty(post.error)) {
+                    log.error("Sync() threw error: " + post.error);
+                    if (post.error.ToLower().Contains("401 unauthorized")) {
+                        db.Delete(token);
+                        token = null;
+                        ret = "Unauthorized";
+                    } else {
+                        ret = "Network error";
+                    }
+                    yield break;
+                }
+                string responseEncoding = "uncompressed";
+                foreach (string key in post.responseHeaders.Keys) {
+                    if (key.ToLower().Equals("content-encoding") && post.responseHeaders[key] != null) {
+                        responseEncoding = post.responseHeaders[key];
+                        break;
+                    }
+                    string headerString = post.responseHeaders[key].ToString();
+                    //log.info("Sync response header: " + key + ":" + headerString);
+                }
+                log.info("Sync() received " + (post.bytesDownloaded/1000) + "kB " + responseEncoding);
+                
+                // Run slow ops in a background thread
+                var bytes = post.bytes;             
+                backgroundThread = new Thread(() => {
+                    ResponseWrapper response = null;
+                    var parseStart = DateTime.Now;
+                    try {
+                        string responseBody = null;
+                        if(bytes == null) {
+                            throw new Exception("Sync() bytes is null");
+                        }
+                        
+                        //log.info("Sync() response body is " + encoding.GetString(bytes));
+                        
+                        if (responseEncoding.ToLower().Equals("gzip")) responseBody = encoding.GetString(DecompressGZipBuffer(bytes));
+                        else responseBody = encoding.GetString(bytes);
+                        
+                        if(responseBody == null) {
+                            throw new Exception("Sync() responsebody is null");
+                        }
+                        
+                        
+                        response = JsonConvert.DeserializeObject<ResponseWrapper>(responseBody);
+                    } catch (Exception ex) {
+                        ret = "Failure";
+                        log.error("Sync() threw exception " + ex.ToString());
+                        log.error(ex, "Sync() exception stack");
+                        throw ex;
+                    }
+                    log.info("Sync() parsed " + response.response.ToString() + " in " + (DateTime.Now - parseStart));
+                    if (response.response.errors.Count > 0) {
+                        log.error("Sync(): server reported " + response.response.errors.Count + " errors: " + string.Join("\n", response.response.errors.ToArray()));
                     }
                     
-//                    PlayerConfig cfg = null;
-//                    IEnumerator e = api.get("configurations/unity", (body) => {
-//                        cfg = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.PlayerConfig>>(body).response;
-//                        var payload = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.ConfigurationPayload>>(cfg.configuration).response;
-//                        cfg.payload = payload;
-//                    });
-//                    while(e.MoveNext()) {}; // block until finished
-//                    playerConfig = cfg;
-					
-					var transaction = db.BeginTransaction();
-					try {
-						wrapper.data.flush(db);
-						response.response.persist(db);
-						transaction.Commit();
-					} catch (Exception ex) {
-						ret = "Failure";
-						log.error("Sync() threw exception " + ex.ToString());
-						transaction.Rollback();
-						throw ex;
-					}
-					
-					if (response.response.tail_timestamp.HasValue && response.response.tail_timestamp.Value > 0) ret = "partial";
-					else ret = "full";
-				});
-				backgroundThread.Priority = System.Threading.ThreadPriority.Lowest;
+                    //                    PlayerConfig cfg = null;
+                    //                    IEnumerator e = api.get("configurations/unity", (body) => {
+                    //                        cfg = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.PlayerConfig>>(body).response;
+                    //                        var payload = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.ConfigurationPayload>>(cfg.configuration).response;
+                    //                        cfg.payload = payload;
+                    //                    });
+                    //                    while(e.MoveNext()) {}; // block until finished
+                    //                    playerConfig = cfg;
+                    
+                    var transaction = db.BeginTransaction();
+                    try {
+                        wrapper.data.flush(db);
+                        response.response.persist(db);
+                        transaction.Commit();
+                    } catch (Exception ex) {
+                        ret = "Failure";
+                        log.error("Sync() threw exception " + ex.ToString());
+                        transaction.Rollback();
+                        throw ex;
+                    }
+                    
+                    if (response.response.tail_timestamp.HasValue && response.response.tail_timestamp.Value > 0) ret = "partial";
+                    else ret = "full";
+                });
+                backgroundThread.Priority = System.Threading.ThreadPriority.Lowest;
                 backgroundThread.Start();
-				while (backgroundThread.IsAlive) yield return new WaitForSeconds(0.25f);
-
-				if (db.Query<Parameter>().Where(p => p.key == "matches" && p.value == "fetched").FirstOrDefault() == null) {
-					StartCoroutine(PopulateAutoMatchMatrix());
-				}
-			} finally {				
-				if (ret.Equals("full") || ret.Equals("partial")) {
-					log.info("Sync() completed successfully in " + (DateTime.Now - start));
-				} else {
-					log.error("Sync() failed with " + ret + " after " + (DateTime.Now - start));
-				}
-				syncing = false;
+                while (backgroundThread.IsAlive) yield return new WaitForSeconds(0.25f);
+                
+                if (db.Query<Parameter>().Where(p => p.key == "matches" && p.value == "fetched").FirstOrDefault() == null) {
+                    StartCoroutine(PopulateAutoMatchMatrix());
+                }
+            } finally {             
+                if (ret.Equals("full") || ret.Equals("partial")) {
+                    log.info("Sync() completed successfully in " + (DateTime.Now - start));
+                } else {
+                    log.error("Sync() failed with " + ret + " after " + (DateTime.Now - start));
+                }
+                syncing = false;
                 Platform.Instance.NetworkMessageListener.OnSynchronization(ret);
-			}
-		}
-
+            }
+        }
 		/// <summary>
 		/// Populates the auto-match matrix from the app bundle.
 		/// </summary>
@@ -985,14 +992,14 @@ namespace RaceYourself
 		}
 			
 		/// <summary>
-		/// Decompresses the G zip buffer.
+		/// Decompresses the Gzip buffer.
 		/// Use this method rather than calling the Ionic libs directly, since data is automatically unzipped on iOS
 		/// </summary>
-		/// <returns>The G zip buffer.</returns>
+		/// <returns>The Gzip buffer.</returns>
 		/// <param name="bytes">Bytes.</param>
 		public static byte[] DecompressGZipBuffer(byte[] bytes)
 		{
-#if UNITY_IPHONE
+#if UNITY_IPHONE && !UNITY_EDITOR
 			return bytes;
 #else
 			return Ionic.Zlib.GZipStream.UncompressBuffer(bytes);
