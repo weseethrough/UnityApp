@@ -123,18 +123,26 @@ public class ButtonFunctionCollection
 
 	static public bool SetMobileHomeTab(FlowButton fb, FlowState panel) 
 	{
-		if(fb.GetComponent<UIButton>().enabled) {
-			if(panel is MobileHomePanel) {
-				switch(fb.name) {
+		if(fb.GetComponent<UIButton>().enabled)
+        {
+            string targetList = null;
+			if(panel is MobileHomePanel)
+            {
+				switch(fb.name)
+                {
 				case "ChallengeBtn":
-					(panel as MobileHomePanel).ChangeList("challenge");
+                    targetList = "challenge";
 					break;
 
 				case "RacersBtn":
 				case "NoChallengeButton":
-					(panel as MobileHomePanel).ChangeList("friend");
+                    targetList = "friend";
 					break;
 				}
+                (panel as MobileHomePanel).ChangeList(targetList);
+
+                // set current tab so that if we click 'back' we come to the right tab
+                DataVault.Set("mobilehome_selectedtab", targetList);
 			}
 		}
 		return false;

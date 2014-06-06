@@ -146,8 +146,10 @@ public class MobileHomePanel : MobilePanel {
 				syncIcon.SetActive(false);
 			}
 			Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
-			// Change the list to the challenge list
-			ChangeList("challenge");
+
+			// If we're coming back to this panel, go to the old tab. Otherwise, default to 'challenge'.
+			string lastTab = DataVault.Get("mobilehome_selectedtab") as String;
+            ChangeList(lastTab != null ? lastTab : "challenge");
 
 			// Remove previous invite codes from the DataVault
 			DataVault.Remove("invite_codes");
