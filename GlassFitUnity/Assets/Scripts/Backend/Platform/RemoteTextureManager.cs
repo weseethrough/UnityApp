@@ -23,6 +23,7 @@ public class RemoteTextureManager : MonoBehaviour {
 	}
 
 	public void LoadImage(string url, object argument, Action<Texture2D, object> callback) {
+		if (string.IsNullOrEmpty(url)) return;
 		StartCoroutine(LoadImageCoroutine(url, argument, callback));
 	}
 
@@ -34,7 +35,7 @@ public class RemoteTextureManager : MonoBehaviour {
 		var originalUrl = url;
 		var sanitizedUrl = Regex.Replace(originalUrl, "\\?.*$", "");
 		sanitizedUrl = Regex.Replace(sanitizedUrl, "[^a-zA-Z0-9.]", "");
-		if (cache != null && !cache.Expired) {
+		if (cache != null && !cache.Expired && !string.IsNullOrEmpty(sanitizedUrl)) {
 			var path = Path.Combine(CACHE_PATH, sanitizedUrl);
 			if (File.Exists(path)) {
 				url = "file://" + path;

@@ -944,7 +944,7 @@ namespace RaceYourself
 					Match matches = CACHE_REGEXP.Match(cacheControl);
 					if (matches.Success) {
 						maxAge = long.Parse(matches.Groups["maxage"].Value);
-						if (maxAge < 60) maxAge = 60; // TODO: Fix server cache-control responses
+						if (maxAge < 300) maxAge = 300; // TODO: Fix server cache-control responses
 					}
 				}
 				if (key.ToLower().Equals("last-modified")) {
@@ -956,7 +956,7 @@ namespace RaceYourself
 				//log.info("Get Response Header:" + key + ":" + www.responseHeaders[key]);
 			}
 			if (lastModified == null && date != null) lastModified = date;
-			if (lastModified == null && maxAge == 0) maxAge = 60;
+			if (lastModified == null && maxAge == 0) maxAge = 300;
 
 			var encoding = new System.Text.UTF8Encoding();
 			string body = null;

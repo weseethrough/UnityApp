@@ -80,7 +80,7 @@ public class MobileCurrentChallenges : MobilePanel
                 ListButtonData data = new ListButtonData();
                 data.textNormal = challengeNotifications[i].GetName();
                 data.buttonName = "button" + i;
-                buttonData.Add(data);
+                GetButtonData("default").Add(data);
             }
 
             MobileList list = physicalWidgetRoot.GetComponentInChildren<MobileList>();

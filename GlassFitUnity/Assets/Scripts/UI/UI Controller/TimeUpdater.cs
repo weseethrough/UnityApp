@@ -67,15 +67,6 @@ public class TimeUpdater : MonoBehaviour {
 		}
 	}
 
-    void OnDisable()
-    {
-        if (challengeTime != null && timeDifference.Minutes > 0)
-        {
-            label.text = "";
-            challengeTime = DateTime.MinValue;
-        }
-    }
-
 	void OnDestroy() {
 		if(challengeTime != null && timeDifference.Minutes > 0) {
 			label.text = challengeTime.ToString("O");

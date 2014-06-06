@@ -41,6 +41,14 @@ namespace RaceYourself.Models
             }
         }
 
+        public string DisplayName {
+            get {
+                if (!string.IsNullOrEmpty (name)) return name;
+                if (!string.IsNullOrEmpty (username)) return username;
+                return uid + '@' + provider;
+            }
+        }
+
         public string GenerateCompositeId ()
         {
             this.guid = uid + "_" + provider;
