@@ -31,8 +31,8 @@ namespace RaceYourself.Models
 		
 		public string DisplayName {
 			get {
-				if (!String.IsNullOrEmpty(username)) return username;
 				if (!String.IsNullOrEmpty(name)) return name;
+                if (!String.IsNullOrEmpty(username)) return username;
 				return email;
 			}
 		}

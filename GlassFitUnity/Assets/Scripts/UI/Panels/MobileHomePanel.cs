@@ -11,9 +11,10 @@ using Newtonsoft.Json;
 [Serializable]
 public class MobileHomePanel : MobilePanel {
 
-	// List object that holds all buttons
-	MobileList mobileList;
-
+	// List objects that holds all buttons
+	MobileList challengeList;
+	MobileList friendsList;
+    
 	// Buttons for challenges and racers
 	UIButton challengeBtn;
 	UIButton racersBtn;
@@ -80,12 +81,23 @@ public class MobileHomePanel : MobilePanel {
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
 		// Find the mobile list, set the title and parent
-		mobileList = physicalWidgetRoot.GetComponentInChildren<MobileList>();
-		if (mobileList != null)
+		MobileList[] lists = physicalWidgetRoot.GetComponentsInChildren<MobileList>();
+		foreach (MobileList list in lists) 
 		{
-//			mobileList.SetTitle("");
-			mobileList.SetParent(this);
-		}
+			if (list.tag == "ChallengeList") {
+				list.SetParent(this);
+				list.SetList("challenges");
+				challengeList = list;
+			}
+			else if (list.tag == "FriendsList") {
+				list.SetParent(this);
+				list.SetList("friends");
+				friendsList = list;
+            }
+			else {
+				UnityEngine.Debug.LogError("Unknown mobilelist tag: " + list.tag);
+			}
+        }
 
 		// Get the iPhone background 
 		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "MainProfilePicture");
@@ -146,14 +158,16 @@ public class MobileHomePanel : MobilePanel {
 				syncIcon.SetActive(false);
 			}
 			Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
-			// Change the list to the challenge list
-			ChangeList("challenge");
 
 			// Remove previous invite codes from the DataVault
 			DataVault.Remove("invite_codes");
 			
 			// Start the coroutine that retrieves the invites
 			Platform.Instance.partner.StartCoroutine(Platform.Instance.api.get("invites", body => {
+				if (body == null) {
+					UnityEngine.Debug.LogError("MobleHomePanel: Could not fetch invites");
+					return;
+				}
 				// Deserialize the JSON for the invites
 				invites = JsonConvert.DeserializeObject<RaceYourself.API.ListResponse<RaceYourself.Models.Invite>>(body).response;	
 				// Set the invite codes in the DataVault
@@ -178,6 +192,9 @@ public class MobileHomePanel : MobilePanel {
 				
 			// Set initialized to true
 			initialized = true;
+
+			// Change the list to the challenge list
+			ChangeList("challenge");
 		});
 		Platform.Instance.NetworkMessageListener.onSync += syncHandler;
 
@@ -365,6 +382,7 @@ public class MobileHomePanel : MobilePanel {
 
 	private void CreateChallengeButtons() 
 	{
+		GetButtonData("challenges").Clear();
 		User player = Platform.Instance.User();
 		foreach(ChallengeNotification challengeNote in newChallenges)
 		{
@@ -380,7 +398,7 @@ public class MobileHomePanel : MobilePanel {
 				// Create a new dictionary for the text fields
 				Dictionary<string, string> dictionary = new Dictionary<string, string>();
 				// Add the title and description
-				dictionary.Add("TitleText", user.name);
+				dictionary.Add("TitleText", user.DisplayName);
 				dictionary.Add("DescriptionText", "challenges you");
 				// Change the duration to minutes and add to the dictionary
 				int duration = challengeNote.GetDuration() / 60;
@@ -406,7 +424,7 @@ public class MobileHomePanel : MobilePanel {
 				// Add the data to the main dictionary for the rival's image
 				newChallengeImageDictionary.Add(user.image, innerNewDictionary);
 				// Finally add the button to the list
-				AddButtonData(newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+				AddButtonData("challenges", newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
 			// Set the notification as read
 //			Platform.Instance.ReadNotification(challengeNote.GetID());
@@ -429,7 +447,7 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, string> playerDictionary = new Dictionary<string, string>();
 				// Add the title and description
 				playerDictionary.Add("TitleText", "You challenged");
-				playerDictionary.Add("DescriptionText", user.name);
+				playerDictionary.Add("DescriptionText", user.DisplayName);
 				// Change the duration to minutes and add to the dictionary
 				int duration = challengeNote.GetDuration() / 60;
 				playerDictionary.Add("DurationText", duration.ToString());
@@ -458,7 +476,7 @@ public class MobileHomePanel : MobilePanel {
 					playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
 				}
 				// Finally add the button to the list
-				AddButtonData(newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+				AddButtonData("challenges", newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
 		}
 
@@ -474,7 +492,7 @@ public class MobileHomePanel : MobilePanel {
 				// Initialize the dictionary
 				Dictionary<string, string> dictionary = new Dictionary<string, string>();
 				// Add the title and description for the challenge
-				dictionary.Add("TitleText", user.name);
+				dictionary.Add("TitleText", user.DisplayName);
 				dictionary.Add("DescriptionText", "challenged you");
 				// Convert the duration to minutes and add it to the dictionary
 				int duration = challengeNote.GetDuration() / 60;
@@ -499,12 +517,12 @@ public class MobileHomePanel : MobilePanel {
 				// Add the rival picture to the dictionary
 				activeChallengeImageDictionary.Add(user.image, innerActiveDictionary);
 				// Add the button
-				AddButtonData(activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+				AddButtonData("challenges", activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
 		}
 	
-		if(buttonData.Count == 0) {
-			AddButtonData("NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
+		if(!buttonDataMap.ContainsKey("challenges") || buttonDataMap["challenges"].Count == 0) {
+			AddButtonData("challenges", "NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
 		}
 	}
 
@@ -589,17 +607,17 @@ public class MobileHomePanel : MobilePanel {
 
 		// Sort the betaFriends to A-Z by name
 		if(betaFriends != null && betaFriends.Count > 1) {
-			betaFriends.Sort((t1, t2) => t1.name.CompareTo(t2.name));
+			betaFriends.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
 		}
 
 		// Sort the invitedFriends to A-Z by name
 		if(invitedFriends != null && invitedFriends.Count > 1) {
-			invitedFriends.Sort((t1, t2) => t1.name.CompareTo(t2.name));
+			invitedFriends.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
 		}
 
 		// Sort the main friends list to A-Z by name
 		if(friendsData != null && friendsData.Count > 1) {
-			friendsData.Sort((t1, t2) => t1.name.CompareTo(t2.name));
+			friendsData.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
 		}
 	}
 
@@ -623,9 +641,6 @@ public class MobileHomePanel : MobilePanel {
 		racersBtn.enabled = true;
 		challengeBtn.enabled = true;
 
-		// Re-initialize the list of buttons
-		buttonData = new List<ListButtonData>();
-
 		// Switch the type based on either "challenge" or "friend"
 		switch(type) {
 		case "challenge":
@@ -634,10 +649,12 @@ public class MobileHomePanel : MobilePanel {
 				challengeNotification.SetActive(false);
 			}
 
-			// If the panel is initialized reset the mobile list and set the cell size to 300
-			if(initialized) {
-				mobileList.ResetList(250f);
-			}
+			// Toggle visibility
+			NGUITools.SetActive(friendsList.gameObject, false);
+			NGUITools.SetActive(challengeList.gameObject, true);
+            
+			// Set the cell size to 250
+			if (challengeList.GetItemHeight() != 250) challengeList.ResetList(250f);
 
 			// Get the challenges
 			GetChallenges();
@@ -648,12 +665,16 @@ public class MobileHomePanel : MobilePanel {
 
 		case "friend":
 			// Reset the mobile list with cell size of 155
-			mobileList.ResetList(115f);
+			if (friendsList.GetItemHeight() != 115) friendsList.ResetList(115f);
 
 			stopped = true;
 
 			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
+			// Toggle visibility
+			NGUITools.SetActive(friendsList.gameObject, true);
+			NGUITools.SetActive(challengeList.gameObject, false);
+            
 			// Disable the racers button to make it go black
 			racersBtn.enabled = false;
 
@@ -667,6 +688,7 @@ public class MobileHomePanel : MobilePanel {
 			}
 
 			if(Platform.Instance.HasPermissions("facebook", "login") && hasFriends) {
+				GetButtonData("friends").Clear();
 				// If there are beta friends
 				if(betaFriends != null && betaFriends.Count > 0) {
 					// Loop through all beta friends
@@ -675,13 +697,13 @@ public class MobileHomePanel : MobilePanel {
 						string betaButtonName = "challenge" + i;
 						// Create a new dictionary for the friend to set the name
 						Dictionary<string, string> betaFriendDictionary = new Dictionary<string, string>();
-						betaFriendDictionary.Add("Name", betaFriends[i].name);
+						betaFriendDictionary.Add("Name", betaFriends[i].DisplayName);
 						Dictionary<string, Dictionary<string, string>> betaImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 						Dictionary<string, string> innerBetaDictionary = new Dictionary<string, string>();
 						innerBetaDictionary.Add("texture", "ChallengePlayerPicture");
 						innerBetaDictionary.Add("name", betaButtonName);
 						betaImageDictionary.Add(betaFriends[i].image, innerBetaDictionary);
-						AddButtonData(betaButtonName, betaFriendDictionary, "", betaImageDictionary, ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
+						AddButtonData("friends", betaButtonName, betaFriendDictionary, "", betaImageDictionary, ListButtonData.ButtonFormat.ChallengeButton, GetConnection("ChallengeButton"));
 					}
 				}
 
@@ -695,14 +717,14 @@ public class MobileHomePanel : MobilePanel {
 						string invitedButtonName = "invited" + i;
 						// Create a new Dictionary for the friend to set the name
 						Dictionary<string, string> invitedDictionary = new Dictionary<string, string>();
-						invitedDictionary.Add("Name", invitedFriends[i].name);
+						invitedDictionary.Add("Name", invitedFriends[i].DisplayName);
 						// Add the button to the list
 						Dictionary<string, Dictionary<string, string>> invitedImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 						Dictionary<string, string> innerInvitedDictionary = new Dictionary<string, string>();
 						innerInvitedDictionary.Add("texture", "InvitedProfilePicture");
 						innerInvitedDictionary.Add("name", invitedButtonName);
 						invitedImageDictionary.Add(invitedFriends[i].image, innerInvitedDictionary);
-						AddButtonData(invitedButtonName, invitedDictionary, "", invitedImageDictionary, ListButtonData.ButtonFormat.InvitedButton, GetConnection ("InvitedButton"));
+						AddButtonData("friends", invitedButtonName, invitedDictionary, "", invitedImageDictionary, ListButtonData.ButtonFormat.InvitedButton, GetConnection ("InvitedButton"));
 					}
 				}
 
@@ -716,19 +738,20 @@ public class MobileHomePanel : MobilePanel {
 						string buttonName = "uninvited" + i;
 						// Create a new Dictionary for the friend to set the name
 						Dictionary<string, string> friendDictionary = new Dictionary<string, string>();
-						friendDictionary.Add("Name", friendsData[i].name);
+						friendDictionary.Add("Name", friendsData[i].DisplayName);
 						Dictionary<string, Dictionary<string, string>> friendImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 						Dictionary<string, string> innerDictionary = new Dictionary<string, string>();
 						innerDictionary.Add("texture", "InviteProfilePicture");
 						innerDictionary.Add("name", buttonName);
 						friendImageDictionary.Add(friendsData[i].image, innerDictionary);
-						AddButtonData(buttonName, friendDictionary, "", friendImageDictionary, ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
+						AddButtonData("friends", buttonName, friendDictionary, "", friendImageDictionary, ListButtonData.ButtonFormat.InviteButton, GetConnection("InviteButton"));
 					}
 				}
 
 			} else {
 				// Add an import friends button
-				AddButtonData ("ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
+				GetButtonData("friends").Clear();
+				AddButtonData ("friends", "ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
 			}
 
 			break;
