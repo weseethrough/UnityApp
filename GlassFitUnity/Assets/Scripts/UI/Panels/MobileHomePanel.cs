@@ -158,7 +158,7 @@ public class MobileHomePanel : MobilePanel {
 			Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
 
 			// If we're coming back to this panel, go to the old tab. Otherwise, default to 'challenge'.
-			lastTab = DataVault.Get("mobilehome_selectedtab") as String;
+			string lastTab = DataVault.Get("mobilehome_selectedtab") as String;
             ChangeList(lastTab != null ? lastTab : "challenge");
 
 			// Remove previous invite codes from the DataVault
@@ -633,6 +633,8 @@ public class MobileHomePanel : MobilePanel {
 		racersBtn.enabled = true;
 		challengeBtn.enabled = true;
 
+        GameObject opaquenessHackGameObj;
+
 		// Switch the type based on either "challenge" or "friend"
 		switch(type) {
 		case "challenge":
@@ -655,6 +657,10 @@ public class MobileHomePanel : MobilePanel {
 
 			// Disable the challenge button to make it go black
 			challengeBtn.enabled = false;
+
+            opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
+            opaquenessHackGameObj.SetActive(false);
+
 			break;
 
 		case "friend":
@@ -662,11 +668,7 @@ public class MobileHomePanel : MobilePanel {
 			if (friendsList.GetItemHeight() != 115) friendsList.ResetList(115f);
 
 			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
-
-			// Toggle visibility
-			NGUITools.SetActive(friendsList.gameObject, true);
-			NGUITools.SetActive(challengeList.gameObject, false);
-
+    
 			// If the user has facebook permissions and friends
 			bool hasFriends = getHasFriends();
 
@@ -743,8 +745,15 @@ public class MobileHomePanel : MobilePanel {
 				AddButtonData ("friends", "ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
             }
             
+            // Toggle visibility
+            NGUITools.SetActive(friendsList.gameObject, true);
+            NGUITools.SetActive(challengeList.gameObject, false);
+
             // Disable the racers button to make it go opaque
             racersBtn.enabled = false;
+
+            opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
+            opaquenessHackGameObj.SetActive(true);
 
 			break;
 
