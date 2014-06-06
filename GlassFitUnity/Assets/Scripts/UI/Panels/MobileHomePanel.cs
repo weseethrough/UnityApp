@@ -48,8 +48,6 @@ public class MobileHomePanel : MobilePanel {
 	// Boolean to check if screen has been initialized
 	bool initialized = false;
 
-	bool stopped = false;
-
 	bool loadingChallengeIncomplete = false;
 
 	public MobileHomePanel() { }
@@ -208,6 +206,7 @@ public class MobileHomePanel : MobilePanel {
 	/// <returns>Yields while fetching individual challenges.</returns>
 	private IEnumerator LoadChallenges()
 	{
+		UnityEngine.Debug.Log("MobileHomePanel::LoadChallenges()");
 		loadingChallengeIncomplete = true;
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
 		// Find all challenge notifications
@@ -367,15 +366,12 @@ public class MobileHomePanel : MobilePanel {
 				}
 			}
 
-			if(!stopped)
-			{
-				CreateChallengeButtons();
-			} 
-			else 
-			{
-				stopped = false;
-			}
+			CreateChallengeButtons();
 		}
+		if(GetButtonData("challenges").Count == 0) {
+			AddButtonData("challenges", "NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
+		}
+
 		loadingChallengeIncomplete = false;
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 	}
@@ -520,49 +516,44 @@ public class MobileHomePanel : MobilePanel {
 				AddButtonData("challenges", activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
 		}
-	
-		if(!buttonDataMap.ContainsKey("challenges") || buttonDataMap["challenges"].Count == 0) {
-			AddButtonData("challenges", "NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
-		}
 	}
 
 	/// <summary>
 	/// Gets the challenges.
 	/// </summary>
 	public void GetChallenges() {
-		notifications = Platform.Instance.Notifications();
+		var notes = Platform.Instance.Notifications();
+		if (notifications == null || notes.Count != notifications.Count) {
+			loadingChallengeIncomplete = true;
+			notifications = notes;
+		}
 		if(newChallenges != null && incompleteChallenges != null && playerChallenges != null && !loadingChallengeIncomplete) 
 		{
 			if(newChallenges.Count > 0)
 			{
 				User player = Platform.Instance.User();
-				for(int i=newChallenges.Count-1; i>=0; i--)
+				foreach(var challenge in newChallenges)
 				{
-					Notification note = newChallenges[i].GetNotification();
+					Notification note = challenge.GetNotification();
 					if(note.read)
 					{
 						if(note.message.from == player.id)
 						{
-							playerChallenges.Add(newChallenges[i]);
+							playerChallenges.Add(challenge);
 						}
 						else
 						{
-							incompleteChallenges.Add(newChallenges[i]);
+							incompleteChallenges.Add(challenge);
 						}
-						newChallenges.Remove(newChallenges[i]);
 					}
 				}
-
+				newChallenges.Clear();
 			}
 			CreateChallengeButtons();
 		} 
 		else
 		{
-			if(stopped) {
-				stopped = false;
-			} else {
-				Platform.Instance.partner.StartCoroutine(LoadChallenges());
-			}
+			Platform.Instance.partner.StartCoroutine(LoadChallenges());
 		}
 
 	}
@@ -653,6 +644,8 @@ public class MobileHomePanel : MobilePanel {
 			NGUITools.SetActive(friendsList.gameObject, false);
 			NGUITools.SetActive(challengeList.gameObject, true);
             
+			if (loadingChallengeIncomplete) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
+
 			// Set the cell size to 250
 			if (challengeList.GetItemHeight() != 250) challengeList.ResetList(250f);
 
@@ -666,8 +659,6 @@ public class MobileHomePanel : MobilePanel {
 		case "friend":
 			// Reset the mobile list with cell size of 155
 			if (friendsList.GetItemHeight() != 115) friendsList.ResetList(115f);
-
-			stopped = true;
 
 			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
