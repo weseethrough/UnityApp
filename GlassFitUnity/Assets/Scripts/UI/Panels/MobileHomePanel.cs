@@ -149,7 +149,7 @@ public class MobileHomePanel : MobilePanel {
 
 		syncIcon = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "SyncIcon");
 
-		syncHandler = new NetworkMessageListener.OnSync((message) => {
+        syncHandler = new NetworkMessageListener.OnSync((message) => {
 			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 			if(syncIcon != null)
 			{
@@ -158,7 +158,7 @@ public class MobileHomePanel : MobilePanel {
 			Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
 
 			// If we're coming back to this panel, go to the old tab. Otherwise, default to 'challenge'.
-			string lastTab = DataVault.Get("mobilehome_selectedtab") as String;
+			lastTab = DataVault.Get("mobilehome_selectedtab") as String;
             ChangeList(lastTab != null ? lastTab : "challenge");
 
 			// Remove previous invite codes from the DataVault
@@ -666,9 +666,6 @@ public class MobileHomePanel : MobilePanel {
 			// Toggle visibility
 			NGUITools.SetActive(friendsList.gameObject, true);
 			NGUITools.SetActive(challengeList.gameObject, false);
-            
-			// Disable the racers button to make it go black
-			racersBtn.enabled = false;
 
 			// If the user has facebook permissions and friends
 			bool hasFriends = getHasFriends();
@@ -744,7 +741,10 @@ public class MobileHomePanel : MobilePanel {
 				// Add an import friends button
 				GetButtonData("friends").Clear();
 				AddButtonData ("friends", "ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
-			}
+            }
+            
+            // Disable the racers button to make it go opaque
+            racersBtn.enabled = false;
 
 			break;
 
