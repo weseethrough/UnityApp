@@ -1517,6 +1517,7 @@ public class ButtonFunctionCollection
 		log.info("Got tracks for this user's fitness level");
 
 		if (tracks.Count == 0) {
+            // TODO capture this - should never happen. Show user error and perhaps report to central server?
 			log.error("No tracks available for fitness level " + fitnessLevel);
 			return false;
 		}
@@ -1532,7 +1533,7 @@ public class ButtonFunctionCollection
         // TODO is it legitimate to cast int? -> int in this context?
 		// NO - causes a crash on iPhone
         //User competitor = Platform.Instance.GetUser((int) track.userId);
-
+        
 		User competitor = null;
 		if(track.userId.HasValue)
 		{
@@ -1588,4 +1589,29 @@ public class ButtonFunctionCollection
 		Platform.Instance.Authorize("facebook", "any");
 		return false;
 	}
+    
+    /// <summary>
+    /// example function which redirects navigation to custom exit named "CustomExit"
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
+    static public bool GoToExitForPleaseWait(FlowButton fb, FlowState fs)
+    {
+        Panel panel = (Panel) fs;
+        FlowStateMachine fsm = panel.parentMachine;
+
+        // TODO introduce this call for all 'please wait' dialogs - introduce new PleaseWaitPanel with this call on exit?
+        fsm.SuppressAddToHistory();
+        if (panel != null)
+        {
+            GConnector gc = panel.Outputs.Find(r => r.Name == "Exit");
+            if (gc != null)
+            {
+                panel.parentMachine.FollowConnection(gc);
+                return false;
+            }                        
+        }
+        return true;
+    }
 }
