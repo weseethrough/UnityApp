@@ -658,8 +658,10 @@ public class MobileHomePanel : MobilePanel {
 			// Disable the challenge button to make it go black
 			challengeBtn.enabled = false;
 
-            opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
-            opaquenessHackGameObj.SetActive(false);
+            opaquenessHackGameObj = GameObject.FindGameObjectWithTag("OpacityHack");
+            //opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
+            opaquenessHackGameObj.GetComponent<UISprite>().alpha = 0f;
+            //opaquenessHackGameObj.SetActive(false);
 
 			break;
 
@@ -752,8 +754,10 @@ public class MobileHomePanel : MobilePanel {
             // Disable the racers button to make it go opaque
             racersBtn.enabled = false;
 
-            opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
-            opaquenessHackGameObj.SetActive(true);
+            opaquenessHackGameObj = GameObject.FindGameObjectWithTag("OpacityHack");
+            //opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
+            //opaquenessHackGameObj.SetActive(true);
+            opaquenessHackGameObj.GetComponent<UISprite>().alpha = 1f;
 
 			break;
 
