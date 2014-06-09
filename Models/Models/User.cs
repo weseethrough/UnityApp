@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Sqo.Attributes;
+using Newtonsoft.Json;
 
 namespace RaceYourself.Models
 {
@@ -26,6 +27,9 @@ namespace RaceYourself.Models
         [MaxLength(255)]
         public string image;
         public Profile profile;
+
+        [JsonIgnore]
+        public bool self = false;
 
         public User() {}
 		

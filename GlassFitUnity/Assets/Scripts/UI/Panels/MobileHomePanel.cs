@@ -49,6 +49,7 @@ public class MobileHomePanel : MobilePanel {
 	bool initialized = false;
 
 	bool loadingChallengeIncomplete = false;
+	bool loadingFriendsIncomplete = false;
 
 	public MobileHomePanel() { }
 	public MobileHomePanel(SerializationInfo info, StreamingContext ctxt)
@@ -563,6 +564,12 @@ public class MobileHomePanel : MobilePanel {
 	/// Gets the three lists of friends.
 	/// </summary>
 	public void GetFriends() {
+		if (!loadingFriendsIncomplete) Platform.Instance.partner.StartCoroutine(LoadFriends());
+	}
+
+	private IEnumerator LoadFriends() {
+		UnityEngine.Debug.Log("LogFriends()");
+		loadingFriendsIncomplete = true;
 		// First get the main list of friends
 		friendsData = Platform.Instance.Friends();
 
@@ -572,12 +579,16 @@ public class MobileHomePanel : MobilePanel {
 		// If there are any friends
 		if(friendsData != null) {
 			for(int i=0; i<friendsData.Count; i++) {
+				var friend = friendsData[i];
 				// If the friend has a userID they are part of the beta
-				if(friendsData[i].userId != null) {
+				if(friend.userId != null) {
 					// Add the friend to the betaFriend list
-					betaFriends.Add(friendsData[i]);
+					betaFriends.Add(friend);
+					yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.GetUserCoroutine(friendsData[i].userId.Value, (user) => {
+						friend.user = user;
+					}));
 					// Remove the friend from the main list
-					friendsData.Remove(friendsData[i]);
+					friendsData.RemoveAt(i);
 					i--;
 				}
 			}
@@ -591,7 +602,7 @@ public class MobileHomePanel : MobilePanel {
 					Friend friend = friendsData.Find(x => x.uid == uid);
 					if(friend != null) {
 						invitedFriends.Add(friend);
-						friendsData.Remove(friend);
+						friendsData.RemoveAt(i);
 					}
 				}
 			}
@@ -611,6 +622,10 @@ public class MobileHomePanel : MobilePanel {
 		if(friendsData != null && friendsData.Count > 1) {
 			friendsData.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
 		}
+
+		loadingFriendsIncomplete = false;
+		UnityEngine.Debug.Log("LogFriends() completed");
+		yield break;
 	}
 
 	bool getHasFriends()
@@ -648,6 +663,7 @@ public class MobileHomePanel : MobilePanel {
 			NGUITools.SetActive(challengeList.gameObject, true);
             
 			if (loadingChallengeIncomplete) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
+			else GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
 			// Set the cell size to 250
 			if (challengeList.GetItemHeight() != 250) challengeList.ResetList(250f);
@@ -669,8 +685,9 @@ public class MobileHomePanel : MobilePanel {
 			// Reset the mobile list with cell size of 155
 			if (friendsList.GetItemHeight() != 115) friendsList.ResetList(115f);
 
-			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
-    
+			if (loadingFriendsIncomplete) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading friends");
+			else GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
+			
 			// If the user has facebook permissions and friends
 			bool hasFriends = getHasFriends();
 

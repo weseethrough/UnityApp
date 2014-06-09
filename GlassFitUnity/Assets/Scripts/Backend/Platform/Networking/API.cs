@@ -63,7 +63,7 @@ namespace RaceYourself
 			log.info("created");
 			this.partner = partner;
             db = database;
-			user = db.Query<User>().LastOrDefault();
+			user = db.Query<User>().Where(u => u.self == true).FirstOrDefault();
             token = db.Query<OauthToken>().LastOrDefault();
             if (user != null && token != null) {
 				if (user.id != token.userId) {
@@ -237,6 +237,7 @@ namespace RaceYourself
 			}
 
 			user = account.response;
+			user.self = true;
 			var transaction = db.BeginTransaction();
 			try {
 				if (!db.UpdateObjectBy("id", user)) {
@@ -285,6 +286,7 @@ namespace RaceYourself
 				}
 				
 				user = account.response;
+				user.self = true;
 
 				var transaction = db.BeginTransaction();
 				try {
@@ -358,6 +360,7 @@ namespace RaceYourself
 				}
 				
 				user = account.response;
+				user.self = true;
 				var transaction = db.BeginTransaction();
 				try {
 					if (!db.UpdateObjectBy("id", user)) {
@@ -438,6 +441,7 @@ namespace RaceYourself
 
 			if (response.response.user != null) {
 				user = response.response.user;
+				user.self = true;
 				var transaction = db.BeginTransaction();
 				try {
 					if (!db.UpdateObjectBy("id", user)) {

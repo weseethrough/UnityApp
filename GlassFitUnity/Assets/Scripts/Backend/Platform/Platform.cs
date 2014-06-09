@@ -291,17 +291,18 @@ public abstract class Platform : SingletonBase
 
 	public virtual void GetUser(int userId, Action<User> callback)
 	{
-		User user = null;
-		Platform.Instance.partner.StartCoroutine(api.get("users/" + userId, (body) => {
-			user = JsonConvert.DeserializeObject<RaceYourself.API.SingleResponse<RaceYourself.Models.User>>(body).response;
-			callback(user);
-		}));
+		Platform.Instance.partner.StartCoroutine(GetUserCoroutine(userId, callback));
 	}
 
 	public virtual IEnumerator GetUserCoroutine(int userId, Action<User> callback)
 	{
-		User user = null;
-		UnityEngine.Debug.Log("Platform Getting user in coroutine");
+		log.info("Getting user in coroutine");
+		User user = db.Query<User>().Where(u => u.id == userId).FirstOrDefault();
+		if (user != null) {
+			// User is self or included in sync
+			callback(user);
+			yield break;
+		}
 		Coroutine e = Platform.Instance.partner.StartCoroutine( api.get ("users/" + userId, (body) => {
 			if(body == null) user = null;
 			else {
