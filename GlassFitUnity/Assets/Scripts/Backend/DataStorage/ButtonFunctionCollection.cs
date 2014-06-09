@@ -1329,13 +1329,16 @@ public class ButtonFunctionCollection
     
     static public bool WebsiteSignup(FlowButton button, FlowState fs)
     {
-        string platform = Application.platform.ToString();
-        if (Platform.Instance.OnGlass())
+        string platform = Application.platform.ToString();  //TODO: might have spaces in, which might break URL?
+        string referrer = "mobile";
+        if (Platform.Instance.OnGlass ()) {
             platform = "Glass";
+            referrer = "glass";
+        }
 #if PRODUCTION
-		Application.OpenURL("http://www.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+        Application.OpenURL("http://www.raceyourself.com/beta_sign_up?referrer=" + referrer + "&ry_platform=" + platform);
 #else
-		Application.OpenURL("http://staging.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+        Application.OpenURL("http://staging.raceyourself.com/beta_sign_up?referrer=" + referrer + "&ry_platform=" + platform);
 #endif
         return false;
     }
