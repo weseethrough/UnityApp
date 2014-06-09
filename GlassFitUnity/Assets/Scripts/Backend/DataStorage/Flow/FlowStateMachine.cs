@@ -16,6 +16,8 @@ public class FlowStateMachine : MonoBehaviour
 
     private bool grabAnalyticsInitialized = false;
 
+    private bool suppressAddToHistory;
+
     /// <summary>
     /// default unity initialization call, used to stop this structure from destruction when navigation between scenes
     /// </summary>
@@ -186,13 +188,22 @@ public class FlowStateMachine : MonoBehaviour
                 navigationHistory = new List<FlowState>();
             }
 
-            navigationHistory.Add(activeFlow[activeFlow.Count-1]);
+            if (suppressAddToHistory)
+                suppressAddToHistory = false;
+            else
+                navigationHistory.Add(activeFlow[activeFlow.Count-1]);
+
             //DataVault.Set("has_history", true);
             targetState = connection.Link[0].Parent as FlowState;
             targetStateConnector = connection.Link[0];            
             return true;
         }
         return false;
+    }
+
+    public void SuppressAddToHistory()
+    {
+        suppressAddToHistory = true;
     }
 
     /// <summary>
