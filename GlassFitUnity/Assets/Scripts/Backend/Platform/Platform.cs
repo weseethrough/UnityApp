@@ -621,6 +621,28 @@ public abstract class Platform : SingletonBase
     public virtual void SyncToServer() {
         log.info("SyncToServer called");
         lastSync = DateTime.Now;
+
+#if RACEYOURSELF_MOBILE
+        // Show sync icon for duration of sync.
+        GameObject syncIcon = GameObject.FindGameObjectWithTag("SyncIcon");
+        if (syncIcon != null)
+        {
+            //syncIcon.SetActive(true);
+            syncIcon.GetComponent<UITexture>().alpha = 1f;
+
+            NetworkMessageListener.OnSync syncHandler = null;
+            syncHandler = new NetworkMessageListener.OnSync((message) =>
+            {
+                // TODO show error on sync failure
+                syncIcon = GameObject.FindGameObjectWithTag("SyncIcon");
+                //syncIcon.SetActive(false);
+                syncIcon.GetComponent<UITexture>().alpha = 0f;
+                Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
+            });
+            Platform.Instance.NetworkMessageListener.onSync += syncHandler;
+        }
+#endif
+
         GetMonoBehavioursPartner().StartCoroutine(api.Sync());
     }
 
