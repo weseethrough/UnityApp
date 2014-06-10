@@ -31,7 +31,7 @@ public class MobileList : UIComponentSettings
 
     private float defaultYOffset;
 
-    void Start()
+    void Awake()
     {
 //		UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
 //		if (drag != null) drag.ResetPosition();

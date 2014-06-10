@@ -51,6 +51,8 @@ public class MobileHomePanel : MobilePanel {
 	bool loadingChallengeIncomplete = false;
 	bool loadingFriendsIncomplete = false;
 
+	private string tab = "preinit";
+
 	public MobileHomePanel() { }
 	public MobileHomePanel(SerializationInfo info, StreamingContext ctxt)
 		: base(info, ctxt)
@@ -97,6 +99,8 @@ public class MobileHomePanel : MobilePanel {
 				UnityEngine.Debug.LogError("Unknown mobilelist tag: " + list.tag);
 			}
         }
+		if (challengeList == null) UnityEngine.Debug.LogError("MobileHomePanel: challenge list missing!");
+		if (friendsList == null) UnityEngine.Debug.LogError("MobileHomePanel: friends list missing!");
 
 		// Get the iPhone background 
 		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "MainProfilePicture");
@@ -148,19 +152,11 @@ public class MobileHomePanel : MobilePanel {
 
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Syncing");
 
-		syncIcon = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "SyncIcon");
+		syncIcon = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "SyncIcon"); // TODO: Obsolete. Remove
+		syncIcon.SetActive(false);
 
         syncHandler = new NetworkMessageListener.OnSync((message) => {
-			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
-			if(syncIcon != null)
-			{
-				syncIcon.SetActive(false);
-			}
-			Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
-
-			// If we're coming back to this panel, go to the old tab. Otherwise, default to 'challenge'.
-			string lastTab = DataVault.Get("mobilehome_selectedtab") as String;
-            ChangeList(lastTab != null ? lastTab : "challenge");
+			GetChallenges();
 
 			// Remove previous invite codes from the DataVault
 			DataVault.Remove("invite_codes");
@@ -192,7 +188,7 @@ public class MobileHomePanel : MobilePanel {
 					}
 				}
 			})) ;
-				
+
 			// Set initialized to true
 			initialized = true;
 		});
@@ -200,6 +196,9 @@ public class MobileHomePanel : MobilePanel {
 
 		Platform.Instance.SyncToServer();		
 
+		// If we're coming back to this panel, go to the old tab. Otherwise, default to 'challenge'.
+		string lastTab = DataVault.Get("mobilehome_selectedtab") as String;
+		ChangeList(lastTab != null ? lastTab : "challenge");
 	}
 
 	/// <summary>
@@ -210,7 +209,7 @@ public class MobileHomePanel : MobilePanel {
 	{
 		UnityEngine.Debug.Log("MobileHomePanel::LoadChallenges()");
 		loadingChallengeIncomplete = true;
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
+		if (tab == "challenges" && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
 		// Find all challenge notifications
 		List<Notification> filteredNotifications = notifications.FindAll(r => r.message.type == "challenge");
 		if(filteredNotifications != null) {
@@ -221,7 +220,7 @@ public class MobileHomePanel : MobilePanel {
 		UnityEngine.Debug.Log("MobileHomePanel: Got " + filteredNotifications.Count + " challenges");
 
 		// If we actually have any challenges
-		if(filteredNotifications != null && filteredNotifications.Count > 0)
+		if(filteredNotifications != null)
 		{
 			// Get the player challenges
 			List<Notification> playerNotifications = filteredNotifications.FindAll(r => r.message.from == Platform.Instance.User().id);
@@ -370,9 +369,6 @@ public class MobileHomePanel : MobilePanel {
 
 			CreateChallengeButtons();
 		}
-		if(GetButtonData("challenges").Count == 0) {
-			AddButtonData("challenges", "NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
-		}
 
 		loadingChallengeIncomplete = false;
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
@@ -380,6 +376,11 @@ public class MobileHomePanel : MobilePanel {
 
 	private void CreateChallengeButtons() 
 	{
+		UnityEngine.Debug.Log("CreateChallengeButtons()");
+		// Set the cell size to 250
+		if (challengeList.GetItemHeight() != 250 || notifications.Count < GetButtonData("challenges").Count) {
+			challengeList.ResetList(250f);
+		}
 		GetButtonData("challenges").Clear();
 		User player = Platform.Instance.User();
 		foreach(ChallengeNotification challengeNote in newChallenges)
@@ -423,6 +424,7 @@ public class MobileHomePanel : MobilePanel {
 				newChallengeImageDictionary.Add(user.image, innerNewDictionary);
 				// Finally add the button to the list
 				AddButtonData("challenges", newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 			}
 			// Set the notification as read
 //			Platform.Instance.ReadNotification(challengeNote.GetID());
@@ -518,16 +520,21 @@ public class MobileHomePanel : MobilePanel {
 				AddButtonData("challenges", activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
 		}
+
+		if(!loadingChallengeIncomplete && GetButtonData("challenges").Count == 0) {
+			AddButtonData("challenges", "NoChallengeButton", null, "SetMobileHomeTab", ListButtonData.ButtonFormat.InvitePromptButton, GetConnection("RacersBtn"));
+		}
 	}
 
 	/// <summary>
 	/// Gets the challenges.
 	/// </summary>
 	public void GetChallenges() {
+		UnityEngine.Debug.Log("GetChallenges()");
 		var notes = Platform.Instance.Notifications();
 		if (notifications == null || notes.Count != notifications.Count) {
-			loadingChallengeIncomplete = true;
 			notifications = notes;
+			Platform.Instance.partner.StartCoroutine(LoadChallenges());
 		}
 		if(newChallenges != null && incompleteChallenges != null && playerChallenges != null && !loadingChallengeIncomplete) 
 		{
@@ -552,12 +559,7 @@ public class MobileHomePanel : MobilePanel {
 				newChallenges.Clear();
 			}
 			CreateChallengeButtons();
-		} 
-		else
-		{
-			Platform.Instance.partner.StartCoroutine(LoadChallenges());
 		}
-
 	}
 
 	/// <summary>
@@ -568,8 +570,9 @@ public class MobileHomePanel : MobilePanel {
 	}
 
 	private IEnumerator LoadFriends() {
-		UnityEngine.Debug.Log("LogFriends()");
+		UnityEngine.Debug.Log("LoadFriends()");
 		loadingFriendsIncomplete = true;
+		if (tab == "friends" && GetButtonData("friends").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading friends");
 		// First get the main list of friends
 		friendsData = Platform.Instance.Friends();
 
@@ -624,7 +627,8 @@ public class MobileHomePanel : MobilePanel {
 		}
 
 		loadingFriendsIncomplete = false;
-		UnityEngine.Debug.Log("LogFriends() completed");
+		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
+		UnityEngine.Debug.Log("LoadFriends() completed");
 		yield break;
 	}
 
@@ -662,15 +666,12 @@ public class MobileHomePanel : MobilePanel {
 			NGUITools.SetActive(friendsList.gameObject, false);
 			NGUITools.SetActive(challengeList.gameObject, true);
             
-			if (loadingChallengeIncomplete) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
-			else GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
-
-			// Set the cell size to 250
-			if (challengeList.GetItemHeight() != 250) challengeList.ResetList(250f);
-
 			// Get the challenges
 			GetChallenges();
 
+			if (loadingChallengeIncomplete && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
+			else GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
+			
 			// Disable the challenge button to make it go black
 			challengeBtn.enabled = false;
 
@@ -682,10 +683,7 @@ public class MobileHomePanel : MobilePanel {
 			break;
 
 		case "friend":
-			// Reset the mobile list with cell size of 155
-			if (friendsList.GetItemHeight() != 115) friendsList.ResetList(115f);
-
-			if (loadingFriendsIncomplete) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading friends");
+			if (loadingFriendsIncomplete && GetButtonData("friends").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading friends");
 			else GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 			
 			// If the user has facebook permissions and friends
@@ -698,6 +696,10 @@ public class MobileHomePanel : MobilePanel {
 			}
 
 			if(Platform.Instance.HasPermissions("facebook", "login") && hasFriends) {
+				// Reset the mobile list with cell size of 155
+				if (friendsList.GetItemHeight() != 115 || (betaFriends.Count + invitedFriends.Count + friendsData.Count < GetButtonData("friends").Count)) {
+					friendsList.ResetList(115f);				
+				}
 				GetButtonData("friends").Clear();
 				// If there are beta friends
 				if(betaFriends != null && betaFriends.Count > 0) {
@@ -761,7 +763,8 @@ public class MobileHomePanel : MobilePanel {
 			} else {
 				// Add an import friends button
 				GetButtonData("friends").Clear();
-				AddButtonData ("friends", "ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
+				friendsList.ResetList(115f);
+				if (!loadingFriendsIncomplete) AddButtonData ("friends", "ImportButton", null, "", ListButtonData.ButtonFormat.ImportButton, GetConnection("ImportButton"));
             }
             
             // Toggle visibility
@@ -783,7 +786,7 @@ public class MobileHomePanel : MobilePanel {
 			break;
 		}
 
-
+		tab = type;
 	}
 
 	/// <summary>
@@ -880,6 +883,9 @@ public class MobileHomePanel : MobilePanel {
 	public override void Exited ()
 	{
 		base.Exited ();
+
+		Platform.Instance.NetworkMessageListener.onSync -= syncHandler;		
+
 		// Set initialized to false so that it can be re-initialized when going back in the panel
 		initialized = false;
 	}
