@@ -198,8 +198,7 @@ public class MobileHomePanel : MobilePanel {
 		});
 		Platform.Instance.NetworkMessageListener.onSync += syncHandler;
 
-		Platform.Instance.SyncToServer();		
-
+		Platform.Instance.SyncToServer();
 	}
 
 	/// <summary>
