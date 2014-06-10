@@ -377,9 +377,11 @@ public class MobileHomePanel : MobilePanel {
 	private void CreateChallengeButtons() 
 	{
 		UnityEngine.Debug.Log("CreateChallengeButtons()");
-		// Set the cell size to 250
-		if (challengeList.GetItemHeight() != 250 || notifications.Count < GetButtonData("challenges").Count) {
+		// Reset list (scroll to top) if uninitialized or new challenges 
+		if (challengeList.GetItemHeight() != 250 || newChallenges.Count > 0) {
 			challengeList.ResetList(250f);
+		} else {
+			challengeList.ClearList();
 		}
 		GetButtonData("challenges").Clear();
 		User player = Platform.Instance.User();
@@ -420,10 +422,6 @@ public class MobileHomePanel : MobilePanel {
 				// Finally add the button to the list
 				AddButtonData("challenges", newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
-			// Set the notification as read
-//			Platform.Instance.ReadNotification(challengeNote.GetID());
-			challengeNote.SetRead();
-			challengeNote.GetNotification().read = true;
 		}
 
 		foreach(ChallengeNotification challengeNote in playerChallenges)
@@ -521,26 +519,6 @@ public class MobileHomePanel : MobilePanel {
 		}
 		if(newChallenges != null && incompleteChallenges != null && playerChallenges != null && !loadingChallengeIncomplete) 
 		{
-			if(newChallenges.Count > 0)
-			{
-				User player = Platform.Instance.User();
-				foreach(var challenge in newChallenges)
-				{
-					Notification note = challenge.GetNotification();
-					if(note.read)
-					{
-						if(note.message.from == player.id)
-						{
-							playerChallenges.Add(challenge);
-						}
-						else
-						{
-							incompleteChallenges.Add(challenge);
-						}
-					}
-				}
-				newChallenges.Clear();
-			}
 			CreateChallengeButtons();
 		}
 	}
@@ -649,6 +627,28 @@ public class MobileHomePanel : MobilePanel {
 			NGUITools.SetActive(friendsList.gameObject, false);
 			NGUITools.SetActive(challengeList.gameObject, true);
             
+			// Clear seen new challenges
+			if(newChallenges != null && newChallenges.Count > 0)
+			{
+				User player = Platform.Instance.User();
+				foreach(var challenge in newChallenges)
+				{
+					Notification note = challenge.GetNotification();
+					if(note.read)
+					{
+						if(note.message.from == player.id)
+						{
+							playerChallenges.Add(challenge);
+						}
+						else
+						{
+							incompleteChallenges.Add(challenge);
+						}
+					}
+				}
+				newChallenges.Clear();
+			}
+
 			// Get the challenges
 			GetChallenges();
 
@@ -679,9 +679,11 @@ public class MobileHomePanel : MobilePanel {
 			}
 
 			if(Platform.Instance.HasPermissions("facebook", "login") && hasFriends) {
-				// Reset the mobile list with cell size of 155
-				if (friendsList.GetItemHeight() != 115 || (betaFriends.Count + invitedFriends.Count + friendsData.Count < GetButtonData("friends").Count)) {
+				// Reset the mobile list if uninitialized
+				if (friendsList.GetItemHeight() != 115) {
 					friendsList.ResetList(115f);				
+				} else {
+					friendsList.ClearList();
 				}
 				GetButtonData("friends").Clear();
 				// If there are beta friends
@@ -761,6 +763,15 @@ public class MobileHomePanel : MobilePanel {
             //opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
             //opaquenessHackGameObj.SetActive(true);
             opaquenessHackGameObj.GetComponent<UISprite>().alpha = 1f;
+
+			// Mark new challenges as seen
+			if(newChallenges != null && newChallenges.Count > 0)
+			{
+				foreach(var challenge in newChallenges)
+				{
+					challenge.SetRead();
+				}
+			}			
 
 			break;
 
@@ -868,6 +879,15 @@ public class MobileHomePanel : MobilePanel {
 		base.Exited ();
 
 		Platform.Instance.NetworkMessageListener.onSync -= syncHandler;		
+
+		// Mark new challenges as seen
+		if(newChallenges != null && newChallenges.Count > 0)
+		{
+			foreach(var challenge in newChallenges)
+			{
+				challenge.SetRead();
+			}
+		}		
 
 		// Set initialized to false so that it can be re-initialized when going back in the panel
 		initialized = false;
