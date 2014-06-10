@@ -14,7 +14,7 @@ using RaceYourself.Models;
 public class MobilePanel : Panel
 {
 
-    protected List<ListButtonData> buttonData = new List<ListButtonData>();
+	protected Dictionary<string, List<ListButtonData>> buttonDataMap = new Dictionary<string, List<ListButtonData>>();
     private GestureHelper.OnBack backHandler = null;
 
     /// <summary>
@@ -62,10 +62,23 @@ public class MobilePanel : Panel
         return "MobilePanel: UnInitialzied";
     }
     
-    public List<ListButtonData> GetButtonData()
+	public List<ListButtonData> GetButtonData() 
+	{
+		return GetButtonData("default");
+	}
+
+    public List<ListButtonData> GetButtonData(string list)
     {
-        return buttonData;
-    }
+		if (!buttonDataMap.ContainsKey(list)) 
+		{
+			lock(buttonDataMap) {
+				if (!buttonDataMap.ContainsKey(list)) {
+					buttonDataMap[list] = new List<ListButtonData>();
+				}
+			}
+		}
+		return buttonDataMap[list];
+	}
 
     /// <summary>
     /// 
@@ -91,14 +104,34 @@ public class MobilePanel : Panel
         base.ExitStart();
 
         GestureHelper.onBack -= backHandler;
-        buttonData.Clear();
+        buttonDataMap.Clear();
     }
 
-    /// <summary>
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function)
+	{
+		AddButtonData("default", buttonName, buttonDictionary, function, null, ListButtonData.ButtonFormat.ButtonPrototype, null);
+	}
+	
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat)
+	{
+		AddButtonData("default", buttonName, buttonDictionary, function, null, buttonFormat, null);
+	}
+	
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+	{       
+		AddButtonData("default", buttonName, buttonDictionary, function, null, buttonFormat, cloneFirstLinkage);
+	}   
+	
+	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, Dictionary<string, Dictionary<string, string>> imageDictionary, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+	{
+		AddButtonData("default", buttonName, buttonDictionary, function, null, buttonFormat, cloneFirstLinkage);
+	}
+
+	/// <summary>
     /// 
     /// </summary>
     /// <returns></returns>
-    protected void AddBackButtonData()
+	protected void AddBackButtonData(string list)
     {
 //		Dictionary<string, string> dictionary = 
 //        AddButtonData("buttonBack", "Back", "FollowBack");        
@@ -111,9 +144,9 @@ public class MobilePanel : Panel
     /// <param name="title"></param>
     /// <param name="function"></param>    
     /// <returns></returns>
-	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function)
+	protected void AddButtonData(string list, string buttonName, Dictionary<string, string> buttonDictionary, string function)
     {
-		AddButtonData(buttonName, buttonDictionary, function, null, ListButtonData.ButtonFormat.ButtonPrototype, null);
+		AddButtonData(list, buttonName, buttonDictionary, function, null, ListButtonData.ButtonFormat.ButtonPrototype, null);
     }
 
     /// <summary>
@@ -124,9 +157,9 @@ public class MobilePanel : Panel
     /// <param name="function"></param>
     /// <param name="buttonFormat"></param>
     /// <returns></returns>
-	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat)
+	protected void AddButtonData(string list, string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat)
     {
-        AddButtonData(buttonName, buttonDictionary, function, null, buttonFormat, null);
+        AddButtonData(list, buttonName, buttonDictionary, function, null, buttonFormat, null);
     }
 
     /// <summary>
@@ -138,12 +171,12 @@ public class MobilePanel : Panel
     /// <param name="buttonFormat"></param>
     /// <param name="cloneFirstLinkage"></param>
     /// <returns></returns>
-	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+	protected void AddButtonData(string list, string buttonName, Dictionary<string, string> buttonDictionary, string function, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
     {       
-		AddButtonData(buttonName, buttonDictionary, function, null, buttonFormat, cloneFirstLinkage);
+		AddButtonData(list, buttonName, buttonDictionary, function, null, buttonFormat, cloneFirstLinkage);
 	}   
 	
-	protected void AddButtonData(string buttonName, Dictionary<string, string> buttonDictionary, string function, Dictionary<string, Dictionary<string, string>> imageDictionary, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+	protected void AddButtonData(string list, string buttonName, Dictionary<string, string> buttonDictionary, string function, Dictionary<string, Dictionary<string, string>> imageDictionary, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
 	{
 		ListButtonData data = new ListButtonData();
 		data.buttonName = buttonName;
@@ -152,8 +185,10 @@ public class MobilePanel : Panel
 		data.textDictionary = buttonDictionary;
 		data.imageDictionary = imageDictionary;
 
+		var buttonData = GetButtonData(list);
+
 		buttonData.Add(data);
-		
+
 		GConnector gc = NewOutput(buttonName, "Flow");
 		gc.EventFunction = function;
 		gc.Name = buttonName;
@@ -188,6 +223,10 @@ public class MobilePanel : Panel
     }
 
 	public void AddChallengeButtons(List<Challenge> challengeList, ListButtonData.ButtonFormat format) {
+		AddChallengeButtons("default", challengeList, format);
+	}
+
+	public void AddChallengeButtons(string list, List<Challenge> challengeList, ListButtonData.ButtonFormat format) {
 		for(int i=0; i<challengeList.Count; i++) {
 			string buttonName = format.ToString() + i;
 			Dictionary<string, string> challengeDictionary = new Dictionary<string, string>();
@@ -200,7 +239,7 @@ public class MobilePanel : Panel
 					challengeDictionary.Add("ExtraPrizeText", "Extra Prize: " + challengeList[i].prize);
 				}
 			}
-			AddButtonData(buttonName, challengeDictionary, "", format, GetBaseButtonConnection());
+			AddButtonData(list, buttonName, challengeDictionary, "", format, GetBaseButtonConnection());
 			
 		}
 	}

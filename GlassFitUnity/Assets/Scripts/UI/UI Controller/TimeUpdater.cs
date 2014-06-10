@@ -11,10 +11,13 @@ public class TimeUpdater : MonoBehaviour {
 	DateTime challengeTime;
 	TimeSpan timeDifference;
 
+	private Color defaultColor = Color.black;
+
     void Start()
     {
         label = GetComponent<UILabel>();
         label.enabled = false;
+		defaultColor = label.color;
     }
 
     void OnEnable()
@@ -49,7 +52,7 @@ public class TimeUpdater : MonoBehaviour {
 			{ 
 				if(newDifference.Days > 0)
 				{
-					label.color = Color.black;
+					label.color = defaultColor;
 				}
 				else
 				{
@@ -66,15 +69,6 @@ public class TimeUpdater : MonoBehaviour {
 			} 
 		}
 	}
-
-    void OnDisable()
-    {
-        if (challengeTime != null && timeDifference.Minutes > 0)
-        {
-            label.text = "";
-            challengeTime = DateTime.MinValue;
-        }
-    }
 
 	void OnDestroy() {
 		if(challengeTime != null && timeDifference.Minutes > 0) {

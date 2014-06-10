@@ -98,7 +98,7 @@ public class MobileChallengePanel : MobilePanel {
 
 		}
 
-		buttonData = new List<ListButtonData>();
+		GetButtonData().Clear();
 
 		switch(format) {
 		case ListButtonData.ButtonFormat.ActiveChallengeButton:

@@ -123,18 +123,26 @@ public class ButtonFunctionCollection
 
 	static public bool SetMobileHomeTab(FlowButton fb, FlowState panel) 
 	{
-		if(fb.GetComponent<UIButton>().enabled) {
-			if(panel is MobileHomePanel) {
-				switch(fb.name) {
+		if(fb.GetComponent<UIButton>().enabled)
+        {
+            string targetList = null;
+			if(panel is MobileHomePanel)
+            {
+				switch(fb.name)
+                {
 				case "ChallengeBtn":
-					(panel as MobileHomePanel).ChangeList("challenge");
+                    targetList = "challenge";
 					break;
 
 				case "RacersBtn":
 				case "NoChallengeButton":
-					(panel as MobileHomePanel).ChangeList("friend");
+                    targetList = "friend";
 					break;
 				}
+                (panel as MobileHomePanel).ChangeList(targetList);
+
+                // set current tab so that if we click 'back' we come to the right tab
+                DataVault.Set("mobilehome_selectedtab", targetList);
 			}
 		}
 		return false;
@@ -1321,13 +1329,16 @@ public class ButtonFunctionCollection
     
     static public bool WebsiteSignup(FlowButton button, FlowState fs)
     {
-        string platform = Application.platform.ToString();
-        if (Platform.Instance.OnGlass())
+        string platform = Application.platform.ToString();  //TODO: might have spaces in, which might break URL?
+        string referrer = "mobile";
+        if (Platform.Instance.OnGlass ()) {
             platform = "Glass";
+            referrer = "glass";
+        }
 #if PRODUCTION
-		Application.OpenURL("http://www.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+        Application.OpenURL("http://www.raceyourself.com/beta_sign_up?referrer=" + referrer + "&ry_platform=" + platform);
 #else
-		Application.OpenURL("http://staging.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+        Application.OpenURL("http://staging.raceyourself.com/beta_sign_up?referrer=" + referrer + "&ry_platform=" + platform);
 #endif
         return false;
     }
@@ -1509,6 +1520,7 @@ public class ButtonFunctionCollection
 		log.info("Got tracks for this user's fitness level");
 
 		if (tracks.Count == 0) {
+            // TODO capture this - should never happen. Show user error and perhaps report to central server?
 			log.error("No tracks available for fitness level " + fitnessLevel);
 			return false;
 		}
@@ -1524,7 +1536,7 @@ public class ButtonFunctionCollection
         // TODO is it legitimate to cast int? -> int in this context?
 		// NO - causes a crash on iPhone
         //User competitor = Platform.Instance.GetUser((int) track.userId);
-
+        
 		User competitor = null;
 		if(track.userId.HasValue)
 		{
@@ -1580,4 +1592,29 @@ public class ButtonFunctionCollection
 		Platform.Instance.Authorize("facebook", "any");
 		return false;
 	}
+    
+    /// <summary>
+    /// example function which redirects navigation to custom exit named "CustomExit"
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
+    static public bool GoToExitForPleaseWait(FlowButton fb, FlowState fs)
+    {
+        Panel panel = (Panel) fs;
+        FlowStateMachine fsm = panel.parentMachine;
+
+        // TODO introduce this call for all 'please wait' dialogs - introduce new PleaseWaitPanel with this call on exit?
+        fsm.SuppressAddToHistory();
+        if (panel != null)
+        {
+            GConnector gc = panel.Outputs.Find(r => r.Name == "Exit");
+            if (gc != null)
+            {
+                panel.parentMachine.FollowConnection(gc);
+                return false;
+            }                        
+        }
+        return true;
+    }
 }

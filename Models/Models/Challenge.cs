@@ -26,9 +26,10 @@ namespace RaceYourself.Models
         public int points_awarded;
         public string prize;
         public List<int> friends;
-         
+        public bool viewed;
+
 		public string type;
-					
+		
         public DateTime? created_at;
         public DateTime? updated_at;
         public DateTime? deleted_at;

@@ -8,11 +8,13 @@ public class RandomImageLoader : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		textures = Resources.LoadAll("app_header_images");
+        textures = Resources.LoadAll("app_header_images");
 
-		if(textures != null) 
+		if(textures[1] != null) 
 		{
-			Texture2D chosenTexture = (Texture2D)textures[Random.Range(0, textures.Length)];
+            // commented to stop image cyling, uncomment to re-enable
+            //Texture2D chosenTexture = (Texture2D)textures[Random.Range(0, textures.Length)];
+            Texture2D chosenTexture = (Texture2D)textures[1];
 			if(chosenTexture != null) 
 			{
 				UITexture textureComponent = GetComponent<UITexture>();

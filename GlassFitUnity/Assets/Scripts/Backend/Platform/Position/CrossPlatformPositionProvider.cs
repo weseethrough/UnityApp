@@ -95,7 +95,10 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 
 		if(status == LocationServiceStatus.Initializing)
 		{
-			if (status != previousStatus) UnityEngine.Debug.LogWarning("Location Service still initialising");
+			if (status != previousStatus)
+            {
+                UnityEngine.Debug.LogWarning("Location Service still initialising");
+            }
 			DataVault.Set("location_service_status_message", "Location services initialising");
 		}
 		else
