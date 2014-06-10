@@ -31,6 +31,10 @@ public class RunnerSpriteAnimation : MonoBehaviour {
 	//public int framesPerSecond { get { return mFPS; } set { mFPS = value; } }
 	public int framesPerSecond = 0;
 
+    /// <summary>
+    /// Frame index to start at
+    /// </summary>
+    public int initialFrameIndex = 0;
 
 	/// <summary>
 	/// Set the name prefix used to filter sprites from the atlas.
@@ -57,7 +61,11 @@ public class RunnerSpriteAnimation : MonoBehaviour {
 	public string idleSpriteName = "runner_idle";
 
 
-	void Start () { RebuildSpriteList(); }
+	void Start ()
+    {
+        RebuildSpriteList();
+        mIndex += initialFrameIndex;
+    }
 	
 	/// <summary>
 	/// Advance the sprite animation process.

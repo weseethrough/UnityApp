@@ -10,8 +10,9 @@ using System.Threading;
 public class MobileList : UIComponentSettings
 {
     MobilePanel parent;
-    private int itemCountBeforeTop = 4;
-    private int itemsToManage = 14;
+	string listName = "default";
+    private int itemCountBeforeTop = 100;
+    private int itemsToManage = 200;
 
     private List<GameObject> buttons = new List<GameObject>();
     private int previousStartIndex = 0;
@@ -64,10 +65,15 @@ public class MobileList : UIComponentSettings
         this.parent = parent;
     }
 
+	public void SetList(string list)
+	{
+		this.listName = list;
+	}
+
     void Update()
     {
         if (parent == null) return;
-        List<ListButtonData> buttonData = parent.GetButtonData();
+        List<ListButtonData> buttonData = parent.GetButtonData(listName);
         UIGrid grid = listContent.GetComponent<UIGrid>();
 
         Vector3 pos = grid.transform.position;
@@ -129,6 +135,9 @@ public class MobileList : UIComponentSettings
                     item = GetNewButton(items[i], newButtons);
                 }
                 newButtons.Add(item);
+
+                GameObject[] theList = newButtons.ToArray();
+                StaticBatchingUtility.Combine(theList, listHeader);
 
                 Vector3 p = item.transform.localPosition;
                 p.y = -grid.cellHeight * i;
@@ -235,45 +244,15 @@ public class MobileList : UIComponentSettings
 
 		if(data.imageDictionary != null) 
 		{
-			Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
 			foreach(var key in data.imageDictionary.Keys) {
 				string textureUrl = key;
 				if (textureCache.ContainsKey(key)) {
-					var dictionary = data.imageDictionary[key];
-					try {
-						GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
-						if(buttonObj != null) {
-							GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
-							UITexture texture = textureObj.GetComponent<UITexture>();
-							if(texture != null) {				
-								texture.mainTexture = textureCache[key];
-								
-							}
-						}
-					} catch (Exception e) {
-						// probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
-						Debug.LogWarning("MobileList.getNewButton() " + e.Message);
-					}
+					ImageCallback(textureCache[key], data.imageDictionary[key]);
 					continue;
 				}
 
-				Platform.Instance.RemoteTextureManager.LoadImage(textureUrl, data.imageDictionary[key], (tex, callbackArgument) => {
-					var dictionary = callbackArgument as Dictionary<string, string>;
-					textureCache[key] = tex;
-                    try {
-                    	GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
-                        if(buttonObj != null) {
-                        	GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
-                            UITexture texture = textureObj.GetComponent<UITexture>();
-                            if(texture != null) {                               
-                            	texture.mainTexture = tex;
-                            }
-                        }
-                    } catch (Exception e) {
-                    	// probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
-                        Debug.LogWarning("MobileList.getNewButton() " + e.Message);
-                    }
-				});
+				data.imageDictionary[key]["url"] = textureUrl;
+				Platform.Instance.RemoteTextureManager.LoadImage(textureUrl, data.imageDictionary[key], ImageCallback);
 			}
 //			Platform.Instance.RemoteTextureManager.LoadImage(data.imageName, data.buttonName, (tex, buttonId) => {
 //				Panel fs = FlowStateMachine.GetCurrentFlowState() as Panel;
@@ -289,14 +268,33 @@ public class MobileList : UIComponentSettings
         return button;
 	}
 
-//            UIGrid grid = listContent.GetComponent<UIGrid>();
-//            if (grid != null)
-//            {
-//                grid.Reposition();
-//            }
-//        }
-//    }    
-
+	private void ImageCallback(Texture2D tex, object callbackArgument) {
+		Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+        var dictionary = callbackArgument as Dictionary<string, string>;
+		if (dictionary.ContainsKey("url")) textureCache[dictionary["url"]] = tex;
+		try {
+			GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
+			if(buttonObj != null) {
+				GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, dictionary["texture"]);
+				UITexture texture = textureObj.GetComponent<UITexture>();
+				if(texture != null) {                               
+					texture.mainTexture = tex;
+				}
+			}
+		} catch (Exception e) {
+			// probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
+			Debug.LogWarning("MobileList.getNewButton() " + e.Message);
+		}
+	}
+	
+	//            UIGrid grid = listContent.GetComponent<UIGrid>();
+	//            if (grid != null)
+	//            {
+    //                grid.Reposition();
+    //            }
+    //        }
+    //    }    
+    
     Dictionary<string, GameObject> GetPrototypes(GameObject root)
     {
         Dictionary<string, GameObject> collection = new Dictionary<string, GameObject>();
@@ -308,6 +306,12 @@ public class MobileList : UIComponentSettings
 
         return collection;
     }
+
+	public float GetItemHeight() 
+	{
+		UIGrid grid = listContent.GetComponent<UIGrid>();
+		return grid.cellHeight;
+	}
 
     public void ResetList(float newItemHeight)
     {

@@ -75,7 +75,6 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 	}
 
 	public void Update() {
-
 		LocationServiceStatus status = Input.location.status;
 		if(status == LocationServiceStatus.Stopped)
 		{
@@ -126,6 +125,11 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 
 	//Renamed this to avoid clash with MonoBehaviour's own once-per-frame Update.
 	public void UpdateLocation() {
+		if(positionListeners.Count == 0)
+		{
+			//UnityEngine.Debug.LogWarning("Location Updated, but no listeners!");
+			return;
+		}		
 		if (!Input.location.isEnabledByUser) {
 			Reset();
 			return;
@@ -137,11 +141,6 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		//drop it on the HUD for debugging
 		//DataVault.Set("sweat_points_unit", pos.latitude);
 		//DataVault.Set("fps", pos.longitude);
-
-		if(positionListeners.Count == 0)
-		{
-            //UnityEngine.Debug.LogWarning("Location Updated, but no listeners!");
-		}
 
 		// Notify listeners about new position
 		foreach(IPositionListener posListener in positionListeners) {

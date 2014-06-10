@@ -123,18 +123,26 @@ public class ButtonFunctionCollection
 
 	static public bool SetMobileHomeTab(FlowButton fb, FlowState panel) 
 	{
-		if(fb.GetComponent<UIButton>().enabled) {
-			if(panel is MobileHomePanel) {
-				switch(fb.name) {
+		if(fb.GetComponent<UIButton>().enabled)
+        {
+            string targetList = null;
+			if(panel is MobileHomePanel)
+            {
+				switch(fb.name)
+                {
 				case "ChallengeBtn":
-					(panel as MobileHomePanel).ChangeList("challenge");
+                    targetList = "challenge";
 					break;
 
 				case "RacersBtn":
 				case "NoChallengeButton":
-					(panel as MobileHomePanel).ChangeList("friend");
+                    targetList = "friend";
 					break;
 				}
+                (panel as MobileHomePanel).ChangeList(targetList);
+
+                // set current tab so that if we click 'back' we come to the right tab
+                DataVault.Set("mobilehome_selectedtab", targetList);
 			}
 		}
 		return false;
@@ -145,19 +153,19 @@ public class ButtonFunctionCollection
 		int duration = (int)DataVault.Get("run_time") * 60;
 		DurationChallenge challenge = new DurationChallenge(duration, 0);
 		Friend friend = (Friend)DataVault.Get("chosen_friend");
-		Platform.Instance.QueueAction(string.Format(@"{{
-			'action' : 'challenge',
-			'target' : {0},
-			'taunt' : 'Try beating my track!',
-			'challenge' : {{
-					'distance': {1},
-					'duration': {2},
-					'public': true,
-					'start_time': null,
-					'stop_time': null,
-					'type': 'duration'
-			}}
-		}}", friend.userId.Value, challenge.duration, challenge.duration).Replace("'", "\""));
+        Platform.Instance.QueueAction(string.Format(@"{{
+            ""action"" : ""challenge"",
+            ""target"" : {0},
+            ""taunt"" : ""Try beating my track!"",
+            ""challenge"" : {{
+                    ""distance"": {1},
+                    ""duration"": {2},
+                    ""public"": true,
+                    ""start_time"": null,
+                    ""stop_time"": null,
+                    ""type"": ""duration""
+            }}
+        }}", friend.userId.Value, challenge.duration, challenge.duration));
 
 		Hashtable eventProperties = new Hashtable();
 		eventProperties.Add("event_name", "send_challenge");
@@ -1166,7 +1174,7 @@ public class ButtonFunctionCollection
 
     private static void SignIn(string email, string password)
     {
-		UnityEngine.Debug.Log("Loggin in as: " + email + "/" + password);
+		//UnityEngine.Debug.Log("Logging in as: " + email + "/" + password);
 
         NetworkMessageListener.OnAuthenticated handler = null;
         handler = new NetworkMessageListener.OnAuthenticated((errors) => {
@@ -1175,12 +1183,16 @@ public class ButtonFunctionCollection
 			if(authenticated)
 			{
 				UnityEngine.Debug.Log("authenticated successfully");
+                FollowExit("Exit");
 			}
 			else
 			{
 				UnityEngine.Debug.Log("authentication failed with errors: " + errors.Values);
+
+                Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+                DataVault.Set("email", email);
+                panel.parentMachine.FollowBack();
 			}
-            FollowExit(authenticated ? "Exit" : "Error");
             Platform.Instance.NetworkMessageListener.onAuthenticated -= handler;
         });
         Platform.Instance.NetworkMessageListener.onAuthenticated += handler;
@@ -1253,6 +1265,7 @@ public class ButtonFunctionCollection
 
         DataVault.Set("player_name", playerName);
         DataVault.Set("form_error", "");
+        DataVault.Set("email", "");
         return true;
     }
 
@@ -1316,13 +1329,16 @@ public class ButtonFunctionCollection
     
     static public bool WebsiteSignup(FlowButton button, FlowState fs)
     {
-        string platform = Application.platform.ToString();
-        if (Platform.Instance.OnGlass())
+        string platform = Application.platform.ToString();  //TODO: might have spaces in, which might break URL?
+        string referrer = "mobile";
+        if (Platform.Instance.OnGlass ()) {
             platform = "Glass";
+            referrer = "glass";
+        }
 #if PRODUCTION
-		Application.OpenURL("http://www.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+        Application.OpenURL("http://www.raceyourself.com/beta_sign_up?referrer=" + referrer + "&ry_platform=" + platform);
 #else
-		Application.OpenURL("http://staging.raceyourself.com/beta_sign_up?ry_platform=" + platform);
+        Application.OpenURL("http://staging.raceyourself.com/beta_sign_up?referrer=" + referrer + "&ry_platform=" + platform);
 #endif
         return false;
     }
@@ -1504,6 +1520,7 @@ public class ButtonFunctionCollection
 		log.info("Got tracks for this user's fitness level");
 
 		if (tracks.Count == 0) {
+            // TODO capture this - should never happen. Show user error and perhaps report to central server?
 			log.error("No tracks available for fitness level " + fitnessLevel);
 			return false;
 		}
@@ -1519,7 +1536,7 @@ public class ButtonFunctionCollection
         // TODO is it legitimate to cast int? -> int in this context?
 		// NO - causes a crash on iPhone
         //User competitor = Platform.Instance.GetUser((int) track.userId);
-
+        
 		User competitor = null;
 		if(track.userId.HasValue)
 		{
@@ -1564,5 +1581,40 @@ public class ButtonFunctionCollection
             DataVault.Set("custom_redirection_point", "FitnessLevelPoint");
         }
         return UseCustomRedirection(button, fs);
+    }
+
+	static public bool IsLoggedIntoFacebook(FlowButton button, FlowState fs)
+	{
+		if (FB.IsLoggedIn) {
+			return true;
+		}
+
+		Platform.Instance.Authorize("facebook", "any");
+		return false;
+	}
+    
+    /// <summary>
+    /// example function which redirects navigation to custom exit named "CustomExit"
+    /// </summary>
+    /// <param name="fb"> button providng event </param>
+    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
+    /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
+    static public bool GoToExitForPleaseWait(FlowButton fb, FlowState fs)
+    {
+        Panel panel = (Panel) fs;
+        FlowStateMachine fsm = panel.parentMachine;
+
+        // TODO introduce this call for all 'please wait' dialogs - introduce new PleaseWaitPanel with this call on exit?
+        fsm.SuppressAddToHistory();
+        if (panel != null)
+        {
+            GConnector gc = panel.Outputs.Find(r => r.Name == "Exit");
+            if (gc != null)
+            {
+                panel.parentMachine.FollowConnection(gc);
+                return false;
+            }                        
+        }
+        return true;
     }
 }
