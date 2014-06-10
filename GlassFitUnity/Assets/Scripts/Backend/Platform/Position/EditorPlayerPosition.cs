@@ -7,6 +7,15 @@ using RaceYourself.Models;
 
 public class EditorPlayerPosition : PlayerPosition {
 
+    /// <summary>
+    /// Latitude of initial fake position. Morden tube, south London.
+    /// </summary>
+    private static double INITIAL_LATITUDE = 51.400;
+    /// <summary>
+    /// Longitude of initial fake position. A bit east of Morden tube station in south London.
+    /// </summary>
+    private static double INITIAL_LONGITUDE = -0.15;
+
 	private Position _position = null;
 	public override Position Position { get { return _position; } }
 
@@ -23,7 +32,7 @@ public class EditorPlayerPosition : PlayerPosition {
 	private float _pace = 1.0f;
 	public override float Pace { get { return _pace; } }
 
-	private const float speedIncremet = 0.5f;
+	private const float speedIncrement = 0.5f;
 
 	protected float _bearing = -999.0f;
 	public override float Bearing { get { return _bearing; } }
@@ -42,11 +51,11 @@ public class EditorPlayerPosition : PlayerPosition {
 		//fake speed up/ slow down
 		if(Input.GetKeyDown(KeyCode.Equals) || Input.GetKeyDown(KeyCode.KeypadPlus))
 		{
-			_pace += speedIncremet;
+			_pace += speedIncrement;
 		}
 		if(Input.GetKeyDown(KeyCode.Minus) || Input.GetKeyDown(KeyCode.KeypadMinus))
 		{
-			_pace -= speedIncremet;
+			_pace -= speedIncrement;
 		}
 
 		if (!timer.IsRunning) return;
@@ -55,7 +64,8 @@ public class EditorPlayerPosition : PlayerPosition {
 		if (random.Next() % 5 == 4) {
 			_bearing += 10;
         }
-		_position = new Position((float)(51.400+Math.Cos(Bearing*Math.PI/180)*Distance/111229d), (float)(-0.15+Math.Sin(Bearing*Math.PI/180)*Distance/111229d));
+
+        _position = new Position((float)(INITIAL_LATITUDE+Math.Cos(Bearing*Math.PI/180)*Distance/111229d), (float)(INITIAL_LONGITUDE + Math.Sin (Bearing * Math.PI / 180) * Distance / 111229d));
 		_predictedPosition = _position;
 
         //Platform.Instance.GetMonoBehavioursPartner ().SendMessage ("NewTrack", "json");

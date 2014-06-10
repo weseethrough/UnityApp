@@ -221,7 +221,7 @@ public class MobileInRun : MobilePanel {
 				UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
 				UnityEngine.Debug.Log("MobileInRun: Device ID is " + device.id);
 				UnityEngine.Debug.Log("MobileInRun: Track ID is " + current.trackId);
-
+                // TODO refactor. Follow example of other QueueAction calls in API and have a method that wraps this in API?
 				Platform.Instance.QueueAction(string.Format(@"{{'action': 'challenge_attempt', 
 												'challenge_id': {0}, 
 												'track_id' : [
