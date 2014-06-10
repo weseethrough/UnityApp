@@ -2,7 +2,17 @@ fileFormatVersion: 2
 guid: dba1dceef6ee84bbea765dee84db5572
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - audioSource: {instanceID: 0}
+  - paceSlower: {fileID: 8300000, guid: 7da16bac3c8117848a548da7786eb3f4, type: 3}
+  - paceSimilar: {fileID: 8300000, guid: 7da16bac3c8117848a548da7786eb3f4, type: 3}
+  - paceFaster: {fileID: 8300000, guid: 7da16bac3c8117848a548da7786eb3f4, type: 3}
+  - distanceBehind: {fileID: 8300000, guid: 7da16bac3c8117848a548da7786eb3f4, type: 3}
+  - distanceSimilar: {fileID: 8300000, guid: 7da16bac3c8117848a548da7786eb3f4, type: 3}
+  - distanceAhead: {fileID: 8300000, guid: 7da16bac3c8117848a548da7786eb3f4, type: 3}
+  - outlookLose: {fileID: 8300000, guid: 7da16bac3c8117848a548da7786eb3f4, type: 3}
+  - outlookDraw: {fileID: 8300000, guid: 7da16bac3c8117848a548da7786eb3f4, type: 3}
+  - outlookWin: {fileID: 8300000, guid: 7da16bac3c8117848a548da7786eb3f4, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
