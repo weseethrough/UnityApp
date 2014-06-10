@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.Serialization;
 using System.Threading;
@@ -10,6 +10,12 @@ using Newtonsoft.Json;
 
 [Serializable]
 public class MobileInRun : MobilePanel {
+
+
+	//opponents pace is never stored and may be needed in other places, will calculate here for now and move later
+	float opponentsPace = 0;
+	float oppoenentsDistance = 0;
+	float localTime;
 
 	Log log = new Log("MobileInRun");
 		
@@ -315,13 +321,23 @@ public class MobileInRun : MobilePanel {
 		float activeWidth = Screen.width * 0.5f;
 		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
 		playerSpriteAnimation.stationary = Platform.Instance.LocalPlayerPosition.Pace < 1.0f || !Platform.Instance.LocalPlayerPosition.IsTracking;
+		playerSpriteAnimation.framesPerSecond =(int)(10 *( Platform.Instance.LocalPlayerPosition.Pace/1.5));
 
+		oppoenentsDistance = opponentProgress - oppoenentsDistance;
+
+		opponentsPace = oppoenentsDistance/(elapsedTime - localTime);
+		Debug.Log("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
 		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+
+		opponentSpriteAnimation.framesPerSecond =(int)(100 *( opponentsPace/3));
+
 		//no convenient interface to get opponent speed atm, just make it always run for now
-		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking;
+		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking||Platform.Instance.LocalPlayerPosition.Pace < 1.0f || opponentsPace < 0.5f;
 
 		// check for race finished
 		float time = elapsedTime;
+		localTime = elapsedTime;
+
 		if(time > targetTime)
 		{
 			//we're done
