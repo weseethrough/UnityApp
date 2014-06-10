@@ -398,7 +398,7 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, string> dictionary = new Dictionary<string, string>();
 				// Add the title and description
 				dictionary.Add("TitleText", user.DisplayName);
-				dictionary.Add("DescriptionText", "challenges you");
+				dictionary.Add("DescriptionText", "Has sent you a challenge!");
 				// Change the duration to minutes and add to the dictionary
 				int duration = challengeNote.GetDuration() / 60;
 				dictionary.Add("DurationText", duration.ToString());
@@ -409,22 +409,16 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, Dictionary<string, string>> newChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 				// Create an inner dictionary for the previous dictionary
 				Dictionary<string, string> innerNewDictionary = new Dictionary<string, string>();
-				// Add the location of the texture object and the button name
-				innerNewDictionary.Add("texture", "PlayerPicture");
-				innerNewDictionary.Add("name", newButtonName);
-				// Add the data to the main dictionary for the player's image
-				newChallengeImageDictionary.Add(player.image, innerNewDictionary);
-				
+
 				// Re-initialize the dictionary
 				innerNewDictionary = new Dictionary<string, string>();
 				// Add the name and texture again
 				innerNewDictionary.Add("name", newButtonName);
-				innerNewDictionary.Add("texture", "RivalPicture");
+				innerNewDictionary.Add("texture", "PlayerPicture");
 				// Add the data to the main dictionary for the rival's image
 				newChallengeImageDictionary.Add(user.image, innerNewDictionary);
 				// Finally add the button to the list
 				AddButtonData("challenges", newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
-				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 			}
 			// Set the notification as read
 //			Platform.Instance.ReadNotification(challengeNote.GetID());
@@ -446,7 +440,7 @@ public class MobileHomePanel : MobilePanel {
 				// Create a new dictionary for the text fields
 				Dictionary<string, string> playerDictionary = new Dictionary<string, string>();
 				// Add the title and description
-				playerDictionary.Add("TitleText", "You challenged");
+				playerDictionary.Add("TitleText", "You have challenged");
 				playerDictionary.Add("DescriptionText", user.DisplayName);
 				// Change the duration to minutes and add to the dictionary
 				int duration = challengeNote.GetDuration() / 60;
@@ -458,17 +452,11 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, Dictionary<string, string>> playerChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 				// Create an inner dictionary for the previous dictionary
 				Dictionary<string, string> innerPlayerDictionary = new Dictionary<string, string>();
-				// Add the location of the texture object and the button name
-				innerPlayerDictionary.Add("texture", "PlayerPicture");
-				innerPlayerDictionary.Add("name", newButtonName);
-				// Add the data to the main dictionary for the player's image
-				playerChallengeImageDictionary.Add(player.image, innerPlayerDictionary);
-				
 				// Re-initialize the dictionary
 				innerPlayerDictionary = new Dictionary<string, string>();
 				// Add the name and texture again
 				innerPlayerDictionary.Add("name", newButtonName);
-				innerPlayerDictionary.Add("texture", "RivalPicture");
+				innerPlayerDictionary.Add("texture", "PlayerPicture");
 				// Add the data to the main dictionary for the rival's image
 				
 				if(!string.IsNullOrEmpty(user.image) && !playerChallengeImageDictionary.ContainsKey(user.image))
@@ -493,7 +481,7 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, string> dictionary = new Dictionary<string, string>();
 				// Add the title and description for the challenge
 				dictionary.Add("TitleText", user.DisplayName);
-				dictionary.Add("DescriptionText", "challenged you");
+				dictionary.Add("DescriptionText", "Has sent you a challenge!");
 				// Convert the duration to minutes and add it to the dictionary
 				int duration = challengeNote.GetDuration() / 60;
 				dictionary.Add("DurationText", duration.ToString());
@@ -505,15 +493,10 @@ public class MobileHomePanel : MobilePanel {
 				// Create the inner dictionary for the images
 				Dictionary<string, string> innerActiveDictionary = new Dictionary<string, string>();
 				// Add the texture and name for the player's picture
-				innerActiveDictionary.Add("texture", "PlayerPicture");
-				innerActiveDictionary.Add("name", activeButtonName);
-				// Add the player's texture information to the dictionary
-				activeChallengeImageDictionary.Add(player.image, innerActiveDictionary);
-				// Re-initialize the inner dictionary for the rival
 				innerActiveDictionary = new Dictionary<string, string>();
 				// Add the attributes for the rival's button name and texture name
 				innerActiveDictionary.Add("name", activeButtonName);
-				innerActiveDictionary.Add("texture", "RivalPicture");
+				innerActiveDictionary.Add("texture", "PlayerPicture");
 				// Add the rival picture to the dictionary
 				activeChallengeImageDictionary.Add(user.image, innerActiveDictionary);
 				// Add the button
