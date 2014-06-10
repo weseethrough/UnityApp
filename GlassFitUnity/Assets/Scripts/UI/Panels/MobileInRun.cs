@@ -217,6 +217,8 @@ public class MobileInRun : MobilePanel {
 			Track current = Platform.Instance.LocalPlayerPosition.StopTrack();
 			Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
 			Device device = Platform.Instance.Device();
+
+            // If completing a challenge, notify server that the challenge has been attempted.
 			if(current != null && challengeNotification != null && device != null) {
 				UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
 				UnityEngine.Debug.Log("MobileInRun: Device ID is " + device.id);
@@ -228,10 +230,8 @@ public class MobileInRun : MobilePanel {
 													{1}, {2}
 												]
 									}}", challengeNotification.message.challenge_id, device.id, current.trackId).Replace("'", "\""));
-			} else
-			{
-				UnityEngine.Debug.LogError("MobileInRun: No track or notification!");
 			}
+            // No action here for 'else'/quickmatch scenario where there is no challenge
 		}
 
 		// load new scene
