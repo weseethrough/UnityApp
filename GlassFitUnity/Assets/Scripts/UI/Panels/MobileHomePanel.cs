@@ -130,6 +130,9 @@ public class MobileHomePanel : MobilePanel {
 		GameObject btnObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "ChallengeBtn");
 		if(btnObj != null) {
 			challengeBtn = btnObj.GetComponentInChildren<UIButton>();
+			if(challengeBtn != null) {
+				challengeBtn.enabled = true;
+			}			
 		}
 
 		// Find the racers button and get the UIButton component
@@ -138,7 +141,7 @@ public class MobileHomePanel : MobilePanel {
 			racersBtn = btnObj.GetComponentInChildren<UIButton>();
 			if(racersBtn != null) 
 			{
-				racersBtn.enabled = false;
+				racersBtn.enabled = true;
 			}
 		}
 
@@ -146,12 +149,6 @@ public class MobileHomePanel : MobilePanel {
 		GameObject inviteObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "InviteNotification");
 		if(inviteObj != null) {
 			inviteObj.SetActive(false);
-		}
-
-		// If the challenge button exists, disable it and set the default colour
-		if(challengeBtn != null) {
-			challengeBtn.enabled = false;
-			challengeBtn.defaultColor = new Color(255 / 255f, 255 / 255f, 255 / 255f, 100/255f);
 		}
 
 		// TODO: Get sprite names from atlas
@@ -625,11 +622,6 @@ public class MobileHomePanel : MobilePanel {
 	/// </summary>
 	/// <param name="type">Type.</param>
 	public void ChangeList(string type) {
-		// Enable both buttons
-		racersBtn.enabled = true;
-		challengeBtn.enabled = true;
-
-        GameObject opaquenessHackGameObj;
 
 		// Switch the type based on either "challenge" or "friend"
 		switch(type) {
@@ -670,14 +662,9 @@ public class MobileHomePanel : MobilePanel {
 
 			if (loadingChallengeIncomplete && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
 			else GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
-			
-			// Disable the challenge button to make it go black
-			challengeBtn.enabled = false;
 
-            opaquenessHackGameObj = GameObject.FindGameObjectWithTag("OpacityHack");
-            //opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
-            opaquenessHackGameObj.GetComponent<UISprite>().alpha = 0f;
-            //opaquenessHackGameObj.SetActive(false);
+			racersBtn.enabled = true;
+			challengeBtn.enabled = false;
 
 			break;
 
@@ -772,13 +759,8 @@ public class MobileHomePanel : MobilePanel {
             NGUITools.SetActive(friendsList.gameObject, true);
             NGUITools.SetActive(challengeList.gameObject, false);
 
-            // Disable the racers button to make it go opaque
-            racersBtn.enabled = false;
-
-            opaquenessHackGameObj = GameObject.FindGameObjectWithTag("OpacityHack");
-            //opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
-            //opaquenessHackGameObj.SetActive(true);
-            opaquenessHackGameObj.GetComponent<UISprite>().alpha = 1f;
+			racersBtn.enabled = false;
+			challengeBtn.enabled = true;
 
 			// Mark new challenges as seen
 			if(newChallenges != null && newChallenges.Count > 0)
@@ -795,7 +777,9 @@ public class MobileHomePanel : MobilePanel {
 			UnityEngine.Debug.Log("MobileHomePanel: type not implemented");
 			break;
 		}
-
+		
+		racersBtn.UpdateColor(racersBtn.isEnabled, true);
+		challengeBtn.UpdateColor(challengeBtn.isEnabled, true);
 		tab = type;
 	}
 
