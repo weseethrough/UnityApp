@@ -245,6 +245,25 @@ public class MobileList : UIComponentSettings
 		if(data.imageDictionary != null) 
 		{
 			foreach(var key in data.imageDictionary.Keys) {
+				if (key == "background") {
+					Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+					var dictionary = data.imageDictionary[key];
+					try {
+						GameObject buttonObj = GameObjectUtils.SearchTreeByName(panel.physicalWidgetRoot, dictionary["name"]);
+						if(buttonObj != null) {
+							GameObject textureObj = GameObjectUtils.SearchTreeByName(buttonObj, "MainBackground");
+							var sprite = textureObj.GetComponent<UISprite>();
+							if(sprite != null) {     
+								sprite.spriteName = dictionary["sprite"];
+							}
+						}
+					} catch (Exception e) {
+						// probably switched screen so panel or widget root is no longer valid -> Null Exception of some kind
+						Debug.LogWarning("MobileList.getNewButton() " + e.Message);
+					}
+					continue;
+				}
+
 				string textureUrl = key;
 				if (textureCache.ContainsKey(key)) {
 					ImageCallback(textureCache[key], data.imageDictionary[key]);
@@ -313,7 +332,7 @@ public class MobileList : UIComponentSettings
 		return grid.cellHeight;
 	}
 
-    public void ResetList(float newItemHeight)
+    public void ClearList()
     {
 
         foreach (KeyValuePair<string, List<GameObject>> list in instances)
@@ -327,8 +346,11 @@ public class MobileList : UIComponentSettings
         //clear defaults
         buttons = new List<GameObject>();
         instances = new Dictionary<string, List<GameObject>>();
-        previousStartIndex = 0;
-        previousCount = 0;
+	}
+
+	public void ResetList(float newItemHeight)
+	{
+		ClearList();
 
         UIGrid grid = listContent.GetComponent<UIGrid>();
         grid.cellHeight = newItemHeight;

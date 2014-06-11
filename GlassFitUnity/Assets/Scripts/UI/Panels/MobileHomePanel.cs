@@ -53,6 +53,13 @@ public class MobileHomePanel : MobilePanel {
 
 	private string tab = "preinit";
 
+	private string[] challengeSprites = new string[] {
+		"homescreen_card_01_2-02",
+		"homescreen_card_01_2-05", 
+		"homescreen_card_01_2-07",
+		"homescreen_card_01_2-08"
+	};
+
 	public MobileHomePanel() { }
 	public MobileHomePanel(SerializationInfo info, StreamingContext ctxt)
 		: base(info, ctxt)
@@ -103,7 +110,7 @@ public class MobileHomePanel : MobilePanel {
 		if (friendsList == null) UnityEngine.Debug.LogError("MobileHomePanel: friends list missing!");
 
 		// Get the iPhone background 
-		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "MainProfilePicture");
+		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "MainProfilePicture", true);
 
 		// Set the player's name
 //		GameObjectUtils.SetTextOnLabelInChildren(bkg, "PlayerName", Platform.Instance.User().name);
@@ -123,6 +130,9 @@ public class MobileHomePanel : MobilePanel {
 		GameObject btnObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "ChallengeBtn");
 		if(btnObj != null) {
 			challengeBtn = btnObj.GetComponentInChildren<UIButton>();
+			if(challengeBtn != null) {
+				challengeBtn.enabled = true;
+			}			
 		}
 
 		// Find the racers button and get the UIButton component
@@ -131,7 +141,7 @@ public class MobileHomePanel : MobilePanel {
 			racersBtn = btnObj.GetComponentInChildren<UIButton>();
 			if(racersBtn != null) 
 			{
-				racersBtn.enabled = false;
+				racersBtn.enabled = true;
 			}
 		}
 
@@ -141,11 +151,7 @@ public class MobileHomePanel : MobilePanel {
 			inviteObj.SetActive(false);
 		}
 
-		// If the challenge button exists, disable it and set the default colour
-		if(challengeBtn != null) {
-			challengeBtn.enabled = false;
-			challengeBtn.defaultColor = new Color(255 / 255f, 255 / 255f, 255 / 255f, 100/255f);
-		}
+		// TODO: Get sprite names from atlas
 
 		// Find the ChallengeNotification game object
 		challengeNotification = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "ChallengeNotification");
@@ -377,9 +383,11 @@ public class MobileHomePanel : MobilePanel {
 	private void CreateChallengeButtons() 
 	{
 		UnityEngine.Debug.Log("CreateChallengeButtons()");
-		// Set the cell size to 250
-		if (challengeList.GetItemHeight() != 250 || notifications.Count < GetButtonData("challenges").Count) {
+		// Reset list (scroll to top) if uninitialized or new challenges 
+		if (challengeList.GetItemHeight() != 250 || newChallenges.Count > 0) {
 			challengeList.ResetList(250f);
+		} else {
+			challengeList.ClearList();
 		}
 		GetButtonData("challenges").Clear();
 		User player = Platform.Instance.User();
@@ -398,7 +406,7 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, string> dictionary = new Dictionary<string, string>();
 				// Add the title and description
 				dictionary.Add("TitleText", user.DisplayName);
-				dictionary.Add("DescriptionText", "challenges you");
+				dictionary.Add("DescriptionText", "Has sent you a challenge!");
 				// Change the duration to minutes and add to the dictionary
 				int duration = challengeNote.GetDuration() / 60;
 				dictionary.Add("DurationText", duration.ToString());
@@ -409,27 +417,18 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, Dictionary<string, string>> newChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 				// Create an inner dictionary for the previous dictionary
 				Dictionary<string, string> innerNewDictionary = new Dictionary<string, string>();
-				// Add the location of the texture object and the button name
-				innerNewDictionary.Add("texture", "PlayerPicture");
-				innerNewDictionary.Add("name", newButtonName);
-				// Add the data to the main dictionary for the player's image
-				newChallengeImageDictionary.Add(player.image, innerNewDictionary);
-				
-				// Re-initialize the dictionary
-				innerNewDictionary = new Dictionary<string, string>();
 				// Add the name and texture again
 				innerNewDictionary.Add("name", newButtonName);
-				innerNewDictionary.Add("texture", "RivalPicture");
+				innerNewDictionary.Add("texture", "PlayerPicture");
 				// Add the data to the main dictionary for the rival's image
 				newChallengeImageDictionary.Add(user.image, innerNewDictionary);
+				newChallengeImageDictionary.Add("background", new Dictionary<string, string>() {
+					{"name", newButtonName},
+					{"sprite", challengeSprites[user.id % challengeSprites.Length]}
+				});
 				// Finally add the button to the list
 				AddButtonData("challenges", newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
-				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 			}
-			// Set the notification as read
-//			Platform.Instance.ReadNotification(challengeNote.GetID());
-			challengeNote.SetRead();
-			challengeNote.GetNotification().read = true;
 		}
 
 		foreach(ChallengeNotification challengeNote in playerChallenges)
@@ -458,23 +457,19 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, Dictionary<string, string>> playerChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 				// Create an inner dictionary for the previous dictionary
 				Dictionary<string, string> innerPlayerDictionary = new Dictionary<string, string>();
-				// Add the location of the texture object and the button name
-				innerPlayerDictionary.Add("texture", "PlayerPicture");
-				innerPlayerDictionary.Add("name", newButtonName);
-				// Add the data to the main dictionary for the player's image
-				playerChallengeImageDictionary.Add(player.image, innerPlayerDictionary);
-				
-				// Re-initialize the dictionary
-				innerPlayerDictionary = new Dictionary<string, string>();
 				// Add the name and texture again
 				innerPlayerDictionary.Add("name", newButtonName);
-				innerPlayerDictionary.Add("texture", "RivalPicture");
+				innerPlayerDictionary.Add("texture", "PlayerPicture");
 				// Add the data to the main dictionary for the rival's image
 				
 				if(!string.IsNullOrEmpty(user.image) && !playerChallengeImageDictionary.ContainsKey(user.image))
 				{
 					playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
 				}
+				playerChallengeImageDictionary.Add("background", new Dictionary<string, string>() {
+					{"name", newButtonName},
+					{"sprite", challengeSprites[user.id % challengeSprites.Length]}
+				});
 				// Finally add the button to the list
 				AddButtonData("challenges", newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
@@ -493,7 +488,7 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, string> dictionary = new Dictionary<string, string>();
 				// Add the title and description for the challenge
 				dictionary.Add("TitleText", user.DisplayName);
-				dictionary.Add("DescriptionText", "challenged you");
+				dictionary.Add("DescriptionText", "Has sent you a challenge!");
 				// Convert the duration to minutes and add it to the dictionary
 				int duration = challengeNote.GetDuration() / 60;
 				dictionary.Add("DurationText", duration.ToString());
@@ -505,17 +500,16 @@ public class MobileHomePanel : MobilePanel {
 				// Create the inner dictionary for the images
 				Dictionary<string, string> innerActiveDictionary = new Dictionary<string, string>();
 				// Add the texture and name for the player's picture
-				innerActiveDictionary.Add("texture", "PlayerPicture");
-				innerActiveDictionary.Add("name", activeButtonName);
-				// Add the player's texture information to the dictionary
-				activeChallengeImageDictionary.Add(player.image, innerActiveDictionary);
-				// Re-initialize the inner dictionary for the rival
 				innerActiveDictionary = new Dictionary<string, string>();
 				// Add the attributes for the rival's button name and texture name
 				innerActiveDictionary.Add("name", activeButtonName);
-				innerActiveDictionary.Add("texture", "RivalPicture");
+				innerActiveDictionary.Add("texture", "PlayerPicture");
 				// Add the rival picture to the dictionary
 				activeChallengeImageDictionary.Add(user.image, innerActiveDictionary);
+				activeChallengeImageDictionary.Add("background", new Dictionary<string, string>() {
+					{"name", activeButtonName},
+					{"sprite", challengeSprites[user.id % challengeSprites.Length]}
+				});
 				// Add the button
 				AddButtonData("challenges", activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
@@ -538,26 +532,6 @@ public class MobileHomePanel : MobilePanel {
 		}
 		if(newChallenges != null && incompleteChallenges != null && playerChallenges != null && !loadingChallengeIncomplete) 
 		{
-			if(newChallenges.Count > 0)
-			{
-				User player = Platform.Instance.User();
-				foreach(var challenge in newChallenges)
-				{
-					Notification note = challenge.GetNotification();
-					if(note.read)
-					{
-						if(note.message.from == player.id)
-						{
-							playerChallenges.Add(challenge);
-						}
-						else
-						{
-							incompleteChallenges.Add(challenge);
-						}
-					}
-				}
-				newChallenges.Clear();
-			}
 			CreateChallengeButtons();
 		}
 	}
@@ -648,11 +622,6 @@ public class MobileHomePanel : MobilePanel {
 	/// </summary>
 	/// <param name="type">Type.</param>
 	public void ChangeList(string type) {
-		// Enable both buttons
-		racersBtn.enabled = true;
-		challengeBtn.enabled = true;
-
-        GameObject opaquenessHackGameObj;
 
 		// Switch the type based on either "challenge" or "friend"
 		switch(type) {
@@ -666,19 +635,36 @@ public class MobileHomePanel : MobilePanel {
 			NGUITools.SetActive(friendsList.gameObject, false);
 			NGUITools.SetActive(challengeList.gameObject, true);
             
+			// Clear seen new challenges
+			if(newChallenges != null && newChallenges.Count > 0)
+			{
+				User player = Platform.Instance.User();
+				foreach(var challenge in newChallenges)
+				{
+					Notification note = challenge.GetNotification();
+					if(note.read)
+					{
+						if(note.message.from == player.id)
+						{
+							playerChallenges.Add(challenge);
+						}
+						else
+						{
+							incompleteChallenges.Add(challenge);
+						}
+					}
+				}
+				newChallenges.Clear();
+			}
+
 			// Get the challenges
 			GetChallenges();
 
 			if (loadingChallengeIncomplete && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
 			else GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
-			
-			// Disable the challenge button to make it go black
-			challengeBtn.enabled = false;
 
-            opaquenessHackGameObj = GameObject.FindGameObjectWithTag("OpacityHack");
-            //opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
-            opaquenessHackGameObj.GetComponent<UISprite>().alpha = 0f;
-            //opaquenessHackGameObj.SetActive(false);
+			racersBtn.enabled = true;
+			challengeBtn.enabled = false;
 
 			break;
 
@@ -696,9 +682,11 @@ public class MobileHomePanel : MobilePanel {
 			}
 
 			if(Platform.Instance.HasPermissions("facebook", "login") && hasFriends) {
-				// Reset the mobile list with cell size of 155
-				if (friendsList.GetItemHeight() != 115 || (betaFriends.Count + invitedFriends.Count + friendsData.Count < GetButtonData("friends").Count)) {
+				// Reset the mobile list if uninitialized
+				if (friendsList.GetItemHeight() != 115) {
 					friendsList.ResetList(115f);				
+				} else {
+					friendsList.ClearList();
 				}
 				GetButtonData("friends").Clear();
 				// If there are beta friends
@@ -771,13 +759,17 @@ public class MobileHomePanel : MobilePanel {
             NGUITools.SetActive(friendsList.gameObject, true);
             NGUITools.SetActive(challengeList.gameObject, false);
 
-            // Disable the racers button to make it go opaque
-            racersBtn.enabled = false;
+			racersBtn.enabled = false;
+			challengeBtn.enabled = true;
 
-            opaquenessHackGameObj = GameObject.FindGameObjectWithTag("OpacityHack");
-            //opaquenessHackGameObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "OpaquenessHackForFriendsTab");
-            //opaquenessHackGameObj.SetActive(true);
-            opaquenessHackGameObj.GetComponent<UISprite>().alpha = 1f;
+			// Mark new challenges as seen
+			if(newChallenges != null && newChallenges.Count > 0)
+			{
+				foreach(var challenge in newChallenges)
+				{
+					challenge.SetRead();
+				}
+			}			
 
 			break;
 
@@ -785,7 +777,9 @@ public class MobileHomePanel : MobilePanel {
 			UnityEngine.Debug.Log("MobileHomePanel: type not implemented");
 			break;
 		}
-
+		
+		racersBtn.UpdateColor(racersBtn.isEnabled, true);
+		challengeBtn.UpdateColor(challengeBtn.isEnabled, true);
 		tab = type;
 	}
 
@@ -885,6 +879,15 @@ public class MobileHomePanel : MobilePanel {
 		base.Exited ();
 
 		Platform.Instance.NetworkMessageListener.onSync -= syncHandler;		
+
+		// Mark new challenges as seen
+		if(newChallenges != null && newChallenges.Count > 0)
+		{
+			foreach(var challenge in newChallenges)
+			{
+				challenge.SetRead();
+			}
+		}		
 
 		// Set initialized to false so that it can be re-initialized when going back in the panel
 		initialized = false;
