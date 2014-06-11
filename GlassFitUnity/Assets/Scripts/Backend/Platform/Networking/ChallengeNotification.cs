@@ -142,6 +142,7 @@ public class ChallengeNotification {
 		if(notification != null)
 		{
 			Platform.Instance.ReadNotification(notification.id);
+			notification.read = true;
 		}
 	}
 	

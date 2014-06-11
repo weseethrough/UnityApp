@@ -31,7 +31,7 @@ public class MobileList : UIComponentSettings
 
     private float defaultYOffset;
 
-    void Start()
+    void Awake()
     {
 //		UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
 //		if (drag != null) drag.ResetPosition();
@@ -313,7 +313,7 @@ public class MobileList : UIComponentSettings
 		return grid.cellHeight;
 	}
 
-    public void ResetList(float newItemHeight)
+    public void ClearList()
     {
 
         foreach (KeyValuePair<string, List<GameObject>> list in instances)
@@ -327,8 +327,11 @@ public class MobileList : UIComponentSettings
         //clear defaults
         buttons = new List<GameObject>();
         instances = new Dictionary<string, List<GameObject>>();
-        previousStartIndex = 0;
-        previousCount = 0;
+	}
+
+	public void ResetList(float newItemHeight)
+	{
+		ClearList();
 
         UIGrid grid = listContent.GetComponent<UIGrid>();
         grid.cellHeight = newItemHeight;

@@ -153,7 +153,8 @@ public class MobileResultsPanel : MobilePanel {
 							}
 						}
 					}
-				}
+                }
+                Platform.Instance.api.MarkTrackAsMatched(track);
 			}
 			else 
 			{
@@ -163,7 +164,6 @@ public class MobileResultsPanel : MobilePanel {
 
 		string playerAveragePace = (string)DataVault.Get ("player_average_pace");
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "AveragePaceText", playerAveragePace);
-
 	}
 
 	public override void Exited ()
