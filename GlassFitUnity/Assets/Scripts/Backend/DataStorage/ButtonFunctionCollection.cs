@@ -1179,7 +1179,8 @@ public class ButtonFunctionCollection
         NetworkMessageListener.OnAuthenticated handler = null;
         handler = new NetworkMessageListener.OnAuthenticated((errors) => {
 			bool authenticated = errors.Count == 0;
-            DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
+            ArrayList errorList = new ArrayList(errors.Keys);
+            DataVault.Set("form_error", authenticated ? "" : errorList[0]);
 			if(authenticated)
 			{
 				UnityEngine.Debug.Log("authenticated successfully");
