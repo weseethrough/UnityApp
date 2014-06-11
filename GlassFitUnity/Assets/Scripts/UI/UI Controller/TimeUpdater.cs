@@ -33,7 +33,7 @@ public class TimeUpdater : MonoBehaviour {
             label.enabled = true;
         }
 
-		if(challengeTime != null && !label.text.Contains("Expired")) {
+		if(challengeTime != null && !label.text.Contains("Expired") && !label.text.Contains("<db_")) {
 			DateTime currentTime = System.DateTime.Now;
 			if(challengeTime.Year < 2013) {
                 currentLabelString = label.text;

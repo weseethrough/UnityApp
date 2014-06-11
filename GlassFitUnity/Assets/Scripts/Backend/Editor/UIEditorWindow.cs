@@ -313,7 +313,7 @@ public class UIEditorWindow : EditorWindow
 		{
 			return GUILayer.e2D;
 		}
-		else
+        else if (layer == LayerMask.NameToLayer("GUI3D"))
 		{
 			return GUILayer.e3D;
 		}
