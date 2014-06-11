@@ -55,7 +55,7 @@ public class OpponentMatchedPanel : MobilePanel {
 
 		if(rivalUser != null)
 		{
-			DataVault.Set("chosen_user", rivalUser);
+            DataVault.Set("competitor", rivalUser);
 			GameObjectUtils.SetTextOnLabelInChildren(rivalGo, "PlayerName", rivalUser.name);
 
 			UITexture profilePicture = rivalGo.GetComponentInChildren<UITexture>();

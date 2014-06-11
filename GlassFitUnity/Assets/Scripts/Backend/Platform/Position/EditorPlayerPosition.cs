@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using UnityEngine;
 using System.Runtime.CompilerServices;
-
+using System.Collections.Generic;
 using RaceYourself.Models;
 
 public class EditorPlayerPosition : PlayerPosition {
@@ -41,6 +41,9 @@ public class EditorPlayerPosition : PlayerPosition {
 	private System.Random random = new System.Random();
 	private new Log log = new Log("EditorPlayerPosition");
 
+    private List<Position> positions = new List<Position>();
+    private int frames;
+
 	public EditorPlayerPosition() {
 
 
@@ -68,8 +71,22 @@ public class EditorPlayerPosition : PlayerPosition {
         _position = new Position((float)(INITIAL_LATITUDE+Math.Cos(Bearing*Math.PI/180)*Distance/111229d), (float)(INITIAL_LONGITUDE + Math.Sin (Bearing * Math.PI / 180) * Distance / 111229d));
 		_predictedPosition = _position;
 
-        //Platform.Instance.GetMonoBehavioursPartner ().SendMessage ("NewTrack", "json");
+        long ts = ConvertToTimestamp(DateTime.Now);
+
+        if (frames++ % 30 == 0)
+        {
+            Position pTemp = new Position(_position.latitude, _position.longitude);
+            pTemp.device_ts = ts;
+            positions.Add(pTemp);
+            //Platform.Instance.GetMonoBehavioursPartner ().SendMessage ("NewTrack", "json");
+        }
 	}
+
+    private long ConvertToTimestamp(DateTime value)
+    {
+        TimeSpan span = (value - new DateTime(1970, 1, 1, 0, 0, 0, 0));
+        return (long) span.TotalSeconds;
+    }
 
 	public override void StartTrack() {
 		timer.Start();
@@ -84,7 +101,11 @@ public class EditorPlayerPosition : PlayerPosition {
 	public override Track StopTrack() {
 		timer.Stop();
 		base.StopTrack();
-		return null;
+
+        List<Position> pos = new List<Position>();
+        Track dummy = new Track();
+        dummy.positions = positions;
+		return dummy;
 	}
 
 	public override void Reset() {

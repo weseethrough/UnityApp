@@ -154,7 +154,6 @@ public class MobileResultsPanel : MobilePanel {
 						}
 					}
                 }
-                Platform.Instance.api.MarkTrackAsMatched(track);
 			}
 			else 
 			{
