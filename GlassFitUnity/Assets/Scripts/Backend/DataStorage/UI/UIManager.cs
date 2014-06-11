@@ -1,4 +1,9 @@
 using UnityEngine;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 using System.Collections;
 using System;
 using System.Collections.Generic;
@@ -120,6 +125,20 @@ public class UIManager : MonoBehaviour
 
             if (root != null)
             {
+#if UNITY_EDITOR
+                //this method allows us to keep prefab reference for saving purposes. During runtime it 
+                //doesn't matter if we use prefabs or clan gameobjects but if while in editor we will try 
+                //to save without this reference we will loose connection with source                
+                GameObject instanceRoot = root;
+                instanceRoot.transform.parent = root.transform.parent;
+
+                string path = panelData[panelID];
+                GameObject prefab = Resources.Load(path) as GameObject;
+                GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+                instance.transform.parent = instanceRoot.transform;
+
+#else
+
                 GameObject instanceRoot = (GameObject)GameObject.Instantiate(root);
                 instanceRoot.transform.parent = root.transform.parent;
 
@@ -127,7 +146,8 @@ public class UIManager : MonoBehaviour
                 GameObject prefab = Resources.Load(path) as GameObject;
                 GameObject instance = (GameObject)GameObject.Instantiate(prefab);
                 instance.transform.parent = instanceRoot.transform;
-
+            
+#endif
                 return instanceRoot;
             }
         }
