@@ -29,9 +29,14 @@ public class GameObjectUtils
         }
     }
 
-    static public GameObject SearchTreeByName(GameObject root, string uniqueName)
+	static public GameObject SearchTreeByName(GameObject root, string uniqueName) 
+	{
+		return SearchTreeByName(root, uniqueName, false);
+	}
+
+    static public GameObject SearchTreeByName(GameObject root, string uniqueName, bool includeInactive)
     {
-        Transform[] components = root.GetComponentsInChildren<Transform>() as Transform[];
+		Transform[] components = root.GetComponentsInChildren<Transform>(includeInactive) as Transform[];
 
         foreach (Transform component in components)
         {
