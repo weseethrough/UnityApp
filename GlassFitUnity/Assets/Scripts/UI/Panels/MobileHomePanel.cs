@@ -53,6 +53,13 @@ public class MobileHomePanel : MobilePanel {
 
 	private string tab = "preinit";
 
+	private string[] challengeSprites = new string[] {
+		"homescreen_card_01_2-02",
+		"homescreen_card_01_2-05", 
+		"homescreen_card_01_2-07",
+		"homescreen_card_01_2-08"
+	};
+
 	public MobileHomePanel() { }
 	public MobileHomePanel(SerializationInfo info, StreamingContext ctxt)
 		: base(info, ctxt)
@@ -146,6 +153,8 @@ public class MobileHomePanel : MobilePanel {
 			challengeBtn.enabled = false;
 			challengeBtn.defaultColor = new Color(255 / 255f, 255 / 255f, 255 / 255f, 100/255f);
 		}
+
+		// TODO: Get sprite names from atlas
 
 		// Find the ChallengeNotification game object
 		challengeNotification = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "ChallengeNotification");
@@ -411,14 +420,15 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, Dictionary<string, string>> newChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 				// Create an inner dictionary for the previous dictionary
 				Dictionary<string, string> innerNewDictionary = new Dictionary<string, string>();
-
-				// Re-initialize the dictionary
-				innerNewDictionary = new Dictionary<string, string>();
 				// Add the name and texture again
 				innerNewDictionary.Add("name", newButtonName);
 				innerNewDictionary.Add("texture", "PlayerPicture");
 				// Add the data to the main dictionary for the rival's image
 				newChallengeImageDictionary.Add(user.image, innerNewDictionary);
+				newChallengeImageDictionary.Add("background", new Dictionary<string, string>() {
+					{"name", newButtonName},
+					{"sprite", challengeSprites[user.id % challengeSprites.Length]}
+				});
 				// Finally add the button to the list
 				AddButtonData("challenges", newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
@@ -438,7 +448,7 @@ public class MobileHomePanel : MobilePanel {
 				// Create a new dictionary for the text fields
 				Dictionary<string, string> playerDictionary = new Dictionary<string, string>();
 				// Add the title and description
-				playerDictionary.Add("TitleText", "You have challenged");
+				playerDictionary.Add("TitleText", "You challenged");
 				playerDictionary.Add("DescriptionText", user.DisplayName);
 				// Change the duration to minutes and add to the dictionary
 				int duration = challengeNote.GetDuration() / 60;
@@ -450,8 +460,6 @@ public class MobileHomePanel : MobilePanel {
 				Dictionary<string, Dictionary<string, string>> playerChallengeImageDictionary = new Dictionary<string, Dictionary<string, string>>();
 				// Create an inner dictionary for the previous dictionary
 				Dictionary<string, string> innerPlayerDictionary = new Dictionary<string, string>();
-				// Re-initialize the dictionary
-				innerPlayerDictionary = new Dictionary<string, string>();
 				// Add the name and texture again
 				innerPlayerDictionary.Add("name", newButtonName);
 				innerPlayerDictionary.Add("texture", "PlayerPicture");
@@ -461,6 +469,10 @@ public class MobileHomePanel : MobilePanel {
 				{
 					playerChallengeImageDictionary.Add(user.image, innerPlayerDictionary);
 				}
+				playerChallengeImageDictionary.Add("background", new Dictionary<string, string>() {
+					{"name", newButtonName},
+					{"sprite", challengeSprites[user.id % challengeSprites.Length]}
+				});
 				// Finally add the button to the list
 				AddButtonData("challenges", newButtonName, playerDictionary, "", playerChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
@@ -497,6 +509,10 @@ public class MobileHomePanel : MobilePanel {
 				innerActiveDictionary.Add("texture", "PlayerPicture");
 				// Add the rival picture to the dictionary
 				activeChallengeImageDictionary.Add(user.image, innerActiveDictionary);
+				activeChallengeImageDictionary.Add("background", new Dictionary<string, string>() {
+					{"name", activeButtonName},
+					{"sprite", challengeSprites[user.id % challengeSprites.Length]}
+				});
 				// Add the button
 				AddButtonData("challenges", activeButtonName, dictionary, "", activeChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
 			}
