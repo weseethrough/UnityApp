@@ -56,6 +56,9 @@ public class MobileChallengeInfoPanel : MobilePanel {
 	{
 		User player = Platform.Instance.User();
 
+		DataVault.Set("title", "");
+		DataVault.Set("description", "");
+
 		int rivalId = challengeNotification.message.from;
 		if(rivalId == player.id) 
 		{
@@ -70,42 +73,29 @@ public class MobileChallengeInfoPanel : MobilePanel {
 
 		DataVault.Set("opponent_user", rival);
 			
-		GameObject rivalPicture = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
-		string empty = "test";
+		DataVault.Set("rival", rival.DisplayName);
+
+		if(challengeNotification.message.from == player.id) 
+		{
+			DataVault.Set("title", "You challenged");
+			DataVault.Set("description", rival.DisplayName);
+		} else {
+			DataVault.Set("title", rival.DisplayName);
+			DataVault.Set("description", "Has sent you a challenge!");
+		}
+
+		GameObject rivalPicture = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
 		if(rivalPicture != null) 
 		{
-			UIBasiclabel rivalName = rivalPicture.GetComponent<UIBasiclabel>();
-			if(rivalName != null) 
-			{
-				GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalName", rival.forename);
-				rivalName.SetLabel(rival.forename);
-			}
-				
 			UITexture rivalPictureTex = rivalPicture.GetComponentInChildren<UITexture>();
 			//					UnityEngine.Debug.LogError(Platform.Instance.User().name);
 			if(rivalPictureTex != null) 
 			{
-				Platform.Instance.RemoteTextureManager.LoadImage(rival.image, empty, (tex, button) => 
-				                                                 {
+				Platform.Instance.RemoteTextureManager.LoadImage(rival.image, null, (tex, arg) => 				                                                 {
 					rivalPictureTex.mainTexture = tex;
 				});
 			}
 		}
-			
-		GameObject userPicture = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
-		if(userPicture != null) 
-		{
-			UITexture userPictureTex = userPicture.GetComponentInChildren<UITexture>();
-			if(userPictureTex != null) 
-			{
-				Platform.Instance.RemoteTextureManager.LoadImage(player.image, empty, (tex, button) => 
-				{
-					userPictureTex.mainTexture = tex;
-				});
-			}
-		}
-			
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "How far can you run?");
 			
 		Challenge challenge = null;
 
@@ -121,8 +111,9 @@ public class MobileChallengeInfoPanel : MobilePanel {
 				duration /= 60;
 			}
 			DataVault.Set("duration", duration.ToString());
-			GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "DurationText", duration.ToString());
 			DataVault.Set("finish_time_seconds", duration * 60);
+
+			DataVault.Set("expires", challenge.stop_time.Value.ToString("O"));
 
 			List<Challenge.Attempt> attempts = challenge.attempts;
 			UnityEngine.Debug.Log("MobileChallengeInfoPanel: number of attempts is " + attempts.Count);
@@ -133,10 +124,6 @@ public class MobileChallengeInfoPanel : MobilePanel {
 			bool playerComplete = false;
 			bool rivalComplete = false;
 				
-			GameObject playerDistanceObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerDistance");
-			UITexture playerCircle = playerDistanceObj.GetComponentInChildren<UITexture>();
-			GameObject rivalDistanceObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalDistance");
-			UITexture rivalCircle = rivalDistanceObj.GetComponentInChildren<UITexture>();
 			if(attempts != null && attempts.Count > 0) 
 			{
 				foreach(Challenge.Attempt attempt in attempts) 
@@ -163,16 +150,12 @@ public class MobileChallengeInfoPanel : MobilePanel {
 						if(playerTrack != null) 
 						{
 							playerDistance = playerTrack.distance;
-							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceText", (playerDistance / 1000).ToString("f2"));
-							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerDistanceUnitsText", "KM");
-							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "PlayerQuestionText", "");
-							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "Awaiting friend's challenge attempt");
-							if(playerCircle != null) {
-								playerCircle.color = new Color(57/255f, 188/255f, 60/255f);
-							}
+                            DataVault.Set("your_distance", Math.Round(playerTrack.distance/1000, 2));
+							DataVault.Set("your_distance_sub", "KM");
+							DataVault.Set("your_time", "ran " + playerTrack.date.ToString("ran h:mm tt dd.MM.yy").ToLower());
 						}
-							
-					} else if(attempt.user_id == rival.id) 
+                        
+                    } else if(attempt.user_id == rival.id) 
 					{
 						rivalComplete = true;
 						Track rivalTrack = null;
@@ -183,52 +166,29 @@ public class MobileChallengeInfoPanel : MobilePanel {
 						if(rivalTrack != null) 
 						{
 							rivalDistance = rivalTrack.distance;
-							DataVault.Set("current_track", rivalTrack);
-							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceText", (rivalDistance / 1000).ToString("f2"));
-							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalDistanceUnitsText", "KM");
-							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "RivalQuestionText", "");
-							if(rivalCircle != null) {
-								rivalCircle.color = new Color(57/255f, 188/255f, 60/255f);
-							}
-						}
-					}
-				}
+							DataVault.Set("rivals_distance", Math.Round(rivalTrack.distance/1000, 2) + " KM");
+							DataVault.Set("rivals_distance_sub", "KM");						
+							DataVault.Set("rivals_time", "ran " + rivalTrack.date.ToString("ran h:mm tt dd.MM.yy").ToLower());
+                        }
+                    }
+                }
 			}
 
-			if(playerComplete && rivalComplete) 
+			if (!playerComplete) {
+				DataVault.Set("your_distance_sub", "NO RUN RECORDED");
+            }
+			if (!rivalComplete) {
+				DataVault.Set("rivals_distance_sub", "NO RUN RECORDED");
+            }
+            
+            if(playerComplete && rivalComplete) 
 			{
-				GameObject reward = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "Reward");
-				if(reward != null)
+				if(playerDistance > rivalDistance) 
 				{
-					UIAnchor rewardAnchor = reward.GetComponent<UIAnchor>();
-					if(rewardAnchor != null) 
-					{
-						if(playerDistance > rivalDistance) 
-						{
-							rewardAnchor.relativeOffset = new Vector2(-0.15f, 0.35f);
-							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "You Won!");
-							if(playerCircle != null) 
-							{
-								playerCircle.color = new Color(255/255f, 204/255f, 0);
-							} 
-							if(rivalCircle != null) 
-							{
-								rivalCircle.color = new Color(255/255f, 69/255f, 28/255f);
-							}
-						} else 
-						{
-							rewardAnchor.relativeOffset = new Vector2(0.15f, 0.35f);
-							GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "ChallengeResultText", "You Lost!");
-							if(playerCircle != null) 
-							{
-								playerCircle.color = new Color(255/255f, 69/255f, 28/255f);
-							} 
-							if(rivalCircle != null) 
-							{
-								rivalCircle.color = new Color(255/255f, 204/255f, 0);
-							}
-						}
-					}
+					// TODO
+				} else 
+				{
+					// TODO
 				}
 			}
 		}
@@ -240,7 +200,27 @@ public class MobileChallengeInfoPanel : MobilePanel {
 
 		challengeNotification = (Notification)DataVault.Get("challenge_notification");
 
-		if(challengeNotification != null) 
+		DataVault.Set("your_pace", "?");
+		DataVault.Set("your_speed", "?");
+		DataVault.Set("your_up", "?");
+		DataVault.Set("your_down", "?");
+		DataVault.Set("your_weather", "?");
+		DataVault.Set("your_distance", "");
+		DataVault.Set("your_distance_sub", "");
+        DataVault.Set("rivals_pace", "?");
+		DataVault.Set("rivals_speed", "?");
+		DataVault.Set("rivals_up", "?");
+		DataVault.Set("rivals_down", "?");
+		DataVault.Set("rivals_weather", "?");
+		DataVault.Set("rivals_distance", "");
+		DataVault.Set("rivals_distance_sub", "");
+        
+        
+        DataVault.Set("your_time", "");
+		DataVault.Set("rival", "?");
+		DataVault.Set("rivals_time", "");
+
+        if(challengeNotification != null) 
 		{
 			Platform.Instance.partner.StartCoroutine(CheckChallengeAttempts());
 		}
