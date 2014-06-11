@@ -1,9 +1,12 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 using RaceYourself.Models;
 
 public class VoiceFeedbackController : MonoBehaviour
 {
+    Log log = new Log ("VoiceFeedbackController");
+
     public AudioSource audioSource;
     public AudioClip paceSlower;
     public AudioClip paceSimilar;
@@ -15,39 +18,57 @@ public class VoiceFeedbackController : MonoBehaviour
     public AudioClip outlookDraw;
     public AudioClip outlookWin;
 
-    private PlayerPosition player;
-    private RYWorldObject opponent;
-    private Track track;
+    public PlayerPosition player;
+    public RYWorldObject opponent;
+    public Track track;
 
-    private float lastUpdateTime;
+    private long lastUpdateTime;
+
+    public VoiceFeedbackController() {
+        log.info ("Created");
+        this.lastUpdateTime = 0;
+    }
 
     public VoiceFeedbackController (PlayerPosition player, RYWorldObject opponent, Track track)
     {
+        log.info ("Created");
         this.player = player;
         this.opponent = opponent;
         this.track = track;
-        this.lastUpdateTime = 0;
+        this.lastUpdateTime = 0L;
     }
 
     void Update()
     {
-        if (!player.IsTracking)
+        if (player == null || opponent == null || track == null || !player.IsTracking)
             return;
 
-        // custom feedback just after start
-        if (lastUpdateTime == 0 && player.Time > 5)
+        log.info ("Updating");
+
+        // play queued clip if there's nothing currently playing
+        if (!audioSource.isPlaying && audioQueue.Count > 0)
         {
+            audioSource.clip = audioQueue.Dequeue();
+            audioSource.Play();
+        }
+                                  
+                                  // custom feedback just after start
+        if (lastUpdateTime == 0 && player.Time > 5000)
+        {
+            log.info ("Playing 5-sec feedback");
             sayDistanceDelta ();
             lastUpdateTime = player.Time;
             return;
         }
 
         // regular feedback throughout race
-        if (player.Time > lastUpdateTime + 10)
+        if (player.Time > lastUpdateTime + 10000)
         {
+            log.info ("Playing regular feedback: " + player.Time + "s into race");
             sayDistanceDelta();
             sayPaceDelta();
             sayOutlook();
+            lastUpdateTime = player.Time;
         }
     }
 
@@ -78,10 +99,10 @@ public class VoiceFeedbackController : MonoBehaviour
         play(outlookWin);
     }
 
+    private Queue<AudioClip> audioQueue = new Queue<AudioClip> (5);
     private void play(AudioClip audioClip)
     {
-        audioSource.clip = audioClip;
-        audioSource.Play();
+        audioQueue.Enqueue(audioClip);
     }
 }
 

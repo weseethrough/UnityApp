@@ -24,6 +24,8 @@ public class MobileInRun : MobilePanel {
 	RunnerSpriteAnimation playerSpriteAnimation;
 	RunnerSpriteAnimation opponentSpriteAnimation;
 
+    VoiceFeedbackController voiceFeedbackController;
+
 	UIWidget AheadBehindBG;
 
 	bool bPaused = false;
@@ -156,6 +158,10 @@ public class MobileInRun : MobilePanel {
 		track = game.selectedTrack;
 		if(track != null) {
 			eventProperties.Add("track_id", track.trackId.ToString());
+            voiceFeedbackController = GameObject.FindObjectOfType<VoiceFeedbackController>();
+            voiceFeedbackController.player = Platform.Instance.LocalPlayerPosition;
+            voiceFeedbackController.opponent = opponentObj;
+            voiceFeedbackController.track = track;
 		}
 		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 
