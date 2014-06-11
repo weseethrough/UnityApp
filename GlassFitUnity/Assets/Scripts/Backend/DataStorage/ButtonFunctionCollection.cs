@@ -131,12 +131,17 @@ public class ButtonFunctionCollection
 				switch(fb.name)
                 {
 				case "ChallengeBtn":
+				case "ChallengeBtnBtn":
                     targetList = "challenge";
 					break;
 
 				case "RacersBtn":
+				case "RacersBtnBtn":
 				case "NoChallengeButton":
                     targetList = "friend";
+					break;
+				default:
+					UnityEngine.Debug.LogError("SetMobileHomeTab: Unknown button " + fb.name);
 					break;
 				}
                 (panel as MobileHomePanel).ChangeList(targetList);
