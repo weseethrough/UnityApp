@@ -68,7 +68,7 @@ public class MobileChallengeInfoPanel : MobilePanel {
 			rival = u;
 		}));
 
-		DataVault.Set("chosen_user", rival);
+		DataVault.Set("opponent_user", rival);
 			
 		GameObject rivalPicture = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
 		string empty = "test";

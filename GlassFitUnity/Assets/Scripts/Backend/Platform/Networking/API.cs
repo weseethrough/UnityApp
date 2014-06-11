@@ -832,11 +832,11 @@ namespace RaceYourself
 		[MethodImpl(MethodImplOptions.Synchronized)]
 		public bool MarkTrackAsMatched(int deviceId, int trackId) {
 			// Always queue action as server db might have been cleared
-			Platform.Instance.QueueAction(string.Format(@"{
-                                                          'action' : 'matched_track',
-                                                          'device_id' : '{0}',
-                                                          'track_id' : '{1}'
-                                                        }".Replace("'", "\""), deviceId, trackId));
+			Platform.Instance.QueueAction(string.Format(@"{{
+                                                          ""action"" : ""matched_track"",
+                                                          ""device_id"" : ""{0}"",
+                                                          ""track_id"" : ""{1}""
+                                                        }}", deviceId, trackId));
 
 			if (db.Query<MatchedTrack>().Where(mt => mt.deviceId == deviceId && mt.trackId == trackId).FirstOrDefault() != null) return false;
 

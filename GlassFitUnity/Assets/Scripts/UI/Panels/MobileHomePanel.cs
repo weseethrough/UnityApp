@@ -110,7 +110,7 @@ public class MobileHomePanel : MobilePanel {
 		if (friendsList == null) UnityEngine.Debug.LogError("MobileHomePanel: friends list missing!");
 
 		// Get the iPhone background 
-		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "MainProfilePicture");
+		GameObject bkg = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "MainProfilePicture", true);
 
 		// Set the player's name
 //		GameObjectUtils.SetTextOnLabelInChildren(bkg, "PlayerName", Platform.Instance.User().name);

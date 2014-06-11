@@ -1184,7 +1184,8 @@ public class ButtonFunctionCollection
         NetworkMessageListener.OnAuthenticated handler = null;
         handler = new NetworkMessageListener.OnAuthenticated((errors) => {
 			bool authenticated = errors.Count == 0;
-            DataVault.Set("form_error", authenticated ? "" : "Failed to login.");
+            ArrayList errorList = new ArrayList(errors.Keys);
+            DataVault.Set("form_error", authenticated ? "" : errorList[0]);
 			if(authenticated)
 			{
 				UnityEngine.Debug.Log("authenticated successfully");
@@ -1550,7 +1551,7 @@ public class ButtonFunctionCollection
 			Platform.Instance.GetUser(user, (u) => {
 				if(u != null)
 				{
-					DataVault.Set("competitor", u);
+					DataVault.Set("opponent_user", u);
 					log.info("Got competitor " + u.DisplayName);
 				}
 				else
@@ -1567,7 +1568,7 @@ public class ButtonFunctionCollection
 
 
         DataVault.Set("current_track", track);
-        //DataVault.Set("competitor", competitor);
+        //DataVault.Set("opponent_user", competitor);
         return true;
     }
 
