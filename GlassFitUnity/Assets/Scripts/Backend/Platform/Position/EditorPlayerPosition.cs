@@ -4,6 +4,8 @@ using UnityEngine;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
 using RaceYourself.Models;
+using SiaqodbUtils;
+using Sqo;
 
 public class EditorPlayerPosition : PlayerPosition {
 
@@ -44,6 +46,9 @@ public class EditorPlayerPosition : PlayerPosition {
     private List<Position> positions = new List<Position>();
     private int frames;
 
+    // TODO refactor. Not consistent with approach in CrossPlatformPlayerPosition
+    private Track track;
+
 	public EditorPlayerPosition() {
 
 
@@ -77,6 +82,7 @@ public class EditorPlayerPosition : PlayerPosition {
         {
             Position pTemp = new Position(_position.latitude, _position.longitude);
             pTemp.device_ts = ts;
+            pTemp.trackId = track.trackId;
             positions.Add(pTemp);
             //Platform.Instance.GetMonoBehavioursPartner ().SendMessage ("NewTrack", "json");
         }
@@ -91,6 +97,10 @@ public class EditorPlayerPosition : PlayerPosition {
 	public override void StartTrack() {
 		timer.Start();
 		base.StartTrack();
+
+        Siaqodb db = DatabaseFactory.GetInstance();
+        track = new Track();
+        track.save(db);
 	}
 
 	public override Boolean HasLock() {
@@ -103,9 +113,8 @@ public class EditorPlayerPosition : PlayerPosition {
 		base.StopTrack();
 
         List<Position> pos = new List<Position>();
-        Track dummy = new Track();
-        dummy.positions = positions;
-		return dummy;
+        track.positions = positions;
+		return track;
 	}
 
 	public override void Reset() {

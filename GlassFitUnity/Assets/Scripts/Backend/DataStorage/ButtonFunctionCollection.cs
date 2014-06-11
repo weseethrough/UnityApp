@@ -1545,7 +1545,7 @@ public class ButtonFunctionCollection
 			Platform.Instance.GetUser(user, (u) => {
 				if(u != null)
 				{
-					DataVault.Set("competitor", u);
+					DataVault.Set("opponent_user", u);
 					log.info("Got competitor " + u.DisplayName);
 				}
 				else
@@ -1562,7 +1562,7 @@ public class ButtonFunctionCollection
 
 
         DataVault.Set("current_track", track);
-        //DataVault.Set("competitor", competitor);
+        //DataVault.Set("opponent_user", competitor);
         return true;
     }
 

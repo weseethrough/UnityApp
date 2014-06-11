@@ -40,7 +40,7 @@ public class MobileResultsPanel : MobilePanel {
 	{
 		base.EnterStart ();
 
-		chosenUser = (User)DataVault.Get("chosen_user");
+        chosenUser = (User)DataVault.Get("opponent_user");
 
 		string button = "test";
 		GameObject playerPicObj = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PlayerPicture");
@@ -168,7 +168,7 @@ public class MobileResultsPanel : MobilePanel {
 	public override void Exited ()
 	{
 		base.Exited ();
-		DataVault.Remove("chosen_user");
+        DataVault.Remove("opponent_user");
 		DataVault.Remove("challenge_notification");
 		DataVault.Remove("current_track");
 	}
