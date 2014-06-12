@@ -17,6 +17,9 @@ public class MobileInRun : MobilePanel {
 	float oppoenentsDistance = 0;
 	float localTime;
 
+	float playerKmPace;
+
+
 	Log log = new Log("MobileInRun");
 		
 	UISlider playerProgressBar;
@@ -68,6 +71,7 @@ public class MobileInRun : MobilePanel {
 
 	// Use this for initialization
 	void Start () {
+		//Platform.Instance.
 		//put initialisation in enterStart instead
 	}
 
@@ -214,7 +218,7 @@ public class MobileInRun : MobilePanel {
 		DataVault.Set("opponent_average_pace", opponentPaceString);
 
 		//no longer than original target
-		elapsedTime = Mathf.Min(elapsedTime, elapsedTime);
+		//elapsedTime = Mathf.Min(elapsedTime, elapsedTime); //some extra special code here!
 
 		string timeString = UnitsHelper.TimestampMMSSfromMillis((long)elapsedTime * 1000);
 		DataVault.Set("finish_time", timeString);
@@ -230,29 +234,22 @@ public class MobileInRun : MobilePanel {
 			Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
 			Device device = Platform.Instance.Device();
 
-            if (current != null && device != null)
-            {
-                // If completing a challenge, notify server that the challenge has been attempted.
-                if (challengeNotification != null)
-                {
-                    UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
-                    UnityEngine.Debug.Log("MobileInRun: Device ID is " + device.id);
-                    UnityEngine.Debug.Log("MobileInRun: Track ID is " + current.trackId);
-                    // TODO refactor. Follow example of other QueueAction calls in API and have a method that wraps this in API?
-                    Platform.Instance.QueueAction(string.Format(@"{{'action': 'challenge_attempt', 
-                                                'challenge_id': {0}, 
-                                                'track_id' : [
-                                                    {1}, {2}
-                                                ]
-                                    }}", challengeNotification.message.challenge_id, device.id, current.trackId).Replace("'", "\""));
-                }
-                
-                Platform.Instance.api.MarkTrackAsMatched(track);
-            }
-            else
-            {
-                log.error("No track recorded!");
-            }
+			if(current != null && challengeNotification != null && device != null) {
+				UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
+				UnityEngine.Debug.Log("MobileInRun: Device ID is " + device.id);
+				UnityEngine.Debug.Log("MobileInRun: Track ID is " + current.trackId);
+
+				Platform.Instance.QueueAction(string.Format(@"{{'action': 'challenge_attempt', 
+												'challenge_id': {0}, 
+												'track_id' : [
+													{1}, {2}
+												]
+									}}", challengeNotification.message.challenge_id, device.id, current.trackId).Replace("'", "\""));
+			} else
+			{
+				UnityEngine.Debug.LogError("MobileInRun: No track or notification!");
+			}
+
 		}
 
 		// load new scene
@@ -338,20 +335,30 @@ public class MobileInRun : MobilePanel {
 		playerSpriteAnimation.stationary = Platform.Instance.LocalPlayerPosition.Pace < 1.0f || !Platform.Instance.LocalPlayerPosition.IsTracking;
 		playerSpriteAnimation.framesPerSecond =(int)(10 *( Platform.Instance.LocalPlayerPosition.Pace/1.5));
 
-		oppoenentsDistance = opponentProgress - oppoenentsDistance;
+
+		oppoenentsDistance =  opponentDist - oppoenentsDistance;
+
+		opponentsPace = oppoenentsDistance/(elapsedTime - localTime);
+
+		Debug.LogWarning("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
+
 
 		opponentsPace = oppoenentsDistance/(elapsedTime - localTime);
 		Debug.Log("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
 		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
 
-		opponentSpriteAnimation.framesPerSecond =(int)(100 *( opponentsPace/3));
+
+		opponentSpriteAnimation.framesPerSecond =(int)(70 *( opponentsPace/3));
+
+
 
 		//no convenient interface to get opponent speed atm, just make it always run for now
 		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking||Platform.Instance.LocalPlayerPosition.Pace < 1.0f || opponentsPace < 0.5f;
 
+		localTime = elapsedTime;
 		// check for race finished
 		float time = elapsedTime;
-		localTime = elapsedTime;
+
 
 		if(time > targetTime)
 		{
