@@ -21,7 +21,7 @@ public class MobileAwaitGPS : MonoBehaviour {
 		//if we get GPs, proceed straight to game view
 		if(Platform.Instance.LocalPlayerPosition.HasLock())
 		{
-			Platform.Instance.LocalPlayerPosition.SetIndoor(false);
+			Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 			FlowState.FollowFlowLinkNamed("GotGPS");
 		}
 	}
