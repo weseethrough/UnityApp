@@ -36,11 +36,11 @@ public class OpponentMatchedPanel : MobilePanel {
         base.EnterStart ();
 		haveOpponentDetails = FillInOpponentDetails();
 
-        Animation a = physicalWidgetRoot.GetComponentInChildren<Animation>();        
+        Animation a = physicalWidgetRoot.GetComponentInChildren<Animation>();
 
-        ActiveAnimation activeAnim = ActiveAnimation.Play(a, a.animation.name, AnimationOrTween.Direction.Forward);
+        ActiveAnimation activeAnim = ActiveAnimation.Play(a, "MobileOpponentMatchedEnterAnim", AnimationOrTween.Direction.Forward);
         activeAnim.Reset();
-        a[a.animation.name].time = 0.1f;        
+        a["MobileOpponentMatchedEnterAnim"].time = 0.1f;        
     }
 
 	public override void StateUpdate()
