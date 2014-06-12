@@ -62,6 +62,15 @@ public class RYWorldObject : MonoBehaviour {
 		updateScenePos();
 	}
 
+    /// <summary>
+    /// Gets the real world dist.
+    /// </summary>
+    /// <returns>The real world dist.</returns>
+    public float getRealWorldDist()
+    {
+        return realWorldPos.z;
+    }
+
 	/// <summary>
 	///  Set real world movement speed. Updates it in the object for use in speed-dependent evaluations. Does not update position.
 	/// </summary>
@@ -70,6 +79,15 @@ public class RYWorldObject : MonoBehaviour {
 	{
 		realWorldMovementSpeed = speed;
 	}
+
+    /// <summary>
+    /// Gets the real world speed.
+    /// </summary>
+    /// <returns>The real world speed.</returns>
+    public float getRealWorldSpeed()
+    {
+        return realWorldMovementSpeed;
+    }
 
 	public virtual double GetDistanceBehindTarget()
 	{

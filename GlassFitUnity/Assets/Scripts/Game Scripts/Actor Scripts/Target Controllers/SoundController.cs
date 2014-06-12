@@ -11,6 +11,7 @@ public class SoundController : RYWorldObject {
 	
 	// Array of audio sources for the tracks.
 	private AudioSource[] stevies;
+    private VoiceFeedbackController voiceFeedbackController;
 	
 	// Current time to calculate when to start next track.
 	private float curTime = 0.0f;
@@ -47,6 +48,7 @@ public class SoundController : RYWorldObject {
 		
 		// Get all audio tracks.
 		stevies = GetComponents<AudioSource>();
+        voiceFeedbackController = GameObject.FindObjectOfType<VoiceFeedbackController>();
 		
 		// Set scale values.
 		scale.x = (float)Screen.width/originalWidth;
@@ -110,7 +112,12 @@ public class SoundController : RYWorldObject {
 			int cur = Mathf.CeilToInt(countTime);
 			if(countTime > 0.0f)
 			{
-				GUI.Label(new Rect(400, 200, 200, 200), cur.ToString()); 
+				GUI.Label(new Rect(400, 200, 200, 200), cur.ToString());
+                switch (cur) {
+                case 3 : voiceFeedbackController.playNumber(3); break;
+                case 2 : voiceFeedbackController.playNumber(2); break;
+                case 1 : voiceFeedbackController.playNumber(1); break;
+                }
 			}
 			else if(countTime > -1.0f && countTime < 0.0f)
 			{

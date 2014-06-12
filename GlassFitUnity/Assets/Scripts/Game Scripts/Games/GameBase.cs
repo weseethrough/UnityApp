@@ -24,7 +24,7 @@ public class GameBase : MonoBehaviour {
 
 	private RunGoalType goalType = RunGoalType.Distance;
 
-	//constant values for states. New states should be added here or in a subclass in the same manner.
+    //constant values for stat3es. New states should be added here or in a subclass in the same manner.
 	public const string GAMESTATE_AWAITING_USER_READY = "awaiting_ready";
 	public const string GAMESTATE_COUNTING_DOWN = "counting_down";
 	public const string GAMESTATE_PAUSED = "paused";
@@ -66,6 +66,8 @@ public class GameBase : MonoBehaviour {
 	private GestureHelper.OnSwipeRight rightHandler = null;
 
 	protected GameObject theVirtualTrack;
+
+    private VoiceFeedbackController voiceFeedbackController;
 	
 	//two vars used in controlling the jog-on-the spot prompt.
 	private int lastDistance;
@@ -97,7 +99,7 @@ public class GameBase : MonoBehaviour {
 				return 5000;
 			}
 		}
-	}
+    }
 
 	public static int getTargetTime()
 	{
@@ -135,7 +137,10 @@ public class GameBase : MonoBehaviour {
 	/// </summary>
 	public virtual void Start () 
 	{
-		//blank out strings
+		
+        voiceFeedbackController = GameObject.FindObjectOfType<VoiceFeedbackController>();
+
+        //blank out strings
 		DataVault.Set("countdown_subtitle", " ");
 		DataVault.Set("indoor_move", " ");
 		DataVault.Set("distance_position", " ");
@@ -425,7 +430,7 @@ public class GameBase : MonoBehaviour {
 		return;
 	}
 	
-	/// <summary>
+    /// <summary>3
 	/// Continue, once we come to the end of a game
 	/// </summary>
 	void Continue() {
@@ -592,6 +597,7 @@ public class GameBase : MonoBehaviour {
 			//set value for subtitle. 0 = GO
 			string displayString = (i==0) ? "GO !" : i.ToString();
 			DataVault.Set("countdown_subtitle", displayString);
+            voiceFeedbackController.playNumber(i);
 			
 			//wait half a second
 			yield return new WaitForSeconds(1.0f);
