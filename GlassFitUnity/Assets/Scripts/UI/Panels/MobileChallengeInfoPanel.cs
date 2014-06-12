@@ -122,6 +122,7 @@ public class MobileChallengeInfoPanel : MobilePanel {
 				
 			if(attempts != null && attempts.Count > 0) 
 			{
+				UnityEngine.Debug.LogError(attempts.Count);
 				foreach(ChallengeAttempt attempt in attempts) 
 				{
 					if(attempt.user_id == player.id && !playerComplete) 
@@ -215,16 +216,20 @@ public class MobileChallengeInfoPanel : MobilePanel {
 				DataVault.Set("rivals_distance_sub", "NO RUN RECORDED");
             }
             
+			GameObject shareContainer = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "ShareContainer");
             if(playerComplete && rivalComplete) 
 			{
 				if(playerDistance > rivalDistance) 
 				{
-					// TODO
+					DataVault.Set("share_title", "time to bask in the glory of success!");
 				} else 
 				{
-					// TODO
-				}
-			}
+					DataVault.Set("share_title", "congratulate your fellow competitor!");
+                }
+				shareContainer.SetActive(true);
+            } else {
+				shareContainer.SetActive(false);
+            }
 		}
 	}
 
