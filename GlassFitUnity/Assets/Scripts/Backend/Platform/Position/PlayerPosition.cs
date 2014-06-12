@@ -56,13 +56,15 @@ public abstract class PlayerPosition {
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void SetIndoor(bool indoor)
 	{
-		this.indoor = indoor;
+		this.indoor = true;
+		//this.indoor = indoor;
 	}
 
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual bool IsIndoor()
 	{
-		return indoor;
+		return true;
+		//return indoor;
 	}
 
 	// Check if has GPS lock
