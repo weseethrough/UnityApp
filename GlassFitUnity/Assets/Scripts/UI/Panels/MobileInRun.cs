@@ -225,7 +225,7 @@ public class MobileInRun : MobilePanel {
 			Track current = Platform.Instance.LocalPlayerPosition.StopTrack();
 			Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
 			Device device = Platform.Instance.Device();
-<<<<<<< HEAD
+
 			if(current != null && challengeNotification != null && device != null) {
 				UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
 				UnityEngine.Debug.Log("MobileInRun: Device ID is " + device.id);
@@ -241,32 +241,7 @@ public class MobileInRun : MobilePanel {
 			{
 				UnityEngine.Debug.LogError("MobileInRun: No track or notification!");
 			}
-=======
 
-            if (current != null && device != null)
-            {
-                // If completing a challenge, notify server that the challenge has been attempted.
-                if (challengeNotification != null)
-                {
-                    UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
-                    UnityEngine.Debug.Log("MobileInRun: Device ID is " + device.id);
-                    UnityEngine.Debug.Log("MobileInRun: Track ID is " + current.trackId);
-                    // TODO refactor. Follow example of other QueueAction calls in API and have a method that wraps this in API?
-                    Platform.Instance.QueueAction(string.Format(@"{{'action': 'challenge_attempt', 
-                                                'challenge_id': {0}, 
-                                                'track_id' : [
-                                                    {1}, {2}
-                                                ]
-                                    }}", challengeNotification.message.challenge_id, device.id, current.trackId).Replace("'", "\""));
-                }
-                
-                Platform.Instance.api.MarkTrackAsMatched(track);
-            }
-            else
-            {
-                log.error("No track recorded!");
-            }
->>>>>>> f8fcedd047fb68bd3c87bad4d6eb81e5935658be
 		}
 
 		// load new scene
