@@ -1517,7 +1517,9 @@ public class ButtonFunctionCollection
 
 		log.info("Getting tracks for this user's fitness level");
 
-		TrackBucket bucket = Platform.Instance.api.AutoMatch(fitnessLevel.ToLower(), runTime);
+		var bucketTime = runTime;
+		if (runTime == 2) bucketTime = 5; // DEMO
+		TrackBucket bucket = Platform.Instance.api.AutoMatch(fitnessLevel.ToLower(), bucketTime);
 		List<Track> tracks = bucket.tracks;
 		if (tracks.Count == 0) {
 			tracks = bucket.all;

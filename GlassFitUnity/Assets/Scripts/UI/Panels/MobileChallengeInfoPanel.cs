@@ -105,11 +105,7 @@ public class MobileChallengeInfoPanel : MobilePanel {
 
 		if(challenge != null) 
 		{
-			int duration = (challenge as DurationChallenge).duration;
-			if(duration > 120) 
-			{
-				duration /= 60;
-			}
+			int duration = (challenge as DurationChallenge).duration / 60;
 			DataVault.Set("duration", duration.ToString());
 			DataVault.Set("finish_time_seconds", duration * 60);
 
