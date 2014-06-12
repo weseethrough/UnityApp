@@ -176,7 +176,12 @@ public class MobilePanel : Panel
 		AddButtonData(list, buttonName, buttonDictionary, function, null, buttonFormat, cloneFirstLinkage);
 	}   
 	
-	protected void AddButtonData(string list, string buttonName, Dictionary<string, string> buttonDictionary, string function, Dictionary<string, Dictionary<string, string>> imageDictionary, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+    protected void AddButtonData(string list, string buttonName, Dictionary<string, string> buttonDictionary, string function, Dictionary<string, Dictionary<string, string>> imageDictionary, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage)
+    {
+        AddButtonData(list, buttonName, buttonDictionary, function, imageDictionary, buttonFormat, cloneFirstLinkage, true);
+    }
+
+	protected void AddButtonData(string list, string buttonName, Dictionary<string, string> buttonDictionary, string function, Dictionary<string, Dictionary<string, string>> imageDictionary, ListButtonData.ButtonFormat buttonFormat, GConnector cloneFirstLinkage, bool read)
 	{
 		ListButtonData data = new ListButtonData();
 		data.buttonName = buttonName;
@@ -184,6 +189,7 @@ public class MobilePanel : Panel
 		data.buttonFormat = buttonFormat.ToString();
 		data.textDictionary = buttonDictionary;
 		data.imageDictionary = imageDictionary;
+        data.read = read;
 
 		var buttonData = GetButtonData(list);
 

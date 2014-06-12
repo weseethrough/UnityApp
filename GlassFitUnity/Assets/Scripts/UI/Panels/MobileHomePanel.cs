@@ -427,7 +427,7 @@ public class MobileHomePanel : MobilePanel {
 					{"sprite", challengeSprites[user.id % challengeSprites.Length]}
 				});
 				// Finally add the button to the list
-				AddButtonData("challenges", newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"));
+				AddButtonData("challenges", newButtonName, dictionary, "", newChallengeImageDictionary, ListButtonData.ButtonFormat.FriendChallengeButton, GetConnection("ChallengeExit"), false);
 			}
 		}
 
