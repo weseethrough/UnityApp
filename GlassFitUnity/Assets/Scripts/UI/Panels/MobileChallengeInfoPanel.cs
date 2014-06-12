@@ -223,6 +223,8 @@ public class MobileChallengeInfoPanel : MobilePanel {
         if(challengeNotification != null) 
 		{
 			Platform.Instance.partner.StartCoroutine(CheckChallengeAttempts());
+			Platform.Instance.ReadNotification(challengeNotification.id);
+			challengeNotification.read = true;
 		}
 	}
 }
