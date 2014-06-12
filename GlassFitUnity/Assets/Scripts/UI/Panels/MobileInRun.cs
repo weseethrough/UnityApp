@@ -347,13 +347,13 @@ public class MobileInRun : MobilePanel {
 		//Debug.Log("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
 		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, opponentSpriteAnimation.transform.localPosition.y, 0);
 
-		DataVault.Set("ahead_box", Mathf.Abs(playerDist-opponentDist));
+		//DataVault.Set("ahead_box", Mathf.Abs(playerDist-opponentDist));
 		opponentSpriteAnimation.framesPerSecond = Mathf.Clamp((int)(70 *( opponentsPace/3)),10,50);
 
 
 
 		//no convenient interface to get opponent speed atm, just make it always run for now
-		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking || opponentsPace < 0.5f;
+		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking || opponentsPace < 1f;
 
 		localTime = elapsedTime;
 		// check for race finished
