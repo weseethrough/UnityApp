@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using System;
 using RaceYourself.Models;
 
 public class ChallengeNotification {
@@ -20,6 +20,11 @@ public class ChallengeNotification {
 	}
 	public ChallengeNotification(Notification notification, Challenge challenge, User user) 
 	{
+        if (notification == null)
+            throw new ArgumentNullException("Notification must not be null");
+        if (challenge == null)
+            throw new ArgumentNullException("Challenge must not be null");
+
 		this.notification = notification;
 		this.challenge = challenge;
 		this.user = user;
@@ -136,14 +141,16 @@ public class ChallengeNotification {
 			return 0;
 		}
 	}
+
+    public bool GetRead()
+    {
+        return notification.read;
+    }
 	
 	public void SetRead()
 	{
-		if(notification != null)
-		{
-			Platform.Instance.ReadNotification(notification.id);
-			notification.read = true;
-		}
+		Platform.Instance.ReadNotification(notification.id);
+		notification.read = true;
 	}
 	
 	public Track GetTrack()

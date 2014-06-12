@@ -233,6 +233,16 @@ public class MobileList : UIComponentSettings
             fb.name = data.buttonName;
         }
 
+        // If challenge hasn't been read yet, show the highlight (opacity=1). If it's been read, hide it (opacity=0).
+        GameObject newChallengeHighlightGobj = GameObjectUtils.SearchTreeByName(button, "NewChallengeHighlight");
+        // TODO replace null check with checking for whether we're on the challenge list.
+        if (newChallengeHighlightGobj != null)
+        {
+            UISprite highlightSprite = newChallengeHighlightGobj.GetComponent<UISprite>();
+            highlightSprite.alpha = data.read ? 0f : 1f;
+            //newChallengeHighlightGobj.UpdateColor(data.read, true);
+        }
+
 		GameObjectUtils.SetTextOnLabelInChildren(button, "title", data.textNormal);
 		GameObjectUtils.SetTextOnLabelInChildren(button, "content", data.buttonName);
 

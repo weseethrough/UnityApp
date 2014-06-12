@@ -35,6 +35,11 @@ public class ListButtonData : ISerializable
 	public Dictionary<string, string> textDictionary 							= new Dictionary<string, string>();
 
     /// <summary>
+    /// Has the user clicked on this item yet to see its detail?
+    /// </summary>
+    public bool read;
+
+    /// <summary>
     /// default constructor
     /// </summary>
     /// <returns></returns>
