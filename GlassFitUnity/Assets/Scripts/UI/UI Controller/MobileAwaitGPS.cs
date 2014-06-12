@@ -7,6 +7,8 @@ public class MobileAwaitGPS : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+
 		StartCoroutine(showSkipAfterDelay());
 	}
 

@@ -21,7 +21,7 @@ public abstract class PlayerPosition {
 	public bool IsTracking { get { return _tracking; } }
 
 	private bool started = false;
-	private bool indoor = false;
+	private bool indoor = true;
 
 	protected Log log = new Log("PlayerPosition");  // for use by subclasses
 
@@ -56,15 +56,14 @@ public abstract class PlayerPosition {
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void SetIndoor(bool indoor)
 	{
-		this.indoor = true;
-		//this.indoor = indoor;
+		this.indoor = indoor;
 	}
 
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual bool IsIndoor()
 	{
-		return true;
-		//return indoor;
+	
+		return indoor;
 	}
 
 	// Check if has GPS lock
