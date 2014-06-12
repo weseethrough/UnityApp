@@ -333,27 +333,27 @@ public class MobileInRun : MobilePanel {
 		float activeWidth = Screen.width * 0.5f;
 		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
 		playerSpriteAnimation.stationary = Platform.Instance.LocalPlayerPosition.Pace < 1.0f || !Platform.Instance.LocalPlayerPosition.IsTracking;
-		playerSpriteAnimation.framesPerSecond =(int)(10 *( Platform.Instance.LocalPlayerPosition.Pace/1.5));
+		playerSpriteAnimation.framesPerSecond =Mathf.Clamp((int)(10 *( Platform.Instance.LocalPlayerPosition.Pace/1.5)),10,50);
 
 
 		oppoenentsDistance =  opponentDist - oppoenentsDistance;
 
 		opponentsPace = oppoenentsDistance/(elapsedTime - localTime);
 
-		Debug.LogWarning("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
+		//Debug.LogWarning("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
 
 
 		opponentsPace = oppoenentsDistance/(elapsedTime - localTime);
-		Debug.Log("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
-		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+		//Debug.Log("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
+		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, opponentSpriteAnimation.transform.localPosition.y, 0);
 
-
-		opponentSpriteAnimation.framesPerSecond =(int)(70 *( opponentsPace/3));
+		DataVault.Set("ahead_box", Mathf.Abs(playerDist-opponentDist));
+		opponentSpriteAnimation.framesPerSecond = Mathf.Clamp((int)(70 *( opponentsPace/3)),10,50);
 
 
 
 		//no convenient interface to get opponent speed atm, just make it always run for now
-		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking||Platform.Instance.LocalPlayerPosition.Pace < 1.0f || opponentsPace < 0.5f;
+		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking || opponentsPace < 0.5f;
 
 		localTime = elapsedTime;
 		// check for race finished
