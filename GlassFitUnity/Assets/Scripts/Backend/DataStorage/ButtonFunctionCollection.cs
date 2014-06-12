@@ -176,10 +176,7 @@ public class ButtonFunctionCollection
 		eventProperties.Add("event_name", "send_challenge");
 		eventProperties.Add("challenge_id", challenge.id);
 		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
-
-
-		MessageWidget.AddMessage("Challenge Sent", friend.forename + " has been challenged", "!none");
-		panel.parentMachine.FollowBack();
+        
 		return true;
 	}
 
