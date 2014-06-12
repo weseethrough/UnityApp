@@ -384,8 +384,8 @@ public class MobileHomePanel : MobilePanel {
 	{
 		UnityEngine.Debug.Log("CreateChallengeButtons()");
 		// Reset list (scroll to top) if uninitialized or new challenges 
-		if (challengeList.GetItemHeight() != 250 || newChallenges.Count > 0) {
-			challengeList.ResetList(250f);
+		if (challengeList.GetItemHeight() != 280 || newChallenges.Count > 0) {
+			challengeList.ResetList(280f);
 		} else {
 			challengeList.ClearList();
 		}
