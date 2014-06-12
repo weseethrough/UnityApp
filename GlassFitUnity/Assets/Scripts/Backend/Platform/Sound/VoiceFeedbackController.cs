@@ -17,6 +17,11 @@ public class VoiceFeedbackController : MonoBehaviour
     public AudioClip outlookLose;
     public AudioClip outlookDraw;
     public AudioClip outlookWin;
+    public AudioClip go;
+
+    public AudioClip number1;
+    public AudioClip number2;
+    public AudioClip number3;
 
     public PlayerPosition player;
     public RYWorldObject opponent;
@@ -38,38 +43,41 @@ public class VoiceFeedbackController : MonoBehaviour
         this.lastUpdateTime = 0L;
     }
 
+    private bool mute = false;
     void Update()
     {
-        if (player == null || opponent == null || track == null || !player.IsTracking)
-            return;
-
-        log.info ("Updating");
-
         // play queued clip if there's nothing currently playing
         if (!audioSource.isPlaying && audioQueue.Count > 0)
         {
             audioSource.clip = audioQueue.Dequeue();
             audioSource.Play();
         }
+
+        if (mute || player == null || opponent == null || track == null || !player.IsTracking)
+            return;
+
+        log.info ("Updating");
                                   
-                                  // custom feedback just after start
-        if (lastUpdateTime == 0 && player.Time > 5000)
+        // custom feedback just after start
+        if (lastUpdateTime == 0 && player.Time > 15000)
         {
             log.info ("Playing 5-sec feedback");
-            sayDistanceDelta ();
-            lastUpdateTime = player.Time;
+            sayPaceDelta ();
+            lastUpdateTime = 15000;
             return;
         }
 
         // regular feedback throughout race
-        if (player.Time > lastUpdateTime + 10000)
+        if (player.Time > lastUpdateTime + 20000)
         {
             log.info ("Playing regular feedback: " + player.Time + "s into race");
             sayDistanceDelta();
-            sayPaceDelta();
-            sayOutlook();
+            //sayPaceDelta();
+            //sayOutlook();
             lastUpdateTime = player.Time;
+            mute = true;
         }
+
     }
 
     private const float SIMILAR_DISTANCE_THRESHOLD = 5;  // m ... may need to use % too
@@ -97,6 +105,24 @@ public class VoiceFeedbackController : MonoBehaviour
     private void sayOutlook()
     {
         play(outlookWin);
+    }
+
+    public void playNumber(int number)
+    {
+        switch (number) {
+        case 0:
+            play (go);
+            break;
+        case 1:
+            play (number1);
+            break;
+        case 2:
+            play (number2);
+            break;
+        case 3:
+            play (number3);
+            break;
+        }
     }
 
     private Queue<AudioClip> audioQueue = new Queue<AudioClip> (5);
