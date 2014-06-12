@@ -73,6 +73,7 @@
     <Compile Include="Models\TrackBucket.cs" />
     <Compile Include="Models\Parameter.cs" />
     <Compile Include="Models\Profile.cs" />
+    <Compile Include="Models\ChallengeAttempt.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="siaqodb">
