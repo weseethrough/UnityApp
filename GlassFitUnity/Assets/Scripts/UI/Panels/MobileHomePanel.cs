@@ -213,7 +213,12 @@ public class MobileHomePanel : MobilePanel {
 	/// <returns>Yields while fetching individual challenges.</returns>
 	private IEnumerator LoadChallenges()
 	{
-		UnityEngine.Debug.Log("MobileHomePanel::LoadChallenges()");
+		if (notifications == null) {
+			loadingChallengeIncomplete = false;
+			UnityEngine.Debug.LogWarning("MobileHomePanel: null notifications");
+			yield break;
+        }
+        UnityEngine.Debug.Log("MobileHomePanel::LoadChallenges()");
 		loadingChallengeIncomplete = true;
 		if (tab == "challenges" && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
 		// Find all challenge notifications
@@ -221,6 +226,10 @@ public class MobileHomePanel : MobilePanel {
 		if(filteredNotifications != null) {
 			// Remove all challenges that aren't duration based
 			filteredNotifications = filteredNotifications.FindAll(r => r.message.challenge_type == "duration");
+		} else {
+			loadingChallengeIncomplete = false;
+			UnityEngine.Debug.LogWarning("MobileHomePanel: no challenge notifications");
+			yield break;
 		}
 
 		UnityEngine.Debug.Log("MobileHomePanel: Got " + filteredNotifications.Count + " challenges");
@@ -230,7 +239,6 @@ public class MobileHomePanel : MobilePanel {
 		{
 			// Get the player challenges
 			List<Notification> playerNotifications = filteredNotifications.FindAll(r => r.message.from == Platform.Instance.User().id);
-
 			// Remove all the player's sent challenges from the notifications
 			filteredNotifications.RemoveAll(x => x.message.from == Platform.Instance.User().id);
 
@@ -240,7 +248,6 @@ public class MobileHomePanel : MobilePanel {
 			if(newNotifications != null && newNotifications.Count > 0) {
 				DataVault.Set("new_challenges", newNotifications.Count);
 			}
-
 			// Remove all unread notifications from the filtered notifications
 			filteredNotifications.RemoveAll(x => x.read == false);
 
@@ -327,6 +334,8 @@ public class MobileHomePanel : MobilePanel {
 
 					if(difference != null && difference.Value.TotalMinutes > 0) {
 						ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
+						// Mark own challenge notifications as read as we take no other action
+						if (challengeNote.GetRead()) challengeNote.SetRead(); 
 						// Add the challenge to the list
 						playerChallenges.Add(challengeNote);
 
@@ -391,6 +400,7 @@ public class MobileHomePanel : MobilePanel {
 		}
 		GetButtonData("challenges").Clear();
 		User player = Platform.Instance.User();
+		UnityEngine.Debug.Log("CreateChallengeButtons: " + newChallenges.Count + " new, " + playerChallenges.Count + " player, " + incompleteChallenges.Count + " incomplete challenges");
 		foreach(ChallengeNotification challengeNote in newChallenges)
 		{
 			Challenge challenge = challengeNote.GetChallenge();
@@ -654,7 +664,7 @@ public class MobileHomePanel : MobilePanel {
 						}
 					}
 				}
-				newChallenges.Clear();
+				newChallenges.RemoveAll(cn => cn.GetRead() == true);
 			}
 
 			// Get the challenges
@@ -761,15 +771,6 @@ public class MobileHomePanel : MobilePanel {
 
 			racersBtn.enabled = false;
 			challengeBtn.enabled = true;
-
-			// Mark new challenges as seen
-			if(newChallenges != null && newChallenges.Count > 0)
-			{
-				foreach(var challenge in newChallenges)
-				{
-					challenge.SetRead();
-				}
-			}			
 
 			break;
 
@@ -879,17 +880,7 @@ public class MobileHomePanel : MobilePanel {
 		base.Exited ();
 
 		Platform.Instance.NetworkMessageListener.onSync -= syncHandler;		
-
-		// Mark new challenges as seen
-		if(newChallenges != null && newChallenges.Count > 0)
-		{
-			foreach(var challenge in newChallenges)
-			{
-				challenge.SetRead();
-			}
-		}		
-
-		// Set initialized to false so that it can be re-initialized when going back in the panel
+				// Set initialized to false so that it can be re-initialized when going back in the panel
 		initialized = false;
 	}
 
