@@ -7,9 +7,9 @@ public class MobileAwaitGPS : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		FlowState.FollowFlowLinkNamed("Skip");
 
-
-		StartCoroutine(showSkipAfterDelay());
+		//StartCoroutine(showSkipAfterDelay());
 	}
 
 	IEnumerator showSkipAfterDelay()

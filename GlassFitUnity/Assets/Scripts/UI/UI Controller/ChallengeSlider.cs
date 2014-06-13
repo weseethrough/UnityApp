@@ -50,6 +50,7 @@ public class ChallengeSlider : MonoBehaviour {
 	public void SetValue() {
 		float convertedSliderValue = (UISlider.current.value * 5) + 1;
 		int runTime = (int)(convertedSliderValue * 5);
+		if (runTime == 5) runTime = 2; // DEMO
 
 		DataVault.Set("run_time", runTime);
 //		Debug.LogError(UISlider.current.value);

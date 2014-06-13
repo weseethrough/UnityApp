@@ -105,17 +105,13 @@ public class MobileChallengeInfoPanel : MobilePanel {
 
 		if(challenge != null) 
 		{
-			int duration = (challenge as DurationChallenge).duration;
-			if(duration > 120) 
-			{
-				duration /= 60;
-			}
+			int duration = (challenge as DurationChallenge).duration / 60;
 			DataVault.Set("duration", duration.ToString());
 			DataVault.Set("finish_time_seconds", duration * 60);
 
 			DataVault.Set("expires", challenge.stop_time.Value.ToString("O"));
 
-			List<Challenge.Attempt> attempts = challenge.attempts;
+			List<ChallengeAttempt> attempts = challenge.attempts;
 			UnityEngine.Debug.Log("MobileChallengeInfoPanel: number of attempts is " + attempts.Count);
 
 			playerDistance = 0;
@@ -126,7 +122,7 @@ public class MobileChallengeInfoPanel : MobilePanel {
 				
 			if(attempts != null && attempts.Count > 0) 
 			{
-				foreach(Challenge.Attempt attempt in attempts) 
+				foreach(ChallengeAttempt attempt in attempts) 
 				{
 					if(attempt.user_id == player.id && !playerComplete) 
 					{
@@ -150,9 +146,28 @@ public class MobileChallengeInfoPanel : MobilePanel {
 						if(playerTrack != null) 
 						{
 							playerDistance = playerTrack.distance;
-                            DataVault.Set("your_distance", Math.Round(playerTrack.distance/1000, 2));
+                            DataVault.Set("your_distance", Math.Round(playerTrack.distance/1000, 2).ToString());
 							DataVault.Set("your_distance_sub", "KM");
-							DataVault.Set("your_time", "ran " + playerTrack.date.ToString("ran h:mm tt dd.MM.yy").ToLower());
+							DataVault.Set("your_time", playerTrack.date.ToString("ran h:mm tt dd.MM.yy").ToLower());
+
+							float? init_alt = null;
+							float min_alt = float.MaxValue;
+							float max_alt = float.MinValue;
+							float max_speed = 0;
+							foreach (var position in playerTrack.positions) {
+								if (position.alt.HasValue && !init_alt.HasValue) init_alt = position.alt;
+								if (position.alt.HasValue && max_alt < position.alt) max_alt = position.alt.Value;
+								if (position.alt.HasValue && min_alt > position.alt) min_alt = position.alt.Value;
+								if (position.speed > max_speed) max_speed = position.speed;
+                            }
+							DataVault.Set("your_pace", Math.Round((playerTrack.distance*60*60/1000) / playerTrack.time, 2).ToString());
+							DataVault.Set("your_speed", Math.Round((max_speed*60*60)/1000, 2).ToString());
+							if (init_alt.HasValue) {
+								DataVault.Set("your_up", Math.Round(max_alt - init_alt.Value, 2).ToString());
+								DataVault.Set("your_down", Math.Round(init_alt.Value - min_alt, 2).ToString());
+                            }
+                            DataVault.Set("your_weather", "?");
+							// TODO: Remove duplicated code
 						}
                         
                     } else if(attempt.user_id == rival.id) 
@@ -166,15 +181,34 @@ public class MobileChallengeInfoPanel : MobilePanel {
 						if(rivalTrack != null) 
 						{
 							rivalDistance = rivalTrack.distance;
-							DataVault.Set("rivals_distance", Math.Round(rivalTrack.distance/1000, 2) + " KM");
+							DataVault.Set("rivals_distance", Math.Round(rivalTrack.distance/1000, 2).ToString());
 							DataVault.Set("rivals_distance_sub", "KM");						
-							DataVault.Set("rivals_time", "ran " + rivalTrack.date.ToString("ran h:mm tt dd.MM.yy").ToLower());
+							DataVault.Set("rivals_time", rivalTrack.date.ToString("ran h:mm tt dd.MM.yy").ToLower());
+
+							float? init_alt = null;
+							float min_alt = float.MaxValue;
+							float max_alt = float.MinValue;
+							float max_speed = 0;
+							foreach (var position in rivalTrack.positions) {
+								if (position.alt.HasValue && !init_alt.HasValue) init_alt = position.alt;
+								if (position.alt.HasValue && max_alt < position.alt) max_alt = position.alt.Value;
+								if (position.alt.HasValue && min_alt > position.alt) min_alt = position.alt.Value;
+								if (position.speed > max_speed) max_speed = position.speed;
+							}
+							DataVault.Set("rivals_pace", Math.Round((rivalTrack.distance*60*60/1000) / rivalTrack.time, 2).ToString());
+							DataVault.Set("rivals_speed", Math.Round((max_speed*60*60)/1000, 2).ToString());
+							if (init_alt.HasValue) {
+								DataVault.Set("rivals_up", Math.Round(max_alt - init_alt.Value, 2).ToString());
+                                DataVault.Set("rivals_down", Math.Round(init_alt.Value - min_alt, 2).ToString());
+                            }
+                            DataVault.Set("rivals_weather", "?");
+                            // TODO: Remove duplicated code
                         }
                     }
                 }
-			}
-
-			if (!playerComplete) {
+            }
+            
+            if (!playerComplete) {
 				DataVault.Set("your_distance_sub", "NO RUN RECORDED");
             }
 			if (!rivalComplete) {

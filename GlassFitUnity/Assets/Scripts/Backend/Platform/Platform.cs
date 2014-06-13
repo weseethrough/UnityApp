@@ -450,10 +450,9 @@ public abstract class Platform : SingletonBase
         db.StoreObject(e);
     }
 
-	public virtual Challenge GetChallenge(int id) {
-		Challenge challenge = db.Query<DistanceChallenge>().Where(ch => ch.id == id).FirstOrDefault();
-		if (challenge != null) return challenge;
-		challenge = db.Query<DurationChallenge>().Where(ch => ch.id == id).FirstOrDefault();
+	public virtual Challenge GetChallenge(int challengeId) {
+		Challenge challenge = db.Query<DistanceChallenge>().Where(dich => dich.id == challengeId).FirstOrDefault();
+		if (challenge == null) challenge = db.Query<DurationChallenge>().Where(duch => duch.id == challengeId).FirstOrDefault();
 		return challenge;
 	}
 
