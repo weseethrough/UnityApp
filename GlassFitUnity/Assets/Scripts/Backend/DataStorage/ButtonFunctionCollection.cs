@@ -1579,14 +1579,14 @@ public class ButtonFunctionCollection
         if (Platform.Instance.api.user.profile != null)
             fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
 
-        // NOTE: Commented out for demoing to gym only
-//        if(fitnessLevel != null && fitnessLevel != "")
-//        {
-//            DataVault.Set("custom_redirection_point", "RaceNowDurationPoint");
-//        } else
-//        {
+        // COMMENT OUT ALL OF THE FOLLOWING EXCEPT THE FitnessLevelPoint LINE FOR PUBLIC DEMOS
+        if(fitnessLevel != null && fitnessLevel != "")
+        {
+            DataVault.Set("custom_redirection_point", "RaceNowDurationPoint");
+        } else
+        {
             DataVault.Set("custom_redirection_point", "FitnessLevelPoint");
-//        }
+        }
         return UseCustomRedirection(button, fs);
     }
 

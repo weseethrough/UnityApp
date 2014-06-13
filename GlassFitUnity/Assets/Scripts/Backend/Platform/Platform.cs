@@ -49,7 +49,7 @@ public abstract class Platform : SingletonBase
     protected bool initialised = false;
     private int sessionId = 0;
     public bool connected { get; protected set; }
-    public int syncInterval = 10;  // Other components may change this to disable sync temporarily?
+    public float syncInterval = 60f;  // Other components may change this to disable sync temporarily?
 	public DateTime lastSync = DateTime.Now;
 
     // TODO: fields that almost certainly want removing
@@ -830,7 +830,7 @@ public abstract class Platform : SingletonBase
     {
         while (true) {
             SyncToServer ();
-            yield return new WaitForSeconds(10.0f);
+            yield return new WaitForSeconds(syncInterval);
         }
     }
 
