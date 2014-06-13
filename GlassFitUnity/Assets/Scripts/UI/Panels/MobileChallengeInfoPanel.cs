@@ -122,6 +122,7 @@ public class MobileChallengeInfoPanel : MobilePanel {
 				
 			if(attempts != null && attempts.Count > 0) 
 			{
+				UnityEngine.Debug.LogError(attempts.Count);
 				foreach(ChallengeAttempt attempt in attempts) 
 				{
 					if(attempt.user_id == player.id && !playerComplete) 
@@ -160,11 +161,11 @@ public class MobileChallengeInfoPanel : MobilePanel {
 								if (position.alt.HasValue && min_alt > position.alt) min_alt = position.alt.Value;
 								if (position.speed > max_speed) max_speed = position.speed;
                             }
-							DataVault.Set("your_pace", Math.Round((playerTrack.distance*60*60/1000) / playerTrack.time, 2).ToString());
-							DataVault.Set("your_speed", Math.Round((max_speed*60*60)/1000, 2).ToString());
+							DataVault.Set("your_pace", Math.Round((playerTrack.distance*60*60/1000) / playerTrack.time, 1).ToString());
+							DataVault.Set("your_speed", Math.Round((max_speed*60*60)/1000, 1).ToString());
 							if (init_alt.HasValue) {
-								DataVault.Set("your_up", Math.Round(max_alt - init_alt.Value, 2).ToString());
-								DataVault.Set("your_down", Math.Round(init_alt.Value - min_alt, 2).ToString());
+								DataVault.Set("your_up", Math.Round(max_alt - init_alt.Value, 1).ToString());
+								DataVault.Set("your_down", Math.Round(init_alt.Value - min_alt, 1).ToString());
                             }
                             DataVault.Set("your_weather", "?");
 							// TODO: Remove duplicated code
@@ -195,11 +196,11 @@ public class MobileChallengeInfoPanel : MobilePanel {
 								if (position.alt.HasValue && min_alt > position.alt) min_alt = position.alt.Value;
 								if (position.speed > max_speed) max_speed = position.speed;
 							}
-							DataVault.Set("rivals_pace", Math.Round((rivalTrack.distance*60*60/1000) / rivalTrack.time, 2).ToString());
-							DataVault.Set("rivals_speed", Math.Round((max_speed*60*60)/1000, 2).ToString());
+							DataVault.Set("rivals_pace", Math.Round((rivalTrack.distance*60*60/1000) / rivalTrack.time, 1).ToString());
+							DataVault.Set("rivals_speed", Math.Round((max_speed*60*60)/1000, 1).ToString());
 							if (init_alt.HasValue) {
-								DataVault.Set("rivals_up", Math.Round(max_alt - init_alt.Value, 2).ToString());
-                                DataVault.Set("rivals_down", Math.Round(init_alt.Value - min_alt, 2).ToString());
+								DataVault.Set("rivals_up", Math.Round(max_alt - init_alt.Value, 1).ToString());
+                                DataVault.Set("rivals_down", Math.Round(init_alt.Value - min_alt, 1).ToString());
                             }
                             DataVault.Set("rivals_weather", "?");
                             // TODO: Remove duplicated code
@@ -208,23 +209,40 @@ public class MobileChallengeInfoPanel : MobilePanel {
                 }
             }
             
-            if (!playerComplete) {
+			GameObject yourCircle = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "LeftCircle");
+			GameObject rivalsCircle = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RightCircle");
+			
+			if (!playerComplete) {
 				DataVault.Set("your_distance_sub", "NO RUN RECORDED");
+				yourCircle.GetComponent<UITexture>().color = Palette.grey;
             }
 			if (!rivalComplete) {
 				DataVault.Set("rivals_distance_sub", "NO RUN RECORDED");
-            }
+				rivalsCircle.GetComponent<UITexture>().color = Palette.grey;
+			}
             
+			GameObject shareContainer = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "ShareContainer");
             if(playerComplete && rivalComplete) 
 			{
 				if(playerDistance > rivalDistance) 
 				{
-					// TODO
+					DataVault.Set("share_title", "time to bask in the glory of success!");
+					yourCircle.GetComponent<UITexture>().color = Palette.green;
+					rivalsCircle.GetComponent<UITexture>().color = Palette.red;
 				} else 
 				{
-					// TODO
+					DataVault.Set("share_title", "congratulate your fellow competitor!");
+					yourCircle.GetComponent<UITexture>().color = Palette.red;
+					rivalsCircle.GetComponent<UITexture>().color = Palette.green;
 				}
-			}
+				GameObject card = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "DropCard");
+				var cardPosition = card.transform.localPosition;
+				cardPosition.y = -65; // TODO: Remove magic variable
+				card.transform.localPosition = cardPosition;
+				shareContainer.SetActive(true);
+            } else {
+				shareContainer.SetActive(false);
+            }
 		}
 	}
 
@@ -234,18 +252,18 @@ public class MobileChallengeInfoPanel : MobilePanel {
 
 		challengeNotification = (Notification)DataVault.Get("challenge_notification");
 
-		DataVault.Set("your_pace", "?");
-		DataVault.Set("your_speed", "?");
-		DataVault.Set("your_up", "?");
-		DataVault.Set("your_down", "?");
-		DataVault.Set("your_weather", "?");
+		DataVault.Set("your_pace", "- -");
+		DataVault.Set("your_speed", "- -");
+		DataVault.Set("your_up", "- -");
+		DataVault.Set("your_down", "- -");
+		DataVault.Set("your_weather", "");
 		DataVault.Set("your_distance", "");
 		DataVault.Set("your_distance_sub", "");
-        DataVault.Set("rivals_pace", "?");
-		DataVault.Set("rivals_speed", "?");
-		DataVault.Set("rivals_up", "?");
-		DataVault.Set("rivals_down", "?");
-		DataVault.Set("rivals_weather", "?");
+		DataVault.Set("rivals_pace", "- -");
+		DataVault.Set("rivals_speed", "- -");
+		DataVault.Set("rivals_up", "- -");
+		DataVault.Set("rivals_down", "- -");
+		DataVault.Set("rivals_weather", "- -");
 		DataVault.Set("rivals_distance", "");
 		DataVault.Set("rivals_distance_sub", "");
         
