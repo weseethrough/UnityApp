@@ -176,10 +176,7 @@ public class ButtonFunctionCollection
 		eventProperties.Add("event_name", "send_challenge");
 		eventProperties.Add("challenge_id", challenge.id);
 		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
-
-
-		MessageWidget.AddMessage("Challenge Sent", friend.forename + " has been challenged", "!none");
-		panel.parentMachine.FollowBack();
+        
 		return true;
 	}
 
@@ -1581,7 +1578,7 @@ public class ButtonFunctionCollection
         if (Platform.Instance.api.user.profile != null)
             fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
 
-        // COMMENT OUT ALL OF THE FOLLOWING EXCEPT THE FitnessLevelPoint LINE FOR PUBLIC DEMOS
+        // NOTE: comment all of this if/else except for the FitnessLevelPoint line for gym demos/to show fitness level Q all the time
         if(fitnessLevel != null && fitnessLevel != "")
         {
             DataVault.Set("custom_redirection_point", "RaceNowDurationPoint");
@@ -1603,27 +1600,17 @@ public class ButtonFunctionCollection
 	}
     
     /// <summary>
-    /// example function which redirects navigation to custom exit named "CustomExit"
+    /// Suppresses the add to history.
     /// </summary>
-    /// <param name="fb"> button providng event </param>
-    /// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
-    /// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
-    static public bool GoToExitForPleaseWait(FlowButton fb, FlowState fs)
+    /// <returns><c>true</c>, if add to historye was suppressed, <c>false</c> otherwise.</returns>
+    /// <param name="fb">Fb.</param>
+    /// <param name="fs">Fs.</param>
+    static public bool SuppressAddToHistory(FlowButton fb, FlowState fs)
     {
         Panel panel = (Panel) fs;
         FlowStateMachine fsm = panel.parentMachine;
-
         // TODO introduce this call for all 'please wait' dialogs - introduce new PleaseWaitPanel with this call on exit?
         fsm.SuppressAddToHistory();
-        if (panel != null)
-        {
-            GConnector gc = panel.Outputs.Find(r => r.Name == "Exit");
-            if (gc != null)
-            {
-                panel.parentMachine.FollowConnection(gc);
-                return false;
-            }                        
-        }
         return true;
     }
 }
