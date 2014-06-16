@@ -166,12 +166,12 @@ public class MobileList : UIComponentSettings
         previousStartIndex = itemOffset;
         previousCount = itemCount;
 
-        UIDraggablePanel drag = GetComponentInChildren<UIDraggablePanel>();
+        UIScrollView drag = GetComponentInChildren<UIScrollView>();
         if (drag != null)
         {                        
             if (requiresResetMask)
             {
-                drag.relativePositionOnReset = Vector2.zero;
+                drag.contentPivot = NGUIMath.GetPivot(new Vector2(0f, 1f));
                 drag.ResetPosition();
             }
 
