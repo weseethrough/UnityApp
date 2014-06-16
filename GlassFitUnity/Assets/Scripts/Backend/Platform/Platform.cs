@@ -806,8 +806,11 @@ public abstract class Platform : SingletonBase
 		{
 			log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
 			if (NetworkMessageListener.authenticated) {
-				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId), null));
-				NetworkMessageListener.OnAuthentication("Success");
+				// Delay OnAuthentication until provider is linked
+				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId), ret => {
+					// Authentication succeeded regardless of linkage success
+					NetworkMessageListener.OnAuthentication("Success");
+				}));
 			} else {
 				// OnAuthentication sent from coroutine
 				GetMonoBehavioursPartner().StartCoroutine(api.Login(FB.UserId + "@facebook", FB.AccessToken));
