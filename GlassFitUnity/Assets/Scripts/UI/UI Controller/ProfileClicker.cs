@@ -15,8 +15,12 @@ public class ProfileClicker : MonoBehaviour
 	public void OnClick () {
 		UnityEngine.Debug.Log("Toggling profile image");
 		toggled = !toggled;
-		defaultProfilePicture.SetActive(!toggled);
-		mainProfilePicture.SetActive(toggled);
+		try {
+			defaultProfilePicture.SetActive(!toggled);		
+			mainProfilePicture.SetActive(toggled);
+		} catch (Exception e) {
+			UnityEngine.Debug.LogException(e);
+		}
 	}
 }
 
