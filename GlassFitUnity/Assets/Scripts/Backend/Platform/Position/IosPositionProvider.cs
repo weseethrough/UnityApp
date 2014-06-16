@@ -33,36 +33,92 @@ public class IosPositionProvider : MonoBehaviour, IPositionProvider {
 
 	private static Position getLatestPosition()
 	{
+
+		///NOTE having issues decoding the JSON coming from iOS. Data values aren't coming back as their original types. I suspect a problem with iOS's dictionary>json conversion
+		/// My plan to work around this is to separately retrieve lastLat, lastLong, lastHeading, etc with individual calls to e.g.  double getLatestLat().
+		/// It might be quite an inefficient way to do it since 
+
+
 		//get the json position data back from iOS
 		string json = _getLatestPosition();
 		UnityEngine.Debug.Log("unity: json latest position: " + json);
 
 		//deserialize
 		Hashtable jsonObject = JsonConvert.DeserializeObject<Hashtable>(json);
-
-		UnityEngine.Debug.Log(jsonObject.ToString());
+		if(jsonObject == null)
+		{
+			UnityEngine.Debug.Log("Deserialise json position failed!");
+		}
+		//UnityEngine.Debug.Log(jsonObject.ToString());
 
 		//construct a position
-		double longitude = (double)jsonObject["longitude"];
-		double latitude = (double)jsonObject["latitude"];
+		UnityEngine.Debug.Log("getting data from json");
+
+		double longitude = getDoubleFromHashTable( jsonObject, "longitude" );
+		UnityEngine.Debug.Log("got longitude: " + longitude);
+
+		double latitude = getDoubleFromHashTable(jsonObject, "latitude");
+		UnityEngine.Debug.Log("got latitude: " + latitude);
 
 		//magnetometer orientation of device
-		double heading = (double)jsonObject["heading"];
+		double heading = getDoubleFromHashTable(jsonObject, "heading");
+		UnityEngine.Debug.Log("got heading: " + heading);
 
-		//direction of movement
-		double course = (double)jsonObject["course"];
+		double epe = getDoubleFromHashTable(jsonObject, "epe");
+		UnityEngine.Debug.Log("got epe: " + epe);
 
-		double epe = (double)jsonObject["epe"];
-		double speed = (double)jsonObject["speed"];
-		double ts = (double)jsonObject["ts"];
+		double speed = getDoubleFromHashTable(jsonObject, "speed");
+		UnityEngine.Debug.Log("got speed: " + speed);
+
+		double ts = getDoubleFromHashTable(jsonObject, "ts");
+		UnityEngine.Debug.Log("got ts: " + ts);
 
 		Position pos = new Position((float)latitude, (float)longitude);
-		pos.bearing = (float)course;
 		pos.epe = (float)epe;
 		pos.speed = (float)speed;
 		pos.gps_ts = (long)ts;
 
+		//direction of movement
+		double course = getDoubleFromHashTable(jsonObject, "course");
+		UnityEngine.Debug.Log("got course: " + course);
+		pos.bearing = (float)course;
+
 		return pos;
+	}
+	
+	public static double getDoubleFromHashTable( Hashtable t, string key)
+	{
+		double result = 0.0;
+		bool done = false;
+		try {
+			result = (double)t["key"];
+			done = true;
+		} 
+		catch (System.Exception e)
+		{
+			UnityEngine.Debug.LogWarning("couldn't extract double " + key + " from json");
+		}
+
+		if(!done)
+		try {
+			float fResult = (float)t["key"];
+			result = (double)fResult;
+			done = true;
+		} catch (System.Exception e) {
+			UnityEngine.Debug.LogWarning("couldn't extract float " + key + " from json. will try int");
+		}
+
+		//couldn't find double, try int
+		if(!done)
+		try {
+			int iResult = (int)t["key"];
+			result = (double)iResult;
+			done = true;
+		} catch (System.Exception e) {
+			UnityEngine.Debug.LogWarning("couldn't extract int " + key + " from json. Will return 0.0");
+		}
+
+		return result;
 	}
 
 	public IosPositionProvider()
@@ -112,7 +168,7 @@ public class IosPositionProvider : MonoBehaviour, IPositionProvider {
 
 		if(!Platform.Instance.LocalPlayerPosition.IsTracking)
 		{
-			return;
+			//return;
 		}
 		//UnityEngine.Debug.Log("iOSPositionProvider: Update");
 

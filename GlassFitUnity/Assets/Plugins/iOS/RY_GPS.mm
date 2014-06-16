@@ -137,20 +137,20 @@ extern "C" {
 
 -(NSDictionary *)getLatestLocationData
 {
-    float latitude = 0;
-    float longitude = 0;
-    float heading = 0;
-    float course = 0;
-    float epe = 0;
-    float speed = 0;
+    double latitude = 0;
+    double longitude = 0;
+    double heading = 0;
+    double course = 0;
+    double epe = 0;
+    double speed = 0;
     double ts = 0;
     if(lastPosition != nil)
     {
-        latitude = (float)lastPosition.coordinate.latitude;
-        longitude = (float)lastPosition.coordinate.longitude;
-        course = (float)lastPosition.course;
-        epe = (float)lastPosition.horizontalAccuracy;
-        speed = (float)lastPosition.speed;
+        latitude = lastPosition.coordinate.latitude;
+        longitude = lastPosition.coordinate.longitude;
+        course = lastPosition.course;
+        epe = lastPosition.horizontalAccuracy;
+        speed = lastPosition.speed;
         ts = lastPosition.timestamp.timeIntervalSince1970;
     }
     if(lastHeading != nil)
@@ -160,12 +160,12 @@ extern "C" {
     
     //fill out dictionary
     NSDictionary* locationDict = [[[NSMutableDictionary alloc] initWithCapacity:3] autorelease];
-    [locationDict setValue:[NSNumber numberWithFloat:latitude] forKey:@"latitude"];
-    [locationDict setValue:[NSNumber numberWithFloat:longitude] forKey:@"longitude"];
-    [locationDict setValue:[NSNumber numberWithFloat:heading] forKey:@"heading"];
-    [locationDict setValue:[NSNumber numberWithFloat:course] forKey:@"course"];
-    [locationDict setValue:[NSNumber numberWithFloat:epe] forKey:@"epe"];
-    [locationDict setValue:[NSNumber numberWithFloat:speed] forKey:@"speed"];
+    [locationDict setValue:[NSNumber numberWithDouble:latitude] forKey:@"latitude"];
+    [locationDict setValue:[NSNumber numberWithDouble:longitude] forKey:@"longitude"];
+    [locationDict setValue:[NSNumber numberWithDouble:heading] forKey:@"heading"];
+    [locationDict setValue:[NSNumber numberWithDouble:course] forKey:@"course"];
+    [locationDict setValue:[NSNumber numberWithDouble:epe] forKey:@"epe"];
+    [locationDict setValue:[NSNumber numberWithDouble:speed] forKey:@"speed"];
     [locationDict setValue:[NSNumber numberWithDouble:ts] forKey:@"ts"];
     return locationDict;
 }

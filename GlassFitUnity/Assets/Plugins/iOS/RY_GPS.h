@@ -21,6 +21,14 @@ extern void UnitySendMessage(const char*, const char*, const char*);
 -(void)startGPS;
 -(void)stopGPS;
 
+-(double)getLatestLat;
+-(double)getLatestLong;
+-(double)getLatestCourse;
+-(double)getLatestEpe;
+-(double)getLatestSpeed;
+-(double)getLatestTs;
+-(double)getLatestHeading;
+
 //returns dict with double:lat, double:long, double:heading
 -(NSDictionary*)getLatestLocationData;
 
