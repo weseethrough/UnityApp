@@ -782,8 +782,8 @@ public class MobileHomePanel : MobilePanel {
 			break;
 		}
 		
-		racersBtn.UpdateColor(racersBtn.isEnabled, true);
-		challengeBtn.UpdateColor(challengeBtn.isEnabled, true);
+	//	racersBtn.UpdateColor(racersBtn.isEnabled, true);
+	//	challengeBtn.UpdateColor(challengeBtn.isEnabled, true);
 		tab = type;
 	}
 

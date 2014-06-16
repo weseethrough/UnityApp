@@ -94,7 +94,7 @@ public class SerializableSettings : ISerializable
                 }
                 else if (sc.doubleData != null && field.FieldType == typeof(float))
                 {
-                    field.SetValue(c, sc.doubleData.Get(fname));
+                    field.SetValue(c, Convert.ToSingle( sc.doubleData.Get(fname)));
                 }
                 else if (sc.doubleData != null && field.FieldType == typeof(double))
                 {

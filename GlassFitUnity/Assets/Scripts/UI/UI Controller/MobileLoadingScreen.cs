@@ -23,7 +23,8 @@ public class MobileLoadingScreen : MonoBehaviour {
 		
 		if(slider != null)	
 		{
-			slider.Set(0, false);
+            slider.value = 0f;
+            slider.fillDirection = UIProgressBar.FillDirection.LeftToRight;
 		}
 		
 		UnityEngine.Debug.Log("MobileLoadingScreen: Attempting to load level: " + levelName);
@@ -57,7 +58,7 @@ public class MobileLoadingScreen : MonoBehaviour {
 		if(async != null) {
 			float progress = async.progress * 100f;
 			if(slider != null) {
-				slider.Set(progress / 100f, false);
+                slider.value = progress / 100f;
 			}
 			UnityEngine.Debug.Log("LoadingScreen: Loading - " + progress.ToString("f0") + "%");
 
