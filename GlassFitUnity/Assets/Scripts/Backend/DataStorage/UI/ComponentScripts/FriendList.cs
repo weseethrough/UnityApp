@@ -248,7 +248,7 @@ public class FriendList : UIComponentSettings
 										User user = Platform.Instance.GetUser(challengerId);
 										//			UnityEngine.Debug.Log("ChallengeNotification: getting first track");
 										UnityEngine.Debug.Log("ChallengePanel: getting track");
-										Challenge.Attempt attempt = potential.attempts.Find(a => a.user_id == user.id);
+										ChallengeAttempt attempt = potential.attempts.Find(a => a.user_id == user.id);
 										UnityEngine.Debug.Log("ChallengePanel: fetching track using previous");
 										if (attempt != null) {
 											Track realTrack = Platform.Instance.FetchTrack(attempt.device_id, attempt.track_id);

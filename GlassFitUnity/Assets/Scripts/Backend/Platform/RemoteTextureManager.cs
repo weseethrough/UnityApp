@@ -44,6 +44,11 @@ public class RemoteTextureManager : MonoBehaviour {
 				cache = null;
 			}
 		}
+		// Protocol-relative URL
+		if (url.StartsWith("//")) {
+			originalUrl = url;
+			url = "http:" + originalUrl;
+		}
 		
 		bool http = url.StartsWith("http");
 		while(http && request >= CONCURRENT_REQUESTS) {

@@ -49,8 +49,7 @@ public abstract class Platform : SingletonBase
     protected bool initialised = false;
     private int sessionId = 0;
     public bool connected { get; protected set; }
-    public int syncInterval = 10;  // Other components may change this to disable sync temporarily?
-	public DateTime lastSync = DateTime.Now;
+    public float syncInterval = 60f;  // Other components may change this to disable sync temporarily?
 
     // TODO: fields that almost certainly want removing
     protected float yaw = -999.0f;
@@ -450,10 +449,9 @@ public abstract class Platform : SingletonBase
         db.StoreObject(e);
     }
 
-	public virtual Challenge GetChallenge(int id) {
-		Challenge challenge = db.Query<DistanceChallenge>().Where(ch => ch.id == id).FirstOrDefault();
-		if (challenge != null) return challenge;
-		challenge = db.Query<DurationChallenge>().Where(ch => ch.id == id).FirstOrDefault();
+	public virtual Challenge GetChallenge(int challengeId) {
+		Challenge challenge = db.Query<DistanceChallenge>().Where(dich => dich.id == challengeId).FirstOrDefault();
+		if (challenge == null) challenge = db.Query<DurationChallenge>().Where(duch => duch.id == challengeId).FirstOrDefault();
 		return challenge;
 	}
 
@@ -620,7 +618,6 @@ public abstract class Platform : SingletonBase
 
     public virtual void SyncToServer() {
         log.info("SyncToServer called");
-        lastSync = DateTime.Now;
 
 #if RACEYOURSELF_MOBILE
         // Show sync icon for duration of sync.
@@ -809,8 +806,11 @@ public abstract class Platform : SingletonBase
 		{
 			log.info("Facebook: Login was successful! " + FB.UserId + " " + FB.AccessToken);
 			if (NetworkMessageListener.authenticated) {
-				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId), null));
-				NetworkMessageListener.OnAuthentication("Success");
+				// Delay OnAuthentication until provider is linked
+				GetMonoBehavioursPartner().StartCoroutine(api.LinkProvider(new ProviderToken("facebook", FB.AccessToken, FB.UserId), ret => {
+					// Authentication succeeded regardless of linkage success
+					NetworkMessageListener.OnAuthentication("Success");
+				}));
 			} else {
 				// OnAuthentication sent from coroutine
 				GetMonoBehavioursPartner().StartCoroutine(api.Login(FB.UserId + "@facebook", FB.AccessToken));
@@ -830,7 +830,7 @@ public abstract class Platform : SingletonBase
     {
         while (true) {
             SyncToServer ();
-            yield return new WaitForSeconds(10.0f);
+            yield return new WaitForSeconds(syncInterval);
         }
     }
 

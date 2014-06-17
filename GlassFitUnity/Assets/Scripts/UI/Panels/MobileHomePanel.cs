@@ -211,18 +211,19 @@ public class MobileHomePanel : MobilePanel {
 	/// Coroutine that loads all challenges
 	/// </summary>
 	/// <returns>Yields while fetching individual challenges.</returns>
-	private IEnumerator LoadChallenges()
+	private IEnumerator LoadChallenges(List<Notification> notes)
 	{
-		if (notifications == null) {
+		if (notes == null) {
 			loadingChallengeIncomplete = false;
 			UnityEngine.Debug.LogWarning("MobileHomePanel: null notifications");
 			yield break;
         }
         UnityEngine.Debug.Log("MobileHomePanel::LoadChallenges()");
 		loadingChallengeIncomplete = true;
+		try {
 		if (tab == "challenges" && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
 		// Find all challenge notifications
-		List<Notification> filteredNotifications = notifications.FindAll(r => r.message.type == "challenge");
+		List<Notification> filteredNotifications = notes.FindAll(r => r.message.type == "challenge");
 		if(filteredNotifications != null) {
 			// Remove all challenges that aren't duration based
 			filteredNotifications = filteredNotifications.FindAll(r => r.message.challenge_type == "duration");
@@ -340,7 +341,7 @@ public class MobileHomePanel : MobilePanel {
 						playerChallenges.Add(challengeNote);
 
 					}
-				}
+				} else yield break;
 			}
 
 			incompleteChallenges = new List<ChallengeNotification>();
@@ -381,12 +382,15 @@ public class MobileHomePanel : MobilePanel {
 					}
 				}
 			}
-
+							
 			CreateChallengeButtons();
 		}
-
+			notifications = notes;
+			UnityEngine.Debug.Log("Loaded challenges");
+		} finally {
 		loadingChallengeIncomplete = false;
 		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
+		}
 	}
 
 	private void CreateChallengeButtons() 
@@ -537,8 +541,7 @@ public class MobileHomePanel : MobilePanel {
 		UnityEngine.Debug.Log("GetChallenges()");
 		var notes = Platform.Instance.Notifications();
 		if (notifications == null || notes.Count != notifications.Count) {
-			notifications = notes;
-			Platform.Instance.partner.StartCoroutine(LoadChallenges());
+			Platform.Instance.partner.StartCoroutine(LoadChallenges(notes));
 		}
 		if(newChallenges != null && incompleteChallenges != null && playerChallenges != null && !loadingChallengeIncomplete) 
 		{
@@ -779,8 +782,8 @@ public class MobileHomePanel : MobilePanel {
 			break;
 		}
 		
-		racersBtn.UpdateColor(racersBtn.isEnabled, true);
-		challengeBtn.UpdateColor(challengeBtn.isEnabled, true);
+	//	racersBtn.UpdateColor(racersBtn.isEnabled, true);
+	//	challengeBtn.UpdateColor(challengeBtn.isEnabled, true);
 		tab = type;
 	}
 

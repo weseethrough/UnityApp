@@ -14,7 +14,7 @@ namespace RaceYourself.Models
 		public int id;
 
 		public int? creator_id;
-		public List<Attempt> attempts;
+        public List<ChallengeAttempt> attempts;
 		public List<int> subscribers;
 		public DateTime? start_time;
 		public DateTime? stop_time;
@@ -52,12 +52,6 @@ namespace RaceYourself.Models
 			}
 		}
 
-		public class Attempt 
-		{
-			public int device_id;
-			public int track_id;
-			public int user_id;
-		}
 	}
 }
 

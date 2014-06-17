@@ -77,7 +77,6 @@ public class NetworkMessageListener : MonoBehaviour
 
     public void OnSynchronization(string message) {
         UnityEngine.Debug.Log("Platform: synchronize finished with " + message);
-        Platform.Instance.lastSync = DateTime.Now;
         if (onSync != null) onSync(message);
     }
 

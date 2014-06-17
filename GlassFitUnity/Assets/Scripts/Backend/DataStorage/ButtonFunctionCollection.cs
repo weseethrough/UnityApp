@@ -181,10 +181,7 @@ public class ButtonFunctionCollection
 		eventProperties.Add("challenge_source", "ChallengeMobilePlayer");
 		eventProperties.Add("challenge_id", challenge.id);
 		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
-
-
-		MessageWidget.AddMessage("Challenge Sent", friend.forename + " has been challenged", "!none");
-		panel.parentMachine.FollowBack();
+        
 		return true;
 	}
 
@@ -1613,7 +1610,9 @@ public class ButtonFunctionCollection
 
 		log.info("Getting tracks for this user's fitness level");
 
-		TrackBucket bucket = Platform.Instance.api.AutoMatch(fitnessLevel.ToLower(), runTime);
+		var bucketTime = runTime;
+		if (runTime == 2) bucketTime = 5; // DEMO
+		TrackBucket bucket = Platform.Instance.api.AutoMatch(fitnessLevel.ToLower(), bucketTime);
 		List<Track> tracks = bucket.tracks;
 		if (tracks.Count == 0)
 		{
@@ -1661,29 +1660,29 @@ public class ButtonFunctionCollection
 		{
 			log.error("No user ID for track");
 		}
+		
+        DataVault.Set("current_track", track);
+        //DataVault.Set("opponent_user", competitor);
+        return true;
+    }
 
+    static public bool CheckFitnessLevel(FlowButton button, FlowState fs)
+    {
+        // retrieve from DB
+        string fitnessLevel = null;
+        if (Platform.Instance.api.user.profile != null)
+            fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
 
-		DataVault.Set("current_track", track);
-		//DataVault.Set("opponent_user", competitor);
-		return true;
-	}
-
-	static public bool CheckFitnessLevel(FlowButton button, FlowState fs)
-	{
-		// retrieve from DB
-		string fitnessLevel = null;
-		if (Platform.Instance.api.user.profile != null)
-			fitnessLevel = Platform.Instance.api.user.profile.runningFitness;
-
-		if (fitnessLevel != null && fitnessLevel != "")
-		{
-			DataVault.Set("custom_redirection_point", "RaceNowDurationPoint");
-		} else
-		{
-			DataVault.Set("custom_redirection_point", "FitnessLevelPoint");
-		}
-		return UseCustomRedirection(button, fs);
-	}
+        // NOTE: comment all of this if/else except for the FitnessLevelPoint line for gym demos/to show fitness level Q all the time
+        if(fitnessLevel != null && fitnessLevel != "")
+        {
+            DataVault.Set("custom_redirection_point", "RaceNowDurationPoint");
+        } else
+        {
+            DataVault.Set("custom_redirection_point", "FitnessLevelPoint");
+        }
+        return UseCustomRedirection(button, fs);
+    }
 
 	static public bool IsLoggedIntoFacebook(FlowButton button, FlowState fs)
 	{
@@ -1696,28 +1695,19 @@ public class ButtonFunctionCollection
 		return false;
 	}
     
-	/// <summary>
-	/// example function which redirects navigation to custom exit named "CustomExit"
-	/// </summary>
-	/// <param name="fb"> button providng event </param>
-	/// <param name="panel">parent panel of the event/button. You might have events started from panel itself without button involved</param>
-	/// <returns> Is button in state to continue? If False is returned button will not navigate forward on its own connection!</returns>
-	static public bool GoToExitForPleaseWait(FlowButton fb, FlowState fs)
-	{
-		Panel panel = (Panel)fs;
-		FlowStateMachine fsm = panel.parentMachine;
 
-		// TODO introduce this call for all 'please wait' dialogs - introduce new PleaseWaitPanel with this call on exit?
-		fsm.SuppressAddToHistory();
-		if (panel != null)
-		{
-			GConnector gc = panel.Outputs.Find(r => r.Name == "Exit");
-			if (gc != null)
-			{
-				panel.parentMachine.FollowConnection(gc);
-				return false;
-			}                        
-		}
-		return true;
-	}
+    /// <summary>
+    /// Suppresses the add to history.
+    /// </summary>
+    /// <returns><c>true</c>, if add to historye was suppressed, <c>false</c> otherwise.</returns>
+    /// <param name="fb">Fb.</param>
+    /// <param name="fs">Fs.</param>
+    static public bool SuppressAddToHistory(FlowButton fb, FlowState fs)
+    {
+        Panel panel = (Panel) fs;
+        FlowStateMachine fsm = panel.parentMachine;
+        // TODO introduce this call for all 'please wait' dialogs - introduce new PleaseWaitPanel with this call on exit?
+        fsm.SuppressAddToHistory();
+        return true;
+    }
 }

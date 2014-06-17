@@ -16,7 +16,7 @@ public class MinimalAndroidPlatform : Platform
     // Android implementation of services
     private PlayerPoints _playerPoints = new LocalDbPlayerPoints ();
     public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
-    private PlayerPosition _localPlayerPosition = new CrossPlatformPlayerPosition ();
+	private PlayerPosition _localPlayerPosition = new AndroidPlayerPosition(); //CrossPlatformPlayerPosition ();
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
     private BleController _bleController;
     public override BleController BleController { get { return _bleController; } }
