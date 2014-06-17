@@ -36,7 +36,7 @@ public class VoiceFeedbackController : MonoBehaviour
 
     public VoiceFeedbackController (PlayerPosition player, RYWorldObject opponent, Track track)
     {
-        log.info ("Created");
+        //log.info ("Created");
         this.player = player;
         this.opponent = opponent;
         this.track = track;
@@ -56,7 +56,7 @@ public class VoiceFeedbackController : MonoBehaviour
         if (mute || player == null || opponent == null || track == null || !player.IsTracking)
             return;
 
-        log.info ("Updating");
+        //log.info ("Updating");
                                   
         // custom feedback just after start
         if (lastUpdateTime == 0 && player.Time > 15000)
