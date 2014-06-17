@@ -21,7 +21,7 @@ public class MobileInRun : MobilePanel {
 
 
 	Log log = new Log("MobileInRun");
-		
+	
 	UISlider playerProgressBar;
 	UISlider opponentProgressBar;
 
