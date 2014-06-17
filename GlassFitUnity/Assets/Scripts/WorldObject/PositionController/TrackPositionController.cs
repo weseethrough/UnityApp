@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using RaceYourself.Models;
+using RaceYourself;
 
 public class TrackPositionController : PositionController {
 

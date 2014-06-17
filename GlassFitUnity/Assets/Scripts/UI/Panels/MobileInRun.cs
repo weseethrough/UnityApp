@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System;
 using System.Collections.Generic;
-
+using RaceYourself;
 using RaceYourself.Models;
 using Newtonsoft.Json;
 
@@ -28,7 +28,7 @@ public class MobileInRun : MobilePanel {
 	int targetDistance = 0;
 	float targetTime = 0;
 
-	RYWorldObject opponentObj;
+	WorldObject opponentObj;
 
 	RunnerSpriteAnimation playerSpriteAnimation;
 	RunnerSpriteAnimation opponentSpriteAnimation;
@@ -111,7 +111,7 @@ public class MobileInRun : MobilePanel {
 		GameObject opp = GameObject.Find("DavidRealWalk");
 		if(opp != null)
 		{
-			opponentObj = opp.GetComponent<RYWorldObject>();
+			opponentObj = opp.GetComponent<WorldObject>();
 		}
 		if(opponentObj == null) { log.error("Couldn't find opponent object"); }
 		else log.info("Found opponent object");
@@ -292,7 +292,7 @@ public class MobileInRun : MobilePanel {
 			if(opp == null) { /*log.error("Couldn't find opponent object in real world");*/ }
 			else
 			{
-				opponentObj = opp.GetComponent<RYWorldObject>();
+				opponentObj = opp.GetComponent<WorldObject>();
 				log.info("Found opponent object in state update");
 			}
 		}

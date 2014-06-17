@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
-public class TrainController_Rescue : RYWorldObject {
+public class TrainController_Rescue : WorldObject {
 	
 	protected float headStartDistance = 0.0f;
 	protected float currentMovementSpeed = 2.4f;

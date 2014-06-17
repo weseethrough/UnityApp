@@ -1,10 +1,11 @@
 using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
 /// <summary>
 /// Controls the Boulder
 /// </summary>
-public class BoulderController : RYWorldObject {
+public class BoulderController : WorldObject {
 	
 	// Rotation speed
 	private float rotationSpeed = -20;

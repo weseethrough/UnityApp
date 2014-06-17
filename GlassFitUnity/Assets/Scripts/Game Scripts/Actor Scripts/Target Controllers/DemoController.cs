@@ -1,7 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
-public class DemoController : RYWorldObject {
+public class DemoController : WorldObject {
 
 	private Animator anim; 
 	private float speed;

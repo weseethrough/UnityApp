@@ -3,8 +3,9 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
+using RaceYourself;
 
-public class PBRunnerController : RYWorldObject {
+public class PBRunnerController : WorldObject {
 	
 	protected Animator anim; 
 

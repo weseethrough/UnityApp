@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
 /// <summary>
 /// Controls the train's sounds
@@ -16,7 +17,7 @@ public class TrainSound : MonoBehaviour {
 	private bool movePlaying = false;
 	// Gameobject for the train.
 	private GameObject train;
-	private RYWorldObject controller;
+	private WorldObject controller;
 	
 	/// <summary>
 	/// Gets the sounds from the object
@@ -26,7 +27,7 @@ public class TrainSound : MonoBehaviour {
 		// Get the audio sources for the train sounds.
 		var aSources = GetComponents<AudioSource>();
 		train = transform.parent.gameObject;
-		controller = train.GetComponent<RYWorldObject>();
+		controller = train.GetComponent<WorldObject>();
 		trainMove = aSources[0];
 		trainWhistle = aSources[1];
 		

@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
-public class MinigameToken : RYWorldObject {
+public class MinigameToken : WorldObject {
 	
 	public float rotationSpeed = 10.0f;
 		
