@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
 /// <summary>
 /// Controls the animations for the zombie
@@ -11,7 +12,7 @@ public class ZombieAnimation : MonoBehaviour {
 	
 	// Animator for the zombie.
 	private Animator anim;
-	private RYWorldObject controller;
+	private WorldObject controller;
 	
 	/// <summary>
 	/// Get components and set the speed
@@ -19,7 +20,7 @@ public class ZombieAnimation : MonoBehaviour {
 	void Start () {
 		// Get the animator.
 		anim = GetComponent<Animator>();
-		controller = transform.parent.gameObject.GetComponent<RYWorldObject>();
+		controller = transform.parent.gameObject.GetComponent<WorldObject>();
 		
 		// Get the speed of the target.
 		//speed = controller.target.PollCurrentSpeed();

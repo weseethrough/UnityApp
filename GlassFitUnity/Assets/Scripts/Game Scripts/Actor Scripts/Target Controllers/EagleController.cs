@@ -3,13 +3,14 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
+using RaceYourself;
 
 // NOTE this class won't currently work. Refactor required to use position controller - AH
 
 /// <summary>
 /// Controls the eagle's movement and sound
 /// </summary>
-public class EagleController : RYWorldObject {
+public class EagleController : WorldObject {
 
 	// Animation speed.
 	private float speed;

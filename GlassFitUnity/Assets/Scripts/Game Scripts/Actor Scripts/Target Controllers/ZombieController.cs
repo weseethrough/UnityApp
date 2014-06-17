@@ -3,11 +3,12 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System;
+using RaceYourself;
 
 /// <summary>
 /// Controls the position of the zombies
 /// </summary> 
-public class ZombieController : RYWorldObject {
+public class ZombieController : WorldObject {
 	
 	int health = 3;
 	

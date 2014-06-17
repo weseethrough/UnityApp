@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System;
+using RaceYourself;
 
 public class FirstRun : GameBase {
 	
@@ -11,7 +12,7 @@ public class FirstRun : GameBase {
 	
 	private bool runReadyToStart = false;
 	private PositionController runnerController;
-	public RYWorldObject runnerObj;
+	public WorldObject runnerObj;
 
 	private bool indoorRaceYourself = false;
 	private bool indoorComplete = false;

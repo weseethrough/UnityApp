@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System;
-
+using RaceYourself;
 
 public class RaceGame : GameBase {
 	 
@@ -90,7 +90,7 @@ public class RaceGame : GameBase {
 
 	protected override double GetDistBehindForHud ()
 	{
-		RYWorldObject opponentWorldObj = opponent.GetComponent<RYWorldObject>();
+		WorldObject opponentWorldObj = opponent.GetComponent<WorldObject>();
 		return opponentWorldObj.getRealWorldPos().z - (float)Platform.Instance.LocalPlayerPosition.Distance;
 	}
 

@@ -3,9 +3,7 @@ using System.Collections;
 using System;
 
 /// <summary>
-/// HUD controller.
-/// Interface for showing/hiding HUD elements.
-/// Responsible for 
+/// Updates data vault with in-race stats for user consumption. To be shown on screen by the HUD/in-game panel.
 /// </summary>
 public class HUDController : MonoBehaviour {
 

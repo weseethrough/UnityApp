@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections;
 using System;
+using RaceYourself;
 
 public class SensoriaGame : MonoBehaviour {
 	
@@ -18,7 +19,7 @@ public class SensoriaGame : MonoBehaviour {
 		
 		TargetTracker tracker = Platform.Instance.CreateTargetTracker(targSpeed);
 		
-		RYWorldObject controller = runnerHolder.GetComponent<RYWorldObject>();
+		WorldObject controller = runnerHolder.GetComponent<WorldObject>();
 
 		Platform.Instance.LocalPlayerPosition.StartTrack();
 	}

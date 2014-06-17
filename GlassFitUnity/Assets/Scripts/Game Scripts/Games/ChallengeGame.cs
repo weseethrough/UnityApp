@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using RaceYourself;
 
 public class ChallengeGame : GameBase {
 	
-	public RYWorldObject runnerHolder;
+	public WorldObject runnerHolder;
 	
 	// Use this for initialization
 	public override void Start () {
