@@ -272,6 +272,8 @@ public class MobileChallengeInfoPanel : MobilePanel {
 		DataVault.Set("rival", "?");
 		DataVault.Set("rivals_time", "");
 
+		parentMachine.ForbidBack();
+
         if(challengeNotification != null) 
 		{
 			Platform.Instance.partner.StartCoroutine(CheckChallengeAttempts());
