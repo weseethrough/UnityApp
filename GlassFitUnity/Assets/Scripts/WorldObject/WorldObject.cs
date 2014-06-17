@@ -5,6 +5,8 @@ namespace RaceYourself
 {
     public class WorldObject : MonoBehaviour {
 
+        public bool keepAtOrigin;
+
     	public Vector3 realWorldPos = Vector3.zero;
 
     	/// <summary>

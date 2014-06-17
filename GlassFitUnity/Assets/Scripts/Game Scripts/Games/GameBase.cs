@@ -272,24 +272,6 @@ public class GameBase : MonoBehaviour {
 		
 	}
 
-
-
-	public void SetVirtualTrackVisible(bool visible)
-	{
-		if(theVirtualTrack == null)
-		{
-			theVirtualTrack = GameObject.Find("VirtualTrack");
-		}
-		if(theVirtualTrack != null)
-		{
-			theVirtualTrack.SetActive(visible);
-		}
-		else
-		{
-			UnityEngine.Debug.Log("GameBase: Couldn't find virtual track to set visiblity");
-		}
-	}
-
 	public void ConsiderQuit() {
 		FlowState.FollowFlowLinkNamed("QuitExit");	
 				Platform.Instance.LocalPlayerPosition.StopTrack();

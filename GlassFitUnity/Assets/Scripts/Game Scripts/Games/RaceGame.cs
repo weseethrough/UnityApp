@@ -8,7 +8,7 @@ public class RaceGame : GameBase {
 	 
 	public bool end = false;
 	
-	// Enums for the actor types
+	// Enum for the actor types
 	public enum ActorType
 	{
 		Runner			= 1,
@@ -17,28 +17,35 @@ public class RaceGame : GameBase {
 	
 	private ActorType currentActorType = ActorType.Runner;
     public List<GameObject> actors = new List<GameObject>();
+    
+    public List<WorldObject> worldObjects {get; private set;}
 
-	protected GameObject opponent;
+    protected GameObject opponent;
 
 	private float targSpeed = 2.4f;
 
 	// Holds actor templates
 	public GameObject cyclistHolder;
 	public GameObject runnerHolder;
-		
+    
+    public RaceGame()
+    {
+        worldObjects = new List<WorldObject>();
+    }
+
 	public override void Start () {
 		base.Start();
 		
 		//instantiate the appropriate actor
-		string tar = (string)DataVault.Get("type");
-		if(tar == null)
+		string target = (string)DataVault.Get("type");
+		if(target == null)
 		{
-			tar = "Runner";
+			target = "Runner";
 		}
 
 		opponent = null;
 
-		switch(tar)
+		switch(target)
 		{
 		case "Runner":
 			currentActorType = ActorType.Runner;
@@ -71,7 +78,7 @@ public class RaceGame : GameBase {
 
 			TrackPositionController posController = opponent.AddComponent<TrackPositionController>();
 			posController.setTrack(selectedTrack);
-		} 
+		}
 		else {
 			//create a fixed velocity target tracker
 			ConstantVelocityPositionController posController = opponent.AddComponent<ConstantVelocityPositionController>();
@@ -80,7 +87,6 @@ public class RaceGame : GameBase {
 
 		//Platform.Instance.LocalPlayerPosition.SetIndoor(true);
 		//SetReadyToStart(true);
-		SetVirtualTrackVisible(true);
 
 	}
 	
@@ -88,10 +94,11 @@ public class RaceGame : GameBase {
 		currentActorType = targ;
 	}
 
+    // TODO should reference world position of player (...which should in turn be their distance)
 	protected override double GetDistBehindForHud ()
 	{
 		WorldObject opponentWorldObj = opponent.GetComponent<WorldObject>();
-		return opponentWorldObj.getRealWorldPos().z - (float)Platform.Instance.LocalPlayerPosition.Distance;
+		return opponentWorldObj.getRealWorldPos().z - (float) Platform.Instance.LocalPlayerPosition.Distance;
 	}
 
 	protected void UpdateLeaderboard() {
@@ -155,12 +162,6 @@ public class RaceGame : GameBase {
 			DataVault.Set("follow_header", "Solo");
 			DataVault.Set("follow_box", "round!");
 		}
-	}
-	
-
-	
-	public override void Update () {
-		base.Update ();
 	}
 }
 
