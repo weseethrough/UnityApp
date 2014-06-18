@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System;
 using System.Collections.Generic;
-
+using RaceYourself;
 using RaceYourself.Models;
 using Newtonsoft.Json;
 
@@ -12,23 +12,23 @@ using Newtonsoft.Json;
 public class MobileInRun : MobilePanel {
 
 
-	//opponents pace is never stored and may be needed in other places, will calculate here for now and move later
-	float opponentsPace = 0;
-	float oppoenentsDistance = 0;
+	//opponent's pace is never stored and may be needed in other places, will calculate here for now and move later
+	float opponentPace = 0;
+	float opponentDistance = 0;
 	float localTime;
 
 	float playerKmPace;
 
 
 	Log log = new Log("MobileInRun");
-		
+	
 	UISlider playerProgressBar;
 	UISlider opponentProgressBar;
 
 	int targetDistance = 0;
 	float targetTime = 0;
 
-	RYWorldObject opponentObj;
+	WorldObject opponentObj;
 
 	RunnerSpriteAnimation playerSpriteAnimation;
 	RunnerSpriteAnimation opponentSpriteAnimation;
@@ -107,24 +107,15 @@ public class MobileInRun : MobilePanel {
 
 		//log.info("Got target distance");
 
-		//find opponent object
-		GameObject opp = GameObject.Find("DavidRealWalk");
-		if(opp != null)
-		{
-			opponentObj = opp.GetComponent<RYWorldObject>();
-		}
-		if(opponentObj == null) { log.error("Couldn't find opponent object"); }
-		else log.info("Found opponent object");
-
 		Platform.Instance.LocalPlayerPosition.Reset();
 
 		//find sprites
-		GameObject playerObject = GameObject.Find("Sprite_Player");
-		playerSpriteAnimation = playerObject.GetComponent<RunnerSpriteAnimation>();
+        GameObject playerObject = GameObject.Find("PlayerActor");
+		playerSpriteAnimation = playerObject.GetComponentInChildren<RunnerSpriteAnimation>();
 		playerSpriteAnimation.stationary = true;
 
-		GameObject opponentObject = GameObject.Find("Sprite_Opponent");
-		opponentSpriteAnimation = opponentObject.GetComponent<RunnerSpriteAnimation>();
+        GameObject opponentObject = GameObject.Find("OpponentActor");
+        opponentSpriteAnimation = opponentObject.GetComponentInChildren<RunnerSpriteAnimation>();
 		opponentSpriteAnimation.stationary = true;
 
 		log.info("Found sprites");
@@ -157,6 +148,7 @@ public class MobileInRun : MobilePanel {
 			}
 		}
 
+        // Ahead/behind circle
 		GameObject bg = GameObject.Find("BG");
 		if(bg != null)
 		{
@@ -291,11 +283,11 @@ public class MobileInRun : MobilePanel {
 		// Fill progress bar based on opponent distance
 		if(opponentObj == null)
 		{
-			GameObject opp = GameObject.Find("DavidRealWalk");
+            GameObject opp = GameObject.Find("PlayerActor");
 			if(opp == null) { /*log.error("Couldn't find opponent object in real world");*/ }
 			else
 			{
-				opponentObj = opp.GetComponent<RYWorldObject>();
+				opponentObj = opp.GetComponent<WorldObject>();
 				log.info("Found opponent object in state update");
 			}
 		}
@@ -334,34 +326,29 @@ public class MobileInRun : MobilePanel {
 
 		// Update Sprite positions
 		float activeWidth = Screen.width * 0.5f;
-		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+//		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
 		playerSpriteAnimation.stationary = Platform.Instance.LocalPlayerPosition.Pace < 1.0f || !Platform.Instance.LocalPlayerPosition.IsTracking;
 		playerSpriteAnimation.framesPerSecond =Mathf.Clamp((int)(10 *( Platform.Instance.LocalPlayerPosition.Pace/1.5)),10,50);
 
+		opponentDistance =  opponentDist - opponentDistance;
 
-		oppoenentsDistance =  opponentDist - oppoenentsDistance;
-
-		opponentsPace = oppoenentsDistance/(elapsedTime - localTime);
+		opponentPace = opponentDistance/(elapsedTime - localTime);
 
 		//Debug.LogWarning("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
 
-
-		opponentsPace = oppoenentsDistance/(elapsedTime - localTime);
+		opponentPace = opponentDistance/(elapsedTime - localTime);
 		//Debug.Log("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
-		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, opponentSpriteAnimation.transform.localPosition.y, 0);
+//		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, opponentSpriteAnimation.transform.localPosition.y, 0);
 
 		//DataVault.Set("ahead_box", Mathf.Abs(playerDist-opponentDist));
-		opponentSpriteAnimation.framesPerSecond = Mathf.Clamp((int)(70 *( opponentsPace/3)),10,50);
-
-
+		opponentSpriteAnimation.framesPerSecond = Mathf.Clamp((int)(70 *( opponentPace/3)),10,50);
 
 		//no convenient interface to get opponent speed atm, just make it always run for now
-		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking || opponentsPace < 1f;
+		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking || opponentPace < 1f;
 
 		localTime = elapsedTime;
 		// check for race finished
 		float time = elapsedTime;
-
 
 		if(time > targetTime)
 		{

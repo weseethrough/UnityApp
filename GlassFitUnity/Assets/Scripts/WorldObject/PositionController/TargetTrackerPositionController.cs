@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
+using System;
 
 /// <summary>
 /// Target tracker position controller.
-/// Component which updates the world position of an RYWorldObject, based on a TargetTracker (i.e. a previous track, or live remote opponent)
+/// Component which updates the world position of an WorldObject, based on a TargetTracker (i.e. a previous track, or live remote opponent)
 /// </summary>
 [Obsolete("Used for Java-based TargetTrackers - now that these are in Unity, TrackPositionController should be used instead.")]
 public class TargetTrackerPositionController : PositionController {

@@ -1,16 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
 public class PositionController : MonoBehaviour {
 
-	protected RYWorldObject worldObject;
+	protected WorldObject worldObject;
 
 	// Use this for initialization
 	public virtual void Start () {
-		worldObject = (RYWorldObject)gameObject.GetComponent<RYWorldObject>();
+		worldObject = (WorldObject)gameObject.GetComponent<WorldObject>();
 		if(worldObject == null)
 		{
-			UnityEngine.Debug.LogError("PositionController: no RYWorldObject found for Position Controller. Object = " + gameObject);
+			UnityEngine.Debug.LogError("PositionController: no WorldObject found for Position Controller. Object = " + gameObject);
 		}
 	}
 	
@@ -19,7 +20,7 @@ public class PositionController : MonoBehaviour {
 	
 	}
 
-	public RYWorldObject getWorldObject()
+	public virtual WorldObject getWorldObject()
 	{
 		return worldObject;
 	}

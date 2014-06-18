@@ -65,7 +65,7 @@ public class GameBase : MonoBehaviour {
 	private GestureHelper.OnSwipeLeft leftHandler = null;
 	private GestureHelper.OnSwipeRight rightHandler = null;
 
-	protected GameObject theVirtualTrack;
+	
 
     private VoiceFeedbackController voiceFeedbackController;
 	
@@ -270,24 +270,6 @@ public class GameBase : MonoBehaviour {
 			AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 		}
 		
-	}
-
-
-
-	public void SetVirtualTrackVisible(bool visible)
-	{
-		if(theVirtualTrack == null)
-		{
-			theVirtualTrack = GameObject.Find("VirtualTrack");
-		}
-		if(theVirtualTrack != null)
-		{
-			theVirtualTrack.SetActive(visible);
-		}
-		else
-		{
-			UnityEngine.Debug.Log("GameBase: Couldn't find virtual track to set visiblity");
-		}
 	}
 
 	public void ConsiderQuit() {
@@ -567,7 +549,7 @@ public class GameBase : MonoBehaviour {
 	
 	protected virtual void UpdateAhead() {
 		
-		double targetDistance = GetDistBehindForHud();
+		double targetDistance = GetDistBehindForUI();
 
 		if (targetDistance > 0) {
 			DataVault.Set("distance_position", "BEHIND");
@@ -582,10 +564,9 @@ public class GameBase : MonoBehaviour {
 		string siDistance = UnitsHelper.SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
 		//UnityEngine.Debug.Log("GameBase: setting target distance to: " + siDistance);
 		DataVault.Set("ahead_box", siDistance);
-		
 	}
 	
-	protected virtual double GetDistBehindForHud() {
+	protected virtual double GetDistBehindForUI() {
 		return Platform.Instance.GetHighestDistBehind();
 	}
 	

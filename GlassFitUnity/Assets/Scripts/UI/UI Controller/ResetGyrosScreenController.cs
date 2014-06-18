@@ -25,7 +25,7 @@ public class ResetGyrosScreenController : MPChildGestureHandler {
 		GameBase game = GameObject.FindObjectOfType(typeof(GameBase)) as GameBase;
 		if(game != null)
 		{
-			game.SetVirtualTrackVisible(true);
+			//game.SetVirtualTrackVisible(true); // FIXME commented out as part of refactor for mobile
 			StartCoroutine(FollowLink());
 		}
 		else
