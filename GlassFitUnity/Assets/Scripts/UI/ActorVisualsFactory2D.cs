@@ -4,7 +4,7 @@ using RaceYourself.Models;
 
 namespace RaceYourself
 {
-    public class View2D : View
+    public class ActorVisualsFactory2D : ActorVisualsFactory
     {
         public GameObject runningPlayerSprite;
         public GameObject runningOpponentSprite;
@@ -40,11 +40,7 @@ namespace RaceYourself
             }
 
             GameObject visRep = (GameObject) Instantiate(prefab);
-
-            //GameObject visRep = (GameObject) Instantiate(Resources.Load(player ? "Sprite_Player" : "Sprite_Opponent"));
-
-//            if (activity != ActorActivity.Runner)
-//                throw new InvalidOperationException("No sprite prefab set up for cyclists!");
+            visRep.name = "Sprite";
 
             return visRep;
         }

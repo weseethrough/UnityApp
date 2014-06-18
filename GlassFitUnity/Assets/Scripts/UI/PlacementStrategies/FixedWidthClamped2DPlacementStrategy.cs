@@ -6,13 +6,16 @@ namespace RaceYourself
 {
     public class FixedWidthClamped2DPlacementStrategy : PlacementStrategy
     {
-        public float y;
-        public float minTrackX;
-        public float maxTrackX;
+        public GameObject trackLeftExtremity;
+        public GameObject trackRightExtremity;
         public float distanceShown;
 
         public override void UpdateScenePositions()
         {
+            float minTrackX = trackLeftExtremity.transform.position.x;
+            float maxTrackX = trackRightExtremity.transform.position.x;
+            float y = trackLeftExtremity.transform.position.y;
+
             List<WorldObject> worldObjects = GetRaceGame().worldObjects;
 
             List<Vector3> positions = new List<Vector3>();

@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace RaceYourself
 {
-    // TODO decouple from GameObject holding RaceGame so we can put this script on the Actors GameObject
     public abstract class PlacementStrategy : MonoBehaviour
     {
         private RaceGame raceGame;
@@ -12,7 +11,15 @@ namespace RaceYourself
         protected RaceGame GetRaceGame()
         {
             if (raceGame == null)
-                raceGame = gameObject.GetComponent<RaceGame>();
+            {
+                //Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
+
+                //raceGame = gameObject.transform.parent.gameObject.GetComponentInChildren<RaceGame>();
+
+                //GameObject scriptsHolder = GameObjectUtils.GetComponentByName<RaceGame>(panel.physicalWidgetRoot, "ScriptsHolder");
+                GameObject scriptsHolder = GameObject.Find("ScriptsHolder");
+                //raceGame = gameObject.GetComponent<RaceGame>();
+            }
             return raceGame;
         }
 

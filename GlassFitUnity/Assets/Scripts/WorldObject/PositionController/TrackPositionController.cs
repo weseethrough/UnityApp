@@ -98,7 +98,7 @@ public class TrackPositionController : PositionController {
 				nextPosTime = (float)(nextPos.device_ts - trackStartTimestamp);
 			}
 
-			//calculate precise distance by lerping between entries
+			//calculate precise distance by lerping Obetween entries
 			float timeProportion = (elapsedtime - (prevPos.device_ts - trackStartTimestamp))/(nextPos.device_ts - prevPos.device_ts);
 			double distToNext = PositionUtils.distanceBetween(prevPos, nextPos);
 			double partialDistance = timeProportion * distToNext;

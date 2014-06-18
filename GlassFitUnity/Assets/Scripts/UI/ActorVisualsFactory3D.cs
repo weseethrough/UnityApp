@@ -4,11 +4,11 @@ using RaceYourself.Models;
 
 namespace RaceYourself
 {
-    public class View3D : View
+    public class ActorVisualsFactory3D : ActorVisualsFactory
     {
         protected GameObject theVirtualTrack;
 
-        public View3D ()
+        public ActorVisualsFactory3D ()
         {
 
         }
@@ -33,6 +33,7 @@ namespace RaceYourself
             }
 
             GameObject visRep = (GameObject) Instantiate(Resources.Load(prefab));
+            visRep.name = "Model";
 
             return visRep;
         }

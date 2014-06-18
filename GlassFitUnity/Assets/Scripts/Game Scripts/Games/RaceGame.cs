@@ -60,19 +60,19 @@ public class RaceGame : GameBase {
 
         Platform.Instance.ResetTargets();
 
-        View view = gameObject.GetComponent<View>();
+        ActorVisualsFactory visualsFactory = gameObject.GetComponent<ActorVisualsFactory>();
 
         player = (GameObject) Instantiate(actor);
         player.transform.parent = actors.transform; // place in scene.
-        player.name = "Player";
+        player.name = "PlayerActor";
         player.AddComponent<PlayerPositionController>(); // control movement using user movement
-        view.AddVisualRepresentation(player, currentActorActivity, Platform.Instance.api.user);
+        visualsFactory.AddVisualRepresentation(player, currentActorActivity, Platform.Instance.api.user);
         worldObjects.Add(player.GetComponent<WorldObject>());
         
         opponent = (GameObject) Instantiate(actor);
         opponent.transform.parent = actors.transform;
-        opponent.name = "Opponent";
-        view.AddVisualRepresentation(opponent, currentActorActivity, null); // TODO pass in user
+        opponent.name = "OpponentActor";
+        visualsFactory.AddVisualRepresentation(opponent, currentActorActivity, null); // TODO pass in user
         worldObjects.Add(opponent.GetComponent<WorldObject>());
 
 		if(selectedTrack != null)
