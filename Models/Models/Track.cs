@@ -46,6 +46,8 @@ namespace RaceYourself.Models
             if (this.id <= 0)
                 GenerateCompositeId ();
 
+            this.ts = (long)Date.UnixTime.TotalMilliseconds;
+
             this.dirty = true;
 
             if (!db.UpdateObjectBy ("id", this))
