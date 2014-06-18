@@ -676,8 +676,8 @@ public class MobileHomePanel : MobilePanel {
 			if (loadingChallengeIncomplete && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
 			else GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
 
-			racersBtn.enabled = true;
-			challengeBtn.enabled = false;
+			racersBtn.isEnabled = true;
+			challengeBtn.isEnabled = false;
 
 			break;
 
@@ -772,8 +772,8 @@ public class MobileHomePanel : MobilePanel {
             NGUITools.SetActive(friendsList.gameObject, true);
             NGUITools.SetActive(challengeList.gameObject, false);
 
-			racersBtn.enabled = false;
-			challengeBtn.enabled = true;
+			racersBtn.isEnabled = false;
+			challengeBtn.isEnabled = true;
 
 			break;
 

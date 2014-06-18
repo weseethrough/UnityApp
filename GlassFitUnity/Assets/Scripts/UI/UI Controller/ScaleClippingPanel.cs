@@ -26,7 +26,7 @@ public class ScaleClippingPanel : MonoBehaviour {
 			float phoneAspect = (float)Screen.height / Screen.width;
 			float aspectDifference = iphoneAspect / phoneAspect;
 
-			float headerHeight = (402f + (70)) * aspectDifference;
+			float headerHeight = (402f + (83)) * aspectDifference;
 
 			float scrollableHeight = defaultHeight - headerHeight;
 
