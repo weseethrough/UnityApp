@@ -1102,7 +1102,7 @@ public class ButtonFunctionCollection
 	/// <returns></returns>
 	static public bool GoToFlow1(FlowButton button, FlowState panel)
 	{
-		GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
+        GraphComponent gc = GameObject.FindObjectOfType(typeof(GraphComponent)) as GraphComponent;
 		gc.GoToFlow("Flow1");
 		return false;
 	}

@@ -163,17 +163,21 @@ public class MobileInRun : MobilePanel {
 			AheadBehindBG = bg.GetComponent<UIWidget>();
 		}
 
+        track = game.selectedTrack;
+        Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
+
+        // initialise voice feedback
+        voiceFeedbackController = GameObject.FindObjectOfType<VoiceFeedbackController>();
+        voiceFeedbackController.player = Platform.Instance.LocalPlayerPosition;
+        voiceFeedbackController.opponent = opponentObj;
+        if(track != null) voiceFeedbackController.track = track;
+
+        // analytics for race start
 		Hashtable eventProperties = new Hashtable();
 		eventProperties.Add("event_name", "start_race");
-		track = game.selectedTrack;
-		if(track != null) {
-			eventProperties.Add("track_id", track.trackId.ToString());
-            voiceFeedbackController = GameObject.FindObjectOfType<VoiceFeedbackController>();
-            voiceFeedbackController.player = Platform.Instance.LocalPlayerPosition;
-            voiceFeedbackController.opponent = opponentObj;
-            voiceFeedbackController.track = track;
-		}
-		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+        if(track != null) eventProperties.Add("track_id", track.trackId.ToString());
+        if(challengeNotification != null) eventProperties.Add("challenge_id", challengeNotification.message.challenge_id);
+        Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 
 		//find the pause button sprite
 		GameObject pb = GameObject.Find("PauseButtonImage");
@@ -187,20 +191,6 @@ public class MobileInRun : MobilePanel {
 	public override void ExitStart ()
 	{
 		base.ExitStart ();
-
-		Hashtable eventProperties = new Hashtable();
-		eventProperties.Add("event_name", "end_race");
-		bool result = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
-		if(result) {
-			eventProperties.Add("result", "win");
-		} else {
-			eventProperties.Add("result", "loss");
-		}
-		if(track != null) {
-			eventProperties.Add("track_id", track.trackId.ToString());
-		}
-		
-		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 		
 		float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		float opponentDist = opponentObj.getRealWorldPos().z;
@@ -227,30 +217,43 @@ public class MobileInRun : MobilePanel {
 		string timeMinutes = minutes.ToString();
 		DataVault.Set("finish_time_minutes", timeMinutes);
 
+        Track currentTrack = Platform.Instance.LocalPlayerPosition.StopTrack();
+        Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
+        Device device = Platform.Instance.Device();
 		string duration = (string)DataVault.Get("duration");
+        bool result = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
+        bool challengeComplete = false;
+
 		if(timeMinutes.Equals(duration)) {
 			// log attempt
-			Track current = Platform.Instance.LocalPlayerPosition.StopTrack();
-			Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
-			Device device = Platform.Instance.Device();
-
-			if(current != null && challengeNotification != null && device != null) {
-				UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
+            if(currentTrack != null && challengeNotification != null && device != null) {
+                challengeComplete = true;
+                UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
 				UnityEngine.Debug.Log("MobileInRun: Device ID is " + device.id);
-				UnityEngine.Debug.Log("MobileInRun: Track ID is " + current.trackId);
+                UnityEngine.Debug.Log("MobileInRun: Track ID is " + currentTrack.trackId);
 
 				Platform.Instance.QueueAction(string.Format(@"{{'action': 'challenge_attempt', 
 												'challenge_id': {0}, 
 												'track_id' : [
 													{1}, {2}
 												]
-									}}", challengeNotification.message.challenge_id, device.id, current.trackId).Replace("'", "\""));
+									}}", challengeNotification.message.challenge_id, device.id, currentTrack.trackId).Replace("'", "\""));
 			} else
 			{
 				UnityEngine.Debug.LogError("MobileInRun: No track or notification!");
 			}
-
 		}
+
+        // analytics for end of race
+        Hashtable eventProperties = new Hashtable();
+        eventProperties.Add("event_name", "end_race");
+        eventProperties.Add("result", result ? "win" : "loss");
+        if (track != null) eventProperties.Add("track_id", track.trackId.ToString());
+        if (challengeNotification != null) eventProperties.Add("challenge_id", challengeNotification.message.challenge_id);
+        if (challengeNotification != null) eventProperties.Add("challenge_complete", challengeComplete);
+        if (challengeNotification != null) eventProperties.Add("challenge_sender", challengeNotification.message.from);
+        if (challengeNotification != null) eventProperties.Add("challenge_type", challengeNotification.message.challenge_type);
+        Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 
 		// load new scene
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
