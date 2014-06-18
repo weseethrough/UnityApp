@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class BikeGame : GameBase {
@@ -57,7 +57,7 @@ public class BikeGame : GameBase {
 		base.OnExitState(state);
 	}
 
-	protected override double GetDistBehindForHud ()
+	protected override double GetDistBehindForUI ()
 	{
 		if(cyclist != null) {
 			return cyclist.GetDistanceBehindTarget();

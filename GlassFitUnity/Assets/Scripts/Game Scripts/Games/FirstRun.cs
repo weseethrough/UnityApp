@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System;
@@ -120,7 +120,7 @@ public class FirstRun : GameBase {
 
 	}
 	
-	protected override double GetDistBehindForHud ()
+	protected override double GetDistBehindForUI ()
 	{
 		if(runnerController != null) {
 			return runnerObj.GetDistanceBehindTarget();

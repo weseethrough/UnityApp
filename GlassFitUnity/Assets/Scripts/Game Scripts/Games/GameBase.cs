@@ -549,7 +549,7 @@ public class GameBase : MonoBehaviour {
 	
 	protected virtual void UpdateAhead() {
 		
-		double targetDistance = GetDistBehindForHud();
+		double targetDistance = GetDistBehindForUI();
 
 		if (targetDistance > 0) {
 			DataVault.Set("distance_position", "BEHIND");
@@ -566,7 +566,7 @@ public class GameBase : MonoBehaviour {
 		DataVault.Set("ahead_box", siDistance);
 	}
 	
-	protected virtual double GetDistBehindForHud() {
+	protected virtual double GetDistBehindForUI() {
 		return Platform.Instance.GetHighestDistBehind();
 	}
 	

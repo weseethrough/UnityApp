@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace RaceYourself
 {
+    // TODO decouple from GameObject holding RaceGame so we can put this script on the Actors GameObject
     public abstract class PlacementStrategy : MonoBehaviour
     {
         private RaceGame raceGame;
