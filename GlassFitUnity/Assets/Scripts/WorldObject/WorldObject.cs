@@ -20,25 +20,11 @@ namespace RaceYourself
     		//by default, set the real world pos as the scene pos
     		realWorldPos = new Vector3( 0,0,(float)Platform.Instance.LocalPlayerPosition.Distance) + transform.position;
     	}
-    	
-    	// Update is called once per frame
-    	public virtual void Update () {
-    		if(!scenePosIsFrozen)
-    		{
-    			updateScenePos();
-    		}
-    		else
-    		{
-    			//update the real world pos
-    		}
-    	}
 
-    	private void updateScenePos()
-    	{
-    		//assume 1D for now, so just update distance
-    		float sceneZ = realWorldPos.z - (float)Platform.Instance.LocalPlayerPosition.Distance;
-    		transform.position = new Vector3(realWorldPos.x, realWorldPos.y, sceneZ);
-    	}
+        public virtual void Update()
+        {
+
+        }
     	
     	/// <summary>
     	/// Sets the real world position
@@ -48,7 +34,6 @@ namespace RaceYourself
     	public void setRealWorldPos(Vector3 posW)
     	{
     		realWorldPos = posW;
-    		updateScenePos();
     	}
 
     	public Vector3 getRealWorldPos()
@@ -63,7 +48,6 @@ namespace RaceYourself
     	public void setRealWorldDist(float dist)
     	{
     		realWorldPos.z = dist;
-    		updateScenePos();
     	}
 
         /// <summary>
@@ -98,6 +82,7 @@ namespace RaceYourself
     		return realWorldPos.z - Platform.Instance.LocalPlayerPosition.Distance;
     	}
 
+        // TODO work out where/if to use this.
     	/// <summary>
     	/// Sets whether the object's position should be updated.
     	/// </summary>
