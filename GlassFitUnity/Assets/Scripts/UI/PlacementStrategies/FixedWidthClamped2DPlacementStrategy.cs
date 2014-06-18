@@ -32,14 +32,17 @@ namespace RaceYourself
             }
             float actualDistDiff = actualMaxDist - actualMinDist;
             
-            float displayedMinDist = actualMinDist, displayedMaxDist = actualMaxDist;
-            if (actualDistDiff < distanceShown) // racers close to each other; put them towards middle
+            //float displayedMinDist = actualMinDist, displayedMaxDist = actualMaxDist;
+
+            float midpoint = (actualMinDist + actualDistDiff/2);
+            float displayedMinDist = midpoint - distanceShown/2; // TODO should be at least 0
+            float displayedMaxDist = midpoint + distanceShown/2; // TODO if min=0, max=distanceShown
+            if (displayedMinDist < 0)
             {
-                float midpoint = (actualMinDist + actualDistDiff/2);
-                displayedMinDist = midpoint - distanceShown/2;
-                displayedMaxDist = midpoint + distanceShown/2;
+                displayedMinDist = 0;
+                displayedMaxDist = distanceShown;
             }
-            
+
             foreach (WorldObject worldObject in worldObjects)
             {
                 float dist = worldObject.getRealWorldDist();
