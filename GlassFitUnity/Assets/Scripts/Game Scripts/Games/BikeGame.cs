@@ -51,7 +51,7 @@ public class BikeGame : GameBase {
 				//cyclist.SetHeadstart(20.0f);
 			}
 	
-			SetVirtualTrackVisible(true);
+			//SetVirtualTrackVisible(true); FIXME commented out as part of ingame refactor for mobile... needs fixing
 			break;
 		}
 		base.OnExitState(state);

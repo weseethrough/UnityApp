@@ -58,7 +58,7 @@ public class SnackBase : MonoBehaviour {
 				}
 			}
 			run.OnSnackFinished();
-			run.SetVirtualTrackVisible(true);
+            //SetVirtualTrackVisible(true); // FIXME commented out as part of refactor for mobile
 		}
 		else
 		{
@@ -127,7 +127,7 @@ public class SnackBase : MonoBehaviour {
 		SnackRun snack = (SnackRun)FindObjectOfType(typeof(SnackRun));
 		if(snack != null)
 		{
-			snack.SetVirtualTrackVisible(visible);
+            //SetVirtualTrackVisible(visible); // FIXME commented out as part of refactor for mobile
 		}
 		else
 		{

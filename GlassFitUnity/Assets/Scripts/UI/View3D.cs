@@ -1,9 +1,12 @@
 using System;
+using UnityEngine;
 
 namespace RaceYourself
 {
     public class View3D : View
     {
+        protected GameObject theVirtualTrack;
+
         public View3D ()
         {
 

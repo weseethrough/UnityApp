@@ -65,7 +65,7 @@ public class GameBase : MonoBehaviour {
 	private GestureHelper.OnSwipeLeft leftHandler = null;
 	private GestureHelper.OnSwipeRight rightHandler = null;
 
-	protected GameObject theVirtualTrack;
+	
 
     private VoiceFeedbackController voiceFeedbackController;
 	
@@ -564,7 +564,6 @@ public class GameBase : MonoBehaviour {
 		string siDistance = UnitsHelper.SiDistanceUnitless(Math.Abs(targetDistance), "target_units");
 		//UnityEngine.Debug.Log("GameBase: setting target distance to: " + siDistance);
 		DataVault.Set("ahead_box", siDistance);
-		
 	}
 	
 	protected virtual double GetDistBehindForHud() {

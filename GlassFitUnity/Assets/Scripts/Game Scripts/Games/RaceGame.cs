@@ -16,8 +16,7 @@ public class RaceGame : GameBase {
 	}
 	
 	private ActorType currentActorType = ActorType.Runner;
-    public List<GameObject> actors = new List<GameObject>();
-    
+
     public List<WorldObject> worldObjects {get; private set;}
 
     protected GameObject opponent;

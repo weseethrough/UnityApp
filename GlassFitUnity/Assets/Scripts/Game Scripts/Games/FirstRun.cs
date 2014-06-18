@@ -67,7 +67,7 @@ public class FirstRun : GameBase {
 			}
 			runnerController.enabled = true;
 			
-			SetVirtualTrackVisible(true);
+            //SetVirtualTrackVisible(true); // FIXME commented out as part of refactor for mobile
 			break;
 		}
 		base.OnExitState(state);

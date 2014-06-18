@@ -35,7 +35,8 @@ public class ChallengeGame : GameBase {
 			lane++;
 		}
 		
-		SetVirtualTrackVisible(true);
+		//SetVirtualTrackVisible(true); // FIXME commented out as part of refactor for mobile
+
 		//SetReadyToStart(true);
 	}
 	
