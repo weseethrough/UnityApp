@@ -18,8 +18,10 @@ namespace RaceYourself
 
                 //GameObject scriptsHolder = GameObjectUtils.GetComponentByName<RaceGame>(panel.physicalWidgetRoot, "ScriptsHolder");
                 GameObject scriptsHolder = GameObject.Find("ScriptsHolder");
-                //raceGame = gameObject.GetComponent<RaceGame>();
+                raceGame = scriptsHolder.GetComponent<RaceGame>();
             }
+            if (raceGame == null)
+                throw new InvalidProgramException("ScriptsHolder not found!");
             return raceGame;
         }
 

@@ -36,7 +36,7 @@ public class RaceGame : GameBase {
 		base.Start();
         
         //instantiate the appropriate actor
-        string target = (string)DataVault.Get("type");
+        string target = (string) DataVault.Get("type");
         if(target == null)
         {
             target = "Runner";
