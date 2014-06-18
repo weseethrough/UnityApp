@@ -12,10 +12,11 @@ namespace RaceYourself.Models
 			}
 		}
 
-		public static DateTime FromUnixTime(long millis) {
-			var clone = epoch;
-			return clone.AddMilliseconds(millis);
-		}
+        public static DateTime FromUnixTime(long millis) {
+            var clone = epoch;
+            clone.AddMilliseconds(millis);
+            return TimeZoneInfo.ConvertTimeFromUtc(clone, TimeZoneInfo.Local);
+        }
 	}
 }
 
