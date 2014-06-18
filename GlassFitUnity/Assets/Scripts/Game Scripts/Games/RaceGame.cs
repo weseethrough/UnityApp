@@ -7,15 +7,10 @@ using RaceYourself;
 public class RaceGame : GameBase {
 	 
 	public bool end = false;
+
+    private GameObject actors;
 	
-	// Enum for the actor types
-	public enum ActorType
-	{
-		Runner			= 1,
-		Cyclist			= 2
-	}
-	
-	private ActorType currentActorType = ActorType.Runner;
+	private ActorActivity currentActorActivity = ActorActivity.Runner;
 
     public List<WorldObject> worldObjects {get; private set;}
 
@@ -47,13 +42,13 @@ public class RaceGame : GameBase {
 		switch(target)
 		{
 		case "Runner":
-			currentActorType = ActorType.Runner;
+			currentActorActivity = ActorActivity.Runner;
 			opponent = runnerHolder;
 			targSpeed = 3.0f;
 			break;
 			
 		case "Cyclist":
-			currentActorType = ActorType.Cyclist;
+			currentActorActivity = ActorActivity.Cyclist;
 			opponent = cyclistHolder;
 			targSpeed = 2.4f;
 			break;
@@ -89,8 +84,8 @@ public class RaceGame : GameBase {
 
 	}
 	
-	public void SetActorType(ActorType targ) {
-		currentActorType = targ;
+	public void SetActorType(ActorActivity targ) {
+		currentActorActivity = targ;
 	}
 
     // TODO should reference world position of player (...which should in turn be their distance)
@@ -163,4 +158,3 @@ public class RaceGame : GameBase {
 		}
 	}
 }
-
