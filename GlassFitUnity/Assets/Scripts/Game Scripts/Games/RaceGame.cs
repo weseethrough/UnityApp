@@ -57,7 +57,6 @@ public class RaceGame : GameBase {
             break;
         }
 
-
         Platform.Instance.ResetTargets();
 
         ActorVisualsFactory visualsFactory = gameObject.GetComponent<ActorVisualsFactory>();
