@@ -4,6 +4,7 @@ using System.Collections;
 public class MobileAwaitGPS : MonoBehaviour {
 
 	public GameObject SkipButton;
+    private Log log = new Log("MobileAwaitGPS");
 
 	// Use this for initialization
 	void Start () {
@@ -16,6 +17,7 @@ public class MobileAwaitGPS : MonoBehaviour {
 	{
 		yield return new WaitForSeconds(5f);
 		SkipButton.SetActive(true);
+        log.info ("Showing skip button");
 	}
 
 	// Update is called once per frame
@@ -23,7 +25,8 @@ public class MobileAwaitGPS : MonoBehaviour {
 		//if we get GPs, proceed straight to game view
 		if(Platform.Instance.LocalPlayerPosition.HasLock())
 		{
-			Platform.Instance.LocalPlayerPosition.SetIndoor(true);
+            log.info ("Got GPS lock, moving to game with indoor=false");
+            Platform.Instance.LocalPlayerPosition.SetIndoor(false);
 			FlowState.FollowFlowLinkNamed("GotGPS");
 		}
 	}

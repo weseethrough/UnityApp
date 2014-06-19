@@ -13,6 +13,7 @@ public class SoundController : WorldObject {
 	// Array of audio sources for the tracks.
 	private AudioSource[] stevies;
     private VoiceFeedbackController voiceFeedbackController;
+    private Log log = new Log("SoundController");
 	
 	// Current time to calculate when to start next track.
 	private float curTime = 0.0f;
@@ -72,7 +73,8 @@ public class SoundController : WorldObject {
 				indoorText = "Outdoor Active";
 				Platform.Instance.LocalPlayerPosition.Reset();
 				Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
-				
+                log.info ("Setting indoor false");
+
 				score = 0;
 				mult = 1;
 				curTime = 0.0f;
@@ -89,6 +91,7 @@ public class SoundController : WorldObject {
 			{
 				indoor = true;
 				indoorText = "Indoor Active";
+                log.info ("Setting indoor true");
 				Platform.Instance.LocalPlayerPosition.Reset();
 				Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
 				//Platform.Instance.StartTrack(indoor);

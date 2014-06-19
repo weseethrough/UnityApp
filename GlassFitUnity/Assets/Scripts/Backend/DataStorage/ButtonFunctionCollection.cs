@@ -1390,7 +1390,9 @@ public class ButtonFunctionCollection
 	static public bool SkipGPS(FlowButton button, FlowState fs)
 	{
 		//if we pressed the skip button, switch to indoor mode, before following the link
-		Platform.Instance.LocalPlayerPosition.SetIndoor(true);
+        bool indoor = false;
+        log.info ("SkipGPS pressed, setting indoor = " + indoor);
+		Platform.Instance.LocalPlayerPosition.SetIndoor(indoor);
 		return true;
 	}
 

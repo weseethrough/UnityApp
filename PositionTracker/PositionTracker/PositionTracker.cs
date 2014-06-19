@@ -371,11 +371,14 @@ namespace PositionTracker
 				positionProvider.UnregisterPositionListener(this);
 				// start fake GPS update
 				fakePositionProvider.RegisterPositionListener (this);
+				Console.Out.WriteLine("PositionTracker: requesting fake positions");
 			} else {
 				// stop fake GPS update
 				fakePositionProvider.UnregisterPositionListener (this);
 				// Try registering listener. If failed, fallback to indoor mode
+				Console.Out.WriteLine("PositionTracker: requesting real positions");
 				if(!positionProvider.RegisterPositionListener(this)) {
+					Console.Out.WriteLine("PositionTracker: requesting real positions failed, falling back...");
 					IndoorMode = true;
 					OnResume();
 				}

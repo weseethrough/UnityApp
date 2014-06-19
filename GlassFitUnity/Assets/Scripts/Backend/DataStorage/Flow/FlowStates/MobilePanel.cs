@@ -16,6 +16,7 @@ public class MobilePanel : Panel
 
 	protected Dictionary<string, List<ListButtonData>> buttonDataMap = new Dictionary<string, List<ListButtonData>>();
     private GestureHelper.OnBack backHandler = null;
+    protected Log log = new Log("MobilePanel");
 
     /// <summary>
     /// default constructor

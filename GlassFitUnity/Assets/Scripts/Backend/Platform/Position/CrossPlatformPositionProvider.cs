@@ -80,7 +80,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		{
 			if (status != previousStatus) 
 			{
-				UnityEngine.Debug.LogWarning("Location Service stopped");
+				log.warning("Location Service stopped");
 			}
 			DataVault.Set("location_service_status_message", "Location services stopped");
 		}
@@ -88,7 +88,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		{
 			if (status != previousStatus)
 			{ 
-				UnityEngine.Debug.LogWarning("Location Service failed");
+                log.warning("Location Service failed");
 			}
 			DataVault.Set("location_service_status_message", "Please enable location services for Race Yourself in Settings");
 		}
@@ -97,7 +97,7 @@ public class CrossPlatformPositionProvider : MonoBehaviour, IPositionProvider {
 		{
 			if (status != previousStatus)
             {
-                UnityEngine.Debug.LogWarning("Location Service still initialising");
+                log.warning("Location Service still initialising");
             }
 			DataVault.Set("location_service_status_message", "Location services initialising");
 		}
