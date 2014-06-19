@@ -181,7 +181,8 @@ public class ButtonFunctionCollection
 		eventProperties.Add("challenge_source", "ChallengeMobilePlayer");
 		eventProperties.Add("challenge_id", challenge.id);
 		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
-        
+
+        DataVault.Set ("notification_message", "Challenge sent");
 		return true;
 	}
 
@@ -196,8 +197,9 @@ public class ButtonFunctionCollection
 				syncHandler = new NetworkMessageListener.OnSync((message) => {
 					UnityEngine.Debug.LogError(message);
 					Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
-					DataVault.Set("facebook_message", "Facebook sync successful!");
-					FlowState.FollowBackLink();
+					
+                    DataVault.Set ("notification_message", "Invite sent");
+                    FollowExit("Exit");
 				});
 				Platform.Instance.NetworkMessageListener.onSync += syncHandler;
 				Platform.Instance.SyncToServer();
