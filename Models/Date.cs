@@ -13,9 +13,12 @@ namespace RaceYourself.Models
 		}
 
         public static DateTime FromUnixTime(long millis) {
-            var clone = epoch;
-            clone.AddMilliseconds(millis);
-            return TimeZoneInfo.ConvertTimeFromUtc(clone, TimeZoneInfo.Local);
+            var clone = epoch; 
+            DateTime time = new DateTime(millis);
+            TimeSpan offset = time - time.ToUniversalTime(); 
+            clone = clone.AddMilliseconds(millis);
+            clone = clone.Add(offset);
+            return clone;
         }
 	}
 }
