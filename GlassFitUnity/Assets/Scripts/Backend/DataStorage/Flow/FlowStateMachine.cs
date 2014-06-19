@@ -396,13 +396,6 @@ public class FlowStateMachine : MonoBehaviour
                 }
 
                 nextStepChild.EnterStart();
-
-                if (nextStepChild is Panel)
-                {
-                    Panel panel = (Panel) nextStepChild;
-                    //panel.physicalWidgetRoot;
-                }
-
                 return false;
             }
             else
