@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using RaceYourself;
 
-public class DistanceMilestone : RYWorldObject {
+public class DistanceMilestone : WorldObject {
 
 	private int target = 500;
 	

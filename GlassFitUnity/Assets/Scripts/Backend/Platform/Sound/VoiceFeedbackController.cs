@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using RaceYourself.Models;
+using RaceYourself;
 
 public class VoiceFeedbackController : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class VoiceFeedbackController : MonoBehaviour
     public AudioClip number3;
 
     public PlayerPosition player;
-    public RYWorldObject opponent;
+    public WorldObject opponent;
     public Track track;
 
     private long lastUpdateTime;
@@ -34,7 +35,7 @@ public class VoiceFeedbackController : MonoBehaviour
         this.lastUpdateTime = 0;
     }
 
-    public VoiceFeedbackController (PlayerPosition player, RYWorldObject opponent, Track track)
+    public VoiceFeedbackController (PlayerPosition player, WorldObject opponent, Track track)
     {
         //log.info ("Created");
         this.player = player;

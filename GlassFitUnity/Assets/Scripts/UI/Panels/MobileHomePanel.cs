@@ -827,6 +827,15 @@ public class MobileHomePanel : MobilePanel {
 				if(note != null) 
 				{
 					DataVault.Set("challenge_notification", note);
+
+                    // analytics
+                    Hashtable eventProperties = new Hashtable();
+                    eventProperties.Add("event_name", "open_challenge");
+                    eventProperties.Add("challenge_id", challengeId);
+                    eventProperties.Add("challenge_sender", note.message.from);
+                    eventProperties.Add("challenge_type", note.message.challenge_type);
+                    Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+
 				} else 
 				{
 					UnityEngine.Debug.LogError("MobileHomePanel: notification not found " + challengeId);

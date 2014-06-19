@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System;
 using System.Collections.Generic;
-
+using RaceYourself;
 using RaceYourself.Models;
 using Newtonsoft.Json;
 
@@ -12,23 +12,23 @@ using Newtonsoft.Json;
 public class MobileInRun : MobilePanel {
 
 
-	//opponents pace is never stored and may be needed in other places, will calculate here for now and move later
-	float opponentsPace = 0;
-	float oppoenentsDistance = 0;
+	//opponent's pace is never stored and may be needed in other places, will calculate here for now and move later
+	float opponentPace = 0;
+	float opponentDistance = 0;
 	float localTime;
 
 	float playerKmPace;
 
 
 	Log log = new Log("MobileInRun");
-		
+	
 	UISlider playerProgressBar;
 	UISlider opponentProgressBar;
 
 	int targetDistance = 0;
 	float targetTime = 0;
 
-	RYWorldObject opponentObj;
+	WorldObject opponentObj;
 
 	RunnerSpriteAnimation playerSpriteAnimation;
 	RunnerSpriteAnimation opponentSpriteAnimation;
@@ -107,24 +107,15 @@ public class MobileInRun : MobilePanel {
 
 		//log.info("Got target distance");
 
-		//find opponent object
-		GameObject opp = GameObject.Find("DavidRealWalk");
-		if(opp != null)
-		{
-			opponentObj = opp.GetComponent<RYWorldObject>();
-		}
-		if(opponentObj == null) { log.error("Couldn't find opponent object"); }
-		else log.info("Found opponent object");
-
 		Platform.Instance.LocalPlayerPosition.Reset();
 
 		//find sprites
-		GameObject playerObject = GameObject.Find("Sprite_Player");
-		playerSpriteAnimation = playerObject.GetComponent<RunnerSpriteAnimation>();
+        GameObject playerObject = GameObject.Find("PlayerActor");
+		playerSpriteAnimation = playerObject.GetComponentInChildren<RunnerSpriteAnimation>();
 		playerSpriteAnimation.stationary = true;
 
-		GameObject opponentObject = GameObject.Find("Sprite_Opponent");
-		opponentSpriteAnimation = opponentObject.GetComponent<RunnerSpriteAnimation>();
+        GameObject opponentObject = GameObject.Find("OpponentActor");
+        opponentSpriteAnimation = opponentObject.GetComponentInChildren<RunnerSpriteAnimation>();
 		opponentSpriteAnimation.stationary = true;
 
 		log.info("Found sprites");
@@ -157,23 +148,28 @@ public class MobileInRun : MobilePanel {
 			}
 		}
 
+        // Ahead/behind circle
 		GameObject bg = GameObject.Find("BG");
 		if(bg != null)
 		{
 			AheadBehindBG = bg.GetComponent<UIWidget>();
 		}
 
+        track = game.selectedTrack;
+        Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
+
+        // initialise voice feedback
+        voiceFeedbackController = GameObject.FindObjectOfType<VoiceFeedbackController>();
+        voiceFeedbackController.player = Platform.Instance.LocalPlayerPosition;
+        voiceFeedbackController.opponent = opponentObj;
+        if(track != null) voiceFeedbackController.track = track;
+
+        // analytics for race start
 		Hashtable eventProperties = new Hashtable();
 		eventProperties.Add("event_name", "start_race");
-		track = game.selectedTrack;
-		if(track != null) {
-			eventProperties.Add("track_id", track.trackId.ToString());
-            voiceFeedbackController = GameObject.FindObjectOfType<VoiceFeedbackController>();
-            voiceFeedbackController.player = Platform.Instance.LocalPlayerPosition;
-            voiceFeedbackController.opponent = opponentObj;
-            voiceFeedbackController.track = track;
-		}
-		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+        if(track != null) eventProperties.Add("track_id", track.trackId.ToString());
+        if(challengeNotification != null) eventProperties.Add("challenge_id", challengeNotification.message.challenge_id);
+        Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 
 		//find the pause button sprite
 		GameObject pb = GameObject.Find("PauseButtonImage");
@@ -187,20 +183,6 @@ public class MobileInRun : MobilePanel {
 	public override void ExitStart ()
 	{
 		base.ExitStart ();
-
-		Hashtable eventProperties = new Hashtable();
-		eventProperties.Add("event_name", "end_race");
-		bool result = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
-		if(result) {
-			eventProperties.Add("result", "win");
-		} else {
-			eventProperties.Add("result", "loss");
-		}
-		if(track != null) {
-			eventProperties.Add("track_id", track.trackId.ToString());
-		}
-		
-		Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 		
 		float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
 		float opponentDist = opponentObj.getRealWorldPos().z;
@@ -227,30 +209,43 @@ public class MobileInRun : MobilePanel {
 		string timeMinutes = minutes.ToString();
 		DataVault.Set("finish_time_minutes", timeMinutes);
 
+        Track currentTrack = Platform.Instance.LocalPlayerPosition.StopTrack();
+        Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
+        Device device = Platform.Instance.Device();
 		string duration = (string)DataVault.Get("duration");
+        bool result = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
+        bool challengeComplete = false;
+
 		if(timeMinutes.Equals(duration)) {
 			// log attempt
-			Track current = Platform.Instance.LocalPlayerPosition.StopTrack();
-			Notification challengeNotification = (Notification)DataVault.Get("challenge_notification");
-			Device device = Platform.Instance.Device();
-
-			if(current != null && challengeNotification != null && device != null) {
-				UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
+            if(currentTrack != null && challengeNotification != null && device != null) {
+                challengeComplete = true;
+                UnityEngine.Debug.Log("MobileInRun: Challenge ID is " + challengeNotification.message.challenge_id);
 				UnityEngine.Debug.Log("MobileInRun: Device ID is " + device.id);
-				UnityEngine.Debug.Log("MobileInRun: Track ID is " + current.trackId);
+                UnityEngine.Debug.Log("MobileInRun: Track ID is " + currentTrack.trackId);
 
 				Platform.Instance.QueueAction(string.Format(@"{{'action': 'challenge_attempt', 
 												'challenge_id': {0}, 
 												'track_id' : [
 													{1}, {2}
 												]
-									}}", challengeNotification.message.challenge_id, device.id, current.trackId).Replace("'", "\""));
+									}}", challengeNotification.message.challenge_id, device.id, currentTrack.trackId).Replace("'", "\""));
 			} else
 			{
 				UnityEngine.Debug.LogError("MobileInRun: No track or notification!");
 			}
-
 		}
+
+        // analytics for end of race
+        Hashtable eventProperties = new Hashtable();
+        eventProperties.Add("event_name", "end_race");
+        eventProperties.Add("result", result ? "win" : "loss");
+        if (track != null) eventProperties.Add("track_id", track.trackId.ToString());
+        if (challengeNotification != null) eventProperties.Add("challenge_id", challengeNotification.message.challenge_id);
+        if (challengeNotification != null) eventProperties.Add("challenge_complete", challengeComplete);
+        if (challengeNotification != null) eventProperties.Add("challenge_sender", challengeNotification.message.from);
+        if (challengeNotification != null) eventProperties.Add("challenge_type", challengeNotification.message.challenge_type);
+        Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
 
 		// load new scene
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
@@ -288,11 +283,11 @@ public class MobileInRun : MobilePanel {
 		// Fill progress bar based on opponent distance
 		if(opponentObj == null)
 		{
-			GameObject opp = GameObject.Find("DavidRealWalk");
+            GameObject opp = GameObject.Find("PlayerActor");
 			if(opp == null) { /*log.error("Couldn't find opponent object in real world");*/ }
 			else
 			{
-				opponentObj = opp.GetComponent<RYWorldObject>();
+				opponentObj = opp.GetComponent<WorldObject>();
 				log.info("Found opponent object in state update");
 			}
 		}
@@ -331,34 +326,29 @@ public class MobileInRun : MobilePanel {
 
 		// Update Sprite positions
 		float activeWidth = Screen.width * 0.5f;
-		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
+//		playerSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + playerProgress * activeWidth, playerSpriteAnimation.transform.localPosition.y, 0);
 		playerSpriteAnimation.stationary = Platform.Instance.LocalPlayerPosition.Pace < 1.0f || !Platform.Instance.LocalPlayerPosition.IsTracking;
 		playerSpriteAnimation.framesPerSecond =Mathf.Clamp((int)(10 *( Platform.Instance.LocalPlayerPosition.Pace/1.5)),10,50);
 
+		opponentDistance =  opponentDist - opponentDistance;
 
-		oppoenentsDistance =  opponentDist - oppoenentsDistance;
-
-		opponentsPace = oppoenentsDistance/(elapsedTime - localTime);
+		opponentPace = opponentDistance/(elapsedTime - localTime);
 
 		//Debug.LogWarning("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
 
-
-		opponentsPace = oppoenentsDistance/(elapsedTime - localTime);
+		opponentPace = opponentDistance/(elapsedTime - localTime);
 		//Debug.Log("pace is" + oppoenentsDistance +" divded by this " + localTime + " equlalling this " + opponentsPace);
-		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, opponentSpriteAnimation.transform.localPosition.y, 0);
+//		opponentSpriteAnimation.transform.localPosition = new Vector3( -activeWidth/2 + opponentProgress * activeWidth, opponentSpriteAnimation.transform.localPosition.y, 0);
 
 		//DataVault.Set("ahead_box", Mathf.Abs(playerDist-opponentDist));
-		opponentSpriteAnimation.framesPerSecond = Mathf.Clamp((int)(70 *( opponentsPace/3)),10,50);
-
-
+		opponentSpriteAnimation.framesPerSecond = Mathf.Clamp((int)(70 *( opponentPace/3)),10,50);
 
 		//no convenient interface to get opponent speed atm, just make it always run for now
-		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking || opponentsPace < 1f;
+		opponentSpriteAnimation.stationary = !Platform.Instance.LocalPlayerPosition.IsTracking || opponentPace < 1f;
 
 		localTime = elapsedTime;
 		// check for race finished
 		float time = elapsedTime;
-
 
 		if(time > targetTime)
 		{

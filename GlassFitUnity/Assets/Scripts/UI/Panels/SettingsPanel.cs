@@ -3,6 +3,7 @@ using System.Collections;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using RaceYourself;
 
 [Serializable]
 public class SettingsPanel : Panel {
@@ -28,11 +29,11 @@ public class SettingsPanel : Panel {
 			{
 			// These two buttons set the target to the runner and cyclist respectively
 			case "RunnerButton":
-				ss.SetActorType(RaceGame.ActorType.Runner);
+				ss.SetActorType(ActorActivity.Runner);
 				break;
 				
 			case "CyclistButton":
-				ss.SetActorType(RaceGame.ActorType.Cyclist);
+				ss.SetActorType(ActorActivity.Cyclist);
 				break;
 				
 			// Sets indoor mode

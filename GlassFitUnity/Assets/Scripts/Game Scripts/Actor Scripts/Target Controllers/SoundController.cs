@@ -1,10 +1,11 @@
 using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
 /// <summary>
 /// Controls the music in the Music game
 /// </summary>
-public class SoundController : RYWorldObject {
+public class SoundController : WorldObject {
 	
 	// Number of audio tracks.
 	private const float NUM_TRACKS = 11;
