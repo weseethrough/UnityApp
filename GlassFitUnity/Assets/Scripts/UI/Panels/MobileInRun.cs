@@ -426,7 +426,7 @@ public class MobileInRun : MobilePanel {
 				Time.timeScale = 0.0f;
 				//playerSpriteAnimation.framesPerSecond = 0;
 				//opponentSpriteAnimation.framesPerSecond = 0;
-				pauseButtonImage.spriteName = "mobile_resume";
+//				pauseButtonImage.spriteName = "mobile_resume";
 			}
 			else
 			{
@@ -438,7 +438,7 @@ public class MobileInRun : MobilePanel {
 				//resume the runners
 				//playerSpriteAnimation.framesPerSecond = 10;
 				//opponentSpriteAnimation.framesPerSecond = 10;
-				pauseButtonImage.spriteName = "mobile_pause";
+//				pauseButtonImage.spriteName = "paused";
 			}
 		} 
 		else if(button.name == "Locked")
