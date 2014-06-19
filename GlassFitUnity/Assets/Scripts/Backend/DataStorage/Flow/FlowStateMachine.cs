@@ -333,6 +333,8 @@ public class FlowStateMachine : MonoBehaviour
         return navigationHistory.Count > 0;
     }
 
+    private int depth = 2;
+
     /// <summary>
     /// Used to navigate up and down on state hierarchy
     /// </summary>
@@ -394,6 +396,13 @@ public class FlowStateMachine : MonoBehaviour
                 }
 
                 nextStepChild.EnterStart();
+
+                if (nextStepChild is Panel)
+                {
+                    Panel panel = (Panel) nextStepChild;
+                    //panel.physicalWidgetRoot;
+                }
+
                 return false;
             }
             else
