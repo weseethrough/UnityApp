@@ -12,11 +12,6 @@ namespace RaceYourself
         {
             if (raceGame == null)
             {
-                //Panel panel = FlowStateMachine.GetCurrentFlowState() as Panel;
-
-                //raceGame = gameObject.transform.parent.gameObject.GetComponentInChildren<RaceGame>();
-
-                //GameObject scriptsHolder = GameObjectUtils.GetComponentByName<RaceGame>(panel.physicalWidgetRoot, "ScriptsHolder");
                 GameObject scriptsHolder = GameObject.Find("ScriptsHolder");
                 raceGame = scriptsHolder.GetComponent<RaceGame>();
             }
