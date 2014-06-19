@@ -1,7 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using System;
+using RaceYourself;
 
 public class FirstRun : GameBase {
 	
@@ -11,7 +12,7 @@ public class FirstRun : GameBase {
 	
 	private bool runReadyToStart = false;
 	private PositionController runnerController;
-	public RYWorldObject runnerObj;
+	public WorldObject runnerObj;
 
 	private bool indoorRaceYourself = false;
 	private bool indoorComplete = false;
@@ -66,7 +67,7 @@ public class FirstRun : GameBase {
 			}
 			runnerController.enabled = true;
 			
-			SetVirtualTrackVisible(true);
+            //SetVirtualTrackVisible(true); // FIXME commented out as part of refactor for mobile
 			break;
 		}
 		base.OnExitState(state);
@@ -119,7 +120,7 @@ public class FirstRun : GameBase {
 
 	}
 	
-	protected override double GetDistBehindForHud ()
+	protected override double GetDistBehindForUI ()
 	{
 		if(runnerController != null) {
 			return runnerObj.GetDistanceBehindTarget();

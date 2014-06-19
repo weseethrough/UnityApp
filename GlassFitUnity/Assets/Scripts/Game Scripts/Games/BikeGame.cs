@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class BikeGame : GameBase {
@@ -51,13 +51,13 @@ public class BikeGame : GameBase {
 				//cyclist.SetHeadstart(20.0f);
 			}
 	
-			SetVirtualTrackVisible(true);
+			//SetVirtualTrackVisible(true); FIXME commented out as part of ingame refactor for mobile... needs fixing
 			break;
 		}
 		base.OnExitState(state);
 	}
 
-	protected override double GetDistBehindForHud ()
+	protected override double GetDistBehindForUI ()
 	{
 		if(cyclist != null) {
 			return cyclist.GetDistanceBehindTarget();

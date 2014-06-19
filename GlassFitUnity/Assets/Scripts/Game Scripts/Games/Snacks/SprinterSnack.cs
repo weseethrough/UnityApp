@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
 public class SprinterSnack : SnackBase {
 	
@@ -18,8 +19,8 @@ public class SprinterSnack : SnackBase {
 	// The end time for the player
 	private long finalTime = 0;
 	
-	RYWorldObject stadiumObject;
-	RYWorldObject finishLineObject;
+	WorldObject stadiumObject;
+	WorldObject finishLineObject;
 	
 	private int sprinterLevel = 0;
 	
@@ -27,8 +28,8 @@ public class SprinterSnack : SnackBase {
 	public override void Start () {
 		base.Start();
 		
-		stadiumObject = (RYWorldObject)GameObject.Find("Stadium").GetComponent<RYWorldObject>();
-		finishLineObject = (RYWorldObject)GameObject.Find("Finish Line").GetComponent<RYWorldObject>();
+		stadiumObject = (WorldObject)GameObject.Find("Stadium").GetComponent<WorldObject>();
+		finishLineObject = (WorldObject)GameObject.Find("Finish Line").GetComponent<WorldObject>();
 		stadiumObject.setScenePositionFrozen(true);
 		finishLineObject.setScenePositionFrozen(true);
 		sprinterLevel = (int)DataVault.Get("sprinter_level");

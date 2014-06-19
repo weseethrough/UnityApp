@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
+using RaceYourself;
 
 public class TrainRescueSnack : SnackBase {
 	
@@ -9,8 +10,8 @@ public class TrainRescueSnack : SnackBase {
 	protected ConstantVelocityPositionController trainPositionController;
 	
 	private int trainLevel = 0;
-	public RYWorldObject trainObject = null;
-	public RYWorldObject damsel = null;
+	public WorldObject trainObject = null;
+	public WorldObject damsel = null;
 	public CameraPath openingFlythroughPath = null;
 
 	protected virtualTrack leftTrack = null;

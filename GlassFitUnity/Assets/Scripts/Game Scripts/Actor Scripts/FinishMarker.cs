@@ -1,10 +1,11 @@
 using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
 /// <summary>
 /// Controls the finish markers
 /// </summary>
-public class FinishMarker : RYWorldObject {
+public class FinishMarker : WorldObject {
 	
 	// Target for the player to reach.
 	private int target;

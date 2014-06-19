@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RaceYourself;
 
 // NOTE this class won't currently work. Refactor required to use position controller - AH
 
-
-public class SensoriaTargetController : RYWorldObject {
+public class SensoriaTargetController : WorldObject {
 
 	private Animator anim; 
 	private float speed;
