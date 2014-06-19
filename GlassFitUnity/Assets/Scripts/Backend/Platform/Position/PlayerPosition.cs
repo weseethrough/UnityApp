@@ -57,12 +57,12 @@ public abstract class PlayerPosition {
 	public virtual void SetIndoor(bool indoor)
 	{
 		this.indoor = indoor;
+        log.info("Set indoor to " + indoor);
 	}
 
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual bool IsIndoor()
 	{
-	
 		return indoor;
 	}
 

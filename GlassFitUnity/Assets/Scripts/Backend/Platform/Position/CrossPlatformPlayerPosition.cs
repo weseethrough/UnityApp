@@ -8,8 +8,6 @@ using PositionTracker;
 
 public class CrossPlatformPlayerPosition : PlayerPosition
 {
-    private static Log log = new Log("CrossPlatformPlayerPosition");
-
 	private Position _position = null;
 	public override Position Position { get { return _position; } }
 
@@ -46,6 +44,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition
 
 	public CrossPlatformPlayerPosition() {
 
+        log.error ("Constructor - adding PositionProvider to Platform game object");
 	//need to use a bespoke implementation for iOS since Unity's location input doesn't provide a heading.
 	//On Android, until there's an Android position provider, we'll just use the original AndroidPlayerPosition wholesale
 		GameObject platform = GameObject.Find("Platform");
@@ -58,6 +57,7 @@ public class CrossPlatformPlayerPosition : PlayerPosition
 
 		//Note - unity complains that PositionTracker is a namespace
 		positionTracker = new PositionTracker.PositionTracker(positionProvider, sensorProvider);
+        positionTracker.IndoorMode = IsIndoor ();
 	}
 
 	// Starts recording player's position
@@ -70,12 +70,8 @@ public class CrossPlatformPlayerPosition : PlayerPosition
 	// Set the indoor mode
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public override void SetIndoor(bool indoor) {
-		positionTracker.IndoorMode = indoor;
-	}
-
-	[MethodImpl(MethodImplOptions.Synchronized)]
-	public override bool IsIndoor() {
-		return positionTracker.IndoorMode;
+        base.SetIndoor (indoor);
+        positionTracker.IndoorMode = indoor;
 	}
 
 	// Check if has GPS lock
@@ -85,7 +81,6 @@ public class CrossPlatformPlayerPosition : PlayerPosition
 		//positionTracker only reports that it has a position after tracking has started. This function is used before that point.
 		//Check status of unity location status instead.
 //        log.info("HasLock status: " + Input.location.status);
-
 		return (Input.location.status == LocationServiceStatus.Running);
 	}
 	
@@ -103,7 +98,6 @@ public class CrossPlatformPlayerPosition : PlayerPosition
 	public override void Reset() {
 		base.Reset();
 		positionTracker.StartNewTrack();
-		log.info("Starting new position track");
 	}
 
 	public override void Update() {
@@ -125,7 +119,10 @@ public class CrossPlatformPlayerPosition : PlayerPosition
 		_bearing = positionTracker.CurrentBearing;
 
 
-		//UnityEngine.Debug.Log("Position: Position tracker's state: " + positionTracker.CurrentState + ", speed: " + positionTracker.CurrentSpeed);
+//		log.info("State: " + positionTracker.CurrentState + 
+//                 ", speed: " + Pace + 
+//                 ", distance: " + Distance + 
+//                 ", time: " + Time);
 		//UnityEngine.Debug.Log("Position: LinearAcceleration: " + sensorProvider.LinearAcceleration[0] + "," 
 		//				+ sensorProvider.LinearAcceleration[1] + "," + sensorProvider.LinearAcceleration[2]);
 

@@ -61,12 +61,14 @@ public class OpponentMatchedPanel : MobilePanel {
 	private bool FillInOpponentDetails()
 	{
 		GameObject rivalGo = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "RivalPicture");
+        if (rivalGo == null)
+            return false;
 
 		User rivalUser = (User) DataVault.Get("opponent_user");
 
 		if(rivalUser != null)
 		{
-			DataVault.Set("opponent_user", rivalUser);
+			//DataVault.Set("opponent_user", rivalUser);
 			GameObjectUtils.SetTextOnLabelInChildren(rivalGo, "PlayerName", rivalUser.name);
 
 			UITexture profilePicture = rivalGo.GetComponentInChildren<UITexture>();

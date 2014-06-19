@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class FirstRunGPSScreenController : MPChildGestureHandler {
 	
 	bool canProceed = false;
+    private Log log = new Log("FirstRunGPSScreenController");
 	
 	MultiPanel parentPanel = null;
 	MultiPanelChild containerMultipanelChild = null;
@@ -110,6 +111,7 @@ public class FirstRunGPSScreenController : MPChildGestureHandler {
 		//toggle indoor mode
 		bool bIndoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
 		Platform.Instance.LocalPlayerPosition.SetIndoor(!bIndoor);
+        log.info ("Setting indoor to " + bIndoor);
 
 		///get new state and set strings as appropriate
 		bIndoor = Platform.Instance.LocalPlayerPosition.IsIndoor();
