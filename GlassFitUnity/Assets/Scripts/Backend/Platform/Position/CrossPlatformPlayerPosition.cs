@@ -43,14 +43,20 @@ public class CrossPlatformPlayerPosition : PlayerPosition
 
 
 	public CrossPlatformPlayerPosition() {
-
-        log.error ("Constructor - adding PositionProvider to Platform game object");
+    
 	//need to use a bespoke implementation for iOS since Unity's location input doesn't provide a heading.
 	//On Android, until there's an Android position provider, we'll just use the original AndroidPlayerPosition wholesale
 		GameObject platform = GameObject.Find("Platform");
-#if UNITY_IPHONE
+#if UNITY_EDITOR
+        // in the editor, we fake everything
+        log.info ("Adding EditorPositionProvider to Platform game object");
+        positionProvider = platform.AddComponent<EditorPositionProvider>();
+#elif UNITY_IPHONE
+        log.info ("Adding IosPositionProvider to Platform game object");
 		positionProvider = platform.AddComponent<IosPositionProvider>();
 #elif UNITY_ANDROID
+        // should never run, we'll be using AndroidPlayerPosition instead of this class. TODO: fix this!
+        log.warning ("THIS SHOULD NEVER HAPPEN: Adding CrossPlatformPositionProvider to Platform game object on ANDROID");
 		positionProvider = platform.AddComponent<CrossPlatformPositionProvider>();
 #endif
 		sensorProvider = platform.AddComponent<CrossPlatformSensorProvider>();

@@ -23,7 +23,6 @@ namespace RaceYourself
 
         public virtual void Update()
         {
-            UnityEngine.Debug.LogWarning ("RealWorldPosition = " + getRealWorldPos().ToString() + ", real-world movement speed = " + realWorldMovementSpeed + ", frozen = " + scenePosIsFrozen);
         }
     	
     	/// <summary>
