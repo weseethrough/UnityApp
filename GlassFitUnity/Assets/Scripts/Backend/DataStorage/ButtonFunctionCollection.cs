@@ -199,8 +199,8 @@ public class ButtonFunctionCollection
 					UnityEngine.Debug.LogError(message);
 					Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
 					
-                    DataVault.Set ("notification_message", "Invite sent");
-                    FollowExit("Exit");
+                    DataVault.Set("facebook_message", "Facebook sync successful!");
+                    FlowState.FollowBackLink();
 				});
 				Platform.Instance.NetworkMessageListener.onSync += syncHandler;
 				Platform.Instance.SyncToServer();
