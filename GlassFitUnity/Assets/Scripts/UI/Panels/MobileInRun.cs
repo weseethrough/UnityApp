@@ -31,6 +31,8 @@ public class MobileInRun : MobilePanel {
 	int targetDistance = 0;
 	float targetTime = 0;
 
+	int goalDist = 0;
+
 	WorldObject opponentObj;
 
 	RunnerSpriteAnimation playerSpriteAnimation;
@@ -101,6 +103,8 @@ public class MobileInRun : MobilePanel {
 		DataVault.Set("second_page", false);
 
 		DataVault.Set("player_average_pace", "--:--");
+
+		DataVault.Set("goal_ahead_pos", "");
 
 		DataVault.Set("locked", true);
 
@@ -210,6 +214,8 @@ public class MobileInRun : MobilePanel {
 		{
 			log.error("couldn't find pause button sprite");
 		}
+
+		goalDist = GameBase.getTargetDistance();
 	}
 	
 	public override void ExitStart ()
@@ -374,6 +380,14 @@ public class MobileInRun : MobilePanel {
 				aheadStatus.GetComponent<UILabel>().color = aheadColor;
 				aheadUnits.GetComponent<UILabel>().color = aheadColor;
 			}
+		}
+
+		if(track != null && playerDist > goalDist) 
+		{
+			double pastGoalDist = playerDist - goalDist;
+			DataVault.Set("ahead_box", UnitsHelper.SiDistanceUnitless(pastGoalDist, "target_units"));
+			DataVault.Set("distance_position", "");
+			DataVault.Set("goal_ahead_pos", "WINNING BY");
 		}
 
 		// Update Sprite positions

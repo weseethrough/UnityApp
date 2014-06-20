@@ -637,7 +637,7 @@ public class GameBase : MonoBehaviour {
 			case RunGoalType.Distance:
 				if(Platform.Instance.LocalPlayerPosition.Distance >= finish)
 				{
-					SetGameState(GAMESTATE_FINISHED);
+//					SetGameState(GAMESTATE_FINISHED);
 				}
 
 				// Award the player points for running certain milestones - distance based only for now
@@ -662,9 +662,11 @@ public class GameBase : MonoBehaviour {
 				break;
 			}
 
-			//update ahead for HUD			
-			UpdateAhead();
-
+			//update ahead for HUD
+			if(Platform.Instance.LocalPlayerPosition.Distance < finish)
+			{
+				UpdateAhead();
+			}
 			break;
 			
 		case GAMESTATE_PAUSED:
