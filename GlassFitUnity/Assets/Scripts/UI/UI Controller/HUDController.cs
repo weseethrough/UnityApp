@@ -11,7 +11,7 @@ public class HUDController : MonoBehaviour {
 	int goal_time = 0;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 		goal_dist = GameBase.getTargetDistance();
 		string distKm = UnitsHelper.SiDistanceUnitless(goal_dist, string.Empty);
 		DataVault.Set("goal_dist", distKm);
@@ -30,7 +30,6 @@ public class HUDController : MonoBehaviour {
 		float millisecondsRemaining = goal_time * 1000;
 		string timeRemainingString = UnitsHelper.TimestampMMSSdd((long)millisecondsRemaining);
 		DataVault.Set("time_remaining", timeRemainingString);
-
 	}
 	
 	// Update is called once per frame
@@ -45,7 +44,7 @@ public class HUDController : MonoBehaviour {
 			string paceString = UnitsHelper.kmPaceToString(pace);
 
 			float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
-			float elapsedTime = (float)DataVault.Get("elapased_time");
+			float elapsedTime = (float)DataVault.Get("elapsed_time");
 			if(elapsedTime > 0)
 			{
 				float playerSpeed = playerDist / elapsedTime;
@@ -67,7 +66,7 @@ public class HUDController : MonoBehaviour {
 	        DataVault.Set("sweat_points", string.Format("{0:N0}", Platform.Instance.PlayerPoints.CurrentActivityPoints));
 
 //	        TimeSpan span = TimeSpan.FromMilliseconds(Platform.Instance.LocalPlayerPosition.Time);
-//			float elapsedTime = (float)DataVault.Get("elapased_time");
+//			float elapsedTime = (float)DataVault.Get("elapsed_time");
 			TimeSpan span = TimeSpan.FromSeconds(elapsedTime);
 							
 	        DataVault.Set("time_minutes_only", (int)(span.Minutes + span.Hours * 60));
