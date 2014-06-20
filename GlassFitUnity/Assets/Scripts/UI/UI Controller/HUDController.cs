@@ -43,6 +43,21 @@ public class HUDController : MonoBehaviour {
 			float pace = UnitsHelper.SpeedToKmPace(Platform.Instance.LocalPlayerPosition.Pace);
 			//string paceString = (pace > 20.0f || pace == 0.0f) ? "--:--" : UnitsHelper.TimestampMMSSnearestTenSecs(pace); // show dashes if slower than slow walk, otherwise round to nearest 10s
 			string paceString = UnitsHelper.kmPaceToString(pace);
+
+			float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
+			float elapsedTime = (float)DataVault.Get("elapased_time");
+			if(elapsedTime > 0)
+			{
+				float playerSpeed = playerDist / elapsedTime;
+				float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);
+				string playerPaceString = UnitsHelper.kmPaceToString(playerKmPace);
+				DataVault.Set("player_average_pace", playerPaceString);
+			} 
+			else
+			{
+				DataVault.Set("player_average_pace", "--:--");
+			}
+
 			DataVault.Set("pace", paceString/* + "min/km"*/);
 			DataVault.Set("distance", UnitsHelper.SiDistanceUnitless(Platform.Instance.LocalPlayerPosition.Distance, "distance_units"));
 			DataVault.Set("time", UnitsHelper.TimestampMMSSfromMillis(Platform.Instance.LocalPlayerPosition.Time));
@@ -52,7 +67,7 @@ public class HUDController : MonoBehaviour {
 	        DataVault.Set("sweat_points", string.Format("{0:N0}", Platform.Instance.PlayerPoints.CurrentActivityPoints));
 
 //	        TimeSpan span = TimeSpan.FromMilliseconds(Platform.Instance.LocalPlayerPosition.Time);
-			float elapsedTime = (float)DataVault.Get("elapased_time");
+//			float elapsedTime = (float)DataVault.Get("elapased_time");
 			TimeSpan span = TimeSpan.FromSeconds(elapsedTime);
 							
 	        DataVault.Set("time_minutes_only", (int)(span.Minutes + span.Hours * 60));

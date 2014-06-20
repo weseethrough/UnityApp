@@ -40,3 +40,6 @@ MobileChallengeInfo
 MobileHowDoYouFeel
 MobileChallengeSentOldschool
 MobileInRunScriptWrapper
+MobilePause
+MobileQuitPrompt
+MobileActionCompleteNotificationOldschool

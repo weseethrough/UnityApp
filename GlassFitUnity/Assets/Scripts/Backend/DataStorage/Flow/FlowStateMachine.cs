@@ -333,6 +333,8 @@ public class FlowStateMachine : MonoBehaviour
         return navigationHistory.Count > 0;
     }
 
+    private int depth = 2;
+
     /// <summary>
     /// Used to navigate up and down on state hierarchy
     /// </summary>

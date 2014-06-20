@@ -11,7 +11,6 @@ using Newtonsoft.Json;
 [Serializable]
 public class MobileInRun : MobilePanel {
 
-
 	//opponent's pace is never stored and may be needed in other places, will calculate here for now and move later
 	float opponentPace = 0;
 	float opponentDistance = 0;
@@ -19,6 +18,10 @@ public class MobileInRun : MobilePanel {
 
 	float playerKmPace;
 
+	GameObject speedBox;
+	GameObject positionBox;
+
+	bool changePage = false;
 
 	Log log = new Log("MobileInRun");
 	
@@ -36,6 +39,16 @@ public class MobileInRun : MobilePanel {
     VoiceFeedbackController voiceFeedbackController;
 
 	UIWidget AheadBehindBG;
+
+	Color currentColor = new Color(1, 1, 1);
+
+	Color behindColor = new Color(254/255f, 0f, 0f);
+	Color aheadColor = new Color(47/255f, 203/255f, 0f);
+
+	GameObject aheadBG;
+	GameObject aheadDist;
+	GameObject aheadStatus;
+	GameObject aheadUnits;
 
 	bool bPaused = false;
 
@@ -82,6 +95,24 @@ public class MobileInRun : MobilePanel {
 	public override void EnterStart()
 	{
 		base.EnterStart();
+
+		DataVault.Set("second_page", false);
+
+		DataVault.Set("elapsed_time", 0);
+
+		DataVault.Set("player_average_pace", "--:--");
+
+		DataVault.Set("locked", true);
+
+//		speedBox = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "SpeedBox");
+//		speedBox.SetActive(false);
+
+//		positionBox = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "PositionBox");
+
+		aheadBG = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "AheadBG");
+		aheadDist = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "AheadDist");
+		aheadStatus = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "AheadStatus");
+		aheadUnits = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "AheadUnits");
 
 		DataVault.Set("elapased_time", 0f);
 
@@ -250,6 +281,8 @@ public class MobileInRun : MobilePanel {
 		// load new scene
 		AutoFade.LoadLevel("Game End", 0.1f, 1.0f, Color.black);
 
+
+
 		//stop tracking
 		Platform.Instance.LocalPlayerPosition.Reset();
 	}
@@ -318,10 +351,28 @@ public class MobileInRun : MobilePanel {
 		if(opponentDist > playerDist)
 		{
 			DataVault.Set("mobile_aheadBehind_colour", UIColour.red);
+			DataVault.Set("encourage_text", "SPEED UP");
+			if(currentColor != behindColor)
+			{
+				currentColor = behindColor;
+				aheadBG.GetComponent<UISprite>().color = behindColor;
+				aheadDist.GetComponent<UILabel>().color = behindColor;
+				aheadStatus.GetComponent<UILabel>().color = behindColor;
+				aheadUnits.GetComponent<UILabel>().color = behindColor;
+			}
 		}
 		else
 		{
 			DataVault.Set("mobile_aheadBehind_colour", UIColour.green);
+			DataVault.Set("encourage_text", "WINNING PACE");
+			if(currentColor != aheadColor)
+			{
+				currentColor = aheadColor;
+				aheadBG.GetComponent<UISprite>().color = aheadColor;
+				aheadDist.GetComponent<UILabel>().color = aheadColor;
+				aheadStatus.GetComponent<UILabel>().color = aheadColor;
+				aheadUnits.GetComponent<UILabel>().color = aheadColor;
+			}
 		}
 
 		// Update Sprite positions
@@ -362,7 +413,6 @@ public class MobileInRun : MobilePanel {
 	public override void OnClick (FlowButton button)
 	{
 
-
 		if(button.name == "Paused" || button.name == "Unpaused")
 		{
 			//toggle paused-ness
@@ -376,7 +426,7 @@ public class MobileInRun : MobilePanel {
 				Time.timeScale = 0.0f;
 				//playerSpriteAnimation.framesPerSecond = 0;
 				//opponentSpriteAnimation.framesPerSecond = 0;
-				pauseButtonImage.spriteName = "mobile_resume";
+//				pauseButtonImage.spriteName = "mobile_resume";
 			}
 			else
 			{
@@ -388,8 +438,21 @@ public class MobileInRun : MobilePanel {
 				//resume the runners
 				//playerSpriteAnimation.framesPerSecond = 10;
 				//opponentSpriteAnimation.framesPerSecond = 10;
-				pauseButtonImage.spriteName = "mobile_pause";
+//				pauseButtonImage.spriteName = "paused";
 			}
+		} 
+		else if(button.name == "Locked")
+		{
+			DataVault.Set("locked", false);
+		}
+		else if(button.name == "Unlocked")
+		{
+			DataVault.Set("locked", true);
+		}
+		else if(button.name == "ChangePageBtn")
+		{
+			changePage = !changePage;
+			DataVault.Set("second_page", changePage);
 		}
 		base.OnClick (button);
 	}
