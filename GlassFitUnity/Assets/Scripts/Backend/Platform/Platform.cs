@@ -625,7 +625,7 @@ public abstract class Platform : SingletonBase
         if (syncIcon != null)
         {
             //syncIcon.SetActive(true);
-            syncIcon.GetComponent<UITexture>().alpha = 1f;
+            syncIcon.GetComponent<UISprite>().alpha = 1f;
 
             NetworkMessageListener.OnSync syncHandler = null;
             syncHandler = new NetworkMessageListener.OnSync((message) =>
@@ -633,7 +633,7 @@ public abstract class Platform : SingletonBase
                 // TODO show error on sync failure
                 syncIcon = GameObject.FindGameObjectWithTag("SyncIcon");
                 //syncIcon.SetActive(false);
-                syncIcon.GetComponent<UITexture>().alpha = 0f;
+                syncIcon.GetComponent<UISprite>().alpha = 0f;
                 Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
             });
             Platform.Instance.NetworkMessageListener.onSync += syncHandler;
