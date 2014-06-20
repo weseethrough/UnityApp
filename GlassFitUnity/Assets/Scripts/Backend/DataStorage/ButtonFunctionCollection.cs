@@ -196,7 +196,7 @@ public class ButtonFunctionCollection
 			{
 				NetworkMessageListener.OnSync syncHandler = null;
 				syncHandler = new NetworkMessageListener.OnSync((message) => {
-					UnityEngine.Debug.LogError(message);
+					log.info(message);
 					Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
 					
                     DataVault.Set("facebook_message", "Facebook sync successful!");
