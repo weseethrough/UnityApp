@@ -64,7 +64,7 @@ public class MobileInRun : MobilePanel {
 	{
 	}
 
-	float elapsedTime = 0;
+	float elapsedTime;
 
 	/// <summary>
 	/// Gets display name of the node, helps with node identification in editor
@@ -100,8 +100,6 @@ public class MobileInRun : MobilePanel {
 
 		DataVault.Set("second_page", false);
 
-		DataVault.Set("elapsed_time", 0);
-
 		DataVault.Set("player_average_pace", "--:--");
 
 		DataVault.Set("locked", true);
@@ -116,7 +114,8 @@ public class MobileInRun : MobilePanel {
 		aheadStatus = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "AheadStatus");
 		aheadUnits = GameObjectUtils.SearchTreeByName(physicalWidgetRoot, "AheadUnits");
 
-		DataVault.Set("elapased_time", 0f);
+        elapsedTime = 0f;
+        DataVault.Set("elapsed_time", elapsedTime);
 
 		log.info("Starting in game panel");
 		
@@ -299,7 +298,7 @@ public class MobileInRun : MobilePanel {
 			elapsedTime += Time.deltaTime;
 
 			//set in data vault
-			DataVault.Set("elapased_time", elapsedTime);
+            DataVault.Set("elapsed_time", elapsedTime);
 		}
 
 		// Fill progress bar based on player distance 
