@@ -1714,4 +1714,16 @@ public class ButtonFunctionCollection
         fsm.SuppressAddToHistory();
         return true;
     }
+
+	static public bool UnpauseGame(FlowButton fb, FlowState fs)
+	{
+		Platform.Instance.LocalPlayerPosition.StartTrack();
+		//				bPaused = false;
+		//set in datavault to control visibility of items
+		DataVault.Set("paused", false);
+		Time.timeScale = 1.0f;
+
+		(fs as Panel).parentMachine.FollowBack();
+		return false;
+	}
 }

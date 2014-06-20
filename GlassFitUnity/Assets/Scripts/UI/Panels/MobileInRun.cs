@@ -96,6 +96,8 @@ public class MobileInRun : MobilePanel {
 	{
 		base.EnterStart();
 
+		DataVault.Set("paused", false);
+
 		DataVault.Set("second_page", false);
 
 		DataVault.Set("elapsed_time", 0);
@@ -416,10 +418,11 @@ public class MobileInRun : MobilePanel {
 		if(button.name == "Paused" || button.name == "Unpaused")
 		{
 			//toggle paused-ness
-			if(!bPaused && Platform.Instance.LocalPlayerPosition.IsTracking)
+			bool isPaused = Convert.ToBoolean(DataVault.Get("paused"));
+			if(!isPaused && Platform.Instance.LocalPlayerPosition.IsTracking)
 			{
 				Platform.Instance.LocalPlayerPosition.StopTrack();		
-				bPaused = true;
+//				bPaused = true;
 				//set in datavault to control visibility of items
 				DataVault.Set("paused", true);
 				//pause the runners
@@ -431,7 +434,7 @@ public class MobileInRun : MobilePanel {
 			else
 			{
 				Platform.Instance.LocalPlayerPosition.StartTrack();
-				bPaused = false;
+//				bPaused = false;
 				//set in datavault to control visibility of items
 				DataVault.Set("paused", false);
 				Time.timeScale = 1.0f;
