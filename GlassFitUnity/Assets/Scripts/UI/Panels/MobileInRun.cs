@@ -318,7 +318,7 @@ public class MobileInRun : MobilePanel {
 		// Fill progress bar based on opponent distance
 		if(opponentObj == null)
 		{
-            GameObject opp = GameObject.Find("PlayerActor");
+			GameObject opp = GameObject.Find("OpponentActor");
 			if(opp == null) { /*log.error("Couldn't find opponent object in real world");*/ }
 			else
 			{

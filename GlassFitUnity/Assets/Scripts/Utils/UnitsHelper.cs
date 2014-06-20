@@ -101,12 +101,12 @@ public class UnitsHelper {
 	/// Units.
 	/// </param>
 	public static string SiDistanceUnitless(double meters, string unitsKey) {
-		string postfix = "m";
+		string postfix = "M";
 		string final;
 		float value = (float)meters;
 		if (value > 1000) {
 			value = value/1000;
-			postfix = "km";
+			postfix = "KM";
 			if(value >= 10) {
 				final = value.ToString("f1");
 			} else {
