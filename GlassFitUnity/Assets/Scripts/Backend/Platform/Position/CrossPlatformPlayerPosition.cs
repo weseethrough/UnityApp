@@ -34,13 +34,15 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	public CrossPlatformPlayerPosition() {
 		positionProvider = new CrossPlatformPositionProvider();
 		sensorProvider = new CrossPlatformSensorProvider();
-		positionTracker = new PositionTracker(positionProvider, sensorProvider);
+
+		//Note - unity complains that PositionTracker is a namespace
+		positionTracker = new PositionTracker.PositionTracker(positionProvider, sensorProvider);
 	}
 
 	// Starts recording player's position
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public override void StartTrack() {
-		positionTracker.StartTrack();
+		positionTracker.StartTracking();
 	}
 
 	// Set the indoor mode
@@ -63,14 +65,19 @@ public class CrossPlatformPlayerPosition : PlayerPosition {
 	// Stop tracking 
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public override Track StopTrack() {
-		positionTracker.StopTrack();
+		positionTracker.StopTracking();
 		return positionTracker.Track;
 	}
 
 	// Reset GPS tracker
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public override void Reset() {
-		positionTracker.Reset();
+		//positionTracker.Reset();
+
+		//There doesn't appear to be a Reset method in the position tracker class.
+		//Should we use StartNewTrack() instead?
+		UnityEngine.Debug.LogError("CrossPlatformPlayerPosition: no reset method in PositionTracker. Use StartNewTrack()?");
+		throw new NotImplementedException();
 	}
 
 	public override void Update() {

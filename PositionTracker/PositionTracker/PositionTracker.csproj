@@ -9,13 +9,13 @@
     <OutputType>Library</OutputType>
     <RootNamespace>PositionTracker</RootNamespace>
     <AssemblyName>PositionTracker</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug</OutputPath>
+    <OutputPath>..\..\GlassFitUnity\Assets\Scripts\Backend\Platform\PositionTracker</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -24,7 +24,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Release</OutputPath>
+    <OutputPath>..\..\GlassFitUnity\Assets\Scripts\Backend\Platform\PositionTracker</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
@@ -33,21 +33,11 @@
     <Reference Include="System" />
     <Reference Include="Models">
       <HintPath>..\..\GlassFitUnity\Assets\Scripts\Backend\Platform\Models\Models.dll</HintPath>
-    </Reference>
-    <Reference Include="CSVFile">
-      <HintPath>External\CSVFile_1.1.dll</HintPath>
-    </Reference>
-    <Reference Include="MathNet.Numerics">
-      <HintPath>External\MathNet.Numerics.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpKml">
-      <HintPath>External\SharpKml.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\Common\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="AssimpNet">
-      <HintPath>External\AssimpNet.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -69,6 +59,13 @@
     <Compile Include="SpeedState.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="AccelerationCalculator.cs" />
+    <Compile Include="Numerics\Beta.cs" />
+    <Compile Include="Numerics\Constants.cs" />
+    <Compile Include="Numerics\Erf.cs" />
+    <Compile Include="Numerics\Gamma.cs" />
+    <Compile Include="Numerics\Precision.cs" />
+    <Compile Include="Numerics\StudentT.cs" />
+    <Compile Include="Test\PositionPredictorTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

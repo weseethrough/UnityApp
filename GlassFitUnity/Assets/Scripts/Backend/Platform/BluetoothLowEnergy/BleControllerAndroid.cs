@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEngine;
-
+#if UNITY_ANDROID
 public class BleControllerAndroid : BleController
 {
     private Log log = new Log("BleControllerAndroid");
@@ -25,4 +25,5 @@ public class BleControllerAndroid : BleController
         AndroidBlePlugin.Call ("stopListening");
     }
 }
+#endif
 

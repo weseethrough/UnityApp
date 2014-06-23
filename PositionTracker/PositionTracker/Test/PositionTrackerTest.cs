@@ -2,6 +2,8 @@ using System;
 using System.Threading;
 using NUnit.Framework;
 
+using RaceYourself.Models;
+
 namespace PositionTracker
 {
 	
@@ -15,6 +17,11 @@ namespace PositionTracker
 	
 	public class SensorProviderStub :  ISensorProvider	
 	{
+		public SensorProviderStub() { 
+			float[] linAcc =  {0.0f, 0.0f, 0.0f}; 
+			LinearAcceleration = linAcc;
+		}
+		
 		public float[] LinearAcceleration { get; set; }
 		
 	}
@@ -23,10 +30,21 @@ namespace PositionTracker
 	public class PositionTrackerTest
 	{
 		[Test]
-		public void PositionTrackerTest1 ()
+		public void Tracking ()
 		{
 			PositionTracker positionTracker = new PositionTracker(new PositionProviderStub(), new SensorProviderStub());
-			Assert.IsTrue(true);
+			positionTracker.OnPause();
+			
+			Assert.IsFalse(positionTracker.Tracking);
+			positionTracker.StartTracking();
+			Assert.IsTrue(positionTracker.Tracking);
+			Track track = positionTracker.Track;
+			Assert.IsTrue(track != null);
+			Assert.IsTrue(track.trackName != "");
+			
+			positionTracker.StopTracking();
+			Assert.IsFalse(positionTracker.Tracking);
+			
 		}
 	}
 }

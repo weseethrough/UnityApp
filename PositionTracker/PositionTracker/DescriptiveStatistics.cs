@@ -56,7 +56,7 @@ namespace PositionTracker
         /// Don't use increased accuracy for data sets containing large values (in absolute value).
         /// This may cause the calculations to overflow.
         /// </remarks>
-        public DescriptiveStatistics(IEnumerable<double> data, bool increasedAccuracy = false)
+        public DescriptiveStatistics(IEnumerable<double> data, bool increasedAccuracy)
         {
             if (data == null)
             {
@@ -85,7 +85,7 @@ namespace PositionTracker
         /// Don't use increased accuracy for data sets containing large values (in absolute value).
         /// This may cause the calculations to overflow.
         /// </remarks>
-        public DescriptiveStatistics(IEnumerable<double?> data, bool increasedAccuracy = false)
+        public DescriptiveStatistics(IEnumerable<double?> data, bool increasedAccuracy)
         {
             if (data == null)
             {

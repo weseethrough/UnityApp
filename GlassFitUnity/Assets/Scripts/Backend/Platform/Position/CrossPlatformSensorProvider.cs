@@ -1,9 +1,10 @@
 using System;
+using UnityEngine;
 using PositionTracker;
 
-public class CrossPlatformSensorProvider : IPositionProvider 
+public class CrossPlatformSensorProvider : ISensorProvider 
 {
-	float[] LinearAcceleration { 
+	public float[] LinearAcceleration { 
 		get {
 			float[] acc = new float[3];
 			acc[0] = Input.acceleration.x;

@@ -1,5 +1,7 @@
 using System;
 using RaceYourself.Models;
+using System.Runtime.InteropServices;
+
 
 #if UNITY_IPHONE
 using UnityEngine;
@@ -9,37 +11,87 @@ using UnityEngine;
 /// </summary>
 public class IosPlatform : Platform
 {
+
+
     // iOS implementation of services
     private PlayerPoints _playerPoints = new LocalDbPlayerPoints ();
     public override PlayerPoints PlayerPoints { get { return _playerPoints; } }
-    private PlayerPosition _localPlayerPosition = new IosPlayerPosition ();
+    private PlayerPosition _localPlayerPosition = new CrossPlatformPlayerPosition ();
     public override PlayerPosition LocalPlayerPosition { get { return _localPlayerPosition; } }
     private BleController _bleController;
     public override BleController BleController { get { return _bleController; } }
 
+	Log log = new Log("IosPlatform");
+
+	/// <summary>
+	/// Initialize this instance.
+	/// </summary>
+	protected override void Initialize()
+	{
+		base.Initialize();
+		initialised = true;
+	}
+
     /// <summary>
     /// Called every frame by PlatformPartner to update internal state
     /// </summary>
-    public override void Update ()
+	[DllImport("__Internal")]
+	private static extern void _Update();
+
+	public override void Update ()
     {
+		//log.info("IosPlatform.Update");
+		try {
+			_Update();
+		} catch(Exception e) {
+			UnityEngine.Debug.LogException(e);
+		}
         base.Update ();
-        // TODO: pass iOS sensor orientation quaternion into base.playerPosition.Update(Quaternion q);
+
+		//TODO, if this is successful, move to base Platform
+		Quaternion orientation = Input.gyro.attitude;
+		playerOrientation.Update(orientation);
+
     }
+
+	protected override void Initialize ()
+	{
+		//report update frequency for gyros. May need to set it here too.
+		float rate = Input.gyro.updateInterval;
+		log.info("Gyro update interval: " + rate);
+
+		base.Initialize ();
+	}
+
+	[DllImport("__Internal")]
+	private static extern void _Poll();
 
     /// <summary>
     /// Called every frame *during* a race by RaceGame to update position, speed etc
     /// Not called outside races to save battery life
     /// </summary>
-    public override void Poll ()
+	public override void Poll ()
     {
+		//log.info("IosPlatform.Poll");
+		try { _Poll(); }
+		catch(Exception e) {
+			log.exception(e);
+		}
         base.Poll ();
         // TODO: update any internal state that only needs to change *during* a race
     }
 
-    public override Device DeviceInformation ()
-    {
-        return new Device ("Apple", "iUnknown");
-    }
+	[DllImport("__Internal")]
+	private static extern string _getDeviceInfo();
+
+	public override Device DeviceInformation ()
+	{
+		return new Device ("Apple", "iUnknown");
+		string deviceModel = _getDeviceInfo();
+		log.info("device model : " + deviceModel);
+		return new Device ("Apple", deviceModel);
+	}
+
 
     public override bool OnGlass ()
     {
@@ -51,94 +103,156 @@ public class IosPlatform : Platform
         return false;
     }
 
+	[DllImport("__Internal")]
+	public static extern bool _IsPluggedIn();
+
     public override bool IsPluggedIn ()
     {
-        throw new NotImplementedException ();
+		log.info("IosPlatform.IsPluggedIn");
+		bool result = false;
+		try { _Poll(); }
+		catch(Exception e) {
+			log.exception(e);
+		}
+		return _IsPluggedIn();
     }
 
     public override bool HasInternet ()
     {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+		//TODO FIX
+		return false;
     }
 
     public override bool HasWifi ()
     {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+		//TODO FIX
+        //throw new NotImplementedException ();
+		return false;
     }
 
     public override bool IsDisplayRemote ()
     {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		//TODO FIX
+		return false;
     }
 
     public override bool HasGpsProvider ()
     {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		//TODO FIX
+		return true;
     }
     // *** iOS implementation of bluetooth ***
     public override bool IsBluetoothBonded ()
     {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		//TODO FIX
+		return false;
     }
 
     public override void BluetoothServer ()
     {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		//TODO FIX
+		return;
     }
 
     public override void BluetoothClient ()
     {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		//TODO FIX
+		return;
     }
 
     public override void BluetoothBroadcast (string json)
     {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		//TODO FIX
+		return;
     }
 
     public override string[] BluetoothPeers ()
     {
-        throw new NotImplementedException ();
-    }
-    // *** iOS implementation of blob-storage ***
-    // Will likely be replaced by database soon - don't bother implementing
-    public override byte[] LoadBlob (string id)
-    {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		//TODO FIX
+		return null;
     }
 
-    public override void StoreBlob (string id, byte[] blob)
-    {
-        throw new NotImplementedException ();
-    }
+//	[DllImport("__Internal")]
+//	private static extern byte[] _LoadBlob (string id);
+//
+//    // *** iOS implementation of blob-storage ***
+//    // Will likely be replaced by database soon - don't bother implementing
+//    public override byte[] LoadBlob (string id)
+//    {
+//		log.error("Load Blob Unity call: " + id);
+//        //throw new NotImplementedException ();
+//		return _LoadBlob (id);
+//    }
+//
+//	[DllImport("__Internal")]
+//	private static extern byte[] _StoreBlob (string id, byte[] blob);
+//
+//    public override void StoreBlob (string id, byte[] blob)
+//    {
+//		log.error("Store Blob Unity call: " + id);
+//        //throw new NotImplementedException ();
+//		_StoreBlob(id, blob);
+//		return;
+//    }
 
     public override void EraseBlob (string id)
     {
-        throw new NotImplementedException ();
+		log.error("Not yet implemented for iOS");
+		//throw new NotImplementedException ();
+		return;
     }
 
     public override void ResetBlobs ()
     {
-        throw new NotImplementedException ();
+		log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		return;
     }
     // *** iOS implementation of touch-input ***
     // May not need native (unity has some functions) - check before implementing
     // Returns the int number of fingers touching glass's trackpad
     public override int GetTouchCount ()
     {
-        throw new NotImplementedException ();
+		log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		return 0;
     }
     // Returns (x,y) as floats between 0 and 1
     public override Vector2? GetTouchInput ()
     {
-        throw new NotImplementedException ();
+		log.error("Not yet implemented for iOS");
+		return null;
+        //throw new NotImplementedException ();
     }
     // *** iOS implementation of yaw ***
     // Should probably move to PlayerOrientation class
     public override float Yaw ()
     {
-        throw new NotImplementedException ();
+		//log.error("Not yet implemented for iOS");
+        //throw new NotImplementedException ();
+		return 0;
     }
+
+	public override bool RequiresSoftwareBackButton()
+	{
+		return true;
+	}
 }
 #endif
 
