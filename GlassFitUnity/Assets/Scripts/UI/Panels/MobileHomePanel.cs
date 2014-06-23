@@ -737,7 +737,7 @@ public class MobileHomePanel : MobilePanel {
 						innerInvitedDictionary.Add("texture", "InvitedProfilePicture");
 						innerInvitedDictionary.Add("name", invitedButtonName);
 						invitedImageDictionary.Add(invitedFriends[i].image, innerInvitedDictionary);
-						AddButtonData("friends", invitedButtonName, invitedDictionary, "", invitedImageDictionary, ListButtonData.ButtonFormat.InvitedButton, GetConnection ("InvitedButton"));
+						AddButtonData("friends", invitedButtonName, invitedDictionary, "", invitedImageDictionary, ListButtonData.ButtonFormat.InvitedButton, GetConnection ("InviteButton"));
 					}
 				}
 
