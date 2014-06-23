@@ -254,6 +254,8 @@ public class MobileInRun : MobilePanel {
         bool result = Convert.ToBoolean(DataVault.Get("player_is_ahead"));
         bool challengeComplete = false;
 
+		DataVault.Set("player_track", currentTrack);
+
 		if(timeMinutes.Equals(duration)) {
 			// log attempt
             if(currentTrack != null && challengeNotification != null && device != null) {
