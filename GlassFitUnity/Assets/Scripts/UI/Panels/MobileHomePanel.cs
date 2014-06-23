@@ -200,7 +200,7 @@ public class MobileHomePanel : MobilePanel {
 		});
 		Platform.Instance.NetworkMessageListener.onSync += syncHandler;
 
-		Platform.Instance.SyncToServer();		
+		Platform.Instance.SyncToServer();
 
 		// If we're coming back to this panel, go to the old tab. Otherwise, default to 'challenge'.
 		string lastTab = DataVault.Get("mobilehome_selectedtab") as String;
