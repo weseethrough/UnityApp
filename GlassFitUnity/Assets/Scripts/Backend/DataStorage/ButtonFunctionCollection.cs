@@ -989,6 +989,13 @@ public class ButtonFunctionCollection
         gc.GoToFlow("Flow2");
         return false;
     }
+
+    static public bool SetRunActivitySpriteName(FlowButton button, Panel panel)
+    {
+        DataVault.Set("current_game_id", "activity_race_yourself");
+        DataVault.Set("race_type", "race");
+        return true;
+    }
 	
 	static public bool SetChosenActivitySpriteName(FlowButton button, Panel panel)
 	{
