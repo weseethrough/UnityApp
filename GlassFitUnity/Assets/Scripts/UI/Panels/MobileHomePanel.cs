@@ -813,6 +813,42 @@ public class MobileHomePanel : MobilePanel {
 				int i = GetIndex("uninvited", button.name);
 				// Using this index, get the friend and set it in the DataVault
 				DataVault.Set("chosen_friend", friendsData[i]);
+				Hashtable eventProperties = new Hashtable();
+				eventProperties.Add("event_name", "invite");
+				eventProperties.Add("invite_code", unusedInvite.code);
+				eventProperties.Add("provider", "facebook");
+				Platform.Instance.LogAnalyticEvent(JsonConvert.SerializeObject(eventProperties));
+				string[] toFriend = new string[1];
+				toFriend[0] = friendsData[i].uid;
+				
+				FB.AppRequest("Hello " + friendsData[i].name + ", I have invited you to the Race Yourself mobile app!", toFriend, "", null, null, unusedInvite.code, "", result => {
+					if(result.Error != null) {
+						UnityEngine.Debug.Log("MobileFriendInvite: FB error - " + result.Error);
+					} else {
+						var responseObject = JsonConvert.DeserializeObject<Dictionary<string, object>>(result.Text);            
+						object obj = 0;
+						if(responseObject.TryGetValue("request", out obj))
+						{
+							int numInvites = invites.FindAll(x => x.used_at == null).Count;
+							DataVault.Set ("notification_message", "Invite sent! " + numInvites.ToString() + " invites remaining");
+							// Invite will only be linked to the identity after a sync
+							unusedInvite.used_at = DateTime.Now;
+							InviteAction action = new InviteAction("invite", friendsData[i].provider, friendsData[i].uid, unusedInvite.code);
+							Platform.Instance.QueueAction(JsonConvert.SerializeObject(action));
+							
+							Platform.Instance.SyncToServer();
+							GConnector gConnect = Outputs.Find(r => r.Name == "InviteButton");
+							parentMachine.FollowConnection(gConnect);
+							ChangeList("friend");
+						}
+						else
+						{
+							UnityEngine.Debug.LogError("MobileHomePanel - request cancelled");
+						}
+
+					}
+				});
+				return;
 			} else if(button.name.Contains("challenge")) 
 			{
 				// For a challenge button, remove the "challenge" prefix and get the index

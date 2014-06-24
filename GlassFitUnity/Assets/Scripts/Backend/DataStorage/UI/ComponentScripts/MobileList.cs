@@ -11,8 +11,8 @@ public class MobileList : UIComponentSettings
 {
     MobilePanel parent;
 	string listName = "default";
-    private int itemCountBeforeTop = 100;
-    private int itemsToManage = 200;
+    private int itemCountBeforeTop = 10;
+    private int itemsToManage = 20;
 
     private List<GameObject> buttons = new List<GameObject>();
     private int previousStartIndex = 0;
