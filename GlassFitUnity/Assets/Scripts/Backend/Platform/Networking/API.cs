@@ -351,13 +351,12 @@ namespace RaceYourself
 				
 				if (!post.isDone) {}
 				
-				if (!String.IsNullOrEmpty(post.error)) {
+                if (!String.IsNullOrEmpty(post.error)) {
 					log.error(string.Format("UpdateUser({0}) threw error: {1}", user.email, post.error));
 					ret = "Network error";
 					yield break;
 				}
-				
-				var account = JsonConvert.DeserializeObject<SingleResponse<User>>(post.text);
+                var account = JsonConvert.DeserializeObject<SingleResponse<User>>(post.text);
 				if (account.response.id <= 0) {
 					log.error(string.Format("UpdateUser({0}): received an invalid response: {1}", user.email, post.text));
 					yield break;

@@ -401,10 +401,14 @@ public class MobileHomePanel : MobilePanel {
 			}
 			notifications = notes;
 			UnityEngine.Debug.Log("Loaded challenges");
-		} finally {
-		loadingChallengeIncomplete = false;
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
-		}
+		} finally
+        {
+    		loadingChallengeIncomplete = false;
+    		if (physicalWidgetRoot != null)
+            {
+                GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
+    		}
+        }
 	}
 
 	private void CreateChallengeButtons() 
@@ -617,25 +621,27 @@ public class MobileHomePanel : MobilePanel {
 			}
 		}
 		
+        if (physicalWidgetRoot != null) // null if user has moved to a different panel before this coroutine gets this far
+        {
+            // Sort the betaFriends to A-Z by name
+    		if(betaFriends != null && betaFriends.Count > 1) {
+    			betaFriends.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
+    		}
 
-		// Sort the betaFriends to A-Z by name
-		if(betaFriends != null && betaFriends.Count > 1) {
-			betaFriends.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
-		}
+    		// Sort the invitedFriends to A-Z by name
+    		if(invitedFriends != null && invitedFriends.Count > 1) {
+    			invitedFriends.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
+    		}
 
-		// Sort the invitedFriends to A-Z by name
-		if(invitedFriends != null && invitedFriends.Count > 1) {
-			invitedFriends.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
-		}
+    		// Sort the main friends list to A-Z by name
+    		if(friendsData != null && friendsData.Count > 1) {
+    			friendsData.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
+    		}
 
-		// Sort the main friends list to A-Z by name
-		if(friendsData != null && friendsData.Count > 1) {
-			friendsData.Sort((t1, t2) => t1.DisplayName.CompareTo(t2.DisplayName));
-		}
-
-		loadingFriendsIncomplete = false;
-		GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
-		UnityEngine.Debug.Log("LoadFriends() completed");
+            loadingFriendsIncomplete = false;
+            GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "");
+            UnityEngine.Debug.Log("LoadFriends() completed");
+        }
 		yield break;
 	}
 
