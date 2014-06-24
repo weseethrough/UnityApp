@@ -229,7 +229,7 @@ public class MobileInRun : MobilePanel {
 		//float elapsedTime = Platform.Instance.LocalPlayerPosition.Time / 1000;
 		float playerSpeed = playerDist / elapsedTime;
 		float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);
-		string playerPaceString = UnitsHelper.kmPaceToString(playerKmPace);
+        string playerPaceString = float.IsNaN(playerKmPace) ? "--:--" : UnitsHelper.kmPaceToString(playerKmPace);
 		DataVault.Set("player_average_pace", playerPaceString);
 
 		float opponentSpeed = opponentDist / elapsedTime;

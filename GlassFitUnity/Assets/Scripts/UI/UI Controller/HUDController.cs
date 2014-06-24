@@ -26,6 +26,7 @@ public class HUDController : MonoBehaviour {
 		DataVault.Set("pace", "--:--");
 		DataVault.Set("distance", "0");
 		DataVault.Set("time", "");
+        DataVault.Set("rawdistance", 0d);
 
 		float millisecondsRemaining = goal_time * 1000;
 		string timeRemainingString = UnitsHelper.TimestampMMSSdd((long)millisecondsRemaining);
@@ -45,7 +46,7 @@ public class HUDController : MonoBehaviour {
 
 			float playerDist = (float)Platform.Instance.LocalPlayerPosition.Distance;
 			float elapsedTime = (float)DataVault.Get("elapsed_time");
-			if(elapsedTime > 0)
+            if(elapsedTime > 0 && !float.IsNaN(elapsedTime))
 			{
 				float playerSpeed = playerDist / elapsedTime;
 				float playerKmPace = UnitsHelper.SpeedToKmPace(playerSpeed);

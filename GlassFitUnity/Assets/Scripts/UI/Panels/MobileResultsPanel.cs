@@ -151,7 +151,7 @@ public class MobileResultsPanel : MobilePanel {
 	
 		Track playerTrack = (Track)DataVault.Get("player_track");
 
-		double playerDistance = (double)DataVault.Get("rawdistance");
+        double playerDistance = (double) DataVault.Get("rawdistance");
 		DataVault.Set("your_distance", Math.Round(playerDistance/1000, 2).ToString());
 		DataVault.Set("your_distance_sub", "KM");
 		DataVault.Set("your_empty_run", "");
@@ -168,7 +168,7 @@ public class MobileResultsPanel : MobilePanel {
 			if (position.speed > max_speed) max_speed = position.speed;
 		}
 		yourPaceValue = Math.Round((playerTrack.distance*60*60/1000) / playerTrack.time, 1);
-		DataVault.Set("your_pace", yourPaceValue.ToString());
+        DataVault.Set("your_pace", double.IsNaN(yourPaceValue) ? "- -" : yourPaceValue.ToString());
 		yourSpeedValue = Math.Round((max_speed*60*60)/1000, 1);
 		DataVault.Set("your_speed", yourSpeedValue.ToString());
 		if (init_alt.HasValue) {
