@@ -162,6 +162,7 @@ public class MobileHomePanel : MobilePanel {
 		syncIcon.SetActive(false);
 
         syncHandler = new NetworkMessageListener.OnSync((message) => {
+			Platform.Instance.NetworkMessageListener.onSync -= syncHandler;
 			GetChallenges();
 
 			// Remove previous invite codes from the DataVault
@@ -221,170 +222,183 @@ public class MobileHomePanel : MobilePanel {
         UnityEngine.Debug.Log("MobileHomePanel::LoadChallenges()");
 		loadingChallengeIncomplete = true;
 		try {
-		if (tab == "challenges" && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
-		// Find all challenge notifications
-		List<Notification> filteredNotifications = notes.FindAll(r => r.message.type == "challenge");
-		if(filteredNotifications != null) {
-			// Remove all challenges that aren't duration based
-			filteredNotifications = filteredNotifications.FindAll(r => r.message.challenge_type == "duration");
-		} else {
-			loadingChallengeIncomplete = false;
-			UnityEngine.Debug.LogWarning("MobileHomePanel: no challenge notifications");
-			yield break;
-		}
-
-		UnityEngine.Debug.Log("MobileHomePanel: Got " + filteredNotifications.Count + " challenges");
-
-		// If we actually have any challenges
-		if(filteredNotifications != null)
-		{
-			// Get the player challenges
-			List<Notification> playerNotifications = filteredNotifications.FindAll(r => r.message.from == Platform.Instance.User().id);
-			// Remove all the player's sent challenges from the notifications
-			filteredNotifications.RemoveAll(x => x.message.from == Platform.Instance.User().id);
-
-			// Find all new notifications
-			List<Notification> newNotifications = filteredNotifications.FindAll(r => r.read == false);
-			// Set the number of new challenges in the DataVault
-			if(newNotifications != null && newNotifications.Count > 0) {
-				DataVault.Set("new_challenges", newNotifications.Count);
+			if (tab == "challenges" && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
+			// Find all challenge notifications
+			List<Notification> filteredNotifications = notes.FindAll(r => r.message.type == "challenge");
+			if(filteredNotifications != null) {
+				// Remove all challenges that aren't duration based
+				filteredNotifications = filteredNotifications.FindAll(r => r.message.challenge_type == "duration");
+			} else {
+				loadingChallengeIncomplete = false;
+				UnityEngine.Debug.LogWarning("MobileHomePanel: no challenge notifications");
+				yield break;
 			}
-			// Remove all unread notifications from the filtered notifications
-			filteredNotifications.RemoveAll(x => x.read == false);
 
-			newChallenges = new List<ChallengeNotification>();
+			UnityEngine.Debug.Log("MobileHomePanel: Got " + filteredNotifications.Count + " challenges");
 
-			// Loop through all new notifications
-			foreach(Notification notification in newNotifications) {
-				UnityEngine.Debug.Log("processing notification from:" + notification.message.from);
+			// If we actually have any challenges
+			if(filteredNotifications != null)
+			{
+				// Get the player challenges
+				List<Notification> playerNotifications = filteredNotifications.FindAll(r => r.message.from == Platform.Instance.User().id);
+				// Remove all the player's sent challenges from the notifications
+				filteredNotifications.RemoveAll(x => x.message.from == Platform.Instance.User().id);
 
-				// Get the challenger and challenge ID
-				int challengerId = notification.message.from;
-				int challengeId = notification.message.challenge_id;
+				// Find all new notifications
+				List<Notification> newNotifications = filteredNotifications.FindAll(r => r.read == false);
+				// Set the number of new challenges in the DataVault
+				if(newNotifications != null && newNotifications.Count > 0) {
+					DataVault.Set("new_challenges", newNotifications.Count);
+				}
+				// Remove all unread notifications from the filtered notifications
+				filteredNotifications.RemoveAll(x => x.read == false);
 
-				Challenge potential = null;
+				newChallenges = new List<ChallengeNotification>();
 
-				// Start fetching the challenge
-				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (c, note) => {
-					potential = c;
-				}));
+				// Loop through all new notifications
+				foreach(Notification notification in newNotifications) {
+					UnityEngine.Debug.Log("processing notification from:" + notification.message.from);
 
-				if(potential != null) {
+					// Get the challenger and challenge ID
+					int challengerId = notification.message.from;
+					int challengeId = notification.message.challenge_id;
+
+					Challenge potential = null;
+
+					// Start fetching the challenge
+					yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (c, note) => {
+						potential = c;
+					}));
+
+					if(potential != null) {
 					// Get the rival for the challenge
-					User user = null;
+						User user = null;
 
-					yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.GetUserCoroutine(notification.message.from, (u) => {
-						if(u == null) { UnityEngine.Debug.LogError("user is null"); }
-						user = u;
+						yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.GetUserCoroutine(notification.message.from, (u) => {
+							if(u == null) { UnityEngine.Debug.LogError("user is null"); }
+							user = u;
 						}));
 
-					if(null == user)
-					{
-						UnityEngine.Debug.LogWarning("couldn't find user " + notification.message.from);
-						continue;
-					}
-
-					if(newChallenges == null) { UnityEngine.Debug.LogError("newchallenges is null"); }
-
-					TimeSpan? difference = potential.stop_time - DateTime.Now;
-					if(difference != null && difference.Value.TotalMinutes > 0) {
-						ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
-						// Add the challenge to the list
-						newChallenges.Add(challengeNote);
-					}
-
-				}
-			}
-
-			playerChallenges = new List<ChallengeNotification>();
-
-			foreach(Notification notification in playerNotifications) 
-			{
-				// Get the challenger and challenge ID
-				int challengerId = notification.message.from;
-				int challengeId = notification.message.challenge_id;
-
-				Challenge potential = null;
-
-				// Start fetching the challenge
-				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (c, note) => {
-					potential = c;
-				}));
-
-				if(potential != null) {
-					// Get the rival for the challenge
-					//User user = Platform.Instance.GetUser(note.message.to);
-					User user = null;
-					//retrieve the user
-					yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.GetUserCoroutine(notification.message.to, (u) => {
-						user = u;
-					}));
-
-					if(null == user)
-					{
-						UnityEngine.Debug.LogWarning("Couldn't find user " + notification.message.from);
-						continue;
-					}
-
-					TimeSpan? difference;
-					if(potential.stop_time.HasValue) {
-						difference = potential.stop_time - DateTime.Now;
-					} else {
-						difference = TimeSpan.Zero;
-					}
-
-					if(difference != null && difference.Value.TotalMinutes > 0) {
-						ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
-						// Mark own challenge notifications as read as we take no other action
-						if (challengeNote.GetRead()) challengeNote.SetRead(); 
-						// Add the challenge to the list
-						playerChallenges.Add(challengeNote);
-
-					}
-				} else yield break;
-			}
-
-			incompleteChallenges = new List<ChallengeNotification>();
-
-			// Loop through the normal notifications
-			foreach(Notification notification in filteredNotifications) 
-			{
-				// Get the challenger and challenge ID
-				int challengerId = notification.message.from;
-				int challengeId = notification.message.challenge_id;
-
-				Challenge potential = null;
-
-				// Start the coroutine to fetch the challenge
-				yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (c, note) => {
-					potential = c;
-				}));
-
-				if(potential != null) {
-					// Get the rival user
-					User user = null;
-					yield return Platform.Instance.partner.StartCoroutine(
-						Platform.Instance.GetUserCoroutine(notification.message.from, (u) => {
-						if(u != null)
+						if(null == user)
 						{
-							user = u;
+							UnityEngine.Debug.LogWarning("couldn't find user " + notification.message.from);
+							continue;
 						}
-					}));
 
-					if(null == user) { continue; }
+						if(newChallenges == null) { UnityEngine.Debug.LogError("newchallenges is null"); }
 
-					TimeSpan? difference = potential.stop_time - DateTime.Now;
-					if(difference != null && difference.Value.TotalMinutes > 0) 
-					{
-						ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
-						// Add the button to the list
-						incompleteChallenges.Add(challengeNote);
+						TimeSpan? difference = potential.stop_time - DateTime.Now;
+						if(difference != null && difference.Value.TotalMinutes > 0) {
+							ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
+							// Add the challenge to the list
+							ChallengeNotification foundChallenge = newChallenges.Find(x => x.GetChallenge().id == potential.id);
+							if(foundChallenge == null)
+							{
+								newChallenges.Add(challengeNote);
+							}
+						
+						}
+
 					}
 				}
+
+				playerChallenges = new List<ChallengeNotification>();
+
+				foreach(Notification notification in playerNotifications) 
+				{
+					// Get the challenger and challenge ID
+					int challengerId = notification.message.from;
+					int challengeId = notification.message.challenge_id;
+
+					Challenge potential = null;
+
+					// Start fetching the challenge
+					yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (c, note) => {
+						potential = c;
+					}));
+
+					if(potential != null) {
+						// Get the rival for the challenge
+						//User user = Platform.Instance.GetUser(note.message.to);
+						User user = null;
+						//retrieve the user
+						yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.GetUserCoroutine(notification.message.to, (u) => {
+							user = u;
+						}));
+
+						if(null == user)
+						{
+							UnityEngine.Debug.LogWarning("Couldn't find user " + notification.message.from);
+							continue;
+						}
+
+						TimeSpan? difference;
+						if(potential.stop_time.HasValue) {
+							difference = potential.stop_time - DateTime.Now;
+						} else {
+							difference = TimeSpan.Zero;
+						}
+
+						if(difference != null && difference.Value.TotalMinutes > 0) {
+							ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
+							// Mark own challenge notifications as read as we take no other action
+							if (challengeNote.GetRead()) challengeNote.SetRead(); 
+							// Add the challenge to the list
+							ChallengeNotification foundChallenge = playerChallenges.Find(x => x.GetChallenge().id == potential.id);
+							if(foundChallenge == null)
+							{
+								playerChallenges.Add(challengeNote);
+							}
+
+						}
+					} else yield break;
+				}
+
+				incompleteChallenges = new List<ChallengeNotification>();
+
+				// Loop through the normal notifications
+				foreach(Notification notification in filteredNotifications) 
+				{
+					// Get the challenger and challenge ID
+					int challengerId = notification.message.from;
+					int challengeId = notification.message.challenge_id;
+
+					Challenge potential = null;
+
+					// Start the coroutine to fetch the challenge
+					yield return Platform.Instance.partner.StartCoroutine(Platform.Instance.FetchChallengeFromNotification(challengeId, notification, (c, note) => {
+						potential = c;
+					}));
+
+					if(potential != null) {
+						// Get the rival user
+						User user = null;
+						yield return Platform.Instance.partner.StartCoroutine(
+							Platform.Instance.GetUserCoroutine(notification.message.from, (u) => {
+							if(u != null)
+							{
+								user = u;
+							}
+						}));
+
+						if(null == user) { continue; }
+
+						TimeSpan? difference = potential.stop_time - DateTime.Now;
+						if(difference != null && difference.Value.TotalMinutes > 0) 
+						{
+							ChallengeNotification challengeNote = new ChallengeNotification(notification, potential, user);
+							// Add the button to the list
+							ChallengeNotification foundChallenge = incompleteChallenges.Find(x => x.GetChallenge().id == potential.id);
+							if(foundChallenge == null)
+							{
+								incompleteChallenges.Add(challengeNote);
+							}
+						}
+					}
+				}
+								
+				CreateChallengeButtons();
 			}
-							
-			CreateChallengeButtons();
-		}
 			notifications = notes;
 			UnityEngine.Debug.Log("Loaded challenges");
 		} finally {
@@ -671,6 +685,7 @@ public class MobileHomePanel : MobilePanel {
 			}
 
 			// Get the challenges
+//			if(initialized)
 			GetChallenges();
 
 			if (loadingChallengeIncomplete && GetButtonData("challenges").Count == 0) GameObjectUtils.SetTextOnLabelInChildren(physicalWidgetRoot, "LoadingTextLabel", "Loading challenges");
