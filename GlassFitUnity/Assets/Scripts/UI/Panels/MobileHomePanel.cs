@@ -723,7 +723,7 @@ public class MobileHomePanel : MobilePanel {
 					friendsList.ClearList();
 				}
 				GetButtonData("friends").Clear();
-				// If there are beta friends
+				// If there are friends
 				if(betaFriends != null && betaFriends.Count > 0) {
 					// Loop through all beta friends
 					for(int i=0; i<betaFriends.Count; i++) {
@@ -741,7 +741,7 @@ public class MobileHomePanel : MobilePanel {
 					}
 				}
 
-				// If there are friends the player hasn't invited
+				// If there are friends the player has sent invites to that haven't yet accepted
 				if(invitedFriends != null) 
 				{
 					// Loop through the list
@@ -758,7 +758,7 @@ public class MobileHomePanel : MobilePanel {
 						innerInvitedDictionary.Add("texture", "InvitedProfilePicture");
 						innerInvitedDictionary.Add("name", invitedButtonName);
 						invitedImageDictionary.Add(invitedFriends[i].image, innerInvitedDictionary);
-						AddButtonData("friends", invitedButtonName, invitedDictionary, "", invitedImageDictionary, ListButtonData.ButtonFormat.InvitedButton, GetConnection ("InvitedButton"));
+						AddButtonData("friends", invitedButtonName, invitedDictionary, "", invitedImageDictionary, ListButtonData.ButtonFormat.InvitedButton, null);
 					}
 				}
 
