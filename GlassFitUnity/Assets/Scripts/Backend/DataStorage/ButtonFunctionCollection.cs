@@ -994,6 +994,7 @@ public class ButtonFunctionCollection
     {
         DataVault.Set("current_game_id", "activity_race_yourself");
         DataVault.Set("race_type", "race");
+        UnityEngine.Debug.Log("Game Intro: setting game id to: " + DataVault.Get("race_type"));
         return true;
     }
 	

@@ -15,6 +15,11 @@ public class LoadingScreen : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
+        // Note: hack for beta demo.
+        FlowStateMachine.GetCurrentFlowState().parentMachine.ForbidBack();
+        DataVault.Set("current_game_id", "activity_race_yourself");
+        DataVault.Set("race_type", "race");
+
 		raceType = (string)DataVault.Get("race_type");
 		Track track = (Track)DataVault.Get("current_track");
 		switch(raceType) {
@@ -51,7 +56,7 @@ public class LoadingScreen : MonoBehaviour {
 			break;
 			
 		default:
-			UnityEngine.Debug.Log("LoadingScreen: ERROR: Unknown race_type: " + raceType);
+			UnityEngine.Debug.Log("LoadingScreen: ERROR: Unknown 'race_type': " + raceType);
 			break;
 		}
 		
