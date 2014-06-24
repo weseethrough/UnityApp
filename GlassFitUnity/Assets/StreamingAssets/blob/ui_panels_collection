@@ -20,8 +20,6 @@ MobileQuestionnaire1
 MobileQuestionnaire2
 MobileQuestionnaire3
 NetworkCall
-MobileNewHome
-MobileNewHomeV2
 MobileSetChallenge
 MobileSummary
 MobileInRun
@@ -36,7 +34,6 @@ MobileEULA
 MobileMaster
 MobileNewHomeV3
 MobileChallengeInfoV2
-MobileChallengeInfo
 MobileHowDoYouFeel
 MobileChallengeSentOldschool
 MobileInRunScriptWrapper
