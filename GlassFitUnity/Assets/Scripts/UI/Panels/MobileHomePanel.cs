@@ -605,12 +605,18 @@ public class MobileHomePanel : MobilePanel {
 					string uid = invites[i].identity_uid;
 					Friend friend = friendsData.Find(x => x.uid == uid);
 					if(friend != null) {
-						invitedFriends.Add(friend);
-						friendsData.RemoveAt(i);
+						Friend foundFriend = invitedFriends.Find(y => y.uid == friend.uid);
+						if(foundFriend == null)
+						{
+							invitedFriends.Add(friend);
+						}
+
+						friendsData.Remove(friend);
 					}
 				}
 			}
 		}
+		
 
 		// Sort the betaFriends to A-Z by name
 		if(betaFriends != null && betaFriends.Count > 1) {
