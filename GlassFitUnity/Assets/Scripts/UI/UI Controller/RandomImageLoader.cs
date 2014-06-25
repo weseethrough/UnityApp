@@ -6,15 +6,39 @@ public class RandomImageLoader : MonoBehaviour {
 
 	Object[] textures;
 
+	public enum ImageType 
+	{
+		Background,
+		Card,
+		Header
+	};
+
+	public ImageType imageType;
+
 	// Use this for initialization
 	void Start () {
-        textures = Resources.LoadAll("app_header_images");
+        textures = Resources.LoadAll("app_header_images/25-06");
+		if(textures != null) {
+			Texture2D chosenTexture = null;
+			switch(imageType)
+			{
+			case ImageType.Background:
+				chosenTexture = (Texture2D)textures[Random.Range(0, 2)];
+				break;
+				
+			case ImageType.Card:
+				chosenTexture = (Texture2D)textures[Random.Range(2, 4)];
+				break;
+				
+			case ImageType.Header:
+				chosenTexture = (Texture2D)textures[Random.Range(4, 6)];
+				break;
+				
+			default:
+				UnityEngine.Debug.LogError("RandomImageLoader: can't find imageType");
+				break;
+			}
 
-		if(textures[8] != null) 
-		{
-            // commented to stop image cyling, uncomment to re-enable
-            //Texture2D chosenTexture = (Texture2D)textures[Random.Range(0, textures.Length)];
-            Texture2D chosenTexture = (Texture2D)textures[8];
 			if(chosenTexture != null) 
 			{
 				UITexture textureComponent = GetComponent<UITexture>();
@@ -22,6 +46,14 @@ public class RandomImageLoader : MonoBehaviour {
 					textureComponent.mainTexture = chosenTexture;
 				}
 			}
+			else
+			{
+				UnityEngine.Debug.LogError("RandomImageLoader: chosen texture is null");
+			}
+
+		} else 
+		{
+			UnityEngine.Debug.LogError("RandomImageLoader: textures is null");
 		}
 	}
 
