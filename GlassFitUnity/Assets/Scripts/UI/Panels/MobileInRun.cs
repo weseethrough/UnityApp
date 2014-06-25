@@ -421,6 +421,7 @@ public class MobileInRun : MobilePanel {
 		if(time > targetTime)
 		{
 			//we're done
+			Platform.Instance.LocalPlayerPosition.StopTrack();
 
 			//progress flow to results
 			FlowState.FollowFlowLinkNamed("Finished");
