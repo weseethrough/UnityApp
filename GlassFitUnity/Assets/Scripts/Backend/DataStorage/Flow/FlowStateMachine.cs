@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 /// </summary>
 public class FlowStateMachine : MonoBehaviour 
 {
+    private Log log = new Log("FlowStateMachine");
+
     private List<FlowState> activeFlow;
     private List<FlowState> navigationHistory;
     private FlowState targetState;
@@ -300,7 +302,7 @@ public class FlowStateMachine : MonoBehaviour
     /// </summary>
     /// <returns>returns false if navigation history was invalid/empty</returns>
     public bool FollowBack()
-    {        
+    {
         if (navigationHistory != null && navigationHistory.Count > 0)
         {
             FlowState fs = navigationHistory[navigationHistory.Count - 1];
@@ -311,7 +313,7 @@ public class FlowStateMachine : MonoBehaviour
             }
 			SoundManager.PlaySound(SoundManager.Sounds.HidePopup);
             targetState = fs;
-            Debug.Log("'Back' to flow state: " + fs.GetDisplayName());
+            log.info("'Back' to flow state: " + fs.GetDisplayName());
             return true;
         }
         return false;

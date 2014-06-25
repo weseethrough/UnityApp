@@ -92,6 +92,7 @@ public class MobilePanel : Panel
         backHandler = new GestureHelper.OnBack(() =>
         {
             OnBack();
+            GestureHelper.onBack -= backHandler;
         });
         GestureHelper.onBack += backHandler;
     }

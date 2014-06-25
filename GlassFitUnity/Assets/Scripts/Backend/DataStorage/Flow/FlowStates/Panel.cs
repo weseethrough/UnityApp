@@ -17,7 +17,7 @@ public class Panel : FlowState
 												  "SettingsComponent/IndoorButton",
 												  "Friend List/ChallengeButton"};    
     public FlowPanelComponent panelNodeData;
-
+    private Log log = new Log("Panel");
     [NonSerialized()] public GameObject physicalWidgetRoot;    
 
     /// <summary>
