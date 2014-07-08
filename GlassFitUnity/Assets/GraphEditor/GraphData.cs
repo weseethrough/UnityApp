@@ -134,8 +134,8 @@ public class GraphData : ISerializable
 
             float x0 = node.Position.x;
             float y0 = node.Position.y;
-            float x1 = x0 + node.Size.x;
-            float y1 = y0 + node.Size.y;
+            float x1 = x0 + Mathf.Max(node.Size.x, 10);
+            float y1 = y0 + Mathf.Max(node.Size.y, 10);
             if (pos.x >= x0 && pos.y >= y0 && pos.x <= x1 && pos.y <= y1)
             {
                 int nodeDepth = 0;

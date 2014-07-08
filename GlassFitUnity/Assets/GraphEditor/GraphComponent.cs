@@ -24,8 +24,9 @@ public class GraphComponent : MonoBehaviour
         {
             DataStore.LoadStorage(DataStore.BlobNames.flow);
             initialize = true;
+
             //below is the example how to initialize game with specific flow
-            //SetSelectedFlowByName("Flow2");
+            SetSelectedFlowByName("GlassFlow");
             SetSelectedFlowIndex(selectedFlow);
         }
     }

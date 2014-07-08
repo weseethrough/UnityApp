@@ -1000,4 +1000,13 @@ public class ButtonFunctionCollection
 		//follow link as normal
 		return true;
 	}
+
+    static public bool SetRace(FlowButton button, Panel panel)
+    {
+        DataVault.Set("type", "Runner");
+        DataVault.Set("race_type", "tutorial");
+        Platform.Instance.SetIndoor(true);
+        
+        return true;
+    }
 }

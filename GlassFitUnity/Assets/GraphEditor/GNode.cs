@@ -147,12 +147,15 @@ public class GNode : ISerializable
 	
 	public virtual string GetDisplayName()
 	{
-		//System.Reflection.MethodInfo mi = GetType().GetMethod("GetDisplayName");
-		//if (mi != null)
-		//{
-		//	return (string)mi.Invoke(null,null);
-		//}
-		return "?";
+        GParameter gName = Parameters.Find(r => r.Key == "Name");
+        
+        string n = this.GetType().ToString();
+
+        if (gName != null)
+        {
+            return n +" : "+ gName.Value;
+        }
+		return n + " : Unnamed";
 	}
 
     

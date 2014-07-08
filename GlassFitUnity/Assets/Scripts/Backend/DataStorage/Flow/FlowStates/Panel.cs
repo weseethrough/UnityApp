@@ -60,22 +60,6 @@ public class Panel : FlowState
    	}
 
     /// <summary>
-    /// Gets display name of the node, helps with node identification in editor
-    /// </summary>
-    /// <returns>name of the node</returns>
-    public override string GetDisplayName()
-    {
-        base.GetDisplayName();
-        
-        GParameter gName = Parameters.Find(r => r.Key == "Name");
-        if (gName != null)
-        {
-            return "Panel: " + gName.Value;
-        }
-        return "Panel: UnInitialzied";
-    }
-
-    /// <summary>
     /// initializes node and creates name for it. Makes as well default iput/output connection sockets
     /// </summary>
     /// <returns></returns>
@@ -264,32 +248,7 @@ public class Panel : FlowState
             Debug.LogError("Dead end");
         }
     }
-
-    /// <summary>
-    /// function which calls exiting function and if it succeed then continues along connector
-    /// </summary>
-    /// <param name="gConect">connector to follow</param>
-    /// <param name="button">button which triggered event</param>
-    /// <returns></returns>
-    public void ConnectionWithCall(GConnector gConect, FlowButton button)
-    {
-        if (gConect.EventFunction != null && gConect.EventFunction != "")
-        {
-            if (CallStaticFunction(gConect.EventFunction, button))
-            {
-                parentMachine.FollowConnection(gConect);
-            }
-            else
-            {
-                Debug.Log("Debug: Function forbids further navigation");
-            }
-        }
-        else
-        {
-            parentMachine.FollowConnection(gConect);
-        }
-    }
-
+    
     /// <summary>
     /// buttons pressed or released on this panel would send events here
     /// </summary>
@@ -310,31 +269,7 @@ public class Panel : FlowState
         parentMachine.FollowBack();
     }
 
-    /// <summary>
-    /// function structure which helps with calling static functions from connectors
-    /// </summary>
-    /// <param name="functionName">function name to be called</param>
-    /// <param name="caller">button which have initialzied process</param>
-    /// <returns>true is indication that connection should continue</returns>
-    public bool CallStaticFunction(string functionName, FlowButton caller)
-    {
-        MemberInfo[] info = typeof(ButtonFunctionCollection).GetMember(functionName);
-
-        if (info.Length == 1)
-        {
-            System.Object[] newParams = new System.Object[2];
-            newParams[0] = caller;
-            newParams[1] = this;
-            bool ret = (bool)typeof(ButtonFunctionCollection).InvokeMember(functionName, 
-                                    BindingFlags.InvokeMethod | 
-                                    BindingFlags.Public |
-                                    BindingFlags.Static, 
-                                    null, null, newParams);
-            return ret;
-        }
-              
-        return true;
-    }
+    
 
     /// <summary>
     /// checks if class have button data and at least one button. As well do the parent checks if screen type is set

@@ -43,8 +43,8 @@ public class GuardPanel : Panel {
 			GestureHelper.onTap -= tapHandler;		
 			GestureHelper.onSwipeDown -= quitHandler;
 			DataVault.Set(guardKey, true);
-			DataVault.SetPersistency(guardKey, true);
-			DataVault.SaveToBlob();
+			//DataVault.SetPersistency(guardKey, true);
+			//DataVault.SaveToBlob();
 			UnityEngine.Debug.Log("GuardPanel: " + guardKey + " state save");
 			
 	        if (Outputs.Count > 0 && parentMachine != null)
@@ -58,12 +58,7 @@ public class GuardPanel : Panel {
 	        }
 		});		
 		GestureHelper.onTap += tapHandler;		
-		
-		quitHandler = new GestureHelper.DownSwipe(() => {
-				Application.Quit();
-		});
-		GestureHelper.onSwipeDown += quitHandler;
-		
+				
 		base.EnterStart();
 	}
 	

@@ -48,8 +48,7 @@ public class GUICamera : MonoBehaviour {
     /// <param name="dynamicCamPos">(yaw, pitch)</param>
     /// <return>the input quaternion</return>
     private Quaternion ConvertOrientation(PlayerOrientation p, out Vector2 dynamicCamPos)
-    {
-        
+    {        
         dynamicCamPos = new Vector2(p.AsCumulativeYaw(), -p.AsPitch());
         dynamicCamPos.x *= IsHexTypeMenu() ? camera_sensitivity_x_hex : camera_sensitivity_x;
 	    dynamicCamPos.y *= IsHexTypeMenu() ? camera_sensitivity_y_hex : camera_sensitivity_y;

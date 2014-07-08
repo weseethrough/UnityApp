@@ -34,8 +34,8 @@ public class GraphUtil
         bool valid = node.IsValid();
         bool selected = selectedNode == node;        
 
-		float width = size.x;
-		float height = size.y;
+		float width  = Mathf.Max(size.x, 10);
+		float height = Mathf.Max(size.y, 10);
 			
 		float x0 = pos.x;
 		float x1 = pos.x+width;
