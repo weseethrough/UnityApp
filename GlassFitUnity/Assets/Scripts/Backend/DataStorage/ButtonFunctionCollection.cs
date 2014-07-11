@@ -1009,4 +1009,29 @@ public class ButtonFunctionCollection
         
         return true;
     }
+
+    static public bool IsTutorialRequired(FlowButton button, Panel panel)
+    {
+        object o = DataVault.Get("tutorial_done");
+        if (o != null)
+        {
+            if (Convert.ToBoolean(o))
+            {
+                panel.TryToNavigateVia("ToGame");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static public bool SetTutorialDone(FlowButton button, Panel panel)
+    {
+        DataVault.Set("tutorial_done", true);
+        DataVault.SetPersistency("tutorial_done", true);
+        DataVault.SaveToBlob();
+
+        return true;
+    }
+
 }

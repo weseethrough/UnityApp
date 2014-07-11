@@ -287,6 +287,23 @@ public class DataVault : MonoBehaviour
         return data[name].storedValue;
     }
 
+    static public string GetString(string name)
+    {
+        if (data == null)
+        {
+            Initialize();
+        }
+
+        if (!data.ContainsKey(name))
+        {
+            return string.Empty;
+        }
+
+        object o = data[name].storedValue;
+
+        return o == null ? string.Empty : o.ToString();
+    }
+
     /// <summary>
     /// removes record of the variable
     /// </summary>

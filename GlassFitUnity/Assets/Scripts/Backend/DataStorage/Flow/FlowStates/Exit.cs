@@ -49,7 +49,7 @@ public class Exit : FlowState
     }
 
     /// <summary>
-    /// initialzies node and creates name for it. Makes as well default iput/output connection sockets
+    /// initializes node and creates name for it. Makes as well default input/output connection sockets
     /// </summary>
     /// <returns></returns>
     protected override void Initialize()
@@ -59,5 +59,12 @@ public class Exit : FlowState
         Size = new Vector2(175, 80);        
         NewInput("Exit Point", "Flow");
         NewParameter("Name", GraphValueType.String, "Exit");
+    }
+
+    public override void EnterStart()
+    {
+        base.EnterStart();
+
+        Application.Quit();
     }
 }

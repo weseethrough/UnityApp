@@ -344,4 +344,17 @@ public abstract class FlowState : GNode
             parentMachine.FollowConnection(gConect);
         }
     }
+
+    public bool TryToNavigateVia(string exitName)
+    {
+        GConnector c = Outputs.Find(o => o.Name == exitName);
+        if (c == null || c.Link == null)
+        {
+            return false;
+        }
+
+        ConnectionWithCall(c, null);
+
+        return true;
+    }
 }

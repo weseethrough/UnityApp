@@ -58,11 +58,8 @@ public class GlassPanel : Panel
                 {
                     lookingUp = false;
                     Play(physicalWidgetRoot, "GlassHeadUp", AnimationOrTween.Direction.Reverse, true);
-                }
-                
+                }                
             }
-
-            DataVault.Set("distance_unit", ":" + angle);
         }
     }
 
