@@ -1,6 +1,6 @@
 //----------------------------------------------
 //            NGUI: Next-Gen UI kit
-// Copyright © 2011-2013 Tasharen Entertainment
+// Copyright © 2011-2014 Tasharen Entertainment
 //----------------------------------------------
 
 using UnityEngine;
@@ -32,7 +32,7 @@ public class UIRoot : MonoBehaviour
 	/// Type of scaling used by the UIRoot.
 	/// </summary>
 
-	public Scaling scalingStyle = Scaling.FixedSize;
+	public Scaling scalingStyle = Scaling.PixelPerfect;
 
 	/// <summary>
 	/// Height of the screen when the scaling style is set to FixedSize.
@@ -55,6 +55,18 @@ public class UIRoot : MonoBehaviour
 	public int maximumHeight = 1536;
 
 	/// <summary>
+	/// Whether the final value will be adjusted by the device's DPI setting.
+	/// </summary>
+
+	public bool adjustByDPI = false;
+
+	/// <summary>
+	/// If set and the game is in portrait mode, the UI will shrink based on the screen's width instead of height.
+	/// </summary>
+
+	public bool shrinkPortraitUI = false;
+
+	/// <summary>
 	/// UI Root's active height, based on the size of the screen.
 	/// </summary>
 
@@ -62,16 +74,31 @@ public class UIRoot : MonoBehaviour
 	{
 		get
 		{
-			int height = Mathf.Max(2, Screen.height);
 			if (scalingStyle == Scaling.FixedSize) return manualHeight;
 
-#if UNITY_IPHONE || UNITY_ANDROID
+#if UNITY_IPHONE || UNITY_ANDROID || UNITY_WP8 || UNITY_BLACKBERRY
 			if (scalingStyle == Scaling.FixedSizeOnMobiles)
 				return manualHeight;
 #endif
-			if (height < minimumHeight) return minimumHeight;
-			if (height > maximumHeight) return maximumHeight;
-			return height;
+			Vector2 screen = NGUITools.screenSize;
+			float aspect = screen.x / screen.y;
+			
+			if (screen.y < minimumHeight)
+			{
+				screen.y = minimumHeight;
+				screen.x = screen.y * aspect;
+			}
+			else if (screen.y > maximumHeight)
+			{
+				screen.y = maximumHeight;
+				screen.x = screen.y * aspect;
+			}
+
+			// Portrait mode uses the maximum of width or height to shrink the UI
+			int height = Mathf.RoundToInt((shrinkPortraitUI && screen.y > screen.x) ? screen.y / aspect : screen.y);
+
+			// Adjust the final value by the DPI setting
+			return adjustByDPI ? NGUIMath.AdjustByDPI(height) : height;
 		}
 	}
 
@@ -79,7 +106,7 @@ public class UIRoot : MonoBehaviour
 	/// Pixel size adjustment. Most of the time it's at 1, unless the scaling style is set to FixedSize.
 	/// </summary>
 
-	public float pixelSizeAdjustment { get { return GetPixelSizeAdjustment(Screen.height); } }
+	public float pixelSizeAdjustment { get { return GetPixelSizeAdjustment(Mathf.RoundToInt(NGUITools.screenSize.y)); } }
 
 	/// <summary>
 	/// Helper function that figures out the pixel size adjustment for the specified game object.
@@ -133,6 +160,10 @@ public class UIRoot : MonoBehaviour
 
 	void Update ()
 	{
+#if UNITY_EDITOR
+		if (!Application.isPlaying && gameObject.layer != 0)
+			UnityEditor.EditorPrefs.SetInt("NGUI Layer", gameObject.layer);
+#endif
 		if (mTrans != null)
 		{
 			float calcActiveHeight = activeHeight;
@@ -159,10 +190,15 @@ public class UIRoot : MonoBehaviour
 
 	static public void Broadcast (string funcName)
 	{
-		for (int i = 0, imax = list.Count; i < imax; ++i)
+#if UNITY_EDITOR
+		if (Application.isPlaying)
+#endif
 		{
-			UIRoot root = list[i];
-			if (root != null) root.BroadcastMessage(funcName, SendMessageOptions.DontRequireReceiver);
+			for (int i = 0, imax = list.Count; i < imax; ++i)
+			{
+				UIRoot root = list[i];
+				if (root != null) root.BroadcastMessage(funcName, SendMessageOptions.DontRequireReceiver);
+			}
 		}
 	}
 

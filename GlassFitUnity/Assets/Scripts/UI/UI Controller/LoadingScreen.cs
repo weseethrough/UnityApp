@@ -11,7 +11,7 @@ public class LoadingScreen : MonoBehaviour {
 	private string levelName;
 	protected string raceType;
 	
-	private UISlider slider;
+	private UIPanel maskingPanel;
 	
 	// Use this for initialization
 	void Start () {
@@ -94,12 +94,13 @@ public class LoadingScreen : MonoBehaviour {
 				return;
 			}
 		}
-		
-		slider = GetComponentInChildren<UISlider>();
-	
-		if(slider != null)
+
+        maskingPanel = GetComponentInChildren<UIPanel>();
+
+        if (maskingPanel != null)
 		{
-			slider.Set(0, false);
+            Vector4 clip = maskingPanel.clipRange;
+            clip.y = 180;
 		}
 		
 		StartCoroutine("LoadLevel");
@@ -119,10 +120,13 @@ public class LoadingScreen : MonoBehaviour {
 		
 		if(async != null) {
 			float progress = async.progress * 100f;
-			if(slider != null) {
-				slider.Set(progress / 100f, false);
+            if (maskingPanel != null)
+            {
+                Vector4 clip = maskingPanel.clipRange;
+                clip.y = (1 - progress) * 180f;
+				//slider.Set(progress / 100f, false);
 			}
-			UnityEngine.Debug.Log("LoadingScreen: Loading - " + progress.ToString("f0") + "%");
+            UnityEngine.Debug.Log("LoadingScreen: Loading - " + progress.ToString("f0") + "%");
 			
 			if(async.isDone) {
 			    FlowState fs = FlowStateMachine.GetCurrentFlowState();
