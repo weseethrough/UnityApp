@@ -73,7 +73,7 @@ public class FeetManager : MonoBehaviour
 
     void Update()
     {
-        data = Platform.Instance.sensoriaSockPressure;
+        data = null; //Platform.Instance.sensoriaSockPressure;
         if (data == null) return;
 
         for (int i=0; i<footL.Length; i++)

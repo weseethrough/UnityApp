@@ -657,34 +657,34 @@ public class GameBase : MonoBehaviour {
 	{
 
 		// Auto-pause if player has stopped for > 0.5secs
-		if (started && !autopause && !pause
-			&& !Platform.Instance.IsIndoor()
-			&& Platform.Instance.playerState == "STOPPED"
-			&& (UnityEngine.Time.time-Platform.Instance.playerStateEntryTime > 1.0f))
-		{
-			UnityEngine.Debug.Log("Auto-pausing");
-			PauseGame();
-			if (pause) // if pausegame suceeded (sometimes it doesn't, e.g. if considering quit)
-			{
-				autopause = true;
-				DataVault.Set ("paused","auto-paused");
-			}
-		}
+//		if (started && !autopause && !pause
+//			&& !Platform.Instance.IsIndoor()
+//			&& Platform.Instance.playerState == "STOPPED"
+//			&& (UnityEngine.Time.time-Platform.Instance.playerStateEntryTime > 1.0f))
+//		{
+//			UnityEngine.Debug.Log("Auto-pausing");
+//			PauseGame();
+//			if (pause) // if pausegame suceeded (sometimes it doesn't, e.g. if considering quit)
+//			{
+//				autopause = true;
+//				DataVault.Set ("paused","auto-paused");
+//			}
+//		}
 
 		// Auto-un-pause if player has started moving again
-		else if (started && autopause
-			&& !Platform.Instance.IsIndoor()
-			&& Platform.Instance.playerState != "STOPPED"
-			&& (UnityEngine.Time.time-Platform.Instance.playerStateEntryTime > 0.5f))
-		{
-			UnityEngine.Debug.Log("Auto-un-pausing");
-			PauseGame();
-			if (!pause) // if pausegame suceeded (sometimes it doesn't, e.g. if considering quit)
-			{
-				autopause = false;
-			}
+//		else if (started && autopause
+//			&& !Platform.Instance.IsIndoor()
+//			&& Platform.Instance.playerState != "STOPPED"
+//			&& (UnityEngine.Time.time-Platform.Instance.playerStateEntryTime > 0.5f))
+//		{
+//			UnityEngine.Debug.Log("Auto-un-pausing");
+//			PauseGame();
+//			if (!pause) // if pausegame suceeded (sometimes it doesn't, e.g. if considering quit)
+//			{
+//				autopause = false;
+//			}
 
-		}
+        //		}
 
 		//Update variables for GUI	
 		Platform.Instance.Poll();

@@ -15,19 +15,19 @@ public class Platform : MonoBehaviour {
 	private float pace = 0;
 
 	// Player state - STOPPED, STEADY_GPS_SPEED etc. Set from Java via Unity Messages.
-	internal float playerStateEntryTime = UnityEngine.Time.time;
-	internal string playerState = "";
+    //internal float playerStateEntryTime = UnityEngine.Time.time;
+    //internal string playerState = "";
 
-	protected Position position = null;
-	private PlayerOrientation playerOrientation = new PlayerOrientation();
-	protected float bearing = -999.0f;
-	protected float yaw = -999.0f;
+    //protected Position position = null;
+    private PlayerOrientation playerOrientation = new PlayerOrientation();
+    protected float bearing = -999.0f;
+    protected float yaw = -999.0f;
 	private bool started = false;
 	protected bool initialised = false;
-	private long currentActivityPoints = 0;
-	private long openingPointsBalance = 0;
+    //private long currentActivityPoints = 0;
+    //private long openingPointsBalance = 0;
 	public int currentTrack { get; set; }
-	public float[] sensoriaSockPressure { get; private set;}
+    //public float[] sensoriaSockPressure { get; private set;}
 	
 	private List<Track> trackList;
 	private List<Game> gameList;
@@ -36,18 +36,18 @@ public class Platform : MonoBehaviour {
 	public Boolean IsTracking() { return tracking; }
 	
 	private AndroidJavaObject helper;
-	private AndroidJavaObject points_helper;
-	private AndroidJavaObject gps;
+    //private AndroidJavaObject points_helper;
+    //private AndroidJavaObject gps;
 	private AndroidJavaClass helper_class;
-	private AndroidJavaClass points_helper_class;
+    //private AndroidJavaClass points_helper_class;
 	private AndroidJavaObject activity;
 	private AndroidJavaObject context;
-	private AndroidJavaObject sensoriaSock;
+    //private AndroidJavaObject sensoriaSock;
 	
 	public List<TargetTracker> targetTrackers { get; private set; }
 	
 	// Are we authenticated? Note: we mark it false at init and true when any auth call passes
-	public bool authenticated { get; private set; }	
+    public bool authenticated { get; private set; }	
 	public bool connected { get; private set; } // ditto
 	
 	// Other components may change this to disable sync temporarily?
@@ -176,7 +176,7 @@ public class Platform : MonoBehaviour {
     		activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             context = activity.Call<AndroidJavaObject>("getApplicationContext");
             helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.gpstracker.Helper");
-            points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
+            //points_helper_class = new AndroidJavaClass("com.glassfitgames.glassfitplatform.points.PointsHelper");
             UnityEngine.Debug.LogWarning("Platform: helper_class created OK");
 	                        
             // call the following on the UI thread
@@ -185,45 +185,45 @@ public class Platform : MonoBehaviour {
 				try {
 	                // Get the singleton helper objects
                     helper = helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
-                    points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
+                    //points_helper = points_helper_class.CallStatic<AndroidJavaObject>("getInstance", context);
                     UnityEngine.Debug.LogWarning("Platform: unique helper instance returned OK");
 	
 					// Try to get a Java GPSTracker object
-                    gps = helper.Call<AndroidJavaObject>("getGPSTracker");
-                    UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
+                    //gps = helper.Call<AndroidJavaObject>("getGPSTracker");
+                    //UnityEngine.Debug.LogWarning("Platform: unique GPS tracker obtained");
 	                
 	                // Cache the list of games and states from java
 		            GetGames();
 					
 					// get reference to Sensoria Socks
-					try {
-						sensoriaSock = new AndroidJavaObject("com.glassfitgames.glassfitplatform.sensors.SensoriaSock", context);
-						UnityEngine.Debug.Log("Platform: socks obtained");
-					} catch (Exception e) {
-						UnityEngine.Debug.LogWarning("Platform: Error attaching to Sensoria Socks: " + e.Message);
-					}
+                    //try {
+                    //	sensoriaSock = new AndroidJavaObject("com.glassfitgames.glassfitplatform.sensors.SensoriaSock", context);
+                    //	UnityEngine.Debug.Log("Platform: socks obtained");
+                    //} catch (Exception e) {
+                    //	UnityEngine.Debug.LogWarning("Platform: Error attaching to Sensoria Socks: " + e.Message);
+                    //}
 				                       
 					//Poll();
-		            UnityEngine.Debug.Log("Platform: Opening points: " + GetOpeningPointsBalance());
-		            UnityEngine.Debug.Log("Platform: Current game points: " + GetCurrentPoints());
-		            UnityEngine.Debug.Log("Platform: Current gems: " + GetCurrentGemBalance());
-		            UnityEngine.Debug.Log("Platform: Current metabolism: " + GetCurrentMetabolism());
+                    //UnityEngine.Debug.Log("Platform: Opening points: " + GetOpeningPointsBalance());
+                    //UnityEngine.Debug.Log("Platform: Current game points: " + GetCurrentPoints());
+                    //UnityEngine.Debug.Log("Platform: Current gems: " + GetCurrentGemBalance());
+                    //UnityEngine.Debug.Log("Platform: Current metabolism: " + GetCurrentMetabolism());
 		                                        
-					if (OnGlass() && HasInternet()) {
-						UnityEngine.Debug.Log("Platform: attempting authorize");
-						Authorize("any", "login");
-						UnityEngine.Debug.Log("Platform: authorize complete");
-					}
+                    //if (OnGlass() && HasInternet()) {
+                    //	UnityEngine.Debug.Log("Platform: attempting authorize");
+                    //	Authorize("any", "login");
+                    //	UnityEngine.Debug.Log("Platform: authorize complete");
+                    //}
 					
 					if (IsRemoteDisplay()) {
 						BluetoothServer();
 					} else {
 						BluetoothClient();
 					}
-					if (false && HasInternet() && HasPermissions("any", "login")) {
-						// TODO: Non-blocking connect?
-						ConnectSocket();
-					}
+                    //if (false && HasInternet() && HasPermissions("any", "login")) {
+                    //	// TODO: Non-blocking connect?
+                    //	ConnectSocket();
+                    //}
 									
 		            initialised = true;
 					
@@ -396,8 +396,8 @@ public class Platform : MonoBehaviour {
 	// Called by unity messages on each state change
 	void PlayerStateChange(string message) {
 		UnityEngine.Debug.Log("Player state message received from Java: " + message);
-		playerState = message;
-		playerStateEntryTime = UnityEngine.Time.time;
+        //playerState = message;
+        //playerStateEntryTime = UnityEngine.Time.time;
 	}
 	
 	private void DataVaultFromJson(JSONNode json) {
@@ -486,7 +486,7 @@ public class Platform : MonoBehaviour {
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void StartTrack() {
 		try {
-			gps.Call("startTracking");
+            //gps.Call("startTracking");
 			tracking = true;
 			started = true;
 			UnityEngine.Debug.Log("Platform: StartTrack succeeded");
@@ -501,18 +501,18 @@ public class Platform : MonoBehaviour {
 	public virtual void SetIndoor(bool indoor) {
 		try {
 			UnityEngine.Debug.Log("Platform: setting indoor");
-			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-    	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-			
-			activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
-				gps.Call("setIndoorMode", indoor);
-				if (indoor) {
-				    gps.Call("setIndoorSpeed", 5.0f);
-				    UnityEngine.Debug.Log("Platform: Indoor mode set to true, indoor speed = 4 min/km");
-				} else {
-					UnityEngine.Debug.Log("Platform: Indoor mode set to false, will use true GPS speed");
-				}
-			}));
+//			AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+//    	    AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+//			
+//            activity.Call("runOnUiThread", new AndroidJavaRunnable(() => {
+//                gps.Call("setIndoorMode", indoor);
+//				if (indoor) {
+//				    gps.Call("setIndoorSpeed", 5.0f);
+//				    UnityEngine.Debug.Log("Platform: Indoor mode set to true, indoor speed = 4 min/km");
+//				} else {
+//					UnityEngine.Debug.Log("Platform: Indoor mode set to false, will use true GPS speed");
+//				}
+//			}));
 		} catch(Exception e) {
 			UnityEngine.Debug.Log("Platform: Error setting indoor mode " + e.Message);
 		}
@@ -522,7 +522,8 @@ public class Platform : MonoBehaviour {
 	public virtual bool IsIndoor() {
   		try {
 			//UnityEngine.Debug.Log("Platform: checking indoor");
-		    return gps.Call<bool>("isIndoorMode");
+            //return gps.Call<bool>("isIndoorMode");
+            return true;
 		  } catch (Exception e) {
 		   UnityEngine.Debug.LogWarning("Platform: Error returning isIndoor");
 		   UnityEngine.Debug.Log(e.Message);
@@ -533,7 +534,7 @@ public class Platform : MonoBehaviour {
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void ResetTargets() {
 		try {
-			helper.Call("resetTargets");
+            //helper.Call("resetTargets");
 			targetTrackers.Clear();
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error clearing targets");
@@ -637,8 +638,9 @@ public class Platform : MonoBehaviour {
 	public virtual Boolean HasLock() {
 		try {
 			//UnityEngine.Debug.Log("Platform: checking GPS");
-			bool gpsLock = gps.Call<Boolean>("hasPosition");
+            bool gpsLock = true; //gps.Call<Boolean>("hasPosition");
 //			UnityEngine.Debug.Log("Platform: hasLock() returned " + gpsLock);
+
 			return gpsLock;
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: hasLock() failed: " + e.Message);
@@ -652,10 +654,11 @@ public class Platform : MonoBehaviour {
 	public virtual Track StopTrack() {
 		try {
 			UnityEngine.Debug.Log("Platform: calling stop track");
-			gps.Call("stopTracking");
-			using (AndroidJavaObject rawtrack = gps.Call<AndroidJavaObject>("getTrack")) {
-				return convertTrack(rawtrack);
-			}
+            //gps.Call("stopTracking");
+            //using (AndroidJavaObject rawtrack = gps.Call<AndroidJavaObject>("getTrack")) {
+            //	return convertTrack(rawtrack);
+            //}
+            return new Track();
 		} catch(Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Problem stopping tracking");
 			UnityEngine.Debug.LogException(e);
@@ -712,8 +715,8 @@ public class Platform : MonoBehaviour {
 	[MethodImpl(MethodImplOptions.Synchronized)]
 	public virtual void Reset() {
 		try {
-			gps.Call("startNewTrack");
-			points_helper.Call("reset");
+            //gps.Call("startNewTrack");
+            //points_helper.Call("reset");
 			started = false;
 			Poll();
 			UnityEngine.Debug.Log("Platform: GPS has been reset");
@@ -1099,8 +1102,8 @@ public class Platform : MonoBehaviour {
 	
 	public virtual void Update() {
 		//UnityEngine.Debug.Log("Platform: updating");
-		if (device == null) device = Device();
-		if (user == null) user = User();
+        //if (device == null) device = Device();
+        //if (user == null) user = User();
 		//UnityEngine.Debug.Log("Platform: about to sync");
 //		if (authenticated && syncInterval > 0 && DateTime.Now.Subtract(lastSync).TotalSeconds > syncInterval && IsPluggedIn()) {
 //			//UnityEngine.Debug.Log("Platform: about to sync properly");
@@ -1130,7 +1133,7 @@ public class Platform : MonoBehaviour {
 		
 //		if (!hasLock ()) return;
 		try {
-			time = gps.Call<long>("getElapsedTime");
+            //time = gps.Call<long>("getElapsedTime");
 			//UnityEngine.Debug.Log("Platform: poll time");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: getElapsedTime() failed: " + e.Message);
@@ -1143,14 +1146,14 @@ public class Platform : MonoBehaviour {
 		}
 		
 		try {
-			distance = gps.Call<double>("getElapsedDistance");
+            //distance = gps.Call<double>("getElapsedDistance");
 			//UnityEngine.Debug.Log("Platform: poll distance");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: getElapsedDistance() failed: " + e.Message);
 			UnityEngine.Debug.LogException(e);
 		}
 		try {
-			pace = gps.Call<float>("getCurrentSpeed");
+            //pace = gps.Call<float>("getCurrentSpeed");
 			//UnityEngine.Debug.Log("Platform: poll speed");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: getCurrentSpeed() failed: " + e.Message);            
@@ -1158,57 +1161,57 @@ public class Platform : MonoBehaviour {
 		}
 		try {
 			if (HasLock()) {
-				AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
+                //AndroidJavaObject ajo = gps.Call<AndroidJavaObject>("getCurrentPosition");
 				//UnityEngine.Debug.Log("Platform: poll position");
-				position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
+                //position = new Position((float)ajo.Call<double>("getLatx"), (float)ajo.Call<double>("getLngx"));
 			}
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting position: " + e.Message);
 //			errorLog = errorLog + "\ngetCurrentPosition|Bearing" + e.Message;
 		}
 
-		try {
-			if (gps.Call<bool>("hasBearing")) {
-				bearing = gps.Call<float>("getCurrentBearing");
-				//UnityEngine.Debug.Log("Platform: poll bearing");
-			} else {
-				bearing = -999.0f;
-			}
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
-		}
+//		try {
+//			if (gps.Call<bool>("hasBearing")) {
+//                //bearing = gps.Call<float>("getCurrentBearing");
+//				//UnityEngine.Debug.Log("Platform: poll bearing");
+//			} else {
+//                //bearing = -999.0f;
+//			}
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
+//		}
 
-		try {
-			yaw = helper.Call<float>("getAzimuth");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
-		}
+//		try {
+//            //yaw = helper.Call<float>("getAzimuth");
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: Error getting bearing: " + e.Message);
+//		}
 		
-		try {
-			currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
-			//UnityEngine.Debug.Log("Platform: poll current points");
-			string pointsFormatted = currentActivityPoints.ToString("n0");
-			DataVault.Set ("points", pointsFormatted/* + "RP"*/);
-			
-			//UnityEngine.Debug.Log("Platform: poll points vault set");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting current activity points: " + e.Message);
-			DataVault.Set("points", -1);
-		}		
+//		try {
+//            //currentActivityPoints = points_helper.Call<long>("getCurrentActivityPoints");
+//			//UnityEngine.Debug.Log("Platform: poll current points");
+//            //string pointsFormatted = currentActivityPoints.ToString("n0");
+//            //DataVault.Set ("points", pointsFormatted/* + "RP"*/);
+//			
+//			//UnityEngine.Debug.Log("Platform: poll points vault set");
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: Error getting current activity points: " + e.Message);
+//			DataVault.Set("points", -1);
+//		}		
 		
-		try {
-			openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
-			//UnityEngine.Debug.Log("Platform: poll opening points");
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting opening points balance: " + e.Message);
-		}
-		
-		try {
-			sensoriaSockPressure = sensoriaSock.Call<float[]>("getPressureSensorValues", ((long)(UnityEngine.Time.time*1000)));
-			//UnityEngine.Debug.Log("Platform: poll Sensoria pressure = " + sensoriaSockPressure[0]);
-		} catch (Exception e) {
-			UnityEngine.Debug.LogWarning("Platform: Error getting sensoria sock pressure data: " + e.Message);
-		}
+//		try {
+//            //openingPointsBalance = points_helper.Call<long>("getOpeningPointsBalance");
+//			//UnityEngine.Debug.Log("Platform: poll opening points");
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: Error getting opening points balance: " + e.Message);
+//		}
+//		
+//		try {
+//            //sensoriaSockPressure = sensoriaSock.Call<float[]>("getPressureSensorValues", ((long)(UnityEngine.Time.time*1000)));
+//			//UnityEngine.Debug.Log("Platform: poll Sensoria pressure = " + sensoriaSockPressure[0]);
+//		} catch (Exception e) {
+//			UnityEngine.Debug.LogWarning("Platform: Error getting sensoria sock pressure data: " + e.Message);
+//		}
 	}
 	
 	// Return the distance behind target
@@ -1239,7 +1242,7 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public virtual Position Position() {
-		return position;
+        return new Position(0f,0f);
 	}
 	
 	public virtual float Bearing() {
@@ -1251,16 +1254,16 @@ public class Platform : MonoBehaviour {
 	}
 	
 	public virtual long GetOpeningPointsBalance() {
-		return openingPointsBalance;
+        return 0;
 	}
 	
 	public virtual long GetCurrentPoints() {
-		return currentActivityPoints;
+        return 0;
 	}
 	
 	public virtual int GetCurrentGemBalance() {
 		try {
-			return points_helper.Call<int>("getCurrentGemBalance");
+            return 0; //points_helper.Call<int>("getCurrentGemBalance");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting current gem balance: " + e.Message);
 			return 0;
@@ -1279,7 +1282,7 @@ public class Platform : MonoBehaviour {
 	
 	public virtual float GetCurrentMetabolism() {
 		try {
-			return points_helper.Call<float>("getCurrentMetabolism");
+            return 0; //points_helper.Call<float>("getCurrentMetabolism");
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error getting current metabolism: " + e.Message);
 			return 0;
@@ -1288,7 +1291,7 @@ public class Platform : MonoBehaviour {
 	
 	public virtual void SetBasePointsSpeed(float speed) {
 		try {
-			points_helper.Call("setBaseSpeed", speed);
+            //points_helper.Call("setBaseSpeed", speed);
 		} catch (Exception e) {
 			UnityEngine.Debug.LogWarning("Platform: Error setting base points speed: " + e.Message);
 		}
@@ -1312,12 +1315,12 @@ public class Platform : MonoBehaviour {
 	{
 		try
 		{
-			points_helper.Call("awardPoints", "in-game bonus", reason, gameId, points);
+            //points_helper.Call("awardPoints", "in-game bonus", reason, gameId, points);
 			UnityEngine.Debug.Log("Platform: " + gameId + " awarded " + points + " points for " + reason);
 		}
-		catch (Exception e)
+        catch
 		{
-			UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + points + " points in " + gameId);
+            UnityEngine.Debug.LogWarning("Platform: Error awarding " + reason + " of " + points + " points in " + gameId );
 		}
 	}
 	
@@ -1337,7 +1340,7 @@ public class Platform : MonoBehaviour {
 	{
 		try
 		{
-			points_helper.Call("awardGems", "in-game bonus", reason, gameId, gems);
+            //points_helper.Call("awardGems", "in-game bonus", reason, gameId, gems);
 			UnityEngine.Debug.Log("Platform: " + gameId + " awarded " + gems + " gem(s) for " + reason);
 		}
 		catch (Exception e)

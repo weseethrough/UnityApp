@@ -341,20 +341,20 @@ public class PlatformDummy : Platform
 	}
 	
 	public override void Poll() {
-		if (!timer.IsRunning) return;
-		//if (Time() - update > 1000) { 
-			distance += 4f * UnityEngine.Time.deltaTime;
-			target += targetSpeed * UnityEngine.Time.deltaTime;
-			if (random.Next() % 5 == 0) target += 1 * UnityEngine.Time.deltaTime;
-			if (random.Next() % 5 == 4) { 
-					target -= 1 * UnityEngine.Time.deltaTime;
-					bearing += 10;
-			}
-			update = Time();
-		//}
-		//if (Time () > 1000) {
-			position = new Position((float)(51.400+Math.Cos(bearing*Math.PI/180)*distance/111229d), (float)(-0.15+Math.Sin(bearing*Math.PI/180)*distance/111229d));
-		//}
+//		if (!timer.IsRunning) return;
+//		//if (Time() - update > 1000) { 
+//			distance += 4f * UnityEngine.Time.deltaTime;
+//			target += targetSpeed * UnityEngine.Time.deltaTime;
+//			if (random.Next() % 5 == 0) target += 1 * UnityEngine.Time.deltaTime;
+//			if (random.Next() % 5 == 4) { 
+//					target -= 1 * UnityEngine.Time.deltaTime;
+//					bearing += 10;
+//			}
+//			update = Time();
+//		//}
+//		//if (Time () > 1000) {
+//			position = new Position((float)(51.400+Math.Cos(bearing*Math.PI/180)*distance/111229d), (float)(-0.15+Math.Sin(bearing*Math.PI/180)*distance/111229d));
+//		//}
 
 	}
 	
@@ -402,7 +402,7 @@ public class PlatformDummy : Platform
 	}
 	
 	public Position Position() {
-		return position;
+        return new Position(0f,0f);
 	}	
 	
 	public float Bearing() {
