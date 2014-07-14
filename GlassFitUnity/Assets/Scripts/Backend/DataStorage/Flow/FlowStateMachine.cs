@@ -8,11 +8,16 @@ using System.Collections.Generic;
 /// </summary>
 public class FlowStateMachine : MonoBehaviour 
 {
+    [System.NonSerialized]
     private List<FlowState> activeFlow;
+    [System.NonSerialized]
     private List<FlowState> navigationHistory;
+    [System.NonSerialized]
     private FlowState targetState;
+    [System.NonSerialized]
     private GConnector targetStateConnector;
 
+    [System.NonSerialized]
     private bool grabAnalyticsInitialized = false;
 
     /// <summary>

@@ -29,6 +29,27 @@ public class GlassPanel : Panel
         return "GlassPanel: UnInitialzied";
     }
 
+    public override void EnterStart()
+    {
+        base.EnterStart();
+
+        Transform data = GameObjectUtils.FindChildInTree(physicalWidgetRoot.transform, "ExtraData");
+        if (data != null)
+        {
+            data.gameObject.SetActive(false);
+        }
+        
+        data = GameObjectUtils.FindChildInTree(physicalWidgetRoot.transform, "Distance");
+        if (data != null)
+        {
+            data.gameObject.SetActive(true);
+            Vector3 pos = data.transform.localPosition;
+            pos.y = 100;
+            data.transform.localPosition = pos;
+            
+        }         
+    }
+
     public override void StateUpdate()
     {
         base.StateUpdate();
@@ -47,7 +68,20 @@ public class GlassPanel : Panel
                 if (!lookingUp)
                 {
                     lookingUp = true;
-                    Play(physicalWidgetRoot, "GlassHeadUp", AnimationOrTween.Direction.Forward, true);
+                    Transform data = GameObjectUtils.FindChildInTree(physicalWidgetRoot.transform, "ExtraData");
+                    if (data != null)
+                    {
+                        data.gameObject.SetActive(true);
+                    }
+
+                    data = GameObjectUtils.FindChildInTree(physicalWidgetRoot.transform, "Distance");
+                    if (data != null)
+                    {
+                        data.gameObject.SetActive(true);
+                        Vector3 pos = data.transform.localPosition;
+                        pos.y = 0;
+                        data.transform.localPosition = pos;
+                    }
                 }
                 screenBackDelay = 3000.0f;
             }
@@ -57,7 +91,20 @@ public class GlassPanel : Panel
                 if (lookingUp && screenBackDelay <= 0)
                 {
                     lookingUp = false;
-                    Play(physicalWidgetRoot, "GlassHeadUp", AnimationOrTween.Direction.Reverse, true);
+                    Transform data = GameObjectUtils.FindChildInTree(physicalWidgetRoot.transform, "ExtraData");
+                    if (data != null)
+                    {
+                        data.gameObject.SetActive(false);
+                    }
+
+                    data = GameObjectUtils.FindChildInTree(physicalWidgetRoot.transform, "Distance");
+                    if (data != null)
+                    {
+                        data.gameObject.SetActive(true);
+                        Vector3 pos = data.transform.localPosition;
+                        pos.y = 100;
+                        data.transform.localPosition = pos;
+                    }
                 }                
             }
         }

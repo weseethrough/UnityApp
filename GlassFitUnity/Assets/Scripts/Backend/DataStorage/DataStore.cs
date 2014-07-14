@@ -44,6 +44,7 @@ public class DataStore : MonoBehaviour
     }
 
     //private properties
+    [System.NonSerialized]
     private Dictionary<string, Storage> storageBank;
 	
 //#if UNITY_EDITOR

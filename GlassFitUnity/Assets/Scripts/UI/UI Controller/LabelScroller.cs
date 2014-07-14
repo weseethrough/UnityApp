@@ -16,7 +16,7 @@ public class LabelScroller : MonoBehaviour
 	public void Start ()
 	{
 		Bounds bounds = NGUIMath.CalculateAbsoluteWidgetBounds(transform);
-		labelOffset = transform.position.y;
+		labelOffset = transform.localPosition.y;
 		labelHeight = bounds.max.y - bounds.min.y;
 	}
 
@@ -60,8 +60,8 @@ public class LabelScroller : MonoBehaviour
 			velocity = offset.y*25;
         }        
 #endif
-       
-		Vector3 position = transform.position;
+
+        Vector3 position = transform.localPosition;
 		position.y += velocity*Time.deltaTime;
 		if (position.y > labelOffset+labelHeight-cullHeight+margin) {
 			position.y = labelOffset+labelHeight-cullHeight+margin;
@@ -71,7 +71,7 @@ public class LabelScroller : MonoBehaviour
 			position.y = labelOffset-margin;
 			velocity = margin;
 		}
-		transform.position = position;
+		transform.localPosition = position;
 	}
 	
 }

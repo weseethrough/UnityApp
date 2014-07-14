@@ -125,6 +125,7 @@ public class UIManager : MonoBehaviour
             //get copy instead
             searchedInstance = (GameObject)GameObject.Instantiate(t.gameObject);
             searchedInstance.transform.parent = t.parent;
+            searchedInstance.transform.localScale = t.localScale;
             t = searchedInstance.transform;
             cloneInstanceName = "";
         }
